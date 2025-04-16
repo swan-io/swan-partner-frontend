@@ -21,9 +21,9 @@ import {
 } from "@swan-io/lake/src/constants/design";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { ChoicePicker } from "@swan-io/shared-business/src/components/ChoicePicker";
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react";
+import { Ref, useCallback, useEffect, useImperativeHandle, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   AccountHolderForCardSettingsFragment,
   Amount,
@@ -133,7 +133,12 @@ type OptionalCardSettings = {
   nonMainCurrencyTransactions?: boolean;
 };
 
+export type CardWizardSettingsRef = {
+  submit: () => void;
+};
+
 type Props = {
+  ref?: Ref<CardWizardSettingsRef>;
   cardProduct: CardProduct;
   cardFormat: CardFormat;
   initialSettings?: OptionalCardSettings;
@@ -151,8 +156,6 @@ const validate = (input: DirtyCardSettings): Result<CardSettings, ValidationErro
   }
   return errors.length > 0 ? Result.Error(errors) : Result.Ok(input as CardSettings);
 };
-
-export type CardWizardSettingsRef = { submit: () => void };
 
 type CardProduct = CardProductFragment;
 
@@ -226,379 +229,376 @@ const PERIODS = [
   { name: t("cardSettings.spendingLimit.always"), value: "Always" as const },
 ];
 
-export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
-  (
-    { accountHolder, cardFormat, initialSettings, cardProduct, onSubmit, maxSpendingLimit }: Props,
-    ref,
-  ) => {
-    const { canUpdateCard } = usePermissions();
-    const spendingLimitMaxValue = match({
-      accountHolderType: accountHolder?.info.__typename,
-      maxSpendingLimit,
-    })
-      .with({ maxSpendingLimit: P.nonNullable }, ({ maxSpendingLimit }) =>
-        Number(maxSpendingLimit.amount.value),
-      )
-      .with({ accountHolderType: "AccountHolderIndividualInfo" }, () =>
-        Number(cardProduct.individualSpendingLimit.amount.value),
-      )
-      .otherwise(() => Number(cardProduct.companySpendingLimit.amount.value));
+export const CardWizardSettings = ({
+  ref,
+  accountHolder,
+  cardFormat,
+  initialSettings,
+  cardProduct,
+  onSubmit,
+  maxSpendingLimit,
+}: Props) => {
+  const { canUpdateCard } = usePermissions();
+  const spendingLimitMaxValue = match({
+    accountHolderType: accountHolder?.info.__typename,
+    maxSpendingLimit,
+  })
+    .with({ maxSpendingLimit: P.nonNullable }, ({ maxSpendingLimit }) =>
+      Number(maxSpendingLimit.amount.value),
+    )
+    .with({ accountHolderType: "AccountHolderIndividualInfo" }, () =>
+      Number(cardProduct.individualSpendingLimit.amount.value),
+    )
+    .otherwise(() => Number(cardProduct.companySpendingLimit.amount.value));
 
-    const currency = match(accountHolder?.info.__typename)
-      .with(
-        "AccountHolderIndividualInfo",
-        () => cardProduct.individualSpendingLimit.amount.currency,
-      )
-      .otherwise(() => cardProduct.companySpendingLimit.amount.currency);
+  const currency = match(accountHolder?.info.__typename)
+    .with("AccountHolderIndividualInfo", () => cardProduct.individualSpendingLimit.amount.currency)
+    .otherwise(() => cardProduct.companySpendingLimit.amount.currency);
 
-    const [currentSettings, setCurrentSettings] = useState<DirtyCardSettings>(() => ({
-      cardName: initialSettings?.cardName,
-      spendingLimit: initialSettings?.spendingLimit ?? {
-        amount: {
-          value: cardFormat === "SingleUseVirtual" ? undefined : String(spendingLimitMaxValue),
-          currency,
-        },
-        period: cardFormat === "SingleUseVirtual" ? "Always" : "Monthly",
+  const [currentSettings, setCurrentSettings] = useState<DirtyCardSettings>(() => ({
+    cardName: initialSettings?.cardName,
+    spendingLimit: initialSettings?.spendingLimit ?? {
+      amount: {
+        value: cardFormat === "SingleUseVirtual" ? undefined : String(spendingLimitMaxValue),
+        currency,
       },
-      eCommerce: initialSettings?.eCommerce ?? true,
-      withdrawal: initialSettings?.withdrawal ?? true,
-      international: initialSettings?.international ?? true,
-      nonMainCurrencyTransactions: initialSettings?.nonMainCurrencyTransactions ?? true,
-    }));
+      period: cardFormat === "SingleUseVirtual" ? "Always" : "Monthly",
+    },
+    eCommerce: initialSettings?.eCommerce ?? true,
+    withdrawal: initialSettings?.withdrawal ?? true,
+    international: initialSettings?.international ?? true,
+    nonMainCurrencyTransactions: initialSettings?.nonMainCurrencyTransactions ?? true,
+  }));
 
-    const [validation, setValidation] = useState<ValidationError[] | null>(null);
+  const [validation, setValidation] = useState<ValidationError[] | null>(null);
 
-    useImperativeHandle(
-      ref,
-      () => ({
-        submit: () => {
-          validate(currentSettings).match({
-            Ok: cardSettings => {
-              setValidation(null);
-              onSubmit(cardSettings);
-            },
-            Error: errors => setValidation(errors),
-          });
-        },
-      }),
-      [currentSettings, onSubmit],
-    );
+  useImperativeHandle(
+    ref,
+    () => ({
+      submit: () => {
+        validate(currentSettings).match({
+          Ok: cardSettings => {
+            setValidation(null);
+            onSubmit(cardSettings);
+          },
+          Error: errors => setValidation(errors),
+        });
+      },
+    }),
+    [currentSettings, onSubmit],
+  );
 
-    const [dirtyValue, setDirtyValue] = useState(
+  const [dirtyValue, setDirtyValue] = useState(
+    isNullish(currentSettings.spendingLimit.amount.value)
+      ? undefined
+      : String(currentSettings.spendingLimit.amount.value),
+  );
+
+  useEffect(() => {
+    setDirtyValue(
       isNullish(currentSettings.spendingLimit.amount.value)
         ? undefined
         : String(currentSettings.spendingLimit.amount.value),
     );
+  }, [currentSettings.spendingLimit.amount.value]);
 
-    useEffect(() => {
-      setDirtyValue(
-        isNullish(currentSettings.spendingLimit.amount.value)
-          ? undefined
-          : String(currentSettings.spendingLimit.amount.value),
-      );
-    }, [currentSettings.spendingLimit.amount.value]);
-
-    useEffect(() => {
-      if (validation != null) {
-        validate(currentSettings).match({
-          Ok: () => setValidation(null),
-          Error: errors => setValidation(errors),
-        });
-      }
-    }, [validation, currentSettings]);
-
-    const sanitizeInput = useCallback(() => {
-      if (isNullish(dirtyValue)) {
-        return;
-      }
-      const cleanValue = Math.max(
-        Math.min(Number(dirtyValue), spendingLimitMaxValue ?? Number.POSITIVE_INFINITY),
-        0,
-      );
-      const value = Number.isNaN(cleanValue) ? 0 : cleanValue;
-      setDirtyValue(String(value));
-      setCurrentSettings({
-        ...currentSettings,
-        spendingLimit: {
-          ...currentSettings.spendingLimit,
-          amount: { ...currentSettings.spendingLimit.amount, value: String(value) },
-        },
+  useEffect(() => {
+    if (validation != null) {
+      validate(currentSettings).match({
+        Ok: () => setValidation(null),
+        Error: errors => setValidation(errors),
       });
-    }, [spendingLimitMaxValue, dirtyValue, currentSettings]);
+    }
+  }, [validation, currentSettings]);
 
-    return (
-      <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.root}>
-        {({ large }) => (
-          <>
-            <Tile>
-              <LakeLabel
-                label={t("cardSettings.name")}
-                optionalLabel={t("form.optional")}
-                render={id => (
-                  <LakeTextInput
-                    id={id}
-                    disabled={!canUpdateCard}
-                    value={currentSettings.cardName ?? ""}
-                    onChangeText={cardName =>
-                      setCurrentSettings(settings => ({
-                        ...settings,
-                        cardName,
-                      }))
-                    }
-                    onBlur={() =>
-                      setCurrentSettings(settings => ({
-                        ...settings,
-                        cardName: settings?.cardName?.trim() ?? "",
-                      }))
-                    }
-                  />
-                )}
-              />
-            </Tile>
+  const sanitizeInput = useCallback(() => {
+    if (isNullish(dirtyValue)) {
+      return;
+    }
+    const cleanValue = Math.max(
+      Math.min(Number(dirtyValue), spendingLimitMaxValue ?? Number.POSITIVE_INFINITY),
+      0,
+    );
+    const value = Number.isNaN(cleanValue) ? 0 : cleanValue;
+    setDirtyValue(String(value));
+    setCurrentSettings({
+      ...currentSettings,
+      spendingLimit: {
+        ...currentSettings.spendingLimit,
+        amount: { ...currentSettings.spendingLimit.amount, value: String(value) },
+      },
+    });
+  }, [spendingLimitMaxValue, dirtyValue, currentSettings]);
 
-            <Space height={24} />
+  return (
+    <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.root}>
+      {({ large }) => (
+        <>
+          <Tile>
+            <LakeLabel
+              label={t("cardSettings.name")}
+              optionalLabel={t("form.optional")}
+              render={id => (
+                <LakeTextInput
+                  id={id}
+                  disabled={!canUpdateCard}
+                  value={currentSettings.cardName ?? ""}
+                  onChangeText={cardName =>
+                    setCurrentSettings(settings => ({
+                      ...settings,
+                      cardName,
+                    }))
+                  }
+                  onBlur={() =>
+                    setCurrentSettings(settings => ({
+                      ...settings,
+                      cardName: settings?.cardName?.trim() ?? "",
+                    }))
+                  }
+                />
+              )}
+            />
+          </Tile>
 
-            {spendingLimitMaxValue != null ? (
-              <>
-                {cardFormat !== "SingleUseVirtual" ? (
-                  <Tile title={large ? t("card.settings.spendingLimit") : undefined}>
-                    <View style={large ? styles.sliderContainerLarge : styles.sliderContainer}>
-                      <LakeLabel
-                        label={t("card.settings.spendingLimit")}
-                        render={id => (
-                          <ResponsiveContainer
-                            breakpoint={breakpoints.tiny}
-                            style={styles.container}
-                          >
-                            {({ large }) =>
-                              large ? (
-                                <>
-                                  <Box
-                                    direction="row"
-                                    justifyContent="end"
-                                    style={styles.sliderInput}
-                                  >
-                                    <View>
-                                      <LakeTextInput
-                                        style={styles.input}
-                                        unit={"€"}
-                                        value={dirtyValue}
-                                        onChangeText={setDirtyValue}
-                                        onBlur={sanitizeInput}
-                                        inputMode="decimal"
-                                        disabled={!canUpdateCard}
-                                      />
-                                    </View>
-                                  </Box>
+          <Space height={24} />
 
-                                  <LakeSlider
-                                    value={Number(currentSettings.spendingLimit.amount.value)}
-                                    min={0}
-                                    max={spendingLimitMaxValue}
-                                    step={1}
-                                    disabled={!canUpdateCard}
-                                    onChange={value =>
-                                      setCurrentSettings(settings => ({
-                                        ...settings,
-                                        spendingLimit: {
-                                          ...settings.spendingLimit,
-                                          amount: {
-                                            ...settings.spendingLimit.amount,
-                                            value: String(value),
-                                          },
-                                        },
-                                      }))
-                                    }
-                                  />
-                                </>
-                              ) : (
-                                <LakeTextInput
-                                  id={id}
-                                  unit={"€"}
-                                  value={dirtyValue}
-                                  onChangeText={setDirtyValue}
-                                  onBlur={sanitizeInput}
-                                  inputMode="decimal"
+          {spendingLimitMaxValue != null ? (
+            <>
+              {cardFormat !== "SingleUseVirtual" ? (
+                <Tile title={large ? t("card.settings.spendingLimit") : undefined}>
+                  <View style={large ? styles.sliderContainerLarge : styles.sliderContainer}>
+                    <LakeLabel
+                      label={t("card.settings.spendingLimit")}
+                      render={id => (
+                        <ResponsiveContainer breakpoint={breakpoints.tiny} style={styles.container}>
+                          {({ large }) =>
+                            large ? (
+                              <>
+                                <Box
+                                  direction="row"
+                                  justifyContent="end"
+                                  style={styles.sliderInput}
+                                >
+                                  <View>
+                                    <LakeTextInput
+                                      style={styles.input}
+                                      unit={"€"}
+                                      value={dirtyValue}
+                                      onChangeText={setDirtyValue}
+                                      onBlur={sanitizeInput}
+                                      inputMode="decimal"
+                                      disabled={!canUpdateCard}
+                                    />
+                                  </View>
+                                </Box>
+
+                                <LakeSlider
+                                  value={Number(currentSettings.spendingLimit.amount.value)}
+                                  min={0}
+                                  max={spendingLimitMaxValue}
+                                  step={1}
                                   disabled={!canUpdateCard}
+                                  onChange={value =>
+                                    setCurrentSettings(settings => ({
+                                      ...settings,
+                                      spendingLimit: {
+                                        ...settings.spendingLimit,
+                                        amount: {
+                                          ...settings.spendingLimit.amount,
+                                          value: String(value),
+                                        },
+                                      },
+                                    }))
+                                  }
                                 />
-                              )
-                            }
-                          </ResponsiveContainer>
-                        )}
+                              </>
+                            ) : (
+                              <LakeTextInput
+                                id={id}
+                                unit={"€"}
+                                value={dirtyValue}
+                                onChangeText={setDirtyValue}
+                                onBlur={sanitizeInput}
+                                inputMode="decimal"
+                                disabled={!canUpdateCard}
+                              />
+                            )
+                          }
+                        </ResponsiveContainer>
+                      )}
+                    />
+                  </View>
+
+                  <Space height={16} />
+
+                  <LakeLabel
+                    label={t("cardSettings.spendingLimit.period")}
+                    render={id => (
+                      <LakeSelect
+                        id={id}
+                        items={PERIODS}
+                        value={currentSettings.spendingLimit.period}
+                        disabled={!canUpdateCard}
+                        onValueChange={period =>
+                          setCurrentSettings({
+                            ...currentSettings,
+                            spendingLimit: {
+                              ...currentSettings.spendingLimit,
+                              period,
+                            },
+                          })
+                        }
                       />
-                    </View>
-
-                    <Space height={16} />
-
-                    <LakeLabel
-                      label={t("cardSettings.spendingLimit.period")}
-                      render={id => (
-                        <LakeSelect
-                          id={id}
-                          items={PERIODS}
-                          value={currentSettings.spendingLimit.period}
-                          disabled={!canUpdateCard}
-                          onValueChange={period =>
-                            setCurrentSettings({
-                              ...currentSettings,
-                              spendingLimit: {
-                                ...currentSettings.spendingLimit,
-                                period,
-                              },
-                            })
-                          }
-                        />
-                      )}
-                    />
-                  </Tile>
-                ) : (
-                  <Tile>
-                    <LakeLabel
-                      label={t("cardSettings.amount")}
-                      render={id => (
-                        <LakeTextInput
-                          id={id}
-                          unit="€"
-                          value={dirtyValue ?? ""}
-                          onChangeText={setDirtyValue}
-                          onBlur={sanitizeInput}
-                          inputMode="decimal"
-                          disabled={!canUpdateCard}
-                          error={
-                            (validation?.includes("InvalidAmount") ?? false)
-                              ? t("common.form.invalidAmount")
-                              : undefined
-                          }
-                        />
-                      )}
-                    />
-                  </Tile>
-                )}
-
-                <Space height={12} />
-              </>
-            ) : null}
-
-            {cardFormat !== "SingleUseVirtual" ? (
-              <View style={large ? styles.booleanTiles : styles.booleanTilesMobile}>
-                <View style={styles.booleanTile}>
-                  <CardWizardSettingsBooleanTile
-                    title={t("card.settings.eCommerce")}
-                    description={t("card.settings.eCommerce.description")}
-                    icon="cart-regular"
-                    checked={currentSettings.eCommerce}
-                    onChange={eCommerce =>
-                      setCurrentSettings(settings => ({ ...settings, eCommerce }))
-                    }
-                    disabled={!canUpdateCard}
-                    desktop={large}
+                    )}
                   />
-                </View>
-
-                <View style={styles.booleanTile}>
-                  <CardWizardSettingsBooleanTile
-                    title={t("card.settings.withdrawal")}
-                    description={t("card.settings.withdrawal.description")}
-                    icon="money-regular"
-                    checked={currentSettings.withdrawal}
-                    onChange={withdrawal =>
-                      setCurrentSettings(settings => ({ ...settings, withdrawal }))
-                    }
-                    disabled={!canUpdateCard}
-                    desktop={large}
+                </Tile>
+              ) : (
+                <Tile>
+                  <LakeLabel
+                    label={t("cardSettings.amount")}
+                    render={id => (
+                      <LakeTextInput
+                        id={id}
+                        unit="€"
+                        value={dirtyValue ?? ""}
+                        onChangeText={setDirtyValue}
+                        onBlur={sanitizeInput}
+                        inputMode="decimal"
+                        disabled={!canUpdateCard}
+                        error={
+                          (validation?.includes("InvalidAmount") ?? false)
+                            ? t("common.form.invalidAmount")
+                            : undefined
+                        }
+                      />
+                    )}
                   />
-                </View>
+                </Tile>
+              )}
 
-                <View style={styles.booleanTile}>
-                  <CardWizardSettingsBooleanTile
-                    title={t("card.settings.nonMainCurrencyTransactions")}
-                    description={t("card.settings.nonMainCurrencyTransactions.description")}
-                    icon="lake-currencies"
-                    checked={currentSettings.nonMainCurrencyTransactions}
-                    onChange={nonMainCurrencyTransactions =>
-                      setCurrentSettings(settings => ({ ...settings, nonMainCurrencyTransactions }))
-                    }
-                    disabled={!canUpdateCard}
-                    desktop={large}
-                  />
-                </View>
+              <Space height={12} />
+            </>
+          ) : null}
 
-                <View style={styles.booleanTile}>
-                  <CardWizardSettingsBooleanTile
-                    title={t("card.settings.international")}
-                    description={t("card.settings.international.description")}
-                    icon="earth-regular"
-                    checked={currentSettings.international}
-                    onChange={international =>
-                      setCurrentSettings(settings => ({ ...settings, international }))
-                    }
-                    disabled={!canUpdateCard}
-                    desktop={large}
-                  />
-                </View>
+          {cardFormat !== "SingleUseVirtual" ? (
+            <View style={large ? styles.booleanTiles : styles.booleanTilesMobile}>
+              <View style={styles.booleanTile}>
+                <CardWizardSettingsBooleanTile
+                  title={t("card.settings.eCommerce")}
+                  description={t("card.settings.eCommerce.description")}
+                  icon="cart-regular"
+                  checked={currentSettings.eCommerce}
+                  onChange={eCommerce =>
+                    setCurrentSettings(settings => ({ ...settings, eCommerce }))
+                  }
+                  disabled={!canUpdateCard}
+                  desktop={large}
+                />
               </View>
-            ) : (
-              <ChoicePicker
-                large={true}
-                items={["Always" as const, "Monthly" as const]}
-                value={currentSettings.spendingLimit.period}
-                onChange={period =>
-                  setCurrentSettings({
-                    ...currentSettings,
-                    spendingLimit: {
-                      ...currentSettings.spendingLimit,
-                      period,
-                    },
-                  })
-                }
-                disabled={!canUpdateCard}
-                renderItem={period => {
-                  return (
-                    <View style={styles.item}>
-                      <Box alignItems="center">
-                        <Icon
-                          color={
-                            currentSettings.spendingLimit.period === period
-                              ? colors.swan[300]
-                              : colors.swan[200]
-                          }
-                          size={148}
-                          name={period === "Always" ? "lake-card-one-off" : "lake-card-recurring"}
-                        />
 
-                        <Space height={24} />
+              <View style={styles.booleanTile}>
+                <CardWizardSettingsBooleanTile
+                  title={t("card.settings.withdrawal")}
+                  description={t("card.settings.withdrawal.description")}
+                  icon="money-regular"
+                  checked={currentSettings.withdrawal}
+                  onChange={withdrawal =>
+                    setCurrentSettings(settings => ({ ...settings, withdrawal }))
+                  }
+                  disabled={!canUpdateCard}
+                  desktop={large}
+                />
+              </View>
 
-                        <LakeHeading userSelect="none" level={3} variant="h3">
-                          {period === "Always"
-                            ? t("cards.periodicity.oneOff")
-                            : t("cards.periodicity.recurring")}
-                        </LakeHeading>
+              <View style={styles.booleanTile}>
+                <CardWizardSettingsBooleanTile
+                  title={t("card.settings.nonMainCurrencyTransactions")}
+                  description={t("card.settings.nonMainCurrencyTransactions.description")}
+                  icon="lake-currencies"
+                  checked={currentSettings.nonMainCurrencyTransactions}
+                  onChange={nonMainCurrencyTransactions =>
+                    setCurrentSettings(settings => ({ ...settings, nonMainCurrencyTransactions }))
+                  }
+                  disabled={!canUpdateCard}
+                  desktop={large}
+                />
+              </View>
 
-                        <Space height={12} />
+              <View style={styles.booleanTile}>
+                <CardWizardSettingsBooleanTile
+                  title={t("card.settings.international")}
+                  description={t("card.settings.international.description")}
+                  icon="earth-regular"
+                  checked={currentSettings.international}
+                  onChange={international =>
+                    setCurrentSettings(settings => ({ ...settings, international }))
+                  }
+                  disabled={!canUpdateCard}
+                  desktop={large}
+                />
+              </View>
+            </View>
+          ) : (
+            <ChoicePicker
+              large={true}
+              items={["Always" as const, "Monthly" as const]}
+              value={currentSettings.spendingLimit.period}
+              onChange={period =>
+                setCurrentSettings({
+                  ...currentSettings,
+                  spendingLimit: {
+                    ...currentSettings.spendingLimit,
+                    period,
+                  },
+                })
+              }
+              disabled={!canUpdateCard}
+              renderItem={period => {
+                return (
+                  <View style={styles.item}>
+                    <Box alignItems="center">
+                      <Icon
+                        color={
+                          currentSettings.spendingLimit.period === period
+                            ? colors.swan[300]
+                            : colors.swan[200]
+                        }
+                        size={148}
+                        name={period === "Always" ? "lake-card-one-off" : "lake-card-recurring"}
+                      />
 
-                        <View style={styles.descriptionContainer}>
-                          <LakeText
-                            userSelect="none"
-                            variant="smallRegular"
-                            align="center"
-                            style={styles.description}
-                          >
-                            {period === "Always"
-                              ? t("cards.periodicity.oneOff.description")
-                              : t("cards.periodicity.recurring.description")}
-                          </LakeText>
-                        </View>
-                      </Box>
+                      <Space height={24} />
+
+                      <LakeHeading userSelect="none" level={3} variant="h3">
+                        {period === "Always"
+                          ? t("cards.periodicity.oneOff")
+                          : t("cards.periodicity.recurring")}
+                      </LakeHeading>
 
                       <Space height={12} />
-                    </View>
-                  );
-                }}
-              />
-            )}
-          </>
-        )}
-      </ResponsiveContainer>
-    );
-  },
-);
+
+                      <View style={styles.descriptionContainer}>
+                        <LakeText
+                          userSelect="none"
+                          variant="smallRegular"
+                          align="center"
+                          style={styles.description}
+                        >
+                          {period === "Always"
+                            ? t("cards.periodicity.oneOff.description")
+                            : t("cards.periodicity.recurring.description")}
+                        </LakeText>
+                      </View>
+                    </Box>
+
+                    <Space height={12} />
+                  </View>
+                );
+              }}
+            />
+          )}
+        </>
+      )}
+    </ResponsiveContainer>
+  );
+};

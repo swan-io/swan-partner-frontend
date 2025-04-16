@@ -1,7 +1,7 @@
 import { Option } from "@swan-io/boxed";
 import { RadioGroup, RadioGroupItem } from "@swan-io/lake/src/components/RadioGroup";
 import { useForm } from "@swan-io/use-form";
-import { forwardRef, useImperativeHandle } from "react";
+import { Ref, useImperativeHandle } from "react";
 import { t } from "../utils/i18n";
 
 export type CardItemPhysicalChoosePinFormRef = {
@@ -13,6 +13,7 @@ export type EditorState = {
 };
 
 type Props = {
+  ref?: Ref<CardItemPhysicalChoosePinFormRef>;
   onSubmit: (editorState: EditorState) => void;
 };
 
@@ -27,32 +28,30 @@ const items: RadioGroupItem<boolean>[] = [
   },
 ];
 
-export const CardItemPhysicalChoosePinForm = forwardRef<CardItemPhysicalChoosePinFormRef, Props>(
-  ({ onSubmit }, ref) => {
-    const { Field, submitForm } = useForm({
-      choosePin: {
-        initialValue: true,
-      },
-    });
+export const CardItemPhysicalChoosePinForm = ({ ref, onSubmit }: Props) => {
+  const { Field, submitForm } = useForm({
+    choosePin: {
+      initialValue: true,
+    },
+  });
 
-    useImperativeHandle(ref, () => ({
-      submit: () => {
-        submitForm({
-          onSuccess: values => {
-            Option.allFromDict(values).tapSome(onSubmit);
-          },
-        });
-      },
-    }));
+  useImperativeHandle(ref, () => ({
+    submit: () => {
+      submitForm({
+        onSuccess: values => {
+          Option.allFromDict(values).tapSome(onSubmit);
+        },
+      });
+    },
+  }));
 
-    return (
-      <>
-        <Field name="choosePin">
-          {({ value, onChange }) => (
-            <RadioGroup items={items} onValueChange={onChange} value={value} />
-          )}
-        </Field>
-      </>
-    );
-  },
-);
+  return (
+    <>
+      <Field name="choosePin">
+        {({ value, onChange }) => (
+          <RadioGroup items={items} onValueChange={onChange} value={value} />
+        )}
+      </Field>
+    </>
+  );
+};

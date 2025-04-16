@@ -19,7 +19,7 @@ import {
   validateRequired,
 } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
-import { forwardRef, useCallback, useImperativeHandle } from "react";
+import { Ref, useCallback, useImperativeHandle } from "react";
 import { View } from "react-native";
 import { P, match } from "ts-pattern";
 import { AccountCountry } from "../../../graphql/unauthenticated";
@@ -41,7 +41,13 @@ export type Input = {
   taxIdentificationNumber?: string;
 };
 
+export type OnboardingCompanyOwnershipBeneficiaryFormAddressRef = {
+  getInput: () => Input;
+  submit: () => void;
+};
+
 type Props = {
+  ref?: Ref<OnboardingCompanyOwnershipBeneficiaryFormAddressRef>;
   placekitApiKey: string | undefined;
   accountCountry: AccountCountry;
   companyCountry: CountryCCA3;
@@ -49,15 +55,14 @@ type Props = {
   onSave: (input: Input) => void | Promise<void>;
 };
 
-export type OnboardingCompanyOwnershipBeneficiaryFormAddressRef = {
-  getInput: () => Input;
-  submit: () => void;
-};
-
-export const OnboardingCompanyOwnershipBeneficiaryFormAddress = forwardRef<
-  OnboardingCompanyOwnershipBeneficiaryFormAddressRef,
-  Props
->(({ placekitApiKey, accountCountry, companyCountry, initialValues, onSave }, ref) => {
+export const OnboardingCompanyOwnershipBeneficiaryFormAddress = ({
+  ref,
+  placekitApiKey,
+  accountCountry,
+  companyCountry,
+  initialValues,
+  onSave,
+}: Props) => {
   const { Field, FieldsListener, getFieldValue, setFieldValue, submitForm } = useForm<FormValues>({
     residencyAddressLine1: {
       initialValue: initialValues.residencyAddressLine1 ?? "",
@@ -280,4 +285,4 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = forwardRef<
       </FieldsListener>
     </View>
   );
-});
+};

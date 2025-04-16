@@ -5,7 +5,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { ChoicePicker } from "@swan-io/shared-business/src/components/ChoicePicker";
-import { CSSProperties, forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import { CSSProperties, Ref, useEffect, useImperativeHandle, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { GetCardProductsQuery } from "../graphql/partner";
@@ -40,120 +40,127 @@ type CardProduct = NonNullable<GetCardProductsQuery["projectInfo"]["cardProducts
 
 type AccountHolderType = "Company" | "Individual";
 
+export type CardWizardProductRef = {
+  submit: () => void;
+};
+
 type Props = {
+  ref?: Ref<CardWizardProductRef>;
   accountHolderType: AccountHolderType;
   cardProducts: NonNullable<GetCardProductsQuery["projectInfo"]["cardProducts"]>;
   initialCardProduct?: CardProduct;
   onSubmit: (cardProduct: CardProduct) => void;
 };
 
-export type CardWizardProductRef = { submit: () => void };
+export const CardWizardProduct = ({
+  ref,
+  accountHolderType,
+  cardProducts,
+  initialCardProduct,
+  onSubmit,
+}: Props) => {
+  const [currentCardProduct, setCurrentCardProduct] = useState<CardProduct | undefined>(
+    () => initialCardProduct ?? cardProducts.find(cardProduct => cardProduct.defaultCardProduct),
+  );
 
-export const CardWizardProduct = forwardRef<CardWizardProductRef, Props>(
-  ({ accountHolderType, cardProducts, initialCardProduct, onSubmit }: Props, ref) => {
-    const [currentCardProduct, setCurrentCardProduct] = useState<CardProduct | undefined>(
-      () => initialCardProduct ?? cardProducts.find(cardProduct => cardProduct.defaultCardProduct),
-    );
+  useImperativeHandle(
+    ref,
+    () => ({
+      submit: () => {
+        if (currentCardProduct != null) {
+          onSubmit(currentCardProduct);
+        }
+      },
+    }),
+    [currentCardProduct, onSubmit],
+  );
 
-    useImperativeHandle(
-      ref,
-      () => ({
-        submit: () => {
-          if (currentCardProduct != null) {
-            onSubmit(currentCardProduct);
-          }
-        },
-      }),
-      [currentCardProduct, onSubmit],
-    );
+  useEffect(() => {
+    if (cardProducts.length <= 1 && cardProducts[0] != null) {
+      onSubmit(cardProducts[0]);
+    }
+  }, [cardProducts, onSubmit]);
 
-    useEffect(() => {
-      if (cardProducts.length <= 1 && cardProducts[0] != null) {
-        onSubmit(cardProducts[0]);
-      }
-    }, [cardProducts, onSubmit]);
+  return (
+    <ChoicePicker
+      items={cardProducts}
+      renderItem={cardProduct => {
+        const cardDesign = cardProduct.cardDesigns.find(item => item.status === "Enabled");
+        const cardDesignUrl = cardDesign?.cardDesignUrl;
 
-    return (
-      <ChoicePicker
-        items={cardProducts}
-        renderItem={cardProduct => {
-          const cardDesign = cardProduct.cardDesigns.find(item => item.status === "Enabled");
-          const cardDesignUrl = cardDesign?.cardDesignUrl;
+        return (
+          <View style={styles.item}>
+            <View style={styles.image}>
+              <svg viewBox="0 0 1536 969" />
 
-          return (
-            <View style={styles.item}>
-              <View style={styles.image}>
-                <svg viewBox="0 0 1536 969" />
-
-                {cardDesignUrl != null ? (
-                  <View style={styles.cardDesignContainer}>
-                    <img src={cardDesignUrl} style={IMAGE_STYLE} />
-                  </View>
-                ) : null}
-              </View>
-
-              <Space height={24} />
-
-              <LakeHeading
-                level={3}
-                variant="h5"
-                align="center"
-                color={currentCardProduct?.id === cardProduct.id ? colors.current[500] : undefined}
-              >
-                {cardProduct.name}
-              </LakeHeading>
-
-              <Space height={12} />
-
-              <LakeText align="center" variant="smallRegular">
-                {t("cards.maxSpendingLimit")}
-              </LakeText>
-
-              <LakeText align="center" variant="smallSemibold" color={colors.gray[700]}>
-                {match(accountHolderType)
-                  .with("Company", () =>
-                    t("card.maxSpendingLimits.perMonth", {
-                      value: formatCurrency(
-                        Number(cardProduct.companySpendingLimit.amount.value),
-                        cardProduct.companySpendingLimit.amount.currency,
-                      ),
-                    }),
-                  )
-                  .with("Individual", () =>
-                    t("card.maxSpendingLimits.perMonth", {
-                      value: formatCurrency(
-                        Number(cardProduct.individualSpendingLimit.amount.value),
-                        cardProduct.individualSpendingLimit.amount.currency,
-                      ),
-                    }),
-                  )
-                  .exhaustive()}
-              </LakeText>
-
-              <Box alignItems="center">
-                {cardProduct.applicableToPhysicalCards ? (
-                  <>
-                    <Space height={24} />
-
-                    <LakeText align="center" variant="smallRegular">
-                      {t("cards.availableFormats")}
-                    </LakeText>
-
-                    <Space height={4} />
-
-                    <Tag color="shakespear" icon="payment-regular">
-                      {t("cards.format.physical")}
-                    </Tag>
-                  </>
-                ) : null}
-              </Box>
+              {cardDesignUrl != null ? (
+                <View style={styles.cardDesignContainer}>
+                  <img src={cardDesignUrl} style={IMAGE_STYLE} />
+                </View>
+              ) : null}
             </View>
-          );
-        }}
-        value={currentCardProduct}
-        getId={item => item.id}
-        onChange={setCurrentCardProduct}
-      />
-    );
-  },
-);
+
+            <Space height={24} />
+
+            <LakeHeading
+              level={3}
+              variant="h5"
+              align="center"
+              color={currentCardProduct?.id === cardProduct.id ? colors.current[500] : undefined}
+            >
+              {cardProduct.name}
+            </LakeHeading>
+
+            <Space height={12} />
+
+            <LakeText align="center" variant="smallRegular">
+              {t("cards.maxSpendingLimit")}
+            </LakeText>
+
+            <LakeText align="center" variant="smallSemibold" color={colors.gray[700]}>
+              {match(accountHolderType)
+                .with("Company", () =>
+                  t("card.maxSpendingLimits.perMonth", {
+                    value: formatCurrency(
+                      Number(cardProduct.companySpendingLimit.amount.value),
+                      cardProduct.companySpendingLimit.amount.currency,
+                    ),
+                  }),
+                )
+                .with("Individual", () =>
+                  t("card.maxSpendingLimits.perMonth", {
+                    value: formatCurrency(
+                      Number(cardProduct.individualSpendingLimit.amount.value),
+                      cardProduct.individualSpendingLimit.amount.currency,
+                    ),
+                  }),
+                )
+                .exhaustive()}
+            </LakeText>
+
+            <Box alignItems="center">
+              {cardProduct.applicableToPhysicalCards ? (
+                <>
+                  <Space height={24} />
+
+                  <LakeText align="center" variant="smallRegular">
+                    {t("cards.availableFormats")}
+                  </LakeText>
+
+                  <Space height={4} />
+
+                  <Tag color="shakespear" icon="payment-regular">
+                    {t("cards.format.physical")}
+                  </Tag>
+                </>
+              ) : null}
+            </Box>
+          </View>
+        );
+      }}
+      value={currentCardProduct}
+      getId={item => item.id}
+      onChange={setCurrentCardProduct}
+    />
+  );
+};

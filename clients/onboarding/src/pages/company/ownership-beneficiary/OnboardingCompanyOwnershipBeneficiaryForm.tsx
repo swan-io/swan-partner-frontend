@@ -80,9 +80,9 @@ export const OnboardingCompanyOwnershipBeneficiaryForm = ({
     .otherwise(() => false);
 
   const [reference] = useState(() => initialValues[REFERENCE_SYMBOL] ?? uuid());
-  const commonRef = useRef<OnboardingCompanyOwnershipBeneficiaryFormCommonRef | null>(null);
-  const addressRef = useRef<OnboardingCompanyOwnershipBeneficiaryFormAddressRef | null>(null);
-  const identityRef = useRef<OnboardingCompanyOwnershipBeneficiaryFormIdentityRef | null>(null);
+  const commonRef = useRef<OnboardingCompanyOwnershipBeneficiaryFormCommonRef>(null);
+  const addressRef = useRef<OnboardingCompanyOwnershipBeneficiaryFormAddressRef>(null);
+  const identityRef = useRef<OnboardingCompanyOwnershipBeneficiaryFormIdentityRef>(null);
 
   useImperativeHandle(ref, () => {
     return {

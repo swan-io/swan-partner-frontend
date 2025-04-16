@@ -8,7 +8,6 @@ import { MerchantPaymentsQuery } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
-import { useTgglFlag } from "../utils/tggl";
 import { CheckDeclarationWizard } from "./CheckDeclarationWizard";
 import { MerchantProfilePaymentLinkNew } from "./MerchantProfilePaymentLinkNew";
 import { TypePickerLink } from "./TypePickerLink";
@@ -56,8 +55,6 @@ export const MerchantProfilePaymentPicker = ({
 }: Props) => {
   const { merchantProfileId, accountMembershipId } = params;
 
-  const checkDeclarationEnabled = useTgglFlag("checks").getOr(false);
-
   const permissions = usePermissions();
 
   return (
@@ -80,21 +77,19 @@ export const MerchantProfilePaymentPicker = ({
                 />
               )}
 
-              {shouldEnableCheckTile &&
-                permissions.canRequestMerchantChecksPaymentMethod &&
-                checkDeclarationEnabled && (
-                  <TypePickerLink
-                    style={{ animationDelay: `${1 * 150}ms` }}
-                    icon="lake-clock-arrow-swap"
-                    title={t("merchantProfile.payments.tile.check")}
-                    subtitle={t("merchantProfile.payments.tile.check.subtitle")}
-                    url={Router.AccountMerchantsProfileSettings({
-                      accountMembershipId,
-                      merchantProfileId,
-                      check: "declare",
-                    })}
-                  />
-                )}
+              {shouldEnableCheckTile && permissions.canRequestMerchantChecksPaymentMethod && (
+                <TypePickerLink
+                  style={{ animationDelay: `${1 * 150}ms` }}
+                  icon="lake-clock-arrow-swap"
+                  title={t("merchantProfile.payments.tile.check")}
+                  subtitle={t("merchantProfile.payments.tile.check.subtitle")}
+                  url={Router.AccountMerchantsProfileSettings({
+                    accountMembershipId,
+                    merchantProfileId,
+                    check: "declare",
+                  })}
+                />
+              )}
             </Stack>
           </View>
         )}

@@ -37,16 +37,12 @@ type Props = {
   shouldEnableCheckTile: boolean;
   shouldEnablePaymentLinkTile: boolean;
   merchantProfile: NonNullable<MerchantPaymentsQuery["merchantProfile"]>;
-  setPickerModal: {
-    open: () => void;
-    close: () => void;
-    toggle: () => void;
-  };
+  closeModal: () => void;
   setShouldShowTopbar: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const MerchantProfilePaymentPicker = ({
-  setPickerModal,
+  closeModal,
   params,
   shouldEnableCheckTile,
   shouldEnablePaymentLinkTile,
@@ -104,7 +100,7 @@ export const MerchantProfilePaymentPicker = ({
           paymentMethods={merchantProfile.merchantPaymentMethods ?? []}
           onPressClose={() => {
             setShouldShowTopbar(true);
-            setPickerModal.close();
+            closeModal();
             Router.push("AccountMerchantsProfilePaymentsList", {
               accountMembershipId,
               merchantProfileId,

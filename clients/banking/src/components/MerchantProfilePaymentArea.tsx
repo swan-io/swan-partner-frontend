@@ -307,7 +307,7 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
             <>
               {pickerVisible && isNotNullish(merchantProfile) ? (
                 <MerchantProfilePaymentPicker
-                  setPickerModal={setPickerModal}
+                  closeModal={setPickerModal.close}
                   setShouldShowTopbar={setShouldShowTopbar}
                   params={params}
                   shouldEnableCheckTile={shouldEnableCheckTile}

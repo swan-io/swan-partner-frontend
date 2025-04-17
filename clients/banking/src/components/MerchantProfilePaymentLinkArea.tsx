@@ -85,7 +85,7 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
     filters,
   });
 
-  const panelRef = useRef<FocusTrapRef | null>(null);
+  const panelRef = useRef<FocusTrapRef>(null);
 
   const onActiveRowChange = useCallback(
     (element: HTMLElement) => panelRef.current?.setInitiallyFocusedElement(element),

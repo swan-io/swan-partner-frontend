@@ -6,9 +6,9 @@ import { deriveUnion } from "@swan-io/lake/src/utils/function";
 import { InlineDatePicker } from "@swan-io/shared-business/src/components/InlineDatePicker";
 import { validateNullableRequired } from "@swan-io/shared-business/src/utils/validation";
 import { useForm } from "@swan-io/use-form";
-import { forwardRef, useImperativeHandle } from "react";
+import { Ref, useImperativeHandle } from "react";
 import { View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { UboIdentityDocumentType } from "../../../graphql/unauthenticated";
 import { t } from "../../../utils/i18n";
 import { validateRequired } from "../../../utils/validation";
@@ -29,14 +29,15 @@ export type Input = {
   identityDocumentIssuingAuthority?: string;
 };
 
-type Props = {
-  initialValues: Partial<Input>;
-  onSave: (input: Input) => void | Promise<void>;
-};
-
 export type OnboardingCompanyOwnershipBeneficiaryFormIdentityRef = {
   getInput: () => Input;
   submit: () => void;
+};
+
+type Props = {
+  ref?: Ref<OnboardingCompanyOwnershipBeneficiaryFormIdentityRef>;
+  initialValues: Partial<Input>;
+  onSave: (input: Input) => void | Promise<void>;
 };
 
 const types = deriveUnion<UboIdentityDocumentType>({
@@ -50,10 +51,11 @@ const types = deriveUnion<UboIdentityDocumentType>({
   value,
 }));
 
-export const OnboardingCompanyOwnershipBeneficiaryFormIdentity = forwardRef<
-  OnboardingCompanyOwnershipBeneficiaryFormIdentityRef,
-  Props
->(({ initialValues, onSave }, ref) => {
+export const OnboardingCompanyOwnershipBeneficiaryFormIdentity = ({
+  ref,
+  initialValues,
+  onSave,
+}: Props) => {
   const { Field, getFieldValue, submitForm } = useForm<FormValues>({
     identityDocumentType: {
       initialValue: initialValues.identityDocumentType,
@@ -197,4 +199,4 @@ export const OnboardingCompanyOwnershipBeneficiaryFormIdentity = forwardRef<
       </Field>
     </View>
   );
-});
+};

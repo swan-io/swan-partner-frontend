@@ -204,6 +204,7 @@ export const CardWizard = ({
   preselectedAccountMembership,
 }: Props) => {
   const [data, { setVariables }] = useQuery(GetCardProductsDocument, {
+    accountId: accountMembership.accountId,
     accountMembershipId: accountMembership.id,
     first: 20,
   });

@@ -68,7 +68,7 @@ export type CardWizardMembersRef = {
 type Props = {
   ref?: Ref<CardWizardMembersRef>;
   initialMemberships?: Member[];
-  account: GetEligibleCardMembershipsQuery["account"];
+  accountMemberships: GetEligibleCardMembershipsQuery["accountMemberships"];
   style?: StyleProp<ViewStyle>;
   contentContainerStyle?: StyleProp<ViewStyle>;
   onSubmit: (currentMembers: Member[]) => void;
@@ -78,7 +78,7 @@ type Props = {
 export const CardWizardMembers = ({
   ref,
   initialMemberships,
-  account,
+  accountMemberships,
   style,
   contentContainerStyle,
   onSubmit,
@@ -100,9 +100,7 @@ export const CardWizardMembers = ({
 
   const selectedIds = useMemo(() => new Set(currentMembers.map(item => item.id)), [currentMembers]);
 
-  const connection = account?.memberships;
-
-  const memberships = useForwardPagination(connection);
+  const memberships = useForwardPagination(accountMemberships);
 
   const onScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {

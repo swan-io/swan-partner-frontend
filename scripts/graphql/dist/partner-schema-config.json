@@ -325,6 +325,12 @@
       "CompleteDigitalCard",
       "PendingDigitalCard"
     ],
+    "VerificationRenewal": [
+      "CompletedVerificationRenewal",
+      "PendingVerificationRenewal",
+      "RefusedVerificationRenewal",
+      "WaitingForInformationVerificationRenewal"
+    ],
     "StatementInfo": [
       "CsvStatement",
       "PdfStatement"

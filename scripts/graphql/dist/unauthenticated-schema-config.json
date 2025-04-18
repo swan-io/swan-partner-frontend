@@ -180,6 +180,12 @@
       "CompleteDigitalCard",
       "PendingDigitalCard"
     ],
+    "VerificationRenewal": [
+      "CompletedVerificationRenewal",
+      "PendingVerificationRenewal",
+      "RefusedVerificationRenewal",
+      "WaitingForInformationVerificationRenewal"
+    ],
     "CompleteDigitalCardStatusInfo": [
       "DigitalCardCanceledStatusInfo",
       "DigitalCardEnabledStatusInfo",

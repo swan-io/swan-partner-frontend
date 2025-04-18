@@ -23,23 +23,8 @@ type Account {
   """Payment level"""
   paymentLevel: PaymentLevel!
 
-  """
-  Bank Identifier Code
-  Only if the account membership has `canViewAccount=true` & this account has `paymentLevel=Unlimited`
-  """
-  BIC: BIC!
-
-  """
-  International Bank Account Number
-  Only if the account membership has `canViewAccount=true` & this account has `paymentLevel=Unlimited`
-  """
-  IBAN: IBAN
-
   """Currency"""
   currency: Currency!
-
-  """`true` if the main IBAN refuses all Sepa Direct Debit received"""
-  blockSDD: Boolean
 
   """Status of the account"""
   statusInfo: AccountStatusInfo!
@@ -121,6 +106,21 @@ type Account {
 
   """Download link to the main account iban's bank details"""
   bankDetails: String
+
+  """
+  Bank Identifier Code
+  Only if the account membership has `canViewAccount=true` & this account has `paymentLevel=Unlimited`
+  """
+  BIC: BIC!
+
+  """
+  International Bank Account Number
+  Only if the account membership has `canViewAccount=true` & this account has `paymentLevel=Unlimited`
+  """
+  IBAN: IBAN
+
+  """`true` if the main IBAN refuses all Sepa Direct Debit received"""
+  blockSDD: Boolean
 
   """
   A list of invoices of an account.
@@ -409,6 +409,9 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
   - either the natural person (s) who exercise, by other means, a power of control of the company;
   """
   individualUltimateBeneficialOwners: [IndividualUltimateBeneficialOwner!]!
+
+  """Returns the list of representatives of a company."""
+  representatives: [Representative!]!
 
   """
   Unique number that identifies a taxable person (business) or non-taxable legal entity that is registered for VAT
@@ -913,15 +916,15 @@ input AccountMembershipsFilterInput {
   Search string to look for
   
   Search will be performed in following fields:
-   - First name
-   - Last name
-   - Email
-   - ID
+  - First name
+  - Last name
+  - Email
+  - ID
   """
   search: String
 
   """Filter by account"""
-  accountId: String
+  accountId: ID
 }
 
 """AccountMembership enabled"""
@@ -1901,6 +1904,9 @@ type CardMerchantPaymentMethod implements MerchantPaymentMethod {
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -1911,6 +1917,9 @@ type CardMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """Version of the Merchant Payment Method"""
   version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
 
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
@@ -2040,6 +2049,9 @@ type CheckMerchantPaymentMethod implements MerchantPaymentMethod {
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -2050,6 +2062,9 @@ type CheckMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """Version of the Merchant Payment Method"""
   version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
 
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
@@ -2104,6 +2119,14 @@ enum CloseAccountReasonType {
 Union between PartnerCloseAccountReasonType and InternalCloseAccountReason
 """
 union CloseAccountStatusReason = CloseAccountReason
+
+type CompanyRepresentative {
+  roles: [String!]
+  entityName: String
+  registrationNumber: String
+  legalForm: String
+  residencyAddress: AddressInformation
+}
 
 """Company shareholder info."""
 type CompanyShareholder {
@@ -3851,6 +3874,20 @@ type IncorrectTransactionTypeRejection implements Rejection {
   message: String!
 }
 
+type IndividualRepresentative {
+  roles: [String!]
+  firstNames: [String!]
+  firstName: String
+  lastName: String
+  gender: Gender
+  birthDate: String
+  birthCity: String
+  birthCityPostalCode: String
+  birthCountryCode: CCA3
+  nationality: CCA3
+  residencyAddress: AddressInformation
+}
+
 """Individual shareholder info."""
 type IndividualShareholder {
   """Whether the shareholder is an individual or a company."""
@@ -4039,6 +4076,9 @@ type InternalDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMetho
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -4049,6 +4089,9 @@ type InternalDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMetho
 
   """Version of the Merchant Payment Method"""
   version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
 
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
@@ -4074,6 +4117,9 @@ type InternalDirectDebitStandardMerchantPaymentMethod implements MerchantPayment
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -4084,6 +4130,9 @@ type InternalDirectDebitStandardMerchantPaymentMethod implements MerchantPayment
 
   """Version of the Merchant Payment Method"""
   version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
 
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
@@ -4935,6 +4984,9 @@ interface MerchantPaymentMethod {
   """
   id: ID!
 
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
+
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
@@ -4954,6 +5006,9 @@ interface MerchantPaymentMethod {
 
   """Rolling Reserve applied to the Merchant Payment Method"""
   rollingReserve: RollingReserve
+
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
 }
 
 """The different rejection reasons for a CardMerchantPaymentMethod"""
@@ -5863,6 +5918,9 @@ type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
   - either the natural person (s) who exercise, by other means, a power of control of the company;
   """
   individualUltimateBeneficialOwners: [IndividualUltimateBeneficialOwner!]
+
+  """Returns the list of representatives of a company."""
+  representatives: [Representative!]
 
   """residency address of the head office (Must be in a European country)"""
   residencyAddress: AddressInfo
@@ -7211,41 +7269,86 @@ type ReportDocumentFile implements DocumentFile {
   downloadUrl: String!
 }
 
+union Representative = IndividualRepresentative | CompanyRepresentative
+
+input RepresentativeInput {
+  type: RepresentativeType!
+  roles: [String!]
+  gender: Gender
+  firstNames: [String!]
+  firstName: String
+  lastName: String
+  birthDate: String
+  birthCity: String
+  birthCityPostalCode: String
+  birthCountryCode: CCA3
+  nationality: CCA3
+  entityName: String
+  registrationNumber: String
+  legalForm: String
+  residencyAddress: ResidencyAddressInput
+}
+
+enum RepresentativeType {
+  Individual
+  Company
+}
+
 """Request Update Merchant Profile"""
 type RequestMerchantProfileUpdate {
+  """created date"""
+  createdAt: DateTime!
+
+  """Where the payer are generally based."""
+  customerRegion: MerchantProfileCustomerRegion
+
+  """expected average basket value."""
+  expectedAverageBasket: Amount
+
+  """Expected annual activity volumes for all payment method"""
+  expectedMonthlyPaymentVolume: Amount
+
   """The Request ID"""
   id: ID!
 
-  """The Merchant Profile ID to update"""
-  merchantProfileId: ID!
+  """Url of an example typical invoice issued by the merchant."""
+  invoiceExampleUrl: String
+
+  """Url of the merchant's logo"""
+  merchantLogoUrl: String
 
   """
   Business name of the merchant, i.e. name that will be displayed on debtors' bank statements
   """
   merchantName: String
 
+  """The Merchant Profile ID to update"""
+  merchantProfileId: ID!
+
   """Url of the merchant's website"""
   merchantWebsite: String
 
-  """Url of the merchant's logo"""
-  merchantLogoUrl: String
-
-  """The status of the request"""
-  status: RequestMerchantProfileUpdateStatus!
+  """
+  The type of payments accepted by the merchant. Can be OneOff (no returning payers in general), Recurrent (returning payers), or a mix of both OneOffAndRecurrent.
+  """
+  paymentFrequency: MerchantProfilePaymentFrequency
 
   """
   Type of product sold. List of value: Goods, Services, VirtualGoods, GiftsAndDonations. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities
   """
   productType: ProductType
 
-  """Expected annual activity volumes for all payment method"""
-  expectedMonthlyPaymentVolume: Amount
+  """The URL of the main social network of the merchant."""
+  socialNetwork: String
 
-  """expected average basket value."""
-  expectedAverageBasket: Amount
+  """The status of the request"""
+  status: RequestMerchantProfileUpdateStatus!
 
-  """created date"""
-  createdAt: DateTime!
+  """The URL of the support website or help center of the merchant."""
+  supportWebsite: String
+
+  """The URL of the terms and conditions of the merchant."""
+  termsAndConditions: String
 
   """updated date"""
   updatedAt: DateTime!
@@ -7656,6 +7759,9 @@ type SepaDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMethod {
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -7666,6 +7772,9 @@ type SepaDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """Version of the Merchant Payment Method"""
   version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
 
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
@@ -7705,6 +7814,9 @@ type SepaDirectDebitCoreMerchantPaymentMethod implements MerchantPaymentMethod {
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -7715,6 +7827,9 @@ type SepaDirectDebitCoreMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """Version of the Merchant Payment Method"""
   version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
 
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
@@ -10732,6 +10847,7 @@ type WebBankingSettings {
   canViewPaymentList: Boolean
   canOrderVirtualCards: Boolean
   canOrderPhysicalCards: Boolean
+  canUpdateCards: Boolean
   canViewMembers: Boolean
   canAddNewMembers: Boolean
   canCreateMerchantProfile: Boolean

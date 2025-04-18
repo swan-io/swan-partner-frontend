@@ -38,23 +38,8 @@ type Account {
   """Payment level"""
   paymentLevel: PaymentLevel!
 
-  """
-  Bank Identifier Code
-  Only if the account membership has `canViewAccount=true` & this account has `paymentLevel=Unlimited`
-  """
-  BIC: BIC!
-
-  """
-  International Bank Account Number
-  Only if the account membership has `canViewAccount=true` & this account has `paymentLevel=Unlimited`
-  """
-  IBAN: IBAN
-
   """Currency"""
   currency: Currency!
-
-  """`true` if the main IBAN refuses all Sepa Direct Debit received"""
-  blockSDD: Boolean
 
   """Status of the account"""
   statusInfo: AccountStatusInfo!
@@ -136,6 +121,21 @@ type Account {
 
   """Download link to the main account iban's bank details"""
   bankDetails: String
+
+  """
+  Bank Identifier Code
+  Only if the account membership has `canViewAccount=true` & this account has `paymentLevel=Unlimited`
+  """
+  BIC: BIC!
+
+  """
+  International Bank Account Number
+  Only if the account membership has `canViewAccount=true` & this account has `paymentLevel=Unlimited`
+  """
+  IBAN: IBAN
+
+  """`true` if the main IBAN refuses all Sepa Direct Debit received"""
+  blockSDD: Boolean
 
   """
   Legal Documents linked to the account
@@ -441,6 +441,9 @@ input AccountFilterInput {
   """Filter by payment level"""
   paymentLevels: [PaymentLevel!]
 
+  """Filter by the main IBAN"""
+  mainIBAN: String
+
   """
   Search string to look for.
   
@@ -677,6 +680,9 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
   - either the natural person (s) who exercise, by other means, a power of control of the company;
   """
   individualUltimateBeneficialOwners: [IndividualUltimateBeneficialOwner!]!
+
+  """Returns the list of representatives of a company."""
+  representatives: [Representative!]!
 
   """
   Unique number that identifies a taxable person (business) or non-taxable legal entity that is registered for VAT
@@ -1244,15 +1250,15 @@ input AccountMembershipsFilterInput {
   Search string to look for
   
   Search will be performed in following fields:
-   - First name
-   - Last name
-   - Email
-   - ID
+  - First name
+  - Last name
+  - Email
+  - ID
   """
   search: String
 
   """Filter by account"""
-  accountId: String
+  accountId: ID
 }
 
 """AccountMembership enabled"""
@@ -3475,11 +3481,7 @@ input CardFiltersInput {
   """
   search: String
 
-  """
-  Filter by accountId
-  
-  Only available for User Access Token, for the moment
-  """
+  """Filter by accountId"""
   accountId: String
 
   """
@@ -3506,6 +3508,24 @@ type CardInDetails {
 type CardInMerchant {
   """MerchantProfile"""
   merchantProfile: MerchantProfile!
+}
+
+type CardInsuranceConfiguration {
+  defaultInsurancePackage: CardInsurancePackage
+  availableInsurancePackages: [CardInsurancePackage!]
+}
+
+type CardInsurancePackage {
+  id: ID!
+  name: String!
+  level: CardInsurancePackageLevel!
+}
+
+enum CardInsurancePackageLevel {
+  Basic
+  Standard
+  Premium
+  Custom
 }
 
 union CardMerchant = CardInMerchant | CardOutMerchant
@@ -3604,6 +3624,9 @@ type CardMerchantPaymentMethod implements MerchantPaymentMethod {
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -3614,6 +3637,9 @@ type CardMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """Version of the Merchant Payment Method"""
   version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
 
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
@@ -3795,6 +3821,7 @@ type CardProduct {
   defaultCardProduct: Boolean!
   individualSpendingLimit: SpendingLimit!
   companySpendingLimit: SpendingLimit!
+  insurance: CardInsuranceConfiguration
 
   """Card printing hub"""
   cardPrintingHub: CardPrintingHub
@@ -4234,6 +4261,9 @@ type CheckMerchantPaymentMethod implements MerchantPaymentMethod {
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -4244,6 +4274,9 @@ type CheckMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """Version of the Merchant Payment Method"""
   version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
 
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
@@ -4445,6 +4478,14 @@ type CompanyInfo {
   legalRepresentativePersonalAddress: AddressInformation
 }
 
+type CompanyRepresentative {
+  roles: [String!]
+  entityName: String
+  registrationNumber: String
+  legalForm: String
+  residencyAddress: AddressInformation
+}
+
 """Company shareholder info."""
 type CompanyShareholder {
   """Whether the shareholder is an individual or a company."""
@@ -4602,6 +4643,27 @@ type CompletedMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatus
 
   """The time when the customer completed the payment."""
   completedAt: DateTime!
+}
+
+type CompletedVerificationRenewal implements VerificationRenewal {
+  id: ID!
+  accountHolderId: String!
+  status: VerificationRenewalStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  supportTicketId: String
+  dueDate: DateTime
+
+  """Completed Sub Status of the verification renewal"""
+  completedSubStatus: CompletedVerificationRenewalSubStatus!
+
+  """Completed date"""
+  completedAt: DateTime
+}
+
+enum CompletedVerificationRenewalSubStatus {
+  Verified
+  Postponed
 }
 
 input CompleteUserCreationInput {
@@ -5858,7 +5920,7 @@ type Export {
   createdAt: DateTime!
 }
 
-"""Input filters for the `exportAccount` mutation."""
+"""Input filters for the `exportAccountData` mutation."""
 input ExportAccountDataFilters {
   """Possible values for account status."""
   status: [AccountStatus!]
@@ -5867,7 +5929,7 @@ input ExportAccountDataFilters {
   paymentLevels: [PaymentLevelType!]
 }
 
-"""Input for the `exportAccount` mutation."""
+"""Input for the `exportAccountData` mutation."""
 input ExportAccountDataInput {
   """
   The email address that will receive a notification when the export is completed.
@@ -5878,7 +5940,7 @@ input ExportAccountDataInput {
   filters: ExportAccountDataFilters
 }
 
-"""Input filters for the `exportAccountHolder` mutation."""
+"""Input filters for the `exportAccountHolderData` mutation."""
 input ExportAccountHolderDataFilters {
   """Possible values for account holder verification status."""
   verificationStatus: [VerificationStatus!]
@@ -5887,7 +5949,7 @@ input ExportAccountHolderDataFilters {
   types: [AccountHolderType!]
 }
 
-"""Input for the `exportAccountHolder` mutation."""
+"""Input for the `exportAccountHolderData` mutation."""
 input ExportAccountHolderDataInput {
   """
   The email address that will receive a notification when the export is completed.
@@ -5896,6 +5958,70 @@ input ExportAccountHolderDataInput {
 
   """Account holder filters"""
   filters: ExportAccountHolderDataFilters
+}
+
+"""Input filters for the `exportAccountMembershipData` mutation."""
+input ExportAccountMembershipDataFilters {
+  """Can be a partial email."""
+  email: String
+
+  """Value for AccountId."""
+  accountId: String
+
+  """Value for canInitiatePayments."""
+  canInitiatePayments: Boolean
+
+  """Value for canManageAccountMembership."""
+  canManageAccountMembership: Boolean
+
+  """Value for canManageBeneficiaries."""
+  canManageBeneficiaries: Boolean
+
+  """Value for canManageCards."""
+  canManageCards: Boolean
+
+  """Value for canViewAccount."""
+  canViewAccount: Boolean
+
+  """Possible values for account membership verification status."""
+  status: [AccountMembershipStatus!]
+}
+
+"""Input for the `exportAccountMembershipData` mutation."""
+input ExportAccountMembershipDataInput {
+  """
+  The email address that will receive a notification when the export is completed.
+  """
+  email: String!
+
+  """Account holder filters"""
+  filters: ExportAccountMembershipDataFilters
+}
+
+"""Input filters for the `exportCardData` mutation."""
+input ExportCardDataFilters {
+  """Value for AccountId."""
+  accountId: String
+
+  """Value for UserId."""
+  userId: String
+
+  """Possible values for card status."""
+  statuses: [CardStatus!]
+
+  """Possible values for card type."""
+  types: [CardType!]
+}
+
+"""Input for the `exportCardData` mutation."""
+input ExportCardDataInput {
+  """
+  The email address that will receive a notification when the export is completed.
+  """
+  email: String!
+
+  """Card filters."""
+  filters: ExportCardDataFilters
 }
 
 """Export Completed Status Information"""
@@ -6026,10 +6152,12 @@ interface ExportStatusInfo {
 
 """The type of data exported for any given export"""
 enum ExportType {
-  Users
-  Onboardings
-  AccountHolders
   Accounts
+  AccountHolders
+  AccountMemberships
+  Cards
+  Onboardings
+  Users
 }
 
 """Input for the `exportUserData` mutation."""
@@ -7623,6 +7751,20 @@ type InAppProvisioningData {
   oaepHashingAlgorithm: String
 }
 
+type IndividualRepresentative {
+  roles: [String!]
+  firstNames: [String!]
+  firstName: String
+  lastName: String
+  gender: Gender
+  birthDate: String
+  birthCity: String
+  birthCityPostalCode: String
+  birthCountryCode: CCA3
+  nationality: CCA3
+  residencyAddress: AddressInformation
+}
+
 """Individual shareholder info."""
 type IndividualShareholder {
   """Whether the shareholder is an individual or a company."""
@@ -8226,6 +8368,9 @@ type InternalDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMetho
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -8236,6 +8381,9 @@ type InternalDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMetho
 
   """Version of the Merchant Payment Method"""
   version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
 
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
@@ -8291,6 +8439,9 @@ type InternalDirectDebitStandardMerchantPaymentMethod implements MerchantPayment
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -8301,6 +8452,9 @@ type InternalDirectDebitStandardMerchantPaymentMethod implements MerchantPayment
 
   """Version of the Merchant Payment Method"""
   version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
 
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
@@ -9484,6 +9638,8 @@ enum Language {
   it
   nl
   es
+  fi
+  pt
 }
 
 type LegalDocument {
@@ -10467,6 +10623,9 @@ interface MerchantPaymentMethod {
   """
   id: ID!
 
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
+
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
@@ -10486,6 +10645,9 @@ interface MerchantPaymentMethod {
 
   """Rolling Reserve applied to the Merchant Payment Method"""
   rollingReserve: RollingReserve
+
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
 }
 
 """The different rejection reasons for a CardMerchantPaymentMethod"""
@@ -11331,11 +11493,25 @@ type Mutation {
   exportAccountHolderData(input: ExportAccountHolderDataInput!): ExportDataPayload
 
   """
+  Export all account memberships of a project.
+  
+  NB: This mutation only starts an asynchronous process and returns its identifier.
+  """
+  exportAccountMembershipData(input: ExportAccountMembershipDataInput!): ExportDataPayload
+
+  """
   Export all accounts of a project.
   
   NB: This mutation only starts an asynchronous process and returns its identifier.
   """
   exportAccountData(input: ExportAccountDataInput!): ExportDataPayload
+
+  """
+  Export all cards of a project.
+  
+  NB: This mutation only starts an asynchronous process and returns its identifier.
+  """
+  exportCardData(input: ExportCardDataInput!): ExportDataPayload
 
   """
   Export all onboardings of a project.
@@ -11543,13 +11719,7 @@ type Mutation {
   initiateInternationalCreditTransfer(input: InitiateInternationalCreditTransferInput!): InitiateInternationalCreditTransferResponsePayload
 
   """
-  COMING SOON
-  
-  Initiates a refund on a booked transaction.
-  
-  This mutation is restricted to a User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
-  
-  The user must have an account membership for this account with the attribute `canInitiatePayments=true`.
+  Initiates a refund on a booked outgoing SEPA Direct Debit Core transaction. For more details, refer to [Swan docs](https://docs.swan.io/topics/payments/direct-debit/#refunded).
   """
   returnTransaction(input: ReturnTransactionInput!): ReturnTransactionPayload!
 
@@ -12027,6 +12197,9 @@ type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
   - either the natural person (s) who exercise, by other means, a power of control of the company;
   """
   individualUltimateBeneficialOwners: [IndividualUltimateBeneficialOwner!]
+
+  """Returns the list of representatives of a company."""
+  representatives: [Representative!]
 
   """residency address of the head office (Must be in a European country)"""
   residencyAddress: AddressInfo
@@ -12966,6 +13139,27 @@ type PendingTransactionStatusInfo implements TransactionStatusInfo {
   The date when the pending amount of this transaction is released on the available balance of this account if not booked
   """
   pendingEndDate: DateTime
+}
+
+type PendingVerificationRenewal implements VerificationRenewal {
+  id: ID!
+  accountHolderId: String!
+  status: VerificationRenewalStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  supportTicketId: String
+  dueDate: DateTime
+
+  """Pending Sub Status of the verification renewal"""
+  pendingSubStatus: PendingVerificationRenewalSubStatus!
+}
+
+enum PendingVerificationRenewalSubStatus {
+  ToStart
+  FirstResponseReceived
+  AdditionalResponseReceived
+  RiskEscalation
+  LastChance
 }
 
 """Pending Verification Information"""
@@ -14324,6 +14518,26 @@ input RefundTransaction {
   executionDate: DateTime
 }
 
+type RefusedVerificationRenewal implements VerificationRenewal {
+  id: ID!
+  accountHolderId: String!
+  status: VerificationRenewalStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  supportTicketId: String
+  dueDate: DateTime
+
+  """Refused Sub Status of the verification renewal"""
+  refusedSubStatus: RefusedVerificationRenewalSubStatus!
+
+  """Refused date"""
+  refusedAt: DateTime
+}
+
+enum RefusedVerificationRenewalSubStatus {
+  Discrepancies
+}
+
 """Funding Source Rejected Reason"""
 enum RejectedFundingSourceReason {
   AccountVerificationRejected
@@ -14779,6 +14993,31 @@ type ReportExchangeRate {
   contractIdentification: String
 }
 
+union Representative = IndividualRepresentative | CompanyRepresentative
+
+input RepresentativeInput {
+  type: RepresentativeType!
+  roles: [String!]
+  gender: Gender
+  firstNames: [String!]
+  firstName: String
+  lastName: String
+  birthDate: String
+  birthCity: String
+  birthCityPostalCode: String
+  birthCountryCode: CCA3
+  nationality: CCA3
+  entityName: String
+  registrationNumber: String
+  legalForm: String
+  residencyAddress: ResidencyAddressInput
+}
+
+enum RepresentativeType {
+  Individual
+  Company
+}
+
 input RequestMerchantPaymentMethodsInput {
   """ID of the Merchant Profile"""
   merchantProfileId: ID!
@@ -14888,39 +15127,59 @@ type RequestMerchantProfileSuccessPayload {
 
 """Request Update Merchant Profile"""
 type RequestMerchantProfileUpdate {
+  """created date"""
+  createdAt: DateTime!
+
+  """Where the payer are generally based."""
+  customerRegion: MerchantProfileCustomerRegion
+
+  """expected average basket value."""
+  expectedAverageBasket: Amount
+
+  """Expected annual activity volumes for all payment method"""
+  expectedMonthlyPaymentVolume: Amount
+
   """The Request ID"""
   id: ID!
 
-  """The Merchant Profile ID to update"""
-  merchantProfileId: ID!
+  """Url of an example typical invoice issued by the merchant."""
+  invoiceExampleUrl: String
+
+  """Url of the merchant's logo"""
+  merchantLogoUrl: String
 
   """
   Business name of the merchant, i.e. name that will be displayed on debtors' bank statements
   """
   merchantName: String
 
+  """The Merchant Profile ID to update"""
+  merchantProfileId: ID!
+
   """Url of the merchant's website"""
   merchantWebsite: String
 
-  """Url of the merchant's logo"""
-  merchantLogoUrl: String
-
-  """The status of the request"""
-  status: RequestMerchantProfileUpdateStatus!
+  """
+  The type of payments accepted by the merchant. Can be OneOff (no returning payers in general), Recurrent (returning payers), or a mix of both OneOffAndRecurrent.
+  """
+  paymentFrequency: MerchantProfilePaymentFrequency
 
   """
   Type of product sold. List of value: Goods, Services, VirtualGoods, GiftsAndDonations. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities
   """
   productType: ProductType
 
-  """Expected annual activity volumes for all payment method"""
-  expectedMonthlyPaymentVolume: Amount
+  """The URL of the main social network of the merchant."""
+  socialNetwork: String
 
-  """expected average basket value."""
-  expectedAverageBasket: Amount
+  """The status of the request"""
+  status: RequestMerchantProfileUpdateStatus!
 
-  """created date"""
-  createdAt: DateTime!
+  """The URL of the support website or help center of the merchant."""
+  supportWebsite: String
+
+  """The URL of the terms and conditions of the merchant."""
+  termsAndConditions: String
 
   """updated date"""
   updatedAt: DateTime!
@@ -15641,6 +15900,9 @@ type SepaDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMethod {
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -15651,6 +15913,9 @@ type SepaDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """Version of the Merchant Payment Method"""
   version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
 
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
@@ -15696,6 +15961,9 @@ type SepaDirectDebitCoreMerchantPaymentMethod implements MerchantPaymentMethod {
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -15706,6 +15974,9 @@ type SepaDirectDebitCoreMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """Version of the Merchant Payment Method"""
   version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
 
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
@@ -19191,6 +19462,7 @@ input UpdateCompanyOnboardingInput {
   - either the natural person (s) who exercise, by other means, a power of control of the company;
   """
   individualUltimateBeneficialOwners: [IndividualUltimateBeneficialOwnerInput!]
+  representatives: [RepresentativeInput!]
 
   """
   Residency address of the head office.
@@ -19830,6 +20102,30 @@ enum VerificationFlow {
   Progressive
 }
 
+"""Verification Renewals"""
+interface VerificationRenewal {
+  """Unique identifier of a verification renewal"""
+  id: ID!
+
+  """Unique identifier of account holder"""
+  accountHolderId: String!
+
+  """Status of the verification renewal"""
+  status: VerificationRenewalStatus!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Zendesk Ticket ID"""
+  supportTicketId: String
+
+  """Due date of the verification renewal"""
+  dueDate: DateTime
+}
+
 enum VerificationRenewalRequirement {
   """Account Holder Details Required"""
   AccountHolderDetailsRequired
@@ -19850,27 +20146,6 @@ enum VerificationRenewalRequirement {
   Other
 }
 
-"""Verification Renewals"""
-type VerificationRenewals {
-  """Unique identifier of a funding limit settings change request"""
-  id: ID!
-
-  """Created date"""
-  createdAt: DateTime!
-
-  """Updated date"""
-  updatedAt: DateTime!
-
-  """Completed date"""
-  completedAt: DateTime
-
-  """Refused date"""
-  refusedAt: DateTime
-
-  """Zendesk Ticket ID"""
-  supportTicketId: String
-}
-
 """
 Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
 """
@@ -19881,7 +20156,7 @@ type VerificationRenewalsConnection implements Connection {
   """Information about the current, the previous and the next page"""
   pageInfo: PageInfo!
 
-  """FundingLimitSettingsChangeRequestEdge list"""
+  """VerificationRenewalsEdge list"""
   edges: [VerificationRenewalsEdge!]!
 }
 
@@ -19892,20 +20167,30 @@ type VerificationRenewalsEdge implements Edge {
   """
   cursor: String!
 
-  """The FundingLimitSettingsChangeRequest"""
-  node: VerificationRenewals!
+  """The VerificationRenewal"""
+  node: VerificationRenewal!
 }
 
-"""
-Filters that can be applied when listing funding limit settings change requests
-"""
+"""Filters that can be applied when listing verification renewals"""
 input VerificationRenewalsFiltersInput {
   """Filter by IDs"""
   id: [String!]
+
+  """Filter by Account Holder IDs"""
+  accountHolderId: [String!]
+
+  """Filter by Project IDs"""
+  projectId: [String!]
+
+  """Filter by VerificationRenewal status"""
+  status: VerificationRenewalStatus
+
+  """Filter by VerificationRenewal Sub statuses"""
+  subStatus: [VerificationRenewalSubStatus!]
 }
 
 """
-Field we can use when ordering that can be applied when listing funding limit settings change requests
+Field we can use when ordering that can be applied when listing verification renewals
 """
 enum VerificationRenewalsOrderByFieldInput {
   id
@@ -19913,12 +20198,29 @@ enum VerificationRenewalsOrderByFieldInput {
   updatedAt
 }
 
-"""
-Order that can be applied when listing funding limit settings change requests
-"""
+"""Order that can be applied when listing verification renewals"""
 input VerificationRenewalsOrderByInput {
   field: VerificationRenewalsOrderByFieldInput
   direction: OrderByDirection
+}
+
+enum VerificationRenewalStatus {
+  Pending
+  WaitingForInformation
+  Refused
+  Completed
+}
+
+enum VerificationRenewalSubStatus {
+  ToStart
+  FirstResponseReceived
+  AdditionalResponseReceived
+  RiskEscalation
+  LastChance
+  VerificationRequirements
+  Verified
+  Postponed
+  Discrepancies
 }
 
 """
@@ -20107,6 +20409,24 @@ type VirtualIBANEntryEdge implements Edge {
   node: VirtualIBANEntry!
 }
 
+type WaitingForInformationVerificationRenewal implements VerificationRenewal {
+  id: ID!
+  accountHolderId: String!
+  status: VerificationRenewalStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  supportTicketId: String
+  dueDate: DateTime
+
+  """WaitingForInformation Sub Status of the verification renewal"""
+  waitingForInformationSubStatus: WaitingForInformationVerificationRenewalSubStatus!
+  verificationRequirements: [VerificationRenewalRequirement!]!
+}
+
+enum WaitingForInformationVerificationRenewalSubStatus {
+  VerificationRequirements
+}
+
 """Wallet Provider (ApplePay, GooglePay ...)"""
 type WalletProvider {
   """name of the Wallet Provider (Apple / Google / Amazon or Unknown)"""
@@ -20132,6 +20452,7 @@ type WebBankingSettings {
   canViewPaymentList: Boolean
   canOrderVirtualCards: Boolean
   canOrderPhysicalCards: Boolean
+  canUpdateCards: Boolean
   canViewMembers: Boolean
   canAddNewMembers: Boolean
   canCreateMerchantProfile: Boolean

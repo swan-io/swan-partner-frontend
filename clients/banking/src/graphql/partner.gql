@@ -1364,6 +1364,7 @@ query MembersPage(
       canManageCards: $canManageCards
       status: $status
       search: $search
+      accountId: $accountId
     }
   ) {
     totalCount
@@ -1813,16 +1814,26 @@ fragment AddressInfo on AddressInfo {
   state
 }
 
-query GetCardProducts($accountMembershipId: ID!, $after: String, $first: Int!, $search: String) {
+query GetCardProducts(
+  $accountMembershipId: ID!
+  $after: String
+  $first: Int!
+  $search: String
+  $accountId: ID!
+) {
   allMemberships: accountMemberships(
-    filters: { status: [Enabled, InvitationSent, BindingUserError] }
+    filters: { status: [Enabled, InvitationSent, BindingUserError], accountId: $accountId }
   ) {
     totalCount
   }
   accountMemberships(
     after: $after
     first: $first
-    filters: { search: $search, status: [Enabled, InvitationSent, BindingUserError] }
+    filters: {
+      search: $search
+      status: [Enabled, InvitationSent, BindingUserError]
+      accountId: $accountId
+    }
   ) {
     totalCount
     pageInfo {
@@ -1921,18 +1932,22 @@ fragment CardProduct on CardProduct {
   defaultCardProduct
 }
 
-query GetEligibleCardMemberships($after: String, $first: Int!, $search: String) {
+query GetEligibleCardMemberships($after: String, $first: Int!, $search: String, $accountId: ID!) {
   allMemberships: accountMemberships(
     after: $after
     first: $first
-    filters: { status: [Enabled, InvitationSent, BindingUserError] }
+    filters: { status: [Enabled, InvitationSent, BindingUserError], accountId: $accountId }
   ) {
     totalCount
   }
   accountMemberships(
     after: $after
     first: $first
-    filters: { search: $search, status: [Enabled, InvitationSent, BindingUserError] }
+    filters: {
+      search: $search
+      status: [Enabled, InvitationSent, BindingUserError]
+      accountId: $accountId
+    }
   ) {
     totalCount
     pageInfo {

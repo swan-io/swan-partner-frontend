@@ -809,6 +809,8 @@ export const start = async ({
   /**
    * Exposes environement variables to the client apps at runtime.
    * The client simply has to load `<script src="/env.js"></script>`
+   * WARNING: do not add sensitive data here, this is public!
+   * This is only meant to be used for public env variables.
    */
   app.get("/env.js", async (_request, reply) => {
     const projectId = await getProjectId();
@@ -838,6 +840,8 @@ export const start = async ({
           key.startsWith("CLIENT_") ? Option.Some([key, value]) : Option.None(),
         ),
       ),
+      // * WARNING: do not add sensitive data here, this is public!
+      // * This is only meant to be used for public env variables.
     };
 
     return reply

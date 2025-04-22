@@ -150,8 +150,8 @@ importers:
         specifier: 2.2.0
         version: 2.2.0(react@19.1.0)
       '@swan-io/graphql-client':
-        specifier: 0.5.2
-        version: 0.5.2(graphql@16.10.0)(react@19.1.0)(typescript@5.8.3)
+        specifier: 0.6.0
+        version: 0.6.0(graphql@16.10.0)(react@19.1.0)(typescript@5.8.3)
       '@swan-io/lake':
         specifier: 12.0.1
         version: 12.0.1(@types/react@19.1.2)(@types/three@0.175.0)(typescript@5.8.3)
@@ -247,8 +247,8 @@ importers:
         specifier: 2.2.0
         version: 2.2.0(react@19.1.0)
       '@swan-io/graphql-client':
-        specifier: 0.5.2
-        version: 0.5.2(graphql@16.10.0)(react@19.1.0)(typescript@5.8.3)
+        specifier: 0.6.0
+        version: 0.6.0(graphql@16.10.0)(react@19.1.0)(typescript@5.8.3)
       '@swan-io/lake':
         specifier: 12.0.1
         version: 12.0.1(@types/react@19.1.2)(@types/three@0.175.0)(typescript@5.8.3)
@@ -335,8 +335,8 @@ importers:
         specifier: 2.2.0
         version: 2.2.0(react@19.1.0)
       '@swan-io/graphql-client':
-        specifier: 0.5.2
-        version: 0.5.2(graphql@16.10.0)(react@19.1.0)(typescript@5.8.3)
+        specifier: 0.6.0
+        version: 0.6.0(graphql@16.10.0)(react@19.1.0)(typescript@5.8.3)
       '@swan-io/lake':
         specifier: 12.0.1
         version: 12.0.1(@types/react@19.1.2)(@types/three@0.175.0)(typescript@5.8.3)
@@ -2061,8 +2061,8 @@ packages:
     peerDependencies:
       react: '>=18.0.0'
 
-  '@swan-io/graphql-client@0.5.2':
-    resolution: {integrity: sha512-dOUSvLtRXKVpGiy+4S6w03VP0y2WWrOCKwHlzxGVHMqTADdvT0je9o9700Pa8JJQEuCRYiW8YcMgby+HPgOZvQ==, tarball: https://registry.npmjs.org/@swan-io/graphql-client/-/graphql-client-0.5.2.tgz}
+  '@swan-io/graphql-client@0.6.0':
+    resolution: {integrity: sha512-8qglH978X8DcOYRFWmTXQkId7SD7uh1Oj1uau0anVkg5ApJOdZ12RmY3h2JrtsDqTm/luMpPoXsA0jCFhs5QqQ==, tarball: https://registry.npmjs.org/@swan-io/graphql-client/-/graphql-client-0.6.0.tgz}
     hasBin: true
     peerDependencies:
       react: '>=18.2.0'
@@ -3800,6 +3800,7 @@ packages:
   node-domexception@1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==, tarball: https://registry.npmjs.org/node-domexception/-/node-domexception-1.0.0.tgz}
     engines: {node: '>=10.5.0'}
+    deprecated: Use your platform's native DOMException instead
 
   node-fetch@2.6.7:
     resolution: {integrity: sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==, tarball: https://registry.npmjs.org/node-fetch/-/node-fetch-2.6.7.tgz}
@@ -6811,7 +6812,7 @@ snapshots:
       react: 19.1.0
       use-sync-external-store: 1.5.0(react@19.1.0)
 
-  '@swan-io/graphql-client@0.5.2(graphql@16.10.0)(react@19.1.0)(typescript@5.8.3)':
+  '@swan-io/graphql-client@0.6.0(graphql@16.10.0)(react@19.1.0)(typescript@5.8.3)':
     dependencies:
       '@0no-co/graphql.web': 1.1.2(graphql@16.10.0)
       '@swan-io/boxed': 3.2.0(typescript@5.8.3)

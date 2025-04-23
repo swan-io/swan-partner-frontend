@@ -160,6 +160,12 @@
       "CardEnabledStatusInfo",
       "CardProcessingStatusInfo"
     ],
+    "CardInsuranceSubscriptionStatusInfo": [
+      "CardInsuranceSubscriptionCanceledStatusInfo",
+      "CardInsuranceSubscriptionEnabledStatusInfo",
+      "CardInsuranceSubscriptionPendingStatusInfo",
+      "CardInsuranceSubscriptionProcessingStatusInfo"
+    ],
     "MerchantPayment": [
       "CardMerchantPayment",
       "SepaDirectDebitMerchantPayment"
@@ -211,8 +217,11 @@
       "SuspendedMerchantProfileStatusInfo"
     ],
     "ThreeDsStatusInfo": [
-      "FailedThreeDs",
-      "SuccessfulThreeDs"
+      "ExemptThreeDsStatusInfo",
+      "FailedThreeDsStatusInfo",
+      "NotRequestedThreeDsStatusInfo",
+      "RequestedThreeDsStatusInfo",
+      "SucceededThreeDsStatusInfo"
     ],
     "FundingLimitSettingsChangeRequestStatusInfo": [
       "FundingLimitSettingsChangeRequestApprovedStatusInfo",

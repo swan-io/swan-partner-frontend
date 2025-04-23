@@ -3076,6 +3076,10 @@ enum EnvType {
   Sandbox
 }
 
+type ExemptThreeDsStatusInfo implements ThreeDsStatusInfo {
+  status: IncomingThreeDsStatus!
+}
+
 """
 Describes an identification level for the process associated to this identification that has expired and is no longer considered valid
 """
@@ -3137,15 +3141,15 @@ type FacePhotoDocument {
   type: DocumentType!
 }
 
-type FailedThreeDs implements ThreeDsStatusInfo {
-  status: ThreeDsStatus!
-  reasonCode: FailedThreeDsReason!
-}
-
 enum FailedThreeDsReason {
   AuthenticationFailed
   AuthenticationExpired
   Other
+}
+
+type FailedThreeDsStatusInfo implements ThreeDsStatusInfo {
+  status: IncomingThreeDsStatus!
+  reasonCode: FailedThreeDsReason!
 }
 
 interface Field {
@@ -3867,6 +3871,14 @@ enum IncomingSepaDirectDebitReturnReasonCodeEnum {
   AccountClosed
   InsufficientFunds
   ReasonNotSpecifiedByDebtor
+}
+
+enum IncomingThreeDsStatus {
+  NotRequested
+  Requested
+  Exempt
+  Succeeded
+  Failed
 }
 
 """Rejection returned if the transaction was of incorrect type"""
@@ -5742,6 +5754,10 @@ type NotReachableConsentStatusRejection implements Rejection {
   unreachableStatus: ConsentStatus
 }
 
+type NotRequestedThreeDsStatusInfo implements ThreeDsStatusInfo {
+  status: IncomingThreeDsStatus!
+}
+
 """
 @deprecated Use 'StartedIdentificationLevelStatusInfo' instead. Deprecated to ensure consistency and clear identification status behavior
 Describes an identification level that hasn't started for the process of the current identification
@@ -7292,6 +7308,10 @@ input RepresentativeInput {
 enum RepresentativeType {
   Individual
   Company
+}
+
+type RequestedThreeDsStatusInfo implements ThreeDsStatusInfo {
+  status: IncomingThreeDsStatus!
 }
 
 """Request Update Merchant Profile"""
@@ -9428,8 +9448,8 @@ type StartedIdentificationLevelStatusInfo {
   status: SwanIdentificationStatus!
 }
 
-type SuccessfulThreeDs implements ThreeDsStatusInfo {
-  status: ThreeDsStatus!
+type SucceededThreeDsStatusInfo implements ThreeDsStatusInfo {
+  status: IncomingThreeDsStatus!
 }
 
 """Supporting document used for compliance"""
@@ -10192,9 +10212,6 @@ type TextField implements Field {
 
 """The details of the 3DS challenge associated to the payment."""
 type ThreeDS {
-  """`true` if a 3DS challenge has been requested from the card holder"""
-  requested: Boolean!
-
   """The status of the 3DS challenge"""
   statusInfo: ThreeDsStatusInfo!
 }
@@ -10235,13 +10252,8 @@ type ThreeDsConsent implements DetailedConsent {
   qrCodeBase64: String
 }
 
-enum ThreeDsStatus {
-  Successful
-  Failed
-}
-
 interface ThreeDsStatusInfo {
-  status: ThreeDsStatus!
+  status: IncomingThreeDsStatus!
 }
 
 """Individual ultimate beneficial owner title (Mr/Ms)"""

@@ -398,9 +398,7 @@ export const CardWizard = ({
           ? false
           : (data.allMemberships.totalCount ?? 0) > 1;
 
-      const account = data.accountMembership?.account;
       const accountMemberships = data.accountMemberships;
-      const members = data.accountMemberships;
 
       return (
         <ResponsiveContainer style={styles.root} breakpoint={breakpoints.medium}>
@@ -470,7 +468,7 @@ export const CardWizard = ({
                     international,
                     nonMainCurrencyTransactions,
                   }) =>
-                    members != null && (
+                    hasMoreThanOneMember && (
                       <CardWizardMembers
                         ref={cardWizardMembersRef}
                         initialMemberships={memberships}
@@ -620,8 +618,8 @@ export const CardWizard = ({
                                 const memberships =
                                   preselectedAccountMembership != null
                                     ? [preselectedAccountMembership]
-                                    : account != null
-                                      ? (members?.edges.map(({ node }) => node) ?? [])
+                                    : hasMoreThanOneMember
+                                      ? (accountMemberships.edges.map(({ node }) => node) ?? [])
                                       : [accountMembership];
 
                                 if (canOrderPhysicalCard) {

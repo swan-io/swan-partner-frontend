@@ -107,9 +107,6 @@ test("French company onboarding", async ({ browser, page, request }) => {
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await waitForText(page, "Are you registered with Registre du Commerce et des Sociétés (RCS)?");
-  await page.getByText("Yes").click();
-
   await page
     .getByLabel(t("onboarding.company.step.organisation1.organisationLabel"), { exact: true })
     .fill("Swan");

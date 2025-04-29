@@ -635,8 +635,6 @@
   "merchantProfile.payments.customLabel": "Benutzerdefiniertes Label",
   "merchantProfile.payments.date": "Datum",
   "merchantProfile.payments.details.3ds": "3DS",
-  "merchantProfile.payments.details.3ds.no": "Nein",
-  "merchantProfile.payments.details.3ds.yes": "Ja",
   "merchantProfile.payments.details.3dsStatus": "3DS-Status",
   "merchantProfile.payments.details.authorizedAt": "Autorisiert",
   "merchantProfile.payments.details.authorizedBalance": "Autorisierter Betrag",

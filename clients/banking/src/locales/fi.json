@@ -634,8 +634,6 @@
   "merchantProfile.payments.button.refund": "Hyvitys",
   "merchantProfile.payments.customLabel": "Mukautettu tunniste",
   "merchantProfile.payments.date": "Päivämäärä",
-  "merchantProfile.payments.details.3ds": "3DS",
-  "merchantProfile.payments.details.3ds.no": "Ei",
   "merchantProfile.payments.details.3ds.yes": "Kyllä",
   "merchantProfile.payments.details.3dsStatus": "3DS-tila",
   "merchantProfile.payments.details.authorizedAt": "Hyväksytty",

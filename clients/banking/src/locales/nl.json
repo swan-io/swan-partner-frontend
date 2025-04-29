@@ -635,8 +635,6 @@
   "merchantProfile.payments.customLabel": "Aangepaste label",
   "merchantProfile.payments.date": "Datum",
   "merchantProfile.payments.details.3ds": "3DS",
-  "merchantProfile.payments.details.3ds.no": "Nee",
-  "merchantProfile.payments.details.3ds.yes": "Ja",
   "merchantProfile.payments.details.3dsStatus": "3DS-status",
   "merchantProfile.payments.details.authorizedAt": "Geautoriseerd",
   "merchantProfile.payments.details.authorizedBalance": "Geautoriseerd saldo",

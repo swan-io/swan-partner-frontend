@@ -2365,9 +2365,11 @@ fragment MerchantPayment on MerchantPayment {
   reference
   ... on CardMerchantPayment {
     threeDs {
-      requested
       statusInfo {
         status
+        ... on FailedThreeDsStatusInfo {
+          reasonCode
+        }
       }
     }
   }

@@ -635,8 +635,6 @@
   "merchantProfile.payments.customLabel": "Étiquette personnalisée",
   "merchantProfile.payments.date": "Date",
   "merchantProfile.payments.details.3ds": "3DS",
-  "merchantProfile.payments.details.3ds.no": "Non",
-  "merchantProfile.payments.details.3ds.yes": "Oui",
   "merchantProfile.payments.details.3dsStatus": "Statut 3DS",
   "merchantProfile.payments.details.authorizedAt": "Autorisé",
   "merchantProfile.payments.details.authorizedBalance": "Solde autorisé",

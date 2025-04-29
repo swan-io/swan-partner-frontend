@@ -101,10 +101,7 @@ const MerchantProfilePaymentDetailView = ({
             ))
             .with("PartiallyDisputed", () => (
               <>
-                <Tag color="sunglow">
-                  {" "}
-                  {t("merchantProfile.payments.status.partiallyDisputed")}{" "}
-                </Tag>
+                <Tag color="sunglow">{t("merchantProfile.payments.status.partiallyDisputed")}</Tag>
                 <Space height={12} />
               </>
             ))
@@ -123,18 +120,14 @@ const MerchantProfilePaymentDetailView = ({
           <LakeText>{dayjs(payment.statusInfo.createdAt).format("LL")}</LakeText>
         </Tile>
 
-        <Space height={24} />
+        <Space height={48} />
 
-        <>
-          <Space height={24} />
-
-          <TabView
-            activeTabId={activeTab}
-            tabs={tabs}
-            onChange={tab => setActiveTab(tab as Tab)}
-            otherLabel={t("common.tabs.other")}
-          />
-        </>
+        <TabView
+          activeTabId={activeTab}
+          tabs={tabs}
+          onChange={tab => setActiveTab(tab as Tab)}
+          otherLabel={t("common.tabs.other")}
+        />
 
         {match(activeTab)
           .with("details", () => (
@@ -284,16 +277,51 @@ const MerchantProfilePaymentDetailView = ({
                       <ReadOnlyFieldList>
                         <DetailLine
                           label={t("merchantProfile.payments.details.3ds")}
-                          text={match(threeDs.requested)
-                            .with(true, () => t("merchantProfile.payments.details.3ds.yes"))
-                            .with(false, () => t("merchantProfile.payments.details.3ds.no"))
+                          text={match(threeDs.statusInfo.__typename)
+                            .with(
+                              "SucceededThreeDsStatusInfo",
+                              "FailedThreeDsStatusInfo",
+                              "RequestedThreeDsStatusInfo",
+                              () => t("common.true"),
+                            )
+                            .with("ExemptThreeDsStatusInfo", "NotRequestedThreeDsStatusInfo", () =>
+                              t("common.false"),
+                            )
                             .exhaustive()}
                         />
 
-                        <DetailLine
-                          label={t("merchantProfile.payments.details.3dsStatus")}
-                          text={threeDs.statusInfo.status}
-                        />
+                        {match(threeDs.statusInfo.__typename)
+                          .with("ExemptThreeDsStatusInfo", () => (
+                            <DetailLine
+                              label={t("merchantProfile.payments.details.3dsStatus")}
+                              text={t("merchantProfile.payments.3dsStatus.exempted")}
+                            />
+                          ))
+                          .with("FailedThreeDsStatusInfo", () => (
+                            <DetailLine
+                              label={t("merchantProfile.payments.details.3dsStatus")}
+                              text={t("merchantProfile.payments.3dsStatus.failed")}
+                            />
+                          ))
+                          .with("NotRequestedThreeDsStatusInfo", () => (
+                            <DetailLine
+                              label={t("merchantProfile.payments.details.3dsStatus")}
+                              text={t("merchantProfile.payments.3dsStatus.notRequested")}
+                            />
+                          ))
+                          .with("RequestedThreeDsStatusInfo", () => (
+                            <DetailLine
+                              label={t("merchantProfile.payments.details.3dsStatus")}
+                              text={t("merchantProfile.payments.3dsStatus.requested")}
+                            />
+                          ))
+                          .with("SucceededThreeDsStatusInfo", () => (
+                            <DetailLine
+                              label={t("merchantProfile.payments.details.3dsStatus")}
+                              text={t("merchantProfile.payments.3dsStatus.successful")}
+                            />
+                          ))
+                          .exhaustive()}
                       </ReadOnlyFieldList>
                     ),
                   )

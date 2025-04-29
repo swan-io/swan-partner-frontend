@@ -1,6 +1,5 @@
-import { Cell, CopyableTextCell, HeaderCell } from "@swan-io/lake/src/components/Cells";
+import { Cell, CopyableTextCell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { Icon } from "@swan-io/lake/src/components/Icon";
-import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import {
   ColumnConfig,
@@ -11,7 +10,7 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
-import { isNotNullish, isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import dayjs from "dayjs";
 import { ReactElement, ReactNode } from "react";
 import { match } from "ts-pattern";
@@ -50,11 +49,11 @@ const columns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
     title: t("merchantProfile.payments.customLabel"),
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => (
-      <Cell align="left">
-        <LakeHeading variant="h5" level={3} numberOfLines={1}>
-          {isNotNullishOrEmpty(item.label) ? item.label : "-"}
-        </LakeHeading>
-      </Cell>
+      <TextCell
+        variant="medium"
+        color={colors.gray[900]}
+        text={isNotNullishOrEmpty(item.label) ? item.label : "-"}
+      />
     ),
   },
   {
@@ -72,24 +71,24 @@ const columns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
   },
   {
     id: "paymentMethod",
-    width: 150,
+    width: "grow",
     title: t("merchantProfile.payments.paymentMethod"),
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { paymentMethod } }) => (
-      <Cell>
-        <LakeText variant="regular" color={colors.gray[900]}>
-          {match(paymentMethod.type)
-            .with("Card", () => t("merchantProfile.paymentLink.paymentMethod.card"))
-            .with("Check", () => t("merchantProfile.paymentLink.paymentMethod.check"))
-            .with("InternalDirectDebitB2b", "InternalDirectDebitStandard", () =>
-              t("merchantProfile.paymentLink.paymentMethod.internalDirectDebit"),
-            )
-            .with("SepaDirectDebitB2b", "SepaDirectDebitCore", () =>
-              t("merchantProfile.paymentLink.paymentMethod.sepaDirectDebit"),
-            )
-            .exhaustive()}
-        </LakeText>
-      </Cell>
+      <TextCell
+        variant="medium"
+        color={colors.gray[900]}
+        text={match(paymentMethod.type)
+          .with("Card", () => t("merchantProfile.paymentLink.paymentMethod.card"))
+          .with("Check", () => t("merchantProfile.paymentLink.paymentMethod.check"))
+          .with("InternalDirectDebitB2b", "InternalDirectDebitStandard", () =>
+            t("merchantProfile.paymentLink.paymentMethod.internalDirectDebit"),
+          )
+          .with("SepaDirectDebitB2b", "SepaDirectDebitCore", () =>
+            t("merchantProfile.paymentLink.paymentMethod.sepaDirectDebit"),
+          )
+          .exhaustive()}
+      />
     ),
   },
   {
@@ -98,7 +97,7 @@ const columns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
     title: t("merchantProfile.payments.externalReference"),
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) =>
-      isNotNullish(item.externalReference) ? (
+      isNotNullishOrEmpty(item.externalReference) ? (
         <CopyableTextCell
           text={item.externalReference}
           textToCopy={item.externalReference}
@@ -106,11 +105,7 @@ const columns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
           copiedWording={t("copyButton.copiedTooltip")}
         />
       ) : (
-        <Cell>
-          <LakeText variant="regular" color={colors.gray[900]}>
-            {"-"}
-          </LakeText>
-        </Cell>
+        <TextCell variant="regular" color={colors.gray[900]} text="-" />
       ),
   },
   {

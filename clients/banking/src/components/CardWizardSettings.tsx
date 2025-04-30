@@ -315,11 +315,14 @@ export const CardWizardSettings = ({
     if (isNullish(dirtyValue)) {
       return;
     }
+    const sanitizedDirtyValue = dirtyValue.replace(",", ".");
+
     const cleanValue = Math.max(
-      Math.min(Number(dirtyValue), spendingLimitMaxValue ?? Number.POSITIVE_INFINITY),
+      Math.min(Number(sanitizedDirtyValue), spendingLimitMaxValue ?? Number.POSITIVE_INFINITY),
       0,
     );
     const value = Number.isNaN(cleanValue) ? 0 : cleanValue;
+
     setDirtyValue(String(value));
     setCurrentSettings({
       ...currentSettings,

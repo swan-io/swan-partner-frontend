@@ -468,7 +468,7 @@ export const CardWizard = ({
                     international,
                     nonMainCurrencyTransactions,
                   }) =>
-                    members != null && (
+                    hasMoreThanOneMember && (
                       <CardWizardMembers
                         ref={cardWizardMembersRef}
                         initialMemberships={memberships}
@@ -618,7 +618,7 @@ export const CardWizard = ({
                                 const memberships =
                                   preselectedAccountMembership != null
                                     ? [preselectedAccountMembership]
-                                    : account != null
+                                    : hasMoreThanOneMember
                                       ? (members?.edges.map(({ node }) => node) ?? [])
                                       : [accountMembership];
 

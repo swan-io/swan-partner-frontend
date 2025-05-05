@@ -290,6 +290,12 @@
       "CardEnabledStatusInfo",
       "CardProcessingStatusInfo"
     ],
+    "CardInsuranceSubscriptionStatusInfo": [
+      "CardInsuranceSubscriptionCanceledStatusInfo",
+      "CardInsuranceSubscriptionEnabledStatusInfo",
+      "CardInsuranceSubscriptionPendingStatusInfo",
+      "CardInsuranceSubscriptionProcessingStatusInfo"
+    ],
     "MerchantPayment": [
       "CardMerchantPayment",
       "SepaDirectDebitMerchantPayment"
@@ -383,6 +389,13 @@
       "ReportDocumentFile",
       "ResidencePermitDocumentFile"
     ],
+    "ThreeDsStatusInfo": [
+      "ExemptThreeDsStatusInfo",
+      "FailedThreeDsStatusInfo",
+      "NotRequestedThreeDsStatusInfo",
+      "RequestedThreeDsStatusInfo",
+      "SucceededThreeDsStatusInfo"
+    ],
     "TransactionStatementStatusInfo": [
       "ExpiredTransactionStatementStatusInfo",
       "FailedTransactionStatementStatusInfo",
@@ -394,10 +407,6 @@
       "ExportExpiredStatusInfo",
       "ExportFailedStatusInfo",
       "ExportRunningStatusInfo"
-    ],
-    "ThreeDsStatusInfo": [
-      "FailedThreeDs",
-      "SuccessfulThreeDs"
     ],
     "FeeCreditor": [
       "FeeInCreditor",

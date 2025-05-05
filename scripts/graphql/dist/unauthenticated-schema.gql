@@ -1402,6 +1402,9 @@ type Card {
   """Issuing Country"""
   issuingCountry: CCA3!
 
+  """Card insurance subscription"""
+  insuranceSubscription: CardInsuranceSubscription
+
   """Digital Cards linked to this card"""
   digitalCards(
     first: Int! = 50
@@ -1627,6 +1630,44 @@ enum CardInsurancePackageLevel {
   Custom
 }
 
+type CardInsuranceSubscription {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  package: CardInsurancePackage!
+  statusInfo: CardInsuranceSubscriptionStatusInfo!
+}
+
+type CardInsuranceSubscriptionCanceledStatusInfo implements CardInsuranceSubscriptionStatusInfo {
+  status: CardInsuranceSubscriptionStatus
+  canceledAt: DateTime!
+}
+
+type CardInsuranceSubscriptionEnabledStatusInfo implements CardInsuranceSubscriptionStatusInfo {
+  status: CardInsuranceSubscriptionStatus
+  enabledAt: DateTime!
+}
+
+type CardInsuranceSubscriptionPendingStatusInfo implements CardInsuranceSubscriptionStatusInfo {
+  status: CardInsuranceSubscriptionStatus
+}
+
+type CardInsuranceSubscriptionProcessingStatusInfo implements CardInsuranceSubscriptionStatusInfo {
+  status: CardInsuranceSubscriptionStatus
+  processingStartedAt: DateTime!
+}
+
+enum CardInsuranceSubscriptionStatus {
+  Pending
+  Processing
+  Enabled
+  Canceled
+}
+
+interface CardInsuranceSubscriptionStatusInfo {
+  status: CardInsuranceSubscriptionStatus
+}
+
 type CardMerchantPayment implements MerchantPayment {
   """unique identifier of a merchant payment"""
   id: ID!
@@ -1799,11 +1840,7 @@ type CardProduct {
   """Card printing hub"""
   cardPrintingHub: CardPrintingHub
 
-  """
-  Card printing available shipping providers
-  
-  Not yet active - will be enabled in a future release
-  """
+  """Card printing available shipping providers"""
   cardPrintingAvailableShippingProviders(shippingAddressCountry: CCA3!): [ShippingProvider!]!
 }
 
@@ -2860,6 +2897,10 @@ enum EnvType {
   Sandbox
 }
 
+type ExemptThreeDsStatusInfo implements ThreeDsStatusInfo {
+  status: IncomingThreeDsStatus!
+}
+
 type ExpiredMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusInfo {
   status: MerchantPaymentLinkStatus!
 
@@ -2880,15 +2921,15 @@ type ExternalAccountAlreadyExistsRejection implements Rejection {
   message: String!
 }
 
-type FailedThreeDs implements ThreeDsStatusInfo {
-  status: ThreeDsStatus!
-  reasonCode: FailedThreeDsReason!
-}
-
 enum FailedThreeDsReason {
   AuthenticationFailed
   AuthenticationExpired
   Other
+}
+
+type FailedThreeDsStatusInfo implements ThreeDsStatusInfo {
+  status: IncomingThreeDsStatus!
+  reasonCode: FailedThreeDsReason!
 }
 
 enum FieldValidationError {
@@ -3170,6 +3211,14 @@ type InAppProvisioningData {
   hash algorithm used during encryption of the card data (Useful for Google Pay)
   """
   oaepHashingAlgorithm: String
+}
+
+enum IncomingThreeDsStatus {
+  NotRequested
+  Requested
+  Exempt
+  Succeeded
+  Failed
 }
 
 type IndividualRepresentative {
@@ -4353,6 +4402,10 @@ type NotReachableConsentStatusRejection implements Rejection {
   message: String!
   currentStatus: ConsentStatus
   unreachableStatus: ConsentStatus
+}
+
+type NotRequestedThreeDsStatusInfo implements ThreeDsStatusInfo {
+  status: IncomingThreeDsStatus!
 }
 
 """
@@ -5579,6 +5632,10 @@ enum RepresentativeType {
   Company
 }
 
+type RequestedThreeDsStatusInfo implements ThreeDsStatusInfo {
+  status: IncomingThreeDsStatus!
+}
+
 """Request Update Merchant Profile"""
 type RequestMerchantProfileUpdate {
   """created date"""
@@ -6004,8 +6061,8 @@ enum SpendingLimitType {
   Partner
 }
 
-type SuccessfulThreeDs implements ThreeDsStatusInfo {
-  status: ThreeDsStatus!
+type SucceededThreeDsStatusInfo implements ThreeDsStatusInfo {
+  status: IncomingThreeDsStatus!
 }
 
 """Supporting document used for compliance"""
@@ -6723,20 +6780,12 @@ type SuspendedMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
 
 """The details of the 3DS challenge associated to the payment."""
 type ThreeDS {
-  """`true` if a 3DS challenge has been requested from the card holder"""
-  requested: Boolean!
-
   """The status of the 3DS challenge"""
   statusInfo: ThreeDsStatusInfo!
 }
 
-enum ThreeDsStatus {
-  Successful
-  Failed
-}
-
 interface ThreeDsStatusInfo {
-  status: ThreeDsStatus!
+  status: IncomingThreeDsStatus!
 }
 
 """Individual ultimate beneficial owner title (Mr/Ms)"""
@@ -6964,7 +7013,7 @@ input UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkInput {
 }
 
 """Union type return by the addSepaDirectDebitPaymentMandate mutation"""
-union UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkPayload = UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection
+union UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkPayload = UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkSuccessPayload | BadRequestRejection | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection
 
 """
 Return type in case of a successful response of the initiateMerchantSddPaymentCollectionFromPaymentLink mutation

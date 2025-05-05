@@ -233,8 +233,11 @@
       "ResidencePermitDocumentFile"
     ],
     "ThreeDsStatusInfo": [
-      "FailedThreeDs",
-      "SuccessfulThreeDs"
+      "ExemptThreeDsStatusInfo",
+      "FailedThreeDsStatusInfo",
+      "NotRequestedThreeDsStatusInfo",
+      "RequestedThreeDsStatusInfo",
+      "SucceededThreeDsStatusInfo"
     ],
     "FundingLimitSettingsChangeRequestStatusInfo": [
       "FundingLimitSettingsChangeRequestApprovedStatusInfo",

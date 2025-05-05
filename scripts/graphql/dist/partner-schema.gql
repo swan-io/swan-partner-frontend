@@ -3234,6 +3234,9 @@ type Card {
   """Issuing Country"""
   issuingCountry: CCA3!
 
+  """Card insurance subscription"""
+  insuranceSubscription: CardInsuranceSubscription
+
   """Digital Cards linked to this card"""
   digitalCards(
     first: Int! = 50
@@ -3526,6 +3529,44 @@ enum CardInsurancePackageLevel {
   Standard
   Premium
   Custom
+}
+
+type CardInsuranceSubscription {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  package: CardInsurancePackage!
+  statusInfo: CardInsuranceSubscriptionStatusInfo!
+}
+
+type CardInsuranceSubscriptionCanceledStatusInfo implements CardInsuranceSubscriptionStatusInfo {
+  status: CardInsuranceSubscriptionStatus
+  canceledAt: DateTime!
+}
+
+type CardInsuranceSubscriptionEnabledStatusInfo implements CardInsuranceSubscriptionStatusInfo {
+  status: CardInsuranceSubscriptionStatus
+  enabledAt: DateTime!
+}
+
+type CardInsuranceSubscriptionPendingStatusInfo implements CardInsuranceSubscriptionStatusInfo {
+  status: CardInsuranceSubscriptionStatus
+}
+
+type CardInsuranceSubscriptionProcessingStatusInfo implements CardInsuranceSubscriptionStatusInfo {
+  status: CardInsuranceSubscriptionStatus
+  processingStartedAt: DateTime!
+}
+
+enum CardInsuranceSubscriptionStatus {
+  Pending
+  Processing
+  Enabled
+  Canceled
+}
+
+interface CardInsuranceSubscriptionStatusInfo {
+  status: CardInsuranceSubscriptionStatus
 }
 
 union CardMerchant = CardInMerchant | CardOutMerchant
@@ -3826,15 +3867,9 @@ type CardProduct {
   """Card printing hub"""
   cardPrintingHub: CardPrintingHub
 
-  """
-  Card printing available shipping providers
-  
-  Not yet active - will be enabled in a future release
-  """
+  """Card printing available shipping providers"""
   cardPrintingAvailableShippingProviders(shippingAddressCountry: CCA3!): [ShippingProvider!]!
 }
-
-union CardProductByIdResultPayload = CardProduct | CardProductNotFoundRejection | ForbiddenRejection
 
 """Card design of a Card Product"""
 type CardProductDesign {
@@ -5874,6 +5909,10 @@ type EventTypeHavingReachedSubscriptionLimits {
   subscriptionCount: Int!
 }
 
+type ExemptThreeDsStatusInfo implements ThreeDsStatusInfo {
+  status: IncomingThreeDsStatus!
+}
+
 """
 Describes an identification level for the process associated to this identification that has expired and is no longer considered valid
 """
@@ -6406,15 +6445,15 @@ type FacePhotoDocument {
   type: DocumentType!
 }
 
-type FailedThreeDs implements ThreeDsStatusInfo {
-  status: ThreeDsStatus!
-  reasonCode: FailedThreeDsReason!
-}
-
 enum FailedThreeDsReason {
   AuthenticationFailed
   AuthenticationExpired
   Other
+}
+
+type FailedThreeDsStatusInfo implements ThreeDsStatusInfo {
+  status: IncomingThreeDsStatus!
+  reasonCode: FailedThreeDsReason!
 }
 
 type FailedTransactionStatementStatusInfo implements TransactionStatementStatusInfo {
@@ -7751,6 +7790,14 @@ type InAppProvisioningData {
   oaepHashingAlgorithm: String
 }
 
+enum IncomingThreeDsStatus {
+  NotRequested
+  Requested
+  Exempt
+  Succeeded
+  Failed
+}
+
 type IndividualRepresentative {
   roles: [String!]
   firstNames: [String!]
@@ -8112,7 +8159,7 @@ input InitiateMerchantPaymentCollectionInput {
   internalDirectDebit: InternalDirectDebitPaymentCollectionInput
 }
 
-union InitiateMerchantPaymentCollectionPayload = InitiateMerchantPaymentCollectionSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection
+union InitiateMerchantPaymentCollectionPayload = InitiateMerchantPaymentCollectionSuccessPayload | BadRequestRejection | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection
 
 type InitiateMerchantPaymentCollectionSuccessPayload {
   merchantPaymentCollection: Payment!
@@ -11783,6 +11830,10 @@ type NotReachableConsentStatusRejection implements Rejection {
   unreachableStatus: ConsentStatus
 }
 
+type NotRequestedThreeDsStatusInfo implements ThreeDsStatusInfo {
+  status: IncomingThreeDsStatus!
+}
+
 """
 @deprecated Use 'StartedIdentificationLevelStatusInfo' instead. Deprecated to ensure consistency and clear identification status behavior
 Describes an identification level that hasn't started for the process of the current identification
@@ -11882,6 +11933,7 @@ input OnboardCompanyAccountHolderInput {
   - either the natural person (s) who exercise, by other means, a power of control of the company;
   """
   individualUltimateBeneficialOwners: [IndividualUltimateBeneficialOwnerInput!]
+  representatives: [RepresentativeInput!]
 
   """
   Residency address of the head office.
@@ -13300,11 +13352,7 @@ input PhysicalCardCustomOptionsForPrintInput {
   """Alternative printed card owner."""
   customCardHolderName: String
 
-  """
-  The shipping provider used to deliver the card
-  
-  Not yet active - will be enabled in a future release
-  """
+  """The shipping provider used to deliver the card"""
   shippingProvider: ShippingProvider
 }
 
@@ -13322,11 +13370,7 @@ input PhysicalCardCustomOptionsInput {
   """Alternative printed card owner."""
   customCardHolderName: String
 
-  """
-  The shipping provider used to deliver the card
-  
-  Not yet active - will be enabled in a future release
-  """
+  """The shipping provider used to deliver the card"""
   shippingProvider: ShippingProvider
 }
 
@@ -14036,7 +14080,6 @@ type Query {
 
   """Returns a card from its id."""
   card(cardId: ID!): Card
-  cardProductById(id: ID): CardProductByIdResultPayload
 
   """
   Returns the list of cards.
@@ -15016,6 +15059,10 @@ input RepresentativeInput {
 enum RepresentativeType {
   Individual
   Company
+}
+
+type RequestedThreeDsStatusInfo implements ThreeDsStatusInfo {
+  status: IncomingThreeDsStatus!
 }
 
 input RequestMerchantPaymentMethodsInput {
@@ -17133,8 +17180,8 @@ type SubscriptionLimitsRejection implements Rejection {
   subscriptionLimits: [EventTypeHavingReachedSubscriptionLimits]!
 }
 
-type SuccessfulThreeDs implements ThreeDsStatusInfo {
-  status: ThreeDsStatus!
+type SucceededThreeDsStatusInfo implements ThreeDsStatusInfo {
+  status: IncomingThreeDsStatus!
 }
 
 """Supporting document used for compliance"""
@@ -18035,20 +18082,12 @@ type TextField implements Field {
 
 """The details of the 3DS challenge associated to the payment."""
 type ThreeDS {
-  """`true` if a 3DS challenge has been requested from the card holder"""
-  requested: Boolean!
-
   """The status of the 3DS challenge"""
   statusInfo: ThreeDsStatusInfo!
 }
 
-enum ThreeDsStatus {
-  Successful
-  Failed
-}
-
 interface ThreeDsStatusInfo {
-  status: ThreeDsStatus!
+  status: IncomingThreeDsStatus!
 }
 
 """Individual ultimate beneficial owner title (Mr/Ms)"""

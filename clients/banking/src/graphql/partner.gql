@@ -449,6 +449,7 @@ fragment WebBankingSettings on WebBankingSettings {
   canRequestChecksPaymentMethod
   canInitiateCheckMerchantPayments
   canCreateMerchantPaymentLinks
+  canUpdateCards
 }
 
 query AccountArea($accountMembershipId: ID!) {

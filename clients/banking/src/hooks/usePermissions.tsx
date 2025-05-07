@@ -224,6 +224,9 @@ const PERMISSIONS_MATRIX = {
       canManageCards: true,
       statusInfo: { status: ENABLED },
     },
+    settings: {
+      canUpdateCards: true,
+    },
   },
   canCancelCardForOtherMembership: {
     accountMembership: {

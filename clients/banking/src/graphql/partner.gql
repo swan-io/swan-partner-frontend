@@ -2358,6 +2358,14 @@ fragment MerchantPayment on MerchantPayment {
       currency
       value
     }
+    totalCanceled {
+      currency
+      value
+    }
+    totalDisputed {
+      currency
+      value
+    }
   }
   paymentLink {
     id

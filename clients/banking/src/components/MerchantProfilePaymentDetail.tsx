@@ -341,10 +341,18 @@ const MerchantProfilePaymentDetailView = ({
                 />
 
                 <DetailLine
-                  label={t("merchantProfile.payments.details.capturedBalance")}
+                  label={t("merchantProfile.payments.details.availableToCancelBalance")}
                   text={formatCurrency(
-                    Number(payment.balance.totalCaptured.value),
-                    payment.balance.totalCaptured.currency,
+                    Number(payment.balance.availableToCancel.value),
+                    payment.balance.availableToCancel.currency,
+                  )}
+                />
+
+                <DetailLine
+                  label={t("merchantProfile.payments.details.canceledBalance")}
+                  text={formatCurrency(
+                    Number(payment.balance.totalCanceled.value),
+                    payment.balance.totalCanceled.currency,
                   )}
                 />
 
@@ -357,10 +365,10 @@ const MerchantProfilePaymentDetailView = ({
                 />
 
                 <DetailLine
-                  label={t("merchantProfile.payments.details.refundedBalance")}
+                  label={t("merchantProfile.payments.details.capturedBalance")}
                   text={formatCurrency(
-                    Number(payment.balance.totalRefunded.value),
-                    payment.balance.totalRefunded.currency,
+                    Number(payment.balance.totalCaptured.value),
+                    payment.balance.totalCaptured.currency,
                   )}
                 />
 
@@ -373,10 +381,18 @@ const MerchantProfilePaymentDetailView = ({
                 />
 
                 <DetailLine
-                  label={t("merchantProfile.payments.details.availableToCancelBalance")}
+                  label={t("merchantProfile.payments.details.refundedBalance")}
                   text={formatCurrency(
-                    Number(payment.balance.availableToCancel.value),
-                    payment.balance.availableToCancel.currency,
+                    Number(payment.balance.totalRefunded.value),
+                    payment.balance.totalRefunded.currency,
+                  )}
+                />
+
+                <DetailLine
+                  label={t("merchantProfile.payments.details.disputedBalance")}
+                  text={formatCurrency(
+                    Number(payment.balance.totalDisputed.value),
+                    payment.balance.totalDisputed.currency,
                   )}
                 />
               </ReadOnlyFieldList>

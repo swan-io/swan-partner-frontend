@@ -26,7 +26,7 @@
   "paymentLink.invalidCvv": "Virheellinen CVV",
   "paymentLink.invalidExpiryDate": "Virheellinen voimassaolon päättymispäivämäärä",
   "paymentLink.linkExpired": "Pahoittelut, linkkisi on vanhentunut.",
-  "paymentLink.name": "Nimi",
+  "paymentLink.name": "Koko nimi tai yrityksen nimi",
   "paymentLink.paymentMethod": "Maksutapa",
   "paymentLink.postalCode": "Postinumero",
   "paymentLink.poweredBySwan": "Yhteistyökumppanina",

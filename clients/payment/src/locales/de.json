@@ -26,7 +26,7 @@
   "paymentLink.invalidCvv": "Ungültige CVV",
   "paymentLink.invalidExpiryDate": "Ungültiges Verfallsdatum",
   "paymentLink.linkExpired": "Ihr Link ist leider abgelaufen.",
-  "paymentLink.name": "Name",
+  "paymentLink.name": "Vollständiger Name oder Firmenname",
   "paymentLink.paymentMethod": "Zahlungsmethode",
   "paymentLink.postalCode": "Postleitzahl",
   "paymentLink.poweredBySwan": "Bereitgestellt von",

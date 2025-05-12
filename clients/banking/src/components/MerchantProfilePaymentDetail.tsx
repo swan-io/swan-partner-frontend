@@ -17,7 +17,7 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { spacings } from "@swan-io/lake/src/constants/design";
-import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullishOrEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { StyleSheet } from "react-native";
@@ -157,7 +157,7 @@ const MerchantProfilePaymentDetailView = ({
                   text={payment.id}
                 />
 
-                {isNotNullish(payment.reference) && (
+                {isNotNullishOrEmpty(payment.reference) && (
                   <DetailCopiableLine
                     label={t("merchantProfile.payments.details.reference")}
                     text={payment.reference}

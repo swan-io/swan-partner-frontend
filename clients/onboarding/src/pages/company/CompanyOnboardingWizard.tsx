@@ -419,6 +419,8 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
                 onboarding?.supportingDocumentCollection.statusInfo.status
               }
               templateLanguage={onboarding.language ?? "en"}
+              accountCountry={accountCountry}
+              companyType={companyType}
             />
           </TrackingProvider>
         ))

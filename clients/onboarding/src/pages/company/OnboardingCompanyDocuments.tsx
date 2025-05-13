@@ -20,6 +20,8 @@ import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
 import {
+  AccountCountry,
+  CompanyType,
   DeleteSupportingDocumentDocument,
   GenerateSupportingDocumentUploadUrlDocument,
   SupportingDocumentCollectionStatus,
@@ -39,6 +41,8 @@ type Props = {
   supportingDocumentCollectionId: string;
   supportingDocumentCollectionStatus: SupportingDocumentCollectionStatus;
   templateLanguage: string;
+  accountCountry: AccountCountry;
+  companyType: CompanyType;
 };
 
 const DocumentsStepTile = ({ small, children }: { small: boolean; children: ReactNode }) => {
@@ -57,6 +61,8 @@ export const OnboardingCompanyDocuments = ({
   supportingDocumentCollectionId,
   supportingDocumentCollectionStatus,
   templateLanguage,
+  accountCountry,
+  companyType,
 }: Props) => {
   const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
   const [generateSupportingDocumentUploadUrl] = useMutation(
@@ -194,6 +200,15 @@ export const OnboardingCompanyDocuments = ({
                   status={supportingDocumentCollectionStatus}
                   templateLanguage={templateLanguage}
                   onRemoveFile={onRemoveFile}
+                  purposeLabelOverrides={{
+                    ...(accountCountry === "DEU" && companyType === "SelfEmployed"
+                      ? {
+                          CompanyRegistration: t(
+                            "company.document.supportingDocuments.purpose.CompanyRegistrationSelfEmployedGermany",
+                          ),
+                        }
+                      : null),
+                  }}
                 />
               </DocumentsStepTile>
             </>

@@ -23,23 +23,8 @@ type Account {
   """Payment level"""
   paymentLevel: PaymentLevel!
 
-  """
-  Bank Identifier Code
-  Only if the account membership has `canViewAccount=true` & this account has `paymentLevel=Unlimited`
-  """
-  BIC: BIC!
-
-  """
-  International Bank Account Number
-  Only if the account membership has `canViewAccount=true` & this account has `paymentLevel=Unlimited`
-  """
-  IBAN: IBAN
-
   """Currency"""
   currency: Currency!
-
-  """`true` if the main IBAN refuses all Sepa Direct Debit received"""
-  blockSDD: Boolean
 
   """Status of the account"""
   statusInfo: AccountStatusInfo!
@@ -71,6 +56,9 @@ type Account {
     the index (a unique reference in string form) from which you will load the following elements
     """
     after: String
+
+    """filters that can be applied when listing virtual iban entries"""
+    filters: VirtualIbanEntriesFilterInput
   ): VirtualIBANEntryConnection!
 
   """
@@ -118,6 +106,21 @@ type Account {
 
   """Download link to the main account iban's bank details"""
   bankDetails: String
+
+  """
+  Bank Identifier Code
+  Only if the account membership has `canViewAccount=true` & this account has `paymentLevel=Unlimited`
+  """
+  BIC: BIC!
+
+  """
+  International Bank Account Number
+  Only if the account membership has `canViewAccount=true` & this account has `paymentLevel=Unlimited`
+  """
+  IBAN: IBAN
+
+  """`true` if the main IBAN refuses all Sepa Direct Debit received"""
+  blockSDD: Boolean
 
   """
   A list of invoices of an account.
@@ -192,12 +195,10 @@ enum AccountCountry {
   """Spanish account with a Spanish IBAN, starting with ES."""
   ESP
 
-  """Dutch account with a Dutch IBAN, starting with DU."""
+  """Dutch account with a Dutch IBAN, starting with NL."""
   NLD
 
-  """
-  Italian account with an Italian IBAN, starting with IT (Coming Soon, not supported yet).
-  """
+  """Italian account with an Italian IBAN, starting with IT."""
   ITA
 }
 
@@ -408,6 +409,9 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
   - either the natural person (s) who exercise, by other means, a power of control of the company;
   """
   individualUltimateBeneficialOwners: [IndividualUltimateBeneficialOwner!]!
+
+  """Returns the list of representatives of a company."""
+  representatives: [Representative!]!
 
   """
   Unique number that identifies a taxable person (business) or non-taxable legal entity that is registered for VAT
@@ -736,12 +740,6 @@ type AccountMembership {
   acceptedIdentificationLevels: [IdentificationLevel]!
 
   """
-  Recommended identification level
-  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
-  """
-  recommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
-
-  """
   Indicate if the identity bound to the account membership has required identification level
   """
   hasRequiredIdentificationLevel: Boolean
@@ -918,15 +916,15 @@ input AccountMembershipsFilterInput {
   Search string to look for
   
   Search will be performed in following fields:
-   - First name
-   - Last name
-   - Email
-   - ID
+  - First name
+  - Last name
+  - Email
+  - ID
   """
   search: String
 
   """Filter by account"""
-  accountId: String
+  accountId: ID
 }
 
 """AccountMembership enabled"""
@@ -1087,6 +1085,14 @@ Rejection returned when the Account Verification is not in the expected status
 """
 type AccountVerificationWrongStatusRejection implements Rejection {
   message: String!
+}
+
+"""Acquisition channel."""
+enum AcquisitionChannel {
+  InboundOrganic
+  InboundReferral
+  OutboundSales
+  OutboundAccountingFirm
 }
 
 type ActiveMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusInfo {
@@ -1827,7 +1833,7 @@ enum CardAuthorizationType {
   DataRequest
 }
 
-type CardMerchantPayment {
+type CardMerchantPayment implements MerchantPayment {
   """unique identifier of a merchant payment"""
   id: ID!
 
@@ -1837,26 +1843,14 @@ type CardMerchantPayment {
   """amount"""
   amount: Amount!
 
-  """unique identifier of the payment mandate associated to the payment"""
-  paymentMandateId: ID! @deprecated(reason: "Use paymentMandate.id instead")
-
   """payment link associated to the merchant payment"""
   paymentMandate: PaymentMandate!
-
-  """unique identifier of the payment link associated to the payment"""
-  paymentLinkId: ID @deprecated(reason: "Use paymentLink.id instead")
 
   """payment link associated to the merchant payment"""
   paymentLink: MerchantPaymentLink
 
-  """unique identifier of the merchant profile associated to the payment"""
-  merchantProfileId: ID! @deprecated(reason: "Use merchantProfile.id instead")
-
   """merchant profile associated to the merchant payment"""
   merchantProfile: MerchantProfile!
-
-  """unique identifier of the payment method associated to the payment"""
-  paymentMethodId: ID! @deprecated(reason: "Use paymentMethod.id instead")
 
   """payment method associated to the merchant payment"""
   paymentMethod: MerchantPaymentMethod!
@@ -1873,32 +1867,31 @@ type CardMerchantPayment {
 
   """The billing address associated to the payment"""
   billingAddress: Address
-  threeDS: ThreeDS @deprecated(reason: "Use threeDs instead")
   threeDs: ThreeDS
-
-  """Created date"""
-  createdAt: DateTime!
 
   """Updated date"""
   updatedAt: DateTime!
 
+  """Created date"""
+  createdAt: DateTime @deprecated(reason: "use createdAt in statusInfo instead")
+
   """Authorized date"""
-  authorizedAt: DateTime
+  authorizedAt: DateTime @deprecated(reason: "use authorizedAt in statusInfo instead")
 
   """Canceled date"""
-  canceledAt: DateTime
+  canceledAt: DateTime @deprecated(reason: "use canceledAt in statusInfo instead")
 
   """Captured date"""
-  capturedAt: DateTime
+  capturedAt: DateTime @deprecated(reason: "use capturedAt in statusInfo instead")
 
   """Rejected date"""
-  rejectedAt: DateTime
+  rejectedAt: DateTime @deprecated(reason: "use rejectedAt in statusInfo instead")
 
   """Refunded date"""
-  refundedAt: DateTime
+  refundedAt: DateTime @deprecated(reason: "use refundedAt in statusInfo instead")
 
   """Disputed date"""
-  disputedAt: DateTime
+  disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
 }
 
 """COMING SOON"""
@@ -1911,6 +1904,9 @@ type CardMerchantPaymentMethod implements MerchantPaymentMethod {
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -1922,6 +1918,9 @@ type CardMerchantPaymentMethod implements MerchantPaymentMethod {
   """Version of the Merchant Payment Method"""
   version: Int!
 
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
+
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
 
@@ -1930,6 +1929,9 @@ type CardMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """Reason of rejection when the status is Rejected"""
   rejectReason: MerchantPaymentMethodCardRejectReason
+
+  """The Merchant Payment Method payment amount limit"""
+  paymentAmountLimit: Amount
 }
 
 """
@@ -2047,6 +2049,9 @@ type CheckMerchantPaymentMethod implements MerchantPaymentMethod {
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -2058,11 +2063,17 @@ type CheckMerchantPaymentMethod implements MerchantPaymentMethod {
   """Version of the Merchant Payment Method"""
   version: Int!
 
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
+
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
 
   """Rolling Reserve applied to the Merchant Payment Method"""
   rollingReserve: RollingReserve
+
+  """The Merchant Payment Method payment amount limit"""
+  paymentAmountLimit: Amount
 }
 
 """List of Check return reasons"""
@@ -2108,6 +2119,14 @@ enum CloseAccountReasonType {
 Union between PartnerCloseAccountReasonType and InternalCloseAccountReason
 """
 union CloseAccountStatusReason = CloseAccountReason
+
+type CompanyRepresentative {
+  roles: [String!]
+  entityName: String
+  registrationNumber: String
+  legalForm: String
+  residencyAddress: AddressInformation
+}
 
 """Company shareholder info."""
 type CompanyShareholder {
@@ -2313,6 +2332,8 @@ enum ConsentOperationPropertyName {
   DebtorIban
   DebtorName
   DeliveryAddress
+  DeviceName
+  DeviceOs
   Email
   ExchangeRate
   FirstName
@@ -2361,6 +2382,9 @@ enum ConsentPurpose {
 
   """when activating a physical card"""
   ActivatePhysicalCard
+
+  """when activating a digital card"""
+  ActivateDigitalCard
 
   """when closing an account"""
   CloseAccount
@@ -2421,6 +2445,9 @@ enum ConsentPurpose {
 
   """when initiating the creation of a credit limit."""
   RequestCreditLimit
+
+  """if the consent originates from a 3DS flow"""
+  ThreeDsPayment
 }
 
 type ConsentResponse {
@@ -2670,6 +2697,9 @@ enum DetailedConsentPurpose {
   """when activating a physical card"""
   ActivatePhysicalCard
 
+  """when activating a digital card"""
+  ActivateDigitalCard
+
   """when closing an account"""
   CloseAccount
 
@@ -2895,7 +2925,9 @@ enum DocumentReasonCode {
   """Bank name in articles of association document is invalid"""
   InvalidDepositBankName
 
-  """Missing the register extract of the company providing accommodation"""
+  """
+  Missing the register extract of the company providing accommodation and ID document of the legal representative
+  """
   MissingCompanyProviderRegisterExtract
 }
 
@@ -3044,6 +3076,10 @@ enum EnvType {
   Sandbox
 }
 
+type ExemptThreeDsStatusInfo implements ThreeDsStatusInfo {
+  status: IncomingThreeDsStatus!
+}
+
 """
 Describes an identification level for the process associated to this identification that has expired and is no longer considered valid
 """
@@ -3105,15 +3141,15 @@ type FacePhotoDocument {
   type: DocumentType!
 }
 
-type FailedThreeDs implements ThreeDsStatusInfo {
-  status: ThreeDsStatus!
-  reasonCode: FailedThreeDsReason!
-}
-
 enum FailedThreeDsReason {
   AuthenticationFailed
   AuthenticationExpired
   Other
+}
+
+type FailedThreeDsStatusInfo implements ThreeDsStatusInfo {
+  status: IncomingThreeDsStatus!
+  reasonCode: FailedThreeDsReason!
 }
 
 interface Field {
@@ -3389,6 +3425,12 @@ type FundingSourceWrongStatusRejection implements Rejection {
   expectedStatus: FundingSourceStatus!
 }
 
+enum Gender {
+  Male
+  Female
+  Unknown
+}
+
 """GenerateCheckInput"""
 input GenerateCheckInput {
   fnciResult: FNCIResult
@@ -3550,7 +3592,7 @@ If requested by sending the right parameters to the initial oauth2 url,
 it contains the identification level that is requested to be fulfilled
 after the oauth2 consent by starting the right identification.
 
-QES => use the `startFourthlineExpertIdVerificationIdentification` mutation
+QES => use the `startFourthlineQesIdentification` mutation
 
 Expert => use the `startUbbleExpertIdVerificationIdentification` mutation
 
@@ -3831,9 +3873,31 @@ enum IncomingSepaDirectDebitReturnReasonCodeEnum {
   ReasonNotSpecifiedByDebtor
 }
 
+enum IncomingThreeDsStatus {
+  NotRequested
+  Requested
+  Exempt
+  Succeeded
+  Failed
+}
+
 """Rejection returned if the transaction was of incorrect type"""
 type IncorrectTransactionTypeRejection implements Rejection {
   message: String!
+}
+
+type IndividualRepresentative {
+  roles: [String!]
+  firstNames: [String!]
+  firstName: String
+  lastName: String
+  gender: Gender
+  birthDate: String
+  birthCity: String
+  birthCityPostalCode: String
+  birthCountryCode: CCA3
+  nationality: CCA3
+  residencyAddress: AddressInformation
 }
 
 """Individual shareholder info."""
@@ -3865,6 +3929,9 @@ type IndividualUltimateBeneficialOwner {
 
   """individual last name"""
   lastName: String
+
+  """gender"""
+  gender: Gender
 
   """individual birth date"""
   birthDate: DateTime
@@ -3911,6 +3978,9 @@ input IndividualUltimateBeneficialOwnerInput {
   """
   lastName: String
 
+  """Gender"""
+  gender: Gender
+
   """Individual birth date. Must be a valid date in the YYYY/MM/DD format"""
   birthDate: String
 
@@ -3944,9 +4014,6 @@ input IndividualUltimateBeneficialOwnerInput {
 
   """Individual beneficial owner residency address"""
   residencyAddress: ResidencyAddressInput
-
-  """Individual ultimate beneficial owner title (Mr/Ms)"""
-  title: TitleEnum
 
   """Ultimate beneficial owner's identity document details"""
   identityDocumentDetails: UBOIdentityDocumentDetailsInput
@@ -4021,6 +4088,9 @@ type InternalDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMetho
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -4031,6 +4101,9 @@ type InternalDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMetho
 
   """Version of the Merchant Payment Method"""
   version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
 
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
@@ -4056,6 +4129,9 @@ type InternalDirectDebitStandardMerchantPaymentMethod implements MerchantPayment
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -4066,6 +4142,9 @@ type InternalDirectDebitStandardMerchantPaymentMethod implements MerchantPayment
 
   """Version of the Merchant Payment Method"""
   version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
 
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
@@ -4408,7 +4487,7 @@ input MandateAmendment {
 
 """Banking fee which could add manually"""
 enum ManualBankingFee {
-  """Drafting a circulation letter for a legal entity holder"""
+  """Drafting a circularization letter for a legal entity holder"""
   CirculationLetterDraftingFee
 
   """Drafting a confirmation letter for a legal entity holder"""
@@ -4476,10 +4555,10 @@ input MembershipsFilterInput {
   Search string to look for
   
   Search will be performed in following fields:
-   - First name
-   - Last name
-   - Email
-   - ID
+  - First name
+  - Last name
+  - Email
+  - ID
   """
   search: String
 }
@@ -4561,7 +4640,7 @@ enum MerchantCategory {
   Travel
 }
 
-type MerchantPayment {
+interface MerchantPayment {
   """unique identifier of a merchant payment"""
   id: ID!
 
@@ -4571,26 +4650,14 @@ type MerchantPayment {
   """amount"""
   amount: Amount!
 
-  """unique identifier of the payment mandate associated to the payment"""
-  paymentMandateId: ID! @deprecated(reason: "Use paymentMandate.id instead")
-
   """payment link associated to the merchant payment"""
   paymentMandate: PaymentMandate!
-
-  """unique identifier of the payment link associated to the payment"""
-  paymentLinkId: ID @deprecated(reason: "Use paymentLink.id instead")
 
   """payment link associated to the merchant payment"""
   paymentLink: MerchantPaymentLink
 
-  """unique identifier of the merchant profile associated to the payment"""
-  merchantProfileId: ID! @deprecated(reason: "Use merchantProfile.id instead")
-
   """merchant profile associated to the merchant payment"""
   merchantProfile: MerchantProfile!
-
-  """unique identifier of the payment method associated to the payment"""
-  paymentMethodId: ID! @deprecated(reason: "Use paymentMethod.id instead")
 
   """payment method associated to the merchant payment"""
   paymentMethod: MerchantPaymentMethod!
@@ -4607,43 +4674,69 @@ type MerchantPayment {
 
   """The billing address associated to the payment"""
   billingAddress: Address
-  threeDS: ThreeDS
-
-  """Created date"""
-  createdAt: DateTime!
 
   """Updated date"""
   updatedAt: DateTime!
 
+  """Created date"""
+  createdAt: DateTime @deprecated(reason: "use createdAt in statusInfo instead")
+
   """Authorized date"""
-  authorizedAt: DateTime
+  authorizedAt: DateTime @deprecated(reason: "use authorizedAt in statusInfo instead")
 
   """Canceled date"""
-  canceledAt: DateTime
+  canceledAt: DateTime @deprecated(reason: "use canceledAt in statusInfo instead")
 
   """Captured date"""
-  capturedAt: DateTime
+  capturedAt: DateTime @deprecated(reason: "use capturedAt in statusInfo instead")
 
   """Rejected date"""
-  rejectedAt: DateTime
+  rejectedAt: DateTime @deprecated(reason: "use rejectedAt in statusInfo instead")
 
   """Refunded date"""
-  refundedAt: DateTime
+  refundedAt: DateTime @deprecated(reason: "use refundedAt in statusInfo instead")
 
   """Disputed date"""
-  disputedAt: DateTime
+  disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
 }
 
 """Merchant Payment status authorized"""
 type MerchantPaymentAuthorized implements MerchantPaymentStatusInfo {
   """status of the merchant payment"""
   status: MerchantPaymentStatus!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Authorized date"""
+  authorizedAt: DateTime!
+}
+
+"""Merchant Payment status canceled"""
+type MerchantPaymentCanceled implements MerchantPaymentStatusInfo {
+  """status of the merchant payment"""
+  status: MerchantPaymentStatus!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Canceled date"""
+  canceledAt: DateTime!
 }
 
 """Merchant Payment status captured"""
 type MerchantPaymentCaptured implements MerchantPaymentStatusInfo {
   """status of the merchant payment"""
   status: MerchantPaymentStatus!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Authorized date"""
+  authorizedAt: DateTime!
+
+  """Captured date"""
+  capturedAt: DateTime!
 }
 
 """
@@ -4660,9 +4753,27 @@ type MerchantPaymentConnection implements Connection {
   totalCount: Int!
 }
 
+"""Merchant Payment status disputed"""
+type MerchantPaymentDisputed implements MerchantPaymentStatusInfo {
+  """status of the merchant payment"""
+  status: MerchantPaymentStatus!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Authorized date"""
+  authorizedAt: DateTime!
+
+  """Captured date"""
+  capturedAt: DateTime!
+
+  """Disputed date"""
+  disputedAt: DateTime!
+}
+
 """Implements the Relay Edge interface"""
 type MerchantPaymentEdge implements Edge {
-  node: CardMerchantPayment!
+  node: MerchantPayment!
 
   """Opaque identifier pointing to this node in the pagination mechanism"""
   cursor: String!
@@ -4698,12 +4809,16 @@ input MerchantPaymentFiltersInput {
    - Amount
   """
   search: String
+  accountId: String
 }
 
 """Merchant Payment status initiated"""
 type MerchantPaymentInitiated implements MerchantPaymentStatusInfo {
   """status of the merchant payment"""
   status: MerchantPaymentStatus!
+
+  """Created date"""
+  createdAt: DateTime!
 }
 
 type MerchantPaymentLink {
@@ -4881,6 +4996,9 @@ interface MerchantPaymentMethod {
   """
   id: ID!
 
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
+
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
@@ -4900,6 +5018,9 @@ interface MerchantPaymentMethod {
 
   """Rolling Reserve applied to the Merchant Payment Method"""
   rollingReserve: RollingReserve
+
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
 }
 
 """The different rejection reasons for a CardMerchantPaymentMethod"""
@@ -4971,16 +5092,37 @@ input MerchantPaymentOrderByInput {
   direction: OrderByDirection
 }
 
+"""Merchant Payment status partially disputed"""
+type MerchantPaymentPartiallyDisputed implements MerchantPaymentStatusInfo {
+  """status of the merchant payment"""
+  status: MerchantPaymentStatus!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Authorized date"""
+  authorizedAt: DateTime!
+
+  """Captured date"""
+  capturedAt: DateTime!
+
+  """Disputed date"""
+  disputedAt: DateTime!
+}
+
 """Merchant Payment status rejected"""
 type MerchantPaymentRejected implements MerchantPaymentStatusInfo {
   """status of the merchant payment"""
   status: MerchantPaymentStatus!
 
   """rejected reason"""
-  reason: String! @deprecated(reason: "Use rejectedReasonCode instead")
-
-  """rejected reason"""
   rejectedReasonCode: MerchantPaymentRejectedReason!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Rejected date"""
+  rejectedAt: DateTime!
 }
 
 enum MerchantPaymentRejectedReason {
@@ -5007,6 +5149,19 @@ enum MerchantPaymentRejectedReason {
   SoftDeclineTransactionAmountIncorrect
   SwanRefused
   SwanTechnicalErrorOccurred
+  BankRefused
+  DebtorAccountClosed
+  DebtorAccountConsumer
+  DebtorAccountUnknown
+  DebtorDeceased
+  InsufficientFunds
+  MandateInvalid
+  ReasonNotSpecifiedByBank
+  ReasonNotSpecifiedByDebtor
+  RegulatoryReason
+  TransactionDuplicated
+  TransactionOnAccountTypeNotAllowed
+  TransactionTypeNotAllowed
 }
 
 """Merchant Payment status"""
@@ -5015,67 +5170,56 @@ enum MerchantPaymentStatus {
   Authorized
   Captured
   Rejected
+  Canceled
+  Disputed
+  PartiallyDisputed
 }
 
 """Merchant Payment Status Information"""
 interface MerchantPaymentStatusInfo {
   """status of the merchant payment"""
   status: MerchantPaymentStatus!
+
+  """Created date"""
+  createdAt: DateTime!
 }
 
 """Merchant Profile"""
 type MerchantProfile {
-  """The Merchant Profile ID"""
-  id: ID!
-
-  """The Account ID this Merchant Profile is linked to"""
-  accountId: ID!
-
-  """
-  Business name of the merchant, i.e. name that will be displayed on debtors' bank statements
-  """
-  merchantName: String!
-
-  """Url of the merchant's website"""
-  merchantWebsite: String
-
-  """Url of the merchant's logo"""
-  merchantLogoUrl: String
-
-  """The status of the merchant profile"""
-  statusInfo: MerchantProfileStatusInfo!
-
-  """
-  Type of product sold. List of value: Goods, Services, VirtualGoods, GiftsAndDonations. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities
-  """
-  productType: ProductType!
-
-  """Expected annual activity volumes for all payment method"""
-  expectedMonthlyPaymentVolume: Amount!
-
-  """Payment Methods associated"""
-  merchantPaymentMethods: [MerchantPaymentMethod!]
-
-  """Updates Requested associated"""
-  requestedMerchantProfileUpdates: [RequestMerchantProfileUpdate!] @deprecated
-
-  """Update Requested associated"""
-  requestMerchantProfileUpdate: RequestMerchantProfileUpdate
-
-  """expected average basket value."""
-  expectedAverageBasket: Amount!
-
   """
   Your accent color, used in white label interfaces.
   This color would also be inherited in the Swan Merchant Payment page.
   """
   accentColor: String
 
+  """The Account ID this Merchant Profile is linked to"""
+  accountId: ID!
+
   """created date"""
   createdAt: DateTime!
 
-  """updated date"""
-  updatedAt: DateTime!
+  """Where the payer are generally based."""
+  customerRegion: MerchantProfileCustomerRegion
+
+  """expected average basket value."""
+  expectedAverageBasket: Amount!
+
+  """Expected annual activity volumes for all payment method"""
+  expectedMonthlyPaymentVolume: Amount!
+
+  """The Merchant Profile ID"""
+  id: ID!
+
+  """Url of an example typical invoice issued by the merchant."""
+  invoiceExampleUrl: String
+
+  """Url of the merchant's logo"""
+  merchantLogoUrl: String
+
+  """
+  Business name of the merchant, i.e. name that will be displayed on debtors' bank statements
+  """
+  merchantName: String!
 
   """
   Returns a list of merchant payment links
@@ -5098,6 +5242,9 @@ type MerchantProfile {
     filters: MerchantPaymentLinkFiltersInput
   ): MerchantPaymentLinkConnection
 
+  """Payment Methods associated"""
+  merchantPaymentMethods: [MerchantPaymentMethod!]
+
   """
   Returns a list of merchant payments
   
@@ -5118,6 +5265,56 @@ type MerchantProfile {
     """a filtering table you can apply to your list of connections"""
     filters: MerchantPaymentFiltersInput
   ): MerchantPaymentConnection
+
+  """Url of the merchant's website"""
+  merchantWebsite: String
+
+  """
+  The type of payments accepted by the merchant. Can be OneOff (no returning payers in general), Recurrent (returning payers), or a mix of both OneOffAndRecurrent.
+  """
+  paymentFrequency: MerchantProfilePaymentFrequency
+
+  """
+  Type of product sold. List of value: Goods, Services, VirtualGoods, GiftsAndDonations. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities
+  """
+  productType: ProductType!
+
+  """Updates Requested associated"""
+  requestedMerchantProfileUpdates: [RequestMerchantProfileUpdate!] @deprecated
+
+  """Update Requested associated"""
+  requestMerchantProfileUpdate: RequestMerchantProfileUpdate
+
+  """The URL of the main social network of the merchant."""
+  socialNetwork: String
+
+  """The status of the merchant profile"""
+  statusInfo: MerchantProfileStatusInfo!
+
+  """The URL of the support website or help center of the merchant."""
+  supportWebsite: String
+
+  """The URL of the terms and conditions of the merchant."""
+  termsAndConditions: String
+
+  """updated date"""
+  updatedAt: DateTime!
+}
+
+enum MerchantProfileCustomerRegion {
+  Domestic
+  European
+  International
+}
+
+type MerchantProfileNotValidRejection implements Rejection {
+  message: String!
+}
+
+enum MerchantProfilePaymentFrequency {
+  OneOff
+  Recurrent
+  OneOffAndRecurrent
 }
 
 """Merchant Profile Statuses"""
@@ -5557,6 +5754,10 @@ type NotReachableConsentStatusRejection implements Rejection {
   unreachableStatus: ConsentStatus
 }
 
+type NotRequestedThreeDsStatusInfo implements ThreeDsStatusInfo {
+  status: IncomingThreeDsStatus!
+}
+
 """
 @deprecated Use 'StartedIdentificationLevelStatusInfo' instead. Deprecated to ensure consistency and clear identification status behavior
 Describes an identification level that hasn't started for the process of the current identification
@@ -5627,6 +5828,11 @@ type Onboarding {
   """Account Country"""
   accountCountry: AccountCountry!
 
+  """
+  Acquisition Channel to specify how the user joined, such as "InboundOrganic", "OutboundSales", etc.
+  """
+  acquisitionChannel: AcquisitionChannel
+
   """Creation date"""
   createdAt: DateTime!
 
@@ -5640,7 +5846,7 @@ type Onboarding {
   Language of the onboarding process.
   - Accepted languages: `["en", "fr", "nl", "de", "it", "es", "pt", "fi"]`
   """
-  language: String
+  language: AccountLanguage
 
   """Information regarding the Individual or the company to onboard"""
   info: OnboardingAccountHolderInfo!
@@ -5681,12 +5887,6 @@ type Onboarding {
 
   """List of accepted identification level for the legal representative"""
   legalRepresentativeAcceptedIdentificationLevels: [IdentificationLevel]!
-
-  """
-  Recommended identification level for the legal representative
-  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
-  """
-  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 }
 
 """The onboarding could be for an Individual or a company"""
@@ -5734,6 +5934,9 @@ type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
   - either the natural person (s) who exercise, by other means, a power of control of the company;
   """
   individualUltimateBeneficialOwners: [IndividualUltimateBeneficialOwner!]
+
+  """Returns the list of representatives of a company."""
+  representatives: [Representative!]
 
   """residency address of the head office (Must be in a European country)"""
   residencyAddress: AddressInfo
@@ -5845,6 +6048,11 @@ type OnboardingInfo {
   """
   accountCountry: AccountCountry
 
+  """
+  Acquisition Channel to specify how the user joined, such as "InboundOrganic", "OutboundSales", etc.
+  """
+  acquisitionChannel: AcquisitionChannel
+
   """email"""
   email: String
 
@@ -5852,7 +6060,7 @@ type OnboardingInfo {
   Language of the onboarding process.
   - Accepted languages: `["en", "fr", "nl", "de", "it", "es", "pt", "fi"]`
   """
-  language: String
+  language: AccountLanguage
 
   """Information regarding the Individual or the company to onboard"""
   info: OnboardingAccountHolderInfo!
@@ -5887,12 +6095,6 @@ type OnboardingInfo {
 
   """List of accepted identification level for the legal representative"""
   legalRepresentativeAcceptedIdentificationLevels: [IdentificationLevel]!
-
-  """
-  Recommended identification level for the legal representative
-  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
-  """
-  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 
   """Swan TCU URL"""
   tcuUrl: String!
@@ -6457,6 +6659,9 @@ type PhysicalCardCustomOptions {
 
   """Custom cardholder name"""
   customCardHolderName: String
+
+  """Chosen shipping provider"""
+  chosenShippingProvider: String
 }
 
 """when the physical card is in the process of being ready to use"""
@@ -7080,41 +7285,90 @@ type ReportDocumentFile implements DocumentFile {
   downloadUrl: String!
 }
 
+union Representative = IndividualRepresentative | CompanyRepresentative
+
+input RepresentativeInput {
+  type: RepresentativeType!
+  roles: [String!]
+  gender: Gender
+  firstNames: [String!]
+  firstName: String
+  lastName: String
+  birthDate: String
+  birthCity: String
+  birthCityPostalCode: String
+  birthCountryCode: CCA3
+  nationality: CCA3
+  entityName: String
+  registrationNumber: String
+  legalForm: String
+  residencyAddress: ResidencyAddressInput
+}
+
+enum RepresentativeType {
+  Individual
+  Company
+}
+
+type RequestedThreeDsStatusInfo implements ThreeDsStatusInfo {
+  status: IncomingThreeDsStatus!
+}
+
 """Request Update Merchant Profile"""
 type RequestMerchantProfileUpdate {
+  """created date"""
+  createdAt: DateTime!
+
+  """Where the payer are generally based."""
+  customerRegion: MerchantProfileCustomerRegion
+
+  """expected average basket value."""
+  expectedAverageBasket: Amount
+
+  """Expected annual activity volumes for all payment method"""
+  expectedMonthlyPaymentVolume: Amount
+
   """The Request ID"""
   id: ID!
 
-  """The Merchant Profile ID to update"""
-  merchantProfileId: ID!
-
-  """
-  Business name of the merchant, i.e. name that will be displayed on debtors' bank statements
-  """
-  merchantName: String!
-
-  """Url of the merchant's website"""
-  merchantWebsite: String
+  """Url of an example typical invoice issued by the merchant."""
+  invoiceExampleUrl: String
 
   """Url of the merchant's logo"""
   merchantLogoUrl: String
 
-  """The status of the request"""
-  status: RequestMerchantProfileUpdateStatus!
+  """
+  Business name of the merchant, i.e. name that will be displayed on debtors' bank statements
+  """
+  merchantName: String
+
+  """The Merchant Profile ID to update"""
+  merchantProfileId: ID!
+
+  """Url of the merchant's website"""
+  merchantWebsite: String
+
+  """
+  The type of payments accepted by the merchant. Can be OneOff (no returning payers in general), Recurrent (returning payers), or a mix of both OneOffAndRecurrent.
+  """
+  paymentFrequency: MerchantProfilePaymentFrequency
 
   """
   Type of product sold. List of value: Goods, Services, VirtualGoods, GiftsAndDonations. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities
   """
-  productType: ProductType!
+  productType: ProductType
 
-  """Expected annual activity volumes for all payment method"""
-  expectedMonthlyPaymentVolume: Amount!
+  """The URL of the main social network of the merchant."""
+  socialNetwork: String
 
-  """expected average basket value."""
-  expectedAverageBasket: Amount!
+  """The status of the request"""
+  status: RequestMerchantProfileUpdateStatus!
 
-  """created date"""
-  createdAt: DateTime!
+  """The URL of the support website or help center of the merchant."""
+  supportWebsite: String
+
+  """The URL of the terms and conditions of the merchant."""
+  termsAndConditions: String
 
   """updated date"""
   updatedAt: DateTime!
@@ -7525,6 +7779,9 @@ type SepaDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMethod {
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -7535,6 +7792,9 @@ type SepaDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """Version of the Merchant Payment Method"""
   version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
 
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
@@ -7550,6 +7810,9 @@ type SepaDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMethod {
   """
   sepaCreditorIdentifier: String
   updateRequest: SepaDirectDebitPaymentMethodUpdateRequest
+
+  """The Merchant Payment Method payment amount limit"""
+  paymentAmountLimit: Amount
 }
 
 """List of SDD cancel reasons"""
@@ -7571,6 +7834,9 @@ type SepaDirectDebitCoreMerchantPaymentMethod implements MerchantPaymentMethod {
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -7581,6 +7847,9 @@ type SepaDirectDebitCoreMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """Version of the Merchant Payment Method"""
   version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
 
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
@@ -7596,6 +7865,9 @@ type SepaDirectDebitCoreMerchantPaymentMethod implements MerchantPaymentMethod {
   """
   sepaCreditorIdentifier: String
   updateRequest: SepaDirectDebitPaymentMethodUpdateRequest
+
+  """The Merchant Payment Method payment amount limit"""
+  paymentAmountLimit: Amount
 }
 
 interface SEPADirectDebitMandate {
@@ -7603,6 +7875,66 @@ interface SEPADirectDebitMandate {
   Unique identifier of the received direct debit mandate, generated by Swan
   """
   id: ID!
+}
+
+type SepaDirectDebitMerchantPayment implements MerchantPayment {
+  """unique identifier of a merchant payment"""
+  id: ID!
+
+  """status information"""
+  statusInfo: MerchantPaymentStatusInfo!
+
+  """amount"""
+  amount: Amount!
+
+  """payment link associated to the merchant payment"""
+  paymentMandate: PaymentMandate!
+
+  """payment link associated to the merchant payment"""
+  paymentLink: MerchantPaymentLink
+
+  """merchant profile associated to the merchant payment"""
+  merchantProfile: MerchantProfile!
+
+  """payment method associated to the merchant payment"""
+  paymentMethod: MerchantPaymentMethod!
+  balance: MerchantBalance!
+
+  """Label"""
+  label: String
+  reference: String
+
+  """
+  an arbitrary identifier that was defined by you when you created this payment
+  """
+  externalReference: String
+
+  """The billing address associated to the payment"""
+  billingAddress: Address
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Created date"""
+  createdAt: DateTime @deprecated(reason: "use createdAt in statusInfo instead")
+
+  """Authorized date"""
+  authorizedAt: DateTime @deprecated(reason: "use authorizedAt in statusInfo instead")
+
+  """Canceled date"""
+  canceledAt: DateTime @deprecated(reason: "use canceledAt in statusInfo instead")
+
+  """Captured date"""
+  capturedAt: DateTime @deprecated(reason: "use capturedAt in statusInfo instead")
+
+  """Rejected date"""
+  rejectedAt: DateTime @deprecated(reason: "use rejectedAt in statusInfo instead")
+
+  """Refunded date"""
+  refundedAt: DateTime @deprecated(reason: "use refundedAt in statusInfo instead")
+
+  """Disputed date"""
+  disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
 }
 
 type SepaDirectDebitPaymentMethodUpdateRequest implements MerchantPaymentMethodUpdateRequest {
@@ -8028,7 +8360,7 @@ input SimulateIncomingCardAuthorizationAuthorization {
   Set this to "Authorized" to simulate a successful payment, and to "Rejected" to simulate a failed payment. You can't authorize a payment successfully with a failed 3DS. However, the authorization can be rejected even if 3DS succeed.
   """
   status: SimulateIncomingCardAuthorizationStatus!
-  rejectedReasonCode: MerchantPaymentRejectedReason
+  rejectedReasonCode: SimulationFailedCardMerchantPaymentRejectedReason
 }
 
 enum SimulateIncomingCardAuthorizationCardCategory {
@@ -8989,6 +9321,32 @@ enum SimulationCardType {
   Virtual
 }
 
+enum SimulationFailedCardMerchantPaymentRejectedReason {
+  AmountInvalid
+  CardDetailsInvalid
+  CardExpired
+  InvalidPinAttemptsExceeded
+  RejectedByCardIssuer
+  SoftDecline3dsExpiration
+  SoftDecline3dsFailure
+  SoftDecline3dsNotSupported
+  SoftDecline3dsRequired
+  SoftDeclineCardAmountLimitsExceeded
+  SoftDeclineCardDetailsInvalid
+  SoftDeclineCardExpired
+  SoftDeclineCardNotActivated
+  SoftDeclineCardNotSupported
+  SoftDeclineCvcCheckFailed
+  SoftDeclineCvcInvalid
+  SoftDeclineInsufficientFunds
+  SoftDeclineRefundTimeLimitExceeded
+  SoftDeclineRejectedByCardIssuer
+  SoftDeclineSwanTechnicalErrorOccurred
+  SoftDeclineTransactionAmountIncorrect
+  SwanRefused
+  SwanTechnicalErrorOccurred
+}
+
 enum SimulationFailedThreeDSReason {
   AuthenticationFailed
   AuthenticationExpired
@@ -9090,8 +9448,8 @@ type StartedIdentificationLevelStatusInfo {
   status: SwanIdentificationStatus!
 }
 
-type SuccessfulThreeDs implements ThreeDsStatusInfo {
-  status: ThreeDsStatus!
+type SucceededThreeDsStatusInfo implements ThreeDsStatusInfo {
+  status: IncomingThreeDsStatus!
 }
 
 """Supporting document used for compliance"""
@@ -9141,7 +9499,7 @@ type SupportingDocumentCollection {
   """
   List of supported documents contained in the supporting document collection
   """
-  supportingDocuments: [SupportingDocument]!
+  supportingDocuments: [SupportingDocument!]!
 
   """
   List of required supporting document purposes for this supporting document collection
@@ -9854,9 +10212,6 @@ type TextField implements Field {
 
 """The details of the 3DS challenge associated to the payment."""
 type ThreeDS {
-  """`true` if a 3DS challenge has been requested from the card holder"""
-  requested: Boolean!
-
   """The status of the 3DS challenge"""
   statusInfo: ThreeDsStatusInfo!
 }
@@ -9892,15 +10247,13 @@ type ThreeDsConsent implements DetailedConsent {
   amount: AmountWithCurrency!
   challenge: String
   channelName: String
-}
 
-enum ThreeDsStatus {
-  Successful
-  Failed
+  """the QR code in base64 representing the consent URL"""
+  qrCodeBase64: String
 }
 
 interface ThreeDsStatusInfo {
-  status: ThreeDsStatus!
+  status: IncomingThreeDsStatus!
 }
 
 """Individual ultimate beneficial owner title (Mr/Ms)"""
@@ -10435,6 +10788,12 @@ type VerifiedStatusInfo implements AccountVerificationStatusInfo {
   status: AccountVerificationStatus!
 }
 
+"""Filters that can be applied when listing virtual iban entries"""
+input VirtualIbanEntriesFilterInput {
+  """unique identifiers of the virtual IBAN entries to fetch"""
+  ids: [ID!]
+}
+
 """
 Virtual IBAN can be used by the account holder to receive SCT (Sepa Credit Transfer) or to be debited by SDD (Sepa Direct Debit).
 """
@@ -10500,6 +10859,7 @@ type WebBankingSettings {
   canViewPaymentList: Boolean
   canOrderVirtualCards: Boolean
   canOrderPhysicalCards: Boolean
+  canUpdateCards: Boolean
   canViewMembers: Boolean
   canAddNewMembers: Boolean
   canCreateMerchantProfile: Boolean

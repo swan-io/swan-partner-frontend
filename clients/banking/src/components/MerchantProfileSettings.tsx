@@ -25,7 +25,6 @@ import {
   radii,
   spacings,
 } from "@swan-io/lake/src/constants/design";
-import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
@@ -43,7 +42,6 @@ import {
 import { usePermissions } from "../hooks/usePermissions";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
-import { useTgglFlag } from "../utils/tggl";
 import { CheckDeclarationWizard } from "./CheckDeclarationWizard";
 import {
   MerchantProfilePaymentMethodCardRequestModal,
@@ -443,8 +441,6 @@ type Props = {
 };
 
 export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpdate }: Props) => {
-  const checkDeclarationEnabled = useTgglFlag("checks").getOr(false);
-
   const [requestMerchantPaymentMethods] = useMutation(RequestMerchantPaymentMethodsDocument);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -502,33 +498,6 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
 
   return (
     <ScrollView contentContainerStyle={[styles.content, large && styles.contentDesktop]}>
-      {checkDeclarationEnabled &&
-      permissions.canDeclareChecks &&
-      checkPaymentMethod
-        .flatMap(identity)
-        .map(check => check.statusInfo.status === "Enabled")
-        .getOr(false) ? (
-        <>
-          <Box direction="row" alignItems="center">
-            <LakeButton
-              icon="check-regular"
-              size="small"
-              color="current"
-              onPress={() => {
-                Router.push("AccountMerchantsProfileSettings", {
-                  ...params,
-                  check: "declare",
-                });
-              }}
-            >
-              {t("merchantProfile.declareCheckButton")}
-            </LakeButton>
-          </Box>
-
-          <Space height={32} />
-        </>
-      ) : null}
-
       <LakeHeading level={2} variant="h4">
         {t("merchantProfile.settings.information.title")}
       </LakeHeading>
@@ -614,10 +583,6 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
               .otherwise(() => null)}
           </Box>
 
-          {/*
-          Let's hide the button for now, and we'll add it back
-          when the simulator API to validate an edit is available.
-
           <Fill minWidth={32} />
 
           <Box direction="row" alignItems="center">
@@ -632,7 +597,7 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
                 />
               ))
               .otherwise(() => null)}
-          </Box> */}
+          </Box>
         </Box>
 
         <Space height={24} />

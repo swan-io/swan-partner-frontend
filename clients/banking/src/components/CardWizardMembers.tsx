@@ -13,7 +13,7 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { backgroundColor, breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
-import { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from "react";
+import { Ref, useCallback, useImperativeHandle, useMemo, useState } from "react";
 import {
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -61,136 +61,135 @@ const styles = StyleSheet.create({
 
 export type Member = AccountMembershipFragment;
 
+export type CardWizardMembersRef = {
+  submit: () => void;
+};
+
 type Props = {
+  ref?: Ref<CardWizardMembersRef>;
   initialMemberships?: Member[];
-  account: GetEligibleCardMembershipsQuery["account"];
+  accountMemberships: GetEligibleCardMembershipsQuery["accountMemberships"];
   style?: StyleProp<ViewStyle>;
   contentContainerStyle?: StyleProp<ViewStyle>;
   onSubmit: (currentMembers: Member[]) => void;
   setAfter: (cursor: string) => void;
 };
 
-export type CardWizardMembersRef = { submit: () => void };
+export const CardWizardMembers = ({
+  ref,
+  initialMemberships,
+  accountMemberships,
+  style,
+  contentContainerStyle,
+  onSubmit,
+  setAfter,
+}: Props) => {
+  const [currentMembers, setCurrentMembers] = useState<Member[]>(() => initialMemberships ?? []);
 
-export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
-  (
-    { initialMemberships, account, style, contentContainerStyle, onSubmit, setAfter }: Props,
+  useImperativeHandle(
     ref,
-  ) => {
-    const [currentMembers, setCurrentMembers] = useState<Member[]>(() => initialMemberships ?? []);
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        submit: () => {
-          if (currentMembers.length >= 1) {
-            onSubmit(currentMembers);
-          }
-        },
-      }),
-      [currentMembers, onSubmit],
-    );
-
-    const selectedIds = useMemo(
-      () => new Set(currentMembers.map(item => item.id)),
-      [currentMembers],
-    );
-
-    const connection = account?.memberships;
-
-    const memberships = useForwardPagination(connection);
-
-    const onScroll = useCallback(
-      (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-        const scrollTop = event.nativeEvent.contentOffset?.y ?? 0;
-        const layoutHeight = event.nativeEvent.layoutMeasurement.height;
-        const contentHeight = event.nativeEvent.contentSize.height;
-        const THRESHOLD = 200;
-
-        if (
-          memberships != null &&
-          scrollTop + layoutHeight >= contentHeight - THRESHOLD &&
-          (memberships.pageInfo.hasNextPage ?? false) &&
-          memberships.pageInfo.endCursor != null
-        ) {
-          setAfter(memberships.pageInfo.endCursor);
+    () => ({
+      submit: () => {
+        if (currentMembers.length >= 1) {
+          onSubmit(currentMembers);
         }
       },
-      [memberships, setAfter],
-    );
+    }),
+    [currentMembers, onSubmit],
+  );
 
-    if (memberships == null) {
-      return <ErrorView />;
-    }
+  const selectedIds = useMemo(() => new Set(currentMembers.map(item => item.id)), [currentMembers]);
 
-    return (
-      <ResponsiveContainer style={styles.root} breakpoint={breakpoints.medium}>
-        {({ large }) => (
-          <ScrollView
-            style={style}
-            contentContainerStyle={contentContainerStyle}
-            onScroll={onScroll}
-            scrollEventThrottle={16}
-          >
-            <Box direction="row" justifyContent="end" style={styles.titleBar}>
-              <LakeHeading level={3} variant="h5" color={colors.gray[900]}>
-                {t("cardWizard.members.cardsAlreadyOwned")}
-              </LakeHeading>
-            </Box>
+  const memberships = useForwardPagination(accountMemberships);
 
-            <View>
-              {memberships.edges.map(({ node }) => {
-                const isSelected = selectedIds.has(node.id);
+  const onScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const scrollTop = event.nativeEvent.contentOffset?.y ?? 0;
+      const layoutHeight = event.nativeEvent.layoutMeasurement.height;
+      const contentHeight = event.nativeEvent.contentSize.height;
+      const THRESHOLD = 200;
 
-                const contents = (
-                  <View style={styles.lineContainer}>
-                    <LakeCheckbox value={isSelected} />
-                    <Space width={16} />
-                    <Avatar size={large ? 32 : 24} user={node.user} />
-                    <Space width={16} />
+      if (
+        memberships != null &&
+        scrollTop + layoutHeight >= contentHeight - THRESHOLD &&
+        (memberships.pageInfo.hasNextPage ?? false) &&
+        memberships.pageInfo.endCursor != null
+      ) {
+        setAfter(memberships.pageInfo.endCursor);
+      }
+    },
+    [memberships, setAfter],
+  );
 
-                    <View style={styles.names}>
-                      <LakeHeading level={3} variant="h5" userSelect="none" style={styles.ellpsis}>
-                        {getMemberName({ accountMembership: node })}
-                      </LakeHeading>
+  if (memberships == null) {
+    return <ErrorView />;
+  }
 
-                      <LakeText userSelect="none" style={styles.ellpsis}>
-                        {node.email}
-                      </LakeText>
-                    </View>
+  return (
+    <ResponsiveContainer style={styles.root} breakpoint={breakpoints.medium}>
+      {({ large }) => (
+        <ScrollView
+          style={style}
+          contentContainerStyle={contentContainerStyle}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
+        >
+          <Box direction="row" justifyContent="end" style={styles.titleBar}>
+            <LakeHeading level={3} variant="h5" color={colors.gray[900]}>
+              {t("cardWizard.members.cardsAlreadyOwned")}
+            </LakeHeading>
+          </Box>
 
-                    <Fill minWidth={16} />
+          <View>
+            {memberships.edges.map(({ node }) => {
+              const isSelected = selectedIds.has(node.id);
 
-                    <Tag color="swan" icon="payment-regular">
-                      {node.activeCards.totalCount}
-                    </Tag>
+              const contents = (
+                <View style={styles.lineContainer}>
+                  <LakeCheckbox value={isSelected} />
+                  <Space width={16} />
+                  <Avatar size={large ? 32 : 24} user={node.user} />
+                  <Space width={16} />
+
+                  <View style={styles.names}>
+                    <LakeHeading level={3} variant="h5" userSelect="none" style={styles.ellpsis}>
+                      {getMemberName({ accountMembership: node })}
+                    </LakeHeading>
+
+                    <LakeText userSelect="none" style={styles.ellpsis}>
+                      {node.email}
+                    </LakeText>
                   </View>
-                );
 
-                return (
-                  <Pressable
-                    key={node.id}
-                    style={styles.member}
-                    onPress={() =>
-                      setCurrentMembers(members =>
-                        isSelected
-                          ? members.filter(item => item.id !== node.id)
-                          : [...members, node],
-                      )
-                    }
-                  >
-                    {({ hovered }) => (
-                      <Tile hovered={hovered} selected={isSelected} paddingVertical={16}>
-                        {contents}
-                      </Tile>
-                    )}
-                  </Pressable>
-                );
-              })}
-            </View>
-          </ScrollView>
-        )}
-      </ResponsiveContainer>
-    );
-  },
-);
+                  <Fill minWidth={16} />
+
+                  <Tag color="swan" icon="payment-regular">
+                    {node.activeCards.totalCount}
+                  </Tag>
+                </View>
+              );
+
+              return (
+                <Pressable
+                  key={node.id}
+                  style={styles.member}
+                  onPress={() =>
+                    setCurrentMembers(members =>
+                      isSelected ? members.filter(item => item.id !== node.id) : [...members, node],
+                    )
+                  }
+                >
+                  {({ hovered }) => (
+                    <Tile hovered={hovered} selected={isSelected} paddingVertical={16}>
+                      {contents}
+                    </Tile>
+                  )}
+                </Pressable>
+              );
+            })}
+          </View>
+        </ScrollView>
+      )}
+    </ResponsiveContainer>
+  );
+};

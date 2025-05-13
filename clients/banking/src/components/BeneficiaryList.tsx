@@ -324,7 +324,7 @@ const BeneficiaryListImpl = ({
 
   const { edges, pageInfo } = useForwardPagination(beneficiaries);
   const nodes = useMemo(() => edges.map(edge => edge.node), [edges]);
-  const panelRef = useRef<FocusTrapRef | null>(null);
+  const panelRef = useRef<FocusTrapRef>(null);
 
   const onActiveRowChange = useCallback(
     (element: HTMLElement) => panelRef.current?.setInitiallyFocusedElement(element),
@@ -478,7 +478,7 @@ export const BeneficiaryList = ({
                       {t("common.add")}
                     </LakeButton>
 
-                    <Space width={16} />
+                    <Space width={8} />
                   </>
                 ) : null}
 
@@ -486,7 +486,7 @@ export const BeneficiaryList = ({
 
                 {large && (
                   <>
-                    <Space width={16} />
+                    <Space width={8} />
 
                     <LakeButton
                       ariaLabel={t("common.refresh")}
@@ -504,7 +504,24 @@ export const BeneficiaryList = ({
 
                 <Fill minWidth={16} />
 
-                <Box grow={0} shrink={1} direction="row" alignItems="center" justifyContent="end">
+                <LakeSearchField
+                  maxWidth={500}
+                  placeholder={t("common.search")}
+                  initialValue={label ?? ""}
+                  onChangeText={label => {
+                    Router.push("AccountPaymentsBeneficiariesList", {
+                      ...params,
+                      label: emptyToUndefined(label),
+                    });
+                  }}
+                  renderEnd={() =>
+                    match(beneficiaries.mapOk(({ totalCount }) => totalCount))
+                      .with(AsyncData.P.Done(Result.P.Ok(P.select())), totalCount => (
+                        <Tag>{totalCount}</Tag>
+                      ))
+                      .otherwise(() => null)
+                  }
+                >
                   <Toggle
                     mode={large ? "desktop" : "mobile"}
                     value={!canceled}
@@ -519,25 +536,7 @@ export const BeneficiaryList = ({
                   />
 
                   <Space width={16} />
-
-                  <LakeSearchField
-                    placeholder={t("common.search")}
-                    initialValue={label ?? ""}
-                    onChangeText={label => {
-                      Router.push("AccountPaymentsBeneficiariesList", {
-                        ...params,
-                        label: emptyToUndefined(label),
-                      });
-                    }}
-                    renderEnd={() =>
-                      match(beneficiaries.mapOk(({ totalCount }) => totalCount))
-                        .with(AsyncData.P.Done(Result.P.Ok(P.select())), totalCount => (
-                          <Tag>{totalCount}</Tag>
-                        ))
-                        .otherwise(() => null)
-                    }
-                  />
-                </Box>
+                </LakeSearchField>
               </Box>
 
               <Space height={12} />

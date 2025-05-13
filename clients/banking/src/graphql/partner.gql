@@ -64,6 +64,15 @@ fragment TransactionDetails on Transaction {
   executionDate
   updatedAt
   ... on CardTransaction {
+    originalAmount {
+      currency
+      value
+    }
+    reservedAmount {
+      currency
+      value
+    }
+    reservedAmountReleasedAt
     cardDetails @include(if: $canQueryCardOnTransaction) {
       ... on CardOutDetails {
         maskedPan
@@ -79,6 +88,15 @@ fragment TransactionDetails on Transaction {
               fullName
             }
           }
+        }
+      }
+      ... on CardInDetails {
+        paymentMandate {
+          id
+          name
+          createdAt
+          updatedAt
+          executedAt
         }
       }
     }
@@ -431,6 +449,7 @@ fragment WebBankingSettings on WebBankingSettings {
   canRequestChecksPaymentMethod
   canInitiateCheckMerchantPayments
   canCreateMerchantPaymentLinks
+  canUpdateCards
 }
 
 query AccountArea($accountMembershipId: ID!) {
@@ -1335,6 +1354,32 @@ query MembersPage(
   $canInitiatePayments: Boolean
   $search: String
 ) {
+  accountMemberships(
+    first: $first
+    after: $after
+    filters: {
+      canManageAccountMembership: $canManageAccountMembership
+      canManageBeneficiaries: $canManageBeneficiaries
+      canInitiatePayments: $canInitiatePayments
+      canViewAccount: $canViewAccount
+      canManageCards: $canManageCards
+      status: $status
+      search: $search
+      accountId: $accountId
+    }
+  ) {
+    totalCount
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    edges {
+      cursor
+      node {
+        ...AccountMembership
+      }
+    }
+  }
   account(accountId: $accountId) {
     id
     number
@@ -1346,31 +1391,6 @@ query MembersPage(
       id
       info {
         name
-      }
-    }
-    memberships(
-      first: $first
-      after: $after
-      filters: {
-        canManageAccountMembership: $canManageAccountMembership
-        canManageBeneficiaries: $canManageBeneficiaries
-        canInitiatePayments: $canInitiatePayments
-        canViewAccount: $canViewAccount
-        canManageCards: $canManageCards
-        status: $status
-        search: $search
-      }
-    ) {
-      totalCount
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-      edges {
-        cursor
-        node {
-          ...AccountMembership
-        }
       }
     }
   }
@@ -1795,7 +1815,40 @@ fragment AddressInfo on AddressInfo {
   state
 }
 
-query GetCardProducts($accountMembershipId: ID!, $after: String, $first: Int!, $search: String) {
+query GetCardProducts(
+  $accountMembershipId: ID!
+  $after: String
+  $first: Int!
+  $search: String
+  $accountId: ID!
+) {
+  allMemberships: accountMemberships(
+    filters: { status: [Enabled, InvitationSent, BindingUserError], accountId: $accountId }
+  ) {
+    totalCount
+  }
+  accountMemberships(
+    after: $after
+    first: $first
+    filters: {
+      search: $search
+      status: [Enabled, InvitationSent, BindingUserError]
+      accountId: $accountId
+    }
+  ) {
+    totalCount
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    edges {
+      cursor
+      node {
+        id
+        ...AccountMembership
+      }
+    }
+  }
   accountMembership(id: $accountMembershipId) {
     id
     account {
@@ -1813,29 +1866,6 @@ query GetCardProducts($accountMembershipId: ID!, $after: String, $first: Int!, $
         }
         residencyAddress {
           ...AddressInfo
-        }
-      }
-      allMemberships: memberships(
-        filters: { status: [Enabled, InvitationSent, BindingUserError] }
-      ) {
-        totalCount
-      }
-      memberships(
-        after: $after
-        first: $first
-        filters: { search: $search, status: [Enabled, InvitationSent, BindingUserError] }
-      ) {
-        totalCount
-        pageInfo {
-          endCursor
-          hasNextPage
-        }
-        edges {
-          cursor
-          node {
-            id
-            ...AccountMembership
-          }
         }
       }
     }
@@ -1903,32 +1933,33 @@ fragment CardProduct on CardProduct {
   defaultCardProduct
 }
 
-query GetEligibleCardMemberships($accountId: ID!, $after: String, $first: Int!, $search: String) {
-  account(accountId: $accountId) {
-    id
-    allMemberships: memberships(
-      after: $after
-      first: $first
-      filters: { status: [Enabled, InvitationSent, BindingUserError] }
-    ) {
-      totalCount
+query GetEligibleCardMemberships($after: String, $first: Int!, $search: String, $accountId: ID!) {
+  allMemberships: accountMemberships(
+    after: $after
+    first: $first
+    filters: { status: [Enabled, InvitationSent, BindingUserError], accountId: $accountId }
+  ) {
+    totalCount
+  }
+  accountMemberships(
+    after: $after
+    first: $first
+    filters: {
+      search: $search
+      status: [Enabled, InvitationSent, BindingUserError]
+      accountId: $accountId
     }
-    memberships(
-      after: $after
-      first: $first
-      filters: { search: $search, status: [Enabled, InvitationSent, BindingUserError] }
-    ) {
-      totalCount
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-      edges {
-        cursor
-        node {
-          id
-          ...AccountMembership
-        }
+  ) {
+    totalCount
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    edges {
+      cursor
+      node {
+        id
+        ...AccountMembership
       }
     }
   }
@@ -2250,6 +2281,163 @@ fragment PaymentLink on MerchantPaymentLink {
   }
 }
 
+fragment MerchantPayment on MerchantPayment {
+  id
+  label
+  __typename
+  externalReference
+  statusInfo {
+    status
+    createdAt
+    ... on MerchantPaymentAuthorized {
+      createdAt
+      authorizedAt
+    }
+    ... on MerchantPaymentCanceled {
+      createdAt
+      canceledAt
+    }
+    ... on MerchantPaymentCaptured {
+      createdAt
+      authorizedAt
+      capturedAt
+    }
+    ... on MerchantPaymentDisputed {
+      createdAt
+      authorizedAt
+      capturedAt
+      disputedAt
+    }
+    ... on MerchantPaymentInitiated {
+      createdAt
+    }
+    ... on MerchantPaymentPartiallyDisputed {
+      createdAt
+      authorizedAt
+      capturedAt
+      disputedAt
+    }
+    ... on MerchantPaymentRejected {
+      rejectedReasonCode
+      createdAt
+      rejectedAt
+    }
+  }
+  amount {
+    currency
+    value
+  }
+  paymentMethod {
+    id
+    type
+  }
+  merchantProfile {
+    id
+  }
+  balance {
+    totalAuthorized {
+      currency
+      value
+    }
+    totalCaptured {
+      currency
+      value
+    }
+    availableToCapture {
+      currency
+      value
+    }
+    totalRefunded {
+      currency
+      value
+    }
+    availableToRefund {
+      currency
+      value
+    }
+    availableToCancel {
+      currency
+      value
+    }
+    totalCanceled {
+      currency
+      value
+    }
+    totalDisputed {
+      currency
+      value
+    }
+  }
+  paymentLink {
+    id
+  }
+  reference
+  ... on CardMerchantPayment {
+    threeDs {
+      statusInfo {
+        status
+        ... on FailedThreeDsStatusInfo {
+          reasonCode
+        }
+      }
+    }
+  }
+}
+
+fragment MerchantPaymentsConnection on MerchantPaymentConnection {
+  pageInfo {
+    endCursor
+    hasNextPage
+  }
+  totalCount
+  edges {
+    node {
+      ...MerchantPayment
+    }
+  }
+}
+
+query MerchantPayments(
+  $merchantProfileId: ID!
+  $filters: MerchantPaymentFiltersInput!
+  $first: Int!
+  $after: String
+) {
+  merchantProfile(id: $merchantProfileId) {
+    id
+    statusInfo {
+      status
+    }
+    accentColor
+    merchantLogoUrl
+    merchantName
+    merchantPayments(filters: $filters, first: $first, after: $after) {
+      ...MerchantPaymentsConnection
+    }
+    merchantPaymentMethods {
+      id
+      type
+      statusInfo {
+        status
+      }
+    }
+  }
+}
+
+query GetMainMerchantPaymentDetails($paymentId: ID!) {
+  merchantPayment(id: $paymentId) {
+    ...MerchantPayment
+  }
+}
+
+query GetFullMerchantPaymentDetails($paymentId: ID!, $paymentLinkId: ID!) {
+  merchantPayment(id: $paymentId) {
+    ...MerchantPayment
+  }
+  merchantPaymentLink(id: $paymentLinkId) {
+    ...PaymentLink
+  }
+}
 fragment PaymentLinkConnection on MerchantPaymentLinkConnection {
   pageInfo {
     endCursor
@@ -2883,7 +3071,7 @@ mutation RequestMerchantProfileUpdate($input: RequestMerchantProfileUpdateInput!
   requestMerchantProfileUpdate(input: $input) {
     __typename
     ... on RequestMerchantProfileUpdateSuccessPayload {
-      requestMerchantProfileUpdate {
+      merchantProfile {
         id
       }
     }

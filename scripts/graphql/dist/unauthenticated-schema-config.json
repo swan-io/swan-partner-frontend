@@ -85,6 +85,7 @@
       "InternalErrorRejection",
       "InvalidArgumentRejection",
       "InvalidPhoneNumberRejection",
+      "InvalidShippingProviderRejection",
       "InvalidSirenNumberRejection",
       "LegalRepresentativeAccountMembershipCannotBeDisabledRejection",
       "LegalRepresentativeAccountMembershipCannotBeSuspendedRejection",
@@ -159,6 +160,16 @@
       "CardEnabledStatusInfo",
       "CardProcessingStatusInfo"
     ],
+    "CardInsuranceSubscriptionStatusInfo": [
+      "CardInsuranceSubscriptionCanceledStatusInfo",
+      "CardInsuranceSubscriptionEnabledStatusInfo",
+      "CardInsuranceSubscriptionPendingStatusInfo",
+      "CardInsuranceSubscriptionProcessingStatusInfo"
+    ],
+    "MerchantPayment": [
+      "CardMerchantPayment",
+      "SepaDirectDebitMerchantPayment"
+    ],
     "MerchantPaymentMethod": [
       "CardMerchantPaymentMethod",
       "CheckMerchantPaymentMethod",
@@ -174,6 +185,12 @@
     "DigitalCard": [
       "CompleteDigitalCard",
       "PendingDigitalCard"
+    ],
+    "VerificationRenewal": [
+      "CompletedVerificationRenewal",
+      "PendingVerificationRenewal",
+      "RefusedVerificationRenewal",
+      "WaitingForInformationVerificationRenewal"
     ],
     "CompleteDigitalCardStatusInfo": [
       "DigitalCardCanceledStatusInfo",
@@ -200,8 +217,11 @@
       "SuspendedMerchantProfileStatusInfo"
     ],
     "ThreeDsStatusInfo": [
-      "FailedThreeDs",
-      "SuccessfulThreeDs"
+      "ExemptThreeDsStatusInfo",
+      "FailedThreeDsStatusInfo",
+      "NotRequestedThreeDsStatusInfo",
+      "RequestedThreeDsStatusInfo",
+      "SucceededThreeDsStatusInfo"
     ],
     "FundingLimitSettingsChangeRequestStatusInfo": [
       "FundingLimitSettingsChangeRequestApprovedStatusInfo",
@@ -216,8 +236,11 @@
     ],
     "MerchantPaymentStatusInfo": [
       "MerchantPaymentAuthorized",
+      "MerchantPaymentCanceled",
       "MerchantPaymentCaptured",
+      "MerchantPaymentDisputed",
       "MerchantPaymentInitiated",
+      "MerchantPaymentPartiallyDisputed",
       "MerchantPaymentRejected"
     ],
     "OnboardingAccountHolderInfo": [

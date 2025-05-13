@@ -175,7 +175,7 @@ export const AccountArea = ({
   reload,
 }: Props) => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const scrollView = useRef<ScrollViewRef | null>(null);
+  const scrollView = useRef<ScrollViewRef>(null);
 
   const scrollToTop = useCallback(() => {
     scrollView.current?.scrollTo({ y: 0, animated: true });
@@ -312,7 +312,7 @@ export const AccountArea = ({
     [firstName, preferredLastName, phoneNumber, userId, email, projectName],
   );
 
-  const accountPickerButtonRef = useRef<View | null>(null);
+  const accountPickerButtonRef = useRef<View>(null);
   const [isAccountPickerOpen, setAccountPickerOpen] = useBoolean(false);
 
   const accountId = accountMembership.accountId;

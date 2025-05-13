@@ -33,7 +33,7 @@
   "company.step.organisation1.addressPlaceholder": "Begin met typen…",
   "company.step.organisation1.addressTitle": "Bedrijfsadres",
   "company.step.organisation1.cityLabel": "Stad",
-  "company.step.organisation1.isRegisteredLabel": "Ben je geregistreerd?",
+  "company.step.organisation1.isRegisteredLabel": "Ben je ingeschreven?",
   "company.step.organisation1.isRegisteredLabel.description": "Als je dat wel bent, wordt er gevraagd naar je {registrationNumberLegalName}",
   "company.step.organisation1.isRegisteredWithNameLabel": "Ben je geregistreerd bij {countryRegisterName}?",
   "company.step.organisation1.organisationLabel": "Jouw organisatie",

@@ -17,7 +17,7 @@ import {
 } from "@swan-io/lake/src/constants/design";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
-import { forwardRef, useCallback, useEffect, useState } from "react";
+import { Ref, useCallback, useEffect, useState } from "react";
 import { GestureResponderEvent, Pressable, StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import {
@@ -250,6 +250,7 @@ export type AccountActivationTag =
   | "closed";
 
 type AccountPickerButtonProps = {
+  ref?: Ref<View>;
   desktop: boolean;
   accountMembershipId: string;
   activationTag: AccountActivationTag;
@@ -261,123 +262,119 @@ type AccountPickerButtonProps = {
   availableBalance?: Amount;
 };
 
-export const AccountPickerButton = forwardRef<View, AccountPickerButtonProps>(
-  (
-    {
-      accountMembershipId,
-      activationTag,
-      activationLinkActive,
-      hasMultipleMemberships,
-      selectedAccountMembership,
-      desktop,
-      onPress,
-      onPressActivationLink,
-      availableBalance,
-    },
-    ref,
-  ) => {
-    return (
-      <View style={styles.container}>
-        <View style={styles.base}>
-          <Pressable
-            ref={ref}
-            style={({ hovered }) => [styles.account, hovered && styles.hoveredAccount]}
-            disabled={!hasMultipleMemberships}
-            onPress={onPress}
-          >
-            <View style={styles.accountIdentifier}>
-              <LakeHeading variant="h5" level={3} numberOfLines={3} color={colors.gray[900]}>
-                {selectedAccountMembership.account != null
-                  ? selectedAccountMembership.account.name
-                  : selectedAccountMembership.email}
-              </LakeHeading>
+export const AccountPickerButton = ({
+  ref,
+  accountMembershipId,
+  activationTag,
+  activationLinkActive,
+  hasMultipleMemberships,
+  selectedAccountMembership,
+  desktop,
+  onPress,
+  onPressActivationLink,
+  availableBalance,
+}: AccountPickerButtonProps) => {
+  return (
+    <View style={styles.container}>
+      <View style={styles.base}>
+        <Pressable
+          ref={ref}
+          style={({ hovered }) => [styles.account, hovered && styles.hoveredAccount]}
+          disabled={!hasMultipleMemberships}
+          onPress={onPress}
+        >
+          <View style={styles.accountIdentifier}>
+            <LakeHeading variant="h5" level={3} numberOfLines={3} color={colors.gray[900]}>
+              {selectedAccountMembership.account != null
+                ? selectedAccountMembership.account.name
+                : selectedAccountMembership.email}
+            </LakeHeading>
 
-              {selectedAccountMembership.account != null ? (
-                <LakeText variant="smallRegular" numberOfLines={1} color={colors.gray[500]}>
-                  {selectedAccountMembership.account.holder.info.name}
-                </LakeText>
-              ) : null}
-            </View>
-
-            {hasMultipleMemberships ? (
-              <Icon name={desktop ? "chevron-down-filled" : "chevron-right-filled"} size={16} />
-            ) : (
-              <Space width={16} />
-            )}
-          </Pressable>
-
-          {isNotNullish(availableBalance) && desktop && (
-            <View style={styles.balance}>
-              <LakeText variant="semibold" color={colors.gray[900]}>
-                {formatCurrency(Number(availableBalance.value), availableBalance.currency)}
+            {selectedAccountMembership.account != null ? (
+              <LakeText variant="smallRegular" numberOfLines={1} color={colors.gray[500]}>
+                {selectedAccountMembership.account.holder.info.name}
               </LakeText>
-            </View>
+            ) : null}
+          </View>
+
+          {hasMultipleMemberships ? (
+            <Icon name={desktop ? "chevron-down-filled" : "chevron-right-filled"} size={16} />
+          ) : (
+            <Space width={16} />
           )}
+        </Pressable>
 
-          {activationTag !== "none" && (
-            <View>
-              {match(activationTag)
-                .with("refused", () => (
-                  <View style={styles.activationLink}>
-                    <Tag color="negative" size="small">
-                      {t("accountActivation.menuTag.refused")}
-                    </Tag>
-                  </View>
-                ))
-                .with("suspended", () => (
-                  <View style={styles.activationLink}>
-                    <Tag color="warning" size="small">
-                      {t("accountActivation.menuTag.suspended")}
-                    </Tag>
-                  </View>
-                ))
-                .with("closing", () => (
-                  <View style={styles.activationLink}>
-                    <Tag color="warning" size="small">
-                      {t("accountActivation.menuTag.closing")}
-                    </Tag>
-                  </View>
-                ))
-                .with("closed", () => (
-                  <View style={styles.activationLink}>
-                    <Tag color="negative" size="small">
-                      {t("accountActivation.menuTag.closed")}
-                    </Tag>
-                  </View>
-                ))
-                .otherwise(activationTag => (
-                  <Link
-                    to={Router.AccountActivation({ accountMembershipId })}
-                    onPress={onPressActivationLink}
-                    style={({ hovered }) => [
-                      styles.activationLink,
-                      hovered && styles.activationLinkHovered,
-                    ]}
-                  >
-                    {match(activationTag)
-                      .with("actionRequired", () => (
-                        <Tag color="warning" size="small">
-                          {t("accountActivation.menuTag.actionRequired")}
-                        </Tag>
-                      ))
-                      .with("pending", () => (
-                        <Tag color="shakespear" size="small">
-                          {t("accountActivation.menuTag.pending")}
-                        </Tag>
-                      ))
-                      .exhaustive()}
+        {isNotNullish(availableBalance) && desktop && (
+          <View style={styles.balance}>
+            <LakeText variant="semibold" color={colors.gray[900]}>
+              {formatCurrency(Number(availableBalance.value), availableBalance.currency)}
+            </LakeText>
+          </View>
+        )}
 
-                    <Icon name="arrow-right-filled" size={16} color={colors.gray[500]} />
-                  </Link>
-                ))}
+        {activationTag !== "none" && (
+          <View>
+            {match(activationTag)
+              .with("refused", () => (
+                <View style={styles.activationLink}>
+                  <Tag color="negative" size="small">
+                    {t("accountActivation.menuTag.refused")}
+                  </Tag>
+                </View>
+              ))
+              .with("suspended", () => (
+                <View style={styles.activationLink}>
+                  <Tag color="warning" size="small">
+                    {t("accountActivation.menuTag.suspended")}
+                  </Tag>
+                </View>
+              ))
+              .with("closing", () => (
+                <View style={styles.activationLink}>
+                  <Tag color="warning" size="small">
+                    {t("accountActivation.menuTag.closing")}
+                  </Tag>
+                </View>
+              ))
+              .with("closed", () => (
+                <View style={styles.activationLink}>
+                  <Tag color="negative" size="small">
+                    {t("accountActivation.menuTag.closed")}
+                  </Tag>
+                </View>
+              ))
+              .otherwise(activationTag => (
+                <Link
+                  to={Router.AccountActivation({ accountMembershipId })}
+                  onPress={onPressActivationLink}
+                  style={({ hovered }) => [
+                    styles.activationLink,
+                    hovered && styles.activationLinkHovered,
+                  ]}
+                >
+                  {match(activationTag)
+                    .with("actionRequired", () => (
+                      <Tag color="warning" size="small">
+                        {t("accountActivation.menuTag.actionRequired")}
+                      </Tag>
+                    ))
+                    .with("pending", () => (
+                      <Tag color="shakespear" size="small">
+                        {t("accountActivation.menuTag.pending")}
+                      </Tag>
+                    ))
+                    .exhaustive()}
 
-              {activationLinkActive && (
-                <SidebarNavigationTrackerActiveMarker color={colors.current[500]} />
-              )}
-            </View>
-          )}
-        </View>
+                  <Icon name="arrow-right-filled" size={16} color={colors.gray[500]} />
+                </Link>
+              ))}
+
+            {activationLinkActive && (
+              <SidebarNavigationTrackerActiveMarker color={colors.current[500]} />
+            )}
+          </View>
+        )}
       </View>
-    );
-  },
-);
+    </View>
+  );
+};

@@ -70,6 +70,7 @@
       "InvalidArgumentRejection",
       "InvalidPaymentMethodRequestRejection",
       "InvalidPhoneNumberRejection",
+      "InvalidShippingProviderRejection",
       "InvalidSirenNumberRejection",
       "LegalRepresentativeAccountMembershipCannotBeDisabledRejection",
       "LegalRepresentativeAccountMembershipCannotBeSuspendedRejection",
@@ -289,6 +290,16 @@
       "CardEnabledStatusInfo",
       "CardProcessingStatusInfo"
     ],
+    "CardInsuranceSubscriptionStatusInfo": [
+      "CardInsuranceSubscriptionCanceledStatusInfo",
+      "CardInsuranceSubscriptionEnabledStatusInfo",
+      "CardInsuranceSubscriptionPendingStatusInfo",
+      "CardInsuranceSubscriptionProcessingStatusInfo"
+    ],
+    "MerchantPayment": [
+      "CardMerchantPayment",
+      "SepaDirectDebitMerchantPayment"
+    ],
     "MerchantPaymentMethod": [
       "CardMerchantPaymentMethod",
       "CheckMerchantPaymentMethod",
@@ -319,6 +330,12 @@
     "DigitalCard": [
       "CompleteDigitalCard",
       "PendingDigitalCard"
+    ],
+    "VerificationRenewal": [
+      "CompletedVerificationRenewal",
+      "PendingVerificationRenewal",
+      "RefusedVerificationRenewal",
+      "WaitingForInformationVerificationRenewal"
     ],
     "StatementInfo": [
       "CsvStatement",
@@ -371,6 +388,13 @@
       "PassportDocumentFile",
       "ReportDocumentFile",
       "ResidencePermitDocumentFile"
+    ],
+    "ThreeDsStatusInfo": [
+      "ExemptThreeDsStatusInfo",
+      "FailedThreeDsStatusInfo",
+      "NotRequestedThreeDsStatusInfo",
+      "RequestedThreeDsStatusInfo",
+      "SucceededThreeDsStatusInfo"
     ],
     "TransactionStatementStatusInfo": [
       "ExpiredTransactionStatementStatusInfo",
@@ -442,8 +466,11 @@
     ],
     "MerchantPaymentStatusInfo": [
       "MerchantPaymentAuthorized",
+      "MerchantPaymentCanceled",
       "MerchantPaymentCaptured",
+      "MerchantPaymentDisputed",
       "MerchantPaymentInitiated",
+      "MerchantPaymentPartiallyDisputed",
       "MerchantPaymentRejected"
     ],
     "OnboardingAccountHolderInfo": [

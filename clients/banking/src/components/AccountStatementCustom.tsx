@@ -338,9 +338,7 @@ const NewStatementForm = ({
                         ref={ref}
                         value={value}
                         placeholder={locale.datePlaceholder}
-                        onChange={e =>
-                          onChange(e as unknown as React.ChangeEvent<HTMLInputElement>)
-                        }
+                        onChange={e => onChange(e as React.ChangeEvent<HTMLInputElement>)}
                         onBlur={onBlur}
                         error={error}
                       />
@@ -367,9 +365,7 @@ const NewStatementForm = ({
                         ref={ref}
                         value={value}
                         placeholder={locale.datePlaceholder}
-                        onChange={e =>
-                          onChange(e as unknown as React.ChangeEvent<HTMLInputElement>)
-                        }
+                        onChange={e => onChange(e as React.ChangeEvent<HTMLInputElement>)}
                         onBlur={onBlur}
                         error={error}
                       />

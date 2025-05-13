@@ -117,7 +117,7 @@ export const MembershipsArea = ({
     )
     .otherwise(() => null);
 
-  const panelRef = useRef<FocusTrapRef | null>(null);
+  const panelRef = useRef<FocusTrapRef>(null);
 
   const onActiveRowChange = useCallback(
     (element: HTMLElement) => panelRef.current?.setInitiallyFocusedElement(element),
@@ -205,7 +205,7 @@ export const MembershipsArea = ({
                   Router.replace("AccountMembersList", { accountMembershipId, ...params, search });
                 }}
                 onRefresh={reload}
-                totalCount={data.mapOk(data => data.account?.memberships.totalCount ?? 0)}
+                totalCount={data.mapOk(data => data.accountMemberships.totalCount ?? 0)}
                 large={large}
               >
                 {canAddAccountMembership ? (
@@ -231,8 +231,8 @@ export const MembershipsArea = ({
               Done: result =>
                 result.match({
                   Error: error => <ErrorView error={error} />,
-                  Ok: ({ account }) => (
-                    <Connection connection={account?.memberships}>
+                  Ok: ({ accountMemberships }) => (
+                    <Connection connection={accountMemberships}>
                       {memberships => {
                         return (
                           <>

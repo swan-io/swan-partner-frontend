@@ -42,7 +42,7 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
   const [updateCard, cardUpdate] = useMutation(UpdateCardDocument);
   const [isCancelConfirmationModalVisible, setIsCancelConfirmationModalVisible] = useState(false);
   const accountHolder = card.accountMembership.account?.holder;
-  const settingsRef = useRef<CardWizardSettingsRef | null>(null);
+  const settingsRef = useRef<CardWizardSettingsRef>(null);
 
   const { canUpdateCard } = usePermissions();
 

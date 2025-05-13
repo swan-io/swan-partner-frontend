@@ -85,7 +85,7 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
     filters,
   });
 
-  const panelRef = useRef<FocusTrapRef | null>(null);
+  const panelRef = useRef<FocusTrapRef>(null);
 
   const onActiveRowChange = useCallback(
     (element: HTMLElement) => panelRef.current?.setInitiallyFocusedElement(element),
@@ -184,7 +184,7 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
               </LakeButton>
             </LakeTooltip>
 
-            <Space width={12} />
+            <Space width={8} />
           </>
         ) : null}
 
@@ -202,7 +202,17 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
 
         <Fill minWidth={16} />
 
-        <Box direction="row" alignItems="center" justifyContent="end" grow={0} shrink={1}>
+        <LakeSearchField
+          initialValue={search ?? ""}
+          placeholder={t("common.search")}
+          maxWidth={500}
+          onChangeText={search => {
+            Router.replace("AccountMerchantsProfilePaymentLinkList", {
+              ...params,
+              search,
+            });
+          }}
+        >
           <Toggle
             mode={large ? "desktop" : "mobile"}
             value={params.status === "Active" || params.status == null}
@@ -216,19 +226,8 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
             offLabel={t("merchantProfile.list.Inactive")}
           />
 
-          <Fill minWidth={16} />
-
-          <LakeSearchField
-            initialValue={search ?? ""}
-            placeholder={t("common.search")}
-            onChangeText={search => {
-              Router.replace("AccountMerchantsProfilePaymentLinkList", {
-                ...params,
-                search,
-              });
-            }}
-          />
-        </Box>
+          <Space width={16} />
+        </LakeSearchField>
       </Box>
 
       <Space height={24} />

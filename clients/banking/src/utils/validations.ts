@@ -395,3 +395,9 @@ export const validatePhoneNumber = (value: string) => {
     return t("common.form.invalidPhoneNumber");
   }
 };
+
+export const validateReference = (value: string | undefined) => {
+  if (isNotNullishOrEmpty(value) && !/^[a-zA-Z0-9-?.+,\/':() ]{1,35}$/.test(value)) {
+    return t("common.form.invalidReference");
+  }
+};

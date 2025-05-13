@@ -224,6 +224,9 @@ const PERMISSIONS_MATRIX = {
       canManageCards: true,
       statusInfo: { status: ENABLED },
     },
+    settings: {
+      canUpdateCards: true,
+    },
   },
   canCancelCardForOtherMembership: {
     accountMembership: {
@@ -233,7 +236,6 @@ const PERMISSIONS_MATRIX = {
   },
   canReadAccountMembership: {
     accountMembership: {
-      canViewAccount: true,
       canManageAccountMembership: true,
       statusInfo: { status: ENABLED_OR_BINDING_USER_ERROR },
     },
@@ -243,7 +245,6 @@ const PERMISSIONS_MATRIX = {
   },
   canAddAccountMembership: {
     accountMembership: {
-      canViewAccount: true,
       canManageAccountMembership: true,
       statusInfo: { status: ENABLED },
     },
@@ -253,7 +254,6 @@ const PERMISSIONS_MATRIX = {
   },
   canUpdateAccountMembership: {
     accountMembership: {
-      canViewAccount: true,
       canManageAccountMembership: true,
       statusInfo: { status: ENABLED },
     },

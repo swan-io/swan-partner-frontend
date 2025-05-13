@@ -1,8 +1,9 @@
-import { ReactElement, forwardRef } from "react";
+import { ReactElement, Ref } from "react";
 import { GestureResponderEvent } from "react-native";
 import { TrackComponent } from "./TrackComponent";
 
 type Props = {
+  ref?: Ref<unknown>;
   action: string;
   children: ReactElement<{
     ref?: unknown;
@@ -10,8 +11,8 @@ type Props = {
   }>;
 };
 
-export const TrackPressable = forwardRef<unknown, Props>(({ children, action }, forwardedRef) => (
-  <TrackComponent ref={forwardedRef} action={action} hook="onPress">
+export const TrackPressable = ({ ref, children, action }: Props) => (
+  <TrackComponent ref={ref} action={action} hook="onPress">
     {children}
   </TrackComponent>
-));
+);

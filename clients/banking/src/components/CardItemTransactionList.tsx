@@ -84,7 +84,7 @@ export const CardItemTransactionList = ({ params }: Props) => {
 
   const [activeTransactionId, setActiveTransactionId] = useState<string | null>(null);
 
-  const panelRef = useRef<FocusTrapRef | null>(null);
+  const panelRef = useRef<FocusTrapRef>(null);
 
   const onActiveRowChange = useCallback(
     (element: HTMLElement) => panelRef.current?.setInitiallyFocusedElement(element),

@@ -126,6 +126,7 @@
   "companyType.selfEmployed": "Self-employed",
   "companyType.selfEmployed.FRA": "Self-employed, individual entrepreneur or liberal profession",
   "company.document.supportingDocuments.purpose.CompanyRegistrationSelfEmployedGermany": "Proof of registration",
+  "company.document.supportingDocuments.purpose.CompanyRegistrationSelfEmployedGermany.description": "A document that provides evidence of the legal registration of a company or business entity with the relevant government authority. ",
   "emailPage.firstLink": "Swan's Terms and Conditions",
   "emailPage.secondLink": "{partner}'s partnership conditions",
   "emailPage.terms": "By clicking \"Next\", you accept {firstLink} and {secondLink}.",

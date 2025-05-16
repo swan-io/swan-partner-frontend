@@ -209,6 +209,15 @@ export const OnboardingCompanyDocuments = ({
                         }
                       : null),
                   }}
+                  purposeDescriptionLabelOverrides={{
+                    ...(accountCountry === "DEU" && companyType === "SelfEmployed"
+                      ? {
+                          CompanyRegistration: t(
+                            "company.document.supportingDocuments.purpose.CompanyRegistrationSelfEmployedGermany.description",
+                          ),
+                        }
+                      : null),
+                  }}
                 />
               </DocumentsStepTile>
             </>

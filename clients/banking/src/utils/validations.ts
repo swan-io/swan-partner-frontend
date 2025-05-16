@@ -61,7 +61,7 @@ export const validateBeneficiaryName: Validator<string> = value => {
   }
 
   // Rule copied from the backend
-  if (value.length > 100) {
+  if (value.length > 70) {
     return t("common.form.invalidName");
   }
 

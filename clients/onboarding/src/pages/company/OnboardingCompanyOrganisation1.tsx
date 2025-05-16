@@ -514,7 +514,11 @@ export const OnboardingCompanyOrganisation1 = ({
                               ? "Steuernummer"
                               : undefined
                           }
-                          placeholder={"Steuernummer des Unternehmens"}
+                          placeholder={
+                            accountCountry === "DEU" && country === "DEU"
+                              ? "Steuernummer des Unternehmens"
+                              : undefined
+                          }
                         />
                       )}
                     </Field>

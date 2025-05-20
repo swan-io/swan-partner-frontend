@@ -161,15 +161,15 @@ export const start = async ({
     trustProxy: true,
     logger: {
       level: env.LOG_LEVEL,
+      formatters: {
+        level(label) {
+          return { level: label };
+        },
+      },
       ...(env.NODE_ENV === "development" && {
         transport: {
           target: "pino-pretty",
           options: { colorize: true },
-        },
-        formatters: {
-          level(label) {
-            return { level: label };
-          },
         },
       }),
     },

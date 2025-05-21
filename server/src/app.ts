@@ -513,7 +513,7 @@ export const start = async ({
     } = request.query;
     if (
       typeof redirectTo === "string" &&
-      (!redirectTo.startsWith("/") || redirectTo.startsWith("//"))
+      (!redirectTo.startsWith("/") || redirectTo.startsWith("//") || redirectTo.includes("\\"))
     ) {
       return reply.status(403).send("Invalid `redirectTo` param");
     }

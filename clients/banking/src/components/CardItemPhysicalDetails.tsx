@@ -1268,28 +1268,29 @@ export const CardItemPhysicalDetails = ({
                         },
                       },
 
-                      () => (
-                        <>
-                          <LakeTooltip
-                            content={t("card.tooltipConflict")}
-                            placement="center"
-                            disabled={!hasBindingUserError}
-                          >
-                            <LakeButton
-                              color="warning"
-                              disabled={hasBindingUserError}
-                              mode="primary"
-                              icon="lock-open-regular"
-                              loading={cardUnsuspension.isLoading()}
-                              onPress={() => unsuspendCard()}
+                      () =>
+                        isCurrentUserCardOwner ? (
+                          <>
+                            <LakeTooltip
+                              content={t("card.tooltipConflict")}
+                              placement="center"
+                              disabled={!hasBindingUserError}
                             >
-                              {t("card.physical.unblock")}
-                            </LakeButton>
-                          </LakeTooltip>
+                              <LakeButton
+                                color="warning"
+                                disabled={hasBindingUserError}
+                                mode="primary"
+                                icon="lock-open-regular"
+                                loading={cardUnsuspension.isLoading()}
+                                onPress={() => unsuspendCard()}
+                              >
+                                {t("card.physical.unblock")}
+                              </LakeButton>
+                            </LakeTooltip>
 
-                          <Space height={12} />
-                        </>
-                      ),
+                            <Space height={12} />
+                          </>
+                        ) : null,
                     )
                     .otherwise(() => [])}
 

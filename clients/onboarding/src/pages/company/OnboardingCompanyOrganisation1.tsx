@@ -154,6 +154,9 @@ export const OnboardingCompanyOrganisation1 = ({
       sanitize: trim,
       validate: (value, { getFieldValue }) => {
         const isRegistered = getFieldValue("isRegistered");
+        if (!isRegisteredRadioButtonsVisible && initialIsRegistered === false) {
+          return;
+        }
         return isRegistered === true ? validateRequired(value) : undefined;
       },
     },

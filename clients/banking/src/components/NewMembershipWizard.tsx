@@ -37,15 +37,14 @@ import {
   AddAccountMembershipDocument,
 } from "../graphql/partner";
 import { accountLanguages, locale, t } from "../utils/i18n";
+import { prefixPhoneNumber } from "../utils/phone";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 import {
   validateAddressLine,
   validateEmail,
-  validateForPermissions,
   validateName,
   validateNullableRequired,
-  validatePhoneNumber,
   validateRequired,
 } from "../utils/validations";
 import { InputPhoneNumber } from "./InputPhoneNumber";
@@ -143,16 +142,25 @@ export const NewMembershipWizard = ({
       }),
       strategy: "onBlur",
       validate: ({ country, nationalNumber }, { getFieldValue }) => {
-        const phoneNumber = `+${country.idd}${nationalNumber}`;
         if (
           getFieldValue("canManageAccountMembership") ||
           getFieldValue("canManageBeneficiaries") ||
           getFieldValue("canInitiatePayments")
         ) {
-          return combineValidators(validateForPermissions, validatePhoneNumber)(phoneNumber);
+          if (nationalNumber.trim() === "") {
+            return t("common.form.required.permissions");
+          }
+          const phoneNumber = prefixPhoneNumber(country, nationalNumber);
+
+          if (!phoneNumber.valid) {
+            return t("common.form.invalidPhoneNumber");
+          }
         }
-        if (nationalNumber !== "") {
-          return validatePhoneNumber(phoneNumber);
+        if (nationalNumber.trim() !== "") {
+          const phoneNumber = prefixPhoneNumber(country, nationalNumber);
+          if (!phoneNumber.valid) {
+            return t("common.form.invalidPhoneNumber");
+          }
         }
       },
     },
@@ -425,9 +433,19 @@ export const NewMembershipWizard = ({
               restrictedTo: {
                 firstName: computedValues.firstName,
                 lastName: computedValues.lastName,
-                phoneNumber: isNullishOrEmpty(computedValues.phoneNumber.nationalNumber)
-                  ? null
-                  : `+${computedValues.phoneNumber.country.idd}${computedValues.phoneNumber.nationalNumber}`,
+                phoneNumber: Option.fromNullable(computedValues.phoneNumber.nationalNumber)
+                  .flatMap(nationalNumber => {
+                    const value = nationalNumber.trim();
+                    return value === "" ? Option.None() : Option.Some(value);
+                  })
+                  .flatMap(nationalNumber => {
+                    const phoneNumber = prefixPhoneNumber(
+                      computedValues.phoneNumber.country,
+                      nationalNumber,
+                    );
+                    return phoneNumber.valid ? Option.Some(phoneNumber.e164) : Option.None();
+                  })
+                  .toNull(),
                 birthDate: computedValues.birthDate,
               },
               taxIdentificationNumber: emptyToUndefined(

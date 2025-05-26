@@ -9,7 +9,6 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { pick } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { Request, badStatusToError } from "@swan-io/request";
@@ -38,16 +37,10 @@ import {
 } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { accountLanguages, locale, t } from "../utils/i18n";
-import { parsePhoneNumber } from "../utils/phone";
+import { parsePhoneNumber, prefixPhoneNumber } from "../utils/phone";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
-import {
-  validateAddressLine,
-  validateForPermissions,
-  validateName,
-  validatePhoneNumber,
-  validateRequired,
-} from "../utils/validations";
+import { validateAddressLine, validateName, validateRequired } from "../utils/validations";
 import { InputPhoneNumber } from "./InputPhoneNumber";
 import { MembershipCancelConfirmationModal } from "./MembershipCancelConfirmationModal";
 import { MembershipInvitationLinkModal } from "./MembershipInvitationLinkModal";
@@ -192,17 +185,25 @@ export const MembershipDetailEditor = ({
       }),
       strategy: "onBlur",
       validate: ({ country, nationalNumber }) => {
-        const phoneNumber = `+${country.idd}${nationalNumber}`;
-
         if (
           editingAccountMembership.canInitiatePayments ||
           editingAccountMembership.canManageAccountMembership ||
           editingAccountMembership.canManageBeneficiaries
         ) {
-          return combineValidators(validateForPermissions, validatePhoneNumber)(phoneNumber);
+          if (nationalNumber.trim() === "") {
+            return t("common.form.required.permissions");
+          }
+          const phoneNumber = prefixPhoneNumber(country, nationalNumber);
+
+          if (!phoneNumber.valid) {
+            return t("common.form.invalidPhoneNumber");
+          }
         }
-        if (nationalNumber !== "") {
-          return validatePhoneNumber(phoneNumber);
+        if (nationalNumber.trim() !== "") {
+          const phoneNumber = prefixPhoneNumber(country, nationalNumber);
+          if (!phoneNumber.valid) {
+            return t("common.form.invalidPhoneNumber");
+          }
         }
       },
     },
@@ -279,9 +280,19 @@ export const MembershipDetailEditor = ({
                 pick(values, ["firstName", "lastName", "birthDate", "phoneNumber"]),
               ).map(mandatoryValues => ({
                 ...mandatoryValues,
-                phoneNumber: isNullishOrEmpty(mandatoryValues.phoneNumber.nationalNumber)
-                  ? null
-                  : `+${mandatoryValues.phoneNumber.country.idd}${mandatoryValues.phoneNumber.nationalNumber}`,
+                phoneNumber: Option.fromNullable(mandatoryValues.phoneNumber.nationalNumber)
+                  .flatMap(nationalNumber => {
+                    const value = nationalNumber.trim();
+                    return value === "" ? Option.None() : Option.Some(value);
+                  })
+                  .flatMap(nationalNumber => {
+                    const phoneNumber = prefixPhoneNumber(
+                      mandatoryValues.phoneNumber.country,
+                      nationalNumber,
+                    );
+                    return phoneNumber.valid ? Option.Some(phoneNumber.e164) : Option.None();
+                  })
+                  .toNull(),
               })),
             })
               .with(

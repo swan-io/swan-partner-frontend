@@ -6,9 +6,9 @@ export { setUser as setSentryUser } from "@sentry/browser";
 
 export const initSentry = () => {
   init({
-    enabled: import.meta.env.PROD && env.IS_SWAN_MODE,
+   enabled: import.meta.env.PROD,
     release: env.VERSION,
-    dsn: "https://7c5c2f093c5f4fe497f727d2bbdb104c@o427297.ingest.sentry.io/5371150",
+    dsn: "https://7b550bf832bde04f0ae26426ce623163@o122726.ingest.us.sentry.io/4509388867371008",
     normalizeDepth: 5,
 
     environment: match({

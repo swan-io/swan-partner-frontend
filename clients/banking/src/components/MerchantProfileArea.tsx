@@ -82,9 +82,6 @@ export const AccountMerchantsProfileArea = ({ accountMembershipId, merchantProfi
         match(merchantProfile)
           .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView />)
           .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
-          .with(AsyncData.P.Done(Result.P.Ok({ merchantProfile: P.nullish })), () => (
-            <NotFoundPage />
-          ))
           .with(
             AsyncData.P.Done(Result.P.Ok({ merchantProfile: P.select(P.nonNullable) })),
             merchantProfile => (
@@ -118,6 +115,7 @@ export const AccountMerchantsProfileArea = ({ accountMembershipId, merchantProfi
               </>
             ),
           )
+          .with(AsyncData.P.Done(Result.P.Ok(P._)), () => <NotFoundPage />)
           .exhaustive()
       }
     </ResponsiveContainer>

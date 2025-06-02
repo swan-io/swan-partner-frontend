@@ -3,10 +3,9 @@
   "description": "Swan front-end code",
   "version": "1.24.20",
   "private": true,
-  "packageManager": "pnpm@10.2.1",
+  "packageManager": "pnpm@10.11.0",
   "engines": {
-    "node": "^22.12.0",
-    "pnpm": "^10.2.0"
+    "node": "^22.12.0"
   },
   "repository": {
     "type": "git",
@@ -56,6 +55,13 @@
     "clients/*/src/locales/*.json": "pnpm format-locales"
   },
   "pnpm": {
+    "onlyBuiltDependencies": [
+      "@biomejs/biome",
+      "@sentry/cli",
+      "@swc/core",
+      "esbuild",
+      "protobufjs"
+    ],
     "peerDependencyRules": {
       "ignoreMissing": [
         "react-native"
@@ -68,17 +74,17 @@
   },
   "devDependencies": {
     "@actions/core": "1.11.1",
-    "@actions/github": "6.0.0",
+    "@actions/github": "6.0.1",
     "@biomejs/biome": "1.9.4",
     "@formatjs/icu-messageformat-parser": "2.11.2",
-    "@graphql-codegen/cli": "5.0.5",
+    "@graphql-codegen/cli": "5.0.6",
     "@graphql-codegen/typed-document-node": "5.1.1",
     "@graphql-codegen/typescript": "4.1.6",
-    "@graphql-codegen/typescript-graphql-request": "6.2.0",
-    "@graphql-codegen/typescript-operations": "4.6.0",
+    "@graphql-codegen/typescript-graphql-request": "6.3.0",
+    "@graphql-codegen/typescript-operations": "4.6.1",
     "@localazy/cli": "1.7.15",
     "@playwright/test": "1.51.1",
-    "@sentry/cli": "2.43.0",
+    "@sentry/cli": "2.46.0",
     "@swan-io/boxed": "3.2.0",
     "@types/glob": "8.1.0",
     "@types/prompts": "2.4.9",
@@ -86,24 +92,24 @@
     "@types/sodium-native": "2.3.9",
     "dotenv": "16.5.0",
     "fast-glob": "3.3.3",
-    "graphql": "16.10.0",
+    "graphql": "16.11.0",
     "graphql-sock": "1.0.1",
-    "lint-staged": "15.5.1",
-    "openai": "4.94.0",
+    "lint-staged": "16.1.0",
+    "openai": "5.0.1",
     "ora": "8.2.0",
     "pathe": "2.0.3",
     "picocolors": "1.1.1",
     "prettier": "3.5.3",
     "prettier-plugin-organize-imports": "4.1.0",
     "prompts": "2.4.2",
-    "semver": "7.7.1",
+    "semver": "7.7.2",
     "slackify-markdown": "4.4.0",
     "sodium-native": "4.3.3",
     "tggl-cli": "1.4.0",
     "tiktoken-node": "0.0.7",
     "ts-prune": "0.10.3",
-    "tsx": "4.19.3",
-    "type-fest": "4.40.0",
+    "tsx": "4.19.4",
+    "type-fest": "4.41.0",
     "typescript": "5.8.3",
     "valienv": "1.0.0",
     "vite": "5.4.11",

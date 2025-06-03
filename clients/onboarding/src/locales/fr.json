@@ -17,6 +17,7 @@
   "common.submit": "Soumettre",
   "common.yes": "Oui",
   "company.document.supportingDocuments.purpose.CompanyRegistrationSelfEmployedGermany": "Preuve d'inscription",
+  "company.document.supportingDocuments.purpose.CompanyRegistrationSelfEmployedGermany.description": "Un document qui atteste de l'inscription légale d'une entreprise ou entité commerciale auprès de l'autorité gouvernementale compétente.",
   "company.step.basicInfo.countryLabel": "Où se trouve votre organisation ?",
   "company.step.basicInfo.description": "Nous allons commencer par recueillir quelques informations de base.",
   "company.step.basicInfo.legalRepresentative": "Oui",

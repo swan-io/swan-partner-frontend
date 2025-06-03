@@ -17,6 +17,7 @@
   "common.submit": "Indienen",
   "common.yes": "Ja",
   "company.document.supportingDocuments.purpose.CompanyRegistrationSelfEmployedGermany": "Bewijs van registratie",
+  "company.document.supportingDocuments.purpose.CompanyRegistrationSelfEmployedGermany.description": "Een document dat bewijs levert van de wettelijke registratie van een bedrijf of onderneming bij de relevante overheidsinstantie.",
   "company.step.basicInfo.countryLabel": "Waar is je bedrijf gevestigd?",
   "company.step.basicInfo.description": "We beginnen met het verzamelen van enkele basisgegevens.",
   "company.step.basicInfo.legalRepresentative": "Ja",

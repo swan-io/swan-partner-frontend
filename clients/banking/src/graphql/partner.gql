@@ -2531,6 +2531,40 @@ query AccountClosing($accountId: ID!, $after: String, $first: Int!) {
   }
 }
 
+query AddReceivedSepaDirectDebitB2bMandateInfo($first: Int!, $accountId: ID!) {
+  user {
+    id
+    accountMemberships(first: $first, filters: { accountId: $accountId }) {
+      edges {
+        node {
+          id
+          canViewAccount
+          canInitiatePayments
+          account {
+            id
+            name
+            holder {
+              id
+              info {
+                __typename
+                ... on AccountHolderCompanyInfo {
+                  name
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  projectInfo {
+    id
+    name
+    logoUri
+    accentColor
+  }
+}
+
 # Mutations
 
 mutation CreatePaymentLink($input: CreateMerchantPaymentLinkInput!) {
@@ -3123,6 +3157,35 @@ mutation CloseAccount($input: CloseAccountInput!) {
     }
     ... on Rejection {
       __typename
+      message
+    }
+  }
+}
+
+mutation AddReceivedSepaDirectDebitB2bMandate($input: AddReceivedSepaDirectDebitB2bMandateInput!) {
+  addReceivedSepaDirectDebitB2bMandate(input: $input) {
+    __typename
+    ... on AddReceivedSepaDirectDebitB2bMandateSuccessPayload {
+      receivedDirectDebitMandate {
+        id
+        statusInfo {
+          __typename
+          ... on ReceivedDirectDebitMandateStatusInfoConsentPending {
+            consent {
+              id
+              consentUrl
+            }
+          }
+        }
+      }
+    }
+    ... on ValidationRejection {
+      fields {
+        code
+        path
+      }
+    }
+    ... on Rejection {
       message
     }
   }

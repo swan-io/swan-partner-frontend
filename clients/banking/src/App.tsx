@@ -9,6 +9,7 @@ import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { AccountClose } from "./components/AccountClose";
 import { AccountMembershipArea } from "./components/AccountMembershipArea";
+import { AddReceivedSepaDirectDebitB2bMandate } from "./components/AddReceivedSepaDirectDebitB2bMandate";
 import { ErrorView } from "./components/ErrorView";
 import { ProjectRootRedirect } from "./components/ProjectRootRedirect";
 import { Redirect } from "./components/Redirect";
@@ -33,6 +34,7 @@ const AppContainer = () => {
     "ProjectRootRedirect",
     "AccountArea",
     "AccountClose",
+    "AddReceivedSepaDirectDebitB2bMandate",
   ]);
   const [authStatus] = useQuery(AuthStatusDocument, {});
 
@@ -66,12 +68,23 @@ const AppContainer = () => {
           { name: "AccountArea" },
           { name: "ProjectRootRedirect" },
           { name: "AccountClose" },
+          { name: "AddReceivedSepaDirectDebitB2bMandate" },
           route =>
             isLoggedIn ? (
               match(route)
                 .with({ name: "AccountClose" }, ({ params: { accountId, resourceId, status } }) => (
                   <AccountClose accountId={accountId} resourceId={resourceId} status={status} />
                 ))
+                .with(
+                  { name: "AddReceivedSepaDirectDebitB2bMandate" },
+                  ({ params: { accountId, resourceId, status } }) => (
+                    <AddReceivedSepaDirectDebitB2bMandate
+                      accountId={accountId}
+                      resourceId={resourceId}
+                      status={status}
+                    />
+                  ),
+                )
                 .with({ name: "AccountArea" }, ({ params: { accountMembershipId } }) => (
                   <AccountMembershipArea accountMembershipId={accountMembershipId} />
                 ))

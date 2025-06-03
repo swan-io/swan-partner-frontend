@@ -7,6 +7,8 @@ const routes = {
   ProjectLogin: "/login?:sessionExpired&:redirectTo",
   ProjectRootRedirect: "/?:to&:source",
 
+  AddReceivedSepaDirectDebitB2bMandate:
+    "/add-received-sepa-direct-debit-b2b-mandate/:accountId?:resourceId&:status",
   AccountClose: "/accounts/:accountId/close?:resourceId&:status",
 
   ...createGroup("Account", "/:accountMembershipId", {

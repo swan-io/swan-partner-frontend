@@ -17,6 +17,7 @@
   "common.submit": "Invia",
   "common.yes": "Sì",
   "company.document.supportingDocuments.purpose.CompanyRegistrationSelfEmployedGermany": "Prova di registrazione",
+  "company.document.supportingDocuments.purpose.CompanyRegistrationSelfEmployedGermany.description": "Un documento che attesti la registrazione legale di un'azienda o entità commerciale presso l'autorità governativa competente.",
   "company.step.basicInfo.countryLabel": "Dove si trova la tua organizzazione?",
   "company.step.basicInfo.description": "Inizieremo raccogliendo alcune informazioni di base.",
   "company.step.basicInfo.legalRepresentative": "Sì",

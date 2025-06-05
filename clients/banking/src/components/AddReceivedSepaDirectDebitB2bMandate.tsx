@@ -37,7 +37,7 @@ import {
 } from "../graphql/partner";
 import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";
 import {
-  validateName,
+  validateMandateCreditorName,
   validateNullableRequired,
   validateReference,
   validateRequired,
@@ -336,7 +336,7 @@ const AddReceivedSepaDirectDebitB2bMandateForm = ({ onSubmit }: FormProps) => {
     },
     creditorName: {
       initialValue: "",
-      validate: combineValidators(validateRequired, validateName),
+      validate: combineValidators(validateRequired, validateMandateCreditorName),
     },
     creditorIdentifier: {
       initialValue: "",

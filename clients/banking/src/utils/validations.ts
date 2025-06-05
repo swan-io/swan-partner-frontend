@@ -47,6 +47,25 @@ export const validateName: Validator<string> = value => {
   }
 };
 
+const CREDITOR_NAME_RE = /^[\u0020-\u045F]+$/;
+
+export const validateMandateCreditorName: Validator<string> = value => {
+  if (!value) {
+    return t("common.form.required");
+  }
+
+  // Rule copied from the backend
+  if (value.length > 70) {
+    return t("common.form.invalidName");
+  }
+
+  const isValid = CREDITOR_NAME_RE.test(value);
+
+  if (!isValid) {
+    return t("common.form.invalidName");
+  }
+};
+
 // Beneficiary name input must accept numeric value, unlike other validation name
 export const validateBeneficiaryName: Validator<string> = value => {
   if (!value) {

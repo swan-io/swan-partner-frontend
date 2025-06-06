@@ -82,9 +82,11 @@ const TransferRecurringWizardDetailsFixedAmount = ({
     },
     label: {
       initialValue: initialDetails?.label ?? "",
+      validate: validateTransferReference,
     },
     reference: {
       initialValue: initialDetails?.reference ?? "",
+      validate: validateTransferReference,
     },
   });
 

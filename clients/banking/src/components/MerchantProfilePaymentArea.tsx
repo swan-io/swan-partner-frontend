@@ -10,7 +10,6 @@ import { FilterChooser } from "@swan-io/lake/src/components/FilterChooser";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
-import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
 import { PlainListViewPlaceholder } from "@swan-io/lake/src/components/PlainListView";
@@ -44,6 +43,7 @@ import { ErrorView } from "./ErrorView";
 import { MerchantProfilePaymentDetail } from "./MerchantProfilePaymentDetail";
 import { MerchantProfilePaymentList } from "./MerchantProfilePaymentList";
 import { MerchantProfilePaymentPicker } from "./MerchantProfilePaymentPicker";
+import { SearchInput } from "./SearchInput";
 
 const styles = StyleSheet.create({
   filters: {
@@ -317,9 +317,9 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
 
             <Fill minWidth={16} />
 
-            <LakeSearchField
-              placeholder={t("common.search")}
+            <SearchInput
               initialValue={search ?? ""}
+              collapsed={!large}
               onChangeText={search => {
                 Router.replace("AccountMerchantsProfilePaymentsList", {
                   ...params,

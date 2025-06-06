@@ -64,7 +64,7 @@ export type TransactionFilter = keyof TransactionFilters;
 type TransactionListFilterProps = {
   available?: TransactionFilter[];
   children?: ReactNode;
-  large?: boolean;
+  large: boolean;
   filters: TransactionFilters;
   search: string | undefined;
   onChangeFilters: (filters: Partial<TransactionFilters>) => void;
@@ -88,7 +88,7 @@ const defaultAvailableFilters: TransactionFilter[] = [
 export const TransactionListFilter = ({
   available = defaultAvailableFilters,
   children,
-  large = true,
+  large,
   filters,
   search,
   onChangeFilters,
@@ -98,7 +98,6 @@ export const TransactionListFilter = ({
 }: TransactionListFilterProps) => {
   const filtersProps = useFiltersProps({ filtersDefinition, filters, available });
   const [isRefreshing, setIsRefreshing] = useState(false);
-  // const {}=
 
   return (
     <>
@@ -135,7 +134,7 @@ export const TransactionListFilter = ({
 
         <SearchInput
           initialValue={search ?? ""}
-          collapsed={true} // useBreakpoint
+          collapsed={!large}
           onChangeText={text => onChangeSearch(emptyToUndefined(text))}
         />
       </Box>

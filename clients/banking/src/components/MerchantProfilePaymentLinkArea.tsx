@@ -6,12 +6,10 @@ import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { FullViewportLayer } from "@swan-io/lake/src/components/FullViewportLayer";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
-import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { LakeTooltip } from "@swan-io/lake/src/components/LakeTooltip";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
 import { PlainListViewPlaceholder } from "@swan-io/lake/src/components/PlainListView";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { LinkConfig } from "@swan-io/lake/src/components/VirtualizedList";
 import { spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
@@ -32,6 +30,8 @@ import { ErrorView } from "./ErrorView";
 import { MerchantProfilePaymentLinkDetail } from "./MerchantProfilePaymentLinkDetail";
 import { MerchantProfilePaymentLinkNew } from "./MerchantProfilePaymentLinkNew";
 import { MerchantProfilePaymentLinksList } from "./MerchantProfilePaymentLinksList";
+import { SearchInput } from "./SearchInput";
+import { Toggle } from "./Toggle";
 
 const styles = StyleSheet.create({
   containerMobile: {
@@ -202,32 +202,31 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
 
         <Fill minWidth={16} />
 
-        <LakeSearchField
+        <Toggle
+          compact={!large}
+          value={params.status === "Active" || params.status == null}
+          labelOn={t("merchantProfile.list.Active")}
+          labelOff={t("merchantProfile.list.Inactive")}
+          onToggle={status =>
+            Router.push("AccountMerchantsProfilePaymentLinkList", {
+              ...params,
+              status: status ? "Active" : "Archived",
+            })
+          }
+        />
+
+        <Space width={8} />
+
+        <SearchInput
           initialValue={search ?? ""}
-          placeholder={t("common.search")}
-          maxWidth={500}
+          collapsed={!large}
           onChangeText={search => {
             Router.replace("AccountMerchantsProfilePaymentLinkList", {
               ...params,
               search,
             });
           }}
-        >
-          <Toggle
-            mode={large ? "desktop" : "mobile"}
-            value={params.status === "Active" || params.status == null}
-            onToggle={status =>
-              Router.push("AccountMerchantsProfilePaymentLinkList", {
-                ...params,
-                status: status ? "Active" : "Archived",
-              })
-            }
-            onLabel={t("merchantProfile.list.Active")}
-            offLabel={t("merchantProfile.list.Inactive")}
-          />
-
-          <Space width={16} />
-        </LakeSearchField>
+        />
       </Box>
 
       <Space height={24} />

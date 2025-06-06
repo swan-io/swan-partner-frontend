@@ -9,7 +9,6 @@ import { FilterChooser } from "@swan-io/lake/src/components/FilterChooser";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
-import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
 import {
@@ -20,7 +19,6 @@ import {
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
-import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { deriveUnion } from "@swan-io/lake/src/utils/function";
@@ -54,6 +52,8 @@ import { currencies, currencyFlags, currencyResolver, isSupportedCurrency, t } f
 import { GetRouteParams, Router } from "../utils/routes";
 import { BeneficiaryDetail } from "./BeneficiaryDetail";
 import { ErrorView } from "./ErrorView";
+import { SearchInput } from "./SearchInput";
+import { Toggle } from "./Toggle";
 
 const NUM_TO_RENDER = 20;
 
@@ -289,13 +289,10 @@ const filtersDefinition = {
   }),
   currency: filter.radio<string | undefined>({
     label: t("beneficiaries.currency.title"),
-    items: [
-      { value: undefined, label: t("common.filters.all") },
-      ...currencies.map(value => {
-        const name = currencyResolver?.of(value);
-        return { value, label: isNotNullish(name) ? `${value} (${name})` : value };
-      }),
-    ],
+    items: currencies.map(value => {
+      const name = currencyResolver?.of(value);
+      return { value, label: isNotNullish(name) ? `${value} (${name})` : value };
+    }),
   }),
 };
 
@@ -504,10 +501,24 @@ export const BeneficiaryList = ({
 
                 <Fill minWidth={16} />
 
-                <LakeSearchField
-                  maxWidth={500}
-                  placeholder={t("common.search")}
+                <Toggle
+                  compact={!large}
+                  value={!canceled}
+                  labelOn={t("beneficiaries.status.enabled")}
+                  labelOff={t("beneficiaries.status.canceled")}
+                  onToggle={on => {
+                    Router.push("AccountPaymentsBeneficiariesList", {
+                      ...omit(params, ["canceled"]),
+                      canceled: !on ? "true" : undefined,
+                    });
+                  }}
+                />
+
+                <Space width={8} />
+
+                <SearchInput
                   initialValue={label ?? ""}
+                  collapsed={!large}
                   onChangeText={label => {
                     Router.push("AccountPaymentsBeneficiariesList", {
                       ...params,
@@ -515,28 +526,13 @@ export const BeneficiaryList = ({
                     });
                   }}
                   renderEnd={() =>
-                    match(beneficiaries.mapOk(({ totalCount }) => totalCount))
-                      .with(AsyncData.P.Done(Result.P.Ok(P.select())), totalCount => (
-                        <Tag>{totalCount}</Tag>
-                      ))
-                      .otherwise(() => null)
+                    beneficiaries
+                      .toOption()
+                      .flatMap(result => result.toOption())
+                      .map(({ totalCount }) => <Tag>{totalCount}</Tag>)
+                      .toNull()
                   }
-                >
-                  <Toggle
-                    mode={large ? "desktop" : "mobile"}
-                    value={!canceled}
-                    onLabel={t("beneficiaries.status.enabled")}
-                    offLabel={t("beneficiaries.status.canceled")}
-                    onToggle={on => {
-                      Router.push("AccountPaymentsBeneficiariesList", {
-                        ...omit(params, ["canceled"]),
-                        canceled: !on ? "true" : undefined,
-                      });
-                    }}
-                  />
-
-                  <Space width={16} />
-                </LakeSearchField>
+                />
               </Box>
 
               <Space height={12} />

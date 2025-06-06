@@ -3,9 +3,7 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FilterChooser } from "@swan-io/lake/src/components/FilterChooser";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
-import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import {
   filter,
@@ -16,6 +14,8 @@ import {
 import { ReactNode, useState } from "react";
 import { CardType } from "../graphql/partner";
 import { t } from "../utils/i18n";
+import { SearchInput } from "./SearchInput";
+import { Toggle } from "./Toggle";
 
 const filtersDefinition = {
   type: filter.checkbox<CardType>({
@@ -89,23 +89,21 @@ export const CardListFilter = ({
 
         <Fill minWidth={16} />
 
-        <LakeSearchField
-          key={String(large)}
-          maxWidth={500}
-          placeholder={t("common.search")}
-          initialValue={search ?? ""}
-          onChangeText={text => onChangeSearch(emptyToUndefined(text))}
-        >
-          <Toggle
-            mode={large ? "desktop" : "mobile"}
-            value={status === "Active"}
-            onToggle={status => onChangeStatus(status ? "Active" : "Canceled")}
-            onLabel={t("cardList.status.Active")}
-            offLabel={t("cardList.status.Canceled")}
-          />
+        <Toggle
+          compact={!large}
+          value={status === "Active"}
+          labelOn={t("cardList.status.Active")}
+          labelOff={t("cardList.status.Canceled")}
+          onToggle={status => onChangeStatus(status ? "Active" : "Canceled")}
+        />
 
-          <Space width={16} />
-        </LakeSearchField>
+        <Space width={8} />
+
+        <SearchInput
+          initialValue={search ?? ""}
+          collapsed={!large}
+          onChangeText={text => onChangeSearch(emptyToUndefined(text))}
+        />
       </Box>
 
       <Space height={12} />

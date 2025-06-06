@@ -48,22 +48,11 @@ const styles = StyleSheet.create({
   },
 });
 
-type Layout = {
-  left: number;
-  width: number;
-};
-
-const getLayout = (node: unknown) =>
+const getItemWidth = (node: unknown) =>
   match(node)
-    .returnType<Layout>()
-    .with(P.instanceOf(HTMLElement), element => ({
-      left: element.offsetLeft,
-      width: element.offsetWidth,
-    }))
-    .otherwise(() => ({
-      left: 0,
-      width: 0,
-    }));
+    .returnType<number>()
+    .with(P.instanceOf(HTMLElement), element => element.offsetWidth)
+    .otherwise(() => 0);
 
 type Props = {
   compact?: boolean;
@@ -74,16 +63,16 @@ type Props = {
 };
 
 export const Toggle = ({ compact = false, value, labelOff, labelOn, onToggle }: Props) => {
-  const [layout, setLayout] = useState<{ on: Layout; off: Layout }>();
+  const [itemsWidth, setItemsWidth] = useState<{ on: number; off: number }>();
   const onViewRef = useRef<Text>(null);
   const offViewRef = useRef<Text>(null);
 
   useEffect(() => {
     // batch measurements
     setTimeout(() => {
-      setLayout({
-        on: getLayout(onViewRef.current),
-        off: getLayout(offViewRef.current),
+      setItemsWidth({
+        on: getItemWidth(onViewRef.current),
+        off: getItemWidth(offViewRef.current),
       });
     }, 0);
   }, [compact]);
@@ -98,13 +87,13 @@ export const Toggle = ({ compact = false, value, labelOff, labelOn, onToggle }: 
         role="presentation"
         style={[
           styles.handle,
-          layout == null
+          itemsWidth == null
             ? styles.hidden
             : {
                 backgroundColor: value ? colors.positive[50] : colors.negative[50],
                 borderColor: value ? colors.positive[500] : colors.negative[500],
-                transform: `translateX(${value ? 0 : layout.off.left + BORDER_WIDTH}px)`,
-                width: (value ? layout.on.width : layout.off.width) + 2 * BORDER_WIDTH,
+                transform: `translateX(${value ? 0 : itemsWidth.on + BORDER_WIDTH}px)`,
+                width: (value ? itemsWidth.on : itemsWidth.off) + BORDER_WIDTH,
               },
         ]}
       />

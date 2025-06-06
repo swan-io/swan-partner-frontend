@@ -11,7 +11,6 @@ import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
 import { Tag } from "@swan-io/lake/src/components/Tag";
-import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { useMemo, useState } from "react";
@@ -26,6 +25,7 @@ import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
+import { Toggle } from "./Toggle";
 
 const styles = StyleSheet.create({
   filters: {
@@ -220,16 +220,16 @@ export const MerchantList = ({ accountId, accountMembershipId, params, large }: 
         <Fill minWidth={16} />
 
         <Toggle
-          mode={large ? "desktop" : "mobile"}
+          compact={!large}
           value={params.status === "Active"}
+          labelOn={t("merchantProfile.list.Active")}
+          labelOff={t("merchantProfile.list.Inactive")}
           onToggle={status =>
             Router.push("AccountMerchantsList", {
               accountMembershipId,
               status: status ? "Active" : "Inactive",
             })
           }
-          onLabel={t("merchantProfile.list.Active")}
-          offLabel={t("merchantProfile.list.Inactive")}
         />
       </Box>
 

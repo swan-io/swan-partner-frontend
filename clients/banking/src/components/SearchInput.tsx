@@ -16,10 +16,13 @@ import { ReactNode, useCallback, useRef, useState } from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
 import { t } from "../utils/i18n";
 
+const MAX_WIDTH = 320;
+
 const styles = StyleSheet.create({
   container: {
     flexShrink: 1,
     width: "100%",
+    maxWidth: MAX_WIDTH,
   },
   transitionView: {
     position: "absolute",
@@ -34,6 +37,7 @@ const styles = StyleSheet.create({
   collapsed: {
     borderRadius: radii[6],
     boxShadow: `0 0 20px 20px ${backgroundColor.default}`,
+    width: MAX_WIDTH,
   },
   focus: {
     outlineStyle: "none",
@@ -49,7 +53,6 @@ type Props = {
   collapsed?: boolean;
   debounceDuration?: number;
   initialValue: string;
-  maxWidth?: number;
   onChangeText: (text: string) => void;
   renderEnd?: () => ReactNode;
 };
@@ -58,7 +61,6 @@ export const SearchInput = ({
   collapsed = false,
   debounceDuration = 500,
   initialValue,
-  maxWidth = 320,
   onChangeText,
   renderEnd,
 }: Props) => {
@@ -112,11 +114,7 @@ export const SearchInput = ({
       onChangeText={onChange}
       onFocus={handleOnFocus}
       placeholder={t("common.search")}
-      style={[
-        styles.input,
-        collapsed ? [styles.collapsed, { width: maxWidth }] : { maxWidth },
-        hasFocus && styles.focus,
-      ]}
+      style={[styles.input, collapsed && styles.collapsed, hasFocus && styles.focus]}
       renderEnd={() => (
         <>
           {isNotNullishOrEmpty(currentValue) && (

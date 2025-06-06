@@ -114,6 +114,7 @@ const routes = {
         }),
         ...createGroup("Payments", "/payments?:search&:paymentMethod[]&:status[]", {
           Area: "/*",
+          Picker: "/picker",
           List: "/",
           Details: "/:paymentId",
         }),

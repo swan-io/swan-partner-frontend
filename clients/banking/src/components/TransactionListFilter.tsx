@@ -3,7 +3,6 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FilterChooser } from "@swan-io/lake/src/components/FilterChooser";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
-import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import {
@@ -23,6 +22,7 @@ import {
   validateAfterUpdatedAt,
   validateBeforeUpdatedAt,
 } from "../utils/validations";
+import { SearchInput } from "./SearchInput";
 
 type SimplifiedPaymentProduct = "Card" | "Check" | "Fees" | "CreditTransfer" | "DirectDebit";
 
@@ -98,6 +98,7 @@ export const TransactionListFilter = ({
 }: TransactionListFilterProps) => {
   const filtersProps = useFiltersProps({ filtersDefinition, filters, available });
   const [isRefreshing, setIsRefreshing] = useState(false);
+  // const {}=
 
   return (
     <>
@@ -132,9 +133,9 @@ export const TransactionListFilter = ({
 
         <Fill minWidth={16} />
 
-        <LakeSearchField
-          placeholder={t("common.search")}
+        <SearchInput
           initialValue={search ?? ""}
+          collapsed={true} // useBreakpoint
           onChangeText={text => onChangeSearch(emptyToUndefined(text))}
         />
       </Box>

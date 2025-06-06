@@ -157,6 +157,7 @@ const TransferRecurringWizardDetailsFixedAmount = ({
                           valid={valid}
                           onChangeText={onChange}
                           onBlur={onBlur}
+                          help={t("transfer.new.details.reference.help")}
                         />
                       )}
                     </Field>
@@ -181,6 +182,7 @@ const TransferRecurringWizardDetailsFixedAmount = ({
                           valid={valid}
                           onChangeText={onChange}
                           onBlur={onBlur}
+                          help={t("transfer.new.details.reference.help")}
                         />
                       )}
                     </Field>

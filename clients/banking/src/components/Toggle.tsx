@@ -1,3 +1,4 @@
+import { Icon } from "@swan-io/lake/src/components/Icon";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { colors, radii, spacings, texts } from "@swan-io/lake/src/constants/design";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -28,10 +29,12 @@ const styles = StyleSheet.create({
     transitionProperty: "transform, width",
     transitionTimingFunction: "ease-in-out",
   },
+  item: {
+    paddingHorizontal: spacings[8],
+  },
   text: {
     ...texts.smallMedium,
     color: colors.gray[700],
-    paddingHorizontal: spacings[8],
     userSelect: "none",
   },
   hidden: {
@@ -63,26 +66,27 @@ const getLayout = (node: unknown) =>
     }));
 
 type Props = {
+  compact?: boolean;
   value: boolean;
   labelOff: string;
   labelOn: string;
   onToggle: (value: boolean) => void;
 };
 
-export const Toggle = ({ value, labelOff, labelOn, onToggle }: Props) => {
+export const Toggle = ({ compact = false, value, labelOff, labelOn, onToggle }: Props) => {
   const [layout, setLayout] = useState<{ on: Layout; off: Layout }>();
-  const onTextRef = useRef<Text>(null);
-  const offTextRef = useRef<Text>(null);
+  const onViewRef = useRef<Text>(null);
+  const offViewRef = useRef<Text>(null);
 
   useEffect(() => {
     // batch measurements
     setTimeout(() => {
       setLayout({
-        on: getLayout(onTextRef.current),
-        off: getLayout(offTextRef.current),
+        on: getLayout(onViewRef.current),
+        off: getLayout(offViewRef.current),
       });
     }, 0);
-  }, []);
+  }, [compact]);
 
   const onPress = useCallback(() => {
     onToggle(!value);
@@ -105,13 +109,29 @@ export const Toggle = ({ value, labelOff, labelOn, onToggle }: Props) => {
         ]}
       />
 
-      <Text ref={onTextRef} style={[styles.text, value && styles.textOn]}>
-        {labelOn}
-      </Text>
+      <View ref={onViewRef} style={styles.item}>
+        {compact ? (
+          <Icon
+            color={value ? colors.positive[500] : colors.gray[500]}
+            size={16}
+            name="checkmark-circle-regular"
+          />
+        ) : (
+          <Text style={[styles.text, value && styles.textOn]}>{labelOn}</Text>
+        )}
+      </View>
 
-      <Text ref={offTextRef} style={[styles.text, !value && styles.textOff]}>
-        {labelOff}
-      </Text>
+      <View ref={offViewRef} style={styles.item}>
+        {compact ? (
+          <Icon
+            color={!value ? colors.negative[500] : colors.gray[500]}
+            size={16}
+            name="subtract-circle-regular"
+          />
+        ) : (
+          <Text style={[styles.text, !value && styles.textOff]}>{labelOff}</Text>
+        )}
+      </View>
     </Pressable>
   );
 };

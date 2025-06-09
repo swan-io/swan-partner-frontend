@@ -473,9 +473,6 @@ importers:
       escape-html:
         specifier: 1.0.3
         version: 1.0.3
-      fast-proxy:
-        specifier: 2.2.0
-        version: 2.2.0
       fastify:
         specifier: 5.3.3
         version: 5.3.3
@@ -2935,10 +2932,6 @@ packages:
   fast-json-stringify@6.0.1:
     resolution: {integrity: sha512-s7SJE83QKBZwg54dIbD5rCtzOBVD43V1ReWXXYqBgwCwHLYAAT0RQc/FmrQglXqWPpz6omtryJQOau5jI4Nrvg==, tarball: https://registry.npmjs.org/fast-json-stringify/-/fast-json-stringify-6.0.1.tgz}
 
-  fast-proxy@2.2.0:
-    resolution: {integrity: sha512-jSrXdYKxPg+DcP8qoKKPbZ1sLvRKGN8sSbmCn+xrSAMfErI+tMJAwUbqMBDJi2tzq7c/m4Nv4ewosD+SIA4vhg==, tarball: https://registry.npmjs.org/fast-proxy/-/fast-proxy-2.2.0.tgz}
-    deprecated: Use @fastify/http-proxy instead
-
   fast-querystring@1.1.2:
     resolution: {integrity: sha512-g6KuKWmFXc0fID8WWH0jit4g0AGBoJhCkJMb1RmbsSEUNvQ+ZC8D6CUZ+GtF8nMzSPXnhiePyyqqipzNNEnHjg==, tarball: https://registry.npmjs.org/fast-querystring/-/fast-querystring-1.1.2.tgz}
 
@@ -4505,10 +4498,6 @@ packages:
   timeout-signal@2.0.0:
     resolution: {integrity: sha512-YBGpG4bWsHoPvofT6y/5iqulfXIiIErl5B0LdtHT1mGXDFTAhhRrbUpTvBgYbovr+3cKblya2WAOcpoy90XguA==, tarball: https://registry.npmjs.org/timeout-signal/-/timeout-signal-2.0.0.tgz}
     engines: {node: '>=16'}
-
-  tiny-lru@11.3.2:
-    resolution: {integrity: sha512-JOHabNXZYoaa41/vcpUaq2UxyFts5xXS1qc+Dj00HsGXGYqdtUx79a8xNv38Cy0qgUQH9OdMXvsk6NETsAGxyQ==, tarball: https://registry.npmjs.org/tiny-lru/-/tiny-lru-11.3.2.tgz}
-    engines: {node: '>=12'}
 
   tinybench@2.9.0:
     resolution: {integrity: sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==, tarball: https://registry.npmjs.org/tinybench/-/tinybench-2.9.0.tgz}
@@ -7695,15 +7684,6 @@ snapshots:
       json-schema-ref-resolver: 2.0.1
       rfdc: 1.4.1
 
-  fast-proxy@2.2.0:
-    dependencies:
-      end-of-stream: 1.4.4
-      fast-querystring: 1.1.2
-      pump: 3.0.2
-      semver: 7.7.2
-      tiny-lru: 11.3.2
-      undici: 5.29.0
-
   fast-querystring@1.1.2:
     dependencies:
       fast-decode-uri-component: 1.0.1
@@ -9343,8 +9323,6 @@ snapshots:
   tiktoken-node@0.0.7: {}
 
   timeout-signal@2.0.0: {}
-
-  tiny-lru@11.3.2: {}
 
   tinybench@2.9.0: {}
 

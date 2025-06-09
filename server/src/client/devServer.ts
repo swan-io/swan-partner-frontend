@@ -1,7 +1,6 @@
-import fastProxy from "fast-proxy";
 import { RouteHandlerMethod } from "fastify";
 import fs from "node:fs";
-import http, { IncomingMessage, ServerResponse } from "node:http";
+import http from "node:http";
 import { Http2SecureServer } from "node:http2";
 import https from "node:https";
 import path from "pathe";
@@ -66,45 +65,21 @@ export async function startDevServer(app: FastifySecureInstance, httpsConfig?: H
     process.exit(1);
   }
 
-  const { proxy: webBankingProxy } = fastProxy({
-    base: `http://localhost:${webBanking.mainServerPort}`,
-  });
-  const { proxy: onboardingProxy } = fastProxy({
-    base: `http://localhost:${onboarding.mainServerPort}`,
-  });
-  const { proxy: paymentProxy } = fastProxy({
-    base: `http://localhost:${payment.mainServerPort}`,
-  });
   const handler: RouteHandlerMethod<Http2SecureServer> = (request, reply) => {
     const host = new URL(`${request.protocol}://${request.hostname}`).hostname;
 
     switch (host) {
       case BANKING_HOST:
-        return webBankingProxy(
-          request.raw as unknown as IncomingMessage,
-          reply.raw as unknown as ServerResponse,
-          request.url,
-          {},
-        );
+        return reply.from(`http://localhost:${webBanking.mainServerPort}` + request.url);
       case ONBOARDING_HOST:
-        return onboardingProxy(
-          request.raw as unknown as IncomingMessage,
-          reply.raw as unknown as ServerResponse,
-          request.url,
-          {},
-        );
+        return reply.from(`http://localhost:${onboarding.mainServerPort}` + request.url);
       case PAYMENT_HOST:
-        return paymentProxy(
-          request.raw as unknown as IncomingMessage,
-          reply.raw as unknown as ServerResponse,
-          request.url,
-          {},
-        );
+        return reply.from(`http://localhost:${payment.mainServerPort}` + request.url);
       default:
         return reply
           .status(404)
           .send(
-            `Unknown host: "${host}", should be either "${BANKING_HOST}", "${ONBOARDING_HOST} or "${PAYMENT_HOST}"`,
+            `Unknown host: "${host}", should be either "${BANKING_HOST}", "${ONBOARDING_HOST}" or "${PAYMENT_HOST}"`,
           );
     }
   };

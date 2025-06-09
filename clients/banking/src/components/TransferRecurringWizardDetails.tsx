@@ -82,9 +82,11 @@ const TransferRecurringWizardDetailsFixedAmount = ({
     },
     label: {
       initialValue: initialDetails?.label ?? "",
+      validate: validateTransferReference,
     },
     reference: {
       initialValue: initialDetails?.reference ?? "",
+      validate: validateTransferReference,
     },
   });
 
@@ -155,6 +157,7 @@ const TransferRecurringWizardDetailsFixedAmount = ({
                           valid={valid}
                           onChangeText={onChange}
                           onBlur={onBlur}
+                          help={t("transfer.new.details.reference.help")}
                         />
                       )}
                     </Field>
@@ -179,6 +182,7 @@ const TransferRecurringWizardDetailsFixedAmount = ({
                           valid={valid}
                           onChangeText={onChange}
                           onBlur={onBlur}
+                          help={t("transfer.new.details.reference.help")}
                         />
                       )}
                     </Field>

@@ -217,8 +217,8 @@ test("German company onboarding", async ({ browser, page, request }) => {
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  // await waitForText(page, "Are you registered with Handelsregister?");
-  // await page.getByText("Yes").click();
+  await waitForText(page, "Are you registered with Handelsregister?");
+  await page.getByText("Yes").click();
 
   await page
     .getByLabel(t("onboarding.company.step.organisation1.organisationLabel"), { exact: true })

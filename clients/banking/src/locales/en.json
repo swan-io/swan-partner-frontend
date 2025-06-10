@@ -696,6 +696,7 @@
   "merchantProfile.payments.list.actions": "Actions",
   "merchantProfile.payments.list.amount": "Amount",
   "merchantProfile.payments.list.noResults": "No payments",
+  "merchantProfile.payment": "Payment",
   "merchantProfile.payments.newPayment.button": "Create a payment",
   "merchantProfile.payments.newPayment.subtitle": "You are ready to create your first payment",
   "merchantProfile.payments.newPayment.title": "You are ready to start!",

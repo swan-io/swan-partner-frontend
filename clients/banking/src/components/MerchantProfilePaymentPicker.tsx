@@ -33,21 +33,17 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  params: GetRouteParams<"AccountMerchantsProfilePaymentsArea">;
+  params: GetRouteParams<"AccountMerchantsProfilePaymentsPicker">;
   shouldEnableCheckTile: boolean;
   shouldEnablePaymentLinkTile: boolean;
   merchantProfile: NonNullable<MerchantPaymentsQuery["merchantProfile"]>;
-  closeModal: () => void;
-  setShouldShowTopbar: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const MerchantProfilePaymentPicker = ({
-  closeModal,
   params,
   shouldEnableCheckTile,
   shouldEnablePaymentLinkTile,
   merchantProfile,
-  setShouldShowTopbar,
 }: Props) => {
   const { merchantProfileId, accountMembershipId } = params;
 
@@ -65,11 +61,7 @@ export const MerchantProfilePaymentPicker = ({
                   icon="arrow-swap-regular"
                   title={t("merchantProfile.payments.tile.paymentLink")}
                   subtitle={t("merchantProfile.payments.tile.paymentLink.subtitle")}
-                  url={Router.AccountMerchantsProfilePaymentsList({
-                    accountMembershipId,
-                    merchantProfileId,
-                    new: "true",
-                  })}
+                  url={Router.AccountMerchantsProfilePaymentsPicker({ ...params, new: "true" })}
                 />
               )}
 
@@ -99,8 +91,6 @@ export const MerchantProfilePaymentPicker = ({
           merchantProfileId={merchantProfileId}
           paymentMethods={merchantProfile.merchantPaymentMethods ?? []}
           onPressClose={() => {
-            setShouldShowTopbar(true);
-            closeModal();
             Router.push("AccountMerchantsProfilePaymentsList", {
               accountMembershipId,
               merchantProfileId,

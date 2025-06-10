@@ -107,9 +107,6 @@ test("French company onboarding", async ({ browser, page, request }) => {
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await waitForText(page, "Are you registered with Registre du Commerce et des Sociétés (RCS)?");
-  await page.getByText("Yes").click();
-
   await page
     .getByLabel(t("onboarding.company.step.organisation1.organisationLabel"), { exact: true })
     .fill("Swan");
@@ -331,9 +328,6 @@ test("Spanish company onboarding", async ({ browser, page, request }) => {
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await waitForText(page, "Are you registered with Registro Mercantil?");
-  await page.getByText("Yes").click();
-
   await page
     .getByLabel(t("onboarding.company.step.organisation1.organisationLabel"), { exact: true })
     .fill("Swan");
@@ -467,9 +461,6 @@ test("Dutch company onboarding", async ({ browser, page, request }) => {
   await page.getByLabel(t("onboarding.company.step.registration.postalCodeLabel")).fill("2518 BJ");
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
-
-  await waitForText(page, "Are you registered with Handelsregister?");
-  await page.getByText("Yes").click();
 
   await page
     .getByLabel(t("onboarding.company.step.organisation1.organisationLabel"), { exact: true })

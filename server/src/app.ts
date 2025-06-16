@@ -511,11 +511,12 @@ export const start = async ({
       projectId,
       email,
     } = request.query;
-    if (
-      typeof redirectTo === "string" &&
-      (!redirectTo.startsWith("/") || redirectTo.startsWith("//") || redirectTo.includes("\\"))
-    ) {
-      return reply.status(403).send("Invalid `redirectTo` param");
+    if (typeof redirectTo === "string") {
+      const hostUrl = new URL(env.BANKING_URL);
+      const url = new URL(redirectTo, hostUrl);
+      if (url.host !== hostUrl.host) {
+        return reply.status(403).send("Invalid `redirectTo` param");
+      }
     }
 
     const id = randomUUID();

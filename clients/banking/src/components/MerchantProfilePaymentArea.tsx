@@ -1,4 +1,4 @@
-import { AsyncData, Option, Result } from "@swan-io/boxed";
+import { AsyncData, Result } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
 import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
@@ -17,7 +17,6 @@ import { PlainListViewPlaceholder } from "@swan-io/lake/src/components/PlainList
 import { Space } from "@swan-io/lake/src/components/Space";
 import { LinkConfig } from "@swan-io/lake/src/components/VirtualizedList";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
-import { useDisclosure } from "@swan-io/lake/src/hooks/useDisclosure";
 import { deriveUnion } from "@swan-io/lake/src/utils/function";
 import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import {
@@ -43,7 +42,6 @@ import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { MerchantProfilePaymentDetail } from "./MerchantProfilePaymentDetail";
 import { MerchantProfilePaymentList } from "./MerchantProfilePaymentList";
-import { MerchantProfilePaymentPicker } from "./MerchantProfilePaymentPicker";
 
 const styles = StyleSheet.create({
   filters: {
@@ -60,12 +58,6 @@ const styles = StyleSheet.create({
 });
 
 const PER_PAGE = 20;
-
-const ALLOWED_PAYMENT_METHODS = new Set<MerchantPaymentMethodType>([
-  "Card",
-  "SepaDirectDebitB2b",
-  "SepaDirectDebitCore",
-]);
 
 type Action = {
   actionType: "canCreatePayment" | "shouldEnablePaymentMethod" | "waitingForReview";
@@ -184,9 +176,16 @@ const paymentMethodType = deriveUnion<SimplifiedPaymentMethod>({
 type Props = {
   params: GetRouteParams<"AccountMerchantsProfilePaymentsArea">;
   large: boolean;
+  shouldEnablePaymentLinkTile: boolean;
+  shouldEnableCheckTile: boolean;
 };
 
-export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
+export const MerchantProfilePaymentArea = ({
+  params,
+  large,
+  shouldEnablePaymentLinkTile,
+  shouldEnableCheckTile,
+}: Props) => {
   const { merchantProfileId, accountMembershipId } = params;
 
   const { canCreateMerchantPaymentLinks } = usePermissions();
@@ -260,32 +259,14 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
     .with({ name: "AccountMerchantsProfilePaymentsDetails" }, ({ params }) => params.paymentId)
     .otherwise(() => null);
 
-  const { shouldEnableCheckTile, shouldEnablePaymentLinkTile } = useMemo(() => {
-    const enabledPaymentMethods = data
-      .toOption()
-      .flatMap(result => result.toOption())
-      .flatMap(({ merchantProfile }) =>
-        Option.fromNullable(merchantProfile?.merchantPaymentMethods),
-      )
-      .map(methods => methods.filter(method => method.statusInfo.status === "Enabled"))
-      .getOr([]);
-
-    return {
-      shouldEnableCheckTile: enabledPaymentMethods.some(method => method.type === "Check"),
-      shouldEnablePaymentLinkTile: enabledPaymentMethods.some(method =>
-        ALLOWED_PAYMENT_METHODS.has(method.type),
-      ),
-    };
-  }, [data]);
-
-  const [pickerVisible, setPickerModal] = useDisclosure(false);
-
-  const [shouldShowTopbar, setShouldShowTopbar] = useState(
-    data
-      .toOption()
-      .flatMap(result => result.toOption())
-      .map(data => (data.merchantProfile?.merchantPayments?.edges.length ?? 0) > 0)
-      .getOr(true),
+  const shouldShowTopbar = useMemo(
+    () =>
+      data
+        .toOption()
+        .flatMap(result => result.toOption())
+        .map(data => (data.merchantProfile?.merchantPayments?.edges.length ?? 0) > 0)
+        .getOr(false),
+    [data],
   );
 
   const canCreatePayments = shouldEnablePaymentLinkTile || shouldEnableCheckTile;
@@ -295,6 +276,20 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
       {shouldShowTopbar && (
         <Box style={[styles.filters, large && styles.filtersLarge]}>
           <Box direction="row" alignItems="center">
+            <LakeButton
+              color="partner"
+              ariaLabel={t("common.new")}
+              mode="primary"
+              icon="add-circle-filled"
+              size="small"
+              onPress={() => {
+                Router.push("AccountMerchantsProfilePaymentsPicker", params);
+              }}
+            >
+              {t("merchantProfile.payment")}
+            </LakeButton>
+            <Space width={8} />
+
             <FilterChooser {...filtersProps.chooser} large={large} />
 
             {large && (
@@ -321,11 +316,7 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
               placeholder={t("common.search")}
               initialValue={search ?? ""}
               onChangeText={search => {
-                Router.replace("AccountMerchantsProfilePaymentsList", {
-                  ...params,
-                  accountMembershipId,
-                  search,
-                });
+                Router.replace("AccountMerchantsProfilePaymentsList", { ...params, search });
               }}
             />
           </Box>
@@ -335,10 +326,7 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
           <FiltersStack
             {...filtersProps.stack}
             onChangeFilters={filters => {
-              Router.replace("AccountMerchantsProfilePaymentsList", {
-                ...params,
-                ...filters,
-              });
+              Router.replace("AccountMerchantsProfilePaymentsList", { ...params, ...filters });
             }}
           />
         </Box>
@@ -359,112 +347,102 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
 
           return (
             <>
-              {pickerVisible && isNotNullish(merchantProfile) ? (
-                <MerchantProfilePaymentPicker
-                  closeModal={setPickerModal.close}
-                  setShouldShowTopbar={setShouldShowTopbar}
-                  params={params}
-                  shouldEnableCheckTile={shouldEnableCheckTile}
-                  shouldEnablePaymentLinkTile={shouldEnablePaymentLinkTile}
-                  merchantProfile={merchantProfile}
-                />
-              ) : (
-                <Connection connection={merchantProfile?.merchantPayments}>
-                  {payments => (
-                    <>
-                      <MerchantProfilePaymentList
-                        isLoading={isLoading}
-                        payments={payments?.edges.map(item => item.node) ?? []}
-                        getRowLink={getRowLink}
-                        activeRowId={activePaymentLinkId ?? undefined}
-                        onActiveRowChange={onActiveRowChange}
-                        onEndReached={() => {
-                          if (merchantProfile?.merchantPayments?.pageInfo.hasNextPage ?? false) {
-                            setVariables({
-                              after:
-                                merchantProfile?.merchantPayments?.pageInfo.endCursor ?? undefined,
-                            });
-                          }
-                        }}
-                        renderEmptyList={() =>
-                          hasSearchOrFilters || !canCreateMerchantPaymentLinks ? (
-                            <EmptyView
-                              icon="lake-transfer"
-                              borderedIcon={true}
-                              title={t("merchantProfile.payments.list.noResults")}
-                              subtitle={t("common.list.noResultsSuggestion")}
-                            />
-                          ) : (
-                            <EmptyListWithCta
-                              action={match({ canCreatePayments, waitingForReview })
-                                .returnType<Action>()
-                                .with({ canCreatePayments: true }, () => ({
-                                  actionType: "canCreatePayment",
-                                  title: t("merchantProfile.payments.newPayment.title"),
-                                  subtitle: t("merchantProfile.payments.newPayment.subtitle"),
-                                  handleAction: () => setPickerModal.open(),
-                                  buttonText: t("merchantProfile.payments.newPayment.button"),
-                                }))
-                                .with({ waitingForReview: true }, () => ({
-                                  actionType: "waitingForReview",
-                                  title: t("merchantProfile.payments.waitingForReview.title"),
-                                  subtitle: t("merchantProfile.payments.waitingForReview.subtitle"),
-                                  buttonText: t("merchantProfile.payments.waitingForReview.button"),
-                                }))
-                                .otherwise(() => ({
-                                  actionType: "shouldEnablePaymentMethod",
-                                  title: t("merchantProfile.payments.enablePaymentMethod.title"),
-                                  subtitle: t(
-                                    "merchantProfile.payments.enablePaymentMethod.subtitle",
-                                  ),
-                                  handleAction: () =>
-                                    Router.push("AccountMerchantsProfileSettings", {
-                                      accountMembershipId,
-                                      merchantProfileId,
-                                    }),
-                                  buttonText: t(
-                                    "merchantProfile.payments.enablePaymentMethod.button",
-                                  ),
-                                }))}
-                              merchantProfile={merchantProfile}
-                            />
-                          )
+              <Connection connection={merchantProfile?.merchantPayments}>
+                {payments => (
+                  <>
+                    <MerchantProfilePaymentList
+                      isLoading={isLoading}
+                      payments={payments?.edges.map(item => item.node) ?? []}
+                      getRowLink={getRowLink}
+                      activeRowId={activePaymentLinkId ?? undefined}
+                      onActiveRowChange={onActiveRowChange}
+                      onEndReached={() => {
+                        if (merchantProfile?.merchantPayments?.pageInfo.hasNextPage ?? false) {
+                          setVariables({
+                            after:
+                              merchantProfile?.merchantPayments?.pageInfo.endCursor ?? undefined,
+                          });
                         }
-                      />
-
-                      <ListRightPanel
-                        ref={panelRef}
-                        keyExtractor={item => item.id}
-                        activeId={activePaymentLinkId}
-                        onActiveIdChange={paymentId =>
-                          Router.push("AccountMerchantsProfilePaymentsDetails", {
-                            accountMembershipId,
-                            merchantProfileId,
-                            paymentId,
-                          })
-                        }
-                        onClose={() =>
-                          Router.push("AccountMerchantsProfilePaymentsList", {
-                            accountMembershipId,
-                            merchantProfileId,
-                          })
-                        }
-                        items={payments?.edges.map(item => item.node) ?? []}
-                        render={(item, large) => (
-                          <MerchantProfilePaymentDetail
-                            paymentLinkId={item.paymentLink?.id}
-                            paymentId={item.id}
-                            large={large}
+                      }}
+                      renderEmptyList={() =>
+                        hasSearchOrFilters || !canCreateMerchantPaymentLinks ? (
+                          <EmptyView
+                            icon="lake-transfer"
+                            borderedIcon={true}
+                            title={t("merchantProfile.payments.list.noResults")}
+                            subtitle={t("common.list.noResultsSuggestion")}
                           />
-                        )}
-                        closeLabel={t("common.closeButton")}
-                        previousLabel={t("common.previous")}
-                        nextLabel={t("common.next")}
-                      />
-                    </>
-                  )}
-                </Connection>
-              )}
+                        ) : (
+                          <EmptyListWithCta
+                            action={match({ canCreatePayments, waitingForReview })
+                              .returnType<Action>()
+                              .with({ canCreatePayments: true }, () => ({
+                                actionType: "canCreatePayment",
+                                title: t("merchantProfile.payments.newPayment.title"),
+                                subtitle: t("merchantProfile.payments.newPayment.subtitle"),
+                                handleAction: () =>
+                                  Router.push("AccountMerchantsProfilePaymentsPicker", params),
+                                buttonText: t("merchantProfile.payments.newPayment.button"),
+                              }))
+                              .with({ waitingForReview: true }, () => ({
+                                actionType: "waitingForReview",
+                                title: t("merchantProfile.payments.waitingForReview.title"),
+                                subtitle: t("merchantProfile.payments.waitingForReview.subtitle"),
+                                buttonText: t("merchantProfile.payments.waitingForReview.button"),
+                              }))
+                              .otherwise(() => ({
+                                actionType: "shouldEnablePaymentMethod",
+                                title: t("merchantProfile.payments.enablePaymentMethod.title"),
+                                subtitle: t(
+                                  "merchantProfile.payments.enablePaymentMethod.subtitle",
+                                ),
+                                handleAction: () =>
+                                  Router.push("AccountMerchantsProfileSettings", {
+                                    accountMembershipId,
+                                    merchantProfileId,
+                                  }),
+                                buttonText: t(
+                                  "merchantProfile.payments.enablePaymentMethod.button",
+                                ),
+                              }))}
+                            merchantProfile={merchantProfile}
+                          />
+                        )
+                      }
+                    />
+
+                    <ListRightPanel
+                      ref={panelRef}
+                      keyExtractor={item => item.id}
+                      activeId={activePaymentLinkId}
+                      onActiveIdChange={paymentId =>
+                        Router.push("AccountMerchantsProfilePaymentsDetails", {
+                          accountMembershipId,
+                          merchantProfileId,
+                          paymentId,
+                        })
+                      }
+                      onClose={() =>
+                        Router.push("AccountMerchantsProfilePaymentsList", {
+                          accountMembershipId,
+                          merchantProfileId,
+                        })
+                      }
+                      items={payments?.edges.map(item => item.node) ?? []}
+                      render={(item, large) => (
+                        <MerchantProfilePaymentDetail
+                          paymentLinkId={item.paymentLink?.id}
+                          paymentId={item.id}
+                          large={large}
+                        />
+                      )}
+                      closeLabel={t("common.closeButton")}
+                      previousLabel={t("common.previous")}
+                      nextLabel={t("common.next")}
+                    />
+                  </>
+                )}
+              </Connection>
             </>
           );
         })

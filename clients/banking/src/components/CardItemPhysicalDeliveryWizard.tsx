@@ -23,6 +23,7 @@ type AddressStep = { name: "Address"; choosePin: boolean };
 type Step = ChoosePinStep | AddressStep;
 
 type Props = {
+  isCurrentUserCardOwner: boolean;
   visible: boolean;
   initialAddress: Address | undefined;
   onPressClose: () => void;
@@ -32,6 +33,7 @@ type Props = {
 const formSteps = ["ChoosePin" as const, "Address" as const];
 
 export const CardItemPhysicalDeliveryWizard = ({
+  isCurrentUserCardOwner,
   visible,
   initialAddress,
   onPressClose,
@@ -42,7 +44,9 @@ export const CardItemPhysicalDeliveryWizard = ({
   const choosePinRef = useRef<CardItemPhysicalChoosePinFormRef>(null);
   const deliveryAddressRef = useRef<CardItemPhysicalDeliveryAddressFormRef>(null);
 
-  const [step, setStep] = useState<Step>({ name: "ChoosePin" });
+  const [step, setStep] = useState<Step>(
+    isCurrentUserCardOwner ? { name: "ChoosePin" } : { name: "Address", choosePin: false },
+  );
 
   return (
     <LakeModal
@@ -73,16 +77,23 @@ export const CardItemPhysicalDeliveryWizard = ({
         ))
         .exhaustive()}
 
-      <Space height={12} />
-      <StepDots currentStep={step.name} steps={formSteps} />
+      {isCurrentUserCardOwner ? (
+        <>
+          <Space height={12} />
+          <StepDots currentStep={step.name} steps={formSteps} />
+        </>
+      ) : null}
+
       <Space height={12} />
 
       <LakeButtonGroup paddingBottom={0}>
         <LakeButton
           onPress={() => {
-            match(step)
-              .with({ name: "ChoosePin" }, () => onPressClose())
-              .with({ name: "Address" }, () => {
+            match({ step, isCurrentUserCardOwner })
+              .with({ isCurrentUserCardOwner: true }, { step: { name: "ChoosePin" } }, () =>
+                onPressClose(),
+              )
+              .with({ step: { name: "Address" } }, () => {
                 setStep({ name: "ChoosePin" });
               })
               .exhaustive();
@@ -90,8 +101,8 @@ export const CardItemPhysicalDeliveryWizard = ({
           mode="secondary"
           grow={true}
         >
-          {match(step)
-            .with({ name: "Address" }, () => t("common.back"))
+          {match({ step, isCurrentUserCardOwner })
+            .with({ name: "Address", isCurrentUserCardOwner: true }, () => t("common.back"))
             .otherwise(() => t("common.cancel"))}
         </LakeButton>
 

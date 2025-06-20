@@ -1586,6 +1586,7 @@ export const CardItemPhysicalDetails = ({
           </View>
 
           <CardItemPhysicalDeliveryWizard
+            isCurrentUserCardOwner={isCurrentUserCardOwner}
             visible={orderModal.isSome()}
             onPressClose={() => setOrderModal(Option.None())}
             onSubmit={onShippingFormSubmit}

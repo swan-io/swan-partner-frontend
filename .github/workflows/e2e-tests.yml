@@ -73,6 +73,9 @@ jobs:
       - name: GraphQL Codegen
         run: pnpm graphql-codegen
 
+      - name: List assets directory
+        run: ls -l ./assets
+
       - name: Run E2E tests
         run: pnpm test-e2e
         env:

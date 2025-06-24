@@ -73,8 +73,14 @@ jobs:
       - name: GraphQL Codegen
         run: pnpm graphql-codegen
 
-      - name: List assets directory
-        run: ls -l ./assets
+      - name: Show current working directory
+        run: pwd
+
+      - name: List all files
+        run: ls -lR
+
+      - name: Find sworn_statement.png
+        run: find . -name 'sworn_statement.png'
 
       - name: Run E2E tests
         run: pnpm test-e2e

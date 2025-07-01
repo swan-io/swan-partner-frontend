@@ -136,7 +136,7 @@ export const OnboardingCompanyOrganisation1 = ({
     .with({ accountCountry: "ITA", country: "ITA" }, () => true)
     .otherwise(() => false);
 
-  const isRegisteredRadioButtonsVisible = accountCountry === "DEU";
+  const isRegisteredRadioButtonsVisible = country === "DEU";
 
   const { Field, FieldsListener, submitForm, setFieldValue, setFieldError } = useForm({
     isRegistered: {

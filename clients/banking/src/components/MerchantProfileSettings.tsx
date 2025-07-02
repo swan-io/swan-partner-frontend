@@ -209,7 +209,7 @@ const MerchantProfileSettingsPaymentMethodTile = ({
               </Tag>
             ))
             .with(P.nullish, () => null)
-            .exhaustive()}
+            .otherwise(() => null)}
 
           <Fill minWidth={8} />
 

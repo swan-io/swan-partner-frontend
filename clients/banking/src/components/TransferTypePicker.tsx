@@ -9,7 +9,7 @@ import { StyleSheet, View } from "react-native";
 import { AccountCountry } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
-import { GetRouteParams, Router } from "../utils/routes";
+import { RouteParams, Router } from "../utils/routes";
 import { useTgglFlag } from "../utils/tggl";
 import { TransferBulkWizard } from "./TransferBulkWizard";
 import { TransferInternationalWizard } from "./TransferInternationalWizard";
@@ -42,7 +42,7 @@ type Props = {
   accountMembershipId: string;
   accountId: string;
   accountCountry: AccountCountry;
-  params: GetRouteParams<"AccountPaymentsNew">;
+  params: RouteParams<"AccountPaymentsNew">;
 };
 
 export const TransferTypePicker = ({

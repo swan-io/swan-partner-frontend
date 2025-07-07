@@ -26,7 +26,7 @@ import {
 } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { isSupportedCurrency, t } from "../utils/i18n";
-import { GetRouteParams, Router } from "../utils/routes";
+import { RouteParams, Router } from "../utils/routes";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { SearchInput } from "./SearchInput";
@@ -61,7 +61,7 @@ type Props = {
   accountId: string;
   beneficiary: TrustedBeneficiaryDetailsFragment;
   large: boolean;
-  params: GetRouteParams<"AccountPaymentsBeneficiariesDetails">;
+  params: RouteParams<"AccountPaymentsBeneficiariesDetails">;
 };
 
 export const BeneficiaryDetailTransferList = ({

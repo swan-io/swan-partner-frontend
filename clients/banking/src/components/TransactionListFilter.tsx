@@ -13,13 +13,20 @@ import {
   isBeforeUpdatedAtSelectable,
   validateAfterUpdatedAt,
   validateBeforeUpdatedAt,
+  validateNumeric,
 } from "../utils/validations";
 import { filter, Filters, FiltersState } from "./Filters";
 import { FiltersContainer } from "./FiltersMobileContainer";
 import { SearchInput } from "./SearchInput";
 
 const filtersDefinition = {
+  amount: filter.input({
+    label: t("transactionList.filter.amount"),
+    format: "currency",
+    validate: validateNumeric({}),
+  }),
   status: filter.checkbox<TransactionStatus>({
+    isInMoreFiltersByDefault: true,
     label: t("transactionList.filter.status"),
     items: [
       { value: "Pending", label: t("transactionStatus.pending") },

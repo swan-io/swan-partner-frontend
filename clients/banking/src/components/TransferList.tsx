@@ -20,7 +20,7 @@ import { TransactionList } from "../components/TransactionList";
 import { TransactionListPageDocument } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
-import { Router } from "../utils/routes";
+import { RouteParams, Router } from "../utils/routes";
 import { Connection } from "./Connection";
 import { TransactionFilters, TransactionListFilter } from "./TransactionListFilter";
 
@@ -41,13 +41,7 @@ const NUM_TO_RENDER = 20;
 
 type Props = {
   accountId: string;
-  accountMembershipId: string;
-  params: {
-    isAfterUpdatedAt?: string | undefined;
-    isBeforeUpdatedAt?: string | undefined;
-    search?: string | undefined;
-    transactionStatus?: string[] | undefined;
-  };
+  params: RouteParams<"AccountPaymentsRoot">;
 };
 
 const DEFAULT_STATUSES = [
@@ -57,11 +51,14 @@ const DEFAULT_STATUSES = [
   "Rejected" as const,
 ];
 
-export const TransferList = ({ accountId, accountMembershipId, params }: Props) => {
+export const TransferList = ({ accountId, params }: Props) => {
+  const { accountMembershipId } = params;
+
   const filters = useMemo(
     (): Except<TransactionFilters, "paymentProduct"> => ({
-      isAfterUpdatedAt: params.isAfterUpdatedAt,
+      amount: params.amount,
       isBeforeUpdatedAt: params.isBeforeUpdatedAt,
+      isAfterUpdatedAt: params.isAfterUpdatedAt,
       status: params.transactionStatus?.filter(
         isMatching(P.union("Booked", "Canceled", "Pending", "Rejected", "Released")),
       ),

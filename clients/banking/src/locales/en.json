@@ -1217,6 +1217,7 @@
   "transactionDetail.internationalCreditTransfer.taxId": "Tax ID: CUIL / CUIT",
   "transactionDetail.internationalCreditTransfer.transitNumber": "Transit number",
   "transactionDetail.paymentProduct.InternationalCreditTransfer": "International credit transfer",
+  "transactionList.filter.amount": "Amount",
   "transactionList.filter.isAfterUpdatedAt": "Updated after",
   "transactionList.filter.isBeforeUpdatedAt": "Updated before",
   "transactionList.filter.paymentMethod": "Payment method",

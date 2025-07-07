@@ -33,7 +33,7 @@ import {
 } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
-import { GetRouteParams, Router } from "../utils/routes";
+import { RouteParams, Router } from "../utils/routes";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { filter, Filters, FiltersState } from "./Filters";
@@ -171,7 +171,7 @@ const paymentMethodType = deriveUnion<SimplifiedPaymentMethod>({
 });
 
 type Props = {
-  params: GetRouteParams<"AccountMerchantsProfilePaymentsArea">;
+  params: RouteParams<"AccountMerchantsProfilePaymentsArea">;
   large: boolean;
   shouldEnablePaymentLinkTile: boolean;
   shouldEnableCheckTile: boolean;

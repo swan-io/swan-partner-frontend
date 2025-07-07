@@ -19,7 +19,7 @@ import { ErrorView } from "../components/ErrorView";
 import { CardListPageDocument } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
-import { GetRouteParams, Router } from "../utils/routes";
+import { RouteParams, Router } from "../utils/routes";
 
 const styles = StyleSheet.create({
   root: {
@@ -42,7 +42,7 @@ type Props = {
   accountMembershipId: string;
   accountId: string | undefined;
   totalDisplayableCardCount: number;
-  params: Except<GetRouteParams<"AccountCardsList">, "accountMembershipId">;
+  params: Except<RouteParams<"AccountCardsList">, "accountMembershipId">;
 };
 
 const PER_PAGE = 20;

@@ -14,4 +14,4 @@ export const Router = createRouter({
 type Routes = InferRoutes<typeof Router>;
 
 export type RouteName = keyof Routes;
-export type GetRouteParams<T extends RouteName> = Routes[T];
+export type RouteParams<T extends RouteName> = Routes[T];

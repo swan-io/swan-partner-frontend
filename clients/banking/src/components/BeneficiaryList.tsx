@@ -42,7 +42,7 @@ import {
 } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { currencies, currencyFlags, currencyResolver, isSupportedCurrency, t } from "../utils/i18n";
-import { GetRouteParams, Router } from "../utils/routes";
+import { RouteParams, Router } from "../utils/routes";
 import { BeneficiaryDetail } from "./BeneficiaryDetail";
 import { ErrorView } from "./ErrorView";
 import { filter, Filters, FiltersState } from "./Filters";
@@ -67,7 +67,6 @@ const styles = StyleSheet.create({
 type Account = NonNullable<BeneficiariesListQuery["account"]>;
 type Beneficiaries = NonNullable<Account["trustedBeneficiaries"]>;
 type Beneficiary = GetNode<Beneficiaries>;
-type RouteParams = GetRouteParams<"AccountPaymentsBeneficiariesList">;
 
 export const getBeneficiaryIdentifier = (beneficiary: Beneficiary) =>
   match(beneficiary)
@@ -307,7 +306,7 @@ const BeneficiaryListImpl = ({
   rowHeight: number;
   beneficiaries: Beneficiaries;
   isLoading: boolean;
-  params: RouteParams;
+  params: RouteParams<"AccountPaymentsBeneficiariesList">;
   setVariables: (variables: Partial<BeneficiariesListQueryVariables>) => void;
 }) => {
   const route = Router.useRoute(["AccountPaymentsBeneficiariesDetails"]);
@@ -406,7 +405,7 @@ export const BeneficiaryList = ({
 }: {
   accountId: string;
   accountCountry: AccountCountry;
-  params: RouteParams;
+  params: RouteParams<"AccountPaymentsBeneficiariesList">;
 }) => {
   const { canCreateTrustedBeneficiary } = usePermissions();
 

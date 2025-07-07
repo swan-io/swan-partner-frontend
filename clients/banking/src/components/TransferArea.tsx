@@ -168,11 +168,7 @@ export const TransferArea = ({
 
                     {match(route)
                       .with({ name: "AccountPaymentsRoot" }, ({ params }) => (
-                        <TransferList
-                          accountId={accountId}
-                          accountMembershipId={accountMembershipId}
-                          params={params}
-                        />
+                        <TransferList accountId={accountId} params={params} />
                       ))
                       .with(
                         { name: "AccountPaymentsRecurringTransferList" },

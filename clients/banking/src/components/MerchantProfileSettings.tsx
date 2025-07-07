@@ -41,7 +41,7 @@ import {
 } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { formatNestedMessage, t } from "../utils/i18n";
-import { GetRouteParams, Router } from "../utils/routes";
+import { RouteParams, Router } from "../utils/routes";
 import { CheckDeclarationWizard } from "./CheckDeclarationWizard";
 import {
   MerchantProfilePaymentMethodCardRequestModal,
@@ -436,7 +436,7 @@ const getPaymentMethod = <T extends MerchantPaymentMethodFragment["__typename"]>
 type Props = {
   merchantProfile: MerchantProfileFragment;
   large: boolean;
-  params: GetRouteParams<"AccountMerchantsProfileSettings">;
+  params: RouteParams<"AccountMerchantsProfileSettings">;
   onUpdate: () => void;
 };
 

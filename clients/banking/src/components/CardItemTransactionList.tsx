@@ -15,7 +15,7 @@ import { isMatching, match, P } from "ts-pattern";
 import { Except } from "type-fest";
 import { CardTransactionsPageDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { GetRouteParams, Router } from "../utils/routes";
+import { RouteParams, Router } from "../utils/routes";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { TransactionDetail } from "./TransactionDetail";
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
 const NUM_TO_RENDER = 20;
 
 type Props = {
-  params: GetRouteParams<"AccountCardsItemTransactions">;
+  params: RouteParams<"AccountCardsItemTransactions">;
 };
 
 const DEFAULT_STATUSES = [
@@ -52,8 +52,9 @@ const DEFAULT_STATUSES = [
 export const CardItemTransactionList = ({ params }: Props) => {
   const filters = useMemo(
     (): Except<TransactionFilters, "paymentProduct"> => ({
-      isAfterUpdatedAt: params.isAfterUpdatedAt,
+      amount: params.amount,
       isBeforeUpdatedAt: params.isBeforeUpdatedAt,
+      isAfterUpdatedAt: params.isAfterUpdatedAt,
       status: params.status?.filter(
         isMatching(P.union("Booked", "Canceled", "Pending", "Rejected", "Released", "Upcoming")),
       ),

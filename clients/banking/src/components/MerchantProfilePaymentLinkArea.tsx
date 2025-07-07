@@ -25,7 +25,7 @@ import {
 } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
-import { GetRouteParams, Router } from "../utils/routes";
+import { RouteParams, Router } from "../utils/routes";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { MerchantProfilePaymentLinkDetail } from "./MerchantProfilePaymentLinkDetail";
@@ -58,7 +58,7 @@ const ALLOWED_PAYMENT_METHODS = new Set<MerchantPaymentMethodType>([
 ]);
 
 type Props = {
-  params: GetRouteParams<"AccountMerchantsProfilePaymentLinkArea">;
+  params: RouteParams<"AccountMerchantsProfilePaymentLinkArea">;
   large: boolean;
 };
 

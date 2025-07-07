@@ -7,7 +7,7 @@ import { StyleSheet, View } from "react-native";
 import { MerchantPaymentsQuery } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
-import { GetRouteParams, Router } from "../utils/routes";
+import { RouteParams, Router } from "../utils/routes";
 import { CheckDeclarationWizard } from "./CheckDeclarationWizard";
 import { MerchantProfilePaymentLinkNew } from "./MerchantProfilePaymentLinkNew";
 import { TypePickerLink } from "./TypePickerLink";
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  params: GetRouteParams<"AccountMerchantsProfilePaymentsPicker">;
+  params: RouteParams<"AccountMerchantsProfilePaymentsPicker">;
   shouldEnableCheckTile: boolean;
   shouldEnablePaymentLinkTile: boolean;
   merchantProfile: NonNullable<MerchantPaymentsQuery["merchantProfile"]>;

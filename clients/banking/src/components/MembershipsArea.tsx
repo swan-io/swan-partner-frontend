@@ -27,7 +27,7 @@ import {
 import { usePermissions } from "../hooks/usePermissions";
 import { locale, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
-import { GetRouteParams, Router, membershipsRoutes } from "../utils/routes";
+import { RouteParams, Router, membershipsRoutes } from "../utils/routes";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { MembershipDetailArea } from "./MembershipDetailArea";
@@ -60,7 +60,7 @@ type Props = {
   accountId: string;
   accountCountry: AccountCountry;
   shouldDisplayIdVerification: boolean;
-  params: Except<GetRouteParams<"AccountMembersArea">, "accountMembershipId">;
+  params: Except<RouteParams<"AccountMembersArea">, "accountMembershipId">;
   currentUserAccountMembership: AccountMembershipFragment;
   onAccountMembershipUpdate: () => void;
 };

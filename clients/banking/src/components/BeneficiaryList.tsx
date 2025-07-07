@@ -463,7 +463,7 @@ export const BeneficiaryList = ({
                         })
                       }
                     >
-                      {t("common.add")}
+                      {large ? t("common.new") : null}
                     </LakeButton>
 
                     <Separator horizontal={true} space={12} />

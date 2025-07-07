@@ -280,7 +280,7 @@ export const MerchantProfilePaymentArea = ({
                 Router.push("AccountMerchantsProfilePaymentsPicker", params);
               }}
             >
-              {t("common.new")}
+              {large ? t("common.new") : null}
             </LakeButton>
 
             <Separator horizontal={true} space={12} />

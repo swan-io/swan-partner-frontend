@@ -217,7 +217,7 @@ export const MembershipsArea = ({
                       Router.push("AccountMembersList", { accountMembershipId, new: "" })
                     }
                   >
-                    {t("common.new")}
+                    {large ? t("common.new") : null}
                   </LakeButton>
                 ) : null}
               </MembershipListFilter>

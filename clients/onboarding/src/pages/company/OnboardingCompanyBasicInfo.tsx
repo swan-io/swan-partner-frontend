@@ -41,10 +41,9 @@ const companyTypesPerCountry: Partial<Record<CountryCCA3, string>> = {
   BEL: "(SA, SPRL, SRL, SCRIS, SNC, SCS, GIE)",
   DEU: "(z.B. GmbH, UG, KG, eGbR)",
   FRA: "(SA, SARL, SAS, SCI…)",
-  ITA: "(SS, SRL, SPA, SNC, SAS…)",
+  ITA: "(SS, SRL, SPA, SNC, SAS, Cooperativa…)",
   LUX: "(SA, SCS, SARLI, SNC, SCA, SC)",
   NLD: "(BV, NV, VOF…)",
-  ESP: "(Cooperativa)",
 };
 
 const selfEmployedTypesPerCountry: Partial<Record<CountryCCA3, string>> = {

@@ -1,6 +1,5 @@
 import { Dict, Future } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -16,6 +15,7 @@ import {
   validateBeforeUpdatedAt,
 } from "../utils/validations";
 import { filter, Filters, FiltersState } from "./Filters";
+import { FiltersContainer } from "./FiltersMobileContainer";
 import { SearchInput } from "./SearchInput";
 
 const filtersDefinition = {
@@ -85,18 +85,18 @@ export const TransactionListFilter = ({
   return (
     <>
       <Box direction="row" alignItems="center">
-        {children != null ? (
+        {children != null && (
           <>
             {children}
-
-            <Separator horizontal={true} space={16} />
+            <Separator horizontal={true} space={12} />
           </>
-        ) : null}
+        )}
 
-        <Filters definition={definition} values={filters} onChange={onChangeFilters} />
-        <Fill minWidth={16} />
+        <FiltersContainer large={large}>
+          <Filters definition={definition} values={filters} onChange={onChangeFilters} />
+        </FiltersContainer>
 
-        {large && (
+        {large ? (
           <>
             <LakeButton
               ariaLabel={t("common.refresh")}
@@ -112,6 +112,8 @@ export const TransactionListFilter = ({
 
             <Space width={8} />
           </>
+        ) : (
+          <Space width={16} />
         )}
 
         <SearchInput

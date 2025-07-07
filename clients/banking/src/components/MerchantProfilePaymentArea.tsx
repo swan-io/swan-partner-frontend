@@ -5,7 +5,6 @@ import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
-import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
@@ -38,6 +37,7 @@ import { GetRouteParams, Router } from "../utils/routes";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { filter, Filters, FiltersState } from "./Filters";
+import { FiltersContainer } from "./FiltersMobileContainer";
 import { MerchantProfilePaymentDetail } from "./MerchantProfilePaymentDetail";
 import { MerchantProfilePaymentList } from "./MerchantProfilePaymentList";
 import { SearchInput } from "./SearchInput";
@@ -283,19 +283,22 @@ export const MerchantProfilePaymentArea = ({
               {t("common.new")}
             </LakeButton>
 
-            <Separator horizontal={true} space={16} />
+            <Separator horizontal={true} space={12} />
 
-            <Filters
-              definition={filtersDefinition}
-              values={filters}
-              onChange={filters => {
-                Router.replace("AccountMerchantsProfilePaymentsList", { ...params, ...filters });
-              }}
-            />
+            <FiltersContainer large={large}>
+              <Filters
+                definition={filtersDefinition}
+                values={filters}
+                onChange={filters => {
+                  Router.replace("AccountMerchantsProfilePaymentsList", {
+                    ...params,
+                    ...filters,
+                  });
+                }}
+              />
+            </FiltersContainer>
 
-            <Fill minWidth={16} />
-
-            {large && (
+            {large ? (
               <>
                 <LakeButton
                   ariaLabel={t("common.refresh")}
@@ -311,6 +314,8 @@ export const MerchantProfilePaymentArea = ({
 
                 <Space width={8} />
               </>
+            ) : (
+              <Space width={16} />
             )}
 
             <SearchInput

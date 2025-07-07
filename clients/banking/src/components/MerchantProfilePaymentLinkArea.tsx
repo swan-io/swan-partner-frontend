@@ -160,7 +160,7 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
               </LakeButton>
             </LakeTooltip>
 
-            <Separator horizontal={true} space={16} />
+            <Separator horizontal={true} space={12} />
           </>
         ) : null}
 

@@ -1,6 +1,5 @@
 import { AsyncData, Future, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -12,7 +11,7 @@ import { match, P } from "ts-pattern";
 import { AccountMembershipStatus } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { filter, Filters, FiltersState } from "./Filters";
-import { FiltersFadingScrollView } from "./FiltersFadingScrollView";
+import { FiltersContainer } from "./FiltersMobileContainer";
 import { SearchInput } from "./SearchInput";
 
 type BooleanParam = "true" | "false";
@@ -98,21 +97,22 @@ export const MembershipListFilter = ({
 }: MembershipListFilterProps) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const filtersElement = (
-    <Filters definition={filtersDefinition} values={filters} onChange={onChangeFilters} />
-  );
-
   return (
     <>
       <Box direction="row" alignItems="center">
-        {children}
+        {children != null && (
+          <>
+            {children}
+            <Separator horizontal={true} space={12} />
+          </>
+        )}
+
+        <FiltersContainer large={large}>
+          <Filters definition={filtersDefinition} values={filters} onChange={onChangeFilters} />
+        </FiltersContainer>
 
         {large ? (
           <>
-            {children != null && <Separator horizontal={true} space={16} />}
-
-            {filtersElement}
-
             <LakeButton
               ariaLabel={t("common.refresh")}
               mode="secondary"
@@ -128,7 +128,7 @@ export const MembershipListFilter = ({
             <Space width={8} />
           </>
         ) : (
-          <Fill minWidth={16} />
+          <Space width={16} />
         )}
 
         <SearchInput
@@ -145,11 +145,7 @@ export const MembershipListFilter = ({
         />
       </Box>
 
-      {large ? (
-        <Space height={12} />
-      ) : (
-        <FiltersFadingScrollView>{filtersElement}</FiltersFadingScrollView>
-      )}
+      <Space height={12} />
     </>
   );
 };

@@ -4,7 +4,6 @@ import { useForwardPagination, useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Cell, HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
-import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
@@ -47,7 +46,7 @@ import { GetRouteParams, Router } from "../utils/routes";
 import { BeneficiaryDetail } from "./BeneficiaryDetail";
 import { ErrorView } from "./ErrorView";
 import { filter, Filters, FiltersState } from "./Filters";
-import { FiltersFadingScrollView } from "./FiltersFadingScrollView";
+import { FiltersContainer } from "./FiltersMobileContainer";
 import { SearchInput } from "./SearchInput";
 import { Toggle } from "./Toggle";
 
@@ -448,58 +447,58 @@ export const BeneficiaryList = ({
       {({ large }) => {
         const rowHeight = large ? 56 : 72;
 
-        const filtersElement = (
-          <Filters
-            definition={filtersDefinition}
-            values={filters}
-            onChange={filters => {
-              Router.replace("AccountPaymentsBeneficiariesList", {
-                ...params,
-                ...filters,
-              });
-            }}
-            toggle={
-              <Toggle
-                compact={!large}
-                value={!canceled}
-                labelOn={t("beneficiaries.status.enabled")}
-                labelOff={t("beneficiaries.status.canceled")}
-                onToggle={on => {
-                  Router.push("AccountPaymentsBeneficiariesList", {
-                    ...omit(params, ["canceled"]),
-                    canceled: !on ? "true" : undefined,
-                  });
-                }}
-              />
-            }
-          />
-        );
-
         return (
           <>
             <Box style={[styles.header, large && styles.headerLarge]}>
               <Box direction="row" alignItems="center">
                 {canCreateTrustedBeneficiary && (
-                  <LakeButton
-                    icon="add-circle-filled"
-                    size="small"
-                    color="current"
-                    onPress={() =>
-                      Router.push("AccountPaymentsBeneficiariesNew", {
-                        accountMembershipId: params.accountMembershipId,
-                      })
-                    }
-                  >
-                    {t("common.add")}
-                  </LakeButton>
+                  <>
+                    <LakeButton
+                      icon="add-circle-filled"
+                      size="small"
+                      color="current"
+                      onPress={() =>
+                        Router.push("AccountPaymentsBeneficiariesNew", {
+                          accountMembershipId: params.accountMembershipId,
+                        })
+                      }
+                    >
+                      {t("common.add")}
+                    </LakeButton>
+
+                    <Separator horizontal={true} space={12} />
+                  </>
                 )}
+
+                <FiltersContainer large={large}>
+                  <Filters
+                    definition={filtersDefinition}
+                    values={filters}
+                    onChange={filters => {
+                      Router.replace("AccountPaymentsBeneficiariesList", {
+                        ...params,
+                        ...filters,
+                      });
+                    }}
+                    toggle={
+                      <Toggle
+                        compact={!large}
+                        value={!canceled}
+                        labelOn={t("beneficiaries.status.enabled")}
+                        labelOff={t("beneficiaries.status.canceled")}
+                        onToggle={on => {
+                          Router.push("AccountPaymentsBeneficiariesList", {
+                            ...omit(params, ["canceled"]),
+                            canceled: !on ? "true" : undefined,
+                          });
+                        }}
+                      />
+                    }
+                  />
+                </FiltersContainer>
 
                 {large ? (
                   <>
-                    {canCreateTrustedBeneficiary && <Separator horizontal={true} space={16} />}
-
-                    {filtersElement}
-
                     <LakeButton
                       ariaLabel={t("common.refresh")}
                       mode="secondary"
@@ -515,7 +514,7 @@ export const BeneficiaryList = ({
                     <Space width={8} />
                   </>
                 ) : (
-                  <Fill minWidth={16} />
+                  <Space width={16} />
                 )}
 
                 <SearchInput
@@ -537,11 +536,7 @@ export const BeneficiaryList = ({
                 />
               </Box>
 
-              {large ? (
-                <Space height={12} />
-              ) : (
-                <FiltersFadingScrollView>{filtersElement}</FiltersFadingScrollView>
-              )}
+              <Space height={12} />
             </Box>
 
             <Space height={24} />

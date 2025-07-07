@@ -56,8 +56,7 @@ export const CardListFilter = ({
         {children != null ? (
           <>
             {children}
-
-            <Separator horizontal={true} space={16} />
+            <Separator horizontal={true} space={12} />
           </>
         ) : null}
 

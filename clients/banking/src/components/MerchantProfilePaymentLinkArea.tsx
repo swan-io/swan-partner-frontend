@@ -6,12 +6,11 @@ import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { FullViewportLayer } from "@swan-io/lake/src/components/FullViewportLayer";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
-import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { LakeTooltip } from "@swan-io/lake/src/components/LakeTooltip";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
 import { PlainListViewPlaceholder } from "@swan-io/lake/src/components/PlainListView";
+import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { LinkConfig } from "@swan-io/lake/src/components/VirtualizedList";
 import { spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
@@ -32,6 +31,8 @@ import { ErrorView } from "./ErrorView";
 import { MerchantProfilePaymentLinkDetail } from "./MerchantProfilePaymentLinkDetail";
 import { MerchantProfilePaymentLinkNew } from "./MerchantProfilePaymentLinkNew";
 import { MerchantProfilePaymentLinksList } from "./MerchantProfilePaymentLinksList";
+import { SearchInput } from "./SearchInput";
+import { Toggle } from "./Toggle";
 
 const styles = StyleSheet.create({
   containerMobile: {
@@ -131,37 +132,12 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
 
   return (
     <>
-      {canCreateMerchantPaymentLinks && !large ? (
-        <Box style={styles.containerMobile} alignItems="stretch">
-          <LakeTooltip
-            content={t("merchantProfile.paymentLink.button.new.disable")}
-            disabled={shouldEnableNewButton !== false}
-          >
-            <LakeButton
-              disabled={shouldEnableNewButton === false}
-              size="small"
-              icon="add-circle-filled"
-              color="current"
-              onPress={() =>
-                Router.push("AccountMerchantsProfilePaymentLinkList", {
-                  new: "true",
-                  accountMembershipId,
-                  merchantProfileId,
-                })
-              }
-            >
-              {t("merchantProfile.paymentLink.button.new")}
-            </LakeButton>
-          </LakeTooltip>
-        </Box>
-      ) : null}
-
       <Box
         direction="row"
         alignItems="center"
         style={[styles.filters, large && styles.filtersLarge]}
       >
-        {canCreateMerchantPaymentLinks && large ? (
+        {canCreateMerchantPaymentLinks ? (
           <>
             <LakeTooltip
               content={t("merchantProfile.paymentLink.button.new.disable")}
@@ -184,50 +160,53 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
               </LakeButton>
             </LakeTooltip>
 
-            <Space width={8} />
+            <Separator horizontal={true} space={16} />
           </>
         ) : null}
 
-        <LakeButton
-          ariaLabel={t("common.refresh")}
-          mode="secondary"
-          size="small"
-          icon="arrow-counterclockwise-filled"
-          loading={isRefreshing}
-          onPress={() => {
-            setIsRefreshing(true);
-            reload().tap(() => setIsRefreshing(false));
-          }}
+        <Toggle
+          compact={!large}
+          value={params.status === "Active" || params.status == null}
+          onToggle={status =>
+            Router.push("AccountMerchantsProfilePaymentLinkList", {
+              ...params,
+              status: status ? "Active" : "Archived",
+            })
+          }
+          labelOn={t("merchantProfile.list.Active")}
+          labelOff={t("merchantProfile.list.Inactive")}
         />
 
         <Fill minWidth={16} />
 
-        <LakeSearchField
+        {large ? (
+          <>
+            <LakeButton
+              ariaLabel={t("common.refresh")}
+              mode="secondary"
+              size="small"
+              icon="arrow-counterclockwise-filled"
+              loading={isRefreshing}
+              onPress={() => {
+                setIsRefreshing(true);
+                reload().tap(() => setIsRefreshing(false));
+              }}
+            />
+
+            <Space width={8} />
+          </>
+        ) : null}
+
+        <SearchInput
           initialValue={search ?? ""}
-          placeholder={t("common.search")}
-          maxWidth={500}
+          collapsed={!large}
           onChangeText={search => {
             Router.replace("AccountMerchantsProfilePaymentLinkList", {
               ...params,
               search,
             });
           }}
-        >
-          <Toggle
-            mode={large ? "desktop" : "mobile"}
-            value={params.status === "Active" || params.status == null}
-            onToggle={status =>
-              Router.push("AccountMerchantsProfilePaymentLinkList", {
-                ...params,
-                status: status ? "Active" : "Archived",
-              })
-            }
-            onLabel={t("merchantProfile.list.Active")}
-            offLabel={t("merchantProfile.list.Inactive")}
-          />
-
-          <Space width={16} />
-        </LakeSearchField>
+        />
       </Box>
 
       <Space height={24} />

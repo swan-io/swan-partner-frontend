@@ -6,25 +6,22 @@ import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Fill } from "@swan-io/lake/src/components/Fill";
-import { FilterChooser } from "@swan-io/lake/src/components/FilterChooser";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
-import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
 import { PlainListViewPlaceholder } from "@swan-io/lake/src/components/PlainListView";
+import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { LinkConfig } from "@swan-io/lake/src/components/VirtualizedList";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { deriveUnion } from "@swan-io/lake/src/utils/function";
-import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import {
-  filter,
-  FiltersStack,
-  FiltersState,
-  useFiltersProps,
-} from "@swan-io/shared-business/src/components/Filters";
+  isNotNullish,
+  isNotNullishOrEmpty,
+  nullishOrEmptyToUndefined,
+} from "@swan-io/lake/src/utils/nullish";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
@@ -40,8 +37,10 @@ import { t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
+import { filter, Filters, FiltersState } from "./Filters";
 import { MerchantProfilePaymentDetail } from "./MerchantProfilePaymentDetail";
 import { MerchantProfilePaymentList } from "./MerchantProfilePaymentList";
+import { SearchInput } from "./SearchInput";
 
 const styles = StyleSheet.create({
   filters: {
@@ -67,19 +66,9 @@ type Action = {
   buttonText: string;
 };
 
-type Filters = FiltersState<typeof filtersDefinition>;
-
 type SimplifiedPaymentMethod = "Card" | "Check" | "DirectDebit";
 
 const filtersDefinition = {
-  paymentMethod: filter.checkbox<SimplifiedPaymentMethod>({
-    label: t("merchantProfile.payments.filter.paymentMethod"),
-    items: [
-      { value: "Card", label: t("paymentMethod.card") },
-      { value: "Check", label: t("paymentMethod.check") },
-      { value: "DirectDebit", label: t("paymentMethod.directDebit") },
-    ],
-  }),
   status: filter.checkbox<MerchantPaymentStatus>({
     label: t("merchantProfile.payments.filter.status"),
     items: [
@@ -87,6 +76,14 @@ const filtersDefinition = {
       { value: "Captured", label: t("merchantProfile.payments.filter.status.captured") },
       { value: "Initiated", label: t("merchantProfile.payments.filter.status.initiated") },
       { value: "Rejected", label: t("merchantProfile.payments.filter.status.rejected") },
+    ],
+  }),
+  paymentMethod: filter.checkbox<SimplifiedPaymentMethod>({
+    label: t("merchantProfile.payments.filter.paymentMethod"),
+    items: [
+      { value: "Card", label: t("paymentMethod.card") },
+      { value: "Check", label: t("paymentMethod.check") },
+      { value: "DirectDebit", label: t("paymentMethod.directDebit") },
     ],
   }),
 };
@@ -199,18 +196,16 @@ export const MerchantProfilePaymentArea = ({
 
   const search = nullishOrEmptyToUndefined(params.search);
 
-  const { filters, hasSearchOrFilters } = useMemo(() => {
-    const filters: Filters = {
+  const filters = useMemo(
+    (): FiltersState<typeof filtersDefinition> => ({
       paymentMethod: params.paymentMethod?.filter(paymentMethodType.is),
       status: params.status?.filter(paymentStatus.is),
-    };
+    }),
+    [params],
+  );
 
-    const hasSearchOrFilters = Object.values(filters).some(isNotNullish) || isNotNullish(search);
-
-    return { filters, hasSearchOrFilters };
-  }, [params, search]);
-
-  const filtersProps = useFiltersProps({ filtersDefinition, filters });
+  const hasSearchOrFilters =
+    Object.values(filters).some(isNotNullish) || isNotNullishOrEmpty(search);
 
   const [data, { isLoading, reload, setVariables }] = useQuery(MerchantPaymentsDocument, {
     merchantProfileId,
@@ -259,13 +254,13 @@ export const MerchantProfilePaymentArea = ({
     .with({ name: "AccountMerchantsProfilePaymentsDetails" }, ({ params }) => params.paymentId)
     .otherwise(() => null);
 
-  const shouldShowTopbar = useMemo(
+  const hasAtLeastOneItem = useMemo(
     () =>
       data
         .toOption()
         .flatMap(result => result.toOption())
         .map(data => (data.merchantProfile?.merchantPayments?.edges.length ?? 0) > 0)
-        .getOr(false),
+        .getOr(true),
     [data],
   );
 
@@ -273,12 +268,11 @@ export const MerchantProfilePaymentArea = ({
 
   return (
     <>
-      {shouldShowTopbar && (
+      {(hasSearchOrFilters || hasAtLeastOneItem) && (
         <Box style={[styles.filters, large && styles.filtersLarge]}>
           <Box direction="row" alignItems="center">
             <LakeButton
               color="partner"
-              ariaLabel={t("common.new")}
               mode="primary"
               icon="add-circle-filled"
               size="small"
@@ -286,16 +280,23 @@ export const MerchantProfilePaymentArea = ({
                 Router.push("AccountMerchantsProfilePaymentsPicker", params);
               }}
             >
-              {t("merchantProfile.payment")}
+              {t("common.new")}
             </LakeButton>
-            <Space width={8} />
 
-            <FilterChooser {...filtersProps.chooser} large={large} />
+            <Separator horizontal={true} space={16} />
+
+            <Filters
+              definition={filtersDefinition}
+              values={filters}
+              onChange={filters => {
+                Router.replace("AccountMerchantsProfilePaymentsList", { ...params, ...filters });
+              }}
+            />
+
+            <Fill minWidth={16} />
 
             {large && (
               <>
-                <Space width={8} />
-
                 <LakeButton
                   ariaLabel={t("common.refresh")}
                   mode="secondary"
@@ -307,14 +308,14 @@ export const MerchantProfilePaymentArea = ({
                     reload().tap(() => setIsRefreshing(false));
                   }}
                 />
+
+                <Space width={8} />
               </>
             )}
 
-            <Fill minWidth={16} />
-
-            <LakeSearchField
-              placeholder={t("common.search")}
+            <SearchInput
               initialValue={search ?? ""}
+              collapsed={!large}
               onChangeText={search => {
                 Router.replace("AccountMerchantsProfilePaymentsList", { ...params, search });
               }}
@@ -322,13 +323,6 @@ export const MerchantProfilePaymentArea = ({
           </Box>
 
           <Space height={12} />
-
-          <FiltersStack
-            {...filtersProps.stack}
-            onChangeFilters={filters => {
-              Router.replace("AccountMerchantsProfilePaymentsList", { ...params, ...filters });
-            }}
-          />
         </Box>
       )}
 

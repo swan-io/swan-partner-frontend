@@ -617,7 +617,6 @@
   "merchantProfile.list.productType": "Producttype",
   "merchantProfile.list.status": "Status",
   "merchantProfile.list.website": "Website",
-  "merchantProfile.payment": "Betaling",
   "merchantProfile.paymentLink.button.new": "Maak een betalingslink aan",
   "merchantProfile.paymentLink.button.new.disable": "Er is geen geschikte betaalmethode ingeschakeld voor je handelaarsprofiel",
   "merchantProfile.paymentLink.buttonForm.create": "Link aanmaken",

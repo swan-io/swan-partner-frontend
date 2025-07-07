@@ -617,7 +617,6 @@
   "merchantProfile.list.productType": "Tipo de produto",
   "merchantProfile.list.status": "Estado",
   "merchantProfile.list.website": "Website",
-  "merchantProfile.payment": "Pagamento",
   "merchantProfile.paymentLink.button.new": "Nova ligação de pagamento",
   "merchantProfile.paymentLink.button.new.disable": "O seu perfil de comerciante não possui nenhum método de pagamento elegível ativado",
   "merchantProfile.paymentLink.buttonForm.create": "Criar link",

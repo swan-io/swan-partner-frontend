@@ -156,7 +156,7 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
                   })
                 }
               >
-                {t("merchantProfile.paymentLink.button.new")}
+                {t("common.new")}
               </LakeButton>
             </LakeTooltip>
 

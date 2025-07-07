@@ -16,7 +16,7 @@ import { ReactNode, useCallback, useRef, useState } from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
 import { t } from "../utils/i18n";
 
-const MAX_WIDTH = 320;
+const MAX_WIDTH = 280; // slightly narrower than the dashboard one
 
 const styles = StyleSheet.create({
   container: {

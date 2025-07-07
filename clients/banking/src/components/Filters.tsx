@@ -91,7 +91,6 @@ const styles = StyleSheet.create({
   },
   list: {
     minWidth: 200,
-    maxWidth: 400,
   },
   listContent: {
     paddingVertical: spacings[12],

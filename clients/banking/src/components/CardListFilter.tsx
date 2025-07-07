@@ -1,21 +1,16 @@
 import { Future } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
-import { FilterChooser } from "@swan-io/lake/src/components/FilterChooser";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
-import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
+import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
-import {
-  filter,
-  FiltersStack,
-  FiltersState,
-  useFiltersProps,
-} from "@swan-io/shared-business/src/components/Filters";
 import { ReactNode, useState } from "react";
 import { CardType } from "../graphql/partner";
 import { t } from "../utils/i18n";
+import { filter, Filters, FiltersState } from "./Filters";
+import { SearchInput } from "./SearchInput";
+import { Toggle } from "./Toggle";
 
 const filtersDefinition = {
   type: filter.checkbox<CardType>({
@@ -53,7 +48,6 @@ export const CardListFilter = ({
   onChangeSearch,
   onChangeStatus,
 }: TransactionListFilterProps) => {
-  const filtersProps = useFiltersProps({ filtersDefinition, filters });
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   return (
@@ -63,16 +57,29 @@ export const CardListFilter = ({
           <>
             {children}
 
-            <Space width={8} />
+            <Separator horizontal={true} space={16} />
           </>
         ) : null}
 
-        <FilterChooser {...filtersProps.chooser} large={large} />
+        <Filters
+          definition={filtersDefinition}
+          values={filters}
+          onChange={onChangeFilters}
+          toggle={
+            <Toggle
+              compact={!large}
+              value={status === "Active"}
+              onToggle={status => onChangeStatus(status ? "Active" : "Canceled")}
+              labelOn={t("cardList.status.Active")}
+              labelOff={t("cardList.status.Canceled")}
+            />
+          }
+        />
+
+        <Fill minWidth={16} />
 
         {large ? (
           <>
-            <Space width={8} />
-
             <LakeButton
               ariaLabel={t("common.refresh")}
               mode="secondary"
@@ -84,32 +91,19 @@ export const CardListFilter = ({
                 onRefresh().tap(() => setIsRefreshing(false));
               }}
             />
+
+            <Space width={8} />
           </>
         ) : null}
 
-        <Fill minWidth={16} />
-
-        <LakeSearchField
-          key={String(large)}
-          maxWidth={500}
-          placeholder={t("common.search")}
+        <SearchInput
           initialValue={search ?? ""}
+          collapsed={!large}
           onChangeText={text => onChangeSearch(emptyToUndefined(text))}
-        >
-          <Toggle
-            mode={large ? "desktop" : "mobile"}
-            value={status === "Active"}
-            onToggle={status => onChangeStatus(status ? "Active" : "Canceled")}
-            onLabel={t("cardList.status.Active")}
-            offLabel={t("cardList.status.Canceled")}
-          />
-
-          <Space width={16} />
-        </LakeSearchField>
+        />
       </Box>
 
       <Space height={12} />
-      <FiltersStack {...filtersProps.stack} onChangeFilters={onChangeFilters} />
     </>
   );
 };

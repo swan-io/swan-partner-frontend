@@ -1,20 +1,11 @@
-import { Future } from "@swan-io/boxed";
+import { Dict, Future } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
-import { FilterChooser } from "@swan-io/lake/src/components/FilterChooser";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
-import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
-import {
-  filter,
-  FilterCheckboxDef,
-  FilterDateDef,
-  FiltersStack,
-  FiltersState,
-  useFiltersProps,
-} from "@swan-io/shared-business/src/components/Filters";
-import { ReactNode, useState } from "react";
+import { pick } from "@swan-io/lake/src/utils/object";
+import { ReactNode, useMemo, useState } from "react";
 import { TransactionStatus } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import {
@@ -23,10 +14,10 @@ import {
   validateAfterUpdatedAt,
   validateBeforeUpdatedAt,
 } from "../utils/validations";
+import { filter, Filters, FiltersState } from "./Filters";
+import { SearchInput } from "./SearchInput";
 
-type SimplifiedPaymentProduct = "Card" | "Check" | "Fees" | "CreditTransfer" | "DirectDebit";
-
-export const defaultFiltersDefinition = {
+const filtersDefinition = {
   isAfterUpdatedAt: filter.date({
     label: t("transactionList.filter.isAfterUpdatedAt"),
     validate: validateAfterUpdatedAt,
@@ -37,7 +28,7 @@ export const defaultFiltersDefinition = {
     validate: validateBeforeUpdatedAt,
     isSelectable: isBeforeUpdatedAtSelectable,
   }),
-  paymentProduct: filter.checkbox<SimplifiedPaymentProduct>({
+  paymentProduct: filter.checkbox({
     label: t("transactionList.filter.paymentMethod"),
     items: [
       { value: "Card", label: t("paymentMethod.card") },
@@ -58,32 +49,21 @@ export const defaultFiltersDefinition = {
   }),
 };
 
-export type TransactionFilters = FiltersState<typeof defaultFiltersDefinition>;
+export type TransactionFilters = FiltersState<typeof filtersDefinition>;
 export type TransactionFilter = keyof TransactionFilters;
 
 type TransactionListFilterProps = {
   available?: TransactionFilter[];
   children?: ReactNode;
   large?: boolean;
-  filters: TransactionFilters;
+  filters: Partial<TransactionFilters>;
   search: string | undefined;
   onChangeFilters: (filters: Partial<TransactionFilters>) => void;
   onRefresh: () => Future<unknown>;
   onChangeSearch: (search: string | undefined) => void;
-  filtersDefinition?: {
-    isAfterUpdatedAt: FilterDateDef;
-    isBeforeUpdatedAt: FilterDateDef;
-    paymentProduct: FilterCheckboxDef<SimplifiedPaymentProduct>;
-    status: FilterCheckboxDef<TransactionStatus>;
-  };
 };
 
-const defaultAvailableFilters: TransactionFilter[] = [
-  "isAfterUpdatedAt",
-  "isBeforeUpdatedAt",
-  "paymentProduct",
-  "status",
-];
+const defaultAvailableFilters = Dict.keys(filtersDefinition);
 
 export const TransactionListFilter = ({
   available = defaultAvailableFilters,
@@ -94,13 +74,14 @@ export const TransactionListFilter = ({
   onChangeFilters,
   onRefresh,
   onChangeSearch,
-  filtersDefinition = defaultFiltersDefinition,
 }: TransactionListFilterProps) => {
-  const filtersProps = useFiltersProps({ filtersDefinition, filters, available });
+  const definition = useMemo(() => pick(filtersDefinition, available), [available]);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   return (
     <>
+      <Filters definition={definition} values={filters} onChange={onChangeFilters} />
+
       <Box direction="row" alignItems="center">
         {children != null ? (
           <>
@@ -109,8 +90,6 @@ export const TransactionListFilter = ({
             <Space width={8} />
           </>
         ) : null}
-
-        <FilterChooser {...filtersProps.chooser} large={large} />
 
         {large ? (
           <>
@@ -132,15 +111,14 @@ export const TransactionListFilter = ({
 
         <Fill minWidth={16} />
 
-        <LakeSearchField
-          placeholder={t("common.search")}
+        <SearchInput
           initialValue={search ?? ""}
+          collapsed={!large}
           onChangeText={text => onChangeSearch(emptyToUndefined(text))}
         />
       </Box>
 
       <Space height={12} />
-      <FiltersStack {...filtersProps.stack} onChangeFilters={onChangeFilters} />
     </>
   );
 };

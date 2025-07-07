@@ -1,3 +1,4 @@
+import { Dict } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
@@ -12,6 +13,7 @@ import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils
 import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { isMatching, P } from "ts-pattern";
+import { Except } from "type-fest";
 import { ErrorView } from "../components/ErrorView";
 import { TransactionDetail } from "../components/TransactionDetail";
 import { TransactionList } from "../components/TransactionList";
@@ -20,12 +22,7 @@ import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { Connection } from "./Connection";
-import {
-  defaultFiltersDefinition,
-  TransactionFilter,
-  TransactionFilters,
-  TransactionListFilter,
-} from "./TransactionListFilter";
+import { TransactionFilters, TransactionListFilter } from "./TransactionListFilter";
 
 const styles = StyleSheet.create({
   root: {
@@ -53,8 +50,6 @@ type Props = {
   };
 };
 
-const availableFilters: TransactionFilter[] = ["isAfterUpdatedAt", "isBeforeUpdatedAt", "status"];
-
 const DEFAULT_STATUSES = [
   "Booked" as const,
   "Canceled" as const,
@@ -64,10 +59,9 @@ const DEFAULT_STATUSES = [
 
 export const TransferList = ({ accountId, accountMembershipId, params }: Props) => {
   const filters = useMemo(
-    (): TransactionFilters => ({
+    (): Except<TransactionFilters, "paymentProduct"> => ({
       isAfterUpdatedAt: params.isAfterUpdatedAt,
       isBeforeUpdatedAt: params.isBeforeUpdatedAt,
-      paymentProduct: undefined,
       status: params.transactionStatus?.filter(
         isMatching(P.union("Booked", "Canceled", "Pending", "Rejected", "Released")),
       ),
@@ -83,6 +77,7 @@ export const TransferList = ({ accountId, accountMembershipId, params }: Props) 
     ];
   }, []);
 
+  const availableFilters = useMemo(() => Dict.keys(filters), [filters]);
   const search = nullishOrEmptyToUndefined(params.search);
   const hasSearchOrFilters = isNotNullish(search) || Object.values(filters).some(isNotNullish);
 
@@ -134,15 +129,6 @@ export const TransferList = ({ accountId, accountMembershipId, params }: Props) 
                   accountMembershipId,
                   search,
                 });
-              }}
-              filtersDefinition={{
-                ...defaultFiltersDefinition,
-                paymentProduct: {
-                  ...defaultFiltersDefinition.paymentProduct,
-                  items: defaultFiltersDefinition.paymentProduct.items.filter(({ value }) =>
-                    ["CreditTransfer"].includes(value),
-                  ),
-                },
               }}
             />
           </Box>

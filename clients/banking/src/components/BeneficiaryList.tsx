@@ -5,11 +5,9 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import { Cell, HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Fill } from "@swan-io/lake/src/components/Fill";
-import { FilterChooser } from "@swan-io/lake/src/components/FilterChooser";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
-import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
 import {
@@ -18,9 +16,9 @@ import {
   PlainListViewPlaceholder,
 } from "@swan-io/lake/src/components/PlainListView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
-import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { deriveUnion } from "@swan-io/lake/src/utils/function";
@@ -31,12 +29,6 @@ import {
 } from "@swan-io/lake/src/utils/nullish";
 import { omit } from "@swan-io/lake/src/utils/object";
 import { GetNode } from "@swan-io/lake/src/utils/types";
-import {
-  filter,
-  FiltersStack,
-  FiltersState,
-  useFiltersProps,
-} from "@swan-io/shared-business/src/components/Filters";
 import { Flag } from "@swan-io/shared-business/src/components/Flag";
 import { printFormat } from "iban";
 import { useCallback, useMemo, useRef, useState } from "react";
@@ -54,6 +46,9 @@ import { currencies, currencyFlags, currencyResolver, isSupportedCurrency, t } f
 import { GetRouteParams, Router } from "../utils/routes";
 import { BeneficiaryDetail } from "./BeneficiaryDetail";
 import { ErrorView } from "./ErrorView";
+import { filter, Filters, FiltersState } from "./Filters";
+import { SearchInput } from "./SearchInput";
+import { Toggle } from "./Toggle";
 
 const NUM_TO_RENDER = 20;
 
@@ -287,19 +282,14 @@ const filtersDefinition = {
       { value: "Sepa", label: t("beneficiaries.type.sepa") },
     ],
   }),
-  currency: filter.radio<string | undefined>({
+  currency: filter.radio<string>({
     label: t("beneficiaries.currency.title"),
-    items: [
-      { value: undefined, label: t("common.filters.all") },
-      ...currencies.map(value => {
-        const name = currencyResolver?.of(value);
-        return { value, label: isNotNullish(name) ? `${value} (${name})` : value };
-      }),
-    ],
+    items: currencies.map(value => {
+      const name = currencyResolver?.of(value);
+      return { value, label: isNotNullish(name) ? `${value} (${name})` : value };
+    }),
   }),
 };
-
-type Filters = FiltersState<typeof filtersDefinition>;
 
 const BeneficiaryListImpl = ({
   accountId,
@@ -421,7 +411,7 @@ export const BeneficiaryList = ({
   const { canCreateTrustedBeneficiary } = usePermissions();
 
   const { filters, canceled, label, hasSearchOrFilters } = useMemo(() => {
-    const filters: Filters = {
+    const filters: FiltersState<typeof filtersDefinition> = {
       currency: params.currency,
       type: params.type?.filter(beneficiaryTypes.is),
     };
@@ -434,8 +424,6 @@ export const BeneficiaryList = ({
 
     return { filters, canceled, label, hasSearchOrFilters };
   }, [params]);
-
-  const filtersProps = useFiltersProps({ filtersDefinition, filters });
 
   const [data, { isLoading, reload, setVariables }] = useQuery(BeneficiariesListDocument, {
     accountId,
@@ -478,16 +466,39 @@ export const BeneficiaryList = ({
                       {t("common.add")}
                     </LakeButton>
 
-                    <Space width={8} />
+                    <Separator horizontal={true} space={16} />
                   </>
                 ) : null}
 
-                <FilterChooser {...filtersProps.chooser} large={large} />
+                <Filters
+                  definition={filtersDefinition}
+                  values={filters}
+                  onChange={filters => {
+                    Router.replace("AccountPaymentsBeneficiariesList", {
+                      ...params,
+                      ...filters,
+                    });
+                  }}
+                  toggle={
+                    <Toggle
+                      compact={!large}
+                      value={!canceled}
+                      labelOn={t("beneficiaries.status.enabled")}
+                      labelOff={t("beneficiaries.status.canceled")}
+                      onToggle={on => {
+                        Router.push("AccountPaymentsBeneficiariesList", {
+                          ...omit(params, ["canceled"]),
+                          canceled: !on ? "true" : undefined,
+                        });
+                      }}
+                    />
+                  }
+                />
+
+                <Fill minWidth={16} />
 
                 {large && (
                   <>
-                    <Space width={8} />
-
                     <LakeButton
                       ariaLabel={t("common.refresh")}
                       mode="secondary"
@@ -499,14 +510,12 @@ export const BeneficiaryList = ({
                         reload().tap(() => setIsRefreshing(false));
                       }}
                     />
+
+                    <Space width={8} />
                   </>
                 )}
 
-                <Fill minWidth={16} />
-
-                <LakeSearchField
-                  maxWidth={500}
-                  placeholder={t("common.search")}
+                <SearchInput
                   initialValue={label ?? ""}
                   onChangeText={label => {
                     Router.push("AccountPaymentsBeneficiariesList", {
@@ -521,35 +530,10 @@ export const BeneficiaryList = ({
                       ))
                       .otherwise(() => null)
                   }
-                >
-                  <Toggle
-                    mode={large ? "desktop" : "mobile"}
-                    value={!canceled}
-                    onLabel={t("beneficiaries.status.enabled")}
-                    offLabel={t("beneficiaries.status.canceled")}
-                    onToggle={on => {
-                      Router.push("AccountPaymentsBeneficiariesList", {
-                        ...omit(params, ["canceled"]),
-                        canceled: !on ? "true" : undefined,
-                      });
-                    }}
-                  />
-
-                  <Space width={16} />
-                </LakeSearchField>
+                />
               </Box>
 
               <Space height={12} />
-
-              <FiltersStack
-                {...filtersProps.stack}
-                onChangeFilters={filters => {
-                  Router.replace("AccountPaymentsBeneficiariesList", {
-                    ...params,
-                    ...filters,
-                  });
-                }}
-              />
             </Box>
 
             <Space height={24} />

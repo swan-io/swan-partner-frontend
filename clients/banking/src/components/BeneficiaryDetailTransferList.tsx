@@ -60,6 +60,7 @@ type Props = {
   accountCountry: AccountCountry;
   accountId: string;
   beneficiary: TrustedBeneficiaryDetailsFragment;
+  large: boolean;
   params: GetRouteParams<"AccountPaymentsBeneficiariesDetails">;
 };
 
@@ -67,6 +68,7 @@ export const BeneficiaryDetailTransferList = ({
   accountCountry,
   accountId,
   beneficiary,
+  large,
   params,
 }: Props) => {
   const [activeTransactionId, setActiveTransactionId] = useState<string | null>(null);
@@ -128,6 +130,7 @@ export const BeneficiaryDetailTransferList = ({
 
         <SearchInput
           initialValue={search ?? ""}
+          collapsed={!large}
           onChangeText={search => {
             Router.replace("AccountPaymentsBeneficiariesDetails", {
               ...params,

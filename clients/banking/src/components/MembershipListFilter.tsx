@@ -12,6 +12,7 @@ import { match, P } from "ts-pattern";
 import { AccountMembershipStatus } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { filter, Filters, FiltersState } from "./Filters";
+import { FiltersFadingScrollView } from "./FiltersFadingScrollView";
 import { SearchInput } from "./SearchInput";
 
 type BooleanParam = "true" | "false";
@@ -97,22 +98,21 @@ export const MembershipListFilter = ({
 }: MembershipListFilterProps) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  const filtersElement = (
+    <Filters definition={filtersDefinition} values={filters} onChange={onChangeFilters} />
+  );
+
   return (
     <>
       <Box direction="row" alignItems="center">
-        {children != null ? (
+        {children}
+
+        {large ? (
           <>
-            {children}
+            {children != null && <Separator horizontal={true} space={16} />}
 
-            <Separator horizontal={true} space={16} />
-          </>
-        ) : null}
+            {filtersElement}
 
-        <Filters definition={filtersDefinition} values={filters} onChange={onChangeFilters} />
-        <Fill minWidth={16} />
-
-        {large && (
-          <>
             <LakeButton
               ariaLabel={t("common.refresh")}
               mode="secondary"
@@ -127,6 +127,8 @@ export const MembershipListFilter = ({
 
             <Space width={8} />
           </>
+        ) : (
+          <Fill minWidth={16} />
         )}
 
         <SearchInput
@@ -143,7 +145,11 @@ export const MembershipListFilter = ({
         />
       </Box>
 
-      <Space height={12} />
+      {large ? (
+        <Space height={12} />
+      ) : (
+        <FiltersFadingScrollView>{filtersElement}</FiltersFadingScrollView>
+      )}
     </>
   );
 };

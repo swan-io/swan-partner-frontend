@@ -47,6 +47,7 @@ import { GetRouteParams, Router } from "../utils/routes";
 import { BeneficiaryDetail } from "./BeneficiaryDetail";
 import { ErrorView } from "./ErrorView";
 import { filter, Filters, FiltersState } from "./Filters";
+import { FiltersFadingScrollView } from "./FiltersFadingScrollView";
 import { SearchInput } from "./SearchInput";
 import { Toggle } from "./Toggle";
 
@@ -447,58 +448,58 @@ export const BeneficiaryList = ({
       {({ large }) => {
         const rowHeight = large ? 56 : 72;
 
+        const filtersElement = (
+          <Filters
+            definition={filtersDefinition}
+            values={filters}
+            onChange={filters => {
+              Router.replace("AccountPaymentsBeneficiariesList", {
+                ...params,
+                ...filters,
+              });
+            }}
+            toggle={
+              <Toggle
+                compact={!large}
+                value={!canceled}
+                labelOn={t("beneficiaries.status.enabled")}
+                labelOff={t("beneficiaries.status.canceled")}
+                onToggle={on => {
+                  Router.push("AccountPaymentsBeneficiariesList", {
+                    ...omit(params, ["canceled"]),
+                    canceled: !on ? "true" : undefined,
+                  });
+                }}
+              />
+            }
+          />
+        );
+
         return (
           <>
             <Box style={[styles.header, large && styles.headerLarge]}>
               <Box direction="row" alignItems="center">
-                {canCreateTrustedBeneficiary ? (
+                {canCreateTrustedBeneficiary && (
+                  <LakeButton
+                    icon="add-circle-filled"
+                    size="small"
+                    color="current"
+                    onPress={() =>
+                      Router.push("AccountPaymentsBeneficiariesNew", {
+                        accountMembershipId: params.accountMembershipId,
+                      })
+                    }
+                  >
+                    {t("common.add")}
+                  </LakeButton>
+                )}
+
+                {large ? (
                   <>
-                    <LakeButton
-                      icon="add-circle-filled"
-                      size="small"
-                      color="current"
-                      onPress={() =>
-                        Router.push("AccountPaymentsBeneficiariesNew", {
-                          accountMembershipId: params.accountMembershipId,
-                        })
-                      }
-                    >
-                      {t("common.add")}
-                    </LakeButton>
+                    {canCreateTrustedBeneficiary && <Separator horizontal={true} space={16} />}
 
-                    <Separator horizontal={true} space={16} />
-                  </>
-                ) : null}
+                    {filtersElement}
 
-                <Filters
-                  definition={filtersDefinition}
-                  values={filters}
-                  onChange={filters => {
-                    Router.replace("AccountPaymentsBeneficiariesList", {
-                      ...params,
-                      ...filters,
-                    });
-                  }}
-                  toggle={
-                    <Toggle
-                      compact={!large}
-                      value={!canceled}
-                      labelOn={t("beneficiaries.status.enabled")}
-                      labelOff={t("beneficiaries.status.canceled")}
-                      onToggle={on => {
-                        Router.push("AccountPaymentsBeneficiariesList", {
-                          ...omit(params, ["canceled"]),
-                          canceled: !on ? "true" : undefined,
-                        });
-                      }}
-                    />
-                  }
-                />
-
-                <Fill minWidth={16} />
-
-                {large && (
-                  <>
                     <LakeButton
                       ariaLabel={t("common.refresh")}
                       mode="secondary"
@@ -513,10 +514,13 @@ export const BeneficiaryList = ({
 
                     <Space width={8} />
                   </>
+                ) : (
+                  <Fill minWidth={16} />
                 )}
 
                 <SearchInput
                   initialValue={label ?? ""}
+                  collapsed={!large}
                   onChangeText={label => {
                     Router.push("AccountPaymentsBeneficiariesList", {
                       ...params,
@@ -533,7 +537,11 @@ export const BeneficiaryList = ({
                 />
               </Box>
 
-              <Space height={12} />
+              {large ? (
+                <Space height={12} />
+              ) : (
+                <FiltersFadingScrollView>{filtersElement}</FiltersFadingScrollView>
+              )}
             </Box>
 
             <Space height={24} />

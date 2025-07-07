@@ -187,6 +187,7 @@ export const BeneficiaryDetail = ({ id, params, large, accountCountry, accountId
                   accountCountry={accountCountry}
                   accountId={accountId}
                   beneficiary={beneficiary}
+                  large={large}
                   params={params}
                 />
               ))

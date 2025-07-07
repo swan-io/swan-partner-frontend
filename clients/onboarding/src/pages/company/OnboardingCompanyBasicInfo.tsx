@@ -44,6 +44,7 @@ const companyTypesPerCountry: Partial<Record<CountryCCA3, string>> = {
   ITA: "(SS, SRL, SPA, SNC, SAS…)",
   LUX: "(SA, SCS, SARLI, SNC, SCA, SC)",
   NLD: "(BV, NV, VOF…)",
+  ESP: "(Cooperativa)",
 };
 
 const coOwnershipTypesPerCountry: Partial<Record<CountryCCA3, string>> = {

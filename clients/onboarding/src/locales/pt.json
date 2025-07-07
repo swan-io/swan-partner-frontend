@@ -17,7 +17,7 @@
   "common.submit": "Enviar",
   "common.yes": "Sim",
   "company.document.supportingDocuments.purpose.CompanyRegistrationSelfEmployedGermany": "Comprovativo de registo",
-  "company.document.supportingDocuments.purpose.CompanyRegistrationSelfEmployedGermany.description": "Um documento que comprove o registo legal de uma empresa ou entidade comercial junto da autoridade governamental relevante.",
+  "company.document.supportingDocuments.purpose.CompanyRegistrationSelfEmployedGermany.description": "Um documento que fornece evidências do registo legal de uma empresa ou entidade comercial junto à autoridade governamental relevante. O documento deve ter menos de 3 meses (excluindo documentos para Freiberufler e Gewerbetreibende).",
   "company.step.basicInfo.countryLabel": "Onde está localizada a sua organização?",
   "company.step.basicInfo.description": "Começaremos por recolher algumas informações básicas.",
   "company.step.basicInfo.legalRepresentative": "Sim",

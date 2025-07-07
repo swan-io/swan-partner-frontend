@@ -17,7 +17,7 @@
   "common.submit": "Lähetä",
   "common.yes": "Kyllä",
   "company.document.supportingDocuments.purpose.CompanyRegistrationSelfEmployedGermany": "Rekisteröintitodistus",
-  "company.document.supportingDocuments.purpose.CompanyRegistrationSelfEmployedGermany.description": "Asiakirja, joka todistaa yrityksen tai liiketoimintayksikön laillisen rekisteröinnin asianmukaisen hallintoviranomaisen kanssa.",
+  "company.document.supportingDocuments.purpose.CompanyRegistrationSelfEmployedGermany.description": "Asiakirja, joka osoittaa yrityksen tai liiketoimintayksikön laillisen rekisteröinnin asiaankuuluvassa viranomaisessa. Asiakirjan on oltava alle 3 kuukautta vanha (poislukien asiakirjat Freiberufler ja Gewerbetreibende).",
   "company.step.basicInfo.countryLabel": "Organisaatiosi toimipaikka",
   "company.step.basicInfo.description": "Kysymme sinulta aluksi joitain taustatietoja.",
   "company.step.basicInfo.legalRepresentative": "Olen",

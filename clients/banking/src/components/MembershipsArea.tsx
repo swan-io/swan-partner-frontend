@@ -33,7 +33,12 @@ import { ErrorView } from "./ErrorView";
 import { MembershipDetailArea } from "./MembershipDetailArea";
 import { MembershipInvitationLinkModal } from "./MembershipInvitationLinkModal";
 import { MembershipList } from "./MembershipList";
-import { MembershipFilters, MembershipListFilter, parseBooleanParam } from "./MembershipListFilter";
+import {
+  MembershipFilters,
+  MembershipListFilter,
+  booleanParamToBoolean,
+  parseBooleanParam,
+} from "./MembershipListFilter";
 import { NewMembershipWizard } from "./NewMembershipWizard";
 
 const styles = StyleSheet.create({
@@ -103,11 +108,11 @@ export const MembershipsArea = ({
         "Suspended" as const,
       ])
       .otherwise(() => filters.statuses),
-    canViewAccount: filters.canViewAccount,
-    canManageCards: filters.canManageCards,
-    canInitiatePayments: filters.canInitiatePayments,
-    canManageAccountMembership: filters.canManageAccountMembership,
-    canManageBeneficiaries: filters.canManageBeneficiaries,
+    canViewAccount: booleanParamToBoolean(filters.canViewAccount),
+    canManageCards: booleanParamToBoolean(filters.canManageCards),
+    canInitiatePayments: booleanParamToBoolean(filters.canInitiatePayments),
+    canManageAccountMembership: booleanParamToBoolean(filters.canManageAccountMembership),
+    canManageBeneficiaries: booleanParamToBoolean(filters.canManageBeneficiaries),
   });
 
   const editingAccountMembershipId = match(route)
@@ -194,11 +199,6 @@ export const MembershipsArea = ({
                     accountMembershipId,
                     ...params,
                     ...filters,
-                    canViewAccount: String(filters.canViewAccount),
-                    canManageCards: String(filters.canManageCards),
-                    canInitiatePayments: String(filters.canInitiatePayments),
-                    canManageAccountMembership: String(filters.canManageAccountMembership),
-                    canManageBeneficiaries: String(filters.canManageBeneficiaries),
                   });
                 }}
                 onChangeSearch={search => {

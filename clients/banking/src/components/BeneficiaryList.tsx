@@ -275,19 +275,19 @@ const beneficiaryTypes = deriveUnion<Exclude<BeneficiaryType, "Internal">>({
 });
 
 const filtersDefinition = {
-  type: filter.checkbox<BeneficiaryType>({
-    label: t("beneficiaries.type.title"),
-    items: [
-      { value: "International", label: t("beneficiaries.type.international") },
-      { value: "Sepa", label: t("beneficiaries.type.sepa") },
-    ],
-  }),
   currency: filter.radio<string>({
     label: t("beneficiaries.currency.title"),
     items: currencies.map(value => {
       const name = currencyResolver?.of(value);
       return { value, label: isNotNullish(name) ? `${value} (${name})` : value };
     }),
+  }),
+  type: filter.checkbox<BeneficiaryType>({
+    label: t("beneficiaries.type.title"),
+    items: [
+      { value: "International", label: t("beneficiaries.type.international") },
+      { value: "Sepa", label: t("beneficiaries.type.sepa") },
+    ],
   }),
 };
 

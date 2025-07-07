@@ -19,17 +19,17 @@ import { filter, Filters, FiltersState } from "./Filters";
 import { SearchInput } from "./SearchInput";
 
 const filtersDefinition = {
-  isAfterUpdatedAt: filter.date({
-    label: t("transactionList.filter.isAfterUpdatedAt"),
-    validate: validateAfterUpdatedAt,
-    isSelectable: isAfterUpdatedAtSelectable,
-  }),
-  isBeforeUpdatedAt: filter.date({
-    label: t("transactionList.filter.isBeforeUpdatedAt"),
-    validate: validateBeforeUpdatedAt,
-    isSelectable: isBeforeUpdatedAtSelectable,
+  status: filter.checkbox<TransactionStatus>({
+    label: t("transactionList.filter.status"),
+    items: [
+      { value: "Pending", label: t("transactionStatus.pending") },
+      { value: "Booked", label: t("transactionStatus.booked") },
+      { value: "Rejected", label: t("transactionStatus.rejected") },
+      { value: "Canceled", label: t("transactionStatus.canceled") },
+    ],
   }),
   paymentProduct: filter.checkbox({
+    isInMoreFiltersByDefault: true,
     label: t("transactionList.filter.paymentMethod"),
     items: [
       { value: "Card", label: t("paymentMethod.card") },
@@ -39,14 +39,17 @@ const filtersDefinition = {
       { value: "Fees", label: t("paymentMethod.fees") },
     ],
   }),
-  status: filter.checkbox<TransactionStatus>({
-    label: t("transactionList.filter.status"),
-    items: [
-      { value: "Pending", label: t("transactionStatus.pending") },
-      { value: "Booked", label: t("transactionStatus.booked") },
-      { value: "Rejected", label: t("transactionStatus.rejected") },
-      { value: "Canceled", label: t("transactionStatus.canceled") },
-    ],
+  isBeforeUpdatedAt: filter.date({
+    isInMoreFiltersByDefault: true,
+    label: t("transactionList.filter.isBeforeUpdatedAt"),
+    validate: validateBeforeUpdatedAt,
+    isSelectable: isBeforeUpdatedAtSelectable,
+  }),
+  isAfterUpdatedAt: filter.date({
+    isInMoreFiltersByDefault: true,
+    label: t("transactionList.filter.isAfterUpdatedAt"),
+    validate: validateAfterUpdatedAt,
+    isSelectable: isAfterUpdatedAtSelectable,
   }),
 };
 

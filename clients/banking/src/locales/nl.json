@@ -413,8 +413,6 @@
   "common.empty": "Leeg",
   "common.expand": "Uitklappen",
   "common.false": "Nee",
-  "common.filters": "Filters",
-  "common.filters.all": "Alle",
   "common.filters.apply": "Toepassen",
   "common.form.birthdateCannotBeFuture": "Geboortedatum kan niet in de toekomst liggen",
   "common.form.chooseDateAfter": "Kies een datum na {date}",

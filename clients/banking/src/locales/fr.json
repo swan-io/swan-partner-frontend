@@ -413,8 +413,6 @@
   "common.empty": "Vide",
   "common.expand": "Voir plus",
   "common.false": "Non",
-  "common.filters": "Filtres",
-  "common.filters.all": "Tout",
   "common.filters.apply": "Appliquer",
   "common.form.birthdateCannotBeFuture": "La date de naissance ne peut pas être dans le futur",
   "common.form.chooseDateAfter": "Veuillez choisir une date après le {date}",

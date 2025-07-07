@@ -413,8 +413,6 @@
   "common.empty": "Tyhjä",
   "common.expand": "Laajentaa",
   "common.false": "Ei",
-  "common.filters": "Suodattimet",
-  "common.filters.all": "Kaikki",
   "common.filters.apply": "Käytä",
   "common.form.birthdateCannotBeFuture": "Syntymäaika ei voi olla tulevaisuudessa",
   "common.form.chooseDateAfter": "Valitse päivämäärä, joka on {date} jälkeen",

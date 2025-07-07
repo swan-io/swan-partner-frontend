@@ -413,8 +413,6 @@
   "common.empty": "Leer",
   "common.expand": "Erweitern",
   "common.false": "Nein",
-  "common.filters": "Filter",
-  "common.filters.all": "Alle",
   "common.filters.apply": "Anwenden",
   "common.form.birthdateCannotBeFuture": "Geburtsdatum darf nicht in der Zukunft liegen",
   "common.form.chooseDateAfter": "Wählen Sie ein Datum nach {date}",

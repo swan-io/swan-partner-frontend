@@ -2,6 +2,7 @@ import { Dict, Future } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
+import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { pick } from "@swan-io/lake/src/utils/object";
@@ -80,21 +81,20 @@ export const TransactionListFilter = ({
 
   return (
     <>
-      <Filters definition={definition} values={filters} onChange={onChangeFilters} />
-
       <Box direction="row" alignItems="center">
         {children != null ? (
           <>
             {children}
 
-            <Space width={8} />
+            <Separator horizontal={true} space={16} />
           </>
         ) : null}
 
+        <Filters definition={definition} values={filters} onChange={onChangeFilters} />
+        <Fill minWidth={16} />
+
         {large ? (
           <>
-            <Space width={8} />
-
             <LakeButton
               ariaLabel={t("common.refresh")}
               mode="secondary"
@@ -106,10 +106,10 @@ export const TransactionListFilter = ({
                 onRefresh().tap(() => setIsRefreshing(false));
               }}
             />
+
+            <Space width={8} />
           </>
         ) : null}
-
-        <Fill minWidth={16} />
 
         <SearchInput
           initialValue={search ?? ""}

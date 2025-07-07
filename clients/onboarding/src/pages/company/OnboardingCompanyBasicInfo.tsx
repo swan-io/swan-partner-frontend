@@ -47,12 +47,7 @@ const companyTypesPerCountry: Partial<Record<CountryCCA3, string>> = {
 };
 
 const selfEmployedTypesPerCountry: Partial<Record<CountryCCA3, string>> = {
-  BEL: "",
   DEU: "(Selbstständig)",
-  FRA: "",
-  ITA: "",
-  LUX: "",
-  NLD: "",
 };
 
 const coOwnershipTypesPerCountry: Partial<Record<CountryCCA3, string>> = {
@@ -96,7 +91,7 @@ const getCompanyTypes = (country: CountryCCA3): RadioGroupItem<CompanyType>[] =>
       name:
         country === "FRA"
           ? t("companyType.selfEmployed.FRA")
-          : `${t("companyType.selfEmployed")} ${selfEmployedTypesPerCountry[country]}`,
+          : `${t("companyType.selfEmployed")} ${selfEmployedTypesPerCountry[country] ?? ""}`,
       value: "SelfEmployed",
     },
     { name: t("companyType.other"), value: "Other" },

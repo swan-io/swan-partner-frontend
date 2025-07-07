@@ -48,7 +48,7 @@ const companyTypesPerCountry: Partial<Record<CountryCCA3, string>> = {
 };
 
 const selfEmployedTypesPerCountry: Partial<Record<CountryCCA3, string>> = {
-  DEU: "(Selbstständig)",
+  DEU: "(z.B. e.K., Freiberufler)",
 };
 
 const coOwnershipTypesPerCountry: Partial<Record<CountryCCA3, string>> = {

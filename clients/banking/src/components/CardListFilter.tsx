@@ -78,7 +78,7 @@ export const CardListFilter = ({
 
         <Fill minWidth={16} />
 
-        {large ? (
+        {large && (
           <>
             <LakeButton
               ariaLabel={t("common.refresh")}
@@ -94,7 +94,7 @@ export const CardListFilter = ({
 
             <Space width={8} />
           </>
-        ) : null}
+        )}
 
         <SearchInput
           initialValue={search ?? ""}

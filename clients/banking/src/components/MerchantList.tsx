@@ -220,17 +220,19 @@ export const MerchantList = ({ accountId, accountMembershipId, params, large }: 
 
         <Fill minWidth={16} />
 
-        <LakeButton
-          ariaLabel={t("common.refresh")}
-          mode="secondary"
-          size="small"
-          icon="arrow-counterclockwise-filled"
-          loading={isRefreshing}
-          onPress={() => {
-            setIsRefreshing(true);
-            reload().tap(() => setIsRefreshing(false));
-          }}
-        />
+        {large && (
+          <LakeButton
+            ariaLabel={t("common.refresh")}
+            mode="secondary"
+            size="small"
+            icon="arrow-counterclockwise-filled"
+            loading={isRefreshing}
+            onPress={() => {
+              setIsRefreshing(true);
+              reload().tap(() => setIsRefreshing(false));
+            }}
+          />
+        )}
       </Box>
 
       {match(data)

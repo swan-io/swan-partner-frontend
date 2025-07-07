@@ -93,7 +93,7 @@ export const TransactionListFilter = ({
         <Filters definition={definition} values={filters} onChange={onChangeFilters} />
         <Fill minWidth={16} />
 
-        {large ? (
+        {large && (
           <>
             <LakeButton
               ariaLabel={t("common.refresh")}
@@ -109,7 +109,7 @@ export const TransactionListFilter = ({
 
             <Space width={8} />
           </>
-        ) : null}
+        )}
 
         <SearchInput
           initialValue={search ?? ""}

@@ -111,7 +111,7 @@ export const MembershipListFilter = ({
         <Filters definition={filtersDefinition} values={filters} onChange={onChangeFilters} />
         <Fill minWidth={16} />
 
-        {large ? (
+        {large && (
           <>
             <LakeButton
               ariaLabel={t("common.refresh")}
@@ -127,7 +127,7 @@ export const MembershipListFilter = ({
 
             <Space width={8} />
           </>
-        ) : null}
+        )}
 
         <SearchInput
           initialValue={search ?? ""}

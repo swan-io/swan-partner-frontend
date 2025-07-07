@@ -179,7 +179,7 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
 
         <Fill minWidth={16} />
 
-        {large ? (
+        {large && (
           <>
             <LakeButton
               ariaLabel={t("common.refresh")}
@@ -195,7 +195,7 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
 
             <Space width={8} />
           </>
-        ) : null}
+        )}
 
         <SearchInput
           initialValue={search ?? ""}

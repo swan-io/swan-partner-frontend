@@ -1,6 +1,6 @@
 {
   "name": "@swan-io/payment",
-  "version": "1.24.25",
+  "version": "1.24.26",
   "private": true,
   "packageManager": "pnpm@10.11.0",
   "engines": {

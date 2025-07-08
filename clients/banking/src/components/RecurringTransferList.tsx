@@ -23,7 +23,6 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
@@ -47,6 +46,7 @@ import { Router } from "../utils/routes";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { RightPanelTransactionList } from "./RightPanelTransactionList";
+import { Toggle } from "./Toggle";
 
 const styles = StyleSheet.create({
   paddedCell: {
@@ -639,27 +639,29 @@ export const RecurringTransferList = ({ accountId, accountMembershipId, large }:
         alignItems="center"
         style={[styles.filters, large && styles.filtersDesktop]}
       >
-        <LakeButton
-          ariaLabel={t("common.refresh")}
-          mode="secondary"
-          size="small"
-          icon="arrow-counterclockwise-filled"
-          loading={isRefreshing}
-          onPress={() => {
-            setIsRefreshing(true);
-            reload().tap(() => setIsRefreshing(false));
-          }}
+        <Toggle
+          compact={!large}
+          value={!canceled}
+          onToggle={value => setCanceled(!value)}
+          labelOn={t("recurringTransfer.filters.status.active")}
+          labelOff={t("recurringTransfer.filters.status.canceled")}
         />
 
         <Fill minWidth={16} />
 
-        <Toggle
-          mode={large ? "desktop" : "mobile"}
-          value={!canceled}
-          onToggle={value => setCanceled(!value)}
-          onLabel={t("recurringTransfer.filters.status.active")}
-          offLabel={t("recurringTransfer.filters.status.canceled")}
-        />
+        {large && (
+          <LakeButton
+            ariaLabel={t("common.refresh")}
+            mode="secondary"
+            size="small"
+            icon="arrow-counterclockwise-filled"
+            loading={isRefreshing}
+            onPress={() => {
+              setIsRefreshing(true);
+              reload().tap(() => setIsRefreshing(false));
+            }}
+          />
+        )}
       </Box>
 
       <Space height={24} />

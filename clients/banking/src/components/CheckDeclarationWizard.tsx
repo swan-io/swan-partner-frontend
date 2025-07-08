@@ -34,7 +34,7 @@ import { Rifm } from "rifm";
 import { match, P } from "ts-pattern";
 import { FnciInfoFragment, InitiateCheckMerchantPaymentDocument } from "../graphql/partner";
 import { formatNestedMessage, t } from "../utils/i18n";
-import { GetRouteParams, Router } from "../utils/routes";
+import { RouteParams, Router } from "../utils/routes";
 import { validateCMC7, validateRequired, validateRLMC } from "../utils/validations";
 import { FoldableAlert } from "./FoldableAlert";
 import { WizardLayout } from "./WizardLayout";
@@ -223,7 +223,7 @@ const DeclaredCheck = ({
 
 type Props = {
   merchantProfileId: string;
-  params: GetRouteParams<"AccountMerchantsProfileSettings">;
+  params: RouteParams<"AccountMerchantsProfileSettings">;
 };
 
 export const CheckDeclarationWizard = ({ merchantProfileId, params }: Props) => {

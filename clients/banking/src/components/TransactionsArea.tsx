@@ -403,14 +403,12 @@ export const TransactionsArea = ({ accountId, accountMembershipId }: Props) => {
                   { name: "AccountTransactionsListRoot" },
                   { name: "AccountTransactionsListStatementsArea" },
                   { name: "AccountTransactionsListDetail" },
-                  ({
-                    name,
-                    params: { accountMembershipId, consentId, kind, status, ...params },
-                  }) => {
+                  ({ name, params }) => {
+                    const { accountMembershipId, consentId, kind, status } = params;
+
                     return (
                       <>
                         <TransactionListPage
-                          accountMembershipId={accountMembershipId}
                           params={params}
                           accountId={accountId}
                           transferConsent={
@@ -428,12 +426,9 @@ export const TransactionsArea = ({ accountId, accountMembershipId }: Props) => {
                             name === "AccountTransactionsListStatementsArea" &&
                             canReadAccountStatement
                           }
-                          onPressClose={() =>
-                            Router.push("AccountTransactionsListRoot", {
-                              accountMembershipId,
-                              ...params,
-                            })
-                          }
+                          onPressClose={() => {
+                            Router.push("AccountTransactionsListRoot", params);
+                          }}
                         >
                           {({ large }) => (
                             <View style={large ? styles.statementsLarge : styles.statements}>

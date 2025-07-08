@@ -25,7 +25,7 @@ import {
   TrustedSepaBeneficiary,
 } from "../graphql/partner";
 import { formatDateTime, t } from "../utils/i18n";
-import { GetRouteParams, Router } from "../utils/routes";
+import { RouteParams, Router } from "../utils/routes";
 import { getWiseIctLabel } from "../utils/templateTranslations";
 import { BeneficiaryDetailTransferList } from "./BeneficiaryDetailTransferList";
 import { DetailLine } from "./DetailLine";
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
   },
 });
 
-type Params = GetRouteParams<"AccountPaymentsBeneficiariesDetails">;
+type Params = RouteParams<"AccountPaymentsBeneficiariesDetails">;
 type Tab = NonNullable<Params["tab"]>;
 
 const tabs = deriveUnion<Tab>({
@@ -187,6 +187,7 @@ export const BeneficiaryDetail = ({ id, params, large, accountCountry, accountId
                   accountCountry={accountCountry}
                   accountId={accountId}
                   beneficiary={beneficiary}
+                  large={large}
                   params={params}
                 />
               ))

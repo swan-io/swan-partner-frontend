@@ -29,7 +29,7 @@ import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { formatCurrency } from "../../../banking/src/utils/i18n";
 import { languages, locale, t } from "../utils/i18n";
-import { GetRouteParams } from "../utils/routes";
+import { RouteParams } from "../utils/routes";
 import { SepaLogo } from "./SepaLogo";
 
 const styles = StyleSheet.create({
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  params: GetRouteParams<"Preview">;
+  params: RouteParams<"Preview">;
 };
 
 export const Preview = ({

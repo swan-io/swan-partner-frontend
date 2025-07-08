@@ -1,3 +1,4 @@
+import { Dict } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
@@ -12,20 +13,16 @@ import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils
 import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { isMatching, P } from "ts-pattern";
+import { Except } from "type-fest";
 import { ErrorView } from "../components/ErrorView";
 import { TransactionDetail } from "../components/TransactionDetail";
 import { TransactionList } from "../components/TransactionList";
 import { TransactionListPageDocument } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
-import { Router } from "../utils/routes";
+import { RouteParams, Router } from "../utils/routes";
 import { Connection } from "./Connection";
-import {
-  defaultFiltersDefinition,
-  TransactionFilter,
-  TransactionFilters,
-  TransactionListFilter,
-} from "./TransactionListFilter";
+import { TransactionFilters, TransactionListFilter } from "./TransactionListFilter";
 
 const styles = StyleSheet.create({
   root: {
@@ -44,16 +41,8 @@ const NUM_TO_RENDER = 20;
 
 type Props = {
   accountId: string;
-  accountMembershipId: string;
-  params: {
-    isAfterUpdatedAt?: string | undefined;
-    isBeforeUpdatedAt?: string | undefined;
-    search?: string | undefined;
-    transactionStatus?: string[] | undefined;
-  };
+  params: RouteParams<"AccountPaymentsRoot">;
 };
-
-const availableFilters: TransactionFilter[] = ["isAfterUpdatedAt", "isBeforeUpdatedAt", "status"];
 
 const DEFAULT_STATUSES = [
   "Booked" as const,
@@ -62,12 +51,14 @@ const DEFAULT_STATUSES = [
   "Rejected" as const,
 ];
 
-export const TransferList = ({ accountId, accountMembershipId, params }: Props) => {
+export const TransferList = ({ accountId, params }: Props) => {
+  const { accountMembershipId } = params;
+
   const filters = useMemo(
-    (): TransactionFilters => ({
-      isAfterUpdatedAt: params.isAfterUpdatedAt,
+    (): Except<TransactionFilters, "paymentProduct"> => ({
+      amount: params.amount,
       isBeforeUpdatedAt: params.isBeforeUpdatedAt,
-      paymentProduct: undefined,
+      isAfterUpdatedAt: params.isAfterUpdatedAt,
       status: params.transactionStatus?.filter(
         isMatching(P.union("Booked", "Canceled", "Pending", "Rejected", "Released")),
       ),
@@ -83,6 +74,7 @@ export const TransferList = ({ accountId, accountMembershipId, params }: Props) 
     ];
   }, []);
 
+  const availableFilters = useMemo(() => Dict.keys(filters), [filters]);
   const search = nullishOrEmptyToUndefined(params.search);
   const hasSearchOrFilters = isNotNullish(search) || Object.values(filters).some(isNotNullish);
 
@@ -134,15 +126,6 @@ export const TransferList = ({ accountId, accountMembershipId, params }: Props) 
                   accountMembershipId,
                   search,
                 });
-              }}
-              filtersDefinition={{
-                ...defaultFiltersDefinition,
-                paymentProduct: {
-                  ...defaultFiltersDefinition.paymentProduct,
-                  items: defaultFiltersDefinition.paymentProduct.items.filter(({ value }) =>
-                    ["CreditTransfer"].includes(value),
-                  ),
-                },
               }}
             />
           </Box>

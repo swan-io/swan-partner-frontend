@@ -6,7 +6,6 @@ import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { FullViewportLayer } from "@swan-io/lake/src/components/FullViewportLayer";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
-import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
 import { PlainListViewPlaceholder } from "@swan-io/lake/src/components/PlainListView";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
@@ -27,9 +26,10 @@ import {
 } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { isSupportedCurrency, t } from "../utils/i18n";
-import { GetRouteParams, Router } from "../utils/routes";
+import { RouteParams, Router } from "../utils/routes";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
+import { SearchInput } from "./SearchInput";
 import { TransactionDetail } from "./TransactionDetail";
 import { TransactionList } from "./TransactionList";
 import { TransferInternationalWizard } from "./TransferInternationalWizard";
@@ -60,13 +60,15 @@ type Props = {
   accountCountry: AccountCountry;
   accountId: string;
   beneficiary: TrustedBeneficiaryDetailsFragment;
-  params: GetRouteParams<"AccountPaymentsBeneficiariesDetails">;
+  large: boolean;
+  params: RouteParams<"AccountPaymentsBeneficiariesDetails">;
 };
 
 export const BeneficiaryDetailTransferList = ({
   accountCountry,
   accountId,
   beneficiary,
+  large,
   params,
 }: Props) => {
   const [activeTransactionId, setActiveTransactionId] = useState<string | null>(null);
@@ -105,7 +107,7 @@ export const BeneficiaryDetailTransferList = ({
       <Space height={24} />
 
       <Box alignItems="center" direction="row">
-        {canInitiateCreditTransferToExistingBeneficiary ? (
+        {canInitiateCreditTransferToExistingBeneficiary && (
           <LakeButton
             icon="add-circle-filled"
             size="small"
@@ -122,13 +124,13 @@ export const BeneficiaryDetailTransferList = ({
           >
             {t("common.new")}
           </LakeButton>
-        ) : (
-          <Fill />
         )}
 
-        <LakeSearchField
+        <Fill minWidth={16} />
+
+        <SearchInput
           initialValue={search ?? ""}
-          placeholder={t("common.search")}
+          collapsed={!large}
           onChangeText={search => {
             Router.replace("AccountPaymentsBeneficiariesDetails", {
               ...params,

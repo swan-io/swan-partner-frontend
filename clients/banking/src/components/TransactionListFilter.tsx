@@ -1,20 +1,11 @@
-import { Future } from "@swan-io/boxed";
+import { Dict, Future } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { Fill } from "@swan-io/lake/src/components/Fill";
-import { FilterChooser } from "@swan-io/lake/src/components/FilterChooser";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
-import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
+import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
-import {
-  filter,
-  FilterCheckboxDef,
-  FilterDateDef,
-  FiltersStack,
-  FiltersState,
-  useFiltersProps,
-} from "@swan-io/shared-business/src/components/Filters";
-import { ReactNode, useState } from "react";
+import { pick } from "@swan-io/lake/src/utils/object";
+import { ReactNode, useMemo, useState } from "react";
 import { TransactionStatus } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import {
@@ -22,22 +13,30 @@ import {
   isBeforeUpdatedAtSelectable,
   validateAfterUpdatedAt,
   validateBeforeUpdatedAt,
+  validateNumeric,
 } from "../utils/validations";
+import { filter, Filters, FiltersState } from "./Filters";
+import { FiltersContainer } from "./FiltersMobileContainer";
+import { SearchInput } from "./SearchInput";
 
-type SimplifiedPaymentProduct = "Card" | "Check" | "Fees" | "CreditTransfer" | "DirectDebit";
-
-export const defaultFiltersDefinition = {
-  isAfterUpdatedAt: filter.date({
-    label: t("transactionList.filter.isAfterUpdatedAt"),
-    validate: validateAfterUpdatedAt,
-    isSelectable: isAfterUpdatedAtSelectable,
+const filtersDefinition = {
+  amount: filter.input({
+    label: t("transactionList.filter.amount"),
+    format: "currency",
+    validate: validateNumeric({}),
   }),
-  isBeforeUpdatedAt: filter.date({
-    label: t("transactionList.filter.isBeforeUpdatedAt"),
-    validate: validateBeforeUpdatedAt,
-    isSelectable: isBeforeUpdatedAtSelectable,
+  status: filter.checkbox<TransactionStatus>({
+    isInMoreFiltersByDefault: true,
+    label: t("transactionList.filter.status"),
+    items: [
+      { value: "Pending", label: t("transactionStatus.pending") },
+      { value: "Booked", label: t("transactionStatus.booked") },
+      { value: "Rejected", label: t("transactionStatus.rejected") },
+      { value: "Canceled", label: t("transactionStatus.canceled") },
+    ],
   }),
-  paymentProduct: filter.checkbox<SimplifiedPaymentProduct>({
+  paymentProduct: filter.checkbox({
+    isInMoreFiltersByDefault: true,
     label: t("transactionList.filter.paymentMethod"),
     items: [
       { value: "Card", label: t("paymentMethod.card") },
@@ -47,43 +46,35 @@ export const defaultFiltersDefinition = {
       { value: "Fees", label: t("paymentMethod.fees") },
     ],
   }),
-  status: filter.checkbox<TransactionStatus>({
-    label: t("transactionList.filter.status"),
-    items: [
-      { value: "Pending", label: t("transactionStatus.pending") },
-      { value: "Booked", label: t("transactionStatus.booked") },
-      { value: "Rejected", label: t("transactionStatus.rejected") },
-      { value: "Canceled", label: t("transactionStatus.canceled") },
-    ],
+  isBeforeUpdatedAt: filter.date({
+    isInMoreFiltersByDefault: true,
+    label: t("transactionList.filter.isBeforeUpdatedAt"),
+    validate: validateBeforeUpdatedAt,
+    isSelectable: isBeforeUpdatedAtSelectable,
+  }),
+  isAfterUpdatedAt: filter.date({
+    isInMoreFiltersByDefault: true,
+    label: t("transactionList.filter.isAfterUpdatedAt"),
+    validate: validateAfterUpdatedAt,
+    isSelectable: isAfterUpdatedAtSelectable,
   }),
 };
 
-export type TransactionFilters = FiltersState<typeof defaultFiltersDefinition>;
+export type TransactionFilters = FiltersState<typeof filtersDefinition>;
 export type TransactionFilter = keyof TransactionFilters;
 
 type TransactionListFilterProps = {
   available?: TransactionFilter[];
   children?: ReactNode;
   large?: boolean;
-  filters: TransactionFilters;
+  filters: Partial<TransactionFilters>;
   search: string | undefined;
   onChangeFilters: (filters: Partial<TransactionFilters>) => void;
   onRefresh: () => Future<unknown>;
   onChangeSearch: (search: string | undefined) => void;
-  filtersDefinition?: {
-    isAfterUpdatedAt: FilterDateDef;
-    isBeforeUpdatedAt: FilterDateDef;
-    paymentProduct: FilterCheckboxDef<SimplifiedPaymentProduct>;
-    status: FilterCheckboxDef<TransactionStatus>;
-  };
 };
 
-const defaultAvailableFilters: TransactionFilter[] = [
-  "isAfterUpdatedAt",
-  "isBeforeUpdatedAt",
-  "paymentProduct",
-  "status",
-];
+const defaultAvailableFilters = Dict.keys(filtersDefinition);
 
 export const TransactionListFilter = ({
   available = defaultAvailableFilters,
@@ -94,28 +85,26 @@ export const TransactionListFilter = ({
   onChangeFilters,
   onRefresh,
   onChangeSearch,
-  filtersDefinition = defaultFiltersDefinition,
 }: TransactionListFilterProps) => {
-  const filtersProps = useFiltersProps({ filtersDefinition, filters, available });
+  const definition = useMemo(() => pick(filtersDefinition, available), [available]);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   return (
     <>
       <Box direction="row" alignItems="center">
-        {children != null ? (
+        {children != null && (
           <>
             {children}
-
-            <Space width={8} />
+            <Separator horizontal={true} space={12} />
           </>
-        ) : null}
+        )}
 
-        <FilterChooser {...filtersProps.chooser} large={large} />
+        <FiltersContainer large={large}>
+          <Filters definition={definition} values={filters} onChange={onChangeFilters} />
+        </FiltersContainer>
 
         {large ? (
           <>
-            <Space width={8} />
-
             <LakeButton
               ariaLabel={t("common.refresh")}
               mode="secondary"
@@ -127,20 +116,21 @@ export const TransactionListFilter = ({
                 onRefresh().tap(() => setIsRefreshing(false));
               }}
             />
+
+            <Space width={8} />
           </>
-        ) : null}
+        ) : (
+          <Space width={16} />
+        )}
 
-        <Fill minWidth={16} />
-
-        <LakeSearchField
-          placeholder={t("common.search")}
+        <SearchInput
           initialValue={search ?? ""}
+          collapsed={!large}
           onChangeText={text => onChangeSearch(emptyToUndefined(text))}
         />
       </Box>
 
       <Space height={12} />
-      <FiltersStack {...filtersProps.stack} onChangeFilters={onChangeFilters} />
     </>
   );
 };

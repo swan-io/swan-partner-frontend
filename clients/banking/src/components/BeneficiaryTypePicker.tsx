@@ -8,7 +8,7 @@ import { useCallback, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { AccountCountry } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { GetRouteParams, Router } from "../utils/routes";
+import { RouteParams, Router } from "../utils/routes";
 import { BeneficiaryInternationalWizard } from "./BeneficiaryInternationalWizard";
 import { BeneficiarySepaWizard } from "./BeneficiarySepaWizard";
 import { TypePickerLink } from "./TypePickerLink";
@@ -40,7 +40,7 @@ type Props = {
   accountMembershipId: string;
   accountId: string;
   accountCountry: AccountCountry;
-  params: GetRouteParams<"AccountPaymentsBeneficiariesNew">;
+  params: RouteParams<"AccountPaymentsBeneficiariesNew">;
 };
 
 export const BeneficiaryTypePicker = ({

@@ -27,13 +27,18 @@ import {
 import { usePermissions } from "../hooks/usePermissions";
 import { locale, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
-import { GetRouteParams, Router, membershipsRoutes } from "../utils/routes";
+import { RouteParams, Router, membershipsRoutes } from "../utils/routes";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { MembershipDetailArea } from "./MembershipDetailArea";
 import { MembershipInvitationLinkModal } from "./MembershipInvitationLinkModal";
 import { MembershipList } from "./MembershipList";
-import { MembershipFilters, MembershipListFilter, parseBooleanParam } from "./MembershipListFilter";
+import {
+  MembershipFilters,
+  MembershipListFilter,
+  booleanParamToBoolean,
+  parseBooleanParam,
+} from "./MembershipListFilter";
 import { NewMembershipWizard } from "./NewMembershipWizard";
 
 const styles = StyleSheet.create({
@@ -55,7 +60,7 @@ type Props = {
   accountId: string;
   accountCountry: AccountCountry;
   shouldDisplayIdVerification: boolean;
-  params: Except<GetRouteParams<"AccountMembersArea">, "accountMembershipId">;
+  params: Except<RouteParams<"AccountMembersArea">, "accountMembershipId">;
   currentUserAccountMembership: AccountMembershipFragment;
   onAccountMembershipUpdate: () => void;
 };
@@ -103,11 +108,11 @@ export const MembershipsArea = ({
         "Suspended" as const,
       ])
       .otherwise(() => filters.statuses),
-    canViewAccount: filters.canViewAccount,
-    canManageCards: filters.canManageCards,
-    canInitiatePayments: filters.canInitiatePayments,
-    canManageAccountMembership: filters.canManageAccountMembership,
-    canManageBeneficiaries: filters.canManageBeneficiaries,
+    canViewAccount: booleanParamToBoolean(filters.canViewAccount),
+    canManageCards: booleanParamToBoolean(filters.canManageCards),
+    canInitiatePayments: booleanParamToBoolean(filters.canInitiatePayments),
+    canManageAccountMembership: booleanParamToBoolean(filters.canManageAccountMembership),
+    canManageBeneficiaries: booleanParamToBoolean(filters.canManageBeneficiaries),
   });
 
   const editingAccountMembershipId = match(route)
@@ -194,11 +199,6 @@ export const MembershipsArea = ({
                     accountMembershipId,
                     ...params,
                     ...filters,
-                    canViewAccount: String(filters.canViewAccount),
-                    canManageCards: String(filters.canManageCards),
-                    canInitiatePayments: String(filters.canInitiatePayments),
-                    canManageAccountMembership: String(filters.canManageAccountMembership),
-                    canManageBeneficiaries: String(filters.canManageBeneficiaries),
                   });
                 }}
                 onChangeSearch={search => {
@@ -217,7 +217,7 @@ export const MembershipsArea = ({
                       Router.push("AccountMembersList", { accountMembershipId, new: "" })
                     }
                   >
-                    {t("common.new")}
+                    {large ? t("common.new") : null}
                   </LakeButton>
                 ) : null}
               </MembershipListFilter>

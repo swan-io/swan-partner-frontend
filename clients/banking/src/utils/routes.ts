@@ -31,7 +31,7 @@ const routes = {
         "List",
         // transactionStatus[] is for filters
         // status is the consent status automatically set by consent redirection
-        "/?:isAfterUpdatedAt&:isBeforeUpdatedAt&:paymentProduct[]&:search&:transactionStatus[]&:kind{transfer|standingOrder|beneficiary}&:consentId&:status",
+        "/?:isAfterUpdatedAt&:isBeforeUpdatedAt&:amount&:paymentProduct[]&:search&:transactionStatus[]&:kind{transfer|standingOrder|beneficiary}&:consentId&:status",
         {
           Area: "/*",
           Root: "/",
@@ -51,7 +51,7 @@ const routes = {
       "/payments?:kind{transfer|standingOrder|beneficiary}&:consentId&:status",
       {
         Area: "/*",
-        Root: "/?:isAfterUpdatedAt&:isBeforeUpdatedAt&:search&:transactionStatus[]",
+        Root: "/?:isAfterUpdatedAt&:isBeforeUpdatedAt&:amount&:search&:transactionStatus[]",
         New: "/new?:type{transfer|recurring|international|bulk}",
         RecurringTransferList: "/recurring-transfer/list",
         RecurringTransferNew: "/recurring-transfer/new",
@@ -80,7 +80,7 @@ const routes = {
       ItemPhysicalCard: "/:cardId/physical-card",
       ItemMobilePayment: "/:cardId/mobile-payment",
       ItemTransactions:
-        "/:cardId/transactions?:isAfterUpdatedAt&:isBeforeUpdatedAt&:search&:status[]",
+        "/:cardId/transactions?:isAfterUpdatedAt&:isBeforeUpdatedAt&:amount&:search&:status[]",
       ItemSettings: "/:cardId/settings",
       ItemOrder: "/:cardId/order",
       ItemOrderAddress: "/:cardId/order/address",
@@ -137,7 +137,7 @@ export const Router = createRouter(routes, {
 type Routes = InferRoutes<typeof Router>;
 
 export type RouteName = keyof Routes;
-export type GetRouteParams<T extends RouteName> = Routes[T];
+export type RouteParams<T extends RouteName> = Routes[T];
 
 export const accountRoutes = [
   "AccountRoot",

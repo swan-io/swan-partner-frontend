@@ -87,7 +87,6 @@ const styles = StyleSheet.create({
   },
   inputPopover: {
     padding: spacings[20],
-    width: 320,
   },
   list: {
     minWidth: 200,

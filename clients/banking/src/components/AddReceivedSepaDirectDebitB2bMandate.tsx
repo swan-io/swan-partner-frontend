@@ -25,7 +25,7 @@ import {
 import { Request } from "@swan-io/request";
 import { validateIban } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
-import { useCallback, useEffect, useState } from "react";
+import { isValidElement, useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import logoSwan from "../assets/images/logo-swan.svg";
@@ -35,7 +35,7 @@ import {
   AddReceivedSepaDirectDebitB2bMandateInput,
   SepaReceivedDirectDebitMandateSequence,
 } from "../graphql/partner";
-import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";
+import { formatNestedMessage, languages, locale, setPreferredLanguage, t } from "../utils/i18n";
 import {
   validateMandateCreditorName,
   validateNullableRequired,
@@ -77,6 +77,15 @@ const styles = StyleSheet.create({
     display: "inline-flex",
     height: 9,
     width: 45 * (9 / 10),
+  },
+  flex: {
+    display: "flex",
+  },
+  link: {
+    textDecorationLine: "underline",
+    display: "inline-flex",
+    flexDirection: "row",
+    alignItems: "center",
   },
 });
 
@@ -224,7 +233,39 @@ export const AddReceivedSepaDirectDebitB2bMandate = ({ accountId, resourceId, st
                                     <Space height={8} />
 
                                     <LakeText>
-                                      {t("addReceivedSepaDirectDebitB2bMandate.description")}
+                                      {formatNestedMessage(
+                                        "addReceivedSepaDirectDebitB2bMandate.notice",
+                                        {
+                                          bold: text => (
+                                            <LakeText variant="semibold">{text}</LakeText>
+                                          ),
+                                          list: chunk => (
+                                            <View style={styles.flex}>
+                                              <Space height={4} />
+                                              <View role="list">{chunk}</View>
+                                            </View>
+                                          ),
+                                          listitem: chunk =>
+                                            Array.isArray(chunk) &&
+                                            typeof isValidElement(chunk[0]) ? (
+                                              <LakeText role="listitem" key={String(chunk[0])}>
+                                                • {chunk[0]}
+                                              </LakeText>
+                                            ) : null,
+                                          link: chunk =>
+                                            Array.isArray(chunk) && typeof chunk[0] === "string" ? (
+                                              <LakeText
+                                                href="https://support.swan.io/hc/en-150/articles/19637943123101-SEPA-Direct-Debit-mandates"
+                                                hrefAttrs={{ target: "blank" }}
+                                                style={styles.link}
+                                              >
+                                                {chunk[0]}
+                                                <Space width={4} />
+                                                <Icon name="open-regular" size={16} />
+                                              </LakeText>
+                                            ) : null,
+                                        },
+                                      )}
                                     </LakeText>
 
                                     <Space height={24} />
@@ -510,6 +551,7 @@ const AddReceivedSepaDirectDebitB2bMandateForm = ({ onSubmit }: FormProps) => {
 };
 
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
+import { Icon } from "@swan-io/lake/src/components/Icon";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";

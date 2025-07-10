@@ -154,7 +154,7 @@
   "accountStatements.title": "Account statements",
   "addReceivedSepaDirectDebitB2bMandate.accountHolder": "Account holder",
   "addReceivedSepaDirectDebitB2bMandate.accountName": "Account name",
-  "addReceivedSepaDirectDebitB2bMandate.description": "This form is for SEPA Direct Debit B2B mandates only. It authorizes a company to debit your account. Enter your mandate details exactly as they appear and ensure all information is accurate to avoid rejections.\n\n**Important**\n* Your mandate must clearly state 'Business-to-Business' or 'B2B' SEPA Direct Debit.\n* If you have a non-B2B (SEPA Direct Debit Core) mandate, your creditor will handle its registration automatically – you can close this page.\n\n[Learn more about SEPA Direct Debits]({https://support.swan.io/hc/en-150/articles/19637943123101-SEPA-Direct-Debit-mandates})",
+  "addReceivedSepaDirectDebitB2bMandate.notice": "This form is for SEPA Direct Debit B2B mandates only. It authorizes a company to debit your account. Enter your mandate details exactly as they appear and ensure all information is accurate to avoid rejections.\n\n<bold>Important</bold><list><listitem>Your mandate must clearly state 'Business-to-Business' or 'B2B' SEPA Direct Debit.</listitem><listitem>If you have a non-B2B (SEPA Direct Debit Core) mandate, your creditor will handle its registration automatically – you can close this page.</listitem><listitem><link>Learn more about SEPA Direct Debits</link></listitem></list>",
   "addReceivedSepaDirectDebitB2bMandate.form.creditorIdentifier": "SEPA Creditor Identifier (SCI)",
   "addReceivedSepaDirectDebitB2bMandate.form.creditorName": "Creditor name",
   "addReceivedSepaDirectDebitB2bMandate.form.iban": "Debtor IBAN",

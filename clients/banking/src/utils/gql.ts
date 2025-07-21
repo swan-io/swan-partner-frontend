@@ -18,7 +18,6 @@ import partnerSchemaConfig from "../../../../scripts/graphql/dist/partner-schema
 import unauthenticatedSchemaConfig from "../../../../scripts/graphql/dist/unauthenticated-schema-config.json";
 import { projectConfiguration } from "./projectId";
 import { Router } from "./routes";
-import { getTgglFlag } from "./tggl";
 
 const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
 const nanoid = customAlphabet(alphabet, 8);
@@ -75,7 +74,6 @@ export const filterOutUnauthorizedError = (operationName: string, clientError: C
 };
 
 const makeRequest: MakeRequest = ({ url, headers, operationName, document, variables }) => {
-  const newGqlGateway = getTgglFlag("newGqlGateway").getOr(false);
   const requestId = "req-" + nanoid();
   const traceparent = `${traceparentVersion}-${generateTraceId()}-${generateSpanId()}-${traceFlags}`;
 
@@ -87,7 +85,6 @@ const makeRequest: MakeRequest = ({ url, headers, operationName, document, varia
       ...headers,
       "x-swan-request-id": requestId,
       traceparent,
-      ...(newGqlGateway && { "x-swan-version": "beta" }),
     },
     body: JSON.stringify({
       operationName,

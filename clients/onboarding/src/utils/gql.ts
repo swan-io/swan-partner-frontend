@@ -13,7 +13,6 @@ import { customAlphabet } from "nanoid";
 import { P, match } from "ts-pattern";
 import schemaConfig from "../../../../scripts/graphql/dist/unauthenticated-schema-config.json";
 import { env } from "./env";
-import { getTgglFlag } from "./tggl";
 
 const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
 const nanoid = customAlphabet(alphabet, 8);
@@ -40,7 +39,6 @@ export const client = new Client({
   url: `${env.BANKING_URL}/api/unauthenticated`,
   schemaConfig,
   makeRequest: ({ url, headers, operationName, document, variables }) => {
-    const newGqlGateway = getTgglFlag("newGqlGateway").getOr(false);
     const requestId = "req-" + nanoid();
     const traceparent = `${traceparentVersion}-${generateTraceId()}-${generateSpanId()}-${traceFlags}`;
 
@@ -52,7 +50,6 @@ export const client = new Client({
         ...headers,
         "x-swan-request-id": requestId,
         traceparent,
-        ...(newGqlGateway && { "x-swan-version": "beta" }),
       },
       body: JSON.stringify({
         operationName,

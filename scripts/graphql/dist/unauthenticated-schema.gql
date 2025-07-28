@@ -352,6 +352,9 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
   """Tax Identification Number"""
   taxIdentificationNumber: String
 
+  """Trade name of the company"""
+  tradeName: String
+
   """Legal representative personal address"""
   legalRepresentativePersonalAddress: AddressInformation
 }
@@ -564,12 +567,13 @@ type AccountHolderWaitingForInformationVerificationStatusInfo implements Account
   verificationRequirements: [VerificationRequirement!]!
 
   """@deprecated(reason: "Use `waitingForInformationAt` instead")"""
-  WaitingForInformationAt: DateTime! @deprecated
+  WaitingForInformationAt: DateTime! @deprecated(reason: "Use `waitingForInformationAt` instead")
 
   """
   ISO Date string at which the account holder status was set to WaitingForInformation
   """
   waitingForInformationAt: DateTime!
+  accountHolderId: String!
 }
 
 """Language: ISO 639-1 language code"""
@@ -1047,6 +1051,12 @@ type AddingCardsToDifferentAccountsRejection implements Rejection {
   message: String!
 }
 
+enum AdditionalInformationType {
+  NumberOfEmployees
+  NumberOfOwners
+  NumberOfProperties
+}
+
 """Address Information"""
 type Address {
   """address line 1"""
@@ -1259,6 +1269,9 @@ type Authenticator {
 
   """Accept-Language header used during registration"""
   acceptLanguage: String
+
+  """The phone number used for the creation of the authenticator"""
+  otpPhoneNumber: String @deprecated
 }
 
 enum AuthenticatorType {
@@ -1621,11 +1634,12 @@ type CardInsurancePackage {
   id: ID!
   name: String!
   level: CardInsurancePackageLevel!
+  noticeUrl: String
 }
 
 enum CardInsurancePackageLevel {
   Basic
-  Standard
+  Essential
   Premium
   Custom
 }
@@ -1634,26 +1648,27 @@ type CardInsuranceSubscription {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
+  claimsUrl: String!
   package: CardInsurancePackage!
   statusInfo: CardInsuranceSubscriptionStatusInfo!
 }
 
 type CardInsuranceSubscriptionCanceledStatusInfo implements CardInsuranceSubscriptionStatusInfo {
-  status: CardInsuranceSubscriptionStatus
+  status: CardInsuranceSubscriptionStatus!
   canceledAt: DateTime!
 }
 
 type CardInsuranceSubscriptionEnabledStatusInfo implements CardInsuranceSubscriptionStatusInfo {
-  status: CardInsuranceSubscriptionStatus
+  status: CardInsuranceSubscriptionStatus!
   enabledAt: DateTime!
 }
 
 type CardInsuranceSubscriptionPendingStatusInfo implements CardInsuranceSubscriptionStatusInfo {
-  status: CardInsuranceSubscriptionStatus
+  status: CardInsuranceSubscriptionStatus!
 }
 
 type CardInsuranceSubscriptionProcessingStatusInfo implements CardInsuranceSubscriptionStatusInfo {
-  status: CardInsuranceSubscriptionStatus
+  status: CardInsuranceSubscriptionStatus!
   processingStartedAt: DateTime!
 }
 
@@ -1665,7 +1680,7 @@ enum CardInsuranceSubscriptionStatus {
 }
 
 interface CardInsuranceSubscriptionStatusInfo {
-  status: CardInsuranceSubscriptionStatus
+  status: CardInsuranceSubscriptionStatus!
 }
 
 type CardMerchantPayment implements MerchantPayment {
@@ -1836,6 +1851,7 @@ type CardProduct {
   individualSpendingLimit: SpendingLimit!
   companySpendingLimit: SpendingLimit!
   insurance: CardInsuranceConfiguration
+  fundingType: CardProductFundingType!
 
   """Card printing hub"""
   cardPrintingHub: CardPrintingHub
@@ -1885,6 +1901,22 @@ type CardProductDesign {
 
 """Rejection returned if the card product is disabled."""
 type CardProductDisabledRejection implements Rejection {
+  message: String!
+}
+
+enum CardProductFundingType {
+  """Debit card product, associated to debit card"""
+  Debit
+
+  """Deferred debit card product, associated to credit card"""
+  DeferredDebit
+}
+
+"""
+Rejection returned when a card product funding type is invalid.
+It can occur for example when an individual account holder tries to create a card with a credit card product.
+"""
+type CardProductInvalidFundingTypeRejection implements Rejection {
   message: String!
 }
 
@@ -2088,6 +2120,66 @@ input Certificate {
   value: String!
 }
 
+type CheckMerchantPayment implements MerchantPayment {
+  """unique identifier of a merchant payment"""
+  id: ID!
+
+  """status information"""
+  statusInfo: MerchantPaymentStatusInfo!
+
+  """amount"""
+  amount: Amount!
+
+  """Not applicable to checks, TO BE REMOVED"""
+  paymentMandate: PaymentMandate! @deprecated(reason: "Not applicable to checks")
+
+  """Not applicable to checks, TO BE REMOVED"""
+  paymentLink: MerchantPaymentLink @deprecated(reason: "Not applicable to checks")
+
+  """merchant profile associated to the merchant payment"""
+  merchantProfile: MerchantProfile!
+
+  """payment method associated to the merchant payment"""
+  paymentMethod: MerchantPaymentMethod!
+  balance: MerchantBalance!
+
+  """Label"""
+  label: String
+  reference: String
+
+  """
+  an arbitrary identifier that was defined by you when you created this payment
+  """
+  externalReference: String
+
+  """The billing address associated to the payment"""
+  billingAddress: Address
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Created date"""
+  createdAt: DateTime @deprecated(reason: "use createdAt in statusInfo instead")
+
+  """Authorized date"""
+  authorizedAt: DateTime @deprecated(reason: "use authorizedAt in statusInfo instead")
+
+  """Canceled date"""
+  canceledAt: DateTime @deprecated(reason: "use canceledAt in statusInfo instead")
+
+  """Captured date"""
+  capturedAt: DateTime @deprecated(reason: "use capturedAt in statusInfo instead")
+
+  """Rejected date"""
+  rejectedAt: DateTime @deprecated(reason: "use rejectedAt in statusInfo instead")
+
+  """Refunded date"""
+  refundedAt: DateTime @deprecated(reason: "use refundedAt in statusInfo instead")
+
+  """Disputed date"""
+  disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
+}
+
 """CheckMerchantPaymentMethod"""
 type CheckMerchantPaymentMethod implements MerchantPaymentMethod {
   """
@@ -2159,6 +2251,7 @@ Data provided following the search for company information by siren number
 type CompanyInfo {
   siren: String!
   companyName: String!
+  tradeName: String
   headquarters: Headquarters!
   vatNumber: String
   taxIdentificationNumber: String
@@ -2181,10 +2274,19 @@ type CompanyInfoBySirenSuccessPayload {
 }
 
 type CompanyRepresentative {
+  """List of representative roles."""
   roles: [String!]
+
+  """Legal entity name of the representative (for Company type)."""
   entityName: String
+
+  """Registration number of the representative’s legal entity."""
   registrationNumber: String
+
+  """Legal form of the representative's legal entity."""
   legalForm: String
+
+  """Residency address of the representative."""
   residencyAddress: AddressInformation
 }
 
@@ -2292,12 +2394,6 @@ type CompleteDigitalCard implements DigitalCard {
   device: Device!
 
   """
-  Id of the wallet application.
-  Will not be present for Merchant
-  """
-  walletId: String
-
-  """
   Masked DPAN with the last four digits visible
   
   This value is present in the user wallet application
@@ -2310,6 +2406,9 @@ type CompleteDigitalCard implements DigitalCard {
   In this type the status will be either ConsentPending or Pending
   """
   statusInfo: CompleteDigitalCardStatusInfo!
+
+  """Reference of the token in another system (ex: Mastercard)"""
+  tokenReferenceId: String
 
   """The project ID"""
   projectId: ID!
@@ -2645,9 +2744,6 @@ type Device {
   End user defined name of the device on which the card id provided
   """
   name: String
-
-  """Secure Element ID"""
-  SEID: String
 }
 
 """Digital Card used for ApplePay or GooglePay"""
@@ -2666,6 +2762,9 @@ interface DigitalCard {
 
   """Wallet Provider (ApplePay, GooglePay ...)"""
   walletProvider: WalletProvider!
+
+  """Reference of the token in another system (ex: Mastercard)"""
+  tokenReferenceId: String
 
   """The project ID"""
   projectId: ID!
@@ -2745,15 +2844,17 @@ input DigitalCardFiltersInput {
   id: String
 
   """
-  The status of the digital card. It can be a CompleteDigitalCardStatus or a PendingDigitalCardStatus
+  The status of the digital card.
+  Available statuses are:
+  - Declined
+  - ConsentPending
+  - Pending
+  - Enabled
+  - Suspended
+  - Canceled
+  It can be a CompleteDigitalCardStatus or a PendingDigitalCardStatus
   """
   status: String
-
-  """
-  The Secure Element ID
-  Mostly present on APple Devices
-  """
-  SEID: String
 
   """The digital card masker number"""
   cardMaskedNumber: String
@@ -2761,11 +2862,14 @@ input DigitalCardFiltersInput {
   """The ID of the wallet provider in the scheme system"""
   walletProviderId: String
 
-  """Either ApplePay, GooglePay or Merchant"""
+  """Either ApplePay or GooglePay"""
   walletProviderName: String
 
-  """The wallet application ID in the user phone"""
-  walletId: String
+  """Reference of the token in another system (ex: Mastercard)"""
+  tokenReferenceId: String
+
+  """Tokens references in another system (ex: Mastercard)"""
+  tokenReferenceIds: [String!]
 }
 
 """Rejection returned when the Digital Card does not exist"""
@@ -2936,10 +3040,7 @@ enum FieldValidationError {
   """When the associated field's value is missing"""
   Missing
 
-  """
-  When the associated field's value is invalid
-  @comingSoon
-  """
+  """When the associated field's value is invalid"""
   Invalid
 }
 
@@ -3222,16 +3323,37 @@ enum IncomingThreeDsStatus {
 }
 
 type IndividualRepresentative {
+  """List of representative roles."""
   roles: [String!]
-  firstNames: [String!]
+
+  """First name of the representative."""
   firstName: String
+
+  """Last name of the representative."""
   lastName: String
+
+  """Preferred first name of the representative."""
+  preferredFirstName: String
+
+  """Gender of the representative (Male, Female, or Unknown)."""
   gender: Gender
+
+  """Birth date of the representative."""
   birthDate: String
+
+  """Birth city of the representative."""
   birthCity: String
+
+  """Postal code of the birth city."""
   birthCityPostalCode: String
+
+  """Birth country code of the representative."""
   birthCountryCode: CCA3
+
+  """Nationality of the representative."""
   nationality: CCA3
+
+  """Residency address of the representative."""
   residencyAddress: AddressInformation
 }
 
@@ -3628,10 +3750,10 @@ interface MerchantPayment {
   amount: Amount!
 
   """payment link associated to the merchant payment"""
-  paymentMandate: PaymentMandate!
+  paymentMandate: PaymentMandate! @deprecated(reason: "The field is available on concrete types where relevant")
 
   """payment link associated to the merchant payment"""
-  paymentLink: MerchantPaymentLink
+  paymentLink: MerchantPaymentLink @deprecated(reason: "The field is available on concrete types where relevant")
 
   """merchant profile associated to the merchant payment"""
   merchantProfile: MerchantProfile!
@@ -4020,6 +4142,7 @@ enum MerchantPaymentMethodStatus {
   Rejected
   Disabled
   Suspended
+  WaitingForInformation
 }
 
 """The payment method status information"""
@@ -4120,19 +4243,22 @@ enum MerchantPaymentRejectedReason {
   SoftDeclineTransactionAmountIncorrect
   SwanRefused
   SwanTechnicalErrorOccurred
-  BankRefused
+  TransactionDuplicated
   DebtorAccountClosed
-  DebtorAccountConsumer
   DebtorAccountUnknown
+  BankRefused
+  DebtorAccountConsumer
   DebtorDeceased
   InsufficientFunds
   MandateInvalid
   ReasonNotSpecifiedByBank
   ReasonNotSpecifiedByDebtor
   RegulatoryReason
-  TransactionDuplicated
   TransactionOnAccountTypeNotAllowed
   TransactionTypeNotAllowed
+  SuspiciousCheck
+  CheckNotReceived
+  CheckReceivedLate
 }
 
 """Merchant Payment status"""
@@ -4319,6 +4445,24 @@ type MerchantProfileWrongStatusRejection implements Rejection {
   currentStatus: MerchantProfileStatus!
   expectedStatus: MerchantProfileStatus!
 }
+
+type MerchantRequirements {
+  fields: [MerchantRequirementType!]!
+}
+
+enum MerchantRequirementType {
+  CustomerRegion
+  ExpectedMonthlyMerchantProcessingVolume
+  ExpectedAverageBasket
+  MerchantWebsite
+  SocialNetwork
+  SupportWebsite
+  PaymentFrequency
+  ProductType
+  TermsAndConditions
+}
+
+union MerchantVerificationRequirements = MerchantRequirements
 
 type MissingBirthDateRejection {
   message: String!
@@ -4576,6 +4720,9 @@ type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
 
   """Tax Identification Number"""
   taxIdentificationNumber: String
+
+  """Trade name of the company"""
+  tradeName: String
 
   """Legal representative personal address"""
   legalRepresentativePersonalAddress: AddressInformation
@@ -5029,6 +5176,9 @@ type PendingDigitalCard implements DigitalCard {
   - type: InApp
   """
   inAppProvisioningData(signatureData: SignatureData): InAppProvisioningData
+
+  """Reference of the token in another system (ex: Mastercard)"""
+  tokenReferenceId: String
 
   """The project ID"""
   projectId: ID!
@@ -5610,20 +5760,59 @@ interface Rejection {
 union Representative = IndividualRepresentative | CompanyRepresentative
 
 input RepresentativeInput {
+  """Type of representative (Individual or Company)."""
   type: RepresentativeType!
+
+  """List of representative roles."""
   roles: [String!]
+
+  """Gender of the representative (Male, Female, or Unknown)."""
   gender: Gender
-  firstNames: [String!]
+
+  """First name of the representative."""
   firstName: String
+
+  """Last name of the representative."""
   lastName: String
+
+  """Preferred first name of the representative."""
+  preferredFirstName: String
+
+  """
+  Birth date of the representative. Must be a valid date in the YYYY/MM/DD format.
+  """
   birthDate: String
+
+  """
+  Birth city of the representative. Length must be between 0 and 100 characters.
+  """
   birthCity: String
+
+  """
+  Postal code of the birth city. Length must be between 0 and 50 characters.
+  """
   birthCityPostalCode: String
+
+  """
+  Birth country code of the representative. Must be a valid alpha-3 country code (ISO 3166).
+  """
   birthCountryCode: CCA3
+
+  """
+  Nationality of the representative. Must be a valid alpha-3 country code (ISO 3166).
+  """
   nationality: CCA3
+
+  """Legal entity name of the representative (for Company type)."""
   entityName: String
+
+  """Registration number of the representative’s legal entity."""
   registrationNumber: String
+
+  """Legal form of the representative's legal entity."""
   legalForm: String
+
+  """Residency address of the representative."""
   residencyAddress: ResidencyAddressInput
 }
 
@@ -6260,6 +6449,7 @@ enum SupportingDocumentCollectionType {
   Onboarding
   AccountHolderVerificationRenewal
   Transaction
+  Merchant
 }
 
 """Supporting document collection with WaitingForUpload status"""
@@ -6739,6 +6929,7 @@ type SupportingDocumentWaitingForUploadStatusInfo implements SupportingDocumentS
   Info to upload the document : url and fields to add along file in form (POST)
   """
   upload: SupportingDocumentUploadInfo!
+  supportingDocumentId: String!
 }
 
 """
@@ -7176,10 +7367,13 @@ input UnauthenticatedUpdateCompanyOnboardingInput {
   vatNumber: String
 
   """
-    Tax Identification Number.
+  Tax Identification Number.
   - Must be from 0 to 16 characters.
   """
   taxIdentificationNumber: String
+
+  """Trade name of the company."""
+  tradeName: String
 
   """Type of representation (legal representative or power of attorney)."""
   typeOfRepresentation: TypeOfRepresentation
@@ -7711,6 +7905,17 @@ type VirtualIBANEntryEdge implements Edge {
 
   """The virtual iban entry"""
   node: VirtualIBANEntry!
+}
+
+"""WaitingForInformationMerchantPaymentMethodStatusInfo"""
+type WaitingForInformationMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
+  status: MerchantPaymentMethodStatus!
+
+  """Merchant Payment Method waitingForInformation date"""
+  waitingForInformationAt: Date!
+
+  """List of requirements that should be fulfilled"""
+  verificationRequirements: [MerchantVerificationRequirements!]!
 }
 
 type WaitingForInformationVerificationRenewal implements VerificationRenewal {

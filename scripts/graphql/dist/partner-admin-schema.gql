@@ -421,6 +421,9 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
   """Tax Identification Number"""
   taxIdentificationNumber: String
 
+  """Trade name of the company"""
+  tradeName: String
+
   """Legal representative personal address"""
   legalRepresentativePersonalAddress: AddressInformation
 }
@@ -646,12 +649,13 @@ type AccountHolderWaitingForInformationVerificationStatusInfo implements Account
   verificationRequirements: [VerificationRequirement!]!
 
   """@deprecated(reason: "Use `waitingForInformationAt` instead")"""
-  WaitingForInformationAt: DateTime! @deprecated
+  WaitingForInformationAt: DateTime! @deprecated(reason: "Use `waitingForInformationAt` instead")
 
   """
   ISO Date string at which the account holder status was set to WaitingForInformation
   """
   waitingForInformationAt: DateTime!
+  accountHolderId: String!
 }
 
 """Language: ISO 639-1 language code"""
@@ -1105,6 +1109,12 @@ type ActiveMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusInf
   expiresAt: DateTime!
 }
 
+enum AdditionalInformationType {
+  NumberOfEmployees
+  NumberOfOwners
+  NumberOfProperties
+}
+
 """Address Information"""
 type Address {
   """address line 1"""
@@ -1291,6 +1301,9 @@ type Authenticator {
 
   """Accept-Language header used during registration"""
   acceptLanguage: String
+
+  """The phone number used for the creation of the authenticator"""
+  otpPhoneNumber: String @deprecated
   status: AuthenticatorStatus!
 }
 
@@ -1347,8 +1360,72 @@ type BadAccountStatusRejection implements Rejection {
   message: String!
 }
 
+"""Rejection when an inputs contains an error"""
 type BadRequestRejection implements Rejection {
   message: String!
+}
+
+enum BankingFee {
+  AccountMembershipSubscription
+  BusinessAccountSubscription
+  CardAcquiringAmex
+  CardAcquiringChargeback
+  CardAcquiringCommercialCB
+  CardAcquiringCommercialVisaMcOutsideEEA
+  CardAcquiringCommercialVisaMcWithinEEA
+  CardAcquiringCommercialWithinEEA
+  CardAcquiringConsumerCB
+  CardAcquiringConsumerVisaMcOutsideEEA
+  CardAcquiringConsumerVisaMcWithinEEA
+  CardAcquiringConsumerWithinEEA
+  CardAcquiringOutsideEEA
+  CardPaymentsOutsideSEPA
+  CardTransaction
+  CashWithdrawalsOutsideSEPA
+  CashWithdrawalsWithinSEPA
+  CheckDeposit
+  CheckIncident
+  CheckReturn
+  CirculationLetterDraftingFee
+  CompanyAccountHolderVerified
+  ConfirmationLetterDraftingFee
+  DirectDebitRejection
+  DocumentIssuance
+  IctInGroup1
+  IctInGroup2
+  IctInGroup3
+  IctInGroup4
+  IctOutGroup1
+  IctOutGroup2
+  IctOutGroup3
+  IctOutGroup4
+  IctOutSwiftGroup1
+  ImproperUseOfAccount
+  InactiveAccount
+  IndividualAccountSubscription
+  InstantSctIn
+  InstantSctOut
+  PhysicalCardDeliveryExpress
+  PhysicalCardDeliveryFrance
+  PhysicalCardDeliveryIntl
+  PhysicalCardDeliverySpain
+  PhysicalCardPrinting
+  ProcessingJudicialOrAdministrativeSeizure
+  SctIn
+  SctOut
+  SddIn
+  SddInB2bLevel1
+  SddInB2bLevel2
+  SddInB2bMerchant
+  SddInCoreLevel1
+  SddInCoreLevel2
+  SddInCoreMerchant
+  SddInCoreReturn
+  SddOut
+  SepaCreditorIdentifierRequest
+  SingleUseVirtualCard
+  UnauthorizedOverdraft
+  VirtualCardSubscription
 }
 
 """Basic Physical Card Info"""
@@ -2039,6 +2116,66 @@ scalar CCA2
 """Country code alpha 3 (ISO 3166)"""
 scalar CCA3
 
+type CheckMerchantPayment implements MerchantPayment {
+  """unique identifier of a merchant payment"""
+  id: ID!
+
+  """status information"""
+  statusInfo: MerchantPaymentStatusInfo!
+
+  """amount"""
+  amount: Amount!
+
+  """Not applicable to checks, TO BE REMOVED"""
+  paymentMandate: PaymentMandate! @deprecated(reason: "Not applicable to checks")
+
+  """Not applicable to checks, TO BE REMOVED"""
+  paymentLink: MerchantPaymentLink @deprecated(reason: "Not applicable to checks")
+
+  """merchant profile associated to the merchant payment"""
+  merchantProfile: MerchantProfile!
+
+  """payment method associated to the merchant payment"""
+  paymentMethod: MerchantPaymentMethod!
+  balance: MerchantBalance!
+
+  """Label"""
+  label: String
+  reference: String
+
+  """
+  an arbitrary identifier that was defined by you when you created this payment
+  """
+  externalReference: String
+
+  """The billing address associated to the payment"""
+  billingAddress: Address
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Created date"""
+  createdAt: DateTime @deprecated(reason: "use createdAt in statusInfo instead")
+
+  """Authorized date"""
+  authorizedAt: DateTime @deprecated(reason: "use authorizedAt in statusInfo instead")
+
+  """Canceled date"""
+  canceledAt: DateTime @deprecated(reason: "use canceledAt in statusInfo instead")
+
+  """Captured date"""
+  capturedAt: DateTime @deprecated(reason: "use capturedAt in statusInfo instead")
+
+  """Rejected date"""
+  rejectedAt: DateTime @deprecated(reason: "use rejectedAt in statusInfo instead")
+
+  """Refunded date"""
+  refundedAt: DateTime @deprecated(reason: "use refundedAt in statusInfo instead")
+
+  """Disputed date"""
+  disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
+}
+
 """CheckMerchantPaymentMethod"""
 type CheckMerchantPaymentMethod implements MerchantPaymentMethod {
   """
@@ -2121,10 +2258,19 @@ Union between PartnerCloseAccountReasonType and InternalCloseAccountReason
 union CloseAccountStatusReason = CloseAccountReason
 
 type CompanyRepresentative {
+  """List of representative roles."""
   roles: [String!]
+
+  """Legal entity name of the representative (for Company type)."""
   entityName: String
+
+  """Registration number of the representative’s legal entity."""
   registrationNumber: String
+
+  """Legal form of the representative's legal entity."""
   legalForm: String
+
+  """Residency address of the representative."""
   residencyAddress: AddressInformation
 }
 
@@ -2320,6 +2466,7 @@ enum ConsentOperationPropertyName {
   BookedDate
   CardDesignURL
   CardHolderName
+  CardInsuranceSubscriptionNoticeUrl
   CardNumber
   CardOption
   CreditorAddress
@@ -2359,6 +2506,9 @@ enum ConsentOperationPropertyName {
 
 """Purpose of a consent"""
 enum ConsentPurpose {
+  """when Requesting a credit limit"""
+  RequestCreditLimit
+
   """when accepting the partnership conditions"""
   AcceptPartnershipConditions
 
@@ -2443,9 +2593,6 @@ enum ConsentPurpose {
   """when returning a transaction for international credit transfer"""
   ReturnTransactionForInternationalCreditTransfer
 
-  """when initiating the creation of a credit limit."""
-  RequestCreditLimit
-
   """if the consent originates from a 3DS flow"""
   ThreeDsPayment
 }
@@ -2473,10 +2620,7 @@ enum ConsentStatus {
   """when the operation is committing"""
   OperationCommitting
 
-  """
-  when the user credentials were refused
-  @deprecated this status has never been used and will be removed in the following months
-  """
+  """when the user credentials were refused"""
   CredentialRefused @deprecated
 
   """when the consent is created"""
@@ -2585,6 +2729,136 @@ enum CredentialType {
   TouchId
 }
 
+type CreditLimitSettings {
+  """The different requests made for a credit limit."""
+  creditLimitSettingsRequests: CreditLimitSettingsRequestConnection!
+  statusInfo: CreditLimitSettingsStatusInfo!
+  owedAmount: Amount!
+  repaymentSettings: RepaymentSettings!
+  currentCycle: RepaymentCycle
+  cycles: RepaymentCycleConnection
+
+  """The amount currently available for borrowing"""
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""Credit limit requested by the account’s legal representative."""
+type CreditLimitSettingsRequest {
+  """The ID of the credit settings request"""
+  id: ID!
+
+  """The status of the credit settings request."""
+  statusInfo: CreditLimitSettingsRequestStatusInfo!
+
+  """The consent of the credit settings request."""
+  consent: Consent!
+
+  """The amount claimed for the credit limits."""
+  amount: Amount!
+
+  """The amount claimed for the credit limits."""
+  message: String
+
+  """The repayment settings used for the reimbursements."""
+  repaymentSettings: RepaymentSettings!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type CreditLimitSettingsRequestApprovedStatusInfo implements CreditLimitSettingsRequestStatusInfo {
+  status: CreditLimitSettingsRequestStatus!
+  approvedAt: DateTime!
+  authorizedAmount: Amount
+}
+
+type CreditLimitSettingsRequestCanceledStatusInfo implements CreditLimitSettingsRequestStatusInfo {
+  status: CreditLimitSettingsRequestStatus!
+  canceledAt: DateTime!
+}
+
+type CreditLimitSettingsRequestConnection implements Connection {
+  """CardSettingsRequestEdge list"""
+  edges: [CreditLimitSettingsRequestEdge!]!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """Total number of element in the list"""
+  totalCount: Int!
+}
+
+type CreditLimitSettingsRequestConsentPendingStatusInfo implements CreditLimitSettingsRequestStatusInfo {
+  status: CreditLimitSettingsRequestStatus!
+}
+
+"""Implements the Relay Edge interface"""
+type CreditLimitSettingsRequestEdge implements Edge {
+  """Opaque identifier pointing to this node in the pagination mechanism"""
+  cursor: String!
+
+  """The Repayment Cycle entry"""
+  node: CreditLimitSettingsRequest!
+}
+
+type CreditLimitSettingsRequestPendingReviewStatusInfo implements CreditLimitSettingsRequestStatusInfo {
+  status: CreditLimitSettingsRequestStatus!
+}
+
+type CreditLimitSettingsRequestRefusedStatusInfo implements CreditLimitSettingsRequestStatusInfo {
+  status: CreditLimitSettingsRequestStatus!
+  reasons: [String]!
+  refusedAt: DateTime!
+}
+
+enum CreditLimitSettingsRequestStatus {
+  ConsentPending
+  PendingReview
+  Canceled
+  Approved
+  Refused
+  Frozen
+}
+
+interface CreditLimitSettingsRequestStatusInfo {
+  """The status of the credit settings request."""
+  status: CreditLimitSettingsRequestStatus!
+}
+
+interface CreditLimitSettingsStatusInfo {
+  """The status of the credit limit."""
+  status: CreditLimitStatus
+}
+
+enum CreditLimitStatus {
+  Activated
+  Suspended
+  Deactivated
+  Pending
+}
+
+type CreditLimitStatusActivatedInfo implements CreditLimitSettingsStatusInfo {
+  status: CreditLimitStatus!
+}
+
+type CreditLimitStatusDeactivatedInfo implements CreditLimitSettingsStatusInfo {
+  status: CreditLimitStatus!
+
+  """The date when the credit limit got deactivated."""
+  deactivatedAt: DateTime!
+}
+
+type CreditLimitStatusPendingInfo implements CreditLimitSettingsStatusInfo {
+  status: CreditLimitStatus!
+}
+
+type CreditLimitStatusSuspendedInfo implements CreditLimitSettingsStatusInfo {
+  status: CreditLimitStatus!
+
+  """The date when the credit limit got suspended."""
+  suspendedAt: DateTime!
+}
+
 enum CreditTransferMode {
   InstantWithoutFallback
   InstantWithFallback
@@ -2620,6 +2894,16 @@ Date time (ISO 8601 with time information)
 ex: 2021-04-12T16:28:22.867Z
 """
 scalar DateTime
+
+enum DayEnum {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
+}
 
 """Rejection returned when the Debtor is closed"""
 type DebtorAccountClosedRejection implements Rejection {
@@ -3162,10 +3446,7 @@ enum FieldValidationError {
   """When the associated field's value is missing"""
   Missing
 
-  """
-  When the associated field's value is invalid
-  @comingSoon
-  """
+  """When the associated field's value is invalid"""
   Invalid
 }
 
@@ -3887,16 +4168,37 @@ type IncorrectTransactionTypeRejection implements Rejection {
 }
 
 type IndividualRepresentative {
+  """List of representative roles."""
   roles: [String!]
-  firstNames: [String!]
+
+  """First name of the representative."""
   firstName: String
+
+  """Last name of the representative."""
   lastName: String
+
+  """Preferred first name of the representative."""
+  preferredFirstName: String
+
+  """Gender of the representative (Male, Female, or Unknown)."""
   gender: Gender
+
+  """Birth date of the representative."""
   birthDate: String
+
+  """Birth city of the representative."""
   birthCity: String
+
+  """Postal code of the birth city."""
   birthCityPostalCode: String
+
+  """Birth country code of the representative."""
   birthCountryCode: CCA3
+
+  """Nationality of the representative."""
   nationality: CCA3
+
+  """Residency address of the representative."""
   residencyAddress: AddressInformation
 }
 
@@ -4461,6 +4763,13 @@ enum InvoiceType {
   RefundNote
 }
 
+enum LabelType {
+  Unstructured
+  Structured
+  OgmVcs
+  Iso
+}
+
 """
 Rejection returned when you try to delete the last sandbox user.
 At least one sandbox user should be present
@@ -4493,8 +4802,14 @@ enum ManualBankingFee {
   """Drafting a confirmation letter for a legal entity holder"""
   ConfirmationLetterDraftingFee
 
+  """Issuance of a document"""
+  DocumentIssuance
+
   """Improper use of the account"""
   ImproperUseOfAccount
+
+  """Account inactive within the past 12 months"""
+  InactiveAccount
 
   """
   Processing of judicial or administrative seizures, notice to third party holders
@@ -4651,10 +4966,10 @@ interface MerchantPayment {
   amount: Amount!
 
   """payment link associated to the merchant payment"""
-  paymentMandate: PaymentMandate!
+  paymentMandate: PaymentMandate! @deprecated(reason: "The field is available on concrete types where relevant")
 
   """payment link associated to the merchant payment"""
-  paymentLink: MerchantPaymentLink
+  paymentLink: MerchantPaymentLink @deprecated(reason: "The field is available on concrete types where relevant")
 
   """merchant profile associated to the merchant payment"""
   merchantProfile: MerchantProfile!
@@ -5049,6 +5364,7 @@ enum MerchantPaymentMethodStatus {
   Rejected
   Disabled
   Suspended
+  WaitingForInformation
 }
 
 """The payment method status information"""
@@ -5149,19 +5465,22 @@ enum MerchantPaymentRejectedReason {
   SoftDeclineTransactionAmountIncorrect
   SwanRefused
   SwanTechnicalErrorOccurred
-  BankRefused
+  TransactionDuplicated
   DebtorAccountClosed
-  DebtorAccountConsumer
   DebtorAccountUnknown
+  BankRefused
+  DebtorAccountConsumer
   DebtorDeceased
   InsufficientFunds
   MandateInvalid
   ReasonNotSpecifiedByBank
   ReasonNotSpecifiedByDebtor
   RegulatoryReason
-  TransactionDuplicated
   TransactionOnAccountTypeNotAllowed
   TransactionTypeNotAllowed
+  SuspiciousCheck
+  CheckNotReceived
+  CheckReceivedLate
 }
 
 """Merchant Payment status"""
@@ -5349,6 +5668,22 @@ type MerchantProfileWrongStatusRejection implements Rejection {
   expectedStatus: MerchantProfileStatus!
 }
 
+type MerchantRequirements {
+  fields: [MerchantRequirementType!]!
+}
+
+enum MerchantRequirementType {
+  CustomerRegion
+  ExpectedMonthlyMerchantProcessingVolume
+  ExpectedAverageBasket
+  MerchantWebsite
+  SocialNetwork
+  SupportWebsite
+  PaymentFrequency
+  ProductType
+  TermsAndConditions
+}
+
 enum MerchantSubCategory {
   Education
   Museums
@@ -5419,6 +5754,8 @@ enum MerchantSubCategory {
   Other
 }
 
+union MerchantVerificationRequirements = MerchantRequirements
+
 """Monthly income."""
 enum MonthlyIncome {
   """less than 500"""
@@ -5443,6 +5780,10 @@ enum MonthlyPaymentVolume {
   Between50000And100000
   LessThan10000
   MoreThan100000
+}
+
+type MonthlyPeriod {
+  dayOfMonth: Int!
 }
 
 type Mutation {
@@ -5498,6 +5839,9 @@ type Mutation {
   """
   physicalCardReception(input: PhysicalCardReceptionInput!): PhysicalCardReceptionPayload!
 
+  """Simulation to enable an insurance subscription"""
+  simulateInsuranceSubscriptionEnablement(input: SimulateInsuranceSubscriptionEnablementInput!): SimulateInsuranceSubscriptionEnablementPayload!
+
   """
   Mutation to simulate delivery of a physical card.
   Requires a physical card in a valid state for delivery.
@@ -5506,6 +5850,15 @@ type Mutation {
 
   """Simulate physical card renewal process."""
   simulatePhysicalCardRenewalProcess(input: SimulatePhysicalCardRenewalProcessInput!): SimulatePhysicalCardRenewalProcessPayload!
+
+  """Request a credit limit with given settings"""
+  simulateCreditLimitUpdated(input: SimulateCreditLimitUpdatedWebhookInput!): SimulateCreditLimitUpdatedResponse
+
+  """Perform a repayment"""
+  simulateRepayment(input: SimulateRepaymentInput!): SimulateRepaymentResponse
+
+  """Simulate a repayment status modification from the credit provider"""
+  simulateRepaymentUpdated(input: SimulateRepaymentUpdatedInput!): SimulateRepaymentUpdatedResponse
 
   """Create a sandbox identification"""
   createSandboxIdentification(input: CreateSandboxIdentificationInput!): CreateSandboxIdentificationPayload!
@@ -5747,6 +6100,10 @@ type NotFoundRejection implements Rejection {
   message: String!
 }
 
+type NotLegalRepresentativeRejection implements Rejection {
+  message: String!
+}
+
 """Rejection returned when consent status couldn't change"""
 type NotReachableConsentStatusRejection implements Rejection {
   message: String!
@@ -5951,6 +6308,9 @@ type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
 
   """Tax Identification Number"""
   taxIdentificationNumber: String
+
+  """Trade name of the company"""
+  tradeName: String
 
   """Legal representative personal address"""
   legalRepresentativePersonalAddress: AddressInformation
@@ -7267,6 +7627,88 @@ type ReleaseReservedBalanceSuccessPayload {
   transactionId: ID!
 }
 
+type RepaymentCycle {
+  id: ID!
+
+  """The current cycle's balance."""
+  owedAmount: Amount!
+
+  """The repayment's balance's status"""
+  status: RepaymentCycleStatus!
+  startDate: Date!
+  endDate: Date!
+}
+
+type RepaymentCycleConnection implements Connection {
+  """RepaymentCycleEdge list"""
+  edges: [RepaymentCycleEdge!]!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """Total number of element in the list"""
+  totalCount: Int!
+}
+
+"""Implements the Relay Edge interface"""
+type RepaymentCycleEdge implements Edge {
+  """Opaque identifier pointing to this node in the pagination mechanism"""
+  cursor: String!
+
+  """The Repayment Cycle entry"""
+  node: RepaymentCycle!
+}
+
+union RepaymentCycleLength = WeeklyPeriod | MonthlyPeriod
+
+enum RepaymentCyclePeriod {
+  Monthly
+  Weekly
+}
+
+enum RepaymentCycleStatus {
+  Due
+  Submitted
+  Overdue
+  Repaid
+}
+
+union RepaymentMethod = SepaDirectDebitB2b
+
+enum RepaymentMethodType {
+  SepaDirectDebitB2b
+}
+
+"""Rejection when a repayment is not found"""
+type RepaymentNotFoundRejection implements Rejection {
+  message: String!
+}
+
+type RepaymentSettings {
+  """The period between two reimbursement."""
+  repaymentCycleLength: RepaymentCycleLength!
+
+  """The repayment method used for the reimbursement."""
+  repaymentMethod: RepaymentMethod!
+}
+
+"""Repayment status"""
+enum RepaymentStatus {
+  Failed
+  Succeeded
+  Confirmed
+}
+
+"""Rejection when a repayment is not found"""
+type RepaymentWrongStatusRejection implements Rejection {
+  message: String!
+}
+
+"""Rejection when a repayment is not found"""
+type RepaymentWrongStatusTransitionRejection implements Rejection {
+  message: String!
+}
+
 """The document corresponding to a identification report"""
 type ReportDocument {
   """Unique identifier of the report document"""
@@ -7288,20 +7730,59 @@ type ReportDocumentFile implements DocumentFile {
 union Representative = IndividualRepresentative | CompanyRepresentative
 
 input RepresentativeInput {
+  """Type of representative (Individual or Company)."""
   type: RepresentativeType!
+
+  """List of representative roles."""
   roles: [String!]
+
+  """Gender of the representative (Male, Female, or Unknown)."""
   gender: Gender
-  firstNames: [String!]
+
+  """First name of the representative."""
   firstName: String
+
+  """Last name of the representative."""
   lastName: String
+
+  """Preferred first name of the representative."""
+  preferredFirstName: String
+
+  """
+  Birth date of the representative. Must be a valid date in the YYYY/MM/DD format.
+  """
   birthDate: String
+
+  """
+  Birth city of the representative. Length must be between 0 and 100 characters.
+  """
   birthCity: String
+
+  """
+  Postal code of the birth city. Length must be between 0 and 50 characters.
+  """
   birthCityPostalCode: String
+
+  """
+  Birth country code of the representative. Must be a valid alpha-3 country code (ISO 3166).
+  """
   birthCountryCode: CCA3
+
+  """
+  Nationality of the representative. Must be a valid alpha-3 country code (ISO 3166).
+  """
   nationality: CCA3
+
+  """Legal entity name of the representative (for Company type)."""
   entityName: String
+
+  """Registration number of the representative’s legal entity."""
   registrationNumber: String
+
+  """Legal form of the representative's legal entity."""
   legalForm: String
+
+  """Residency address of the representative."""
   residencyAddress: ResidencyAddressInput
 }
 
@@ -7653,8 +8134,10 @@ input SepaBeneficiaryInput {
 
   """
   `true` if this new beneficiary is the account holder himself in another financial institution.
+  *SOON TO BE DEPRECATED*
+  Not used. It will be removed soon.
   """
-  isMyOwnIban: Boolean!
+  isMyOwnIban: Boolean
 
   """
   `true` if this new beneficiary will be saved to the beneficiary list of the debited account.
@@ -7767,6 +8250,11 @@ input SepaDirectDebitAccount {
 
   """Creditor ultime name"""
   ultimateName: String
+}
+
+type SepaDirectDebitB2b {
+  """The mandate used for the Sepa Direct Debit B2B."""
+  mandate: PaymentMandate
 }
 
 """SepaDirectDebitB2BMerchantPaymentMethod"""
@@ -7977,8 +8465,8 @@ enum SepaDirectDebitReverseReasonCodeEnum {
 }
 
 """Payment direct debit mandate for SEPA"""
-type SEPAPaymentDirectDebitMandate implements SEPADirectDebitMandate & PaymentDirectDebitMandate & PaymentMandate {
-  """Unique identifier of the SEPA Direct Debit Payment Mandate"""
+type SEPAPaymentDirectDebitMandate implements PaymentMandate & SEPADirectDebitMandate & PaymentDirectDebitMandate {
+  """Unique identifier of the Card Payment Mandate"""
   id: ID!
 
   """Unique reference of the SEPA Direct Debit Payment Mandate"""
@@ -8355,6 +8843,48 @@ type SimulateCardTransactionEnrichmentSuccessPayload {
   enrichedData: EnrichedTransactionInfo!
 }
 
+"""
+A rejection returned when the simulation couldn't be performed because of a functional error
+"""
+type SimulateCreditLimitUpdatedRejection {
+  code: SimulateCreditLimitUpdatedRejectionCode!
+  message: String!
+}
+
+enum SimulateCreditLimitUpdatedRejectionCode {
+  AccountHolder_NotFound
+  BadRequest_Error
+  CreditLimitSettingsNotFound_Error
+  CreditLimitSettingsRequestNotFound_Error
+  Forbidden_Error
+  Technical
+}
+
+"""The response to a simulation call."""
+union SimulateCreditLimitUpdatedResponse = SimulateCreditLimitUpdatedSuccessResponse | SimulateCreditLimitUpdatedRejection
+
+enum SimulateCreditLimitUpdatedStatus {
+  Accepted
+  Refused
+  Revised
+}
+
+"""A successful response to a credit limit simulation call."""
+type SimulateCreditLimitUpdatedSuccessResponse {
+  """
+  Will alway be true and mean that the simulation was successfully executed
+  """
+  noop: Boolean
+}
+
+"""Inputs to request a credit limit"""
+input SimulateCreditLimitUpdatedWebhookInput {
+  """The accountId which will benefits of the credit limits"""
+  accountId: String!
+  status: SimulateCreditLimitUpdatedStatus!
+  authorizedAmount: AmountInput
+}
+
 input SimulateIncomingCardAuthorizationAuthorization {
   """
   Set this to "Authorized" to simulate a successful payment, and to "Rejected" to simulate a failed payment. You can't authorize a payment successfully with a failed 3DS. However, the authorization can be rejected even if 3DS succeed.
@@ -8720,6 +9250,22 @@ union SimulateIncomingSepaDirectDebitReturnPayload = SimulateIncomingSepaDirectD
 """Success payload type"""
 type SimulateIncomingSepaDirectDebitReturnSuccessPayload {
   transactionId: ID!
+}
+
+"""Input to enable an insurance subscription"""
+input SimulateInsuranceSubscriptionEnablementInput {
+  """Unique identifier of a card contract"""
+  cardId: ID!
+}
+
+"""
+Union of all possible payloads for insurance subscription enablement process
+"""
+union SimulateInsuranceSubscriptionEnablementPayload = SimulateInsuranceSubscriptionEnablementSuccessPayload | BadRequestRejection
+
+type SimulateInsuranceSubscriptionEnablementSuccessPayload {
+  """Unique identifier of the enabled insurance contract"""
+  insuranceSubscriptionId: ID!
 }
 
 input SimulateInvoiceGenerationInput {
@@ -9301,6 +9847,57 @@ input SimulateReleaseReservedBalanceInput {
 """Union of Success payload and potential rejections"""
 union SimulateReleaseReservedBalancePayload = ForbiddenRejection | TransactionNotFoundRejection | ReleaseReservedBalanceSuccessPayload
 
+"""A generic error to a repayment simulation call."""
+type SimulateRepaymentError {
+  message: String!
+}
+
+"""Input to request a repayment"""
+input SimulateRepaymentInput {
+  """The accountId related to the creditLimitSettings"""
+  accountId: String!
+}
+
+"""The response to a simulation call."""
+union SimulateRepaymentResponse = SimulateRepaymentSuccessResponse | AccountNotFoundRejection | AccountHolderNotFoundRejection | ForbiddenRejection | SimulateRepaymentError
+
+"""A successful response to a repayment simulation call."""
+type SimulateRepaymentSuccessResponse {
+  """The repayment internal id"""
+  repaymentId: String!
+
+  """The amount that will be repaid"""
+  amount: Amount
+}
+
+"""A generic error to a repayment simulation call."""
+type SimulateRepaymentUpdatedError {
+  message: String!
+}
+
+"""Input to request a repayment updated"""
+input SimulateRepaymentUpdatedInput {
+  """The accountId related to the creditLimitSettings"""
+  accountId: String!
+
+  """The repamyentId of the repayment target"""
+  repaymentId: String!
+
+  """The new repayment status"""
+  status: RepaymentStatus!
+}
+
+"""The response to a simulation call."""
+union SimulateRepaymentUpdatedResponse = SimulateRepaymentUpdatedSuccessResponse | AccountNotFoundRejection | AccountHolderNotFoundRejection | ForbiddenRejection | RepaymentNotFoundRejection | RepaymentWrongStatusTransitionRejection | RepaymentWrongStatusRejection | SimulateRepaymentUpdatedError
+
+"""A successful response to a repayment updated simulation call."""
+type SimulateRepaymentUpdatedSuccessResponse {
+  """
+  Will alway be true and mean that the simulation was successfully executed
+  """
+  noop: Boolean
+}
+
 input SimulateStartProjectBillingInput {
   """Name of the company to bill"""
   companyName: String!
@@ -9647,6 +10244,7 @@ enum SupportingDocumentCollectionType {
   Onboarding
   AccountHolderVerificationRenewal
   Transaction
+  Merchant
 }
 
 """Supporting document collection with WaitingForUpload status"""
@@ -10108,6 +10706,7 @@ type SupportingDocumentWaitingForUploadStatusInfo implements SupportingDocumentS
   Info to upload the document : url and fields to add along file in form (POST)
   """
   upload: SupportingDocumentUploadInfo!
+  supportingDocumentId: String!
 }
 
 """
@@ -10843,6 +11442,17 @@ type VirtualIBANEntryEdge implements Edge {
   node: VirtualIBANEntry!
 }
 
+"""WaitingForInformationMerchantPaymentMethodStatusInfo"""
+type WaitingForInformationMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
+  status: MerchantPaymentMethodStatus!
+
+  """Merchant Payment Method waitingForInformation date"""
+  waitingForInformationAt: Date!
+
+  """List of requirements that should be fulfilled"""
+  verificationRequirements: [MerchantVerificationRequirements!]!
+}
+
 """Wallet Provider"""
 enum WalletProviderType {
   ApplePay
@@ -10871,6 +11481,11 @@ type WebBankingSettings {
   canRequestChecksPaymentMethod: Boolean
   canInitiateCheckMerchantPayments: Boolean
   canCreateMerchantPaymentLinks: Boolean
+}
+
+type WeeklyPeriod {
+  dayOfWeek: DayEnum!
+  weekCount: Int!
 }
 
 """Rejection returned when a parameter has a wrong value"""

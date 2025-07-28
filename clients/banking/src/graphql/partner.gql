@@ -931,6 +931,14 @@ query CardPage($cardId: ID!) {
     nonMainCurrencyTransactions
     international
     issuingCountry
+    insuranceSubscription {
+      id
+      package {
+        id
+        name
+        level
+      }
+    }
     statusInfo {
       status
     }
@@ -1885,6 +1893,12 @@ query GetCardProducts(
   }
 }
 
+fragment CardInsurancePackage on CardInsurancePackage {
+  id
+  name
+  level
+  noticeUrl
+}
 fragment CardProduct on CardProduct {
   __typename
   id
@@ -1928,6 +1942,14 @@ fragment CardProduct on CardProduct {
       cardBackgroundUrl
       createdAt
       updatedAt
+    }
+  }
+  insurance {
+    defaultInsurancePackage {
+      ...CardInsurancePackage
+    }
+    availableInsurancePackages {
+      ...CardInsurancePackage
     }
   }
   defaultCardProduct
@@ -2599,6 +2621,14 @@ mutation CreateMultiConsent($input: CreateMultiConsentInput!) {
 fragment CardFragment on Card {
   __typename
   id
+  insuranceSubscription {
+    id
+    package {
+      id
+      name
+      level
+    }
+  }
   statusInfo {
     __typename
     ... on CardConsentPendingStatusInfo {

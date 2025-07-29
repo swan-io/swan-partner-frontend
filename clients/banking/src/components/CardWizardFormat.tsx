@@ -105,7 +105,7 @@ export const CardWizardFormat = ({ ref, cardProduct, initialCardFormat, onSubmit
               <Space height={12} />
 
               <View style={styles.descriptionContainer}>
-                <LakeText variant="smallRegular" align="center" style={styles.description}>
+                <LakeText variant="smallMedium" align="center" style={styles.description}>
                   {match(cardFormat)
                     .with("Virtual", () => t("cards.format.virtual.description"))
                     .with("VirtualAndPhysical", () =>
@@ -115,6 +115,15 @@ export const CardWizardFormat = ({ ref, cardProduct, initialCardFormat, onSubmit
                     .exhaustive()}
                 </LakeText>
               </View>
+
+              {cardFormat === "SingleUseVirtual" && (
+                <>
+                  <Space height={12} />
+                  <LakeText color={colors.gray[500]} variant="smallRegular">
+                    {t("cards.format.insuranceNotAvailable")}
+                  </LakeText>
+                </>
+              )}
             </Box>
 
             <Space height={12} />

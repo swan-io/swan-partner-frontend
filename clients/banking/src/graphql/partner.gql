@@ -803,6 +803,15 @@ fragment CardListItem on Card {
     }
   }
   cardDesignUrl
+  insuranceSubscription {
+    id
+    package {
+      id
+      name
+      level
+      noticeUrl
+    }
+  }
   accountMembership {
     id
     account {
@@ -933,10 +942,12 @@ query CardPage($cardId: ID!) {
     issuingCountry
     insuranceSubscription {
       id
+      claimsUrl
       package {
         id
         name
         level
+        noticeUrl
       }
     }
     statusInfo {

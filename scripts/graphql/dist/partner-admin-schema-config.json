@@ -12,6 +12,7 @@
       "AccountMembershipConnection",
       "CapitalDepositCaseConnection",
       "ConsentConnection",
+      "CreditLimitSettingsRequestConnection",
       "FundingLimitSettingsChangeRequestConnection",
       "InvoiceConnection",
       "MerchantPaymentConnection",
@@ -19,6 +20,7 @@
       "OnboardingConnection",
       "PaymentMandateConnection",
       "ReceivedDirectDebitMandateConnection",
+      "RepaymentCycleConnection",
       "SandboxUserConnection",
       "SupportingDocumentCollectionConnection",
       "UserConnection",
@@ -30,6 +32,7 @@
       "AccountMembershipEdge",
       "CapitalDepositCaseEdge",
       "ConsentEdge",
+      "CreditLimitSettingsRequestEdge",
       "FundingLimitSettingsChangeRequestEdge",
       "IdentificationEdge",
       "InvoiceEdge",
@@ -38,6 +41,7 @@
       "OnboardingEdge",
       "PaymentMandateEdge",
       "ReceivedDirectDebitMandateEdge",
+      "RepaymentCycleEdge",
       "SandboxUserEdge",
       "SupportingDocumentCollectionEdge",
       "UserEdge",
@@ -102,6 +106,7 @@
       "MerchantProfileWrongStatusRejection",
       "NationalityNotFoundRejection",
       "NotFoundRejection",
+      "NotLegalRepresentativeRejection",
       "NotReachableConsentStatusRejection",
       "PaymentMandateMandateNotFoundRejection",
       "PaymentMandateReferenceAlreadyUsedRejection",
@@ -121,6 +126,9 @@
       "ReceivedDirectDebitMandateNotB2bRejection",
       "ReceivedDirectDebitMandateNotFoundRejection",
       "RejectionReasonMandatoryRejection",
+      "RepaymentNotFoundRejection",
+      "RepaymentWrongStatusRejection",
+      "RepaymentWrongStatusTransitionRejection",
       "SandboxIdentificationNotFoundRejection",
       "SandboxUserNotFoundRejection",
       "SchemeWrongRejection",
@@ -178,6 +186,7 @@
     ],
     "MerchantPayment": [
       "CardMerchantPayment",
+      "CheckMerchantPayment",
       "SepaDirectDebitMerchantPayment"
     ],
     "MerchantPaymentMethod": [
@@ -196,6 +205,19 @@
     "Reason": [
       "CloseAccountReason",
       "SuspendAccountReason"
+    ],
+    "CreditLimitSettingsRequestStatusInfo": [
+      "CreditLimitSettingsRequestApprovedStatusInfo",
+      "CreditLimitSettingsRequestCanceledStatusInfo",
+      "CreditLimitSettingsRequestConsentPendingStatusInfo",
+      "CreditLimitSettingsRequestPendingReviewStatusInfo",
+      "CreditLimitSettingsRequestRefusedStatusInfo"
+    ],
+    "CreditLimitSettingsStatusInfo": [
+      "CreditLimitStatusActivatedInfo",
+      "CreditLimitStatusDeactivatedInfo",
+      "CreditLimitStatusPendingInfo",
+      "CreditLimitStatusSuspendedInfo"
     ],
     "Field": [
       "DateField",
@@ -216,7 +238,8 @@
       "EnabledMerchantPaymentMethodStatusInfo",
       "PendingMerchantPaymentMethodStatusInfo",
       "RejectedMerchantPaymentMethodStatusInfo",
-      "SuspendedMerchantPaymentMethodStatusInfo"
+      "SuspendedMerchantPaymentMethodStatusInfo",
+      "WaitingForInformationMerchantPaymentMethodStatusInfo"
     ],
     "MerchantProfileStatusInfo": [
       "DisabledMerchantProfileStatusInfo",

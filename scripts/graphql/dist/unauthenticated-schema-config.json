@@ -66,6 +66,7 @@
       "CardCanNotBeDigitalizedRejection",
       "CardNotFoundRejection",
       "CardProductDisabledRejection",
+      "CardProductInvalidFundingTypeRejection",
       "CardProductNotApplicableToPhysicalCardsRejection",
       "CardProductNotFoundRejection",
       "CardProductSuspendedRejection",
@@ -168,6 +169,7 @@
     ],
     "MerchantPayment": [
       "CardMerchantPayment",
+      "CheckMerchantPayment",
       "SepaDirectDebitMerchantPayment"
     ],
     "MerchantPaymentMethod": [
@@ -207,7 +209,8 @@
       "EnabledMerchantPaymentMethodStatusInfo",
       "PendingMerchantPaymentMethodStatusInfo",
       "RejectedMerchantPaymentMethodStatusInfo",
-      "SuspendedMerchantPaymentMethodStatusInfo"
+      "SuspendedMerchantPaymentMethodStatusInfo",
+      "WaitingForInformationMerchantPaymentMethodStatusInfo"
     ],
     "MerchantProfileStatusInfo": [
       "DisabledMerchantProfileStatusInfo",

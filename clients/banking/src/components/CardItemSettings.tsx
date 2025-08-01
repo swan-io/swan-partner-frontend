@@ -28,6 +28,7 @@ const styles = StyleSheet.create({
     color: colors.current.primary,
     display: "inline-block",
   },
+  box: { width: "50%" },
 });
 
 type Card = NonNullable<CardPageQuery["card"]>;
@@ -43,6 +44,7 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
   const [isCancelConfirmationModalVisible, setIsCancelConfirmationModalVisible] = useState(false);
   const accountHolder = card.accountMembership.account?.holder;
   const settingsRef = useRef<CardWizardSettingsRef>(null);
+  const cardInsurance = card.insuranceSubscription;
 
   const { canUpdateCard } = usePermissions();
 
@@ -127,43 +129,115 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
         accountHolder={accountHolder}
       />
 
-      {match({
-        type: accountHolder?.info.type,
-        country: isCountryCCA3(card.issuingCountry)
-          ? getCCA2forCCA3(card.issuingCountry)?.toLowerCase()
-          : undefined,
-      })
-        .with({ type: "Company", country: P.nonNullable }, ({ country }) => (
-          <>
-            <Space height={24} />
+      <Space height={24} />
 
-            <LakeText variant="smallRegular">
-              {formatNestedMessage("card.mastercardBonusProgramLink", {
-                learnMoreLink: (
-                  <>
-                    <Link
-                      style={styles.link}
-                      to={`https://www.mastercard.com/businessbonus/${country}/home`}
-                      target="blank"
-                    >
-                      <Box direction="row" alignItems="center">
-                        <LakeText color={colors.current.primary} variant="smallRegular">
-                          {t("common.learnMore")}
-                        </LakeText>
+      <Box direction="row">
+        <Box style={styles.box}>
+          {cardInsurance != null && cardInsurance.package.noticeUrl != null && (
+            <>
+              <Box direction="row" alignItems="center">
+                <Icon name="shield-checkmark-regular" size={16} color={colors.gray[500]} />
+                <Space width={8} />
 
-                        <Space width={4} />
-                        <Icon color={colors.current.primary} name="open-filled" size={16} />
-                      </Box>
-                    </Link>
-                  </>
-                ),
-              })}
-            </LakeText>
+                <LakeText align="center" variant="smallSemibold">
+                  {match(cardInsurance.package)
+                    .with({ level: "Basic" }, () => t("cardDetail.insurance.description.premium"))
+                    .with({ level: "Essential" }, () =>
+                      t("cardDetail.insurance.description.essential"),
+                    )
+                    .with({ level: "Premium" }, () => t("cardDetail.insurance.description.premium"))
+                    .otherwise(() => null)}
+                </LakeText>
+              </Box>
+              <Space height={8} />
 
-            <Space height={16} />
-          </>
-        ))
-        .otherwise(() => null)}
+              <LakeText variant="smallRegular">
+                <Link style={styles.link} to={cardInsurance.package.noticeUrl} target="blank">
+                  <Box direction="row" alignItems="center">
+                    <LakeText color={colors.current.primary} variant="smallRegular">
+                      {t("cardDetail.insurance.link")}
+                    </LakeText>
+
+                    <Space width={4} />
+                    <Icon color={colors.current.primary} name="open-filled" size={16} />
+                  </Box>
+                </Link>
+              </LakeText>
+
+              <Space height={8} />
+              <Box direction="row" alignItems="center">
+                <LakeText variant="smallRegular">
+                  {formatNestedMessage("cardDetail.insurance.claim", {
+                    link: text => (
+                      <>
+                        <Link style={styles.link} to={cardInsurance.claimsUrl} target="blank">
+                          <Box direction="row" alignItems="center">
+                            <LakeText color={colors.current.primary} variant="smallRegular">
+                              {text}
+                            </LakeText>
+
+                            <Space width={4} />
+                            <Icon color={colors.current.primary} name="open-filled" size={16} />
+                          </Box>
+                        </Link>
+                      </>
+                    ),
+                  })}
+                </LakeText>
+              </Box>
+
+              <Space height={24} />
+            </>
+          )}
+        </Box>
+
+        <Box style={styles.box}>
+          {match({
+            type: accountHolder?.info.type,
+            country: isCountryCCA3(card.issuingCountry)
+              ? getCCA2forCCA3(card.issuingCountry)?.toLowerCase()
+              : undefined,
+          })
+            .with({ type: "Company", country: P.nonNullable }, ({ country }) => (
+              <>
+                <Box direction="row" alignItems="center">
+                  <Icon name="gift-regular" size={16} color={colors.gray[500]} />
+                  <Space width={8} />
+
+                  <LakeText align="center" variant="smallSemibold">
+                    {t("cardDetail.mastercardBonuses")}
+                  </LakeText>
+                </Box>
+
+                <Space height={8} />
+
+                <LakeText variant="smallRegular">
+                  {formatNestedMessage("card.mastercardBonusProgramLink", {
+                    learnMoreLink: (
+                      <>
+                        <Link
+                          style={styles.link}
+                          to={`https://www.mastercard.com/businessbonus/${country}/home`}
+                          target="blank"
+                        >
+                          <Box direction="row" alignItems="center">
+                            <LakeText color={colors.current.primary} variant="smallRegular">
+                              {t("common.learnMore")}
+                            </LakeText>
+
+                            <Space width={4} />
+                            <Icon color={colors.current.primary} name="open-filled" size={16} />
+                          </Box>
+                        </Link>
+                      </>
+                    ),
+                  })}
+                </LakeText>
+              </>
+            ))
+            .otherwise(() => null)}
+        </Box>
+      </Box>
 
       <LakeButtonGroup>
         {match(card.statusInfo)

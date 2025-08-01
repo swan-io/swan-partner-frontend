@@ -1,14 +1,29 @@
 import { Box } from "@swan-io/lake/src/components/Box";
+import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { Link } from "@swan-io/lake/src/components/Link";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
-import { colors } from "@swan-io/lake/src/constants/design";
+import { colors, radii, spacings } from "@swan-io/lake/src/constants/design";
+import { useDisclosure } from "@swan-io/lake/src/hooks/useDisclosure";
 import { ChoicePicker } from "@swan-io/shared-business/src/components/ChoicePicker";
+import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { CSSProperties, Ref, useEffect, useImperativeHandle, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  TextProps,
+  unstable_createElement,
+  View,
+  ViewProps,
+} from "react-native";
 import { match } from "ts-pattern";
-import { GetCardProductsQuery } from "../graphql/partner";
+import {
+  CardInsurancePackage,
+  CardInsurancePackageLevel,
+  GetCardProductsQuery,
+} from "../graphql/partner";
 import { formatCurrency, t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
@@ -23,6 +38,52 @@ const styles = StyleSheet.create({
     maxWidth: 320,
     marginHorizontal: "auto",
   },
+  insurances: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacings[16],
+  },
+  insurance: {
+    flexBasis: `calc(50% - ${spacings[16]} / 2)`,
+    padding: spacings[12],
+    borderRadius: radii[6],
+    borderWidth: 1,
+    borderColor: colors.gray[100],
+  },
+  insuranceDisabled: {
+    opacity: 0.5,
+  },
+  link: {
+    color: colors.current.primary,
+    display: "inline-block",
+  },
+  tableContainer: {
+    borderWidth: 1,
+    borderColor: colors.gray[100],
+    borderRadius: radii[8],
+  },
+  table: {
+    borderCollapse: "collapse",
+  },
+  cell: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gray[100],
+    borderBottomStyle: "solid",
+  },
+  lastCell: {
+    borderBottomWidth: 0,
+  },
+  leftColumnHeading: {
+    textAlign: "left",
+  },
+  centered: {
+    textAlign: "center",
+  },
+  tableIcon: {
+    margin: "auto",
+  },
 });
 
 const IMAGE_STYLE: CSSProperties = {
@@ -36,6 +97,14 @@ const IMAGE_STYLE: CSSProperties = {
   objectPosition: "50% 50%",
 };
 
+const getTitleModal = (insuranceType: CardInsurancePackage) => {
+  return match(insuranceType)
+    .with({ level: "Basic" }, () => t("cardProducts.insurance.titleModal.basic"))
+    .with({ level: "Custom" }, () => t("cardProducts.insurance.titleModal.custom"))
+    .with({ level: "Premium" }, () => t("cardProducts.insurance.titleModal.premium"))
+    .with({ level: "Essential" }, () => t("cardProducts.insurance.titleModal.essential"))
+    .exhaustive();
+};
 type CardProduct = NonNullable<GetCardProductsQuery["projectInfo"]["cardProducts"]>[number];
 
 type AccountHolderType = "Company" | "Individual";
@@ -50,6 +119,206 @@ type Props = {
   cardProducts: NonNullable<GetCardProductsQuery["projectInfo"]["cardProducts"]>;
   initialCardProduct?: CardProduct;
   onSubmit: (cardProduct: CardProduct) => void;
+};
+
+const Table = (props: ViewProps) => unstable_createElement("table", props);
+const THead = (props: ViewProps) => unstable_createElement("thead", props);
+const Th = (
+  props: Omit<ViewProps, "style"> & { style?: ViewProps["style"] | TextProps["style"] },
+) => unstable_createElement("th", props);
+const TBody = (props: ViewProps) => unstable_createElement("tbody", props);
+const Tr = (props: ViewProps) => unstable_createElement("tr", props);
+const Td = (
+  props: Omit<ViewProps, "style"> & { style?: ViewProps["style"] | TextProps["style"] },
+) => unstable_createElement("td", props);
+
+const YES_ICON = (
+  <Icon
+    style={styles.tableIcon}
+    name="shield-checkmark-regular"
+    size={20}
+    color={colors.positive[500]}
+  />
+);
+
+type CardInsuranceDetailProps = {
+  insuranceLevel: Omit<CardInsurancePackageLevel, "Custom">;
+};
+
+export const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps) => {
+  return (
+    <>
+      <Space height={16} />
+
+      <View style={styles.tableContainer}>
+        <Table style={styles.table}>
+          <THead>
+            <Th style={[styles.cell, styles.lastCell, styles.leftColumnHeading]}>
+              <LakeText variant="semibold">{t("cardProducts.insurance.coverage")}</LakeText>
+            </Th>
+            <Th style={[styles.cell, styles.lastCell]}>
+              {match(insuranceLevel)
+                .with("Basic", () => (
+                  <LakeText variant="semibold">{t("cardProducts.insurance.Basic")}</LakeText>
+                ))
+                .with("Premium", () => (
+                  <LakeText variant="semibold">{t("cardProducts.insurance.Premium")}</LakeText>
+                ))
+                .with("Essential", () => (
+                  <LakeText variant="semibold">{t("cardProducts.insurance.Essential")}</LakeText>
+                ))
+                .otherwise(() => null)}
+            </Th>
+          </THead>
+          <TBody>
+            <Tr>
+              <Td style={styles.cell}>
+                <LakeText>{t("cardProducts.insurance.coverage.id")}</LakeText>
+              </Td>
+              {match(insuranceLevel)
+                .with("Basic", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .with("Premium", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .with("Essential", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .otherwise(() => null)}
+            </Tr>
+            <Tr>
+              <Td style={styles.cell}>
+                <LakeText>{t("cardProducts.insurance.coverage.eReputation")}</LakeText>
+              </Td>
+              {match(insuranceLevel)
+                .with("Basic", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .with("Premium", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .with("Essential", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .otherwise(() => null)}
+            </Tr>
+            <Tr>
+              <Td style={styles.cell}>
+                <LakeText>{t("cardProducts.insurance.coverage.fraudTransaction")}</LakeText>
+              </Td>
+              {match(insuranceLevel)
+                .with("Basic", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .with("Premium", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .with("Essential", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .otherwise(() => null)}
+            </Tr>
+            <Tr>
+              <Td style={styles.cell}>
+                <LakeText>{t("cardProducts.insurance.coverage.fraudPhishing")}</LakeText>
+              </Td>
+              {match(insuranceLevel)
+                .with("Basic", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .with("Premium", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .with("Essential", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .otherwise(() => null)}
+            </Tr>
+            <Tr>
+              <Td style={styles.cell}>
+                <LakeText>
+                  {t("cardProducts.insurance.coverage.travelModificationCancelation")}
+                </LakeText>
+              </Td>
+              {match(insuranceLevel)
+                .with("Basic", () => (
+                  <Td style={[styles.cell, styles.centered]}>
+                    <LakeText color={colors.gray[200]}>—</LakeText>
+                  </Td>
+                ))
+                .with("Premium", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .with("Essential", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .otherwise(() => null)}
+            </Tr>
+            <Tr>
+              <Td style={styles.cell}>
+                <LakeText>{t("cardProducts.insurance.coverage.travelRental")}</LakeText>
+              </Td>
+              {match(insuranceLevel)
+                .with("Basic", () => (
+                  <Td style={[styles.cell, styles.centered]}>
+                    <LakeText color={colors.gray[200]}>—</LakeText>
+                  </Td>
+                ))
+                .with("Premium", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .with("Essential", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .otherwise(() => null)}
+            </Tr>
+            <Tr>
+              <Td style={styles.cell}>
+                <LakeText>{t("cardProducts.insurance.coverage.travelDelay")}</LakeText>
+              </Td>
+              {match(insuranceLevel)
+                .with("Basic", () => (
+                  <Td style={[styles.cell, styles.centered]}>
+                    <LakeText color={colors.gray[200]}>—</LakeText>
+                  </Td>
+                ))
+                .with("Premium", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .with("Essential", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .otherwise(() => null)}
+            </Tr>
+            <Tr>
+              <Td style={styles.cell}>
+                <LakeText>{t("cardProducts.insurance.coverage.travelBagages")}</LakeText>
+              </Td>
+              {match(insuranceLevel)
+                .with("Basic", () => (
+                  <Td style={[styles.cell, styles.centered]}>
+                    <LakeText color={colors.gray[200]}>—</LakeText>
+                  </Td>
+                ))
+                .with("Premium", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .with("Essential", () => (
+                  <Td style={[styles.cell, styles.centered]}>
+                    <LakeText color={colors.gray[200]}>—</LakeText>
+                  </Td>
+                ))
+                .otherwise(() => null)}
+            </Tr>
+            <Tr>
+              <Td style={[styles.cell, styles.lastCell]}>
+                <LakeText>{t("cardProducts.insurance.coverage.medicalExpensesAbroad")}</LakeText>
+              </Td>
+              {match(insuranceLevel)
+                .with("Basic", () => (
+                  <Td style={[styles.cell, styles.centered, styles.lastCell]}>
+                    <LakeText color={colors.gray[200]}>—</LakeText>
+                  </Td>
+                ))
+                .with("Premium", () => <Td style={[styles.cell, styles.lastCell]}>{YES_ICON}</Td>)
+                .with("Essential", () => (
+                  <Td style={[styles.cell, styles.centered, styles.lastCell]}>
+                    <LakeText color={colors.gray[200]}>—</LakeText>
+                  </Td>
+                ))
+                .otherwise(() => null)}
+            </Tr>
+          </TBody>
+        </Table>
+      </View>
+
+      <Space height={16} />
+
+      <LakeText>
+        <Link
+          style={styles.link}
+          to={"https://support.swan.io/hc/en-150/articles/27554041478301-Card-insurance"}
+          target="blank"
+        >
+          <Box direction="row" alignItems="center">
+            <LakeText color={colors.current.primary}>
+              {match(insuranceLevel)
+                .with("Basic", () => t("cardDetail.insurance.readMore.basic"))
+                .with("Premium", () => t("cardDetail.insurance.readMore.premium"))
+                .with("Essential", () => t("cardDetail.insurance.readMore.essential"))
+                .otherwise(() => null)}
+            </LakeText>
+
+            <Space width={4} />
+            <Icon color={colors.current.primary} name="open-filled" size={16} />
+          </Box>
+        </Link>
+      </LakeText>
+    </>
+  );
 };
 
 export const CardWizardProduct = ({
@@ -81,86 +350,134 @@ export const CardWizardProduct = ({
     }
   }, [cardProducts, onSubmit]);
 
+  const [opened, setOpened] = useDisclosure(false);
+  const [insuranceType, setInsuranceType] = useState<CardInsurancePackage>();
   return (
-    <ChoicePicker
-      items={cardProducts}
-      renderItem={cardProduct => {
-        const cardDesign = cardProduct.cardDesigns.find(item => item.status === "Enabled");
-        const cardDesignUrl = cardDesign?.cardDesignUrl;
+    <>
+      <ChoicePicker
+        items={cardProducts}
+        renderItem={cardProduct => {
+          const cardDesign = cardProduct.cardDesigns.find(item => item.status === "Enabled");
+          const cardDesignUrl = cardDesign?.cardDesignUrl;
+          const defaultInsurancePackage = cardProduct.insurance?.defaultInsurancePackage;
 
-        return (
-          <View style={styles.item}>
-            <View style={styles.image}>
-              <svg viewBox="0 0 1536 969" />
+          return (
+            <View style={styles.item}>
+              <View style={styles.image}>
+                <svg viewBox="0 0 1536 969" />
 
-              {cardDesignUrl != null ? (
-                <View style={styles.cardDesignContainer}>
-                  <img src={cardDesignUrl} style={IMAGE_STYLE} />
-                </View>
-              ) : null}
-            </View>
+                {cardDesignUrl != null ? (
+                  <View style={styles.cardDesignContainer}>
+                    <img src={cardDesignUrl} style={IMAGE_STYLE} />
+                  </View>
+                ) : null}
+              </View>
 
-            <Space height={24} />
+              <Space height={24} />
 
-            <LakeHeading
-              level={3}
-              variant="h5"
-              align="center"
-              color={currentCardProduct?.id === cardProduct.id ? colors.current[500] : undefined}
-            >
-              {cardProduct.name}
-            </LakeHeading>
+              <LakeHeading
+                level={3}
+                variant="h5"
+                align="center"
+                color={currentCardProduct?.id === cardProduct.id ? colors.current[500] : undefined}
+              >
+                {cardProduct.name}
+              </LakeHeading>
 
-            <Space height={12} />
+              <Space height={12} />
 
-            <LakeText align="center" variant="smallRegular">
-              {t("cards.maxSpendingLimit")}
-            </LakeText>
+              <LakeText align="center" variant="smallRegular">
+                {t("cards.maxSpendingLimit")}
+              </LakeText>
 
-            <LakeText align="center" variant="smallSemibold" color={colors.gray[700]}>
-              {match(accountHolderType)
-                .with("Company", () =>
-                  t("card.maxSpendingLimits.perMonth", {
-                    value: formatCurrency(
-                      Number(cardProduct.companySpendingLimit.amount.value),
-                      cardProduct.companySpendingLimit.amount.currency,
-                    ),
-                  }),
-                )
-                .with("Individual", () =>
-                  t("card.maxSpendingLimits.perMonth", {
-                    value: formatCurrency(
-                      Number(cardProduct.individualSpendingLimit.amount.value),
-                      cardProduct.individualSpendingLimit.amount.currency,
-                    ),
-                  }),
-                )
-                .exhaustive()}
-            </LakeText>
+              <LakeText align="center" variant="smallSemibold" color={colors.gray[700]}>
+                {match(accountHolderType)
+                  .with("Company", () =>
+                    t("card.maxSpendingLimits.perMonth", {
+                      value: formatCurrency(
+                        Number(cardProduct.companySpendingLimit.amount.value),
+                        cardProduct.companySpendingLimit.amount.currency,
+                      ),
+                    }),
+                  )
+                  .with("Individual", () =>
+                    t("card.maxSpendingLimits.perMonth", {
+                      value: formatCurrency(
+                        Number(cardProduct.individualSpendingLimit.amount.value),
+                        cardProduct.individualSpendingLimit.amount.currency,
+                      ),
+                    }),
+                  )
+                  .exhaustive()}
+              </LakeText>
 
-            <Box alignItems="center">
-              {cardProduct.applicableToPhysicalCards ? (
-                <>
-                  <Space height={24} />
+              <Space height={8} />
+
+              {defaultInsurancePackage != null && (
+                <Box direction="row" alignItems="center" justifyContent="center">
+                  <Icon name="shield-checkmark-regular" size={16} color={colors.gray[500]} />
+                  <Space width={8} />
 
                   <LakeText align="center" variant="smallRegular">
-                    {t("cards.availableFormats")}
+                    {match(defaultInsurancePackage)
+                      .with({ level: "Basic" }, () => t("cardProducts.insurance.badge.basic"))
+                      .with({ level: "Essential" }, () =>
+                        t("cardProducts.insurance.badge.essential"),
+                      )
+                      .with({ level: "Premium" }, () => t("cardProducts.insurance.badge.premium"))
+                      .otherwise(() => null)}
                   </LakeText>
+                  <Space width={8} />
 
-                  <Space height={4} />
+                  {defaultInsurancePackage.level !== "Custom" && (
+                    <Pressable
+                      onPress={() => {
+                        setInsuranceType(defaultInsurancePackage);
+                        setOpened.open();
+                      }}
+                    >
+                      <Icon name="info-regular" size={16} color={colors.gray[500]} />
+                    </Pressable>
+                  )}
+                </Box>
+              )}
 
-                  <Tag color="shakespear" icon="payment-regular">
-                    {t("cards.format.physical")}
-                  </Tag>
-                </>
-              ) : null}
-            </Box>
-          </View>
-        );
-      }}
-      value={currentCardProduct}
-      getId={item => item.id}
-      onChange={setCurrentCardProduct}
-    />
+              <Box alignItems="center">
+                {cardProduct.applicableToPhysicalCards ? (
+                  <>
+                    <Space height={24} />
+
+                    <LakeText align="center" variant="smallRegular">
+                      {t("cards.availableFormats")}
+                    </LakeText>
+
+                    <Space height={4} />
+
+                    <Tag color="shakespear" icon="payment-regular">
+                      {t("cards.format.physical")}
+                    </Tag>
+                  </>
+                ) : null}
+              </Box>
+            </View>
+          );
+        }}
+        value={currentCardProduct}
+        getId={item => item.id}
+        onChange={setCurrentCardProduct}
+      />
+
+      {insuranceType !== undefined && (
+        <LakeModal
+          onPressClose={setOpened.close}
+          visible={opened}
+          icon="shield-checkmark-regular"
+          title={getTitleModal(insuranceType)}
+          maxWidth={800}
+        >
+          <CardInsuranceDetail insuranceLevel={insuranceType.level} />
+        </LakeModal>
+      )}
+    </>
   );
 };

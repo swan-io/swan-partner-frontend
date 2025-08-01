@@ -121,6 +121,23 @@ export const FullNameAndCardTypeCell = ({ card }: { card: Card }) => {
                 )}
               </>
             ))
+            .with(
+              {
+                insuranceSubscription: {
+                  package: P.select(),
+                },
+              },
+              ({ level }) => (
+                <Tag color="gray" icon="shield-checkmark-regular">
+                  {match(level)
+                    .with("Basic", () => t("cardProducts.insurance.Basic"))
+                    .with("Essential", () => t("cardProducts.insurance.Essential"))
+                    .with("Custom", () => t("cardProducts.insurance.Custom"))
+                    .with("Premium", () => t("cardProducts.insurance.Premium"))
+                    .exhaustive()}
+                </Tag>
+              ),
+            )
             .with({ type: "Virtual" }, () => (
               <Tag color="mediumSladeBlue" icon="phone-regular">
                 {t("cards.format.virtual")}

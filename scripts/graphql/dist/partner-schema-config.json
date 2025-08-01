@@ -2,11 +2,17 @@
   "interfaceToTypes": {
     "Rejection": [
       "AcceptConsentNotAllowedForConsentPurposeRejection",
+      "AccountHolderAccountsStatusNotEligibleRejection",
+      "AccountHolderAccountsTypeNotEligibleRejection",
       "AccountHolderNotFoundRejection",
+      "AccountHolderStatusNotEligibleRejection",
       "AccountHolderTypeIndividualRejection",
+      "AccountHolderTypeNotEligibleRejection",
+      "AccountHolderVerificationStatusNotEligibleRejection",
       "AccountMembershipCannotBeDisabledRejection",
       "AccountMembershipCannotBeUpdatedRejection",
       "AccountMembershipNotAllowedRejection",
+      "AccountMembershipNotEligibleRejection",
       "AccountMembershipNotFoundRejection",
       "AccountMembershipNotReadyToBeBoundRejection",
       "AccountNotEligibleRejection",
@@ -29,6 +35,7 @@
       "CardCanNotBeDigitalizedRejection",
       "CardNotFoundRejection",
       "CardProductDisabledRejection",
+      "CardProductInvalidFundingTypeRejection",
       "CardProductNotApplicableToPhysicalCardsRejection",
       "CardProductNotFoundRejection",
       "CardProductSuspendedRejection",
@@ -47,6 +54,7 @@
       "DocumentCanNotBeFoundRejection",
       "DocumentCanNotBeRejectedRejection",
       "DocumentParentLinkMissingRejection",
+      "DuplicateCheckRejection",
       "EnabledCardDesignNotFoundRejection",
       "ExternalAccountAlreadyExistsRejection",
       "ExternalAccountBalanceAlreadyExistsRejection",
@@ -62,6 +70,7 @@
       "IBANNotReachableRejection",
       "IBANNotValidRejection",
       "IbanValidationRejection",
+      "IdempotencyConflictRejection",
       "IdentificationDocumentNotFoundRejection",
       "IdentityAlreadyBindToAccountMembershipRejection",
       "InstantFundingLimitExceededRejection",
@@ -78,14 +87,19 @@
       "MaximumSimultaneousExportsRejection",
       "MerchantCardPaymentDeclinedRejection",
       "MerchantPaymentMethodNotActiveRejection",
+      "MerchantPaymentMethodNotCompatibleRejection",
       "MerchantPaymentMethodSepaDirectDebitInvalidRejection",
       "MerchantPaymentMethodWrongStatusRejection",
+      "MerchantPaymentNotCancellableRejection",
+      "MerchantPaymentNotFoundRejection",
+      "MerchantPaymentNotPartiallyCancellableRejection",
       "MerchantProfileNotValidRejection",
       "MerchantProfileWrongStatusRejection",
       "MissingMandatoryFieldRejection",
       "MissingPhoneNumberRestrictionRejection",
       "NotAllowedUserStatusRejection",
       "NotFoundRejection",
+      "NotLegalRepresentativeRejection",
       "NotReachableConsentStatusRejection",
       "NotSupportedCountryRejection",
       "OnboardingNotCompletedRejection",
@@ -114,6 +128,9 @@
       "ReceivedDirectDebitMandateNotB2bRejection",
       "ReceivedDirectDebitMandateNotFoundRejection",
       "RefundRejection",
+      "RepaymentNotFoundRejection",
+      "RepaymentWrongStatusRejection",
+      "RepaymentWrongStatusTransitionRejection",
       "RestrictedToUserRejection",
       "ReturnTransactionRejection",
       "SchemeWrongRejection",
@@ -173,6 +190,7 @@
       "CapitalDepositCaseConnection",
       "CardConnection",
       "ConsentConnection",
+      "CreditLimitSettingsRequestConnection",
       "DigitalCardConnection",
       "ExportConnection",
       "ExternalAccountConnection",
@@ -188,6 +206,7 @@
       "PaymentConnection",
       "PaymentMandateConnection",
       "ReceivedDirectDebitMandateConnection",
+      "RepaymentCycleConnection",
       "StandingOrderConnection",
       "StatementConnection",
       "SupportingDocumentCollectionConnection",
@@ -206,6 +225,7 @@
       "CapitalDepositCaseEdge",
       "CardEdge",
       "ConsentEdge",
+      "CreditLimitSettingsRequestEdge",
       "DigitalCardEdge",
       "ExportEdge",
       "ExternalAccountEdge",
@@ -222,6 +242,7 @@
       "PaymentEdge",
       "PaymentMandateEdge",
       "ReceivedDirectDebitMandateEdge",
+      "RepaymentCycleEdge",
       "StandingOrderEdge",
       "StatementEdge",
       "SupportingDocumentCollectionEdge",
@@ -265,6 +286,7 @@
     "TransactionStatusInfo": [
       "BookedTransactionStatusInfo",
       "CanceledTransactionStatusInfo",
+      "DeferredTransactionStatusInfo",
       "PendingTransactionStatusInfo",
       "RejectedTransactionStatusInfo",
       "ReleasedTransactionStatusInfo",
@@ -298,6 +320,7 @@
     ],
     "MerchantPayment": [
       "CardMerchantPayment",
+      "CheckMerchantPayment",
       "SepaDirectDebitMerchantPayment"
     ],
     "MerchantPaymentMethod": [
@@ -337,6 +360,19 @@
       "RefusedVerificationRenewal",
       "WaitingForInformationVerificationRenewal"
     ],
+    "CreditLimitSettingsRequestStatusInfo": [
+      "CreditLimitSettingsRequestApprovedStatusInfo",
+      "CreditLimitSettingsRequestCanceledStatusInfo",
+      "CreditLimitSettingsRequestConsentPendingStatusInfo",
+      "CreditLimitSettingsRequestPendingReviewStatusInfo",
+      "CreditLimitSettingsRequestRefusedStatusInfo"
+    ],
+    "CreditLimitSettingsStatusInfo": [
+      "CreditLimitStatusActivatedInfo",
+      "CreditLimitStatusDeactivatedInfo",
+      "CreditLimitStatusPendingInfo",
+      "CreditLimitStatusSuspendedInfo"
+    ],
     "StatementInfo": [
       "CsvStatement",
       "PdfStatement"
@@ -373,7 +409,8 @@
       "EnabledMerchantPaymentMethodStatusInfo",
       "PendingMerchantPaymentMethodStatusInfo",
       "RejectedMerchantPaymentMethodStatusInfo",
-      "SuspendedMerchantPaymentMethodStatusInfo"
+      "SuspendedMerchantPaymentMethodStatusInfo",
+      "WaitingForInformationMerchantPaymentMethodStatusInfo"
     ],
     "MerchantProfileStatusInfo": [
       "DisabledMerchantProfileStatusInfo",
@@ -518,6 +555,12 @@
       "ReceivedDirectDebitMandateStatusInfoEnabled",
       "ReceivedDirectDebitMandateStatusInfoSuspended"
     ],
+    "SepaBeneficiaryVerificationResult": [
+      "SepaBeneficiaryCloseMatch",
+      "SepaBeneficiaryMatch",
+      "SepaBeneficiaryNoMatch",
+      "SepaBeneficiaryVerificationNotPossible"
+    ],
     "SEPACreditTransferCreditor": [
       "SEPACreditTransferInCreditor",
       "SEPACreditTransferInternalOutCreditor",
@@ -550,6 +593,7 @@
     ],
     "SupportingDocumentCollectionRelatedInfo": [
       "SupportingDocumentCollectionAccountHolderVerificationRenewalRelatedInfo",
+      "SupportingDocumentCollectionMerchantProfileRelatedInfo",
       "SupportingDocumentCollectionOnboardingRelatedInfo",
       "SupportingDocumentCollectionTransactionRelatedInfo"
     ],

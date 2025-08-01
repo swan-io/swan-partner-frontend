@@ -445,8 +445,11 @@ declare module "react-native" {
     backgroundImage?: string;
     backgroundRepeat?: string;
     backgroundSize?: string;
+    borderBottomStyle?: string;
+    borderCollapse?: string;
     boxShadow?: string;
     display?: DisplayValue;
+    gap?: string;
     position?: PositionValue;
     scrollBehavior?: "auto" | "smooth";
     scrollSnapAlign?: "start" | "end" | "center";

@@ -9,6 +9,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { G, Path, Svg } from "@swan-io/lake/src/components/Svg";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { Image, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { CardListItemFragment } from "../graphql/partner";
@@ -121,29 +122,28 @@ export const FullNameAndCardTypeCell = ({ card }: { card: Card }) => {
                 )}
               </>
             ))
-            .with(
-              {
-                insuranceSubscription: {
-                  package: P.select(),
-                },
-              },
-              ({ level }) => (
-                <Tag color="gray" icon="shield-checkmark-regular">
-                  {match(level)
-                    .with("Basic", () => t("cardProducts.insurance.Basic"))
-                    .with("Essential", () => t("cardProducts.insurance.Essential"))
-                    .with("Custom", () => t("cardProducts.insurance.Custom"))
-                    .with("Premium", () => t("cardProducts.insurance.Premium"))
-                    .exhaustive()}
+            .with({ type: "Virtual" }, ({ insuranceSubscription }) => (
+              <>
+                <Tag color="mediumSladeBlue" icon="phone-regular">
+                  {t("cards.format.virtual")}
                 </Tag>
-              ),
-            )
-            .with({ type: "Virtual" }, () => (
-              <Tag color="mediumSladeBlue" icon="phone-regular">
-                {t("cards.format.virtual")}
-              </Tag>
+
+                {isNotNullish(insuranceSubscription) && (
+                  <>
+                    <Space width={12} />
+                    <Tag color="gray" icon="shield-checkmark-regular">
+                      {match(insuranceSubscription.package.level)
+                        .with("Basic", () => t("cardProducts.insurance.Basic"))
+                        .with("Essential", () => t("cardProducts.insurance.Essential"))
+                        .with("Custom", () => t("cardProducts.insurance.Custom"))
+                        .with("Premium", () => t("cardProducts.insurance.Premium"))
+                        .exhaustive()}
+                    </Tag>
+                  </>
+                )}
+              </>
             ))
-            .with({ type: "VirtualAndPhysical" }, ({ physicalCard }) => (
+            .with({ type: "VirtualAndPhysical" }, ({ physicalCard, insuranceSubscription }) => (
               <>
                 <Tag color="mediumSladeBlue" icon="phone-regular">
                   {t("cards.format.virtual")}
@@ -170,6 +170,20 @@ export const FullNameAndCardTypeCell = ({ card }: { card: Card }) => {
                       .otherwise(() => null)}
                   </>
                 </Tag>
+
+                {isNotNullish(insuranceSubscription) && (
+                  <>
+                    <Space width={12} />
+                    <Tag color="gray" icon="shield-checkmark-regular">
+                      {match(insuranceSubscription.package.level)
+                        .with("Basic", () => t("cardProducts.insurance.Basic"))
+                        .with("Essential", () => t("cardProducts.insurance.Essential"))
+                        .with("Custom", () => t("cardProducts.insurance.Custom"))
+                        .with("Premium", () => t("cardProducts.insurance.Premium"))
+                        .exhaustive()}
+                    </Tag>
+                  </>
+                )}
               </>
             ))
 

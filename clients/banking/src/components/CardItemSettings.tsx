@@ -141,7 +141,7 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
 
                 <LakeText align="center" variant="smallSemibold">
                   {match(cardInsurance.package)
-                    .with({ level: "Basic" }, () => t("cardDetail.insurance.description.premium"))
+                    .with({ level: "Basic" }, () => t("cardDetail.insurance.description.basic"))
                     .with({ level: "Essential" }, () =>
                       t("cardDetail.insurance.description.essential"),
                     )

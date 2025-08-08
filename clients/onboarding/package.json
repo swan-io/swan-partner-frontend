@@ -1,6 +1,6 @@
 {
   "name": "@swan-io/onboarding",
-  "version": "1.24.29",
+  "version": "1.24.30",
   "private": true,
   "packageManager": "pnpm@10.11.0",
   "engines": {

@@ -1,5 +1,6 @@
 import { Array, Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
+import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon } from "@swan-io/lake/src/components/Icon";
@@ -1584,6 +1585,36 @@ export const CardItemPhysicalDetails = ({
               ))
               .exhaustive()}
           </View>
+          <Space height={12} />
+
+          {match(card.insuranceSubscription)
+            .with(P.nonNullable, ({ package: { level } }) => (
+              <Box alignItems="center" justifyContent="center" direction="row">
+                <BorderedIcon
+                  name="shield-checkmark-regular"
+                  padding={4}
+                  size={24}
+                  color="current"
+                  borderRadius={4}
+                />
+                <Space width={8} />
+
+                {match(level)
+                  .with("Basic", () => (
+                    <LakeText>{t("cardDetail.insurance.description.basic")}</LakeText>
+                  ))
+                  .with("Essential", () => (
+                    <LakeText>{t("cardDetail.insurance.description.essential")}</LakeText>
+                  ))
+                  .with("Premium", () => (
+                    <LakeText variant="smallRegular">
+                      {t("cardDetail.insurance.description.premium")}
+                    </LakeText>
+                  ))
+                  .otherwise(() => null)}
+              </Box>
+            ))
+            .otherwise(() => null)}
 
           <CardItemPhysicalDeliveryWizard
             isCurrentUserCardOwner={isCurrentUserCardOwner}

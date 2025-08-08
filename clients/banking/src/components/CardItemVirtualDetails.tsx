@@ -1,4 +1,6 @@
 import { useMutation } from "@swan-io/graphql-client";
+import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
+import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { QuickActions } from "@swan-io/lake/src/components/QuickActions";
@@ -256,6 +258,37 @@ export const CardItemVirtualDetails = ({
               );
             },
           )
+          .otherwise(() => null)}
+
+        <Space height={24} />
+
+        {match(card.insuranceSubscription)
+          .with(P.nonNullable, ({ package: { level } }) => (
+            <Box alignItems="center" justifyContent="center" direction="row">
+              <BorderedIcon
+                name="shield-checkmark-regular"
+                padding={4}
+                size={24}
+                color="current"
+                borderRadius={4}
+              />
+              <Space width={8} />
+
+              {match(level)
+                .with("Basic", () => (
+                  <LakeText>{t("cardDetail.insurance.description.basic")}</LakeText>
+                ))
+                .with("Essential", () => (
+                  <LakeText>{t("cardDetail.insurance.description.essential")}</LakeText>
+                ))
+                .with("Premium", () => (
+                  <LakeText variant="smallRegular">
+                    {t("cardDetail.insurance.description.premium")}
+                  </LakeText>
+                ))
+                .otherwise(() => null)}
+            </Box>
+          ))
           .otherwise(() => null)}
       </View>
     </View>

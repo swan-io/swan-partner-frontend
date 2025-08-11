@@ -459,9 +459,9 @@ export const AccountActivationPage = ({
                   <LakeText align="center">
                     {formatNestedMessage("accountActivation.refused.description", {
                       name: holder.info.name,
-                      email: (
-                        <Link to="mailto:support@swan.io">
-                          <LakeText color={colors.gray[900]}>support@swan.io</LakeText>
+                      link: value => (
+                        <Link to="https://support.swan.io/hc/requests/new" target="blank">
+                          <LakeText color={colors.gray[900]}>{value}</LakeText>
                         </Link>
                       ),
                     })}

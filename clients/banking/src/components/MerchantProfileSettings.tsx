@@ -353,10 +353,17 @@ const MerchantProfileSettingsPaymentMethodTile = ({
             ))
             .with("Suspended", () => (
               <>
-                <LakeAlert
-                  variant="error"
-                  title={t("merchantProfile.settings.details.Suspended")}
-                />
+                <LakeAlert variant="error" title={t("merchantProfile.settings.details.Suspended")}>
+                  <LakeButton
+                    mode="secondary"
+                    size="small"
+                    color="negative"
+                    href="https://partner-support.swan.io/hc/en-gb/requests/new"
+                    hrefAttrs={{ target: "blank" }}
+                  >
+                    {t("common.contactSupport")}
+                  </LakeButton>
+                </LakeAlert>
 
                 <Space height={24} />
               </>

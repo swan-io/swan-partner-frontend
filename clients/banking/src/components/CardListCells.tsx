@@ -306,14 +306,24 @@ export const CardSummaryCell = ({ card }: { card: Card }) => {
               )}
             </>
           ))
-          .with({ type: "Virtual" }, () => (
-            <Tag
-              color="mediumSladeBlue"
-              icon="phone-regular"
-              ariaLabel={t("cards.format.virtual")}
-            />
+          .with({ type: "Virtual" }, ({ insuranceSubscription }) => (
+            <>
+              <Tag
+                color="mediumSladeBlue"
+                icon="phone-regular"
+                ariaLabel={t("cards.format.virtual")}
+              />
+
+              {isNotNullish(insuranceSubscription) && (
+                <>
+                  <Space width={8} />
+
+                  <Tag color="gray" icon="shield-checkmark-regular" />
+                </>
+              )}
+            </>
           ))
-          .with({ type: "VirtualAndPhysical" }, ({ physicalCard }) => (
+          .with({ type: "VirtualAndPhysical" }, ({ physicalCard, insuranceSubscription }) => (
             <>
               <Tag
                 color="mediumSladeBlue"
@@ -343,6 +353,14 @@ export const CardSummaryCell = ({ card }: { card: Card }) => {
                   ))
                   .otherwise(() => undefined)}
               </Tag>
+
+              {isNotNullish(insuranceSubscription) && (
+                <>
+                  <Space width={8} />
+
+                  <Tag color="gray" icon="shield-checkmark-regular" />
+                </>
+              )}
             </>
           ))
           .exhaustive()}

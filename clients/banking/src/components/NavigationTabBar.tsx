@@ -279,6 +279,24 @@ export const NavigationTabBar = ({
 
                   <Space height={24} />
 
+                  {activationTag !== "none" &&
+                    match(activationTag)
+                      .with("pending", () => (
+                        <LakeButton
+                          color="current"
+                          icon="checkmark-starburst-filled"
+                          onPress={() => {
+                            Router.push("AccountActivation", { accountMembershipId });
+                            setScreen(null);
+                          }}
+                        >
+                          {t("accountActivation.title")}
+                        </LakeButton>
+                      ))
+                      .otherwise(() => null)}
+
+                  <Space height={24} />
+
                   <LakeHeading level={2} variant="h3">
                     {t("navigation.menu")}
                   </LakeHeading>

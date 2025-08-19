@@ -273,8 +273,6 @@ export const NavigationTabBar = ({
                     activationTag={activationTag}
                     activationLinkActive={false}
                     onPress={() => setScreen("memberships")}
-                    accountMembershipId={accountMembershipId}
-                    onPressActivationLink={() => setScreen(null)}
                   />
 
                   <Space height={24} />

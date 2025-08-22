@@ -18,6 +18,7 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
+import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { deriveUnion } from "@swan-io/lake/src/utils/function";
@@ -48,7 +49,6 @@ import { ErrorView } from "./ErrorView";
 import { filter, Filters, FiltersState } from "./Filters";
 import { FiltersContainer } from "./FiltersMobileContainer";
 import { SearchInput } from "./SearchInput";
-import { Toggle } from "./Toggle";
 
 const NUM_TO_RENDER = 20;
 

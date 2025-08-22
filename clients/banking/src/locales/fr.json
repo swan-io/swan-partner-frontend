@@ -16,6 +16,7 @@
   "accountActivation.addMoney.illustration.title": "Votre premier virement",
   "accountActivation.addMoney.subtitle": "Effectuez un paiement de n'importe quel montant sur le compte ci-dessous.",
   "accountActivation.addMoney.title": "Ajoutez de l'argent sur votre nouveau compte",
+  "accountActivation.alert.title": "Votre compte n'est pas encore activé",
   "accountActivation.description": "Vous ne pouvez pas utiliser votre compte tant qu'il n'est pas activé. Suivez ces étapes pour finaliser l'activation de votre compte.",
   "accountActivation.documents.button.submit": "Soumettre",
   "accountActivation.documents.confirmModal.confirm": "Oui, je suis sûr(e)",

@@ -16,6 +16,7 @@
   "accountActivation.addMoney.illustration.title": "Je eerste overschrijving",
   "accountActivation.addMoney.subtitle": "Maak een willekeurig bedrag over op onderstaande rekening.",
   "accountActivation.addMoney.title": "Zet geld op je nieuwe rekening",
+  "accountActivation.alert.title": "Je account is nog niet geactiveerd",
   "accountActivation.description": "Je kunt je rekening niet gebruiken totdat het is geactiveerd. Volg de volgende stappen om je rekening te activeren.",
   "accountActivation.documents.button.submit": "Verzend",
   "accountActivation.documents.confirmModal.confirm": "Ja, ik weet het zeker",

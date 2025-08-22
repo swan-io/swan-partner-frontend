@@ -107,7 +107,6 @@
     "sodium-native": "4.3.3",
     "tggl-cli": "1.4.0",
     "tiktoken-node": "0.0.7",
-    "ts-prune": "0.10.3",
     "tsx": "4.19.4",
     "type-fest": "4.41.0",
     "typescript": "5.8.3",

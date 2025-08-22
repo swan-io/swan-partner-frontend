@@ -747,8 +747,24 @@ export const AccountActivationPage = ({
                         )}
                       </Box>
 
+                      {(holder?.verificationStatus === "Pending" ||
+                        holder?.verificationStatus === "WaitingForInformation") && (
+                        <>
+                          <Space height={24} />
+
+                          <LakeAlert
+                            title={t("accountActivation.alert.title")}
+                            variant={
+                              holder.verificationStatus === "WaitingForInformation"
+                                ? "warning"
+                                : "info"
+                            }
+                          >
+                            <LakeText>{t("accountActivation.description")}</LakeText>
+                          </LakeAlert>
+                        </>
+                      )}
                       <Space height={12} />
-                      <LakeText>{t("accountActivation.description")}</LakeText>
                     </LeftPanelItemWrapper>
 
                     <Space height={32} />

@@ -27,6 +27,8 @@ void (async () => {
       await build({
         configFile: path.resolve(process.cwd(), "clients", app, "vite.config.js"),
         logLevel: "error",
+        mode: "production",
+        define: { "process.env.NODE_ENV": JSON.stringify("production") },
         build: {
           outDir: path.join(process.cwd(), "server/dist/static", app),
           // The polyfill generates a bug on Safari, where it makes the module

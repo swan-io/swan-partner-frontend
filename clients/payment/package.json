@@ -17,8 +17,8 @@
     "@swan-io/boxed": "3.2.0",
     "@swan-io/chicane": "2.2.0",
     "@swan-io/graphql-client": "0.7.0",
-    "@swan-io/lake": "13.0.0",
-    "@swan-io/shared-business": "13.0.0",
+    "@swan-io/lake": "13.0.1",
+    "@swan-io/shared-business": "13.0.1",
     "@swan-io/use-form": "3.1.0",
     "core-js": "3.45.1",
     "dayjs": "1.11.13",
@@ -27,7 +27,7 @@
     "nanoid": "5.1.5",
     "react": "19.1.1",
     "react-dom": "19.1.1",
-    "react-native-web": "0.21.1",
+    "react-native-web": "0.20.0",
     "ts-pattern": "5.8.0"
   },
   "devDependencies": {

@@ -76,7 +76,6 @@
     "@actions/core": "1.11.1",
     "@actions/github": "6.0.1",
     "@biomejs/biome": "1.9.4",
-    "@formatjs/icu-messageformat-parser": "2.11.2",
     "@graphql-codegen/cli": "5.0.7",
     "@graphql-codegen/typed-document-node": "5.1.2",
     "@graphql-codegen/typescript": "4.1.6",

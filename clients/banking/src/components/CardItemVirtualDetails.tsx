@@ -91,6 +91,7 @@ export const CardItemVirtualDetails = ({
   };
 
   const textColor = hasBindingUserError ? colors.gray[300] : colors.gray[800];
+  const cardHolderType = card.accountMembership.account?.holder.info.type;
 
   return (
     <View style={styles.container}>
@@ -262,34 +263,35 @@ export const CardItemVirtualDetails = ({
 
         <Space height={24} />
 
-        {match(card.insuranceSubscription)
-          .with(P.nonNullable, ({ package: { level } }) => (
-            <Box alignItems="center" justifyContent="center" direction="row">
-              <BorderedIcon
-                name="shield-checkmark-regular"
-                padding={4}
-                size={24}
-                color="current"
-                borderRadius={4}
-              />
-              <Space width={8} />
+        {cardHolderType === "Company" &&
+          match(card.insuranceSubscription)
+            .with(P.nonNullable, ({ package: { level } }) => (
+              <Box alignItems="center" justifyContent="center" direction="row">
+                <BorderedIcon
+                  name="shield-checkmark-regular"
+                  padding={4}
+                  size={24}
+                  color="current"
+                  borderRadius={4}
+                />
+                <Space width={8} />
 
-              {match(level)
-                .with("Basic", () => (
-                  <LakeText>{t("cardDetail.insurance.description.basic")}</LakeText>
-                ))
-                .with("Essential", () => (
-                  <LakeText>{t("cardDetail.insurance.description.essential")}</LakeText>
-                ))
-                .with("Premium", () => (
-                  <LakeText variant="smallRegular">
-                    {t("cardDetail.insurance.description.premium")}
-                  </LakeText>
-                ))
-                .otherwise(() => null)}
-            </Box>
-          ))
-          .otherwise(() => null)}
+                {match(level)
+                  .with("Basic", () => (
+                    <LakeText>{t("cardDetail.insurance.description.basic")}</LakeText>
+                  ))
+                  .with("Essential", () => (
+                    <LakeText>{t("cardDetail.insurance.description.essential")}</LakeText>
+                  ))
+                  .with("Premium", () => (
+                    <LakeText variant="smallRegular">
+                      {t("cardDetail.insurance.description.premium")}
+                    </LakeText>
+                  ))
+                  .otherwise(() => null)}
+              </Box>
+            ))
+            .otherwise(() => null)}
       </View>
     </View>
   );

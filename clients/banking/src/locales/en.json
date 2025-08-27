@@ -995,6 +995,8 @@
   "recurringTransfer.table.nextExecution": "Next execution",
   "recurringTransfer.table.period": "Recurrence",
   "recurringTransfer.table.recipient": "Recipient",
+  "requestCreditLimit.title": "Request a credit limit",
+  "requestCreditLimit.description": "Add a credit limit amount and set up a direct debit to make your repayments easier. You'll receive credit immediately after approval, which will renew with each repayment. Failed repayments may suspend your access to future credit.",
   "sandboxUser.impersonatedAs": "Impersonated as",
   "supportingDocuments.AdministratorDecisionOfAppointment.description": "Decision of appointment of Administrator",
   "supportingDocuments.AdministratorDecisionOfAppointment.title": "Administrator decision of appointment",

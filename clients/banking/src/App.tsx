@@ -35,6 +35,7 @@ const AppContainer = () => {
     "AccountArea",
     "AccountClose",
     "AddReceivedSepaDirectDebitB2bMandate",
+    "CreditLimitRequest",
   ]);
   const [authStatus] = useQuery(AuthStatusDocument, {});
 

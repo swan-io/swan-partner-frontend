@@ -10,6 +10,7 @@ const routes = {
   AddReceivedSepaDirectDebitB2bMandate:
     "/add-received-sepa-direct-debit-b2b-mandate/:accountId?:resourceId&:status",
   AccountClose: "/accounts/:accountId/close?:resourceId&:status",
+  CreditLimitRequest: "/accounts/:accountId/request-credit-limit?:resourceId&:status",
 
   ...createGroup("Account", "/:accountMembershipId", {
     Area: "/*",

@@ -186,30 +186,6 @@ export const TransferRegularWizardDetails = ({
                       />
                     </View>
 
-                    <Space width={24} />
-
-                    <View style={styles.field}>
-                      <LakeLabel
-                        optionalLabel={t("form.optional")}
-                        label={t("transfer.new.details.reference")}
-                        render={id => (
-                          <Field name="reference">
-                            {({ value, onChange, onBlur, error, valid, ref }) => (
-                              <LakeTextInput
-                                id={id}
-                                ref={ref}
-                                value={value}
-                                error={error}
-                                valid={valid}
-                                help={t("transfer.new.details.reference.help")}
-                                onChangeText={onChange}
-                                onBlur={onBlur}
-                              />
-                            )}
-                          </Field>
-                        )}
-                      />
-                    </View>
                   </Box>
                 )}
               </ResponsiveContainer>

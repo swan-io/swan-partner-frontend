@@ -96,7 +96,7 @@ declare module "tggl-client" {
     dataExportOnboarding: boolean;
     dataExportTransactions: boolean;
     dataExportUser: boolean;
-    dateFromWhichEnforceTaxIdNumberWhenCountriesDontMatchForCRS: "-" | "2025-09-19";
+    dateFromWhichEnforceTaxIdNumberWhenCountriesDontMatchForCRS: "-" | "2025-09-26";
     disable_emails_for_capital_deposit_case: boolean;
     disable_expert_identification_level: true;
     disable_pvid_identification_level: true;
@@ -122,10 +122,8 @@ declare module "tggl-client" {
     FeatureFlagCreditEnabled: 1 | 2;
     forceAllowDesktopAuth: boolean;
     free_units_enabled: boolean;
-    handleLedgerEventTransactionRecordedEnabled: boolean;
     ict_nats_create_international_beneficiary_enabled: boolean;
     ict_nats_fetch_quote_from_target_amount_enabled: boolean;
-    ict_nats_fetch_transaction_requirements_enabled: boolean;
     idempotency_initiate_credit_transfers: boolean;
     identificationUserInfoCollectionAndReview: boolean;
     identityBirthDataCollection: true;
@@ -149,10 +147,9 @@ declare module "tggl-client" {
     la_poste_tracked_international_active: boolean;
     lago_partner_event_use_billing_periods: boolean;
     ledgerSpendingMigrationEnabled: boolean;
-    ledgerSpendingMigrationLimit: boolean;
+    ledgerSpendingMigrationLimit: 0 | 1000 | 10000 | 25000 | 50000;
     lockRecomputeEnableB2B: true;
     merchantWebBanking: boolean;
-    mutationAddSepaTrustedBeneficiaries: boolean;
     name_matching_use_valid_names_enabled: boolean;
     new_reason_codes_capital_deposit_documents: true;
     newGqlGateway: boolean;
@@ -181,6 +178,7 @@ declare module "tggl-client" {
     satd_account_matching_mode: "AccountContractAndPayment" | "AccountContractOnly" | "PaymentOnly";
     satd_concurrent_cases_enabled: boolean;
     scaIAMDailyMaximumNumberOfSignInPerPhoneNumber: 10 | 100 | 1000 | 100000;
+    scaIsCountrySuspiciousCheckEnabled: boolean;
     scaIsInternalOtpEnabled: boolean;
     scaIsNotificationManagerEnabled: boolean;
     scaIsPhoneCountryCodeBlocked: boolean;
@@ -195,7 +193,6 @@ declare module "tggl-client" {
     sepa_beneficiary_verification_enabled: boolean;
     sepaDirectDebitInV2: true;
     SepaDirectDebitV2ActivationFlag: true;
-    sepaGatewayPublishSctInstEventsThroughFastKafkaTopics: true;
     setIssuingProcessorCardProductOnRenewFeature: boolean;
     setUpAdminRole: boolean;
     storeMonextAuthenticationRequest: boolean;

@@ -14,7 +14,10 @@ import { BirthdatePicker } from "@swan-io/shared-business/src/components/Birthda
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitCityInput } from "@swan-io/shared-business/src/components/PlacekitCityInput";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
-import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
+import {
+  validateNullableRequired,
+  validateRequired,
+} from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { Ref, useImperativeHandle } from "react";
 import { StyleSheet, View } from "react-native";
@@ -104,6 +107,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = ({
     },
     birthDate: {
       initialValue: initialValues.birthDate ?? undefined,
+      validate: isBirthInfoRequired ? validateNullableRequired : undefined,
     },
     birthCountryCode: {
       initialValue: initialValues.birthCountryCode ?? companyCountry,

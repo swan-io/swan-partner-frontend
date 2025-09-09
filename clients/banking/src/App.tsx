@@ -10,6 +10,7 @@ import { P, match } from "ts-pattern";
 import { AccountClose } from "./components/AccountClose";
 import { AccountMembershipArea } from "./components/AccountMembershipArea";
 import { AddReceivedSepaDirectDebitB2bMandate } from "./components/AddReceivedSepaDirectDebitB2bMandate";
+import { CreditLimitRequest } from "./components/CreditLimitRequest";
 import { ErrorView } from "./components/ErrorView";
 import { ProjectRootRedirect } from "./components/ProjectRootRedirect";
 import { Redirect } from "./components/Redirect";
@@ -70,12 +71,23 @@ const AppContainer = () => {
           { name: "ProjectRootRedirect" },
           { name: "AccountClose" },
           { name: "AddReceivedSepaDirectDebitB2bMandate" },
+          { name: "CreditLimitRequest" },
           route =>
             isLoggedIn ? (
               match(route)
                 .with({ name: "AccountClose" }, ({ params: { accountId, resourceId, status } }) => (
                   <AccountClose accountId={accountId} resourceId={resourceId} status={status} />
                 ))
+                .with(
+                  { name: "CreditLimitRequest" },
+                  ({ params: { accountId, resourceId, status } }) => (
+                    <CreditLimitRequest
+                      accountId={accountId}
+                      resourceId={resourceId}
+                      status={status}
+                    />
+                  ),
+                )
                 .with(
                   { name: "AddReceivedSepaDirectDebitB2bMandate" },
                   ({ params: { accountId, resourceId, status } }) => (

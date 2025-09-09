@@ -141,8 +141,8 @@ importers:
         specifier: 2.2.0
         version: 2.2.0(react@19.1.1)
       '@swan-io/graphql-client':
-        specifier: 0.7.0
-        version: 0.7.0(graphql@16.11.0)(react@19.1.1)(typescript@5.9.2)
+        specifier: 0.8.0
+        version: 0.8.0(graphql@16.11.0)(react@19.1.1)(typescript@5.9.2)
       '@swan-io/lake':
         specifier: 13.0.1
         version: 13.0.1(typescript@5.9.2)
@@ -238,8 +238,8 @@ importers:
         specifier: 2.2.0
         version: 2.2.0(react@19.1.1)
       '@swan-io/graphql-client':
-        specifier: 0.7.0
-        version: 0.7.0(graphql@16.11.0)(react@19.1.1)(typescript@5.9.2)
+        specifier: 0.8.0
+        version: 0.8.0(graphql@16.11.0)(react@19.1.1)(typescript@5.9.2)
       '@swan-io/lake':
         specifier: 13.0.1
         version: 13.0.1(typescript@5.9.2)
@@ -326,8 +326,8 @@ importers:
         specifier: 2.2.0
         version: 2.2.0(react@19.1.1)
       '@swan-io/graphql-client':
-        specifier: 0.7.0
-        version: 0.7.0(graphql@16.11.0)(react@19.1.1)(typescript@5.9.2)
+        specifier: 0.8.0
+        version: 0.8.0(graphql@16.11.0)(react@19.1.1)(typescript@5.9.2)
       '@swan-io/lake':
         specifier: 13.0.1
         version: 13.0.1(typescript@5.9.2)
@@ -2369,8 +2369,8 @@ packages:
     peerDependencies:
       react: '>=18.0.0'
 
-  '@swan-io/graphql-client@0.7.0':
-    resolution: {integrity: sha512-2t1Qg+24ee2/qsclmERHS4UgpPSbCFg5myh4LqdsatLzrIIBjATfZwG1pYN17HsY8RKy9MHCm/pAEeJbYF5BfQ==, tarball: https://registry.npmjs.org/@swan-io/graphql-client/-/graphql-client-0.7.0.tgz}
+  '@swan-io/graphql-client@0.8.0':
+    resolution: {integrity: sha512-+7cQV9NKUc5plt4hYt8nNz16gotnzGEGKcU2/xKaj1pjWjzSagKNoBt/ymLAy0d+U7wGLCgf0hF0yZyKLfYyaw==, tarball: https://registry.npmjs.org/@swan-io/graphql-client/-/graphql-client-0.8.0.tgz}
     hasBin: true
     peerDependencies:
       react: '>=18.2.0'
@@ -7362,7 +7362,7 @@ snapshots:
       react: 19.1.1
       use-sync-external-store: 1.5.0(react@19.1.1)
 
-  '@swan-io/graphql-client@0.7.0(graphql@16.11.0)(react@19.1.1)(typescript@5.9.2)':
+  '@swan-io/graphql-client@0.8.0(graphql@16.11.0)(react@19.1.1)(typescript@5.9.2)':
     dependencies:
       '@0no-co/graphql.web': 1.2.0(graphql@16.11.0)
       '@swan-io/boxed': 3.2.0(typescript@5.9.2)

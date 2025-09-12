@@ -1,94 +1,120 @@
 import { FastifyInstance, RouteHandlerMethod } from "fastify";
-import fs from "node:fs";
-import http from "node:http";
-import https from "node:https";
+import fs from "node:fs/promises";
 import path from "pathe";
-import { env } from "../env";
+import { match, P } from "ts-pattern";
+import { PackageJson } from "type-fest";
+import { CorsOptions } from "vite";
+import { getAppNameByHostName } from "../app";
 
-export type HttpsConfig = {
-  key: string;
-  cert: string;
-};
+export const startDevServer = async (app: FastifyInstance, corsOptions: CorsOptions) => {
+  const { createServer, searchForWorkspaceRoot } = await import("vite");
+  const jsonc = await import("jsonc-parser");
+  const react = await import("@vitejs/plugin-react-swc").then(_ => _.default);
 
-const BANKING_HOST = new URL(env.BANKING_URL).hostname;
-const ONBOARDING_HOST = new URL(env.ONBOARDING_URL).hostname;
-const PAYMENT_HOST = new URL(env.PAYMENT_URL).hostname;
+  const workspaceRoot = searchForWorkspaceRoot(process.cwd());
+  const tsConfigPath = path.join(workspaceRoot, "tsconfig.json");
+  const tsConfig = await fs.readFile(tsConfigPath, "utf-8");
 
-const apps = ["onboarding", "banking", "payment"] as const;
+  const extraConfig = await match(process.env.LAKE_PATH)
+    .returnType<Promise<{ allow: string[]; alias: Record<string, string> }>>()
+    .with(P.string, async LAKE_PATH => {
+      const lakeRepositoryRoot = path.resolve(process.cwd(), LAKE_PATH);
+      const workspaceModulesRoot = path.join(workspaceRoot, "node_modules");
 
-type AppName = (typeof apps)[number];
+      const lakePackageRoot = path.join(lakeRepositoryRoot, "packages", "lake");
+      const sharedBusinessPackageRoot = path.join(
+        lakeRepositoryRoot,
+        "packages",
+        "shared-business",
+      );
 
-async function createViteDevServer(appName: AppName, httpsConfig?: HttpsConfig) {
-  const liveReloadServer =
-    httpsConfig != null ? https.createServer(httpsConfig) : http.createServer();
-  const { createServer } = await import("vite");
-  const { default: getPort } = await import("get-port");
-  const mainServerPort = await getPort();
-  const liveReloadServerPort = await getPort();
-  liveReloadServer.listen(liveReloadServerPort);
+      const dependencies = Object.keys(
+        await Promise.all([
+          import(path.join(lakePackageRoot, "package.json")),
+          import(path.join(sharedBusinessPackageRoot, "package.json")),
+        ]).then(([lake, sharedBusiness]: [PackageJson, PackageJson]) => ({
+          ...lake.dependencies,
+          ...sharedBusiness.dependencies,
+        })),
+      );
 
-  const server = await createServer({
-    configFile: path.resolve(process.cwd(), "clients", appName, "vite.config.js"),
-    server: {
-      port: mainServerPort,
-      hmr: {
-        server: liveReloadServer,
-        port: liveReloadServerPort,
+      return {
+        allow: [lakePackageRoot, sharedBusinessPackageRoot],
+        alias: {
+          "@swan-io/lake": lakePackageRoot,
+          "@swan-io/shared-business": sharedBusinessPackageRoot,
+          ...Object.fromEntries(
+            dependencies.map(name => [name, path.join(workspaceModulesRoot, name)]),
+          ),
+        },
+      };
+    })
+    .otherwise(async () => ({
+      allow: [],
+      alias: {},
+    }));
+
+  const tsConfigEdits = jsonc.modify(
+    tsConfig,
+    ["compilerOptions", "paths"],
+    match(process.env.LAKE_PATH)
+      .with(P.string, LAKE_PATH => ({
+        "@swan-io/lake/*": [`${LAKE_PATH}/packages/lake/*`],
+        "@swan-io/shared-business/*": [`${LAKE_PATH}/packages/shared-business/*`],
+      }))
+      .otherwise(() => ({})),
+    { formattingOptions: { insertSpaces: true, tabSize: 2 } },
+  );
+
+  await fs.writeFile(tsConfigPath, jsonc.applyEdits(tsConfig, tsConfigEdits), "utf-8");
+
+  const vite = await createServer({
+    plugins: [react()],
+    logLevel: "warn",
+    appType: "custom",
+    resolve: {
+      alias: {
+        "react-native": "react-native-web",
+        ...extraConfig.alias,
       },
+    },
+    server: {
+      allowedHosts: [".swan.local"],
+      cors: corsOptions,
+      middlewareMode: true,
+      hmr: { server: app.server },
+      fs: { allow: [workspaceRoot, ...extraConfig.allow] },
     },
   });
 
-  await server.listen();
+  const { root } = vite.config;
+  app.use(vite.middlewares);
 
-  return { mainServerPort, liveReloadServerPort };
-}
+  const handler: RouteHandlerMethod = async (request, reply) => {
+    const appName = getAppNameByHostName(request.hostname);
 
-export async function startDevServer(app: FastifyInstance, httpsConfig?: HttpsConfig) {
-  const [onboarding, webBanking, payment] = await Promise.all(
-    apps.map(app => {
-      return createViteDevServer(
-        app,
-        httpsConfig != null
-          ? {
-              key: fs.readFileSync(httpsConfig.key, "utf8"),
-              cert: fs.readFileSync(httpsConfig.cert, "utf8"),
-            }
-          : undefined,
+    if (appName == null) {
+      return reply.notFound();
+    }
+
+    try {
+      const template = await fs.readFile(
+        path.join(root, "clients", appName, "index.html"),
+        "utf-8",
       );
-    }),
-  );
 
-  if (onboarding == null || webBanking == null || payment == null) {
-    console.error("Failed to start dev servers");
-    process.exit(1);
-  }
+      const html = await vite.transformIndexHtml(
+        request.originalUrl,
+        template.replace("/src/", `/clients/${appName}/src/`),
+      );
 
-  const handler: RouteHandlerMethod = (request, reply) => {
-    const host = new URL(`${request.protocol}://${request.hostname}`).hostname;
-
-    switch (host) {
-      case BANKING_HOST:
-        return reply.from(`http://localhost:${webBanking.mainServerPort}` + request.url);
-      case ONBOARDING_HOST:
-        return reply.from(`http://localhost:${onboarding.mainServerPort}` + request.url);
-      case PAYMENT_HOST:
-        return reply.from(`http://localhost:${payment.mainServerPort}` + request.url);
-      default:
-        return reply
-          .status(404)
-          .send(
-            `Unknown host: "${host}", should be either "${BANKING_HOST}", "${ONBOARDING_HOST}" or "${PAYMENT_HOST}"`,
-          );
+      return reply.type("text/html").send(html);
+    } catch (error) {
+      vite.ssrFixStacktrace(error as Error);
+      return reply.internalServerError((error as Error).message);
     }
   };
 
   app.get("/*", handler);
   app.post("/*", handler);
-
-  const additionalPorts = new Set([
-    onboarding.liveReloadServerPort,
-    webBanking.liveReloadServerPort,
-  ]);
-
-  return { additionalPorts };
-}
+};

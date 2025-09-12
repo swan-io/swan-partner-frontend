@@ -7,7 +7,6 @@
  */
 import { Future, Result } from "@swan-io/boxed";
 import Mailjet from "node-mailjet";
-import path from "pathe";
 import pc from "picocolors";
 import { P, match } from "ts-pattern";
 import { string, validate, url as validateUrl } from "valienv";
@@ -23,8 +22,6 @@ import { InvitationConfig, start } from "./app";
 import { env } from "./env";
 import { replyWithError } from "./error";
 import { AccountCountry, GetAccountMembershipInvitationDataQuery } from "./graphql/partner";
-
-const keysPath = path.join(__dirname, "../keys");
 
 const countryTranslations: Record<AccountCountry, string> = {
   DEU: "German",
@@ -183,18 +180,7 @@ if (env.NODE_ENV === "development") {
   partnerPickerUrl.port = "8080";
 }
 
-start({
-  mode: env.NODE_ENV,
-  httpsConfig:
-    env.NODE_ENV === "development"
-      ? {
-          key: path.join(keysPath, "_wildcard.swan.local-key.pem"),
-          cert: path.join(keysPath, "_wildcard.swan.local.pem"),
-        }
-      : undefined,
-  sendAccountMembershipInvitation,
-  allowedCorsOrigins: [partnerPickerUrl.origin],
-}).then(
+start().then(
   ({ app, ports }) => {
     app.post<{ Params: { projectId: string } }>(
       "/api/projects/:projectId/partner",

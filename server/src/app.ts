@@ -1,6 +1,7 @@
 import accepts from "@fastify/accepts";
 import cors from "@fastify/cors";
 import fastifyHelmet from "@fastify/helmet";
+import middie from "@fastify/middie";
 import replyFrom from "@fastify/reply-from";
 import secureSession from "@fastify/secure-session";
 import sensible, { HttpErrorCodes } from "@fastify/sensible";
@@ -35,7 +36,7 @@ import {
   onboardCompanyAccountHolder,
   onboardIndividualAccountHolder,
 } from "./api/unauthenticated";
-import { HttpsConfig, startDevServer } from "./client/devServer";
+import { startDevServer } from "./client/devServer";
 import { getProductionRequestHandler } from "./client/prodServer";
 import { env } from "./env";
 import { replyWithAuthError, replyWithError } from "./error";
@@ -43,6 +44,13 @@ import { replyWithAuthError, replyWithError } from "./error";
 const packageJson = JSON.parse(
   fs.readFileSync(path.join(__dirname, "../package.json"), "utf-8"),
 ) as { version: string };
+
+const keysPath = path.join(__dirname, "../keys");
+
+const keys = {
+  key: path.join(keysPath, "_wildcard.swan.local-key.pem"),
+  cert: path.join(keysPath, "_wildcard.swan.local.pem"),
+};
 
 const COOKIE_MAX_AGE = 60 * (env.NODE_ENV !== "test" ? 5 : 60); // 5 minutes (except for tests)
 const OAUTH_STATE_COOKIE_MAX_AGE = 900; // 15 minutes
@@ -55,10 +63,8 @@ export type InvitationConfig = {
 };
 
 type AppConfig = {
-  mode: "development" | "test" | "production";
-  httpsConfig?: HttpsConfig;
-  sendAccountMembershipInvitation?: (config: InvitationConfig) => Promise<unknown>;
   allowedCorsOrigins?: string[];
+  sendAccountMembershipInvitation?: (config: InvitationConfig) => Promise<unknown>;
 };
 
 declare module "@fastify/secure-session" {
@@ -82,19 +88,33 @@ declare module "fastify" {
   }
 }
 
-const getPort = (url: string) => {
-  let port = new URL(url).port;
-  if (port === "") {
-    port = url.startsWith("https") ? "443" : "80";
-  }
-  return port;
+export const appNames = ["banking", "onboarding", "payment"] as const;
+
+export type AppName = (typeof appNames)[number];
+
+const URLS = {
+  BANKING: new URL(env.BANKING_URL),
+  ONBOARDING: new URL(env.ONBOARDING_URL),
+  PAYMENT: new URL(env.PAYMENT_URL),
 };
 
-const BANKING_PORT = getPort(env.BANKING_URL);
-const ONBOARDING_PORT = getPort(env.ONBOARDING_URL);
-const PAYMENT_PORT = getPort(env.PAYMENT_URL);
+export const getAppNameByHostName = (hostname: string): AppName | undefined => {
+  switch (hostname) {
+    case URLS.BANKING.hostname:
+      return "banking";
+    case URLS.ONBOARDING.hostname:
+      return "onboarding";
+    case URLS.PAYMENT.hostname:
+      return "payment";
+  }
+};
 
-const ports = new Set([BANKING_PORT, ONBOARDING_PORT, PAYMENT_PORT]);
+const getPort = (url: URL) =>
+  url.port === "" ? (url.protocol === "https:" ? "443" : "80") : url.port;
+
+const ports = new Set([getPort(URLS.BANKING), getPort(URLS.ONBOARDING), getPort(URLS.PAYMENT)]);
+
+type Reply = FastifyReply | Promise<FastifyReply>;
 
 const assertIsBoundToLocalhost = (host: string) => {
   return new Promise((resolve, reject) => {
@@ -110,35 +130,28 @@ const assertIsBoundToLocalhost = (host: string) => {
 };
 
 export const start = async ({
-  mode,
-  httpsConfig,
   sendAccountMembershipInvitation,
   allowedCorsOrigins = [],
-}: AppConfig) => {
-  const BANKING_HOST = new URL(env.BANKING_URL).hostname;
-
-  if (mode === "development") {
-    const ONBOARDING_HOST = new URL(env.ONBOARDING_URL).hostname;
-    const PAYMENT_HOST = new URL(env.PAYMENT_URL).hostname;
-
+}: AppConfig = {}) => {
+  if (env.NODE_ENV === "development") {
     try {
       await Promise.all([
-        assertIsBoundToLocalhost(BANKING_HOST),
-        assertIsBoundToLocalhost(ONBOARDING_HOST),
-        assertIsBoundToLocalhost(PAYMENT_HOST),
+        assertIsBoundToLocalhost(URLS.BANKING.hostname),
+        assertIsBoundToLocalhost(URLS.ONBOARDING.hostname),
+        assertIsBoundToLocalhost(URLS.PAYMENT.hostname),
       ]);
     } catch (err) {
       console.error(err);
       process.exit(1);
     }
 
-    if (httpsConfig != null) {
-      if (!fs.statSync(httpsConfig.key).isFile()) {
+    if (env.NODE_ENV === "development") {
+      if (!fs.statSync(keys.key).isFile()) {
         console.error("Missing HTTPS key, did you generate it in `server/keys`?");
         process.exit(1);
       }
 
-      if (!fs.statSync(httpsConfig.cert).isFile()) {
+      if (!fs.statSync(keys.cert).isFile()) {
         console.error("Missing HTTPS cert, did you generate it in `server/keys`?");
         process.exit(1);
       }
@@ -146,18 +159,14 @@ export const start = async ({
   }
 
   const app = fastify({
-    // @ts-expect-error
-    // To emulate secure cookies, we use HTTPS locally but expose HTTP in production,
-    // in order to let the gateway handle that, and fastify ts bindings don't like that
-    http2: httpsConfig != null,
-    https:
-      httpsConfig != null
-        ? {
-            key: fs.readFileSync(httpsConfig.key, "utf8"),
-            cert: fs.readFileSync(httpsConfig.cert, "utf8"),
-          }
-        : null,
     trustProxy: true,
+    // To emulate secure cookies, we use HTTPS locally but expose HTTP in production
+    ...(env.NODE_ENV === "development" && {
+      https: {
+        key: fs.readFileSync(keys.key, "utf-8"),
+        cert: fs.readFileSync(keys.cert, "utf-8"),
+      },
+    }),
     logger: {
       level: env.LOG_LEVEL,
       formatters: {
@@ -180,6 +189,7 @@ export const start = async ({
    * Adds some useful utilities to your Fastify instance
    */
   await app.register(accepts);
+  await app.register(middie);
   await app.register(sensible);
 
   /**
@@ -213,14 +223,22 @@ export const start = async ({
     },
   });
 
+  const corsOptions = {
+    origin: [
+      URLS.BANKING.origin,
+      URLS.ONBOARDING.origin,
+      URLS.PAYMENT.origin,
+      ...allowedCorsOrigins,
+    ],
+    credentials: true,
+    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
+  };
+
   /**
    * The onboarding uses `BANKING_URL` as API root so that session is preserved
    * when the onboarding flow completes with the OAuth2 flow
    */
-  await app.register(cors, {
-    origin: [env.ONBOARDING_URL, env.BANKING_URL, env.PAYMENT_URL, ...allowedCorsOrigins],
-    credentials: true,
-  });
+  await app.register(cors, corsOptions);
 
   /**
    * View engine for pretty error rendering
@@ -318,6 +336,21 @@ export const start = async ({
       root: path.join(__dirname, "./static"),
       wildcard: false,
     });
+  } else {
+    const root = path.resolve(__dirname, "../..");
+
+    for (const url of Object.values(URLS)) {
+      const appName = getAppNameByHostName(url.hostname);
+
+      if (appName != null) {
+        await app.register(fastifyStatic, {
+          constraints: { host: url.host },
+          root: path.join(root, "clients", appName, "public"),
+          wildcard: false,
+          decorateReply: false,
+        });
+      }
+    }
   }
 
   /**
@@ -574,8 +607,6 @@ export const start = async ({
    * OAuth2 Redirection handler
    */
   app.get<{ Querystring: Record<string, string> }>("/auth/callback", async (request, reply) => {
-    type Reply = FastifyReply | Promise<FastifyReply>;
-
     const state = Result.fromExecution<unknown>(() =>
       JSON.parse(request.query.state ?? "{}"),
     ).getOr({});
@@ -637,7 +668,10 @@ export const start = async ({
 
                               // When onboarding from the dashboard, we don't yet have a OAuth2 client,
                               // so we bypass the second OAuth2 link.
-                              if (redirectHost === BANKING_HOST.replace("banking.", "dashboard.")) {
+                              if (
+                                redirectHost ===
+                                URLS.BANKING.hostname.replace("banking.", "dashboard.")
+                              ) {
                                 return reply.redirect(redirectUrl);
                               } else {
                                 const authUri = createAuthUrl({
@@ -847,10 +881,10 @@ export const start = async ({
     });
   });
 
-  if (mode !== "production") {
+  if (env.NODE_ENV !== "production") {
     // in dev mode, we boot vite servers that we proxy
     // the additional ports are the ones they need for the livereload web sockets
-    await startDevServer(app, httpsConfig);
+    await startDevServer(app, corsOptions);
   } else {
     // in production, simply serve the files
     const productionRequestHandler = getProductionRequestHandler();

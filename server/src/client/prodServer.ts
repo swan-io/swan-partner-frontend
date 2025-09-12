@@ -1,7 +1,7 @@
 import { FastifyReply, RouteHandlerMethod } from "fastify";
 import fs, { Stats } from "node:fs";
 import path from "pathe";
-import { env } from "../env";
+import { AppName, getAppNameByHostName } from "../app";
 
 const staticPath = path.join(__dirname, "../static");
 
@@ -11,7 +11,7 @@ const yearInMilliseconds = yearInSeconds * 1000;
 // The following isn't really elegant, but `fastify-static` doesn't provide any
 // compelling way to manage the fallback index.html when routing using the
 // request host.
-const handleRequest = async (reqPath: string, appName: string, reply: FastifyReply) => {
+const handleRequest = async (reqPath: string, appName: AppName, reply: FastifyReply) => {
   const isStaticAsset = reqPath.startsWith("assets/") || reqPath.includes(".manager.bundle.js");
   const handleRequest = async (err: NodeJS.ErrnoException | null, stat: Stats) => {
     if (err == null && stat.isFile()) {
@@ -39,33 +39,19 @@ const handleRequest = async (reqPath: string, appName: string, reply: FastifyRep
   fs.stat(path.join(staticPath, appName, reqPath), (err, stat) => void handleRequest(err, stat));
 };
 
-export function getProductionRequestHandler() {
-  const BANKING_HOST = new URL(env.BANKING_URL).hostname;
-  const ONBOARDING_HOST = new URL(env.ONBOARDING_URL).hostname;
-  const PAYMENT_HOST = new URL(env.PAYMENT_URL).hostname;
-
+export const getProductionRequestHandler = () => {
   const handler: RouteHandlerMethod = (request, reply) => {
-    const host = new URL(`${request.protocol}://${request.hostname}`).hostname;
-    const params = request.params as Record<string, string>;
+    const appName = getAppNameByHostName(request.hostname);
 
-    const reqPath = params["*"] ?? "index.html";
-    if (reqPath.includes("..")) {
+    if (appName == null) {
       return reply.code(404).send("404");
     }
-    switch (host) {
-      case BANKING_HOST:
-        void handleRequest(reqPath, "banking", reply);
-        break;
-      case ONBOARDING_HOST:
-        void handleRequest(reqPath, "onboarding", reply);
-        break;
-      case PAYMENT_HOST:
-        void handleRequest(reqPath, "payment", reply);
-        break;
-      default:
-        return reply.code(404).send("404");
-    }
+
+    const params = request.params as Record<string, string>;
+    const reqPath = params["*"] ?? "index.html";
+
+    void handleRequest(reqPath, appName, reply);
   };
 
   return handler;
-}
+};

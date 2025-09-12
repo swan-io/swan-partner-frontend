@@ -1,3 +1,4 @@
+import react from "@vitejs/plugin-react-swc";
 import { execSync } from "child_process";
 import fs from "fs";
 import path from "pathe";
@@ -8,7 +9,7 @@ const { version } = JSON.parse(
   fs.readFileSync(path.join(process.cwd(), "package.json"), "utf-8"),
 ) as { version: string };
 
-const apps = ["onboarding", "banking", "payment"];
+const appNames = ["onboarding", "banking", "payment"];
 
 console.log(``);
 console.log(`${pc.magenta("swan-partner-frontend")}`);
@@ -20,17 +21,22 @@ void (async () => {
   console.log(`${pc.magenta("server")} ${pc.green("done")}`);
   console.log(``);
 
-  for (const app of apps) {
-    console.log(`${pc.magenta(app)} ${pc.gray("building")}`);
+  for (const appName of appNames) {
+    console.log(`${pc.magenta(appName)} ${pc.gray("building")}`);
+    const cwd = process.cwd();
 
     try {
       await build({
-        configFile: path.resolve(process.cwd(), "clients", app, "vite.config.js"),
+        root: path.join(cwd, "clients", appName),
+        plugins: [react()],
         logLevel: "error",
         mode: "production",
         define: { "process.env.NODE_ENV": JSON.stringify("production") },
+        resolve: {
+          alias: { "react-native": "react-native-web" },
+        },
         build: {
-          outDir: path.join(process.cwd(), "server/dist/static", app),
+          outDir: path.join(cwd, "server", "dist", "static", appName),
           // The polyfill generates a bug on Safari, where it makes the module
           // always be invalidated due to credentials being sent (i.e. Cookies)
           polyfillModulePreload: false,
@@ -46,7 +52,7 @@ void (async () => {
       }
     }
 
-    console.log(`${pc.magenta(app)} ${pc.green("done")}`);
+    console.log(`${pc.magenta(appName)} ${pc.green("done")}`);
     console.log(``);
   }
 })();

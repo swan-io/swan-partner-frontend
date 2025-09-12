@@ -70,6 +70,7 @@ export const startDevServer = async (app: FastifyInstance, corsOptions: CorsOpti
     plugins: [react()],
     logLevel: "warn",
     appType: "custom",
+    optimizeDeps: { force: true },
     resolve: {
       alias: {
         "react-native": "react-native-web",

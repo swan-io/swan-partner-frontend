@@ -1,9 +1,7 @@
-import { RouteHandlerMethod } from "fastify";
+import { FastifyReply, RouteHandlerMethod } from "fastify";
 import fs, { Stats } from "node:fs";
-import { Http2SecureServer } from "node:http2";
 import path from "pathe";
 import { env } from "../env";
-import { FastifySecureReply } from "../types";
 
 const staticPath = path.join(__dirname, "../static");
 
@@ -13,7 +11,7 @@ const yearInMilliseconds = yearInSeconds * 1000;
 // The following isn't really elegant, but `fastify-static` doesn't provide any
 // compelling way to manage the fallback index.html when routing using the
 // request host.
-const handleRequest = async (reqPath: string, appName: string, reply: FastifySecureReply) => {
+const handleRequest = async (reqPath: string, appName: string, reply: FastifyReply) => {
   const isStaticAsset = reqPath.startsWith("assets/") || reqPath.includes(".manager.bundle.js");
   const handleRequest = async (err: NodeJS.ErrnoException | null, stat: Stats) => {
     if (err == null && stat.isFile()) {
@@ -46,7 +44,7 @@ export function getProductionRequestHandler() {
   const ONBOARDING_HOST = new URL(env.ONBOARDING_URL).hostname;
   const PAYMENT_HOST = new URL(env.PAYMENT_URL).hostname;
 
-  const handler: RouteHandlerMethod<Http2SecureServer> = (request, reply) => {
+  const handler: RouteHandlerMethod = (request, reply) => {
     const host = new URL(`${request.protocol}://${request.hostname}`).hostname;
     const params = request.params as Record<string, string>;
 

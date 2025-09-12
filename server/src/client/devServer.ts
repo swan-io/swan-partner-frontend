@@ -1,11 +1,9 @@
-import { RouteHandlerMethod } from "fastify";
+import { FastifyInstance, RouteHandlerMethod } from "fastify";
 import fs from "node:fs";
 import http from "node:http";
-import { Http2SecureServer } from "node:http2";
 import https from "node:https";
 import path from "pathe";
 import { env } from "../env";
-import { FastifySecureInstance } from "../types";
 
 export type HttpsConfig = {
   key: string;
@@ -45,7 +43,7 @@ async function createViteDevServer(appName: AppName, httpsConfig?: HttpsConfig) 
   return { mainServerPort, liveReloadServerPort };
 }
 
-export async function startDevServer(app: FastifySecureInstance, httpsConfig?: HttpsConfig) {
+export async function startDevServer(app: FastifyInstance, httpsConfig?: HttpsConfig) {
   const [onboarding, webBanking, payment] = await Promise.all(
     apps.map(app => {
       return createViteDevServer(
@@ -65,7 +63,7 @@ export async function startDevServer(app: FastifySecureInstance, httpsConfig?: H
     process.exit(1);
   }
 
-  const handler: RouteHandlerMethod<Http2SecureServer> = (request, reply) => {
+  const handler: RouteHandlerMethod = (request, reply) => {
     const host = new URL(`${request.protocol}://${request.hostname}`).hostname;
 
     switch (host) {

@@ -7,7 +7,7 @@ import sensible, { HttpErrorCodes } from "@fastify/sensible";
 import fastifyStatic from "@fastify/static";
 import fastifyView from "@fastify/view";
 import { Array, Future, Option, Result } from "@swan-io/boxed";
-import fastify from "fastify";
+import fastify, { FastifyReply } from "fastify";
 import mustache from "mustache";
 import { randomUUID } from "node:crypto";
 import { lookup } from "node:dns";
@@ -39,7 +39,6 @@ import { HttpsConfig, startDevServer } from "./client/devServer";
 import { getProductionRequestHandler } from "./client/prodServer";
 import { env } from "./env";
 import { replyWithAuthError, replyWithError } from "./error";
-import { FastifySecureReply } from "./types";
 
 const packageJson = JSON.parse(
   fs.readFileSync(path.join(__dirname, "../package.json"), "utf-8"),
@@ -575,7 +574,7 @@ export const start = async ({
    * OAuth2 Redirection handler
    */
   app.get<{ Querystring: Record<string, string> }>("/auth/callback", async (request, reply) => {
-    type Reply = FastifySecureReply | Promise<FastifySecureReply>;
+    type Reply = FastifyReply | Promise<FastifyReply>;
 
     const state = Result.fromExecution<unknown>(() =>
       JSON.parse(request.query.state ?? "{}"),

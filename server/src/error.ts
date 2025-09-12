@@ -1,10 +1,10 @@
 import { HttpErrorCodes } from "@fastify/sensible/lib/httpError";
 import { Accepts } from "accepts";
 import escapeHtml from "escape-html";
+import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import fs from "node:fs";
 import path from "pathe";
 import { match } from "ts-pattern";
-import { FastifySecureInstance, FastifySecureReply, FastifySecureRequest } from "./types";
 
 const viewsPath = path.join(__dirname, "views");
 const errorTemplate = fs.readFileSync(path.join(viewsPath, "error.html"), "utf-8");
@@ -19,9 +19,9 @@ const getAcceptType = (accept: Accepts): "html" | "json" => {
 };
 
 export const replyWithError = (
-  app: FastifySecureInstance,
-  request: FastifySecureRequest,
-  reply: FastifySecureReply,
+  app: FastifyInstance,
+  request: FastifyRequest,
+  reply: FastifyReply,
   { status, requestId }: { status: Exclude<HttpErrorCodes, string>; requestId: string },
 ) => {
   const accept = request.accepts();
@@ -46,9 +46,9 @@ export const replyWithError = (
 };
 
 export const replyWithAuthError = (
-  app: FastifySecureInstance,
-  request: FastifySecureRequest,
-  reply: FastifySecureReply,
+  app: FastifyInstance,
+  request: FastifyRequest,
+  reply: FastifyReply,
   { status, description }: { status: Exclude<HttpErrorCodes, string>; description: string },
 ) => {
   const accept = request.accepts();

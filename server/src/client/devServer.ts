@@ -19,9 +19,9 @@ export const startDevServer = async (app: FastifyInstance, corsOptions: CorsOpti
     .returnType<Promise<{ allow: string[]; alias: Record<string, string> }>>()
     .with(P.string, async LAKE_PATH => {
       const lakeRepositoryRoot = path.resolve(process.cwd(), LAKE_PATH);
-      const workspaceModulesRoot = path.join(workspaceRoot, "node_modules");
-
+      const lakeModulesRoot = path.join(lakeRepositoryRoot, "node_modules");
       const lakePackageRoot = path.join(lakeRepositoryRoot, "packages", "lake");
+
       const sharedBusinessPackageRoot = path.join(
         lakeRepositoryRoot,
         "packages",
@@ -39,13 +39,11 @@ export const startDevServer = async (app: FastifyInstance, corsOptions: CorsOpti
       );
 
       return {
-        allow: [lakePackageRoot, sharedBusinessPackageRoot],
+        allow: [lakeModulesRoot, lakePackageRoot, sharedBusinessPackageRoot],
         alias: {
           "@swan-io/lake": lakePackageRoot,
           "@swan-io/shared-business": sharedBusinessPackageRoot,
-          ...Object.fromEntries(
-            dependencies.map(name => [name, path.join(workspaceModulesRoot, name)]),
-          ),
+          ...Object.fromEntries(dependencies.map(name => [name, path.join(lakeModulesRoot, name)])),
         },
       };
     })
@@ -83,7 +81,14 @@ export const startDevServer = async (app: FastifyInstance, corsOptions: CorsOpti
       cors: corsOptions,
       middlewareMode: true,
       hmr: { server: app.server },
-      fs: { allow: [workspaceRoot, ...extraConfig.allow] },
+      fs: {
+        allow: [
+          path.join(workspaceRoot, "node_modules"),
+          path.join(workspaceRoot, "clients"),
+          path.join(workspaceRoot, "scripts", "graphql", "dist"),
+          ...extraConfig.allow,
+        ],
+      },
     },
   });
 

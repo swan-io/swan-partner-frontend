@@ -17,11 +17,11 @@
     "graphql-update-schemas": "tsx -r dotenv/config scripts/graphql/downloadSchemas.ts",
     "graphql-codegen": "graphql-codegen --config scripts/graphql/codegen.ts",
     "format": "prettier '**/*' --ignore-unknown --write",
-    "link-local-lake": "sh scripts/lake/link-local-lake.sh",
-    "unlink-local-lake": "sh scripts/lake/unlink-local-lake.sh",
     "dev": "tsx -r dotenv/config server/src/index.ts --dev",
+    "dev-lake": "LAKE_PATH=../lake pnpm dev",
     "dev-swan": "tsx -r dotenv/config server/src/index.swan.ts --dev dotenv_config_path=.env.swan",
-    "build": "tsx -r dotenv/config scripts/build/index.ts",
+    "clean": "rm -rf server/dist",
+    "build": "pnpm clean && tsx -r dotenv/config scripts/build/index.ts",
     "typecheck": "tsc --noEmit",
     "license-report": "tsx scripts/license-crawler/crawlLicenses.ts --check --report",
     "license-check": "tsx scripts/license-crawler/crawlLicenses.ts --check",
@@ -88,10 +88,12 @@
     "@types/prompts": "2.4.9",
     "@types/semver": "7.7.0",
     "@types/sodium-native": "2.3.9",
+    "@vitejs/plugin-react-swc": "4.0.1",
     "dotenv": "16.6.1",
     "fast-glob": "3.3.3",
     "graphql": "16.11.0",
     "graphql-sock": "1.0.1",
+    "jsdom": "26.1.0",
     "lint-staged": "16.1.5",
     "openai": "5.15.0",
     "ora": "8.2.0",
@@ -109,7 +111,7 @@
     "type-fest": "4.41.0",
     "typescript": "5.9.2",
     "valienv": "1.0.0",
-    "vite": "5.4.11",
-    "vitest": "2.1.8"
+    "vite": "7.1.5",
+    "vitest": "3.2.4"
   }
 }

@@ -39,7 +39,7 @@ type Dependency = {
   homepage: string;
 };
 
-async function getDirectDependencies() {
+const getDirectDependencies = async () => {
   const pkgDependencies = (JSON.parse(await exec("pnpm list -r --json")) as Package[])
     .filter(pkg => pkg.name !== "@swan-io/partner-frontend")
     .reduce<Record<string, { name: string; version: string }>>(
@@ -80,9 +80,9 @@ async function getDirectDependencies() {
     .toSorted((a, b) => {
       return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
     });
-}
+};
 
-async function report() {
+const report = async () => {
   const head = ["Name", "Version", "License", "Author", "Homepage"];
   const directDependencies = await getDirectDependencies();
 
@@ -98,12 +98,12 @@ ${directDependencies.map(item => [item.name, item.version, item.license, item.au
     await prettier.format(output, { parser: "markdown", plugins: [markdown] }),
     "utf-8",
   );
-}
+};
 
 const DENY_LIST = ["GPL", "AGPL"];
 const DENY_LIST_REGEX = new RegExp(DENY_LIST.map(item => `\\b${item}\\b`).join("|"));
 
-async function check() {
+const check = async () => {
   const directDependencies = await getDirectDependencies();
   let hasError = false;
 
@@ -126,9 +126,9 @@ async function check() {
   } else {
     console.log(pc.green("All good!"));
   }
-}
+};
 
-async function main() {
+const main = async () => {
   if (process.argv.includes("--check")) {
     await check();
   }
@@ -136,6 +136,6 @@ async function main() {
   if (process.argv.includes("--report")) {
     void report();
   }
-}
+};
 
 void main();

@@ -13,7 +13,7 @@ process.env["SENTRY_PIPELINE"] = `gitlab/${version}`;
 // The following aren't exposed in the CI
 process.env["SENTRY_ORG"] = "swan-bank";
 
-async function release() {
+const release = async () => {
   const cli = new SentryCli().releases;
   const projects = ["onboarding", "banking"];
 
@@ -31,6 +31,6 @@ async function release() {
   );
 
   await cli.finalize(version);
-}
+};
 
 release();

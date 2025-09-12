@@ -22,6 +22,9 @@
     "noUncheckedIndexedAccess": true,
     "forceConsistentCasingInFileNames": false,
 
-    "typeRoots": ["types", "node_modules/@types"]
+    "typeRoots": ["types", "node_modules/@types"],
+
+    // Keep this property (used by local lake development)
+    "paths": {}
   }
 }

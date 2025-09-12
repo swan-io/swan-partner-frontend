@@ -4,7 +4,7 @@ import path from "pathe";
 import { match, P } from "ts-pattern";
 import { PackageJson } from "type-fest";
 import { CorsOptions } from "vite";
-import { getAppNameByHostName } from "../app";
+import { AppName, getAppNameByHostName } from "../app";
 
 export const startDevServer = async (app: FastifyInstance, corsOptions: CorsOptions) => {
   const { createServer, searchForWorkspaceRoot } = await import("vite");
@@ -95,6 +95,17 @@ export const startDevServer = async (app: FastifyInstance, corsOptions: CorsOpti
   const { root } = vite.config;
   app.use(vite.middlewares);
 
+  const getTemplate = async (appName: AppName) => {
+    const template = await fs.readFile(path.join(root, "clients", appName, "index.html"), "utf-8");
+    return template.replace("/src/", `/clients/${appName}/src/`);
+  };
+
+  const templates: Record<AppName, string> = {
+    banking: await getTemplate("banking"),
+    onboarding: await getTemplate("onboarding"),
+    payment: await getTemplate("payment"),
+  };
+
   const handler: RouteHandlerMethod = async (request, reply) => {
     const appName = getAppNameByHostName(request.hostname);
 
@@ -103,16 +114,7 @@ export const startDevServer = async (app: FastifyInstance, corsOptions: CorsOpti
     }
 
     try {
-      const template = await fs.readFile(
-        path.join(root, "clients", appName, "index.html"),
-        "utf-8",
-      );
-
-      const html = await vite.transformIndexHtml(
-        request.originalUrl,
-        template.replace("/src/", `/clients/${appName}/src/`),
-      );
-
+      const html = await vite.transformIndexHtml(request.originalUrl, templates[appName]);
       return reply.type("text/html").send(html);
     } catch (error) {
       vite.ssrFixStacktrace(error as Error);

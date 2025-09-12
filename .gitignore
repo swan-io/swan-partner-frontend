@@ -1,7 +1,10 @@
 .DS_Store
 .DS_Store?
-node_modules/
 
+node_modules/
+npm-debug.log*
+
+clients/*/src/graphql/*.json
 clients/*/src/graphql/*.ts
 
 server/dist/
@@ -9,17 +12,16 @@ server/keys/_wildcard.swan.local-key.pem
 server/keys/_wildcard.swan.local.pem
 server/src/graphql/*.ts
 
+tests/graphql/*.json
+tests/graphql/*.ts
+tests/results
+
 !scripts/graphql/dist/
 scripts/graphql/codegen-verify.yml
 scripts/graphql/tmp
-
-tests/results
-tests/graphql/*.ts
 
 .env
 .env.e2e
 .env.swan
 
 localazy.keys.*.json
-
-.linked

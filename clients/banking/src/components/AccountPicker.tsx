@@ -3,11 +3,9 @@ import { FlatList } from "@swan-io/lake/src/components/FlatList";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { Link } from "@swan-io/lake/src/components/Link";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { SidebarNavigationTrackerActiveMarker } from "@swan-io/lake/src/components/SidebarNavigationTracker";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { Tag } from "@swan-io/lake/src/components/Tag";
 import {
   backgroundColor,
   colors,
@@ -19,15 +17,13 @@ import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import { Ref, useCallback, useEffect, useState } from "react";
 import { GestureResponderEvent, Pressable, StyleSheet, View } from "react-native";
-import { match } from "ts-pattern";
 import {
   AccountAreaQuery,
   Amount,
   GetAccountMembershipsDocument,
   GetAccountMembershipsQuery,
 } from "../graphql/partner";
-import { formatCurrency, t } from "../utils/i18n";
-import { Router } from "../utils/routes";
+import { formatCurrency } from "../utils/i18n";
 import { Connection } from "./Connection";
 
 const styles = StyleSheet.create({
@@ -252,26 +248,22 @@ export type AccountActivationTag =
 type AccountPickerButtonProps = {
   ref?: Ref<View>;
   desktop: boolean;
-  accountMembershipId: string;
   activationTag: AccountActivationTag;
   activationLinkActive: boolean;
   hasMultipleMemberships: boolean;
   onPress: () => void;
-  onPressActivationLink?: () => void;
   selectedAccountMembership: NonNullable<AccountAreaQuery["accountMembership"]>;
   availableBalance?: Amount;
 };
 
 export const AccountPickerButton = ({
   ref,
-  accountMembershipId,
   activationTag,
   activationLinkActive,
   hasMultipleMemberships,
   selectedAccountMembership,
   desktop,
   onPress,
-  onPressActivationLink,
   availableBalance,
 }: AccountPickerButtonProps) => {
   return (
@@ -314,61 +306,6 @@ export const AccountPickerButton = ({
 
         {activationTag !== "none" && (
           <View>
-            {match(activationTag)
-              .with("refused", () => (
-                <View style={styles.activationLink}>
-                  <Tag color="negative" size="small">
-                    {t("accountActivation.menuTag.refused")}
-                  </Tag>
-                </View>
-              ))
-              .with("suspended", () => (
-                <View style={styles.activationLink}>
-                  <Tag color="warning" size="small">
-                    {t("accountActivation.menuTag.suspended")}
-                  </Tag>
-                </View>
-              ))
-              .with("closing", () => (
-                <View style={styles.activationLink}>
-                  <Tag color="warning" size="small">
-                    {t("accountActivation.menuTag.closing")}
-                  </Tag>
-                </View>
-              ))
-              .with("closed", () => (
-                <View style={styles.activationLink}>
-                  <Tag color="negative" size="small">
-                    {t("accountActivation.menuTag.closed")}
-                  </Tag>
-                </View>
-              ))
-              .otherwise(activationTag => (
-                <Link
-                  to={Router.AccountActivation({ accountMembershipId })}
-                  onPress={onPressActivationLink}
-                  style={({ hovered }) => [
-                    styles.activationLink,
-                    hovered && styles.activationLinkHovered,
-                  ]}
-                >
-                  {match(activationTag)
-                    .with("actionRequired", () => (
-                      <Tag color="warning" size="small">
-                        {t("accountActivation.menuTag.actionRequired")}
-                      </Tag>
-                    ))
-                    .with("pending", () => (
-                      <Tag color="shakespear" size="small">
-                        {t("accountActivation.menuTag.pending")}
-                      </Tag>
-                    ))
-                    .exhaustive()}
-
-                  <Icon name="arrow-right-filled" size={16} color={colors.gray[500]} />
-                </Link>
-              ))}
-
             {activationLinkActive && (
               <SidebarNavigationTrackerActiveMarker color={colors.current[500]} />
             )}

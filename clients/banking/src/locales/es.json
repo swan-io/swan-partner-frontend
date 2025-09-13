@@ -16,6 +16,7 @@
   "accountActivation.addMoney.illustration.title": "Tu primera transferencia",
   "accountActivation.addMoney.subtitle": "Realiza un pago de cualquier importe a la siguiente cuenta.",
   "accountActivation.addMoney.title": "Añade dinero a tu nueva cuenta",
+  "accountActivation.alert.title": "Tu cuenta aún no está activada",
   "accountActivation.description": "No puedes usar tu cuenta hasta que esté activada. Sigue estos pasos para completar la activación de tu cuenta.",
   "accountActivation.documents.button.submit": "Enviar",
   "accountActivation.documents.confirmModal.confirm": "Sí, estoy seguro",

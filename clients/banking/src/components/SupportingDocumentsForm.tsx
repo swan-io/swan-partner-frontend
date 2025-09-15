@@ -33,7 +33,7 @@ export type SupportingDocumentsFormRef = {
 
 type Props = {
   ref?: Ref<SupportingDocumentsFormRef>;
-  templateLanguage: "en" | "fr" | "es" | "de";
+  templateLanguage: "en" | "fr" | "es" | "de" | "nl";
   collection: Collection;
   refetchCollection: () => void;
 };

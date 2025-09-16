@@ -180,7 +180,10 @@ if (env.NODE_ENV === "development") {
   partnerPickerUrl.port = "8080";
 }
 
-start().then(
+start({
+  allowedCorsOrigins: [partnerPickerUrl.origin],
+  sendAccountMembershipInvitation,
+}).then(
   ({ app, ports }) => {
     app.post<{ Params: { projectId: string } }>(
       "/api/projects/:projectId/partner",

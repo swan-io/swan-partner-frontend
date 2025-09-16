@@ -132,7 +132,7 @@ const assertIsBoundToLocalhost = (host: string) => {
 export const start = async ({
   sendAccountMembershipInvitation,
   allowedCorsOrigins = [],
-}: AppConfig = {}) => {
+}: AppConfig) => {
   if (env.NODE_ENV === "development") {
     try {
       await Promise.all([

@@ -1,7 +1,8 @@
 import { Option } from "@swan-io/boxed";
+import { noop } from "@swan-io/lake/src/utils/function";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { lowerCase } from "@swan-io/lake/src/utils/string";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { atom, useAtomWithSelector } from "react-atomic-state";
 import { TgglFlags as RawFlags, TgglClient, TgglContext } from "tggl-client";
 import { P, match } from "ts-pattern";
@@ -17,6 +18,8 @@ let savedContext: Partial<TgglContext> = {};
 const flagsAtom = atom<Partial<Flags>>({});
 
 const client = isNotNullishOrEmpty(env.TGGL_API_KEY) ? new TgglClient(env.TGGL_API_KEY) : undefined;
+const reportFlag = client?.detachReporting()?.reportFlag ?? noop;
+
 client?.onResultChange(flagsAtom.set);
 
 export const updateTgglContext = (context: Partial<TgglContext>) => {
@@ -29,6 +32,11 @@ export const getTgglFlag = <K extends keyof Flags>(key: K) =>
 
 export const useTgglFlag = <K extends keyof Flags>(key: K) => {
   const value = useAtomWithSelector(flagsAtom, flags => flags[key]);
+
+  useEffect(() => {
+    reportFlag(key, { value });
+  }, [key, value]);
+
   return useMemo(() => Option.fromNullable<Flags[K]>(value), [value]);
 };
 

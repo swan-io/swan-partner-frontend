@@ -43,7 +43,7 @@ import { env } from "../utils/env";
 import { partnerAdminClient } from "../utils/gql";
 import { t } from "../utils/i18n";
 import { getIdentificationLevelStatusInfo } from "../utils/identification";
-import { logFrontendError, setSentryUser } from "../utils/logger";
+import { logFrontendError, setPostHogUser } from "../utils/logger";
 import { projectConfiguration } from "../utils/projectId";
 import { accountRoutes, Router } from "../utils/routes";
 import { signout } from "../utils/signout";
@@ -212,7 +212,7 @@ export const AccountArea = ({
   }, [setAccountMembershipState, accountMembershipId, userId]);
 
   useEffect(() => {
-    setSentryUser({
+    setPostHogUser({
       id: user.id,
       firstName: nullishOrEmptyToUndefined(user.firstName),
       lastName: nullishOrEmptyToUndefined(user.preferredLastName),

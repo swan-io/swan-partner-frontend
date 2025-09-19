@@ -19,7 +19,6 @@
 | @opentelemetry/propagator-jaeger          | 2.0.1   | Apache-2.0       | OpenTelemetry Authors          | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-propagator-jaeger           |
 | @opentelemetry/sdk-node                   | 0.203.0 | Apache-2.0       | OpenTelemetry Authors          | https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-sdk-node       |
 | @opentelemetry/sdk-trace-base             | 2.0.1   | Apache-2.0       | OpenTelemetry Authors          | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-trace-base              |
-| @sentry/browser                           | 8.55.0  | MIT              | Sentry                         | https://github.com/getsentry/sentry-javascript/tree/master/packages/browser                                     |
 | @types/accepts                            | 1.3.7   | MIT              | Unknown                        | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/accepts                                    |
 | @types/escape-html                        | 1.0.4   | MIT              | Unknown                        | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/escape-html                                |
 | @types/iban                               | 0.0.35  | MIT              | Unknown                        | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/iban                                       |
@@ -44,6 +43,7 @@
 | pathe                                     | 2.0.3   | MIT              | Unknown                        | https://github.com/unjs/pathe#readme                                                                            |
 | picocolors                                | 1.1.1   | ISC              | Alexey Raspopov                | https://github.com/alexeyraspopov/picocolors#readme                                                             |
 | pino-pretty                               | 13.1.1  | MIT              | James Sumners                  | https://github.com/pinojs/pino-pretty#readme                                                                    |
+| posthog-js                                | 1.266.2 | MIT              | hey@posthog.com                | https://posthog.com/docs/libraries/js                                                                           |
 | react                                     | 19.1.1  | MIT              | Unknown                        | https://react.dev/                                                                                              |
 | react-atomic-state                        | 2.1.0   | MIT              | Mathieu Acthernoene            | https://github.com/zoontek/react-atomic-state#readme                                                            |
 | react-dom                                 | 19.1.1  | MIT              | Unknown                        | https://react.dev/                                                                                              |

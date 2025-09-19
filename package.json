@@ -5,7 +5,7 @@
   "private": true,
   "packageManager": "pnpm@10.15.0",
   "engines": {
-    "node": "^22.12.0"
+    "node": "^22.18.0"
   },
   "repository": {
     "type": "git",
@@ -57,7 +57,7 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "@biomejs/biome",
-      "@sentry/cli",
+      "@posthog/cli",
       "@swc/core",
       "esbuild",
       "protobufjs"
@@ -83,7 +83,7 @@
     "@graphql-codegen/typescript-operations": "4.6.1",
     "@localazy/cli": "1.7.16",
     "@playwright/test": "1.51.1",
-    "@sentry/cli": "2.52.0",
+    "@posthog/cli": "0.4.6",
     "@swan-io/boxed": "3.2.0",
     "@types/prompts": "2.4.9",
     "@types/semver": "7.7.0",

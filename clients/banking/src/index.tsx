@@ -17,14 +17,14 @@ import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { AppRegistry } from "react-native";
 import { match } from "ts-pattern";
 import { App } from "./App";
-import { initSentry } from "./utils/logger";
+import { initPostHog } from "./utils/logger";
 import { projectConfiguration } from "./utils/projectId";
 
 if (isNullish(window.ResizeObserver)) {
   window.ResizeObserver = ResizeObserver;
 }
 
-initSentry();
+initPostHog();
 
 const rootTag = document.getElementById("app-root");
 

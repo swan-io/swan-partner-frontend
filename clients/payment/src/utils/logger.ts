@@ -1,28 +1,28 @@
-import { captureException, init } from "@sentry/browser";
-import { P, match } from "ts-pattern";
+import posthog, { SeverityLevel } from "posthog-js";
 import { env } from "./env";
 
-export const initSentry = () => {
-  init({
-    enabled: import.meta.env.PROD && env.IS_SWAN_MODE,
-    release: env.VERSION,
-    dsn: "TODO",
-    normalizeDepth: 5,
+export const initPostHog = () => {
+  if (import.meta.env.PROD && env.IS_SWAN_MODE) {
+    const token =
+      import.meta.env.DEV ||
+      env.PAYMENT_URL.includes("master") ||
+      env.PAYMENT_URL.includes("preprod")
+        ? "phc_6u4uUv6Mp2a9mw7gOMEH8CiS4UEDlUHGuWlkz2OAYQe"
+        : "phc_y7DlMezh1CgfrVIvkO2fkZMbJcbMziXCZvrPPWR2X8";
 
-    environment: match({
-      dev: import.meta.env.DEV,
-      url: env.PAYMENT_URL,
-    })
-      .with({ dev: true }, () => "dev")
-      .with({ url: P.string.includes("master") }, () => "master")
-      .with({ url: P.string.includes("preprod") }, () => "preprod")
-      .otherwise(() => "prod"),
-  });
+    posthog.init(token, {
+      api_host: "https://eu.i.posthog.com",
+      defaults: "2025-05-24",
+    });
+  }
 };
 
-export const logFrontendError = (exception: Error, extra?: Record<string, unknown>) => {
-  captureException(exception, {
-    extra,
-    tags: { scope: "frontend" },
-  });
+type Context = Partial<{
+  level: SeverityLevel;
+  tags: Record<string, string>;
+  extra: Record<string, unknown>;
+}>;
+
+export const logFrontendError = (exception: Error, { extra, level, tags }: Context = {}) => {
+  posthog.captureException(exception, { extra, level, tags });
 };

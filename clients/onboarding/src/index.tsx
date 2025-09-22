@@ -16,9 +16,9 @@ import "./utils/i18n";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { AppRegistry } from "react-native";
 import { App } from "./App";
-import { initSentry } from "./utils/logger";
+import { initPostHog } from "./utils/logger";
 
-initSentry();
+initPostHog();
 
 if (isNullish(window.ResizeObserver)) {
   window.ResizeObserver = ResizeObserver;

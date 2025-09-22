@@ -2,7 +2,6 @@ import { FastifyInstance, RouteHandlerMethod } from "fastify";
 import fs from "node:fs/promises";
 import path from "pathe";
 import { match, P } from "ts-pattern";
-import { PackageJson } from "type-fest";
 import { CorsOptions } from "vite";
 import { AppName, getAppNameByHostName } from "../app";
 
@@ -19,7 +18,7 @@ export const startDevServer = async (app: FastifyInstance, corsOptions: CorsOpti
     .returnType<Promise<{ allow: string[]; alias: Record<string, string> }>>()
     .with(P.string, async LAKE_PATH => {
       const lakeRepositoryRoot = path.resolve(process.cwd(), LAKE_PATH);
-      const lakeModulesRoot = path.join(lakeRepositoryRoot, "node_modules");
+      const nodeModules = path.join(workspaceRoot, "node_modules");
       const lakePackageRoot = path.join(lakeRepositoryRoot, "packages", "lake");
 
       const sharedBusinessPackageRoot = path.join(
@@ -28,24 +27,19 @@ export const startDevServer = async (app: FastifyInstance, corsOptions: CorsOpti
         "shared-business",
       );
 
-      const dependencies = Object.keys(
-        await Promise.all([
-          import(path.join(lakePackageRoot, "package.json")),
-          import(path.join(sharedBusinessPackageRoot, "package.json")),
-        ]).then(([lake, sharedBusiness]: [PackageJson, PackageJson]) => ({
-          ...lake.dependencies,
-          ...sharedBusiness.dependencies,
-        })),
-      );
+      const dedupDependencies = [
+        "@swan-io/chicane",
+        "@swan-io/graphql-client",
+        "react",
+        "react-dom",
+      ];
 
       return {
-        allow: [lakeModulesRoot, lakePackageRoot, sharedBusinessPackageRoot],
+        allow: [lakePackageRoot, sharedBusinessPackageRoot],
         alias: {
+          ...Object.fromEntries(dedupDependencies.map(dep => [dep, path.join(nodeModules, dep)])),
           "@swan-io/lake": lakePackageRoot,
           "@swan-io/shared-business": sharedBusinessPackageRoot,
-          ...Object.fromEntries(dependencies.map(name => [name, path.join(lakeModulesRoot, name)])),
-          // Extra imports paths
-          "@placekit/client-js/lite": path.join(lakeModulesRoot, "@placekit/client-js"),
         },
       };
     })
@@ -72,7 +66,6 @@ export const startDevServer = async (app: FastifyInstance, corsOptions: CorsOpti
     plugins: [react()],
     logLevel: "warn",
     appType: "custom",
-    optimizeDeps: { force: true },
     resolve: {
       alias: {
         "react-native": "react-native-web",

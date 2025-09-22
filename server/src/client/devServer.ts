@@ -44,6 +44,8 @@ export const startDevServer = async (app: FastifyInstance, corsOptions: CorsOpti
           "@swan-io/lake": lakePackageRoot,
           "@swan-io/shared-business": sharedBusinessPackageRoot,
           ...Object.fromEntries(dependencies.map(name => [name, path.join(lakeModulesRoot, name)])),
+          // Extra imports paths
+          "@placekit/client-js/lite": path.join(lakeModulesRoot, "@placekit/client-js"),
         },
       };
     })

@@ -379,18 +379,15 @@ export const AccountArea = ({
 
                   <Space height={32} />
 
-                  {activationTag !== "none" &&
-                    match(activationTag)
-                      .with("pending", () => (
-                        <LakeButton
-                          color="current"
-                          icon="checkmark-starburst-filled"
-                          onPress={() => Router.push("AccountActivation", { accountMembershipId })}
-                        >
-                          {t("accountActivation.title")}
-                        </LakeButton>
-                      ))
-                      .otherwise(() => null)}
+                  {activationTag === "pending" && (
+                    <LakeButton
+                      color="current"
+                      icon="checkmark-starburst-filled"
+                      onPress={() => Router.push("AccountActivation", { accountMembershipId })}
+                    >
+                      {t("accountActivation.title")}
+                    </LakeButton>
+                  )}
 
                   <Popover
                     referenceRef={accountPickerButtonRef}

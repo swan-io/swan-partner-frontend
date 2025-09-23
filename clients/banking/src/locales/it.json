@@ -16,6 +16,7 @@
   "accountActivation.addMoney.illustration.title": "Il suo primo bonifico",
   "accountActivation.addMoney.subtitle": "Completa un pagamento di qualsiasi importo sul conto seguente.",
   "accountActivation.addMoney.title": "Aggiunga denaro al suo nuovo conto",
+  "accountActivation.alert.title": "Il tuo account non è ancora attivato",
   "accountActivation.description": "Per utilizzare il conto, è prima necessario attivarlo. Seguite questi passaggi per completare l'attivazione del conto.",
   "accountActivation.documents.button.submit": "Invia",
   "accountActivation.documents.confirmModal.confirm": "Sì, sono sicuro/a",

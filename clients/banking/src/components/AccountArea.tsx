@@ -367,7 +367,6 @@ export const AccountArea = ({
                   <AccountPickerButton
                     ref={accountPickerButtonRef}
                     desktop={true}
-                    accountMembershipId={accountMembershipId}
                     activationTag={activationTag}
                     activationLinkActive={
                       route?.name === "AccountActivation" && permissions.canReadAccountDetails
@@ -377,6 +376,18 @@ export const AccountArea = ({
                     onPress={setAccountPickerOpen.on}
                     availableBalance={account?.balances?.available ?? undefined}
                   />
+
+                  <Space height={32} />
+
+                  {activationTag === "pending" && (
+                    <LakeButton
+                      color="current"
+                      icon="checkmark-starburst-filled"
+                      onPress={() => Router.push("AccountActivation", { accountMembershipId })}
+                    >
+                      {t("accountActivation.title")}
+                    </LakeButton>
+                  )}
 
                   <Popover
                     referenceRef={accountPickerButtonRef}
@@ -395,7 +406,7 @@ export const AccountArea = ({
                     </View>
                   </Popover>
 
-                  <Space height={32} />
+                  <Space height={24} />
                   <AccountNavigation menu={menu} />
                   <Fill minHeight={48} />
 

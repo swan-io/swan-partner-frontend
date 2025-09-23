@@ -273,9 +273,22 @@ export const NavigationTabBar = ({
                     activationTag={activationTag}
                     activationLinkActive={false}
                     onPress={() => setScreen("memberships")}
-                    accountMembershipId={accountMembershipId}
-                    onPressActivationLink={() => setScreen(null)}
                   />
+
+                  <Space height={24} />
+
+                  {activationTag === "pending" && (
+                    <LakeButton
+                      color="current"
+                      icon="checkmark-starburst-filled"
+                      onPress={() => {
+                        Router.push("AccountActivation", { accountMembershipId });
+                        setScreen(null);
+                      }}
+                    >
+                      {t("accountActivation.title")}
+                    </LakeButton>
+                  )}
 
                   <Space height={24} />
 

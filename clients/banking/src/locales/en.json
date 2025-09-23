@@ -16,6 +16,7 @@
   "accountActivation.addMoney.illustration.title": "Your first transfer",
   "accountActivation.addMoney.subtitle": "Make a payment of any amount to the account below.",
   "accountActivation.addMoney.title": "Add money to your new account",
+  "accountActivation.alert.title": "Your account is not activated yet",
   "accountActivation.description": "You can't use your account until it's activated. Follow these steps to finish activating your account.",
   "accountActivation.documents.button.submit": "Submit",
   "accountActivation.documents.confirmModal.confirm": "Yes, I'm sure",

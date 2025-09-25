@@ -1,8 +1,9 @@
 import { AsyncData, Option, Result } from "@swan-io/boxed";
-import { useForwardAsyncDataPagination, useQuery } from "@swan-io/graphql-client";
+import { useForwardAsyncDataPagination, useMutation, useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { FlatList } from "@swan-io/lake/src/components/FlatList";
+import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeRadio } from "@swan-io/lake/src/components/LakeRadio";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -16,12 +17,13 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { animations, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { noop } from "@swan-io/lake/src/utils/function";
-import { printFormat } from "iban";
-import { useState } from "react";
-import { StyleSheet } from "react-native";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { electronicFormat, printFormat } from "iban";
+import { useLayoutEffect, useState } from "react";
+import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
-import { BeneficiariesListDocument } from "../graphql/partner";
-import { Currency, isSupportedCurrency, t } from "../utils/i18n";
+import { BeneficiariesListDocument, VerifyBeneficiaryDocument } from "../graphql/partner";
+import { Currency, formatNestedMessage, isSupportedCurrency, t } from "../utils/i18n";
 import { concatSepaBeneficiaryAddress } from "./BeneficiaryDetail";
 import { InternationalBeneficiary } from "./BeneficiaryInternationalWizardForm";
 import { getBeneficiaryIdentifier } from "./BeneficiaryList";
@@ -60,6 +62,9 @@ const styles = StyleSheet.create({
     paddingTop: spacings[48],
     paddingBottom: spacings[32],
   },
+  nameSuggestion: {
+    fontStyle: "italic",
+  },
 });
 
 type Props = {
@@ -83,6 +88,9 @@ export const SavedBeneficiariesForm = (props: Props) => {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<SepaBeneficiary | InternationalBeneficiary>();
 
+  const [verifyBeneficiary, beneficiaryVerification, { reset: resetBeneficiaryVerification }] =
+    useMutation(VerifyBeneficiaryDocument);
+
   const trimmedSearch = search.trim();
 
   const [data, { setVariables }] = useQuery(BeneficiariesListDocument, {
@@ -95,6 +103,24 @@ export const SavedBeneficiariesForm = (props: Props) => {
     },
     first: NUM_TO_RENDER,
   });
+
+  useLayoutEffect(() => {
+    if (selected?.kind === "saved" && "iban" in selected) {
+      verifyBeneficiary({
+        input: {
+          beneficiary: {
+            sepa: {
+              name: selected.name,
+              iban: electronicFormat(selected.iban),
+              save: false,
+            },
+          },
+        },
+      });
+    } else {
+      resetBeneficiaryVerification();
+    }
+  }, [selected]);
 
   const beneficiaries = useForwardAsyncDataPagination(
     data.mapOkToResult(data =>
@@ -150,70 +176,174 @@ export const SavedBeneficiariesForm = (props: Props) => {
                       />
                     }
                     renderItem={({ item: { node } }) => (
-                      <Pressable
-                        role="radio"
-                        onPress={() => {
-                          match(node)
-                            .with({ __typename: "TrustedSepaBeneficiary" }, ({ id, name, iban }) =>
-                              setSelected({ kind: "saved", id, name, iban }),
+                      <View>
+                        <Pressable
+                          role="radio"
+                          onPress={() => {
+                            match(node)
+                              .with(
+                                { __typename: "TrustedSepaBeneficiary" },
+                                ({ id, name, iban }) =>
+                                  setSelected({ kind: "saved", id, name, iban }),
+                              )
+                              .with(
+                                {
+                                  __typename: "TrustedInternationalBeneficiary",
+                                  route: P.not("Unknown"),
+                                  currency: P.when(isSupportedCurrency),
+                                },
+                                ({ id, name, currency, route, details }) => {
+                                  const values = details.map(({ key, value }) => ({ key, value }));
+                                  setSelected({ kind: "saved", id, name, currency, route, values });
+                                },
+                              )
+                              .otherwise(() => {});
+                          }}
+                          style={({ pressed }) => [
+                            styles.beneficiary,
+                            pressed && styles.benificiaryPress,
+                          ]}
+                        >
+                          <LakeRadio
+                            value={selected?.kind === "saved" ? node.id === selected.id : false}
+                          />
+                          <Space width={small ? 16 : 24} />
+
+                          <Box shrink={1}>
+                            <LakeText variant="medium" color={colors.gray[900]} numberOfLines={1}>
+                              {node.label}
+                            </LakeText>
+
+                            <Space height={4} />
+
+                            {match(node)
+                              .with(
+                                { __typename: "TrustedSepaBeneficiary" },
+                                ({ address, iban }) => (
+                                  <>
+                                    <LakeText numberOfLines={1}>{printFormat(iban)}</LakeText>
+
+                                    {match(concatSepaBeneficiaryAddress(address))
+                                      .with(P.nonNullable, address => (
+                                        <>
+                                          <Space height={4} />
+                                          <LakeText numberOfLines={1}>{address}</LakeText>
+                                        </>
+                                      ))
+                                      .otherwise(() => null)}
+                                  </>
+                                ),
+                              )
+                              .with(
+                                { __typename: "TrustedInternationalBeneficiary" },
+                                beneficiary =>
+                                  match(getBeneficiaryIdentifier(beneficiary))
+                                    .with(Option.P.Some(P.select()), ({ label, text }) => (
+                                      <LakeText numberOfLines={1}>
+                                        {label}: {text}
+                                      </LakeText>
+                                    ))
+                                    .otherwise(() => null),
+                              )
+                              .otherwise(() => null)}
+                          </Box>
+                        </Pressable>
+                        {selected?.kind === "saved" && node.id === selected.id
+                          ? match(
+                              beneficiaryVerification
+                                .mapOk(data => data.verifyBeneficiary)
+                                .mapOkToResult(filterRejectionsToResult)
+                                .mapOk(data => data.verifyBeneficiaryResult),
                             )
-                            .with(
-                              {
-                                __typename: "TrustedInternationalBeneficiary",
-                                route: P.not("Unknown"),
-                                currency: P.when(isSupportedCurrency),
-                              },
-                              ({ id, name, currency, route, details }) => {
-                                const values = details.map(({ key, value }) => ({ key, value }));
-                                setSelected({ kind: "saved", id, name, currency, route, values });
-                              },
-                            )
-                            .otherwise(() => {});
-                        }}
-                        style={({ pressed }) => [
-                          styles.beneficiary,
-                          pressed && styles.benificiaryPress,
-                        ]}
-                      >
-                        <LakeRadio
-                          value={selected?.kind === "saved" ? node.id === selected.id : false}
-                        />
-                        <Space width={small ? 16 : 24} />
-
-                        <Box shrink={1}>
-                          <LakeText variant="medium" color={colors.gray[900]} numberOfLines={1}>
-                            {node.label}
-                          </LakeText>
-
-                          <Space height={4} />
-
-                          {match(node)
-                            .with({ __typename: "TrustedSepaBeneficiary" }, ({ address, iban }) => (
-                              <>
-                                <LakeText numberOfLines={1}>{printFormat(iban)}</LakeText>
-
-                                {match(concatSepaBeneficiaryAddress(address))
-                                  .with(P.nonNullable, address => (
-                                    <>
-                                      <Space height={4} />
-                                      <LakeText numberOfLines={1}>{address}</LakeText>
-                                    </>
-                                  ))
-                                  .otherwise(() => null)}
-                              </>
-                            ))
-                            .with({ __typename: "TrustedInternationalBeneficiary" }, beneficiary =>
-                              match(getBeneficiaryIdentifier(beneficiary))
-                                .with(Option.P.Some(P.select()), ({ label, text }) => (
-                                  <LakeText numberOfLines={1}>
-                                    {label}: {text}
-                                  </LakeText>
-                                ))
-                                .otherwise(() => null),
-                            )
-                            .otherwise(() => null)}
-                        </Box>
-                      </Pressable>
+                              .with(
+                                AsyncData.P.Done(
+                                  Result.P.Ok({ __typename: "VerifyBeneficiaryNoMatch" }),
+                                ),
+                                () => (
+                                  <LakeAlert
+                                    variant="error"
+                                    title={formatNestedMessage(
+                                      "transfer.new.beneficiaryVerification.alert.noMatch",
+                                      {
+                                        bold: value => (
+                                          <LakeText variant="semibold" color="inherit">
+                                            {value}
+                                          </LakeText>
+                                        ),
+                                      },
+                                    )}
+                                  />
+                                ),
+                              )
+                              .with(
+                                AsyncData.P.Done(
+                                  Result.P.Ok({ __typename: "VerifyBeneficiaryNotPossible" }),
+                                ),
+                                () => (
+                                  <LakeAlert
+                                    variant="warning"
+                                    title={formatNestedMessage(
+                                      "transfer.new.beneficiaryVerification.alert.notPossible",
+                                      {
+                                        bold: value => (
+                                          <LakeText variant="semibold" color="inherit">
+                                            {value}
+                                          </LakeText>
+                                        ),
+                                      },
+                                    )}
+                                  />
+                                ),
+                              )
+                              .with(
+                                AsyncData.P.Done(
+                                  Result.P.Ok(
+                                    P.select({
+                                      __typename: "VerifyBeneficiaryCloseMatch",
+                                    }),
+                                  ),
+                                ),
+                                ({ nameSuggestion }) => (
+                                  <LakeAlert
+                                    variant="info"
+                                    title={
+                                      <LakeText color="inherit">
+                                        {formatNestedMessage(
+                                          "transfer.new.beneficiaryVerification.input.closeMatch.didYouMean",
+                                          {
+                                            name: value => (
+                                              <LakeText
+                                                variant="regular"
+                                                color="inherit"
+                                                style={styles.nameSuggestion}
+                                              >
+                                                {value}
+                                              </LakeText>
+                                            ),
+                                            nameSuggestion,
+                                          },
+                                        )}
+                                      </LakeText>
+                                    }
+                                  >
+                                    <LakeText color={colors.shakespear[700]}>
+                                      {formatNestedMessage(
+                                        "transfer.new.beneficiaryVerification.alert.closeMatch",
+                                        {
+                                          bold: value => (
+                                            <LakeText variant="semibold" color="inherit">
+                                              {value}
+                                            </LakeText>
+                                          ),
+                                        },
+                                      )}
+                                    </LakeText>
+                                  </LakeAlert>
+                                ),
+                              )
+                              .otherwise(() => null)
+                          : null}
+                      </View>
                     )}
                     onEndReached={() => {
                       if (pageInfo.hasNextPage ?? false) {
@@ -243,7 +373,14 @@ export const SavedBeneficiariesForm = (props: Props) => {
                         value: { iban: P.nonNullable },
                       },
                       ({ props: { onPressSubmit }, value }) => {
-                        onPressSubmit(value);
+                        beneficiaryVerification
+                          .mapOk(value => value.verifyBeneficiary)
+                          .mapOkToResult(filterRejectionsToResult)
+                          .toOption()
+                          .flatMap(value => value.toOption())
+                          .tapSome(beneficiaryVerification =>
+                            onPressSubmit({ ...value, beneficiaryVerification }),
+                          );
                       },
                     )
                     .with(

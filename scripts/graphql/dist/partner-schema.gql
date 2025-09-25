@@ -122,6 +122,9 @@ type Account {
   """Download link to the main account iban's bank details"""
   bankDetails: String
 
+  """Settings of the account"""
+  settings: AccountSettings!
+
   """
   Bank Identifier Code
   Only if the account membership has `canViewAccount=true` & this account has `paymentLevel=Unlimited`
@@ -425,6 +428,11 @@ enum AccountCountry {
 
   """Italian account with an Italian IBAN, starting with IT."""
   ITA
+
+  """
+  Belgian account with an Belgian IBAN, starting with BE (Coming Soon, not supported yet).
+  """
+  BEL
 }
 
 """Implements the Relay Edge interface"""
@@ -635,6 +643,10 @@ type AccountHolder {
   fundingLimitSettings: FundingLimitSettings
 }
 
+type AccountHolderAccountsCreationLimitRejection implements Rejection {
+  message: String!
+}
+
 type AccountHolderAccountsStatusNotEligibleRejection implements Rejection {
   """
   Reason why the account holder's accounts are not eligible to open an additional account
@@ -714,6 +726,11 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
 
   """Legal representative personal address"""
   legalRepresentativePersonalAddress: AddressInformation
+
+  """
+  Acquisition Channel to specify how the user joined, such as "InboundOrganic", "OutboundSales", etc.
+  """
+  acquisitionChannel: AcquisitionChannel
 }
 
 """
@@ -821,6 +838,11 @@ type AccountHolderIndividualInfo implements AccountHolderInfo {
 
   """Tax Identification Number"""
   taxIdentificationNumber: String
+
+  """
+  Acquisition Channel to specify how the user joined, such as "InboundOrganic", "OutboundSales", etc.
+  """
+  acquisitionChannel: AcquisitionChannel
 }
 
 """Account holder types."""
@@ -862,6 +884,10 @@ type AccountHolderPendingVerificationStatusInfo implements AccountHolderVerifica
 
   """ISO Date string at which the account holder status was set to Pending"""
   pendingAt: DateTime!
+}
+
+type AccountHolderProjectSettingsNotEligibleRejection implements Rejection {
+  message: String!
 }
 
 type AccountHolderRefusedVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
@@ -933,9 +959,7 @@ type AccountHolderTypeIndividualRejection implements Rejection {
 }
 
 type AccountHolderTypeNotEligibleRejection implements Rejection {
-  """
-  Reason why the account holder is not eligible to open an additional account
-  """
+  """Reason why the account holder is not eligible"""
   message: String!
 }
 
@@ -1077,6 +1101,9 @@ type AccountMembership {
   Available Account Country: CCA3
   """
   accountCountry: AccountCountry!
+
+  """The type of the account holder linked to the account membership."""
+  accountHolderType: AccountHolderType!
 
   """account membership's cards"""
   cards(
@@ -1221,7 +1248,7 @@ type AccountMembershipNotAllowedRejection implements Rejection {
 }
 
 type AccountMembershipNotEligibleRejection implements Rejection {
-  """Reason why the user is not eligible to open an additional account"""
+  """Reason why the user is not eligible"""
   message: String!
 }
 
@@ -1335,6 +1362,11 @@ interface AccountMembershipStatusInfo {
   status: AccountMembershipStatus!
 }
 
+type AccountMembershipStatusNotEligibleRejection implements Rejection {
+  """Reason why the user status is not eligible"""
+  message: String!
+}
+
 """when the account membership is suspended"""
 type AccountMembershipSuspendedStatusInfo implements AccountMembershipStatusInfo {
   """
@@ -1407,6 +1439,13 @@ input AccountReceivedDirectDebitOrderByInput {
   direction: OrderByDirection
 }
 
+type AccountSettings {
+  """
+  Wether or not the account is allowed to initiate bulk payment transfers without the beneficiary verification
+  """
+  allowBulkCreditTransfersWithoutBeneficiaryVerification: Boolean
+}
+
 """Filters that can be applied when listing Standing orders"""
 input AccountStandingOrderFiltersInput {
   status: [StandingOrderStatus!]
@@ -1455,6 +1494,11 @@ type AccountSuspendedStatus implements AccountStatusInfo {
 
   """Reason why the account is currently suspend"""
   reasonInfo: SuspendAccountStatusReason!
+}
+
+type AccountTypeNotEligibleRejection implements Rejection {
+  """Reason why the account type is not eligible"""
+  message: String!
 }
 
 """Account Verification"""
@@ -1961,6 +2005,17 @@ type AddInternalDirectDebitPaymentMandateSuccessPayload {
   paymentMandate: InternalPaymentDirectDebitMandate!
 }
 
+union AdditionalInformation = DefaultAdditionalInformation | OtherAdditionalInformation
+
+input AdditionalInformationInput {
+  defaultInformation: DefaultAdditionalInformationInput
+  otherInformation: OtherAdditionalInformationInput
+}
+
+type AdditionalInformationRequirements {
+  additionalInformation: [AdditionalInformationType!]!
+}
+
 enum AdditionalInformationType {
   NumberOfEmployees
   NumberOfOwners
@@ -2214,6 +2269,11 @@ input AddSingleUseVirtualCardInput {
 
   """The id of the card product to use to create the new card."""
   cardProductId: ID
+
+  """
+  Card expiration date only for Single Use Virtual Card One-off, if `null` the Single Use Virtual Card will have a default expiration of plus 30 days
+  """
+  cardContractExpiryDate: DateTime
 }
 
 union AddSingleUseVirtualCardPayload = AddSingleUseVirtualCardSuccessForUserPayload | AddSingleUseVirtualCardSuccessForProjectOwnerPayload | BadAccountStatusRejection | AccountMembershipNotAllowedRejection | CardProductInvalidFundingTypeRejection | CardProductSuspendedRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection
@@ -2628,6 +2688,12 @@ enum BankingFee {
   VirtualCardSubscription
 }
 
+enum BankingFeePackageType {
+  CardStandard
+  CardEssential
+  CardPremium
+}
+
 """Basic Physical Card Info"""
 type BasicPhysicalCardInfo {
   """Physical Card expiration date  with MM/YY string format"""
@@ -2667,6 +2733,13 @@ enum BeneficiaryAccountStatus {
 
   """Beneficiary's bank did not disclose account status"""
   Unknown
+}
+
+"""Input parameters for a beneficiary"""
+input BeneficiaryInput {
+  sepa: SepaBeneficiaryInput
+  swanAccount: SwanAccountBeneficiaryInput
+  trustedBeneficiaryId: ID
 }
 
 """Beneficiary name and IBAN match"""
@@ -2729,6 +2802,14 @@ input BeneficiaryVerificationInput {
 """BeneficiaryVerificationResult"""
 union BeneficiaryVerificationResult = BeneficiaryMatch | BeneficiaryTypo | BeneficiaryMismatch | InvalidBeneficiaryVerification
 
+"""
+Rejection returned if a BeneficiaryVerificationToken was consumed in a transfer initiation
+"""
+type BeneficiaryVerificationTokenAlreadyConsumedRejection implements Rejection {
+  beneficiaryVerificationTokens: [String!]!
+  message: String!
+}
+
 """Bank Identifier Code"""
 scalar BIC
 
@@ -2758,6 +2839,9 @@ type BookedBalanceAfter {
 
 """Booked transaction status information"""
 type BookedTransactionStatusInfo implements TransactionStatusInfo {
+  """unique identifier of the transaction"""
+  id: ID!
+
   """status of the transaction"""
   status: TransactionStatus!
 
@@ -2885,6 +2969,9 @@ type CanceledIdentificationLevelStatusInfo {
 
 """Canceled transaction status information"""
 type CanceledTransactionStatusInfo implements TransactionStatusInfo {
+  """unique identifier of the transaction"""
+  id: ID!
+
   """status of the transaction"""
   status: TransactionStatus!
 
@@ -3341,7 +3428,7 @@ type Card {
   """
   URL of the card with masked card information (like its number) and with full card information if connected user consented beforehand
   """
-  cardUrl: String!
+  cardUrl: String! @deprecated(reason: "Use cardMaskedNumber, expiryDate and cardDesignUrl to recreate the content of this page")
 
   """Card status information"""
   statusInfo: CardStatusInfo!
@@ -3399,8 +3486,8 @@ type Card {
   """Periodic Spending"""
   spending: Spending
 
-  """The corresponding spending"""
-  deferredDebitSpending: Spending!
+  """Experimental field, do not use as it will be removed in the future"""
+  deferredDebitSpending: Spending! @deprecated(reason: "Use spending instead")
 }
 
 enum CardAuthorizationType {
@@ -3841,7 +3928,7 @@ type CardMerchantPaymentMethod implements MerchantPaymentMethod {
   rollingReserve: RollingReserve
 
   """Reason of rejection when the status is Rejected"""
-  rejectReason: MerchantPaymentMethodCardRejectReason
+  rejectReason: MerchantPaymentMethodCardRejectReason @deprecated(reason: "Use statusInfo.rejectionReason instead")
 
   """The Merchant Payment Method payment amount limit"""
   paymentAmountLimit: Amount
@@ -4819,13 +4906,13 @@ input CompleteAddressInput {
   """address line 2 (max 38 characters)"""
   addressLine2: String
 
-  """city (max 30 characters)"""
+  """city (max 30 characters) `^\p{L}+(\p{L}|[0-9]|-|'|\s)*(\p{L}|[0-9])+$`"""
   city: String!
 
-  """postal code (max 10 characters)"""
+  """postal code (max 10 characters) `^[0-9A-Z- ]{1,10}$`"""
   postalCode: String!
 
-  """state (max 30 characters)"""
+  """state (max 30 characters) `^\p{L}+(\p{L}|-|'|\s)*\p{L}+`"""
   state: String
 
   """country code"""
@@ -4840,13 +4927,13 @@ input CompleteAddressWithContactInput {
   """address line 2 (max 38 characters)"""
   addressLine2: String
 
-  """city (max 30 characters)"""
+  """city (max 30 characters) `^\p{L}+(\p{L}|[0-9]|-|'|\s)*(\p{L}|[0-9])+$`"""
   city: String!
 
-  """postal code (max 10 characters)"""
+  """postal code (max 10 characters) `^[0-9A-Z- ]{1,10}$`"""
   postalCode: String!
 
-  """state (max 30 characters)"""
+  """state (max 30 characters) `^\p{L}+(\p{L}|-|'|\s)*\p{L}+`"""
   state: String
 
   """country code"""
@@ -5202,6 +5289,9 @@ enum ConsentPurpose {
 
   """if the consent originates from a 3DS flow"""
   ThreeDsPayment
+
+  """when updating an account settings"""
+  UpdateAccountSettings
 }
 
 """
@@ -5292,6 +5382,21 @@ union CreateCapitalDepositCasePayload = CreateCapitalDepositCaseSuccessPayload |
 
 type CreateCapitalDepositCaseSuccessPayload {
   capitalDepositCase: CapitalDepositCase!
+}
+
+input CreateInPersonPaymentIntentInput {
+  merchantProfileId: ID!
+  amount: AmountInput!
+  idempotencyKey: String
+  externalReference: String
+  reference: String
+  label: String
+}
+
+union CreateInPersonPaymentIntentPayload = CreateInPersonPaymentIntentSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection
+
+type CreateInPersonPaymentIntentSuccessPayload {
+  paymentIntent: PaymentIntent!
 }
 
 input CreateMerchantPaymentLinkInput {
@@ -5412,10 +5517,11 @@ input CreditLimitSepaDirectDebitB2BInput {
 }
 
 type CreditLimitSettings {
+  id: ID!
+
   """The different requests made for a credit limit."""
   creditLimitSettingsRequests: CreditLimitSettingsRequestConnection!
   statusInfo: CreditLimitSettingsStatusInfo!
-  owedAmount: Amount!
   repaymentSettings: RepaymentSettings!
   currentCycle: RepaymentCycle
   cycles: RepaymentCycleConnection
@@ -5423,12 +5529,20 @@ type CreditLimitSettings {
   """The amount currently available for borrowing"""
   createdAt: DateTime!
   updatedAt: DateTime!
+
+  """The total amount owed"""
+  owedAmount: Amount!
 }
 
 """Inputs on the maximum credit limits requested."""
 input CreditLimitSettingsInput {
   amount: AmountInput!
   message: String
+}
+
+"""Rejection when an inputs contains an error"""
+type CreditLimitSettingsNotFoundRejection implements Rejection {
+  message: String!
 }
 
 """Credit limit requested by the account’s legal representative."""
@@ -5547,13 +5661,61 @@ type CreditLimitStatusSuspendedInfo implements CreditLimitSettingsStatusInfo {
   suspendedAt: DateTime!
 }
 
+"""
+A statement represent metadata around a banking document that list all of the BOOKED banking transactions that have happened between startDate and endDate
+"""
+type CreditStatement {
+  """unique identifier of the statement"""
+  id: ID!
+
+  """booked balance at the start of the window"""
+  openingBalance: Amount!
+
+  """booked balance at the end of the window"""
+  closingBalance: Amount!
+
+  """starting date of the date window"""
+  openingDate: DateTime!
+
+  """ending date of the date window"""
+  closingDate: DateTime!
+
+  """status of the statement"""
+  status: StatementStatus!
+
+  """repayment cycle related to the statement"""
+  repaymentCycle: RepaymentCycle
+
+  """the sum of credit transactions during the window"""
+  totalCredits: Amount!
+
+  """the sum of debit transactions during the window"""
+  totalDebits: Amount!
+
+  """type of statement (ex: PDF)"""
+  type: StatementInfo!
+
+  """created date"""
+  createdAt: DateTime!
+
+  """updated date"""
+  updatedAt: DateTime!
+}
+
+union CreditStatementPayload = AccountNotFoundRejection | CreditStatement | CreditStatementSuccessPayload | ForbiddenRejection | RepaymentCycleNotFoundRejection
+
+type CreditStatementSuccessPayload {
+  creditStatement: CreditStatement
+}
+
 """Credit transfer"""
 input CreditTransferInput {
   """
-  *SOON TO BE DEPRECATED*
-  if the transfer will credit a beneficiary already created
+  * COMING SOON *
+  if the transfer will credit a new SEPA beneficiary and beneficiary verification was prepared with the 'verifyBeneficiary' mutation
+  Mandatory for batch transfer initiations unless the user opts-out from VoP.
   """
-  beneficiaryId: ID
+  beneficiaryVerificationToken: String
 
   """if the transfer will credit a new swan account beneficiary"""
   swanAccountBeneficiary: SwanAccountBeneficiaryInput
@@ -5692,8 +5854,21 @@ type DebtorAccountNotAllowedRejection implements Rejection {
   message: String!
 }
 
+type DefaultAdditionalInformation {
+  type: AdditionalInformationType!
+  value: String!
+}
+
+input DefaultAdditionalInformationInput {
+  type: AdditionalInformationType!
+  value: String!
+}
+
 """Deferred transaction status information"""
 type DeferredTransactionStatusInfo implements TransactionStatusInfo {
+  """unique identifier of the transaction"""
+  id: ID!
+
   """The date when the deferred amount of this transaction is released"""
   deferredEndDate: DateTime
 
@@ -6362,6 +6537,13 @@ type ExemptThreeDsStatusInfo implements ThreeDsStatusInfo {
   status: IncomingThreeDsStatus!
 }
 
+enum ExpectedMonthlyMerchantProcessingVolume {
+  LessThan5000
+  Between5000And10000
+  Between10000And100000
+  MoreThan100000
+}
+
 """
 Describes an identification level for the process associated to this identification that has expired and is no longer considered valid
 """
@@ -6415,6 +6597,12 @@ input ExportAccountDataFilters {
 
   """Possible payment level type."""
   paymentLevels: [PaymentLevelType!]
+
+  """Possible main IBAN."""
+  mainIBAN: String
+
+  """Search string to look for in accounts."""
+  search: String
 }
 
 """Input for the `exportAccountData` mutation."""
@@ -6435,6 +6623,18 @@ input ExportAccountHolderDataFilters {
 
   """Possible account holder type."""
   types: [AccountHolderType!]
+
+  """Possible account holder status."""
+  status: [AccountHolderStatus!]
+
+  """Search string to look for in account holders."""
+  search: String
+
+  """Registration number to filter account holders."""
+  registrationNumber: String
+
+  """Birth date to filter account holders."""
+  birthDate: String
 }
 
 """Input for the `exportAccountHolderData` mutation."""
@@ -6473,6 +6673,9 @@ input ExportAccountMembershipDataFilters {
 
   """Possible values for account membership verification status."""
   status: [AccountMembershipStatus!]
+
+  """Search string to look for in account memberships."""
+  search: String
 }
 
 """Input for the `exportAccountMembershipData` mutation."""
@@ -6499,6 +6702,9 @@ input ExportCardDataFilters {
 
   """Possible values for card type."""
   types: [CardType!]
+
+  """Search string to look for in cards."""
+  search: String
 }
 
 """Input for the `exportCardData` mutation."""
@@ -6532,6 +6738,7 @@ type ExportConnection implements Connection {
   edges: [ExportEdge!]!
 }
 
+"""Common types shared across all export mutations."""
 union ExportDataPayload = ExportDataSuccessPayload | MaximumSimultaneousExportsRejection | MaximumDailyExportsReachedRejection | ValidationRejection
 
 """Payload of any export mutation in case of success."""
@@ -6603,6 +6810,9 @@ input ExportOnboardingDataFilters {
 
   """Possible account holder type."""
   types: [AccountHolderType!]
+
+  """Search string to look for in onboardings."""
+  search: String
 }
 
 """Input for the `exportOnboardingData` mutation."""
@@ -6642,16 +6852,37 @@ input ExportTransactionDataFilters {
   status: [TransactionStatus!]
 
   """Possible values for transaction payment product."""
-  paymentProduct: [TransactionPaymentProduct!]
+  paymentProduct: [PaymentProduct!]
 
   """Possible values for transaction type."""
-  type: [TransactionType!]
+  type: [TransactionTypeEnum!]
 
   """Date after an updatedAt value (inclusive)."""
-  isAfterUpdatedAt: Date
+  isAfterUpdatedAt: DateTime
 
   """Date before an updatedAt value (exclusive)."""
-  isBeforeUpdatedAt: Date
+  isBeforeUpdatedAt: DateTime
+
+  """Search string to look for in the transaction."""
+  search: String
+
+  """An exact amount value."""
+  amount: AmountValue
+
+  """Rejected transactions that had a fallback."""
+  includeRejectedWithFallback: Boolean
+
+  """Above an amount value (inclusive)."""
+  isAboveAmount: AmountValue
+
+  """Below an amount value (inclusive)."""
+  isBelowAmount: AmountValue
+
+  """Date after an executation date value (inclusive)."""
+  isAfterExecutionDate: DateTime
+
+  """Date before an executionDate value (exclusive)"""
+  isBeforeExecutionDate: DateTime
 }
 
 """Input for the `exportTransactionData` mutation."""
@@ -6676,12 +6907,39 @@ enum ExportType {
   Transactions
 }
 
+"""Input filters for the `exportUserData` mutation."""
+input ExportUserDataFilters {
+  """User status filter."""
+  status: [UserStatus!]
+
+  """Search string to look for in users."""
+  search: String
+
+  """Preferred notification channel filter."""
+  preferredNotificationChannel: PreferredNotificationChannel
+
+  """Nationality filter (ISO 3166-1 alpha-3 country code)."""
+  nationalityCCA3: CCA3
+
+  """Mobile phone number filter."""
+  mobilePhoneNumber: String
+
+  """Identification level filter."""
+  identificationLevel: IdentificationLevelInput
+
+  """Birth date filter."""
+  birthDate: Date
+}
+
 """Input for the `exportUserData` mutation."""
 input ExportUserDataInput {
   """
   The email address that will receive a notification when the export is completed.
   """
   email: String!
+
+  """User filters."""
+  filters: ExportUserDataFilters
 }
 
 type ExternalAccount {
@@ -7062,11 +7320,17 @@ enum FeesTypeEnum {
   """Fee for the deposit of a physical check"""
   CheckDeposit
 
-  """Fee if a physical check is rejected or returned"""
+  """Rejection of a physical check"""
   CheckIncident
+
+  """Return of a physical check"""
+  CheckReturn
 
   """Drafting circulation letter"""
   CirculationLetterDraftingFee
+
+  """Account opening fee for a business account"""
+  CompanyAccountHolderVerified
 
   """
   Fee for drafting a confirmation letter attesting to the existence of a Swan account
@@ -7075,6 +7339,12 @@ enum FeesTypeEnum {
 
   """Direct debit rejection"""
   DirectDebitRejection
+
+  """Document issuance"""
+  DocumentIssuance
+
+  """Account inactive within the past 12 months"""
+  InactiveAccount
 
   """
   Fee for performing a credit transfer not denominated and executed in euros on group 1 currencies
@@ -7139,6 +7409,12 @@ enum FeesTypeEnum {
 
   """Processing judicial or administrative seizure"""
   ProcessingJudicialOrAdministrativeSeizure
+
+  """Incoming Core SEPA Direct Debit (Merchant)"""
+  SddInCoreMerchant
+
+  """Incoming B2B SEPA Direct Debit (Merchant)"""
+  SddInB2bMerchant
 
   """Fee for an incoming B2B SEPA Direct Debit up to 200€"""
   SepaDirectDebitInB2bLevel1
@@ -7699,6 +7975,29 @@ type GenerateCapitalDepositDocumentUploadUrlSuccessPayload {
   """URL to be used to upload the document."""
   uploadUrl: String
 }
+
+type GenerateCreditStatementFailurePayload {
+  message: String!
+}
+
+"""Inputs to generate a credit statement"""
+input GenerateCreditStatementInput {
+  """The account which will be used to generate the credit statement"""
+  accountId: ID!
+
+  """
+  The repayment cycle which will be used to generated the credit statement.
+  """
+  repaymentCycleId: ID!
+
+  """language to generate the statement in (default to account's language)"""
+  language: AccountLanguage
+
+  """Type of statement to generate"""
+  statementType: StatementType = PDF
+}
+
+union GenerateCreditStatementPayload = BadRequestRejection | ForbiddenRejection | CreditStatement | AccountHolderNotFoundRejection | AccountNotFoundRejection | RepaymentCycleNotFoundRejection | CreditLimitSettingsNotFoundRejection
 
 type GeneratedTransactionStatementStatusInfo implements TransactionStatementStatusInfo {
   """status of the transaction statement"""
@@ -8524,8 +8823,6 @@ input InitiateCheckMerchantPaymentInput {
 union InitiateCheckMerchantPaymentPayload = CheckRejection | DuplicateCheckRejection | ForbiddenRejection | InitiateCheckMerchantPaymentSuccessPayload | InternalErrorRejection | NotFoundRejection | ValidationRejection
 
 type InitiateCheckMerchantPaymentSuccessPayload {
-  merchantPayment: Payment! @deprecated(reason: "To be removed, use checkMerchantPayment instead")
-
   """
   Details of the FNCI (Fichier national des chèques irréguliers) response
   """
@@ -8555,10 +8852,16 @@ input InitiateCreditTransfersInput {
   idempotencyKey: String
 }
 
-union InitiateCreditTransfersPayload = InitiateCreditTransfersSuccessPayload | AccountNotFoundRejection | ForbiddenRejection | InternalErrorRejection | ValidationRejection | IdempotencyConflictRejection
+union InitiateCreditTransfersPayload = InitiateCreditTransfersSuccessPayload | AccountNotFoundRejection | ForbiddenRejection | InternalErrorRejection | BeneficiaryVerificationTokenAlreadyConsumedRejection | ValidationRejection | IdempotencyConflictRejection
 
 type InitiateCreditTransfersSuccessPayload {
   payment: Payment!
+
+  """
+  * COMING SOON *
+  Results of the beneficiary verifications in the same order as the beneficiary inputs
+  """
+  beneficiaryVerificationResults: [VerifyBeneficiaryResult]
 }
 
 """Input to initiate a funding request"""
@@ -8714,7 +9017,8 @@ input InitiateSepaDirectDebitMerchantPaymentInput {
 union InitiateSepaDirectDebitMerchantPaymentPayload = InitiateSepaDirectDebitMerchantPaymentSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection
 
 type InitiateSepaDirectDebitMerchantPaymentSuccessPayload {
-  paymentId: ID!
+  paymentId: ID! @deprecated(reason: "use merchantPayment instead")
+  merchantPayment: MerchantPayment!
 }
 
 type InstantFundingLimit {
@@ -11272,6 +11576,32 @@ type MerchantPaymentMethodNotCompatibleRejection implements Rejection {
   message: String!
 }
 
+"""The different rejection reasons a MerchantPaymentMethod can have"""
+enum MerchantPaymentMethodRejectionReason {
+  """Payment method requested makes no sense for the business model"""
+  InvalidUseCase
+
+  """Merchant denied or failed to provide a relevant requested information"""
+  InconsistentOrMissingInformation
+
+  """Partner isn’t allowed to request this payment method"""
+  UnsupportedPaymentMethod
+
+  """We gave a custom criteria to the partner and it’s in violation"""
+  ContractualCriteriaNotFulfilled
+
+  """Merchant profile is not supported"""
+  UnsupportedMerchantProfile
+
+  """
+  General rejection where we don't want to provide more info (eg, fraudster with sensitive info)
+  """
+  GenericRejection
+
+  """General rejection where an error occurred on Swan's side."""
+  SwanTechnicalErrorOccurred
+}
+
 type MerchantPaymentMethodSepaDirectDebitInvalidRejection implements Rejection {
   message: String!
 }
@@ -11478,10 +11808,13 @@ type MerchantProfile {
   expectedAverageBasket: Amount!
 
   """Expected annual activity volumes for all payment method"""
-  expectedMonthlyPaymentVolume: Amount!
+  expectedMonthlyPaymentVolume: Amount! @deprecated(reason: "use expectedMonthlyMerchantProcessingVolume instead")
+
+  """Expected annual activity volumes for all payment method"""
+  expectedMonthlyMerchantProcessingVolume: ExpectedMonthlyMerchantProcessingVolume!
 
   """Url of an example typical invoice issued by the merchant."""
-  invoiceExampleUrl: String
+  invoiceExampleUrl: String @deprecated(reason: "Unused, will be removed in future versions")
 
   """Url of the merchant's logo"""
   merchantLogoUrl: String
@@ -11537,7 +11870,10 @@ type MerchantProfile {
   ): MerchantPaymentConnection
 
   """Url of the merchant's website"""
-  merchantWebsite: String
+  merchantWebsite: String @deprecated(reason: "Use merchantWebsiteUrl instead")
+
+  """Url of the merchant's website"""
+  merchantWebsiteUrl: String
 
   """
   The type of payments accepted by the merchant. Can be OneOff (no returning payers in general), Recurrent (returning payers), or a mix of both OneOffAndRecurrent.
@@ -11556,19 +11892,31 @@ type MerchantProfile {
   requestMerchantProfileUpdate: RequestMerchantProfileUpdate
 
   """The URL of the main social network of the merchant."""
-  socialNetwork: String
+  socialNetwork: String @deprecated(reason: "use socialNetworkUrl instead")
+
+  """The URL of the main social network of the merchant."""
+  socialNetworkUrl: String
 
   """The status of the merchant profile"""
   statusInfo: MerchantProfileStatusInfo!
 
   """The URL of the support website or help center of the merchant."""
-  supportWebsite: String
+  supportWebsite: String @deprecated(reason: "use supportWebsiteUrl instead")
+
+  """The URL of the support website or help center of the merchant."""
+  supportWebsiteUrl: String
 
   """The URL of the terms and conditions of the merchant."""
-  termsAndConditions: String
+  termsAndConditions: String @deprecated(reason: "use termsAndConditionsUrl instead")
+
+  """The URL of the terms and conditions of the merchant."""
+  termsAndConditionsUrl: String
 
   """updated date"""
   updatedAt: DateTime!
+
+  """Additional information about the merchant profile"""
+  additionalInformation: [AdditionalInformation!]!
 }
 
 type MerchantProfileConnection implements Connection {
@@ -11618,6 +11966,35 @@ enum MerchantProfilePaymentFrequency {
   OneOff
   Recurrent
   OneOffAndRecurrent
+}
+
+"""RejectedMerchantProfileRejectionReasonEnum"""
+enum MerchantProfileRejectionReason {
+  """
+  Duplicate profile found by the risk team (or in the future programmatically)
+  """
+  DuplicateProfile
+
+  """
+  Something is highly inconsistent, for example a completely different unrelated website
+  """
+  InconsistentOrMissingInformation
+
+  """
+  Prohibited activity/NACE code, automatically applied if there's a hit/match
+  """
+  UnsupportedActivity
+
+  """Doesn’t respect a custom criteria discussed with partners"""
+  ContractualCriteriaNotFulfilled
+
+  """
+  General rejection where we don't want to provide more info (eg, fraudster with sensitive info)
+  """
+  GenericRejection
+
+  """Risk alerting popped up for a weird processing pattern"""
+  SuspiciousBehavior
 }
 
 """Merchant Profile Statuses"""
@@ -11738,7 +12115,7 @@ enum MerchantSubCategory {
   Other
 }
 
-union MerchantVerificationRequirements = MerchantRequirements
+union MerchantVerificationRequirements = MerchantRequirements | AdditionalInformationRequirements | OtherAdditionalInformationRequirements | SupportingDocumentRequirements
 
 type MissingBirthDateRejection {
   message: String!
@@ -11784,6 +12161,11 @@ enum MonthlyPaymentVolume {
 
 type MonthlyPeriod {
   dayOfMonth: Int!
+}
+
+type MultipleAccountsSettings {
+  canOpenAccount: Boolean!
+  accountCreationLimit: Int!
 }
 
 type Mutation {
@@ -11936,6 +12318,9 @@ type Mutation {
   *The user must have an account membership for this account with the attribute `canManageAccountMembership=true`.*
   """
   updateAccountMembership(input: UpdateAccountMembershipInput!): UpdateAccountMembershipPayload!
+
+  """Update an account settings."""
+  updateAccountSettings(input: UpdateAccountSettingsInput!): UpdateAccountSettingsPayload!
 
   """Update an account."""
   updateAccount(input: UpdateAccountInput!): UpdateAccountPayload!
@@ -12149,6 +12534,9 @@ type Mutation {
   """
   viewPhysicalCardPin(input: ViewPhysicalCardPinInput!): ViewPhysicalCardPinPayload!
 
+  """Generate a credit statement on a given account for a specific cycle."""
+  generateCreditStatement(input: GenerateCreditStatementInput!): GenerateCreditStatementPayload!
+
   """Request a credit limit with given settings"""
   requestCreditLimitSettings(input: requestCreditLimitSettingsInput!): RequestCreditLimitSettingsPayload
 
@@ -12195,7 +12583,6 @@ type Mutation {
 
   """
   Export all transactions of a project.
-  
   NB: This mutation only starts an asynchronous process and returns its identifier.
   """
   exportTransactionData(input: ExportTransactionDataInput!): ExportDataPayload
@@ -12304,6 +12691,12 @@ type Mutation {
   """Cancel a MerchantProfile update request"""
   cancelMerchantProfileUpdateRequest(input: CancelMerchantProfileUpdateRequestInput!): CancelMerchantProfileUpdateRequestPayload
 
+  """
+  COMING SOON
+  Create an in-person payment intent for a merchant profile
+  """
+  createInPersonPaymentIntent(input: CreateInPersonPaymentIntentInput!): CreateInPersonPaymentIntentPayload
+
   """Create a unique URL for a merchant to collect payment from a customer"""
   createMerchantPaymentLink(input: CreateMerchantPaymentLinkInput!): CreateMerchantPaymentLinkPayload!
 
@@ -12325,6 +12718,12 @@ type Mutation {
 
   """Request a merchant profile to a company account holder"""
   requestMerchantProfile(input: RequestMerchantProfileInput!): RequestMerchantProfilePayload
+
+  """
+  COMING SOON
+  Request a terminal connection token for a merchant profile
+  """
+  requestTerminalConnectionToken(input: RequestTerminalConnectionTokenInput!): RequestTerminalConnectionTokenPayload
 
   """
   Cancels an UPCOMING credit transfer
@@ -12416,19 +12815,14 @@ type Mutation {
   scheduleStandingOrder(input: ScheduleStandingOrderInput!): ScheduleStandingOrderPayload!
 
   """
-  ** COMING SOON **
-  Verify a SEPA beneficiary and obtain a verification token
-  
-  This mutation will perform an outgoing Verification of Payee (VoP) to verify
-  a SEPA beneficiary's information and obtain a verification token that can be
-  used in subsequent credit transfers.
-  
-  **Note: This feature is currently in development and will be available soon to comply with the PSD3 effective October 9th, 2025.**
+  *** COMING SOON ***
+  Get a beneficiary token to initiate SEPA Credit Transfers and Instant SEPA Credit Transfers.
+  Note: This feature is in development and will be available soon to meet the European Instant Payments Regulation (IPR) requirements, effective October 9th, 2025.
   """
-  verifySepaBeneficiary(
+  verifyBeneficiary(
     """Input parameters for the beneficiary verification"""
-    input: VerifySepaBeneficiaryInput!
-  ): VerifySepaBeneficiaryPayload!
+    input: VerifyBeneficiaryInput!
+  ): VerifyBeneficiaryPayload!
 
   """
   Probe a Webhook callback endpoint
@@ -13156,7 +13550,7 @@ input OpenAccountInput {
   name: String
 }
 
-union OpenAccountPayload = OpenAccountSuccessPayload | InternalErrorRejection | ForbiddenRejection | AccountHolderNotFoundRejection | AccountHolderTypeNotEligibleRejection | AccountHolderStatusNotEligibleRejection | AccountHolderVerificationStatusNotEligibleRejection | AccountHolderAccountsTypeNotEligibleRejection | AccountHolderAccountsStatusNotEligibleRejection | AccountMembershipNotEligibleRejection
+union OpenAccountPayload = OpenAccountSuccessPayload | InternalErrorRejection | ForbiddenRejection | AccountHolderNotFoundRejection | AccountHolderTypeNotEligibleRejection | AccountHolderStatusNotEligibleRejection | AccountHolderVerificationStatusNotEligibleRejection | AccountHolderAccountsTypeNotEligibleRejection | AccountHolderAccountsStatusNotEligibleRejection | AccountMembershipNotEligibleRejection | AccountHolderProjectSettingsNotEligibleRejection | AccountHolderAccountsCreationLimitRejection | ProjectSettingsNotFoundRejection
 
 type OpenAccountSuccessPayload {
   account: Account!
@@ -13169,6 +13563,20 @@ type OperationNotAllowedRejection implements Rejection {
 enum OrderByDirection {
   Asc
   Desc
+}
+
+type OtherAdditionalInformation {
+  description: String!
+  value: String!
+}
+
+input OtherAdditionalInformationInput {
+  description: String!
+  value: String!
+}
+
+type OtherAdditionalInformationRequirements {
+  otherAdditionalInformation: [String!]!
 }
 
 """https://www.twilio.com/docs/verify/supported-languages"""
@@ -13430,6 +13838,10 @@ input PaymentFiltersInput {
 type PaymentInitiated implements PaymentStatusInfo {
   """status of the payment"""
   status: PaymentStatus!
+}
+
+type PaymentIntent {
+  secret: String!
 }
 
 """Payment Level of the account"""
@@ -13868,6 +14280,9 @@ type PendingTransactionStatementStatusInfo implements TransactionStatementStatus
 
 """Pending transaction status information"""
 type PendingTransactionStatusInfo implements TransactionStatusInfo {
+  """unique identifier of the transaction"""
+  id: ID!
+
   """status of the transaction"""
   status: TransactionStatus!
 
@@ -14088,8 +14503,8 @@ type PhysicalCardRenewedStatusInfo implements PhysicalCardStatusInfo {
   """Shipping tracking number"""
   trackingNumber: String
 
-  """Name of the shipping provider (Ex: LaPoste, DHL ...)"""
-  shippingProvider: String
+  """Name of the shipping provider"""
+  shippingProvider: ShippingProvider
 
   """`true` if PIN Code is available."""
   isPINReady: Boolean!
@@ -14163,8 +14578,8 @@ type PhysicalCardToActivateStatusInfo implements PhysicalCardStatusInfo {
   """Shipping tracking number"""
   trackingNumber: String
 
-  """Name of the shipping provider (Ex: LaPoste, DHL ...)"""
-  shippingProvider: String
+  """Name of the shipping provider"""
+  shippingProvider: ShippingProvider
 
   """`true` if PIN Code is available."""
   isPINReady: Boolean!
@@ -14198,11 +14613,11 @@ type PINNotReadyRejection implements Rejection {
 }
 
 enum PreferredNotificationChannel {
-  """Use Swan SMS"""
-  Sms
-
   """Use In-App notification"""
   App
+
+  """Use Swan SMS"""
+  Sms
 }
 
 type PreProvisioningSUVCardSettings {
@@ -14361,6 +14776,7 @@ type ProjectInfo {
   requireSupportingDocumentsDuringOnboarding: Boolean
   requireUbosDuringOnboarding: Boolean
   supportingDocumentSettings: SupportingDocumentSettings
+  multipleAccountsSettings: MultipleAccountsSettings!
 
   """The card products associated with this project."""
   cardProducts: [CardProduct!]
@@ -14451,6 +14867,10 @@ type ProjectSettingsForbiddenError implements Rejection {
 }
 
 type ProjectSettingsNotFound implements Rejection {
+  message: String!
+}
+
+type ProjectSettingsNotFoundRejection implements Rejection {
   message: String!
 }
 
@@ -14793,6 +15213,9 @@ type Query {
     """a filtering table you can apply to your list of connections"""
     filters: CardFiltersInput
   ): CardConnection!
+
+  """Returns an credit statement by id"""
+  creditStatement(id: ID!): CreditStatementPayload!
   exports(after: String, before: String, filters: ExportFilterInput, first: Int! = 50): ExportConnection!
 
   """Returns the project infos you set in the dashboard."""
@@ -14994,9 +15417,7 @@ input ReasonInput {
 
 """Interface for Received Direct Debit Mandate"""
 interface ReceivedDirectDebitMandate {
-  """
-  Unique identifier of the received direct debit mandate, generated by Swan
-  """
+  """Unique identifier of the Payment Mandate"""
   id: ID!
 
   """Version of the received direct debit mandate"""
@@ -15289,12 +15710,16 @@ type RejectedMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodSta
 
   """Merchant Payment Method rejected date"""
   rejectedAt: Date!
+
+  """Merchant Payment Methode rejection reason"""
+  rejectionReason: MerchantPaymentMethodRejectionReason!
 }
 
 """RejectedMerchantProfileStatusInfo"""
 type RejectedMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
   status: MerchantProfileStatus!
   rejectedAt: Date!
+  rejectionReason: MerchantProfileRejectionReason!
 }
 
 """The following reason code for a rejected transaction are defined:"""
@@ -15606,6 +16031,9 @@ enum RejectedReasonCode {
 
 """Rejected transaction status information"""
 type RejectedTransactionStatusInfo implements TransactionStatusInfo {
+  """unique identifier of the transaction"""
+  id: ID!
+
   """status of the transaction"""
   status: TransactionStatus!
 
@@ -15659,6 +16087,9 @@ enum ReleasedReason {
 
 """Released card transaction status information"""
 type ReleasedTransactionStatusInfo implements TransactionStatusInfo {
+  """unique identifier of the transaction"""
+  id: ID!
+
   """status of the transaction"""
   status: TransactionStatus!
 
@@ -15721,6 +16152,11 @@ input RepaymentCycleMonthlyInput {
   The day of the month when the reimbursement should occurs (ie: every 15th of each month).
   """
   dayOfMonth: Int!
+}
+
+"""Rejection when a repayment cycle is not found"""
+type RepaymentCycleNotFoundRejection implements Rejection {
+  message: String!
 }
 
 enum RepaymentCyclePeriod {
@@ -15836,6 +16272,14 @@ type ReportExchangeRate {
 }
 
 union Representative = IndividualRepresentative | CompanyRepresentative
+
+"""
+Rejection returned if the mutation cannot be executed because the representative is incomplete
+"""
+type RepresentativeIncompleteRejection implements Rejection {
+  fields: [ValidationFieldError!]!
+  message: String!
+}
 
 input RepresentativeInput {
   """Type of representative (Individual or Company)."""
@@ -15993,11 +16437,8 @@ input RequestMerchantProfileInput {
   """expected average basket value."""
   expectedAverageBasket: AmountInput!
 
-  """Expected annual activity volumes for all payment methods."""
-  expectedMonthlyPaymentVolume: AmountInput!
-
-  """A PDF of an example typical invoice issued by the merchant."""
-  invoiceExample: String
+  """Expected annual activity volumes for all payment method"""
+  expectedMonthlyMerchantProcessingVolume: ExpectedMonthlyMerchantProcessingVolume
 
   """Base64 encoded merchant's logo"""
   merchantLogo: String
@@ -16008,7 +16449,7 @@ input RequestMerchantProfileInput {
   merchantName: String!
 
   """Url of the merchant's website"""
-  merchantWebsite: URL
+  merchantWebsiteUrl: URL
 
   """
   The type of payments accepted by the merchant. Can be OneOff (no returning payers in general), Recurrent (returning payers), or a mix of both OneOffAndRecurrent.
@@ -16021,13 +16462,16 @@ input RequestMerchantProfileInput {
   productType: ProductType!
 
   """The URL of the main social network of the merchant."""
-  socialNetwork: URL
+  socialNetworkUrl: URL
 
   """The URL of the support website or help center of the merchant."""
-  supportWebsite: URL
+  supportWebsiteUrl: URL
 
   """The URL of the terms and conditions of the merchant."""
-  termsAndConditions: URL
+  termsAndConditionsUrl: URL
+
+  """Additional information about the merchant profile"""
+  additionalInformation: [AdditionalInformationInput!]
 }
 
 """Request Merchant Profile Payload"""
@@ -16051,13 +16495,16 @@ type RequestMerchantProfileUpdate {
   expectedAverageBasket: Amount
 
   """Expected annual activity volumes for all payment method"""
-  expectedMonthlyPaymentVolume: Amount
+  expectedMonthlyPaymentVolume: Amount @deprecated(reason: "use expectedMonthlyMerchantProcessingVolume instead")
+
+  """Expected annual activity volumes for all payment method"""
+  expectedMonthlyMerchantProcessingVolume: ExpectedMonthlyMerchantProcessingVolume
 
   """The Request ID"""
   id: ID!
 
   """Url of an example typical invoice issued by the merchant."""
-  invoiceExampleUrl: String
+  invoiceExampleUrl: String @deprecated(reason: "Unused, will be removed in future versions")
 
   """Url of the merchant's logo"""
   merchantLogoUrl: String
@@ -16071,7 +16518,10 @@ type RequestMerchantProfileUpdate {
   merchantProfileId: ID!
 
   """Url of the merchant's website"""
-  merchantWebsite: String
+  merchantWebsite: String @deprecated(reason: "Use merchantWebsiteUrl instead")
+
+  """Url of the merchant's website"""
+  merchantWebsiteUrl: String
 
   """
   The type of payments accepted by the merchant. Can be OneOff (no returning payers in general), Recurrent (returning payers), or a mix of both OneOffAndRecurrent.
@@ -16084,19 +16534,31 @@ type RequestMerchantProfileUpdate {
   productType: ProductType
 
   """The URL of the main social network of the merchant."""
-  socialNetwork: String
+  socialNetwork: String @deprecated(reason: "use socialNetworkUrl instead")
+
+  """The URL of the main social network of the merchant."""
+  socialNetworkUrl: String
 
   """The status of the request"""
   status: RequestMerchantProfileUpdateStatus!
 
   """The URL of the support website or help center of the merchant."""
-  supportWebsite: String
+  supportWebsite: String @deprecated(reason: "use supportWebsiteUrl instead")
+
+  """The URL of the support website or help center of the merchant."""
+  supportWebsiteUrl: String
 
   """The URL of the terms and conditions of the merchant."""
-  termsAndConditions: String
+  termsAndConditions: String @deprecated(reason: "use termsAndConditionsUrl instead")
+
+  """The URL of the terms and conditions of the merchant."""
+  termsAndConditionsUrl: String
 
   """updated date"""
   updatedAt: DateTime!
+
+  """Additional information about the merchant profile"""
+  additionalInformation: [AdditionalInformation!]!
 }
 
 """Input to update a Merchant Profile"""
@@ -16124,13 +16586,7 @@ input RequestMerchantProfileUpdateInput {
   Expected annual activity volumes for all payment methods.
   Don't add the field to the mutation if you want to keep the existing value.
   """
-  expectedMonthlyPaymentVolume: AmountInput
-
-  """
-  A PDF of an example typical invoice issued by the merchant.
-  Use '' to delete the field. Don't add the field to the mutation if you want to keep the existing value.
-  """
-  invoiceExample: String
+  expectedMonthlyMerchantProcessingVolume: ExpectedMonthlyMerchantProcessingVolume
 
   """
   base64 encoded merchant's logo.
@@ -16151,7 +16607,7 @@ input RequestMerchantProfileUpdateInput {
   Url of the merchant's website.
   Use '' to delete the field. Don't add the field to the mutation if you want to keep the existing value.
   """
-  merchantWebsite: String
+  merchantWebsiteUrl: String
 
   """
   The type of payments accepted by the merchant. Can be OneOff (no returning payers in general), Recurrent (returning payers), or a mix of both OneOffAndRecurrent.
@@ -16169,19 +16625,25 @@ input RequestMerchantProfileUpdateInput {
   The URL of the main social network of the merchant.
   Use '' to delete the field. Don't add the field to the mutation if you want to keep the existing value.
   """
-  socialNetwork: String
+  socialNetworkUrl: String
 
   """
   The URL of the support website or help center of the merchant.
   Use '' to delete the field. Don't add the field to the mutation if you want to keep the existing value.
   """
-  supportWebsite: String
+  supportWebsiteUrl: String
 
   """
   The URL of the terms and conditions of the merchant.
   Use '' to delete the field. Don't add the field to the mutation if you want to keep the existing value.
   """
-  termsAndConditions: String
+  termsAndConditionsUrl: String
+
+  """
+  Additional information about the merchant profile.
+  Don't add the field to the mutation if you want to keep the existing value.
+  """
+  additionalInformation: [AdditionalInformationInput!]
 }
 
 """Add Merchant Profile Payload"""
@@ -16218,6 +16680,16 @@ union RequestSupportingDocumentCollectionReviewPayload = RequestSupportingDocume
 
 type RequestSupportingDocumentCollectionReviewSuccessPayload {
   supportingDocumentCollection: SupportingDocumentCollection!
+}
+
+input RequestTerminalConnectionTokenInput {
+  merchantProfileId: ID!
+}
+
+union RequestTerminalConnectionTokenPayload = RequestTerminalConnectionTokenSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection
+
+type RequestTerminalConnectionTokenSuccessPayload {
+  connectionToken: String!
 }
 
 """The document corresponding to a residence permit"""
@@ -16436,6 +16908,12 @@ union ScheduleStandingOrderPayload = ScheduleStandingOrderSuccessPayload | Forbi
 
 type ScheduleStandingOrderSuccessPayload {
   standingOrder: StandingOrder!
+
+  """
+  * COMING SOON *
+  Result of the beneficiary verification
+  """
+  beneficiaryVerificationResult: VerifyBeneficiaryResult
 }
 
 type Scheme {
@@ -16486,18 +16964,6 @@ type SEPABeneficiary {
   maskedIBAN: String
 }
 
-"""Verification with a partial match of beneficiary details"""
-type SepaBeneficiaryCloseMatch implements SepaBeneficiaryVerificationResult {
-  """Token expiration timestamp"""
-  expiresAt: DateTime!
-
-  """Suggested name for the beneficiary from the verification service"""
-  nameSuggestion: String!
-
-  """Token to be used when initiating a credit transfer"""
-  verificationToken: String!
-}
-
 """Sepa beneficiary account"""
 input SepaBeneficiaryInput {
   """International Bank Account Number"""
@@ -16512,52 +16978,9 @@ input SepaBeneficiaryInput {
   address: AddressInput
 
   """
-  `true` if this new beneficiary is the account holder himself in another financial institution.
-  *SOON TO BE DEPRECATED*
-  Not used. It will be removed soon.
-  """
-  isMyOwnIban: Boolean
-
-  """
   `true` if this new beneficiary will be saved to the beneficiary list of the debited account.
   """
   save: Boolean!
-}
-
-"""Successful verification with an exact match"""
-type SepaBeneficiaryMatch implements SepaBeneficiaryVerificationResult {
-  """Token expiration timestamp"""
-  expiresAt: DateTime!
-
-  """Token to be used when initiating a credit transfer"""
-  verificationToken: String!
-}
-
-"""Verification with no match of beneficiary details"""
-type SepaBeneficiaryNoMatch implements SepaBeneficiaryVerificationResult {
-  """Token expiration timestamp"""
-  expiresAt: DateTime!
-
-  """Token to be used when initiating a credit transfer"""
-  verificationToken: String!
-}
-
-"""Verification where the beneficiary details couldn't be confirmed"""
-type SepaBeneficiaryVerificationNotPossible implements SepaBeneficiaryVerificationResult {
-  """Token expiration timestamp"""
-  expiresAt: DateTime!
-
-  """Token to be used when initiating a credit transfer"""
-  verificationToken: String!
-}
-
-"""Interface for all SEPA beneficiary verification results"""
-interface SepaBeneficiaryVerificationResult {
-  """Token expiration timestamp"""
-  expiresAt: DateTime!
-
-  """Token to be used when initiating a credit transfer"""
-  verificationToken: String!
 }
 
 """
@@ -16844,6 +17267,12 @@ type SEPACreditTransferTransaction implements Transaction {
   """`true` if this transaction can still be cancelled"""
   isCancelable: Boolean!
 
+  """
+  * COMING SOON *
+  Result of the beneficiary verification
+  """
+  beneficiaryVerificationResult: VerifyBeneficiaryResult
+
   """SEPA beneficiary linked to the transaction"""
   beneficiary: Beneficiary
   supportingDocumentCollections(
@@ -16867,7 +17296,7 @@ type SEPACreditTransferTransaction implements Transaction {
 
 type SepaDirectDebitB2b {
   """The mandate used for the Sepa Direct Debit B2B."""
-  mandate: PaymentMandate
+  mandate: ReceivedDirectDebitMandate
 }
 
 """SepaDirectDebitB2BMerchantPaymentMethod"""
@@ -17379,8 +17808,8 @@ type SEPADirectDebitTransaction implements Transaction {
 }
 
 """Payment direct debit mandate for SEPA"""
-type SEPAPaymentDirectDebitMandate implements SEPADirectDebitMandate & PaymentMandate & PaymentDirectDebitMandate {
-  """Unique identifier of the Card Payment Mandate"""
+type SEPAPaymentDirectDebitMandate implements SEPADirectDebitMandate & PaymentDirectDebitMandate & PaymentMandate {
+  """Unique identifier of the SEPA Direct Debit Payment Mandate"""
   id: ID!
 
   """
@@ -17506,9 +17935,7 @@ enum SEPAPaymentMandateScheme {
 
 """Received direct debit mandate for SEPA"""
 type SEPAReceivedDirectDebitMandate implements SEPADirectDebitMandate & ReceivedDirectDebitMandate {
-  """
-  Unique identifier of the received SEPA direct debit mandate, generated by Swan
-  """
+  """Unique identifier of the Card Payment Mandate"""
   id: ID!
 
   """
@@ -17786,6 +18213,11 @@ input SingleUseVirtualCardConfigInput {
 
   """Spending limit"""
   spendingLimit: SpendingLimitInput!
+
+  """
+  Card expiration date only for Single Use Virtual Card One-off, if `null` the Single Use Virtual Card will have a default expiration of plus 30 days
+  """
+  cardContractExpiryDate: DateTime
 }
 
 type SmsProviderRejection implements Rejection {
@@ -18473,6 +18905,11 @@ enum SupportingDocumentPurposeEnum {
   """Signed power of attorney document to give the power to act on behalf."""
   PowerOfAttorney
 
+  """
+  Document demonstrating that the company is actively conducting business (e.g., invoices, contracts)
+  """
+  ProofOfBusinessActivity
+
   """Proof of company address"""
   ProofOfCompanyAddress
 
@@ -18496,6 +18933,11 @@ enum SupportingDocumentPurposeEnum {
 
   """UBO Declaration"""
   UBODeclaration
+
+  """
+  Declaration form used to confirm whether an individual qualifies as a U.S. person
+  """
+  USPersonStatusDeclaration
 
   """Sworn statement"""
   SwornStatement
@@ -18642,6 +19084,10 @@ type SupportingDocumentRefusedStatusInfo implements SupportingDocumentStatusInfo
 
   """Original file name"""
   filename: String!
+}
+
+type SupportingDocumentRequirements {
+  supportingDocumentPurposes: [SupportingDocumentPurposeEnum!]!
 }
 
 type SupportingDocumentSettings {
@@ -18822,6 +19268,21 @@ enum SupportingDocumentType {
 
   """Politically exposed person declaration"""
   PepDeclaration
+
+  """
+  IRS form used to confirm a U.S. person's taxpayer identification number and tax status
+  """
+  W9
+
+  """
+  IRS form used by non-U.S. persons to certify their foreign status and claim tax treaty benefits
+  """
+  W8
+
+  """
+  Official document confirming that an individual has voluntarily renounced their citizenship
+  """
+  CertificateOfLossOfNationality
 }
 
 """Supporting document with Uploaded status"""
@@ -19207,17 +19668,6 @@ type TransactionEdge implements Edge {
 type TransactionNotFoundRejection implements Rejection {
   transactionId: ID!
   message: String!
-}
-
-enum TransactionPaymentProduct {
-  Card
-  Check
-  Fees
-  InternalCreditTransfer
-  InternalDirectDebit
-  InternationalCreditTransfer
-  SEPACreditTransfer
-  SEPADirectDebit
 }
 
 """The following reason codes for a r-transaction are defined:"""
@@ -19662,6 +20112,9 @@ enum TransactionStatus {
 
 """Transaction Status information"""
 interface TransactionStatusInfo {
+  """unique identifier of the transaction"""
+  id: ID!
+
   """status of the transaction"""
   status: TransactionStatus!
 }
@@ -19675,43 +20128,6 @@ enum TransactionTransportType {
   AuthorizedAggregatedSplitClearing
   Other
   DebtRecovery
-}
-
-enum TransactionType {
-  CardInChargeback
-  CardInChargebackReversal
-  CardInCredit
-  CardOutAuthorization
-  CardOutCredit
-  CardOutCreditReversal
-  CardOutDebit
-  CardOutDebitReversal
-  CheckIn
-  CheckInReturn
-  FeesIn
-  FeesOut
-  InternalCreditTransferIn
-  InternalCreditTransferInRecall
-  InternalCreditTransferInReturn
-  InternalCreditTransferOut
-  InternalCreditTransferOutRecall
-  InternalCreditTransferOutReturn
-  InternalDirectDebitIn
-  InternalDirectDebitInReturn
-  InternalDirectDebitOut
-  InternalDirectDebitOutReturn
-  InternationalCreditTransferIn
-  InternationalCreditTransferInReturn
-  InternationalCreditTransferOut
-  InternationalCreditTransferOutReturn
-  SepaCreditTransferIn
-  SepaCreditTransferInRecall
-  SepaCreditTransferInReturn
-  SepaCreditTransferOut
-  SepaCreditTransferOutRecall
-  SepaCreditTransferOutReturn
-  SepaDirectDebitIn
-  SepaDirectDebitInReturn
 }
 
 """Transaction Type"""
@@ -19970,6 +20386,14 @@ input TrustedBeneficiaryFiltersInput {
   type: [BeneficiaryType!]
   label: String
   currency: Currency
+}
+
+"""
+Rejection returned if the trusted beneficiary was not found or if the user does not have the rights to know that the beneficiary exists
+"""
+type TrustedBeneficiaryNotFoundRejection implements Rejection {
+  id: String!
+  message: String!
 }
 
 """
@@ -20358,6 +20782,9 @@ type UnsavedSepaBeneficiary {
 
 """Upcoming transaction status information"""
 type UpcomingTransactionStatusInfo implements TransactionStatusInfo {
+  """unique identifier of the transaction"""
+  id: ID!
+
   """status of the transaction"""
   status: TransactionStatus!
 
@@ -20460,6 +20887,32 @@ type UpdateAccountMembershipSuccessPayload {
 }
 
 union UpdateAccountPayload = UpdateAccountSuccessPayload | AccountNotFoundRejection | BadAccountStatusRejection | ForbiddenRejection | InternalErrorRejection | ValidationRejection
+
+type UpdateAccountSettingsConsentPending {
+  consent: Consent!
+}
+
+input UpdateAccountSettingsInput {
+  """Unique identifier of the account"""
+  accountId: ID!
+
+  """
+  Allow or disallow bulk credit transfers without beneficiary verification
+  """
+  allowBulkCreditTransfersWithoutBeneficiaryVerification: Boolean!
+
+  """
+  When setting allowBulkCreditTransfersWithoutBeneficiaryVerification to true, the consentRedirectUrl is required
+  otherwise it is not needed
+  """
+  consentRedirectUrl: String
+}
+
+union UpdateAccountSettingsPayload = UpdateAccountSettingsSuccess | UpdateAccountSettingsConsentPending | InternalErrorRejection | ForbiddenRejection | ValidationRejection | AccountNotFoundRejection | AccountHolderNotFoundRejection | AccountMembershipNotFoundRejection | AccountMembershipNotEligibleRejection | AccountMembershipStatusNotEligibleRejection | AccountTypeNotEligibleRejection | AccountHolderTypeNotEligibleRejection
+
+type UpdateAccountSettingsSuccess {
+  account: Account!
+}
 
 type UpdateAccountSuccessPayload {
   account: Account!
@@ -21114,14 +21567,14 @@ enum UserStatus {
   Active
 
   """
-  Users in Deactivated status don't use Swan anymore and won't ever be able to login. Their phone number can be reused as a new number.
-  """
-  Deactivated
-
-  """
   Users in Blocked status are not able to login for security reason. Their phone number can't be reused.
   """
   Blocked
+
+  """
+  Users in Deactivated status don't use Swan anymore and won't ever be able to login. Their phone number can be reused as a new number.
+  """
+  Deactivated
 }
 
 """A detail of a validation error : what field is errored and why"""
@@ -21390,20 +21843,66 @@ type VerifiedStatusInfo implements AccountVerificationStatusInfo {
   status: AccountVerificationStatus!
 }
 
-"""Input parameters required to verify a SEPA beneficiary"""
-input VerifySepaBeneficiaryInput {
-  """Optional postal address of the beneficiary"""
-  address: AddressInput
+"""Verification with a partial match of beneficiary details"""
+type VerifyBeneficiaryCloseMatch implements VerifyBeneficiaryResult {
+  """Beneficiary verification status"""
+  status: VerifyBeneficiaryStatus!
 
-  """The IBAN of the beneficiary"""
-  iban: IBAN!
-
-  """The full name of the beneficiary"""
-  name: String!
+  """Suggested name for the beneficiary from the verification service"""
+  nameSuggestion: String!
 }
 
-"""Possible responses when verifying a SEPA beneficiary"""
-union VerifySepaBeneficiaryPayload = SepaBeneficiaryMatch | SepaBeneficiaryVerificationNotPossible | SepaBeneficiaryNoMatch | SepaBeneficiaryCloseMatch | InternalErrorRejection | ForbiddenRejection | ValidationRejection
+"""Input parameters required to verify a beneficiary"""
+input VerifyBeneficiaryInput {
+  beneficiary: BeneficiaryInput!
+}
+
+"""Successful verification with an exact match"""
+type VerifyBeneficiaryMatch implements VerifyBeneficiaryResult {
+  """Beneficiary verification status"""
+  status: VerifyBeneficiaryStatus!
+}
+
+"""Verification with no match of beneficiary details"""
+type VerifyBeneficiaryNoMatch implements VerifyBeneficiaryResult {
+  """Beneficiary verification status"""
+  status: VerifyBeneficiaryStatus!
+}
+
+"""Verification where the beneficiary details couldn't be confirmed"""
+type VerifyBeneficiaryNotPossible implements VerifyBeneficiaryResult {
+  """Beneficiary verification status"""
+  status: VerifyBeneficiaryStatus!
+}
+
+"""Possible responses when initiating a beneficiary"""
+union VerifyBeneficiaryPayload = VerifyBeneficiarySuccessPayload | AccountNotFoundRejection | ForbiddenRejection | InternalErrorRejection | TrustedBeneficiaryNotFoundRejection | ValidationRejection
+
+interface VerifyBeneficiaryResult {
+  """
+  Verify beneficiary result status: Match, VerificationNotPossible,
+  NoMatch, CloseMatch
+  """
+  status: VerifyBeneficiaryStatus!
+}
+
+enum VerifyBeneficiaryStatus {
+  Match
+  NoMatch
+  VerificationNotPossible
+  CloseMatch
+}
+
+type VerifyBeneficiarySuccessPayload {
+  """Result from the verification of payee provider"""
+  verifyBeneficiaryResult: VerifyBeneficiaryResult!
+
+  """Beneficiary verification token to initiate a credit transfer"""
+  beneficiaryVerificationToken: String!
+
+  """Token expiration timestamp"""
+  expiresAt: DateTime!
+}
 
 input ViewCardNumbersInput {
   """Unique identifier of a card"""
@@ -21566,6 +22065,7 @@ enum WalletProviderType {
 scalar WalletToken
 
 type WebBankingSettings {
+  canOpenAccount: Boolean
   canViewAccountDetails: Boolean
   canViewAccountStatement: Boolean
   canManageVirtualIbans: Boolean

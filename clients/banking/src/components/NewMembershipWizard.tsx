@@ -322,13 +322,13 @@ export const NewMembershipWizard = ({
               ),
               { accountCountry: "ITA", residencyAddressCountry: "ITA", canInitiatePayments: true },
             ),
-            () =>
+            ({ accountCountry }) =>
               combineValidators(
                 validateRequired,
                 validateIndividualTaxNumber(accountCountry),
               )(value),
           )
-          .with({ accountCountry: "DEU", residencyAddressCountry: "DEU" }, () =>
+          .with({ accountCountry: "DEU", residencyAddressCountry: "DEU" }, ({ accountCountry }) =>
             validateIndividualTaxNumber(accountCountry)(value),
           )
           .otherwise(() => undefined);
@@ -833,7 +833,7 @@ export const NewMembershipWizard = ({
                               { accountCountry: "DEU", country: "DEU" },
                               { accountCountry: "ITA", country: "ITA", canInitiatePayments: true },
                             ),
-                            () => (
+                            ({ accountCountry }) => (
                               <Field name="taxIdentificationNumber">
                                 {({ value, valid, error, onChange, ref }) => (
                                   <TaxIdentificationNumberInput

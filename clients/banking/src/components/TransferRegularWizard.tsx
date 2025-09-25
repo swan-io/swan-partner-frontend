@@ -82,7 +82,6 @@ const BeneficiaryStep = ({
           <BeneficiarySepaWizardForm
             mode="continue"
             accountCountry={accountCountry}
-            accountId={accountId}
             onPressSubmit={onPressSubmit}
             saveCheckboxVisible={canCreateTrustedBeneficiary && !isAccountClosing}
             initialBeneficiary={match(initialBeneficiary)
@@ -183,19 +182,28 @@ export const TransferRegularWizard = ({
                 mode: isInstant ? "InstantWithFallback" : "Regular",
               })),
 
-            ...match(beneficiary)
-              .with({ kind: "new" }, () => ({
-                sepaBeneficiary: {
-                  name: beneficiary.name,
-                  save: beneficiary.kind === "new" && beneficiary.save,
-                  iban: beneficiary.iban,
-                  isMyOwnIban: false, // TODO
-                },
-              }))
-              .with({ kind: "saved" }, ({ id }) => ({
-                trustedBeneficiaryId: id,
-              }))
-              .exhaustive(),
+            ...(beneficiary.beneficiaryVerification?.beneficiaryVerificationToken == null
+              ? null
+              : {
+                  beneficiaryVerificationToken:
+                    beneficiary.beneficiaryVerification.beneficiaryVerificationToken,
+                }),
+
+            ...(beneficiary.beneficiaryVerification?.beneficiaryVerificationToken == null
+              ? match(beneficiary)
+                  .with({ kind: "new" }, () => ({
+                    sepaBeneficiary: {
+                      name: beneficiary.name,
+                      save: beneficiary.kind === "new" && beneficiary.save,
+                      iban: beneficiary.iban,
+                      isMyOwnIban: false, // TODO
+                    },
+                  }))
+                  .with({ kind: "saved" }, ({ id }) => ({
+                    trustedBeneficiaryId: id,
+                  }))
+                  .exhaustive()
+              : null),
           },
         ],
       },
@@ -224,7 +232,9 @@ export const TransferRegularWizard = ({
             }),
           )
           .with({ __typename: "PaymentConsentPending" }, ({ consent }) => {
-            window.location.assign(consent.consentUrl);
+            window.location.assign(
+              consent.consentUrl.replace("identity.master.oina.ws", "identity.swan.local:8080"),
+            );
           })
           .exhaustive();
       })

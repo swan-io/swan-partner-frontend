@@ -97,7 +97,6 @@ export const TransferRecurringWizard = ({
           name: beneficiary.name,
           save: false,
           iban: beneficiary.iban,
-          isMyOwnIban: false, // TODO
         },
         label: details.label,
         reference: details.reference,
@@ -154,7 +153,6 @@ export const TransferRecurringWizard = ({
               <BeneficiarySepaWizardForm
                 mode="continue"
                 accountCountry={accountCountry}
-                accountId={accountId}
                 saveCheckboxVisible={false}
                 onPressSubmit={beneficiary => setStep({ name: "Details", beneficiary })}
                 initialBeneficiary={match(beneficiary)

@@ -120,7 +120,7 @@ export const SavedBeneficiariesForm = (props: Props) => {
     } else {
       resetBeneficiaryVerification();
     }
-  }, [selected, verifyBeneficiary]);
+  }, [selected, verifyBeneficiary, resetBeneficiaryVerification]);
 
   const beneficiaries = useForwardAsyncDataPagination(
     data.mapOkToResult(data =>

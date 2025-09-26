@@ -144,7 +144,7 @@ export const BeneficiarySepaWizardForm = ({
         resetIbanVerification();
       }
     });
-  }, [queryIbanVerification, resetIbanVerification]);
+  }, [queryIbanVerification, resetIbanVerification, listenFields]);
 
   const handleOnPressSubmit = () => {
     submitForm({

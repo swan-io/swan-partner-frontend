@@ -19,7 +19,6 @@ import { useCallback, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import {
-  AccountCountry,
   TransactionStatus,
   TrustedBeneficiaryDetailsFragment,
   TrustedBeneficiaryTransfersDocument,
@@ -57,20 +56,13 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  accountCountry: AccountCountry;
   accountId: string;
   beneficiary: TrustedBeneficiaryDetailsFragment;
   large: boolean;
   params: RouteParams<"AccountPaymentsBeneficiariesDetails">;
 };
 
-export const BeneficiaryDetailTransferList = ({
-  accountCountry,
-  accountId,
-  beneficiary,
-  large,
-  params,
-}: Props) => {
+export const BeneficiaryDetailTransferList = ({ accountId, beneficiary, large, params }: Props) => {
   const [activeTransactionId, setActiveTransactionId] = useState<string | null>(null);
   const panelRef = useRef<FocusTrapRef>(null);
 
@@ -228,7 +220,6 @@ export const BeneficiaryDetailTransferList = ({
                 {({ large }) => (
                   <TransferRegularWizard
                     large={large}
-                    accountCountry={accountCountry}
                     accountId={accountId}
                     accountMembershipId={params.accountMembershipId}
                     initialBeneficiary={{ kind: "saved", iban, id, name }}

@@ -6,7 +6,6 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useCallback, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
-import { AccountCountry } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { RouteParams, Router } from "../utils/routes";
 import { BeneficiaryInternationalWizard } from "./BeneficiaryInternationalWizard";
@@ -39,16 +38,10 @@ const styles = StyleSheet.create({
 type Props = {
   accountMembershipId: string;
   accountId: string;
-  accountCountry: AccountCountry;
   params: RouteParams<"AccountPaymentsBeneficiariesNew">;
 };
 
-export const BeneficiaryTypePicker = ({
-  accountMembershipId,
-  accountId,
-  accountCountry,
-  params,
-}: Props) => {
+export const BeneficiaryTypePicker = ({ accountMembershipId, accountId, params }: Props) => {
   useCrumb(
     useMemo(
       () => ({
@@ -110,7 +103,6 @@ export const BeneficiaryTypePicker = ({
 
       <FullViewportLayer visible={params.type === "sepa"}>
         <BeneficiarySepaWizard
-          accountCountry={accountCountry}
           accountId={accountId}
           accountMembershipId={accountMembershipId}
           onPressClose={handleOnPressClose}

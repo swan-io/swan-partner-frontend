@@ -19,11 +19,7 @@ import { getCountryName, isCountryCCA3 } from "@swan-io/shared-business/src/cons
 import { printFormat } from "iban";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import {
-  AccountCountry,
-  TrustedBeneficiaryDetailsDocument,
-  TrustedSepaBeneficiary,
-} from "../graphql/partner";
+import { TrustedBeneficiaryDetailsDocument, TrustedSepaBeneficiary } from "../graphql/partner";
 import { formatDateTime, t } from "../utils/i18n";
 import { RouteParams, Router } from "../utils/routes";
 import { getWiseIctLabel } from "../utils/templateTranslations";
@@ -73,11 +69,10 @@ type Props = {
   id: string;
   params: Params;
   large: boolean;
-  accountCountry: AccountCountry;
   accountId: string;
 };
 
-export const BeneficiaryDetail = ({ id, params, large, accountCountry, accountId }: Props) => {
+export const BeneficiaryDetail = ({ id, params, large, accountId }: Props) => {
   const activeTab: Tab = params.tab ?? "details";
   const suspense = useIsSuspendable();
 
@@ -184,7 +179,6 @@ export const BeneficiaryDetail = ({ id, params, large, accountCountry, accountId
               ))
               .with("transfers", () => (
                 <BeneficiaryDetailTransferList
-                  accountCountry={accountCountry}
                   accountId={accountId}
                   beneficiary={beneficiary}
                   large={large}

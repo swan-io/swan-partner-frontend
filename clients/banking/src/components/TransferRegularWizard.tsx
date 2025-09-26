@@ -9,7 +9,7 @@ import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { P, match } from "ts-pattern";
-import { AccountCountry, InitiateSepaCreditTransfersDocument } from "../graphql/partner";
+import { InitiateSepaCreditTransfersDocument } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
@@ -28,13 +28,11 @@ import {
 import { Schedule, TransferRegularWizardSchedule } from "./TransferRegularWizardSchedule";
 
 const BeneficiaryStep = ({
-  accountCountry,
   accountId,
   initialBeneficiary,
   isAccountClosing,
   onPressSubmit,
 }: {
-  accountCountry: AccountCountry;
   accountId: string;
   initialBeneficiary: SepaBeneficiary | undefined;
   isAccountClosing: boolean;
@@ -81,7 +79,6 @@ const BeneficiaryStep = ({
         .with("new", () => (
           <BeneficiarySepaWizardForm
             mode="continue"
-            accountCountry={accountCountry}
             onPressSubmit={onPressSubmit}
             saveCheckboxVisible={canCreateTrustedBeneficiary && !isAccountClosing}
             initialBeneficiary={match(initialBeneficiary)
@@ -118,7 +115,6 @@ type Props = {
   large: boolean;
   isAccountClosing?: boolean;
   onPressClose?: () => void;
-  accountCountry: AccountCountry;
   accountId: string;
   accountMembershipId: string;
   // Enforce prefill with saved beneficiary data only
@@ -129,7 +125,6 @@ export const TransferRegularWizard = ({
   large,
   isAccountClosing = false,
   onPressClose,
-  accountCountry,
   accountId,
   accountMembershipId,
   initialBeneficiary,
@@ -248,7 +243,6 @@ export const TransferRegularWizard = ({
       {match(step)
         .with({ name: "Beneficiary" }, ({ beneficiary }) => (
           <BeneficiaryStep
-            accountCountry={accountCountry}
             accountId={accountId}
             initialBeneficiary={beneficiary}
             isAccountClosing={isAccountClosing}

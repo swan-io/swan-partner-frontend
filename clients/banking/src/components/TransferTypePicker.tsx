@@ -145,7 +145,6 @@ export const TransferTypePicker = ({
           {({ large }) => (
             <TransferRegularWizard
               large={large}
-              accountCountry={accountCountry}
               accountId={accountId}
               accountMembershipId={accountMembershipId}
               onPressClose={onPressClose}
@@ -158,7 +157,6 @@ export const TransferTypePicker = ({
         visible={params.type === "recurring" && permissions.canCreateStandingOrder}
       >
         <TransferRecurringWizard
-          accountCountry={accountCountry}
           accountId={accountId}
           accountMembershipId={accountMembershipId}
           onPressClose={onPressClose}

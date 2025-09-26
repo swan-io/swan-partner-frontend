@@ -22,7 +22,6 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
-  AccountCountry,
   GetIbanValidationDocument,
   VerifyBeneficiaryDocument,
   VerifyBeneficiarySuccessPayloadFragment,
@@ -70,7 +69,6 @@ const styles = StyleSheet.create({
 
 type Props = {
   mode: "add" | "continue";
-  accountCountry: AccountCountry;
   submitting?: boolean;
   onPressSubmit: (beneficiary: SepaBeneficiary) => void;
   onPressPrevious?: () => void;
@@ -81,7 +79,6 @@ type Props = {
 
 export const BeneficiarySepaWizardForm = ({
   mode,
-  accountCountry,
   submitting = false,
   initialBeneficiary,
   saveCheckboxVisible,

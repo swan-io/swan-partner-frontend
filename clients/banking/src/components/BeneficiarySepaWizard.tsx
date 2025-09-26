@@ -7,7 +7,7 @@ import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useCallback } from "react";
 import { match } from "ts-pattern";
-import { AccountCountry, AddSepaBeneficiaryDocument } from "../graphql/partner";
+import { AddSepaBeneficiaryDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { BeneficiarySepaWizardForm, SepaBeneficiary } from "./BeneficiarySepaWizardForm";
@@ -15,17 +15,11 @@ import { WizardLayout } from "./WizardLayout";
 
 type Props = {
   onPressClose?: () => void;
-  accountCountry: AccountCountry;
   accountId: string;
   accountMembershipId: string;
 };
 
-export const BeneficiarySepaWizard = ({
-  onPressClose,
-  accountCountry,
-  accountId,
-  accountMembershipId,
-}: Props) => {
+export const BeneficiarySepaWizard = ({ onPressClose, accountId, accountMembershipId }: Props) => {
   const [addSepaBeneficiary, sepaBeneficiaryAddition] = useMutation(AddSepaBeneficiaryDocument);
 
   const handleOnSubmit = useCallback(
@@ -71,7 +65,6 @@ export const BeneficiarySepaWizard = ({
       <BeneficiarySepaWizardForm
         mode="add"
         submitting={sepaBeneficiaryAddition.isLoading()}
-        accountCountry={accountCountry}
         saveCheckboxVisible={false}
         onPressPrevious={onPressClose}
         onPressSubmit={handleOnSubmit}

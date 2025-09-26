@@ -227,9 +227,7 @@ export const TransferRegularWizard = ({
             }),
           )
           .with({ __typename: "PaymentConsentPending" }, ({ consent }) => {
-            window.location.assign(
-              consent.consentUrl.replace("identity.master.oina.ws", "identity.swan.local:8080"),
-            );
+            window.location.assign(consent.consentUrl);
           })
           .exhaustive();
       })

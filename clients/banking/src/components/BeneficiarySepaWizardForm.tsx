@@ -128,13 +128,7 @@ export const BeneficiarySepaWizardForm = ({
         resetBeneficiaryVerification();
       }
     });
-  }, [
-    accountCountry,
-    listenFields,
-    verifyBeneficiary,
-    resetBeneficiaryVerification,
-    saveBeneficiary,
-  ]);
+  }, [listenFields, verifyBeneficiary, resetBeneficiaryVerification, saveBeneficiary]);
 
   useEffect(() => {
     return listenFields(["iban"], ({ iban }) => {

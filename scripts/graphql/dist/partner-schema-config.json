@@ -2,9 +2,11 @@
   "interfaceToTypes": {
     "Rejection": [
       "AcceptConsentNotAllowedForConsentPurposeRejection",
+      "AccountHolderAccountsCreationLimitRejection",
       "AccountHolderAccountsStatusNotEligibleRejection",
       "AccountHolderAccountsTypeNotEligibleRejection",
       "AccountHolderNotFoundRejection",
+      "AccountHolderProjectSettingsNotEligibleRejection",
       "AccountHolderStatusNotEligibleRejection",
       "AccountHolderTypeIndividualRejection",
       "AccountHolderTypeNotEligibleRejection",
@@ -15,8 +17,10 @@
       "AccountMembershipNotEligibleRejection",
       "AccountMembershipNotFoundRejection",
       "AccountMembershipNotReadyToBeBoundRejection",
+      "AccountMembershipStatusNotEligibleRejection",
       "AccountNotEligibleRejection",
       "AccountNotFoundRejection",
+      "AccountTypeNotEligibleRejection",
       "AccountVerificationAlreadyRejectedRejection",
       "AccountVerificationWrongStatusRejection",
       "ActionNotAllowedRejection",
@@ -25,6 +29,7 @@
       "ApplePayNotAllowedForProjectRejection",
       "BadAccountStatusRejection",
       "BadRequestRejection",
+      "BeneficiaryVerificationTokenAlreadyConsumedRejection",
       "BlacklistedPhoneNumberRejection",
       "CalledByABotRejection",
       "CannotActivatePhysicalCardRejection",
@@ -48,6 +53,7 @@
       "ConsentsNotAllInCreatedStatusRejection",
       "ConsentsNotFoundRejection",
       "ConsentTypeNotSupportedByServerConsentRejection",
+      "CreditLimitSettingsNotFoundRejection",
       "DebtorAccountClosedRejection",
       "DebtorAccountNotAllowedRejection",
       "DigitalCardNotFoundRejection",
@@ -121,6 +127,7 @@
       "ProjectSettingsByProjectIdNotFoundRejection",
       "ProjectSettingsForbiddenError",
       "ProjectSettingsNotFound",
+      "ProjectSettingsNotFoundRejection",
       "ProjectSettingsStatusNotReachable",
       "PublicOnboardingDisabledRejection",
       "ReceivedDirectDebitMandateAlreadyExistRejection",
@@ -128,9 +135,11 @@
       "ReceivedDirectDebitMandateNotB2bRejection",
       "ReceivedDirectDebitMandateNotFoundRejection",
       "RefundRejection",
+      "RepaymentCycleNotFoundRejection",
       "RepaymentNotFoundRejection",
       "RepaymentWrongStatusRejection",
       "RepaymentWrongStatusTransitionRejection",
+      "RepresentativeIncompleteRejection",
       "RestrictedToUserRejection",
       "ReturnTransactionRejection",
       "SchemeWrongRejection",
@@ -161,6 +170,7 @@
       "TooManyChildConsentsRejection",
       "TooManyItemsRejection",
       "TransactionNotFoundRejection",
+      "TrustedBeneficiaryNotFoundRejection",
       "UnknownExportRejection",
       "UpdateRequestNotPendingReviewRejection",
       "UpdateUserConsentSettingsTokenRejection",
@@ -555,12 +565,6 @@
       "ReceivedDirectDebitMandateStatusInfoEnabled",
       "ReceivedDirectDebitMandateStatusInfoSuspended"
     ],
-    "SepaBeneficiaryVerificationResult": [
-      "SepaBeneficiaryCloseMatch",
-      "SepaBeneficiaryMatch",
-      "SepaBeneficiaryNoMatch",
-      "SepaBeneficiaryVerificationNotPossible"
-    ],
     "SEPACreditTransferCreditor": [
       "SEPACreditTransferInCreditor",
       "SEPACreditTransferInternalOutCreditor",
@@ -630,6 +634,12 @@
       "UltimateBeneficialDirectOwnerIndividualInfo",
       "UltimateBeneficialIndirectOwnerCompanyInfo",
       "UltimateBeneficialIndirectOwnerIndividualInfo"
+    ],
+    "VerifyBeneficiaryResult": [
+      "VerifyBeneficiaryCloseMatch",
+      "VerifyBeneficiaryMatch",
+      "VerifyBeneficiaryNoMatch",
+      "VerifyBeneficiaryNotPossible"
     ],
     "WebhookSubscriptionStatusInfo": [
       "WebhookSubscriptionBrokenStatusInfo",

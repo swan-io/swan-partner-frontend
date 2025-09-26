@@ -3231,3 +3231,27 @@ mutation AddReceivedSepaDirectDebitB2bMandate($input: AddReceivedSepaDirectDebit
     }
   }
 }
+
+fragment VerifyBeneficiarySuccessPayload on VerifyBeneficiarySuccessPayload {
+  expiresAt
+  beneficiaryVerificationToken
+  verifyBeneficiaryResult {
+    __typename
+    status
+    ... on VerifyBeneficiaryCloseMatch {
+      nameSuggestion
+    }
+  }
+}
+
+mutation VerifyBeneficiary($input: VerifyBeneficiaryInput!) {
+  verifyBeneficiary(input: $input) {
+    __typename
+    ... on VerifyBeneficiarySuccessPayload {
+      ...VerifyBeneficiarySuccessPayload
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}

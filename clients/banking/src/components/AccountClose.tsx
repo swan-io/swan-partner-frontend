@@ -25,7 +25,7 @@ import { combineValidators, useForm } from "@swan-io/use-form";
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
-import { AccountClosingDocument, AccountCountry, CloseAccountDocument } from "../graphql/partner";
+import { AccountClosingDocument, CloseAccountDocument } from "../graphql/partner";
 import { PermissionProvider } from "../hooks/usePermissions";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { env } from "../utils/env";
@@ -235,11 +235,9 @@ type TransferStep = "Intro" | "Transfer" | "Later";
 
 const TransferScreen = ({
   accountMembershipId,
-  accountCountry,
   accountId,
   large,
 }: {
-  accountCountry: AccountCountry;
   accountId: string;
   accountMembershipId: string;
   large: boolean;
@@ -310,7 +308,6 @@ const TransferScreen = ({
     .with("Transfer", () => (
       <TransferRegularWizard
         large={large}
-        accountCountry={accountCountry}
         accountId={accountId}
         isAccountClosing={true}
         accountMembershipId={accountMembershipId}
@@ -478,7 +475,6 @@ export const AccountClose = ({ accountId, resourceId, status }: Props) => {
                               <TransferScreen
                                 accountMembershipId={accountMembershipId}
                                 accountId={accountId}
-                                accountCountry={account.country}
                                 large={large}
                               />
                             ))

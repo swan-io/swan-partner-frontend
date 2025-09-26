@@ -35,7 +35,6 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import {
-  AccountCountry,
   BeneficiariesListDocument,
   BeneficiariesListQuery,
   BeneficiariesListQueryVariables,
@@ -292,7 +291,6 @@ const filtersDefinition = {
 
 const BeneficiaryListImpl = ({
   accountId,
-  accountCountry,
   hasSearchOrFilters,
   rowHeight,
   beneficiaries,
@@ -301,7 +299,6 @@ const BeneficiaryListImpl = ({
   setVariables,
 }: {
   accountId: string;
-  accountCountry: AccountCountry;
   hasSearchOrFilters: boolean;
   rowHeight: number;
   beneficiaries: Beneficiaries;
@@ -386,7 +383,6 @@ const BeneficiaryListImpl = ({
           route != null && (
             <BeneficiaryDetail
               id={item.id}
-              accountCountry={accountCountry}
               accountId={accountId}
               large={large}
               params={route.params}
@@ -400,11 +396,9 @@ const BeneficiaryListImpl = ({
 
 export const BeneficiaryList = ({
   accountId,
-  accountCountry,
   params,
 }: {
   accountId: string;
-  accountCountry: AccountCountry;
   params: RouteParams<"AccountPaymentsBeneficiariesList">;
 }) => {
   const { canCreateTrustedBeneficiary } = usePermissions();
@@ -552,7 +546,6 @@ export const BeneficiaryList = ({
               .with(AsyncData.P.Done(Result.P.Ok(P.select())), beneficiaries => (
                 <BeneficiaryListImpl
                   accountId={accountId}
-                  accountCountry={accountCountry}
                   hasSearchOrFilters={hasSearchOrFilters}
                   rowHeight={rowHeight}
                   beneficiaries={beneficiaries}

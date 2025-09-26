@@ -8,7 +8,7 @@ import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { P, match } from "ts-pattern";
-import { AccountCountry, ScheduleStandingOrderDocument } from "../graphql/partner";
+import { ScheduleStandingOrderDocument } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
@@ -44,14 +44,12 @@ type Step =
 
 type Props = {
   onPressClose?: () => void;
-  accountCountry: AccountCountry;
   accountId: string;
   accountMembershipId: string;
 };
 
 export const TransferRecurringWizard = ({
   onPressClose,
-  accountCountry,
   accountId,
   accountMembershipId,
 }: Props) => {
@@ -97,7 +95,6 @@ export const TransferRecurringWizard = ({
           name: beneficiary.name,
           save: false,
           iban: beneficiary.iban,
-          isMyOwnIban: false, // TODO
         },
         label: details.label,
         reference: details.reference,
@@ -153,8 +150,6 @@ export const TransferRecurringWizard = ({
 
               <BeneficiarySepaWizardForm
                 mode="continue"
-                accountCountry={accountCountry}
-                accountId={accountId}
                 saveCheckboxVisible={false}
                 onPressSubmit={beneficiary => setStep({ name: "Details", beneficiary })}
                 initialBeneficiary={match(beneficiary)

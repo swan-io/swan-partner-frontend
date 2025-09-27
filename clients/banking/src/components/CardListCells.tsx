@@ -83,6 +83,7 @@ const cardChip = Lazy(() => (
 
 export const FullNameAndCardTypeCell = ({ card }: { card: Card }) => {
   const spendingLimits = card.spendingLimits ?? [];
+  const cardHolderType = card.accountMembership.account?.holder.info.type;
 
   return (
     <Cell>
@@ -128,7 +129,7 @@ export const FullNameAndCardTypeCell = ({ card }: { card: Card }) => {
                   {t("cards.format.virtual")}
                 </Tag>
 
-                {isNotNullish(insuranceSubscription) && (
+                {isNotNullish(insuranceSubscription) && cardHolderType === "Company" && (
                   <>
                     <Space width={12} />
                     <Tag color="gray" icon="shield-checkmark-regular">
@@ -171,7 +172,7 @@ export const FullNameAndCardTypeCell = ({ card }: { card: Card }) => {
                   </>
                 </Tag>
 
-                {isNotNullish(insuranceSubscription) && (
+                {isNotNullish(insuranceSubscription) && cardHolderType === "Company" && (
                   <>
                     <Space width={12} />
                     <Tag color="gray" icon="shield-checkmark-regular">
@@ -273,6 +274,7 @@ export const CardStatusCell = ({ card }: { card: Card }) => {
 
 export const CardSummaryCell = ({ card }: { card: Card }) => {
   const spendingLimits = card.spendingLimits ?? [];
+  const cardHolderType = card.accountMembership.account?.holder.info.type;
 
   return (
     <Cell direction="column">
@@ -314,7 +316,7 @@ export const CardSummaryCell = ({ card }: { card: Card }) => {
                 ariaLabel={t("cards.format.virtual")}
               />
 
-              {isNotNullish(insuranceSubscription) && (
+              {isNotNullish(insuranceSubscription) && cardHolderType === "Company" && (
                 <>
                   <Space width={8} />
 
@@ -354,7 +356,7 @@ export const CardSummaryCell = ({ card }: { card: Card }) => {
                   .otherwise(() => undefined)}
               </Tag>
 
-              {isNotNullish(insuranceSubscription) && (
+              {isNotNullish(insuranceSubscription) && cardHolderType === "Company" && (
                 <>
                   <Space width={8} />
 

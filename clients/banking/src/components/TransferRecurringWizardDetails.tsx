@@ -353,6 +353,31 @@ const TransferRecurringWizardDetailsTargetAccountBalance = ({
                   )}
                 />
               </View>
+
+              <Space width={24} />
+
+              <View style={styles.field}>
+                <LakeLabel
+                  optionalLabel={t("form.optional")}
+                  label={t("transfer.new.details.reference")}
+                  render={id => (
+                    <Field name="reference">
+                      {({ value, onChange, onBlur, error, valid, ref }) => (
+                        <LakeTextInput
+                          id={id}
+                          ref={ref}
+                          value={value}
+                          help={t("transfer.new.details.reference.help")}
+                          error={error}
+                          valid={valid}
+                          onChangeText={onChange}
+                          onBlur={onBlur}
+                        />
+                      )}
+                    </Field>
+                  )}
+                />
+              </View>
             </Box>
           )}
         </ResponsiveContainer>

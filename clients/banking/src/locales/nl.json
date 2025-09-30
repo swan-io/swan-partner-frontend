@@ -1065,6 +1065,7 @@
   "supportingDocuments.swornStatementModal.downloadButton": "Template downloaden",
   "supportingDocuments.swornStatementModal.text": "Voor de regelgeving hebben we een eedverklaring van de UBO-verklaring nodig",
   "supportingDocuments.swornStatementModal.title": "Eedverklaring UBO-verklaring",
+  "test": "Dit is een test",
   "transaction.address": "Adres",
   "transaction.bookingDateTime": "Datum van overboeking",
   "transaction.canceledDate": "Geannuleerde datum",

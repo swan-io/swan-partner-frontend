@@ -1065,6 +1065,7 @@
   "supportingDocuments.swornStatementModal.downloadButton": "Scarica un modello",
   "supportingDocuments.swornStatementModal.text": "Per motivi normativi, abbiamo bisogno di una dichiarazione giurata di beneficiario effettivo (UBO)",
   "supportingDocuments.swornStatementModal.title": "Dichiarazione giurata di beneficiario effettivo (UBO)",
+  "test": "Questo è un test",
   "transaction.address": "Indirizzo",
   "transaction.bookingDateTime": "Data prenotata",
   "transaction.canceledDate": "Data di cancellazione",

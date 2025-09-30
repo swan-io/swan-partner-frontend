@@ -1065,6 +1065,7 @@
   "supportingDocuments.swornStatementModal.downloadButton": "Descarregue um modelo",
   "supportingDocuments.swornStatementModal.text": "Por razões regulatórias, precisamos de uma declaração juramentada da declaração do beneficiário final.",
   "supportingDocuments.swornStatementModal.title": "Declaração Juramentada do Beneficiário Final",
+  "test": "Isto é um teste",
   "transaction.address": "Endereço",
   "transaction.bookingDateTime": "Data da reserva",
   "transaction.canceledDate": "Data de cancelamento",

@@ -19,7 +19,7 @@ import { printIbanFormat, validateIban } from "@swan-io/shared-business/src/util
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { electronicFormat } from "iban";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
   GetIbanValidationDocument,
@@ -169,12 +169,6 @@ export const BeneficiarySepaWizardForm = ({
             .mapOkToResult(filterRejectionsToResult)
             .mapOk(data => data.verifyBeneficiaryResult),
         )
-          .with(AsyncData.P.Loading, () => (
-            <Box alignItems="center" justifyContent="center" style={styles.loaderBox}>
-              <ActivityIndicator color={colors.gray[500]} />
-            </Box>
-          ))
-
           .with(AsyncData.P.Done(Result.P.Ok({ __typename: "VerifyBeneficiaryNoMatch" })), () => (
             <LakeAlert
               anchored={true}

@@ -14,10 +14,6 @@ fragment TransactionDetails on Transaction {
     id
     createdAt
   }
-  account {
-    id
-    language
-  }
   originTransaction {
     id
     type

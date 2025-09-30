@@ -1436,6 +1436,17 @@ query AccountActivationPage($accountMembershipId: ID!) {
       paymentLevel
       paymentAccountType
       holder {
+        verificationStatusInfo {
+          __typename
+          ... on AccountHolderWaitingForInformationVerificationStatusInfo {
+            __typename
+            verificationRequirements {
+              id
+              type
+            }
+            waitingForInformationAt
+          }
+        }
         id
         verificationStatus
         info {

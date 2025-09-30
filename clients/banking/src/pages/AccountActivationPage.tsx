@@ -98,15 +98,6 @@ const styles = StyleSheet.create({
   stepDoneTileContents: {
     ...commonStyles.fill,
   },
-  stepTile: {
-    alignItems: "center",
-    flexDirection: "row",
-    flexGrow: 1,
-    flexShrink: 1,
-  },
-  stepTileContents: {
-    ...commonStyles.fill,
-  },
   listScrollViewContent: {
     paddingTop: spacings[24],
     paddingBottom: spacings[24],
@@ -138,6 +129,11 @@ const styles = StyleSheet.create({
   },
   errorContainer: {
     ...commonStyles.fill,
+  },
+  rightPanelTiles: {
+    boxShadow: "0",
+    borderColor: colors.gray[100],
+    borderWidth: 1,
   },
 });
 
@@ -198,7 +194,7 @@ const LeftPanelItemWrapper = ({
   );
 };
 
-type StepTileVariant = "inert" | "todo" | "done";
+type StepTileVariant = "inert" | "todo" | "done" | "pending";
 
 type StepTileProps = {
   variant: StepTileVariant;
@@ -232,18 +228,26 @@ const StepTile = ({ variant, title, description, onPress, footer, large }: StepT
             <View role="none" style={styles.stepTileActiveIndicator} />
           )}
 
-          <Pressable disabled={variant === "inert"} onPress={onPress}>
+          <Pressable disabled={variant === "inert" || variant === "pending"} onPress={onPress}>
             {({ hovered }) => (
               <Tile hovered={hovered} paddingVertical={24} footer={footer}>
-                <View style={styles.stepTile}>
-                  <View style={styles.stepTileContents}>
-                    <LakeHeading level={5} variant="h5">
-                      {title}
-                    </LakeHeading>
+                <>
+                  <>
+                    <Box direction="row" justifyContent="spaceBetween">
+                      <LakeHeading level={5} variant="h5">
+                        {title}
+                      </LakeHeading>
 
+                      {variant === "pending" && (
+                        <Box>
+                          <Tag color="shakespear">{t("accountActivation.tag.pending")}</Tag>
+                          <Space width={20} />
+                        </Box>
+                      )}
+                    </Box>
                     <Space height={8} />
                     <LakeText>{description}</LakeText>
-                  </View>
+                  </>
 
                   <Space width={24} />
 
@@ -254,10 +258,10 @@ const StepTile = ({ variant, title, description, onPress, footer, large }: StepT
                     </>
                   )}
 
-                  {variant !== "inert" && (
+                  {variant === "todo" && (
                     <Icon name="chevron-right-filled" size={20} color={colors.gray[500]} />
                   )}
-                </View>
+                </>
               </Tile>
             )}
           </Pressable>
@@ -282,7 +286,9 @@ const STEP_INDEXES = {
   AddMoneyToYourNewAccountIbanMissing: 3,
   AddMoneyToYourNewAccountViaIbanTodo: 3,
 
-  Done: 4,
+  AdditionalInformationTodo: 4,
+
+  Done: 5,
 } as const;
 
 type Step = keyof typeof STEP_INDEXES;
@@ -357,11 +363,24 @@ export const AccountActivationPage = ({
         const BIC = account?.BIC;
         const hasIBAN = isNotNullish(IBAN);
         const hasTransactions = (account?.transactions?.totalCount ?? 0) >= 1;
+        const needsAdditionalInfo =
+          holder?.verificationStatusInfo.__typename ===
+          "AccountHolderWaitingForInformationVerificationStatusInfo";
+        const additionalRequiredInfo = match(holder?.verificationStatusInfo)
+          .with(
+            { __typename: "AccountHolderWaitingForInformationVerificationStatusInfo" },
+            ({ verificationRequirements, waitingForInformationAt }) => ({
+              verificationRequirements,
+              waitingForInformationAt,
+            }),
+          )
+          .otherwise(() => null);
 
         const step = match({
           hasRequiredIdentificationLevel,
           account,
           requireFirstTransfer,
+          needsAdditionalInfo,
         })
           .returnType<Step | undefined>()
           // Handle legacy account that didn't go through the new process
@@ -371,6 +390,7 @@ export const AccountActivationPage = ({
           )
           // Case where the membership doesn't yet have a user, should occur
           .with({ hasRequiredIdentificationLevel: undefined }, () => undefined)
+          .with({ needsAdditionalInfo: true }, () => "AdditionalInformationTodo")
           .with(
             {
               hasRequiredIdentificationLevel: false,
@@ -476,12 +496,34 @@ export const AccountActivationPage = ({
           <ResponsiveContainer breakpoint={breakpoints.large} style={styles.root}>
             {({ large }) => {
               const content = match(step)
-                .with(
-                  "IdentityVerificationPending",
-                  "SupportingDocumentsEmailPending",
-                  "SupportingDocumentsFormPending",
-                  () => null,
-                )
+                .with("IdentityVerificationPending", () => null)
+                .with("SupportingDocumentsEmailPending", "SupportingDocumentsFormPending", () => (
+                  <View style={styles.fill}>
+                    <StepScrollView onClose={setContentVisible.off} large={large}>
+                      <LakeHeading level={3} variant="h3">
+                        {t("accountActivation.documents.title")}
+                      </LakeHeading>
+
+                      <Space height={8} />
+                      <LakeText>{t("accountActivation.pendingDocuments.subtitle")}</LakeText>
+                      <Space height={32} />
+
+                      <Tile style={styles.rightPanelTiles}>
+                        <Box alignItems="center">
+                          <BorderedIcon name="lake-clock" color="current" />
+                          <Space height={32} />
+
+                          <LakeText align="center" variant="medium" color={colors.gray[900]}>
+                            {t("accountActivation.pendingDocuments.title")}
+                          </LakeText>
+                          <LakeText align="center" color={colors.gray[500]}>
+                            {t("accountActivation.pendingDocuments.text")}
+                          </LakeText>
+                        </Box>
+                      </Tile>
+                    </StepScrollView>
+                  </View>
+                ))
                 .with("IdentityVerificationTodo", "IdentityVerificationToRedo", () => (
                   <StepScrollView onClose={setContentVisible.off} large={large}>
                     <Box
@@ -562,6 +604,95 @@ export const AccountActivationPage = ({
                         {t("accountActivation.documents.email.text")}
                       </LakeText>
                     </Box>
+                  </StepScrollView>
+                ))
+                .with("AdditionalInformationTodo", () => (
+                  <StepScrollView onClose={setContentVisible.off} large={large}>
+                    <LakeHeading level={3} variant="h3">
+                      {t("accountActivation.additionalInformation")}
+                    </LakeHeading>
+
+                    <Space height={8} />
+                    <LakeText>{t("accountActivation.additionalInformation.subtitle")}</LakeText>
+                    <Space height={32} />
+
+                    {isNotNullish(additionalRequiredInfo) &&
+                      additionalRequiredInfo.verificationRequirements.map(info => (
+                        <Box key={info.id}>
+                          <Tile style={styles.rightPanelTiles} paddingVertical={16}>
+                            <LakeText>
+                              {match(info.type)
+                                .with("FirstTransferRequired", () =>
+                                  t(
+                                    "accountActivation.additionalInformation.FirstTransferRequired",
+                                  ),
+                                )
+                                .with("LegalRepresentativeDetailsRequired", () =>
+                                  t(
+                                    "accountActivation.additionalInformation.LegalRepresentativeDetailsRequired",
+                                  ),
+                                )
+                                .with("OrganizationDetailsRequired", () =>
+                                  t(
+                                    "accountActivation.additionalInformation.OrganizationDetailsRequired",
+                                  ),
+                                )
+                                .with("SupportingDocumentsRequired", () =>
+                                  t(
+                                    "accountActivation.additionalInformation.SupportingDocumentsRequired",
+                                  ),
+                                )
+                                .with("TaxIdRequired", () =>
+                                  t("accountActivation.additionalInformation.TaxIdRequired"),
+                                )
+                                .with("UboDetailsRequired", () =>
+                                  t("accountActivation.additionalInformation.UboDetailsRequired"),
+                                )
+                                .with("Other", () =>
+                                  t("accountActivation.additionalInformation.Other"),
+                                )
+                                .exhaustive()}
+                            </LakeText>
+                          </Tile>
+                          <Space height={8} />
+                        </Box>
+                      ))}
+                    <Space height={32} />
+
+                    <Tile style={styles.rightPanelTiles}>
+                      <Box alignItems="center">
+                        <BorderedIcon name="lake-email" color="current" padding={8} />
+                        <Space height={32} />
+
+                        {match(supportingDocumentSettings?.collectMode)
+                          .with("API", "Partner", () => (
+                            <LakeText color={colors.gray[900]}>
+                              t("accountActivation.additionalInformation.tileInfo")
+                            </LakeText>
+                          ))
+                          .with("EndCustomer", "EndCustomerCcPartner", () =>
+                            isNotNullish(emailAddress) && isNotNullish(additionalRequiredInfo) ? (
+                              <LakeText align="center">
+                                {formatNestedMessage(
+                                  "accountActivation.additionalInformation.tileInfoExtraInfo",
+                                  {
+                                    bold: text => <LakeText variant="semibold">{text}</LakeText>,
+                                    email: emailAddress,
+                                    date: dayjs(
+                                      additionalRequiredInfo.waitingForInformationAt,
+                                    ).format("LL"),
+                                  },
+                                )}
+                              </LakeText>
+                            ) : (
+                              <LakeText align="center">
+                                {t("accountActivation.additionalInformation.tileInfo")}
+                              </LakeText>
+                            ),
+                          )
+                          .otherwise(() => null)}
+                      </Box>
+                    </Tile>
                   </StepScrollView>
                 ))
                 .with("SupportingDocumentsFormTodo", () => (
@@ -760,7 +891,11 @@ export const AccountActivationPage = ({
                                 : "info"
                             }
                           >
-                            <LakeText>{t("accountActivation.description")}</LakeText>
+                            <LakeText>
+                              {holder.verificationStatus === "Pending"
+                                ? t("accountActivation.description.pending")
+                                : t("accountActivation.description")}
+                            </LakeText>
                           </LakeAlert>
                         </>
                       )}
@@ -823,26 +958,25 @@ export const AccountActivationPage = ({
                               .with(
                                 "SupportingDocumentsEmailPending",
                                 "SupportingDocumentsFormPending",
-                                () => "inert",
+                                () => "pending",
                               )
-                              .otherwise(() => "done")}
-                            footer={match(step)
-                              .with(
-                                "SupportingDocumentsEmailPending",
-                                "SupportingDocumentsFormPending",
-                                () => (
-                                  <LakeAlert
-                                    anchored={true}
-                                    variant="info"
-                                    title={t("accountActivation.pendingDocuments.title")}
-                                  >
-                                    {t("accountActivation.pendingDocuments.text")}
-                                  </LakeAlert>
-                                ),
-                              )
-                              .otherwise(() => null)}
+                              .otherwise(() => "inert")}
                           />
                         )}
+
+                      {holder?.verificationStatusInfo.__typename ===
+                        "AccountHolderWaitingForInformationVerificationStatusInfo" && (
+                        <StepTile
+                          large={large}
+                          title={t("accountActivation.additionalInformation")}
+                          description={t("accountActivation.additionalInformation.description")}
+                          onPress={setContentVisible.on}
+                          variant={match(step)
+                            .returnType<StepTileVariant>()
+                            .with("AdditionalInformationTodo", () => "todo")
+                            .otherwise(() => "done")}
+                        />
+                      )}
 
                       {!isCompany &&
                         requireFirstTransfer &&

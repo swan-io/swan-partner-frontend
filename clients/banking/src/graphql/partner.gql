@@ -481,6 +481,15 @@ query AccountArea($accountMembershipId: ID!) {
             }
           }
         }
+        verificationStatusInfo {
+          __typename
+          ... on AccountHolderWaitingForInformationVerificationStatusInfo {
+            verificationRequirements {
+              id
+              type
+            }
+          }
+        }
         verificationStatus
       }
       transactions(first: 0) {

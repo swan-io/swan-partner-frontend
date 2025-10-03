@@ -3120,6 +3120,13 @@ mutation RequestMerchantPaymentMethods($input: RequestMerchantPaymentMethodsInpu
         id
       }
     }
+    ... on ValidationRejection {
+      message
+      fields {
+        path
+        code
+      }
+    }
     ... on Rejection {
       message
     }

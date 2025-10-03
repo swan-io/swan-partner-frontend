@@ -379,7 +379,7 @@ export const AccountArea = ({
 
                   <Space height={32} />
 
-                  {activationTag === "pending" && (
+                  {(activationTag === "pending" || activationTag === "actionRequired") && (
                     <LakeButton
                       color="current"
                       icon="checkmark-starburst-filled"

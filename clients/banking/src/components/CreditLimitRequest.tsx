@@ -1,5 +1,5 @@
 import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
-import { useQuery } from "@swan-io/graphql-client";
+import { useMutation, useQuery } from "@swan-io/graphql-client";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
@@ -13,12 +13,20 @@ import { WithCurrentColor } from "@swan-io/lake/src/components/WithCurrentColor"
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { backgroundColor, colors, invariantColors } from "@swan-io/lake/src/constants/design";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { Request } from "@swan-io/request";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useCallback, useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
-import { CreditLimitRequestDocument } from "../graphql/partner";
+import {
+  CreditLimitRequestDocument,
+  RepaymentAccountFragment,
+  RepaymentCycleLengthInput,
+  RequestCreditLimitSettingsDocument,
+} from "../graphql/partner";
 import { PermissionProvider } from "../hooks/usePermissions";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { t } from "../utils/i18n";
@@ -128,7 +136,12 @@ export const CreditLimitRequest = ({ accountId, resourceId, status }: Props) => 
                         <LakeText>{t("creditLimitRequest.notice")}</LakeText>
                         <Space height={24} />
 
-                        <CreditLimitRequestForm />
+                        <CreditLimitRequestForm
+                          account={account}
+                          accountMembershipId={userMembershipIdOnCurrentAccount.getOr(
+                            account.legalRepresentativeMembership.id,
+                          )}
+                        />
                       </>
                     )}
                   </WizardLayout>
@@ -174,7 +187,16 @@ export const CreditLimitRequest = ({ accountId, resourceId, status }: Props) => 
     .otherwise(() => <NotFoundPage />);
 };
 
-const CreditLimitRequestForm = () => {
+type FormProps = {
+  account: RepaymentAccountFragment;
+  accountMembershipId: string;
+};
+
+const CreditLimitRequestForm = ({ account, accountMembershipId }: FormProps) => {
+  const [requestCreditLimitSettings, creditLimitSettingsRequest] = useMutation(
+    RequestCreditLimitSettingsDocument,
+  );
+
   const { Field, FieldsListener, submitForm } = useForm({
     amount: {
       initialValue: "",
@@ -224,9 +246,126 @@ const CreditLimitRequestForm = () => {
 
   const onPressSubmit = useCallback(() => {
     submitForm({
-      onSuccess: () => {},
+      onSuccess: ({
+        amount,
+        repaymentFrequency,
+        repaymentDate,
+        repaymentDayOfWeek,
+        repaymentAccountIban,
+        repaymentAccountName,
+        repaymentAccountAddress,
+        repaymentAccountAddressPostalCode,
+        repaymentAccountAddressCity,
+        repaymentAccountAddressCountry,
+      }) => {
+        const repaymentSettings = Option.allFromDict({
+          repaymentAccountIban,
+          repaymentAccountName,
+          repaymentAccountAddress,
+          repaymentAccountAddressPostalCode,
+          repaymentAccountAddressCity,
+          repaymentAccountAddressCountry,
+        })
+          .map(values => ({
+            name: values.repaymentAccountName,
+            IBAN: values.repaymentAccountIban,
+            address: {
+              addressLine1: values.repaymentAccountAddress,
+              city: values.repaymentAccountAddressCity,
+              postalCode: values.repaymentAccountAddressPostalCode,
+              country: values.repaymentAccountAddressCountry,
+            },
+          }))
+          .orElse(
+            Option.allFromDict({
+              IBAN: Option.fromNullable(account.IBAN),
+              addressLine1: Option.fromNullable(account.holder.residencyAddress.addressLine1),
+              city: Option.fromNullable(account.holder.residencyAddress.city),
+              postalCode: Option.fromNullable(account.holder.residencyAddress.postalCode),
+              country: Option.fromNullable(account.holder.residencyAddress.country),
+            }).map(({ IBAN, addressLine1, city, postalCode, country }) => ({
+              name: account.holder.info.name,
+              IBAN,
+              address: {
+                addressLine1,
+                city,
+                postalCode,
+                country,
+              },
+            })),
+          )
+          .map(sepaDirectDebitB2B => ({ sepaDirectDebitB2B }))
+          .map(repaymentMethod => ({ repaymentMethod }));
+
+        const creditLimitSettings = Option.allFromDict({
+          amount: amount.map(value => ({
+            value,
+            currency: "EUR",
+          })),
+        });
+
+        const cycleLength = repaymentFrequency.flatMap<RepaymentCycleLengthInput>(
+          repaymentFrequency => {
+            if (repaymentFrequency === "Monthly") {
+              return repaymentDate.map(dayOfMonth => ({
+                monthly: { dayOfMonth: Number.parseInt(dayOfMonth, 10) },
+              }));
+            } else {
+              return repaymentDayOfWeek
+                .flatMap(repaymentDayOfWeek =>
+                  match(repaymentDayOfWeek)
+                    .with(
+                      "Monday",
+                      "Tuesday",
+                      "Wednesday",
+                      "Thursday",
+                      "Friday",
+                      "Saturday",
+                      "Sunday",
+                      Option.Some,
+                    )
+                    .otherwise(Option.None),
+                )
+                .map(dayOfWeek => ({
+                  weekly: { dayOfWeek, weekCount: 1 },
+                }));
+            }
+          },
+        );
+
+        Option.allFromDict({
+          repaymentSettings,
+          creditLimitSettings,
+          cycleLength,
+        }).tapSome(input => {
+          const consentRedirectUrl = new URL(window.location.href);
+          consentRedirectUrl.pathname = Router.AccountRoot({ accountMembershipId });
+          requestCreditLimitSettings({
+            input: {
+              ...input,
+              accountId: account.id,
+              consentRedirectUrl: consentRedirectUrl.toString(),
+            },
+          })
+            .mapOkToResult(data =>
+              Option.fromNullable(data.requestCreditLimitSettings).toResult(undefined),
+            )
+            .mapOkToResult(filterRejectionsToResult)
+            .mapOkToResult(payload =>
+              payload.__typename === "RequestCreditLimitSettingsSuccessPayload"
+                ? Result.Ok(payload)
+                : Result.Error(payload),
+            )
+            .tapOk(payload =>
+              window.location.assign(payload.creditLimitSettingsRequest.consent.consentUrl),
+            )
+            .tapError(error =>
+              showToast({ variant: "error", error, title: translateError(error) }),
+            );
+        });
+      },
     });
-  }, [submitForm]);
+  }, [account, submitForm, accountMembershipId]);
 
   return (
     <>
@@ -445,7 +584,12 @@ const CreditLimitRequestForm = () => {
       </FieldsListener>
 
       <LakeButtonGroup>
-        <LakeButton grow={true} color="current" onPress={onPressSubmit}>
+        <LakeButton
+          grow={true}
+          color="current"
+          loading={creditLimitSettingsRequest.isLoading()}
+          onPress={onPressSubmit}
+        >
           {t("creditLimitRequest.requestCreditLimit")}
         </LakeButton>
       </LakeButtonGroup>

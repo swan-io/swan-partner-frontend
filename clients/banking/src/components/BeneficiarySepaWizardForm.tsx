@@ -109,7 +109,7 @@ export const BeneficiarySepaWizardForm = ({
 
   useEffect(() => {
     return listenFields(["iban", "name"], ({ iban, name }) => {
-      if (iban.valid) {
+      if (validateIban(electronicFormat(iban.value)) === undefined) {
         verifyBeneficiary({
           input: {
             beneficiary: {

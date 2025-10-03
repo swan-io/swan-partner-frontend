@@ -1327,6 +1327,10 @@ Union between PartnerCloseAccountReasonType and InternalCloseAccountReason
 """
 union CloseAccountStatusReason = CloseAccountReason
 
+type ClosedAccountNotUpgradableRejection implements Rejection {
+  message: String!
+}
+
 """
 Data provided following the search for company information by siren number
 """
@@ -1446,27 +1450,6 @@ input CompleteAddressWithContactInput {
 
   """contact company name (max 38 characters)"""
   companyName: String
-}
-
-type CompletedVerificationRenewal implements VerificationRenewal {
-  id: ID!
-  accountHolderId: String!
-  status: VerificationRenewalStatus!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  supportTicketId: String
-  dueDate: DateTime
-
-  """Completed Sub Status of the verification renewal"""
-  completedSubStatus: CompletedVerificationRenewalSubStatus!
-
-  """Completed date"""
-  completedAt: DateTime
-}
-
-enum CompletedVerificationRenewalSubStatus {
-  Verified
-  Postponed
 }
 
 """
@@ -1905,8 +1888,11 @@ type IndividualUltimateBeneficialOwner {
   """Individual beneficial owner residency Address"""
   residencyAddress: AddressInformation
 
-  """Individual beneficial owner title (Mr/Ms)"""
-  title: TitleEnum
+  """
+  Individual beneficial owner title (Mr/Ms)
+  @deprecated(reason: "Use `gender` instead")
+  """
+  title: TitleEnum @deprecated(reason: "Use `gender` instead")
 
   """Ultimate beneficial owner's identity document details"""
   identityDocumentDetails: UBOIdentityDocumentDetails
@@ -2232,8 +2218,11 @@ type Onboarding {
   """
   onboardingUrl: String
 
-  """Current computed state of onboarding"""
-  onboardingState: OnboardingState!
+  """
+  Current computed state of onboarding
+  @deprecated(reason: "use `statusInfo` instead")
+  """
+  onboardingState: OnboardingState! @deprecated(reason: "use `statusInfo` instead")
 
   """
   URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking.
@@ -2446,8 +2435,11 @@ type OnboardingInfo {
   """
   onboardingUrl: String!
 
-  """Current computed state of onboarding"""
-  onboardingState: OnboardingState
+  """
+  Current computed state of onboarding
+  @deprecated(reason: "use `statusInfo` instead")
+  """
+  onboardingState: OnboardingState @deprecated(reason: "use `statusInfo` instead")
 
   """
   URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking.
@@ -2457,8 +2449,10 @@ type OnboardingInfo {
   """Project infos you set in the dashboard"""
   projectInfo: ProjectInfo
 
-  """Verification Flow"""
-  verificationFlow: VerificationFlow!
+  """
+  @deprecated(reason: "The progressive verification flow is no longer a supported feature, as all new account holders are now required to complete full KYC upfront.")
+  """
+  verificationFlow: VerificationFlow! @deprecated(reason: "The progressive verification flow is no longer a supported feature, as all new account holders are now required to complete full KYC upfront.")
 
   """Extra parameters provided by partner"""
   oAuthRedirectParameters: OAuthRedirectParameters
@@ -2662,27 +2656,6 @@ enum PaymentLevel {
   Unlimited
 }
 
-type PendingVerificationRenewal implements VerificationRenewal {
-  id: ID!
-  accountHolderId: String!
-  status: VerificationRenewalStatus!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  supportTicketId: String
-  dueDate: DateTime
-
-  """Pending Sub Status of the verification renewal"""
-  pendingSubStatus: PendingVerificationRenewalSubStatus!
-}
-
-enum PendingVerificationRenewalSubStatus {
-  ToStart
-  FirstResponseReceived
-  AdditionalResponseReceived
-  RiskEscalation
-  LastChance
-}
-
 type PermissionCannotBeGrantedRejection implements Rejection {
   message: String!
 }
@@ -2781,26 +2754,6 @@ interface Reason {
 """Input version"""
 input ReasonInput {
   message: String
-}
-
-type RefusedVerificationRenewal implements VerificationRenewal {
-  id: ID!
-  accountHolderId: String!
-  status: VerificationRenewalStatus!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  supportTicketId: String
-  dueDate: DateTime
-
-  """Refused Sub Status of the verification renewal"""
-  refusedSubStatus: RefusedVerificationRenewalSubStatus!
-
-  """Refused date"""
-  refusedAt: DateTime
-}
-
-enum RefusedVerificationRenewalSubStatus {
-  Discrepancies
 }
 
 interface Rejection {
@@ -3802,108 +3755,10 @@ enum UBOIdentityDocumentType {
   IdCard
 }
 
-"""Ultimate beneficial Direct Owner company info."""
-type UltimateBeneficialDirectOwnerCompanyInfo implements UltimateBeneficialOwnerInfo {
-  """Ultimate Beneficial Owner Unique Identifier ."""
-  id: ID!
-
-  """Ultimate beneficial Direct Owner Company type."""
-  type: UltimateBeneficialOwnerType!
-
-  """
-  Shares ratio of the parent company. Example: 50 if the share ratio is 50%.
-  """
-  parentCompanyShareRatio: Float!
-
-  """Name of the company."""
-  name: String!
-
-  """
-  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
-  - Length must be from 0 to 50 characters.
-  """
-  registrationNumber: String!
-}
-
-"""Ultimate beneficial Direct Owner individual info."""
-type UltimateBeneficialDirectOwnerIndividualInfo implements UltimateBeneficialOwnerInfo {
-  """Ultimate Beneficial Owner Unique Identifier ."""
-  id: ID!
-
-  """Ultimate beneficial Direct owner Individual type ."""
-  type: UltimateBeneficialOwnerType!
-
-  """
-  Shares ratio of the parent company. Example: 50 if the share ratio is 50%.
-  """
-  parentCompanyShareRatio: Float!
-
-  """First name."""
-  firstName: String!
-
-  """Last name."""
-  lastName: String!
-
-  """Birth date."""
-  birthDate: Date!
-}
-
-"""Ultimate beneficial owner company info."""
-type UltimateBeneficialIndirectOwnerCompanyInfo implements UltimateBeneficialOwnerInfo {
-  """Ultimate Beneficial Owner Unique Identifier ."""
-  id: ID!
-
-  """Ultimate beneficial Indirect Owner Company type."""
-  type: UltimateBeneficialOwnerType!
-
-  """Unique Reference of the Parent Company."""
-  parentCompanyReference: String!
-
-  """
-  Shares ratio of the parent company. Example: 50 if the share ratio is 50%.
-  """
-  parentCompanyShareRatio: Float!
-
-  """Name of the company."""
-  name: String!
-
-  """
-  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
-  - Length must be from 0 to 50 characters.
-  """
-  registrationNumber: String!
-}
-
-"""Ultimate beneficial Indirect Owner individual info."""
-type UltimateBeneficialIndirectOwnerIndividualInfo implements UltimateBeneficialOwnerInfo {
-  """Ultimate Beneficial Owner Unique Identifier."""
-  id: ID!
-
-  """Ultimate beneficial Indirect Owner Individual type ."""
-  type: UltimateBeneficialOwnerType!
-
-  """Unique Reference of the Parent Company."""
-  parentCompanyReference: String!
-
-  """
-  Shares ratio of the parent company. Example: 50 if the share ratio is 50%.
-  """
-  parentCompanyShareRatio: Float!
-
-  """First name."""
-  firstName: String!
-
-  """Last name."""
-  lastName: String!
-
-  """Birth date."""
-  birthDate: Date!
-}
-
 """
 The Ultimate Beneficial Owner could be for an Individual or a Company and these can Direct or Indirect
 """
-interface UltimateBeneficialOwnerInfo {
+type UltimateBeneficialOwnerInfo {
   """Ultimate Beneficial Owner Unique Identifier ."""
   id: ID!
 
@@ -3936,8 +3791,7 @@ input UnauthenticatedOnboardPublicCompanyAccountHolderInput {
   projectId: ID!
 
   """
-  Verification Flow.
-  - Default value to 'Upfront' if not provided.
+  @deprecated(reason: "The progressive verification flow is no longer a supported feature, as all new account holders are now required to complete full KYC upfront.")
   """
   verificationFlow: VerificationFlow! = Upfront
 
@@ -3956,8 +3810,7 @@ input UnauthenticatedOnboardPublicIndividualAccountHolderInput {
   projectId: ID!
 
   """
-  Verification Flow.
-  - Default value to 'Upfront' if not provided.
+  @deprecated(reason: "The progressive verification flow is no longer a supported feature, as all new account holders are now required to complete full KYC upfront.")
   """
   verificationFlow: VerificationFlow! = Upfront
 
@@ -4336,127 +4189,6 @@ enum VerificationFlow {
   Progressive
 }
 
-"""Verification Renewals"""
-interface VerificationRenewal {
-  """Unique identifier of a verification renewal"""
-  id: ID!
-
-  """Unique identifier of account holder"""
-  accountHolderId: String!
-
-  """Status of the verification renewal"""
-  status: VerificationRenewalStatus!
-
-  """Created date"""
-  createdAt: DateTime!
-
-  """Updated date"""
-  updatedAt: DateTime!
-
-  """Zendesk Ticket ID"""
-  supportTicketId: String
-
-  """Due date of the verification renewal"""
-  dueDate: DateTime
-}
-
-enum VerificationRenewalRequirement {
-  """Account Holder Details Required"""
-  AccountHolderDetailsRequired
-
-  """Swan is requesting some tax identifier"""
-  TaxIdRequired
-
-  """Swan is requesting some clarification on the UBO"""
-  UboDetailsRequired
-
-  """Legal Representative Details Required"""
-  LegalRepresentativeDetailsRequired
-
-  """Swan is requesting some Supporting Documents"""
-  SupportingDocumentsRequired
-
-  """Swan is requesting more information on the account holders"""
-  Other
-}
-
-"""
-Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
-"""
-type VerificationRenewalsConnection implements Connection {
-  """Total number of element in the list"""
-  totalCount: Int!
-
-  """Information about the current, the previous and the next page"""
-  pageInfo: PageInfo!
-
-  """VerificationRenewalsEdge list"""
-  edges: [VerificationRenewalsEdge!]!
-}
-
-"""Implements the Relay Edge interface"""
-type VerificationRenewalsEdge implements Edge {
-  """
-  Opaque identifier pointing to this onboarding node in the pagination mechanism
-  """
-  cursor: String!
-
-  """The VerificationRenewal"""
-  node: VerificationRenewal!
-}
-
-"""Filters that can be applied when listing verification renewals"""
-input VerificationRenewalsFiltersInput {
-  """Filter by IDs"""
-  id: [String!]
-
-  """Filter by Account Holder IDs"""
-  accountHolderId: [String!]
-
-  """Filter by Project IDs"""
-  projectId: [String!]
-
-  """Filter by VerificationRenewal status"""
-  status: VerificationRenewalStatus
-
-  """Filter by VerificationRenewal Sub statuses"""
-  subStatus: [VerificationRenewalSubStatus!]
-}
-
-"""
-Field we can use when ordering that can be applied when listing verification renewals
-"""
-enum VerificationRenewalsOrderByFieldInput {
-  id
-  createdAt
-  updatedAt
-}
-
-"""Order that can be applied when listing verification renewals"""
-input VerificationRenewalsOrderByInput {
-  field: VerificationRenewalsOrderByFieldInput
-  direction: OrderByDirection
-}
-
-enum VerificationRenewalStatus {
-  Pending
-  WaitingForInformation
-  Refused
-  Completed
-}
-
-enum VerificationRenewalSubStatus {
-  ToStart
-  FirstResponseReceived
-  AdditionalResponseReceived
-  RiskEscalation
-  LastChance
-  VerificationRequirements
-  Verified
-  Postponed
-  Discrepancies
-}
-
 """
 Account Holder Verification Requirement
 
@@ -4573,24 +4305,6 @@ type VirtualIBANEntryEdge implements Edge {
 
   """The virtual iban entry"""
   node: VirtualIBANEntry!
-}
-
-type WaitingForInformationVerificationRenewal implements VerificationRenewal {
-  id: ID!
-  accountHolderId: String!
-  status: VerificationRenewalStatus!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  supportTicketId: String
-  dueDate: DateTime
-
-  """WaitingForInformation Sub Status of the verification renewal"""
-  waitingForInformationSubStatus: WaitingForInformationVerificationRenewalSubStatus!
-  verificationRequirements: [VerificationRenewalRequirement!]!
-}
-
-enum WaitingForInformationVerificationRenewalSubStatus {
-  VerificationRequirements
 }
 
 scalar WalletToken

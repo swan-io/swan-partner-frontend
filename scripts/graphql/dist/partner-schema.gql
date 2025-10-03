@@ -4850,6 +4850,10 @@ type CloseAccountSuccessPayload {
   consent: Consent!
 }
 
+type ClosedAccountNotUpgradableRejection implements Rejection {
+  message: String!
+}
+
 """
 Data provided following the search for company information by siren number
 """
@@ -5034,27 +5038,6 @@ type CompletedMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatus
 
   """The time when the customer completed the payment."""
   completedAt: DateTime!
-}
-
-type CompletedVerificationRenewal implements VerificationRenewal {
-  id: ID!
-  accountHolderId: String!
-  status: VerificationRenewalStatus!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  supportTicketId: String
-  dueDate: DateTime
-
-  """Completed Sub Status of the verification renewal"""
-  completedSubStatus: CompletedVerificationRenewalSubStatus!
-
-  """Completed date"""
-  completedAt: DateTime
-}
-
-enum CompletedVerificationRenewalSubStatus {
-  Verified
-  Postponed
 }
 
 input CompleteUserCreationInput {
@@ -5702,7 +5685,7 @@ type CreditStatement {
   updatedAt: DateTime!
 }
 
-union CreditStatementPayload = AccountNotFoundRejection | CreditStatement | CreditStatementSuccessPayload | ForbiddenRejection | RepaymentCycleNotFoundRejection
+union CreditStatementPayload = CreditStatement | CreditStatementSuccessPayload | ForbiddenRejection
 
 type CreditStatementSuccessPayload {
   creditStatement: CreditStatement
@@ -7992,9 +7975,6 @@ input GenerateCreditStatementInput {
 
   """language to generate the statement in (default to account's language)"""
   language: AccountLanguage
-
-  """Type of statement to generate"""
-  statementType: StatementType = PDF
 }
 
 union GenerateCreditStatementPayload = BadRequestRejection | ForbiddenRejection | CreditStatement | AccountHolderNotFoundRejection | AccountNotFoundRejection | RepaymentCycleNotFoundRejection | CreditLimitSettingsNotFoundRejection
@@ -8678,8 +8658,11 @@ type IndividualUltimateBeneficialOwner {
   """Individual beneficial owner residency Address"""
   residencyAddress: AddressInformation
 
-  """Individual beneficial owner title (Mr/Ms)"""
-  title: TitleEnum
+  """
+  Individual beneficial owner title (Mr/Ms)
+  @deprecated(reason: "Use `gender` instead")
+  """
+  title: TitleEnum @deprecated(reason: "Use `gender` instead")
 
   """Ultimate beneficial owner's identity document details"""
   identityDocumentDetails: UBOIdentityDocumentDetails
@@ -12538,7 +12521,7 @@ type Mutation {
   generateCreditStatement(input: GenerateCreditStatementInput!): GenerateCreditStatementPayload!
 
   """Request a credit limit with given settings"""
-  requestCreditLimitSettings(input: requestCreditLimitSettingsInput!): RequestCreditLimitSettingsPayload
+  requestCreditLimitSettings(input: RequestCreditLimitSettingsInput!): RequestCreditLimitSettingsPayload
 
   """Create a temporary download link for a completed export."""
   generateExportDownloadLink(input: GenerateExportDownloadLinkInput!): GenerateExportDownloadLinkPayload
@@ -13228,8 +13211,11 @@ type Onboarding {
   """
   onboardingUrl: String
 
-  """Current computed state of onboarding"""
-  onboardingState: OnboardingState!
+  """
+  Current computed state of onboarding
+  @deprecated(reason: "use `statusInfo` instead")
+  """
+  onboardingState: OnboardingState! @deprecated(reason: "use `statusInfo` instead")
 
   """
   URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking.
@@ -13442,8 +13428,11 @@ type OnboardingInfo {
   """
   onboardingUrl: String!
 
-  """Current computed state of onboarding"""
-  onboardingState: OnboardingState
+  """
+  Current computed state of onboarding
+  @deprecated(reason: "use `statusInfo` instead")
+  """
+  onboardingState: OnboardingState @deprecated(reason: "use `statusInfo` instead")
 
   """
   URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking.
@@ -13453,8 +13442,10 @@ type OnboardingInfo {
   """Project infos you set in the dashboard"""
   projectInfo: ProjectInfo
 
-  """Verification Flow"""
-  verificationFlow: VerificationFlow!
+  """
+  @deprecated(reason: "The progressive verification flow is no longer a supported feature, as all new account holders are now required to complete full KYC upfront.")
+  """
+  verificationFlow: VerificationFlow! @deprecated(reason: "The progressive verification flow is no longer a supported feature, as all new account holders are now required to complete full KYC upfront.")
 
   """Extra parameters provided by partner"""
   oAuthRedirectParameters: OAuthRedirectParameters
@@ -14292,27 +14283,6 @@ type PendingTransactionStatusInfo implements TransactionStatusInfo {
   pendingEndDate: DateTime
 }
 
-type PendingVerificationRenewal implements VerificationRenewal {
-  id: ID!
-  accountHolderId: String!
-  status: VerificationRenewalStatus!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  supportTicketId: String
-  dueDate: DateTime
-
-  """Pending Sub Status of the verification renewal"""
-  pendingSubStatus: PendingVerificationRenewalSubStatus!
-}
-
-enum PendingVerificationRenewalSubStatus {
-  ToStart
-  FirstResponseReceived
-  AdditionalResponseReceived
-  RiskEscalation
-  LastChance
-}
-
 """Pending Verification Information"""
 type PendingVerificationStatusInfo implements AccountVerificationStatusInfo {
   """Account verification status (PendingVerification)"""
@@ -14922,28 +14892,29 @@ type Query {
   """
   Returns the list of account holders.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([(Learn More)](https://docs.swan.io/developers/using-api/pagination/))
   
-  *For a Project access token, this is all the account holders of the project and for an User access token, these are the holders of the accounts of which the user has an account membership.*
+  - For a **Project access token**, returns all account holders of the project.
+  - For a **User access token**, returns account holders of accounts where the user has membership.
   """
   accountHolders(
-    """the number of elements to load (maximum: 100)"""
+    """The number of elements to load (maximum: 100)."""
     first: Int! = 50
 
     """
-    the index (a unique reference in string form) from which you will load the preceding elements
+    The index (a unique reference in string form) from which you will load the preceding elements.
     """
     before: String
 
     """
-    the index (a unique reference in string form) from which you will load the following elements
+    The index (a unique reference in string form) from which you will load the following elements.
     """
     after: String
 
-    """a filtering table you can apply to your list of connections"""
+    """A filtering table you can apply to your list of connections."""
     filters: AccountHolderFilterInput
 
-    """an order you can apply to your list of connections"""
+    """An order you can apply to your list of connections."""
     orderBy: AccountHolderOrderByInput
   ): AccountHolderConnection!
 
@@ -15667,26 +15638,6 @@ input RefundTransaction {
   executionDate: DateTime
 }
 
-type RefusedVerificationRenewal implements VerificationRenewal {
-  id: ID!
-  accountHolderId: String!
-  status: VerificationRenewalStatus!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  supportTicketId: String
-  dueDate: DateTime
-
-  """Refused Sub Status of the verification renewal"""
-  refusedSubStatus: RefusedVerificationRenewalSubStatus!
-
-  """Refused date"""
-  refusedAt: DateTime
-}
-
-enum RefusedVerificationRenewalSubStatus {
-  Discrepancies
-}
-
 """Funding Source Rejected Reason"""
 enum RejectedFundingSourceReason {
   AccountVerificationRejected
@@ -16348,7 +16299,7 @@ type RequestCreditLimitSettingsFailurePayload {
 }
 
 """Inputs to request a credit limit"""
-input requestCreditLimitSettingsInput {
+input RequestCreditLimitSettingsInput {
   """The accountId which will benefit from the credit limits"""
   accountId: String!
 
@@ -20621,104 +20572,6 @@ enum UBOIdentityDocumentType {
   IdCard
 }
 
-"""Ultimate beneficial Direct Owner company info."""
-type UltimateBeneficialDirectOwnerCompanyInfo implements UltimateBeneficialOwnerInfo {
-  """Ultimate Beneficial Owner Unique Identifier ."""
-  id: ID!
-
-  """Ultimate beneficial Direct Owner Company type."""
-  type: UltimateBeneficialOwnerType!
-
-  """
-  Shares ratio of the parent company. Example: 50 if the share ratio is 50%.
-  """
-  parentCompanyShareRatio: Float!
-
-  """Name of the company."""
-  name: String!
-
-  """
-  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
-  - Length must be from 0 to 50 characters.
-  """
-  registrationNumber: String!
-}
-
-"""Ultimate beneficial Direct Owner individual info."""
-type UltimateBeneficialDirectOwnerIndividualInfo implements UltimateBeneficialOwnerInfo {
-  """Ultimate Beneficial Owner Unique Identifier ."""
-  id: ID!
-
-  """Ultimate beneficial Direct owner Individual type ."""
-  type: UltimateBeneficialOwnerType!
-
-  """
-  Shares ratio of the parent company. Example: 50 if the share ratio is 50%.
-  """
-  parentCompanyShareRatio: Float!
-
-  """First name."""
-  firstName: String!
-
-  """Last name."""
-  lastName: String!
-
-  """Birth date."""
-  birthDate: Date!
-}
-
-"""Ultimate beneficial owner company info."""
-type UltimateBeneficialIndirectOwnerCompanyInfo implements UltimateBeneficialOwnerInfo {
-  """Ultimate Beneficial Owner Unique Identifier ."""
-  id: ID!
-
-  """Ultimate beneficial Indirect Owner Company type."""
-  type: UltimateBeneficialOwnerType!
-
-  """Unique Reference of the Parent Company."""
-  parentCompanyReference: String!
-
-  """
-  Shares ratio of the parent company. Example: 50 if the share ratio is 50%.
-  """
-  parentCompanyShareRatio: Float!
-
-  """Name of the company."""
-  name: String!
-
-  """
-  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
-  - Length must be from 0 to 50 characters.
-  """
-  registrationNumber: String!
-}
-
-"""Ultimate beneficial Indirect Owner individual info."""
-type UltimateBeneficialIndirectOwnerIndividualInfo implements UltimateBeneficialOwnerInfo {
-  """Ultimate Beneficial Owner Unique Identifier."""
-  id: ID!
-
-  """Ultimate beneficial Indirect Owner Individual type ."""
-  type: UltimateBeneficialOwnerType!
-
-  """Unique Reference of the Parent Company."""
-  parentCompanyReference: String!
-
-  """
-  Shares ratio of the parent company. Example: 50 if the share ratio is 50%.
-  """
-  parentCompanyShareRatio: Float!
-
-  """First name."""
-  firstName: String!
-
-  """Last name."""
-  lastName: String!
-
-  """Birth date."""
-  birthDate: Date!
-}
-
 """
 The Ultimate Beneficial Owner could be for an Individual or a Company and these can Direct or Indirect
 """
@@ -21650,127 +21503,6 @@ enum VerificationFlow {
   Progressive
 }
 
-"""Verification Renewals"""
-interface VerificationRenewal {
-  """Unique identifier of a verification renewal"""
-  id: ID!
-
-  """Unique identifier of account holder"""
-  accountHolderId: String!
-
-  """Status of the verification renewal"""
-  status: VerificationRenewalStatus!
-
-  """Created date"""
-  createdAt: DateTime!
-
-  """Updated date"""
-  updatedAt: DateTime!
-
-  """Zendesk Ticket ID"""
-  supportTicketId: String
-
-  """Due date of the verification renewal"""
-  dueDate: DateTime
-}
-
-enum VerificationRenewalRequirement {
-  """Account Holder Details Required"""
-  AccountHolderDetailsRequired
-
-  """Swan is requesting some tax identifier"""
-  TaxIdRequired
-
-  """Swan is requesting some clarification on the UBO"""
-  UboDetailsRequired
-
-  """Legal Representative Details Required"""
-  LegalRepresentativeDetailsRequired
-
-  """Swan is requesting some Supporting Documents"""
-  SupportingDocumentsRequired
-
-  """Swan is requesting more information on the account holders"""
-  Other
-}
-
-"""
-Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
-"""
-type VerificationRenewalsConnection implements Connection {
-  """Total number of element in the list"""
-  totalCount: Int!
-
-  """Information about the current, the previous and the next page"""
-  pageInfo: PageInfo!
-
-  """VerificationRenewalsEdge list"""
-  edges: [VerificationRenewalsEdge!]!
-}
-
-"""Implements the Relay Edge interface"""
-type VerificationRenewalsEdge implements Edge {
-  """
-  Opaque identifier pointing to this onboarding node in the pagination mechanism
-  """
-  cursor: String!
-
-  """The VerificationRenewal"""
-  node: VerificationRenewal!
-}
-
-"""Filters that can be applied when listing verification renewals"""
-input VerificationRenewalsFiltersInput {
-  """Filter by IDs"""
-  id: [String!]
-
-  """Filter by Account Holder IDs"""
-  accountHolderId: [String!]
-
-  """Filter by Project IDs"""
-  projectId: [String!]
-
-  """Filter by VerificationRenewal status"""
-  status: VerificationRenewalStatus
-
-  """Filter by VerificationRenewal Sub statuses"""
-  subStatus: [VerificationRenewalSubStatus!]
-}
-
-"""
-Field we can use when ordering that can be applied when listing verification renewals
-"""
-enum VerificationRenewalsOrderByFieldInput {
-  id
-  createdAt
-  updatedAt
-}
-
-"""Order that can be applied when listing verification renewals"""
-input VerificationRenewalsOrderByInput {
-  field: VerificationRenewalsOrderByFieldInput
-  direction: OrderByDirection
-}
-
-enum VerificationRenewalStatus {
-  Pending
-  WaitingForInformation
-  Refused
-  Completed
-}
-
-enum VerificationRenewalSubStatus {
-  ToStart
-  FirstResponseReceived
-  AdditionalResponseReceived
-  RiskEscalation
-  LastChance
-  VerificationRequirements
-  Verified
-  Postponed
-  Discrepancies
-}
-
 """
 Account Holder Verification Requirement
 
@@ -22027,24 +21759,6 @@ type WaitingForInformationMerchantPaymentMethodStatusInfo implements MerchantPay
 
   """List of requirements that should be fulfilled"""
   verificationRequirements: [MerchantVerificationRequirements!]!
-}
-
-type WaitingForInformationVerificationRenewal implements VerificationRenewal {
-  id: ID!
-  accountHolderId: String!
-  status: VerificationRenewalStatus!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  supportTicketId: String
-  dueDate: DateTime
-
-  """WaitingForInformation Sub Status of the verification renewal"""
-  waitingForInformationSubStatus: WaitingForInformationVerificationRenewalSubStatus!
-  verificationRequirements: [VerificationRenewalRequirement!]!
-}
-
-enum WaitingForInformationVerificationRenewalSubStatus {
-  VerificationRequirements
 }
 
 """Wallet Provider (ApplePay, GooglePay ...)"""

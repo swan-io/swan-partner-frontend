@@ -13,7 +13,6 @@
       "FundingLimitSettingsChangeRequestConnection",
       "OnboardingConnection",
       "SupportingDocumentCollectionConnection",
-      "VerificationRenewalsConnection",
       "VirtualIBANEntryConnection",
       "CardConnection",
       "DigitalCardConnection",
@@ -29,7 +28,6 @@
       "FundingLimitSettingsChangeRequestEdge",
       "OnboardingEdge",
       "SupportingDocumentCollectionEdge",
-      "VerificationRenewalsEdge",
       "VirtualIBANEntryEdge",
       "CardEdge",
       "DigitalCardEdge",
@@ -58,6 +56,7 @@
       "BadAccountStatusRejection",
       "BadRequestRejection",
       "CardNotFoundRejection",
+      "ClosedAccountNotUpgradableRejection",
       "ExternalAccountAlreadyExistsRejection",
       "ForbiddenRejection",
       "IBANNotReachableRejection",
@@ -154,12 +153,6 @@
       "CloseAccountReason",
       "SuspendAccountReason"
     ],
-    "VerificationRenewal": [
-      "CompletedVerificationRenewal",
-      "PendingVerificationRenewal",
-      "RefusedVerificationRenewal",
-      "WaitingForInformationVerificationRenewal"
-    ],
     "FundingLimitSettingsChangeRequestStatusInfo": [
       "FundingLimitSettingsChangeRequestApprovedStatusInfo",
       "FundingLimitSettingsChangeRequestPendingStatusInfo",
@@ -198,12 +191,6 @@
       "SupportingDocumentUploadedStatusInfo",
       "SupportingDocumentValidatedStatusInfo",
       "SupportingDocumentWaitingForUploadStatusInfo"
-    ],
-    "UltimateBeneficialOwnerInfo": [
-      "UltimateBeneficialDirectOwnerCompanyInfo",
-      "UltimateBeneficialDirectOwnerIndividualInfo",
-      "UltimateBeneficialIndirectOwnerCompanyInfo",
-      "UltimateBeneficialIndirectOwnerIndividualInfo"
     ],
     "CardStatusInfo": [
       "CardCanceledStatusInfo",

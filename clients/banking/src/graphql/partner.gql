@@ -2560,6 +2560,28 @@ query AccountClosing($accountId: ID!, $after: String, $first: Int!) {
   }
 }
 
+fragment RepaymentAccount on Account {
+  id
+  IBAN
+  holder {
+    id
+    residencyAddress {
+      addressLine1
+      city
+      postalCode
+      country
+    }
+    info {
+      ... on AccountHolderCompanyInfo {
+        name
+      }
+      ... on AccountHolderIndividualInfo {
+        name
+      }
+    }
+  }
+}
+
 query CreditLimitRequest($accountId: ID!, $after: String, $first: Int!) {
   projectInfo {
     id
@@ -2574,6 +2596,7 @@ query CreditLimitRequest($accountId: ID!, $after: String, $first: Int!) {
     statusInfo {
       status
     }
+    ...RepaymentAccount
     legalRepresentativeMembership {
       id
       email
@@ -2599,6 +2622,27 @@ query CreditLimitRequest($accountId: ID!, $after: String, $first: Int!) {
         hasNextPage
         endCursor
       }
+    }
+  }
+}
+
+mutation RequestCreditLimitSettings($input: RequestCreditLimitSettingsInput!) {
+  requestCreditLimitSettings(input: $input) {
+    __typename
+    ... on RequestCreditLimitSettingsSuccessPayload {
+      creditLimitSettingsRequest {
+        id
+        consent {
+          id
+          consentUrl
+        }
+      }
+    }
+    ... on RequestCreditLimitSettingsFailurePayload {
+      message
+    }
+    ... on Rejection {
+      message
     }
   }
 }

@@ -48,6 +48,7 @@
       "CardSensitiveInfoNoLongerAvailableRejection",
       "CardWrongStatusRejection",
       "CheckRejection",
+      "ClosedAccountNotUpgradableRejection",
       "ConsentNotFoundRejection",
       "ConsentsAlreadyLinkedToMultiConsentRejection",
       "ConsentsNotAllInCreatedStatusRejection",
@@ -223,7 +224,6 @@
       "TransactionConnection",
       "TrustedBeneficiaryConnection",
       "UserConnection",
-      "VerificationRenewalsConnection",
       "VirtualIBANEntryConnection",
       "WebhookEventLogsConnection",
       "WebhookSubscriptionsConnection"
@@ -259,7 +259,6 @@
       "TransactionEdge",
       "TrustedBeneficiaryEdge",
       "UserEdge",
-      "VerificationRenewalsEdge",
       "VirtualIBANEntryEdge",
       "WebhookEventLogsEdge",
       "WebhookSubscriptionsEdge"
@@ -363,12 +362,6 @@
     "DigitalCard": [
       "CompleteDigitalCard",
       "PendingDigitalCard"
-    ],
-    "VerificationRenewal": [
-      "CompletedVerificationRenewal",
-      "PendingVerificationRenewal",
-      "RefusedVerificationRenewal",
-      "WaitingForInformationVerificationRenewal"
     ],
     "CreditLimitSettingsRequestStatusInfo": [
       "CreditLimitSettingsRequestApprovedStatusInfo",
@@ -628,12 +621,6 @@
     "InternationalBeneficiary": [
       "TrustedInternationalBeneficiary",
       "UnsavedInternationalBeneficiary"
-    ],
-    "UltimateBeneficialOwnerInfo": [
-      "UltimateBeneficialDirectOwnerCompanyInfo",
-      "UltimateBeneficialDirectOwnerIndividualInfo",
-      "UltimateBeneficialIndirectOwnerCompanyInfo",
-      "UltimateBeneficialIndirectOwnerIndividualInfo"
     ],
     "VerifyBeneficiaryResult": [
       "VerifyBeneficiaryCloseMatch",

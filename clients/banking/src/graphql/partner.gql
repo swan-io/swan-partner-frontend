@@ -817,6 +817,7 @@ fragment CardListItem on Card {
         id
         info {
           name
+          type
         }
       }
     }

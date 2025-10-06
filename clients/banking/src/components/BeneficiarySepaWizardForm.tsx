@@ -20,7 +20,7 @@ import { combineValidators, useForm } from "@swan-io/use-form";
 import { electronicFormat } from "iban";
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { P, isMatching, match } from "ts-pattern";
 import {
   GetIbanValidationDocument,
   VerifyBeneficiaryDocument,
@@ -95,6 +95,20 @@ export const BeneficiarySepaWizardForm = ({
   const [verifyBeneficiary, beneficiaryVerification, { reset: resetBeneficiaryVerification }] =
     useMutation(VerifyBeneficiaryDocument);
 
+  const hasNonMatchingVerification = isMatching(
+    AsyncData.P.Done(
+      Result.P.Ok({
+        verifyBeneficiary: {
+          __typename: "VerifyBeneficiarySuccessPayload",
+          verifyBeneficiaryResult: {
+            __typename: P.not("VerifyBeneficiaryMatch"),
+          },
+        },
+      }),
+    ),
+    beneficiaryVerification,
+  );
+
   const { Field, listenFields, submitForm, setFieldValue } = useForm({
     name: {
       initialValue: initialBeneficiary?.name ?? "",
@@ -108,24 +122,10 @@ export const BeneficiarySepaWizardForm = ({
   });
 
   useEffect(() => {
-    return listenFields(["iban", "name"], ({ iban, name }) => {
-      if (iban.valid) {
-        verifyBeneficiary({
-          input: {
-            beneficiary: {
-              sepa: {
-                name: name.value,
-                iban: electronicFormat(iban.value),
-                save: saveBeneficiary,
-              },
-            },
-          },
-        });
-      } else {
-        resetBeneficiaryVerification();
-      }
+    return listenFields(["name", "iban"], () => {
+      resetBeneficiaryVerification();
     });
-  }, [listenFields, verifyBeneficiary, resetBeneficiaryVerification, saveBeneficiary]);
+  }, [listenFields, resetBeneficiaryVerification]);
 
   useEffect(() => {
     return listenFields(["iban"], ({ iban }) => {
@@ -137,24 +137,50 @@ export const BeneficiarySepaWizardForm = ({
     });
   }, [queryIbanVerification, resetIbanVerification, listenFields]);
 
-  const handleOnPressSubmit = () => {
+  const handleOnPressSubmit = (continueAnyway = false) => {
     submitForm({
       onSuccess: values => {
-        Option.allFromDict({
-          ...values,
-          beneficiaryVerification: beneficiaryVerification
-            .mapOk(value => value.verifyBeneficiary)
-            .mapOkToResult(filterRejectionsToResult)
-            .toOption()
-            .flatMap(value => value.toOption()),
-        }).map(({ beneficiaryVerification, ...rest }) =>
-          onPressSubmit({
-            kind: "new",
-            save: saveBeneficiary,
-            beneficiaryVerification,
-            ...rest,
-          }),
-        );
+        Option.allFromDict(values).tapSome(({ name, iban }) => {
+          verifyBeneficiary({
+            input: {
+              beneficiary: {
+                sepa: {
+                  name,
+                  iban: electronicFormat(iban),
+                  save: saveBeneficiary,
+                },
+              },
+            },
+          }).tapOk(({ verifyBeneficiary }) => {
+            match({ continueAnyway, verifyBeneficiary })
+              .with(
+                {
+                  continueAnyway: true,
+                  verifyBeneficiary: {
+                    __typename: "VerifyBeneficiarySuccessPayload",
+                  },
+                },
+                {
+                  verifyBeneficiary: {
+                    __typename: "VerifyBeneficiarySuccessPayload",
+                    verifyBeneficiaryResult: {
+                      __typename: "VerifyBeneficiaryMatch",
+                    },
+                    beneficiaryVerificationToken: P.select("beneficiaryVerificationToken"),
+                  },
+                },
+                ({ verifyBeneficiary }) =>
+                  onPressSubmit({
+                    kind: "new",
+                    save: saveBeneficiary,
+                    beneficiaryVerification: verifyBeneficiary,
+                    name,
+                    iban,
+                  }),
+              )
+              .otherwise(() => {});
+          });
+        });
       },
     });
   };
@@ -350,12 +376,27 @@ export const BeneficiarySepaWizardForm = ({
 
             <LakeButton
               color="current"
-              onPress={handleOnPressSubmit}
+              onPress={() =>
+                handleOnPressSubmit(
+                  isMatching(
+                    AsyncData.P.Done(
+                      Result.P.Ok({
+                        verifyBeneficiary: { __typename: "VerifyBeneficiarySuccessPayload" },
+                      }),
+                    ),
+                    beneficiaryVerification,
+                  ),
+                )
+              }
               grow={small}
               loading={submitting}
               icon={mode === "add" ? "add-circle-filled" : undefined}
             >
-              {mode === "add" ? t("common.add") : t("common.continue")}
+              {hasNonMatchingVerification
+                ? t("common.continueAnyway")
+                : mode === "add"
+                  ? t("common.add")
+                  : t("common.continue")}
             </LakeButton>
           </LakeButtonGroup>
         )}

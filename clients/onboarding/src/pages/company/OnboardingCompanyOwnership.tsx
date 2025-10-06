@@ -388,7 +388,7 @@ export const OnboardingCompanyOwnership = ({
 
   const addUbo = (newUbo: SaveValue) => {
     // errors is empty because beneficiaries form already validates the ubo
-    updateOnboardingUbos([...currentUbos, { ...newUbo, errors: {} }]).tap(() => {
+    updateOnboardingUbos([...currentUbos, { ...newUbo, errors: {} }]).tapOk(() => {
       resetPageState();
     });
   };
@@ -399,7 +399,7 @@ export const OnboardingCompanyOwnership = ({
       currentUbos.map(item =>
         item[REFERENCE_SYMBOL] === ubo[REFERENCE_SYMBOL] ? { ...ubo, errors: {} } : item,
       ),
-    ).tap(() => {
+    ).tapOk(() => {
       resetPageState();
     });
   };
@@ -420,7 +420,7 @@ export const OnboardingCompanyOwnership = ({
 
     updateOnboardingUbos(
       currentUbos.filter(item => item[REFERENCE_SYMBOL] !== pageState.reference),
-    ).tap(() => {
+    ).tapOk(() => {
       resetPageState();
     });
   };

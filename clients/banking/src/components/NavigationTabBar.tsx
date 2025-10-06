@@ -277,7 +277,7 @@ export const NavigationTabBar = ({
 
                   <Space height={24} />
 
-                  {activationTag === "pending" && (
+                  {(activationTag === "pending" || activationTag === "actionRequired") && (
                     <LakeButton
                       color="current"
                       icon="checkmark-starburst-filled"

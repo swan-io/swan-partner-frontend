@@ -166,7 +166,6 @@ export const BeneficiarySepaWizardForm = ({
                     verifyBeneficiaryResult: {
                       __typename: "VerifyBeneficiaryMatch",
                     },
-                    beneficiaryVerificationToken: P.select("beneficiaryVerificationToken"),
                   },
                 },
                 ({ verifyBeneficiary }) =>

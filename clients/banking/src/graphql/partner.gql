@@ -481,6 +481,15 @@ query AccountArea($accountMembershipId: ID!) {
             }
           }
         }
+        verificationStatusInfo {
+          __typename
+          ... on AccountHolderWaitingForInformationVerificationStatusInfo {
+            verificationRequirements {
+              id
+              type
+            }
+          }
+        }
         verificationStatus
       }
       transactions(first: 0) {
@@ -1436,6 +1445,17 @@ query AccountActivationPage($accountMembershipId: ID!) {
       paymentLevel
       paymentAccountType
       holder {
+        verificationStatusInfo {
+          __typename
+          ... on AccountHolderWaitingForInformationVerificationStatusInfo {
+            __typename
+            verificationRequirements {
+              id
+              type
+            }
+            waitingForInformationAt
+          }
+        }
         id
         verificationStatus
         info {

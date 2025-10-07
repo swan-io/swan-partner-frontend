@@ -165,19 +165,15 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
                   account?.holder?.info.__typename === "AccountHolderIndividualInfo";
                 const hasTransactions = (account?.transactions?.totalCount ?? 0) >= 1;
 
-                const requireFirstTransfer = match({ account, user })
+                const requireFirstTransfer = match(account?.holder.verificationStatusInfo)
                   .with(
-                    {
-                      account: { country: "FRA" },
-                      user: { identificationLevels: { PVID: false, QES: false } },
-                    },
-                    () => true,
+                    { __typename: "AccountHolderWaitingForInformationVerificationStatusInfo" },
+                    ({ verificationRequirements }) =>
+                      verificationRequirements.some(
+                        verificationRequirement =>
+                          verificationRequirement.type === "FirstTransferRequired",
+                      ),
                   )
-                  .with(
-                    { account: { country: "ESP" }, user: { identificationLevels: { QES: false } } },
-                    () => true,
-                  )
-                  .with({ account: { country: "DEU" } }, () => true)
                   .otherwise(() => false);
 
                 const activationTag = match({

@@ -1,27 +1,44 @@
 import { Array, AsyncData, Future, Option, Result } from "@swan-io/boxed";
+import { useMutation } from "@swan-io/graphql-client";
+import { Box } from "@swan-io/lake/src/components/Box";
+import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
+import { colors } from "@swan-io/lake/src/constants/design";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { FileInput } from "@swan-io/shared-business/src/components/FileInput";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
-import { isValid } from "iban";
-import { useEffect, useState } from "react";
+import { electronicFormat, isValid } from "iban";
+import { useCallback, useEffect, useState } from "react";
 import { P, match } from "ts-pattern";
-import { CreditTransferInput } from "../graphql/partner";
+import {
+  CreditTransferInput,
+  VerifyBeneficiaryDocument,
+  VerifyBeneficiarySuccessPayloadFragment,
+} from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { validateBeneficiaryName, validateTransferReference } from "../utils/validations";
 
 type Props = {
-  onSave: (creditTransfers: CreditTransferInput[]) => void;
+  allowBulkCreditTransfersWithoutBeneficiaryVerification: boolean;
+  canRequestBulkCreditTransfersWithoutBeneficiaryVerification: boolean;
+  onSave: (
+    creditTransfers: (CreditTransferInput & {
+      beneficiaryVerification?: VerifyBeneficiarySuccessPayloadFragment;
+    })[],
+  ) => void;
 };
 
 type ParsingError =
   | { type: "MissingFile" }
   | { type: "InvalidFile" }
+  | { type: "TooManyTransfersForBeneficiaryVerification" }
   | { type: "TooManyTransfers"; count: number }
   | { type: "InvalidBeneficiaryName"; line: number }
   | { type: "InvalidAmount"; line: number }
@@ -100,11 +117,66 @@ const parseCsv = (text: string): Result<CreditTransferInput[], ParsingError[]> =
     .otherwise(() => Result.Error([{ type: "InvalidFile" }] as const));
 };
 
-export const TransferBulkUpload = ({ onSave }: Props) => {
+// bit arbitrary for now
+const MAX_VERIFIABLE_TRANSFERS = 20;
+
+export const TransferBulkUpload = ({
+  allowBulkCreditTransfersWithoutBeneficiaryVerification,
+  canRequestBulkCreditTransfersWithoutBeneficiaryVerification,
+  onSave,
+}: Props) => {
   const [file, setFile] = useState<Option<File>>(Option.None());
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [status, setStatus] = useState<AsyncData<Result<CreditTransferInput[], ParsingError[]>>>(
     AsyncData.NotAsked(),
+  );
+  const [verifyBeneficiary] = useMutation(VerifyBeneficiaryDocument);
+
+  const onSaveGuarded = useCallback(
+    (inputs: CreditTransferInput[]) => {
+      if (allowBulkCreditTransfersWithoutBeneficiaryVerification) {
+        onSave(inputs);
+        return;
+      }
+
+      if (inputs.length > MAX_VERIFIABLE_TRANSFERS) {
+        setStatus(
+          AsyncData.Done(Result.Error([{ type: "TooManyTransfersForBeneficiaryVerification" }])),
+        );
+        return;
+      }
+
+      setStatus(AsyncData.Loading());
+
+      Future.concurrent(
+        Array.filterMap(inputs, creditTransferInput => {
+          return Option.fromNullable(creditTransferInput.sepaBeneficiary).map(
+            sepaBeneficiary => () =>
+              verifyBeneficiary({
+                input: {
+                  beneficiary: {
+                    sepa: {
+                      name: sepaBeneficiary.name,
+                      iban: electronicFormat(sepaBeneficiary.iban),
+                      save: sepaBeneficiary.save,
+                    },
+                  },
+                },
+              })
+                .mapOk(data => data.verifyBeneficiary)
+                .mapOkToResult(filterRejectionsToResult)
+                .mapOk(beneficiaryVerification => ({
+                  ...creditTransferInput,
+                  beneficiaryVerification,
+                })),
+          );
+        }),
+        { concurrency: 5 },
+      )
+        .map(Result.all)
+        .tapOk(value => onSave(value));
+    },
+    [allowBulkCreditTransfersWithoutBeneficiaryVerification, onSave, verifyBeneficiary],
   );
 
   useEffect(() => {
@@ -121,18 +193,19 @@ export const TransferBulkUpload = ({ onSave }: Props) => {
         .tap(result => {
           setStatus(AsyncData.Done(result));
         })
-        .tapOk(inputs => onSave(inputs));
+        .tapOk(inputs => onSaveGuarded(inputs));
     }
-  }, [file, onSave]);
+  }, [file, onSaveGuarded]);
 
   const onPressSubmit = () => {
     if (file.isNone()) {
       setStatus(AsyncData.Done(Result.Error([{ type: "MissingFile" }])));
       return;
     }
+
     match(status)
       .with(AsyncData.P.Done(Result.P.Ok(P.select())), creditTransferInputs => {
-        onSave(creditTransferInputs);
+        onSaveGuarded(creditTransferInputs);
       })
       .otherwise(() => {});
   };
@@ -145,6 +218,9 @@ export const TransferBulkUpload = ({ onSave }: Props) => {
             .with({ type: "MissingFile" }, () => t("common.form.required"))
             .with({ type: "TooManyTransfers" }, ({ count }) =>
               t("common.form.invalidBulkTooManyTransfers", { count, max: 1000 }),
+            )
+            .with({ type: "TooManyTransfersForBeneficiaryVerification" }, () =>
+              t("common.form.invalidBulkTooManyTransfersForBeneficiaryVerification"),
             )
             .with({ type: "InvalidFile" }, () => t("common.form.invalidFile"))
             .with({ type: "InvalidAmount" }, ({ line }) =>
@@ -173,7 +249,57 @@ export const TransferBulkUpload = ({ onSave }: Props) => {
       <Tile
         footer={
           fileError != null && fileError !== t("common.form.required") ? (
-            <LakeAlert anchored={true} variant="error" title={fileError} />
+            <LakeAlert
+              anchored={true}
+              variant="error"
+              title={
+                <LakeText variant="semibold" color="inherit">
+                  {fileError}
+                </LakeText>
+              }
+            >
+              <Box>
+                {fileError ===
+                t("common.form.invalidBulkTooManyTransfersForBeneficiaryVerification") ? (
+                  canRequestBulkCreditTransfersWithoutBeneficiaryVerification ? (
+                    <LakeText variant="regular" color={colors.negative[700]}>
+                      {t(
+                        "common.form.invalidBulkTooManyTransfersForBeneficiaryVerification.description",
+                      )}
+                    </LakeText>
+                  ) : (
+                    <LakeText variant="regular" color={colors.negative[700]}>
+                      {t(
+                        "common.form.invalidBulkTooManyTransfersForBeneficiaryVerification.description.individual",
+                      )}
+                    </LakeText>
+                  )
+                ) : undefined}
+
+                {fileError ===
+                  t("common.form.invalidBulkTooManyTransfersForBeneficiaryVerification") &&
+                canRequestBulkCreditTransfersWithoutBeneficiaryVerification ? (
+                  <>
+                    <Space height={12} />
+
+                    <LakeText
+                      href="https://support.swan.io/hc/requests/new"
+                      hrefAttrs={{ target: "blank" }}
+                      color={colors.negative[700]}
+                      variant="smallSemibold"
+                    >
+                      <Box direction="row" alignItems="center">
+                        {t(
+                          "common.form.invalidBulkTooManyTransfersForBeneficiaryVerification.description.callToAction",
+                        )}
+                        <Space width={8} />
+                        <Icon name="open-regular" size={16} color={colors.negative[700]} />
+                      </Box>
+                    </LakeText>
+                  </>
+                ) : null}
+              </Box>
+            </LakeAlert>
           ) : undefined
         }
       >

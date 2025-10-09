@@ -369,7 +369,7 @@ export const AccountArea = ({
                     desktop={true}
                     activationTag={activationTag}
                     activationLinkActive={
-                      route?.name === "AccountActivation" && permissions.canReadAccountDetails
+                      route?.name === "AccountActivationArea" && permissions.canReadAccountDetails
                     }
                     hasMultipleMemberships={hasMultipleMemberships}
                     selectedAccountMembership={accountMembership}
@@ -383,7 +383,7 @@ export const AccountArea = ({
                     <LakeButton
                       color="current"
                       icon="checkmark-starburst-filled"
-                      onPress={() => Router.push("AccountActivation", { accountMembershipId })}
+                      onPress={() => Router.push("AccountActivationRoot", { accountMembershipId })}
                     >
                       {t("accountActivation.title")}
                     </LakeButton>
@@ -846,7 +846,7 @@ export const AccountArea = ({
                                   <NotFoundPage />
                                 ),
                               )
-                              .with({ name: "AccountActivation" }, () =>
+                              .with({ name: "AccountActivationArea" }, () =>
                                 permissions.canReadAccountDetails ? (
                                   <AccountActivationPage
                                     hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}

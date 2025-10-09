@@ -1505,6 +1505,16 @@ query AccountActivationPage($accountMembershipId: ID!) {
       fullName
       birthDate
       mobilePhoneNumber
+      lastIdentification: identifications(
+        first: 1
+        orderBy: { field: updatedAt, direction: Desc }
+      ) {
+        edges {
+          node {
+            ...Identification
+          }
+        }
+      }
     }
   }
   projectInfo {

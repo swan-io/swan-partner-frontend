@@ -1,9 +1,12 @@
+import { Option } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { CopyableTextCell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
+import { Cell, CopyableTextCell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
+import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { Popover } from "@swan-io/lake/src/components/Popover";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
@@ -11,9 +14,10 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { ColumnConfig, VirtualizedList } from "@swan-io/lake/src/components/VirtualizedList";
 import { colors, negativeSpacings, spacings } from "@swan-io/lake/src/constants/design";
 import { printFormat } from "iban";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
-import { CreditTransferInput } from "../graphql/partner";
+import { match } from "ts-pattern";
+import { CreditTransferInput, VerifyBeneficiarySuccessPayloadFragment } from "../graphql/partner";
 import { formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
@@ -30,13 +34,26 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     paddingHorizontal: spacings[16],
   },
+  buttonMini: {
+    height: 32,
+    width: 32,
+    minWidth: 32,
+  },
 });
 
 type Props = {
-  creditTransferInputs: CreditTransferInput[];
-  initialSelectedCreditTransferInputs?: CreditTransferInput[];
+  creditTransferInputs: (CreditTransferInput & {
+    beneficiaryVerification?: VerifyBeneficiarySuccessPayloadFragment;
+  })[];
+  initialSelectedCreditTransferInputs?: (CreditTransferInput & {
+    beneficiaryVerification?: VerifyBeneficiarySuccessPayloadFragment;
+  })[];
   onPressPrevious: () => void;
-  onSave: (creditTransfers: CreditTransferInput[]) => void;
+  onSave: (
+    creditTransfers: (CreditTransferInput & {
+      beneficiaryVerification?: VerifyBeneficiarySuccessPayloadFragment;
+    })[],
+  ) => void;
 };
 
 type ExtraInfo = {
@@ -144,7 +161,149 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
   },
 ];
 
-const stickedToEndColumn: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
+const VerificationCell = ({
+  beneficiaryVerification,
+}: {
+  beneficiaryVerification: VerifyBeneficiarySuccessPayloadFragment | undefined;
+}) => {
+  const buttonRef = useRef<View>(null);
+  const [layer, setLayer] = useState<
+    Option<VerifyBeneficiarySuccessPayloadFragment["verifyBeneficiaryResult"]>
+  >(Option.None());
+  return (
+    <Cell align="right" direction="row">
+      {match(beneficiaryVerification?.verifyBeneficiaryResult)
+        .with({ __typename: "VerifyBeneficiaryMatch" }, () => (
+          <>
+            <Tag color="positive">{t("transfer.bulk.beneficiaryVerification.match")}</Tag>
+            <Space width={4} />
+            <Space width={32} />
+          </>
+        ))
+        .with({ __typename: "VerifyBeneficiaryCloseMatch" }, value => (
+          <>
+            <Tag color="shakespear">{t("transfer.bulk.beneficiaryVerification.closeMatch")}</Tag>
+
+            <Space width={4} />
+
+            <LakeButton
+              ref={buttonRef}
+              size="small"
+              style={styles.buttonMini}
+              mode="tertiary"
+              icon="info-regular"
+              onPress={() => setLayer(Option.Some(value))}
+              ariaLabel={t("common.showMore")}
+            />
+          </>
+        ))
+        .with({ __typename: "VerifyBeneficiaryNotPossible" }, value => (
+          <>
+            <Tag color="warning">{t("transfer.bulk.beneficiaryVerification.notPossible")}</Tag>
+
+            <Space width={4} />
+
+            <LakeButton
+              ref={buttonRef}
+              size="small"
+              style={styles.buttonMini}
+              mode="tertiary"
+              icon="info-regular"
+              onPress={() => setLayer(Option.Some(value))}
+              ariaLabel={t("common.showMore")}
+            />
+          </>
+        ))
+        .with({ __typename: "VerifyBeneficiaryNoMatch" }, value => (
+          <>
+            <Tag color="negative">{t("transfer.bulk.beneficiaryVerification.noMatch")}</Tag>
+
+            <Space width={4} />
+
+            <LakeButton
+              ref={buttonRef}
+              size="small"
+              style={styles.buttonMini}
+              mode="tertiary"
+              icon="info-regular"
+              onPress={() => setLayer(Option.Some(value))}
+              ariaLabel={t("common.showMore")}
+            />
+          </>
+        ))
+        .otherwise(() => (
+          <LakeText color={colors.gray[300]}>{"—"}</LakeText>
+        ))}
+
+      <Popover
+        referenceRef={buttonRef}
+        visible={layer.isSome()}
+        underlay={true}
+        onDismiss={() => setLayer(Option.None())}
+      >
+        {layer
+          .map(result =>
+            match(result)
+              .with({ __typename: "VerifyBeneficiaryNoMatch" }, () => (
+                <LakeAlert
+                  variant="error"
+                  title={
+                    <LakeText variant="semibold" color="inherit">
+                      {t("transfer.bulk.beneficiaryVerification.noMatch")}
+                    </LakeText>
+                  }
+                  subtitle={t("transfer.bulk.beneficiaryVerification.noMatch.description")}
+                />
+              ))
+              .with({ __typename: "VerifyBeneficiaryCloseMatch" }, ({ nameSuggestion }) => (
+                <LakeAlert
+                  variant="info"
+                  title={
+                    <LakeText variant="semibold" color="inherit">
+                      {t("transfer.bulk.beneficiaryVerification.closeMatch.alert", {
+                        nameSuggestion,
+                      })}
+                    </LakeText>
+                  }
+                  subtitle={t("transfer.bulk.beneficiaryVerification.noMatch.description")}
+                />
+              ))
+              .with({ __typename: "VerifyBeneficiaryNotPossible" }, () => (
+                <LakeAlert
+                  variant="warning"
+                  title={
+                    <LakeText variant="semibold" color="inherit">
+                      {t("transfer.bulk.beneficiaryVerification.notPossible.alert")}
+                    </LakeText>
+                  }
+                  subtitle={t(
+                    "transfer.bulk.beneficiaryVerification.notPossible.alert.description",
+                  )}
+                />
+              ))
+              .otherwise(() => null),
+          )
+          .toNull()}
+      </Popover>
+    </Cell>
+  );
+};
+
+const stickedToEndColumn: ColumnConfig<
+  CreditTransferInput & {
+    beneficiaryVerification?: VerifyBeneficiarySuccessPayloadFragment;
+  },
+  ExtraInfo
+>[] = [
+  {
+    id: "verification",
+    title: t("transfer.bulk.beneficiaryVerification"),
+    width: 220,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
+    renderCell: ({ item }) => {
+      return <VerificationCell beneficiaryVerification={item.beneficiaryVerification} />;
+    },
+  },
   {
     id: "amount",
     title: t("transfer.bulk.amount"),

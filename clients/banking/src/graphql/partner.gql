@@ -2594,6 +2594,21 @@ query AddReceivedSepaDirectDebitB2bMandateInfo($first: Int!, $accountId: ID!) {
   }
 }
 
+query TransferBulkWizard($accountId: ID!) {
+  account(accountId: $accountId) {
+    id
+    settings {
+      allowBulkCreditTransfersWithoutBeneficiaryVerification
+    }
+    holder {
+      id
+      info {
+        type
+      }
+    }
+  }
+}
+
 # Mutations
 
 mutation CreatePaymentLink($input: CreateMerchantPaymentLinkInput!) {

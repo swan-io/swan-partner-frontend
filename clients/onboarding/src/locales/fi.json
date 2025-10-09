@@ -89,7 +89,7 @@
   "company.step.owners.beneficiary.totalCapitalPercentage": "Omistetun pääoman kokonaisosuus",
   "company.step.owners.beneficiary.type": "Käytetyn valvonnan tyyppi",
   "company.step.owners.confirmModal.add": "Lisää omistaja",
-  "company.step.owners.confirmModal.checkbox": "Organisaatiollani ei ole tosiasiallisia edunsaajia.",
+  "company.step.owners.confirmModal.checkbox": "Annan organisaationi omistajuustiedot (UBO) myöhemmin.",
   "company.step.owners.confirmModal.description": "Jos päätät olla antamatta tietoja organisaatiosi omistuksesta nyt, Swan ottaa sinuun pian yhteyttä näiden tietojen toimittamiseen liittyen. Tiliäsi ei aktivoida ennen kuin kaikki tosiasiallisten edunsaajien tiedot on vastaanotettu ja varmennettu.",
   "company.step.owners.confirmModal.next": "Seuraava",
   "company.step.owners.confirmModal.title": "Omistustiedot vaaditaan",

@@ -89,7 +89,7 @@
   "company.step.owners.beneficiary.totalCapitalPercentage": "Totaal percentage van het gehouden kapitaal",
   "company.step.owners.beneficiary.type": "Type uitgeoefende controle",
   "company.step.owners.confirmModal.add": "Voeg een eigenaar toe",
-  "company.step.owners.confirmModal.checkbox": "Mijn organisatie heeft geen UBO's.",
+  "company.step.owners.confirmModal.checkbox": "Ik zal de eigendomsgegevens van mijn organisatie (UBO) later verstrekken.",
   "company.step.owners.confirmModal.description": "Als je ervoor kiest om nu geen informatie te verstrekken over het eigendom van jouw organisatie, zal Swan binnenkort contact met je opnemen voor deze informatie. Jouw rekening wordt pas geactiveerd nadat alle UBO-informatie is ontvangen en geverifieerd.",
   "company.step.owners.confirmModal.next": "Volgende",
   "company.step.owners.confirmModal.title": "Eigenaarsinformatie is vereist",

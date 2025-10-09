@@ -253,6 +253,14 @@ const AdditionalInfoTodoRightPanel = ({
   supportingDocumentSettings: SupportingDocumentSettings | undefined | null;
   emailAddress: string | undefined;
 }) => {
+  const filteredRequirements = additionalRequiredInfo?.verificationRequirements.filter(
+    requirement =>
+      requirement.type === "LegalRepresentativeDetailsRequired" ||
+      requirement.type === "OrganizationDetailsRequired" ||
+      requirement.type === "Other" ||
+      requirement.type === "TaxIdRequired" ||
+      requirement.type === "UboDetailsRequired",
+  );
   return (
     <StepScrollView onClose={() => {}} large={large}>
       <LakeHeading level={3} variant="h3">
@@ -263,8 +271,8 @@ const AdditionalInfoTodoRightPanel = ({
       <LakeText>{t("accountActivation.additionalInformation.subtitle")}</LakeText>
       <Space height={32} />
 
-      {isNotNullish(additionalRequiredInfo) &&
-        additionalRequiredInfo.verificationRequirements.map(info => (
+      {isNotNullish(filteredRequirements) &&
+        filteredRequirements.map(info => (
           <Box key={info.id}>
             <Tile style={styles.rightPanelTiles} paddingVertical={16}>
               <LakeText>

@@ -146,6 +146,14 @@ type Routes = InferRoutes<typeof Router>;
 export type RouteName = keyof Routes;
 export type RouteParams<T extends RouteName> = Routes[T];
 
+export const accountActivationRoutes = [
+  "AccountActivationRoot",
+  "AccountActivationAdditionalInfos",
+  "AccountActivationFirstTransfer",
+  "AccountActivationIdentification",
+  "AccountActivationSupportingDocs",
+] as const satisfies RouteName[];
+
 export const accountRoutes = [
   "AccountRoot",
   "AccountProfile",

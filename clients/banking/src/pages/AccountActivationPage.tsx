@@ -4,6 +4,7 @@ import { Avatar } from "@swan-io/lake/src/components/Avatar";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
+import { FullViewportLayer } from "@swan-io/lake/src/components/FullViewportLayer";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
@@ -39,47 +40,42 @@ import {
   AccountActivationPageQuery,
   IdentificationFragment,
   SupportingDocumentSettings,
-  User,
   VerificationRequirement,
 } from "../graphql/partner";
 import { env } from "../utils/env";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { getIdentificationLevelStatusInfo, isReadyToSign } from "../utils/identification";
 import { projectConfiguration } from "../utils/projectId";
-import { RouteName, Router } from "../utils/routes";
+import { accountActivationRoutes, Router } from "../utils/routes";
 import { NotFoundPage } from "./NotFoundPage";
 
-const SupportingDocPendingRightPanel = ({ large }: { large: boolean }) => {
-  console.log("WESH");
+const SupportingDocPendingRightPanel = ({ large }: { large: boolean }) => (
+  <View style={styles.fill}>
+    <StepScrollView onClose={() => {}} large={large}>
+      <LakeHeading level={3} variant="h3">
+        {t("accountActivation.documents.title")}
+      </LakeHeading>
 
-  return (
-    <View style={styles.fill}>
-      <StepScrollView onClose={() => {}} large={large}>
-        <LakeHeading level={3} variant="h3">
-          {t("accountActivation.documents.title")}
-        </LakeHeading>
+      <Space height={8} />
+      <LakeText>{t("accountActivation.pendingDocuments.subtitle")}</LakeText>
+      <Space height={32} />
 
-        <Space height={8} />
-        <LakeText>{t("accountActivation.pendingDocuments.subtitle")}</LakeText>
-        <Space height={32} />
+      <Tile style={styles.rightPanelTiles}>
+        <Box alignItems="center">
+          <BorderedIcon name="lake-clock" color="current" />
+          <Space height={32} />
 
-        <Tile style={styles.rightPanelTiles}>
-          <Box alignItems="center">
-            <BorderedIcon name="lake-clock" color="current" />
-            <Space height={32} />
-
-            <LakeText align="center" variant="medium" color={colors.gray[900]}>
-              {t("accountActivation.pendingDocuments.title")}
-            </LakeText>
-            <LakeText align="center" color={colors.gray[500]}>
-              {t("accountActivation.pendingDocuments.text")}
-            </LakeText>
-          </Box>
-        </Tile>
-      </StepScrollView>
-    </View>
-  );
-};
+          <LakeText align="center" variant="medium" color={colors.gray[900]}>
+            {t("accountActivation.pendingDocuments.title")}
+          </LakeText>
+          <LakeText align="center" color={colors.gray[500]}>
+            {t("accountActivation.pendingDocuments.text")}
+          </LakeText>
+        </Box>
+      </Tile>
+    </StepScrollView>
+  </View>
+);
 
 const SupportingDocTodoRightPanel = ({
   large,
@@ -457,6 +453,8 @@ type SupportingDocumentCollection = NonNullable<
   NonNullable<AccountActivationPageQuery["accountMembership"]>["account"]
 >["holder"]["supportingDocumentCollections"]["edges"][number]["node"];
 
+type User = NonNullable<AccountActivationPageQuery["accountMembership"]>["user"];
+
 const getSupportingDocumentsStatus = (
   isCompany: boolean,
   supportingDocumentCollection: Option<SupportingDocumentCollection>,
@@ -715,13 +713,7 @@ export const AccountActivationPage = ({
 }: Props) => {
   const [data, { reload }] = useQuery(AccountActivationPageDocument, { accountMembershipId });
 
-  const route = Router.useRoute([
-    "AccountActivationRoot",
-    "AccountActivationAdditionalInfos",
-    "AccountActivationFirstTransfer",
-    "AccountActivationIdentification",
-    "AccountActivationSupportingDocs",
-  ]);
+  const route = Router.useRoute(accountActivationRoutes);
 
   const documentsFormRef = useRef<SupportingDocumentsFormRef>(null);
   const [isSendingDocumentCollection, setIsSendingDocumentCollection] = useState(false);
@@ -761,14 +753,10 @@ export const AccountActivationPage = ({
         const { supportingDocumentSettings } = projectInfo;
         const documentCollectMode = supportingDocumentSettings?.collectMode;
         const documentCollection = holder?.supportingDocumentCollections.edges[0]?.node;
-        const documentCollectionStatus = documentCollection?.statusInfo.status;
-
-        console.log(documentCollectionStatus);
 
         const IBAN = account?.IBAN;
         const BIC = account?.BIC;
         const hasIBAN = isNotNullish(IBAN);
-        const hasTransactions = (account?.transactions?.totalCount ?? 0) >= 1;
 
         const additionalRequiredInfo = match(holder?.verificationStatusInfo)
           .with(
@@ -823,10 +811,6 @@ export const AccountActivationPage = ({
           );
         }
 
-        //créer liste des status avec nom, récupérer le premier en pending, si root + desktop + 1 en pending ou todo alors redirect sur le 1er dans ce cas
-
-        //.find
-
         const lastIdentificationStatus = getLastIdentificationStatus(lastIdentification);
 
         const firstTransferStatus = getFirstTransferStatus(
@@ -838,24 +822,25 @@ export const AccountActivationPage = ({
           isNotNullish(documentCollection) ? Option.Some(documentCollection) : Option.None(),
         );
 
-        console.log("==================", { supportingDocumentsStatus, routeName: route?.name });
-
         const additionalInfoStatus = getAdditionalInfoStatus(
           additionalRequiredInfo?.verificationRequirements ?? [],
         );
 
-        const firstPending: { name: RouteName; status: StepStatus } | undefined = [
+        const firstPending:
+          | { name: (typeof accountActivationRoutes)[number]; status: StepStatus }
+          | undefined = [
           {
-            name: "AccountActivationIdentification" as RouteName,
+            name: "AccountActivationIdentification" as const,
             status: lastIdentificationStatus,
           },
-          { name: "AccountActivationFirstTransfer" as RouteName, status: firstTransferStatus },
+          { name: "AccountActivationFirstTransfer" as const, status: firstTransferStatus },
           {
-            name: "AccountActivationSupportingDocs" as RouteName,
+            name: "AccountActivationSupportingDocs" as const,
             status: supportingDocumentsStatus,
           },
-          { name: "AccountActivationAdditionalInfos" as RouteName, status: additionalInfoStatus },
+          { name: "AccountActivationAdditionalInfos" as const, status: additionalInfoStatus },
         ].find(status => status.status === "pending" || status.status === "todo");
+        console.log(route?.name);
 
         return (
           <ResponsiveContainer breakpoint={breakpoints.large} style={styles.root}>
@@ -1067,7 +1052,7 @@ export const AccountActivationPage = ({
                             user={user}
                           />
                         ))
-                        .with({ name: "AccountActivationSupportingDocs" }, () => {
+                        .with({ name: "AccountActivationSupportingDocs" }, () =>
                           match(supportingDocumentsStatus)
                             .with("todo", () =>
                               documentCollectMode === "EndCustomer" ? (
@@ -1087,27 +1072,24 @@ export const AccountActivationPage = ({
                                 />
                               ),
                             )
-                            .with("pending", () => {
-                              console.log("MAIS QUOI");
-
-                              return (
-                                <View style={{ backgroundColor: "red", width: "200px" }}>YOOO</View>
-                              );
-                              // <SupportingDocPendingRightPanel large={large} />;
-                            })
+                            .with("pending", () => <SupportingDocPendingRightPanel large={large} />)
                             .with("done", () => null)
-                            .exhaustive();
-                        })
+                            .exhaustive(),
+                        )
                         .with(P.nullish, () => null)
                         .exhaustive()}
                     </>
                   ) : (
-                    <>
-                      <View>
-                        <LakeText>TOTO Chocolat</LakeText>
-                      </View>
-                    </>
-                    // <FullViewportLayer visible={contentVisible}>TODO</FullViewportLayer>
+                    <FullViewportLayer
+                      visible={
+                        (route?.name === "AccountActivationAdditionalInfos" && !large) ||
+                        (route?.name === "AccountActivationFirstTransfer" && !large) ||
+                        (route?.name === "AccountActivationIdentification" && !large) ||
+                        (route?.name === "AccountActivationSupportingDocs" && !large)
+                      }
+                    >
+                      TODO
+                    </FullViewportLayer>
                   )}
                 </Box>
               );

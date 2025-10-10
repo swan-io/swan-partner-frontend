@@ -59,7 +59,7 @@ export const ProjectRootRedirect = ({ to, source }: Props) => {
       if (isNotNullish(state) && source === "onboarding") {
         return (
           <Redirect
-            to={Router.AccountActivation({ accountMembershipId: state.accountMembershipId })}
+            to={Router.AccountActivationRoot({ accountMembershipId: state.accountMembershipId })}
           />
         );
       }

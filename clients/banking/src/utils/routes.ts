@@ -15,7 +15,14 @@ const routes = {
     Area: "/*",
     Root: "/",
     Profile: "/profile",
-    Activation: "/activation",
+    ...createGroup("Activation", "/activation", {
+      Area: "/*",
+      Root: "/",
+      AdditionalInfos: "/additionnal-informations",
+      SupportingDocs: "/supporting-documents",
+      FirstTransfer: "/first-transfer",
+      Identification: "/identification",
+    }),
 
     ...createGroup("Details", "/details", {
       Area: "/*",
@@ -139,10 +146,18 @@ type Routes = InferRoutes<typeof Router>;
 export type RouteName = keyof Routes;
 export type RouteParams<T extends RouteName> = Routes[T];
 
+export const accountActivationRoutes = [
+  "AccountActivationRoot",
+  "AccountActivationAdditionalInfos",
+  "AccountActivationFirstTransfer",
+  "AccountActivationIdentification",
+  "AccountActivationSupportingDocs",
+] as const satisfies RouteName[];
+
 export const accountRoutes = [
   "AccountRoot",
   "AccountProfile",
-  "AccountActivation",
+  "AccountActivationArea",
   "AccountTransactionsArea",
   "AccountDetailsArea",
   "AccountPaymentsArea",

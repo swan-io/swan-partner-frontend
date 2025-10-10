@@ -369,7 +369,7 @@ export const AccountArea = ({
                     desktop={true}
                     activationTag={activationTag}
                     activationLinkActive={
-                      route?.name === "AccountActivation" && permissions.canReadAccountDetails
+                      route?.name === "AccountActivationArea" && permissions.canReadAccountDetails
                     }
                     hasMultipleMemberships={hasMultipleMemberships}
                     selectedAccountMembership={accountMembership}
@@ -383,7 +383,7 @@ export const AccountArea = ({
                     <LakeButton
                       color="current"
                       icon="checkmark-starburst-filled"
-                      onPress={() => Router.push("AccountActivation", { accountMembershipId })}
+                      onPress={() => Router.push("AccountActivationRoot", { accountMembershipId })}
                     >
                       {t("accountActivation.title")}
                     </LakeButton>
@@ -467,6 +467,7 @@ export const AccountArea = ({
                       >
                         {holder?.verificationStatus === "Refused" ? (
                           <AccountActivationPage
+                            largeViewport={largeViewport}
                             requireFirstTransfer={requireFirstTransfer}
                             hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
                             lastIdentification={lastIdentification}
@@ -846,9 +847,10 @@ export const AccountArea = ({
                                   <NotFoundPage />
                                 ),
                               )
-                              .with({ name: "AccountActivation" }, () =>
+                              .with({ name: "AccountActivationArea" }, () =>
                                 permissions.canReadAccountDetails ? (
                                   <AccountActivationPage
+                                    largeViewport={largeViewport}
                                     hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
                                     lastIdentification={lastIdentification}
                                     requireFirstTransfer={requireFirstTransfer}

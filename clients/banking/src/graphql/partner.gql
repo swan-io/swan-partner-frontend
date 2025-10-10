@@ -1436,6 +1436,17 @@ query AccountActivationPage($accountMembershipId: ID!) {
       paymentLevel
       paymentAccountType
       holder {
+        verificationStatusInfo {
+          __typename
+          ... on AccountHolderWaitingForInformationVerificationStatusInfo {
+            __typename
+            verificationRequirements {
+              id
+              type
+            }
+            waitingForInformationAt
+          }
+        }
         id
         verificationStatus
         info {
@@ -1494,6 +1505,16 @@ query AccountActivationPage($accountMembershipId: ID!) {
       fullName
       birthDate
       mobilePhoneNumber
+      lastIdentification: identifications(
+        first: 1
+        orderBy: { field: updatedAt, direction: Desc }
+      ) {
+        edges {
+          node {
+            ...Identification
+          }
+        }
+      }
     }
   }
   projectInfo {

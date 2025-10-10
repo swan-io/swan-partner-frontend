@@ -198,7 +198,7 @@ export const NavigationTabBar = ({
 
         <Pressable style={styles.tabBarItem} onPress={() => setScreen("menu")}>
           {match(route)
-            .with({ name: "AccountActivation" }, () => (
+            .with({ name: "AccountActivationArea" }, () => (
               <>
                 <Icon name="person-lock-regular" size={22} color={colors.current[500]} />
                 <Space width={12} />
@@ -282,7 +282,7 @@ export const NavigationTabBar = ({
                       color="current"
                       icon="checkmark-starburst-filled"
                       onPress={() => {
-                        Router.push("AccountActivation", { accountMembershipId });
+                        Router.push("AccountActivationRoot", { accountMembershipId });
                         setScreen(null);
                       }}
                     >

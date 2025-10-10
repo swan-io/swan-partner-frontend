@@ -31,6 +31,7 @@
       "BadRequestRejection",
       "BeneficiaryVerificationTokenAlreadyConsumedRejection",
       "BlacklistedPhoneNumberRejection",
+      "BlocklistedPhoneNumberRejection",
       "CalledByABotRejection",
       "CannotActivatePhysicalCardRejection",
       "CapitalDepositCaseCanNotBeCanceledRejection",
@@ -335,6 +336,7 @@
     "MerchantPaymentMethod": [
       "CardMerchantPaymentMethod",
       "CheckMerchantPaymentMethod",
+      "InPersonCardMerchantPaymentMethod",
       "InternalDirectDebitB2BMerchantPaymentMethod",
       "InternalDirectDebitStandardMerchantPaymentMethod",
       "SepaDirectDebitB2BMerchantPaymentMethod",
@@ -447,6 +449,12 @@
       "ExportExpiredStatusInfo",
       "ExportFailedStatusInfo",
       "ExportRunningStatusInfo"
+    ],
+    "AccountStatementStatusInfo": [
+      "FailedStatusInfo",
+      "GeneratedStatusInfo",
+      "PendingStatusInfo",
+      "VoidedStatusInfo"
     ],
     "FeeCreditor": [
       "FeeInCreditor",

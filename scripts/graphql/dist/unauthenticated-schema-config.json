@@ -243,6 +243,7 @@
     "MerchantPaymentMethod": [
       "CardMerchantPaymentMethod",
       "CheckMerchantPaymentMethod",
+      "InPersonCardMerchantPaymentMethod",
       "InternalDirectDebitB2BMerchantPaymentMethod",
       "InternalDirectDebitStandardMerchantPaymentMethod",
       "SepaDirectDebitB2BMerchantPaymentMethod",

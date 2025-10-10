@@ -374,7 +374,7 @@ type Account {
   """
   List of Virtual IBAN
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   virtualIbanEntries(
     """the number of elements to load (maximum: 100)"""
@@ -397,7 +397,7 @@ type Account {
   """
   List of account membership for this account
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   memberships(
     """the number of elements to load (maximum: 100)"""
@@ -526,7 +526,7 @@ type AccountClosingStatus implements AccountStatusInfo {
 }
 
 """
-Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
 """
 type AccountConnection implements Connection {
   """Total number of element in the list"""
@@ -609,7 +609,7 @@ type AccountHolder {
   """
   List of accounts owned by the account holder.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   accounts(
     """the number of elements to load (maximum: 100)"""
@@ -632,7 +632,7 @@ type AccountHolder {
   """
   List of supporting document collection for an account holder
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   supportingDocumentCollections(
     """the number of elements to load (maximum: 100)"""
@@ -655,7 +655,7 @@ type AccountHolder {
   """
   List of funding limit settings change request for an account holder
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   fundingLimitSettingsChangeRequests(
     """the number of elements to load (maximum: 100)"""
@@ -775,16 +775,16 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
 }
 
 """
-Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination)).
+Implements the Relay Connection interface, used to paginate lists of elements. ([(Learn More)](https://docs.swan.io/developers/using-api/pagination/))
 """
 type AccountHolderConnection implements Connection {
-  """Total number of element in the list"""
+  """Total number of element in the list."""
   totalCount: Int!
 
-  """Information about the current, the previous and the next page"""
+  """Information about the current, the previous and the next page."""
   pageInfo: PageInfo!
 
-  """AccountHolderEdge list"""
+  """AccountHolderEdge list."""
   edges: [AccountHolderEdge!]!
 }
 
@@ -797,10 +797,10 @@ enum AccountHolderDueDiligenceLevel {
 
 """Implements the Relay Edge interface."""
 type AccountHolderEdge implements Edge {
-  """Opaque identifier pointing to this node in the pagination mechanism"""
+  """Opaque identifier pointing to this node in the pagination mechanism."""
   cursor: String!
 
-  """The account holder"""
+  """The account holder."""
   node: AccountHolder!
 }
 
@@ -1146,7 +1146,7 @@ type AccountMembershipBindingUserErrorStatusInfo implements AccountMembershipSta
 }
 
 """
-Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
 """
 type AccountMembershipConnection implements Connection {
   """Total number of element in the list"""
@@ -1892,7 +1892,7 @@ type FundingLimitSettingsChangeRequestApprovedStatusInfo implements FundingLimit
 }
 
 """
-Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
 """
 type FundingLimitSettingsChangeRequestConnection implements Connection {
   """Total number of element in the list"""
@@ -2497,7 +2497,7 @@ type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
 }
 
 """
-Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
 """
 type OnboardingConnection implements Connection {
   """Total number of element in the list"""
@@ -3169,7 +3169,7 @@ type SupportingDocumentCollectionCanceledStatusInfo implements SupportingDocumen
 }
 
 """
-Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
 """
 type SupportingDocumentCollectionConnection implements Connection {
   """Total number of element in the list"""
@@ -3930,7 +3930,7 @@ type User {
   """
   The list of account memberships
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   accountMemberships(
     """the number of elements to load (maximum: 100)"""
@@ -4157,7 +4157,7 @@ type VirtualIBANEntry {
 }
 
 """
-Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
 """
 type VirtualIBANEntryConnection implements Connection {
   """Total number of element in the list"""
@@ -5622,7 +5622,10 @@ enum ConsentPurpose {
   ThreeDsPayment
 
   """when updating an account settings"""
-  UpdateAccountSettings
+  UpdateAccountSettings @deprecated(reason: "use OptOutBulkVerificationOfPayee")
+
+  """when opting-out from Verification of Payee for Bulk Payments"""
+  OptOutBulkVerificationOfPayee
 }
 
 """Status of a consent"""
@@ -6384,6 +6387,7 @@ enum ConsentOperationPropertyName {
   CardInsuranceSubscriptionNoticeUrl
   CardNumber
   CardOption
+  CreditLimitAmount
   CreditorAddress
   CreditorIdentifier
   CreditorName
@@ -6403,6 +6407,7 @@ enum ConsentOperationPropertyName {
   Iban
   Label
   LastName
+  LatePenalty
   MandateLegalNotice
   MandateReference
   MandateScheme
@@ -6413,6 +6418,8 @@ enum ConsentOperationPropertyName {
   Permissions
   PhoneNumber
   PublicKey
+  RepaymentMethod
+  RepaymentFrequency
   Settings
   SignatureDate
   SpendingLimit
@@ -6587,6 +6594,9 @@ enum DetailedConsentPurpose {
 
   """when updating an account settings"""
   UpdateAccountSettings
+
+  """when opting out a bulk verification of payee for an account settings"""
+  OptOutBulkVerificationOfPayee
 
   """when updating a card"""
   UpdateCard
@@ -8869,6 +8879,42 @@ enum IncomingThreeDsStatus {
   Failed
 }
 
+type InPersonCardMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+
+  """The Merchant Payment Method payment amount limit"""
+  paymentAmountLimit: Amount
+}
+
 """InternalDirectDebitB2BMerchantPaymentMethod"""
 type InternalDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMethod {
   """
@@ -9423,6 +9469,7 @@ enum MerchantPaymentMethodType {
   SepaDirectDebitB2b
   Check
   Card
+  InPersonCard
 }
 
 interface MerchantPaymentMethodUpdateRequest {

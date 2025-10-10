@@ -467,6 +467,7 @@ export const AccountArea = ({
                       >
                         {holder?.verificationStatus === "Refused" ? (
                           <AccountActivationPage
+                            largeViewport={largeViewport}
                             requireFirstTransfer={requireFirstTransfer}
                             hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
                             lastIdentification={lastIdentification}
@@ -849,6 +850,7 @@ export const AccountArea = ({
                               .with({ name: "AccountActivationArea" }, () =>
                                 permissions.canReadAccountDetails ? (
                                   <AccountActivationPage
+                                    largeViewport={largeViewport}
                                     hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
                                     lastIdentification={lastIdentification}
                                     requireFirstTransfer={requireFirstTransfer}

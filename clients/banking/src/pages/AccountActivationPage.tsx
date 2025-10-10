@@ -80,12 +80,19 @@ const SupportingDocPendingRightPanel = ({ large }: { large: boolean }) => (
 const SupportingDocTodoRightPanel = ({
   large,
   emailAddress,
+  accountMembershipId,
 }: {
   large: boolean;
   emailAddress: string | undefined;
+  accountMembershipId: string;
 }) => {
   return (
-    <StepScrollView onClose={() => {}} large={large}>
+    <StepScrollView
+      onClose={() => {
+        Router.push("AccountActivationRoot", { accountMembershipId });
+      }}
+      large={large}
+    >
       <LakeHeading level={3} variant="h3">
         {t("accountActivation.documents.title")}
       </LakeHeading>
@@ -120,6 +127,7 @@ const SupportingDocFormTodoRightPanel = ({
   refetchQueries,
   isSendingDocumentCollection,
   setIsSendingDocumentCollection,
+  accountMembershipId,
 }: {
   large: boolean;
   documentCollection: SupportingDocumentCollection | undefined;
@@ -128,9 +136,15 @@ const SupportingDocFormTodoRightPanel = ({
   refetchQueries: () => void;
   isSendingDocumentCollection: boolean;
   setIsSendingDocumentCollection: React.Dispatch<React.SetStateAction<boolean>>;
+  accountMembershipId: string;
 }) => (
   <View style={styles.fill}>
-    <StepScrollView onClose={() => {}} large={large}>
+    <StepScrollView
+      onClose={() => {
+        Router.push("AccountActivationRoot", { accountMembershipId });
+      }}
+      large={large}
+    >
       <LakeHeading level={3} variant="h3">
         {t("accountActivation.documents.title")}
       </LakeHeading>
@@ -178,6 +192,7 @@ const IdentificationTodoRightPanel = ({
   birthDate,
   lastIdentification,
   handleProveIdentity,
+  accountMembershipId,
 }: {
   large: boolean;
   user: User | null | undefined;
@@ -186,9 +201,15 @@ const IdentificationTodoRightPanel = ({
   birthDate: string | null | undefined;
   lastIdentification: Option<IdentificationFragment>;
   handleProveIdentity: () => void;
+  accountMembershipId: string;
 }) => {
   return (
-    <StepScrollView onClose={() => {}} large={large}>
+    <StepScrollView
+      onClose={() => {
+        Router.push("AccountActivationRoot", { accountMembershipId });
+      }}
+      large={large}
+    >
       <Box alignItems="center" justifyContent="center" style={styles.identityVerification}>
         <Avatar user={user} size={96} />
         <Space height={24} />
@@ -240,6 +261,7 @@ const AdditionalInfoTodoRightPanel = ({
   additionalRequiredInfo,
   supportingDocumentSettings,
   emailAddress,
+  accountMembershipId,
 }: {
   large: boolean;
   additionalRequiredInfo: {
@@ -248,6 +270,7 @@ const AdditionalInfoTodoRightPanel = ({
   } | null;
   supportingDocumentSettings: SupportingDocumentSettings | undefined | null;
   emailAddress: string | undefined;
+  accountMembershipId: string;
 }) => {
   const filteredRequirements = additionalRequiredInfo?.verificationRequirements.filter(
     requirement =>
@@ -258,7 +281,12 @@ const AdditionalInfoTodoRightPanel = ({
       requirement.type === "UboDetailsRequired",
   );
   return (
-    <StepScrollView onClose={() => {}} large={large}>
+    <StepScrollView
+      onClose={() => {
+        Router.push("AccountActivationRoot", { accountMembershipId });
+      }}
+      large={large}
+    >
       <LakeHeading level={3} variant="h3">
         {t("accountActivation.additionalInformation")}
       </LakeHeading>
@@ -339,12 +367,19 @@ const AdditionalInfoTodoRightPanel = ({
 const FirstTransferIbanMissingRightPanel = ({
   large,
   projectName,
+  accountMembershipId,
 }: {
   large: boolean;
   projectName: string;
+  accountMembershipId: string;
 }) => {
   return (
-    <StepScrollView onClose={() => {}} large={large}>
+    <StepScrollView
+      onClose={() => {
+        Router.push("AccountActivationRoot", { accountMembershipId });
+      }}
+      large={large}
+    >
       <LakeHeading level={3} variant="h3">
         {t("accountActivation.addMoney.title")}
       </LakeHeading>
@@ -376,14 +411,21 @@ const FirstTransferViaIbanRightPanel = ({
   holderName,
   IBAN,
   BIC,
+  accountMembershipId,
 }: {
   large: boolean;
   holderName: string | undefined;
   IBAN: string | undefined;
   BIC: string | undefined;
+  accountMembershipId: string;
 }) => {
   return (
-    <StepScrollView onClose={() => {}} large={large}>
+    <StepScrollView
+      onClose={() => {
+        Router.push("AccountActivationRoot", { accountMembershipId });
+      }}
+      large={large}
+    >
       <LakeHeading level={3} variant="h3">
         {t("accountActivation.addMoney.title")}
       </LakeHeading>
@@ -418,7 +460,6 @@ const FirstTransferViaIbanRightPanel = ({
 };
 
 type StepStatus = "todo" | "pending" | "done";
-// type DisplayedStepStatus = Exclude<StepStatus, "done">;
 
 const getLastIdentificationStatus = (
   lastIdentification: Option<IdentificationFragment>,
@@ -609,22 +650,21 @@ type StepTileProps = {
   variant: StepTileVariant;
   title: string;
   description: string;
-  onPress?: () => void;
   footer?: ReactNode;
   large: boolean;
   to: string;
 };
 
-const StepTile = ({ variant, title, description, onPress, footer, large, to }: StepTileProps) => {
+const StepTile = ({ variant, title, description, footer, large, to }: StepTileProps) => {
   return (
     <LeftPanelItemWrapper large={large}>
-      <>
-        {large && <View role="none" style={styles.stepTileActiveIndicator} />}
-        <Link to={to} onPress={onPress}>
-          {({ hovered }) => (
+      <Link to={to}>
+        {({ hovered, active }) => (
+          <>
             <Tile hovered={hovered} paddingVertical={24} footer={footer}>
               <>
                 <>
+                  {large && active && <View role="none" style={styles.stepTileActiveIndicator} />}
                   <Box direction="row" justifyContent="spaceBetween">
                     <LakeHeading level={5} variant="h5">
                       {title}
@@ -650,9 +690,9 @@ const StepTile = ({ variant, title, description, onPress, footer, large, to }: S
                 <Space width={24} />
               </>
             </Tile>
-          )}
-        </Link>
-      </>
+          </>
+        )}
+      </Link>
     </LeftPanelItemWrapper>
   );
 };
@@ -699,6 +739,7 @@ type Props = {
   requireFirstTransfer: boolean;
   hasRequiredIdentificationLevel: boolean | undefined;
   lastIdentification: Option<IdentificationFragment>;
+  largeViewport: boolean;
 };
 
 export const AccountActivationPage = ({
@@ -710,6 +751,7 @@ export const AccountActivationPage = ({
   // requireFirstTransfer,
   // hasRequiredIdentificationLevel,
   lastIdentification,
+  largeViewport,
 }: Props) => {
   const [data, { reload }] = useQuery(AccountActivationPageDocument, { accountMembershipId });
 
@@ -840,12 +882,94 @@ export const AccountActivationPage = ({
           },
           { name: "AccountActivationAdditionalInfos" as const, status: additionalInfoStatus },
         ].find(status => status.status === "pending" || status.status === "todo");
-        console.log(route?.name);
 
         return (
           <ResponsiveContainer breakpoint={breakpoints.large} style={styles.root}>
             {({ large }) => {
-              if (large && route?.name === "AccountActivationRoot") {
+              const content = match(route)
+                .with({ name: "AccountActivationRoot" }, () => null)
+                .with({ name: "AccountActivationAdditionalInfos" }, () =>
+                  match(additionalInfoStatus)
+                    .with("pending", () => null)
+                    .with("todo", () => (
+                      <AdditionalInfoTodoRightPanel
+                        additionalRequiredInfo={additionalRequiredInfo}
+                        emailAddress={emailAddress}
+                        large={large}
+                        supportingDocumentSettings={supportingDocumentSettings}
+                        accountMembershipId={accountMembershipId}
+                      />
+                    ))
+                    .with("done", () => (
+                      <Redirect to={Router.AccountActivationRoot({ accountMembershipId })} />
+                    ))
+                    .exhaustive(),
+                )
+                .with({ name: "AccountActivationFirstTransfer" }, () =>
+                  match(firstTransferStatus)
+                    .with("done", () => null)
+                    .with("pending", () => null)
+                    .with("todo", () =>
+                      hasIBAN ? (
+                        <FirstTransferViaIbanRightPanel
+                          BIC={BIC}
+                          IBAN={IBAN}
+                          holderName={holderName}
+                          large={large}
+                          accountMembershipId={accountMembershipId}
+                        />
+                      ) : (
+                        <FirstTransferIbanMissingRightPanel
+                          large={large}
+                          projectName={projectName}
+                          accountMembershipId={accountMembershipId}
+                        />
+                      ),
+                    )
+                    .exhaustive(),
+                )
+                .with({ name: "AccountActivationIdentification" }, () => (
+                  <IdentificationTodoRightPanel
+                    birthDate={birthDate}
+                    emailAddress={emailAddress}
+                    handleProveIdentity={handleProveIdentity}
+                    large={large}
+                    lastIdentification={lastIdentification}
+                    phoneNumber={phoneNumber}
+                    user={user}
+                    accountMembershipId={accountMembershipId}
+                  />
+                ))
+                .with({ name: "AccountActivationSupportingDocs" }, () =>
+                  match(supportingDocumentsStatus)
+                    .with("todo", () =>
+                      documentCollectMode === "EndCustomer" ? (
+                        <SupportingDocTodoRightPanel
+                          accountMembershipId={accountMembershipId}
+                          emailAddress={emailAddress}
+                          large={large}
+                        />
+                      ) : (
+                        <SupportingDocFormTodoRightPanel
+                          accountMembershipId={accountMembershipId}
+                          documentCollection={documentCollection}
+                          documentsFormRef={documentsFormRef}
+                          isSendingDocumentCollection={isSendingDocumentCollection}
+                          large={large}
+                          refetchQueries={refetchQueries}
+                          setIsSendingDocumentCollection={setIsSendingDocumentCollection}
+                          templateLanguage={templateLanguage}
+                        />
+                      ),
+                    )
+                    .with("pending", () => <SupportingDocPendingRightPanel large={large} />)
+                    .with("done", () => null)
+                    .exhaustive(),
+                )
+                .with(P.nullish, () => null)
+                .exhaustive();
+
+              if (largeViewport && route?.name === "AccountActivationRoot") {
                 if (isNotNullish(firstPending?.name)) {
                   return <Redirect to={Router[firstPending.name]({ accountMembershipId })} />;
                 } else {
@@ -952,7 +1076,6 @@ export const AccountActivationPage = ({
                         />
                       )}
 
-                      {/* TODO handle the refused status */}
                       {additionalInfoStatus !== "done" && (
                         <StepTile
                           large={large}
@@ -1000,84 +1123,7 @@ export const AccountActivationPage = ({
                   {large ? (
                     <>
                       <Separator horizontal={true} />
-                      {match(route)
-                        .with({ name: "AccountActivationRoot" }, () => null)
-                        .with({ name: "AccountActivationAdditionalInfos" }, () =>
-                          match(additionalInfoStatus)
-                            .with("pending", () => null)
-                            .with("todo", () => (
-                              <AdditionalInfoTodoRightPanel
-                                additionalRequiredInfo={additionalRequiredInfo}
-                                emailAddress={emailAddress}
-                                large={large}
-                                supportingDocumentSettings={supportingDocumentSettings}
-                              />
-                            ))
-                            .with("done", () => (
-                              <Redirect
-                                to={Router.AccountActivationRoot({ accountMembershipId })}
-                              />
-                            ))
-                            .exhaustive(),
-                        )
-                        .with({ name: "AccountActivationFirstTransfer" }, () =>
-                          match(firstTransferStatus)
-                            .with("done", () => null)
-                            .with("pending", () => null)
-                            .with("todo", () =>
-                              hasIBAN ? (
-                                <FirstTransferViaIbanRightPanel
-                                  BIC={BIC}
-                                  IBAN={IBAN}
-                                  holderName={holderName}
-                                  large={large}
-                                />
-                              ) : (
-                                <FirstTransferIbanMissingRightPanel
-                                  large={large}
-                                  projectName={projectName}
-                                />
-                              ),
-                            )
-                            .exhaustive(),
-                        )
-                        .with({ name: "AccountActivationIdentification" }, () => (
-                          <IdentificationTodoRightPanel
-                            birthDate={birthDate}
-                            emailAddress={emailAddress}
-                            handleProveIdentity={handleProveIdentity}
-                            large={large}
-                            lastIdentification={lastIdentification}
-                            phoneNumber={phoneNumber}
-                            user={user}
-                          />
-                        ))
-                        .with({ name: "AccountActivationSupportingDocs" }, () =>
-                          match(supportingDocumentsStatus)
-                            .with("todo", () =>
-                              documentCollectMode === "EndCustomer" ? (
-                                <SupportingDocTodoRightPanel
-                                  emailAddress={emailAddress}
-                                  large={large}
-                                />
-                              ) : (
-                                <SupportingDocFormTodoRightPanel
-                                  documentCollection={documentCollection}
-                                  documentsFormRef={documentsFormRef}
-                                  isSendingDocumentCollection={isSendingDocumentCollection}
-                                  large={large}
-                                  refetchQueries={refetchQueries}
-                                  setIsSendingDocumentCollection={setIsSendingDocumentCollection}
-                                  templateLanguage={templateLanguage}
-                                />
-                              ),
-                            )
-                            .with("pending", () => <SupportingDocPendingRightPanel large={large} />)
-                            .with("done", () => null)
-                            .exhaustive(),
-                        )
-                        .with(P.nullish, () => null)
-                        .exhaustive()}
+                      {content}
                     </>
                   ) : (
                     <FullViewportLayer
@@ -1088,7 +1134,7 @@ export const AccountActivationPage = ({
                         (route?.name === "AccountActivationSupportingDocs" && !large)
                       }
                     >
-                      TODO
+                      {content}
                     </FullViewportLayer>
                   )}
                 </Box>

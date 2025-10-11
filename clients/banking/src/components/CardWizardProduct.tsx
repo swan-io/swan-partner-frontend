@@ -413,7 +413,7 @@ export const CardWizardProduct = ({
 
               <Space height={8} />
 
-              {defaultInsurancePackage != null && (
+              {defaultInsurancePackage != null && accountHolderType === "Company" && (
                 <Box direction="row" alignItems="center" justifyContent="center">
                   <Icon name="shield-checkmark-regular" size={16} color={colors.gray[500]} />
                   <Space width={8} />

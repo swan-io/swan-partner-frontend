@@ -1,5 +1,8 @@
 import { Array, Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
+import { Box } from "@swan-io/lake/src/components/Box";
+import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
+import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -7,7 +10,7 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
+import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import {
   Document,
   SupportingDocumentCollection,
@@ -15,6 +18,7 @@ import {
 } from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
 import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
 import { ReactNode, useCallback, useRef } from "react";
+import { StyleSheet } from "react-native";
 import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
@@ -31,6 +35,12 @@ import {
 } from "../../graphql/unauthenticated";
 import { locale, t } from "../../utils/i18n";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
+
+const styles = StyleSheet.create({
+  fill: {
+    flex: 1,
+  },
+});
 
 type Props = {
   previousStep: CompanyOnboardingRoute;
@@ -70,6 +80,7 @@ export const OnboardingCompanyDocuments = ({
   );
   const [deleteSupportingDocument] = useMutation(DeleteSupportingDocumentDocument);
   const [showConfirmModal, setShowConfirmModal] = useBoolean(false);
+  const [missingDocumentConfirmed, setMissingDocumentConfirmed] = useBoolean(false);
   const supportingDocumentCollectionRef =
     useRef<SupportingDocumentCollectionRef<SupportingDocumentPurposeEnum>>(null);
 
@@ -231,16 +242,48 @@ export const OnboardingCompanyDocuments = ({
         />
       </OnboardingStepContent>
 
-      <ConfirmModal
+      <LakeModal
         visible={showConfirmModal}
         title={t("company.step.documents.confirmModal.title")}
-        message={t("company.step.documents.confirmModal.message")}
-        icon="document-regular"
-        confirmText={t("company.step.documents.confirmModal.confirm")}
-        onConfirm={goToNextStep}
-        loading={updateResult.isLoading()}
-        onCancel={setShowConfirmModal.off}
-      />
+        icon="warning-regular"
+        color="partner"
+      >
+        <LakeText>{t("company.step.documents.confirmModal.message")}</LakeText>
+        <Space height={16} />
+
+        <LakeLabelledCheckbox
+          value={missingDocumentConfirmed}
+          onValueChange={setMissingDocumentConfirmed.toggle}
+          label={t("company.step.documents.confirmModal.checkbox")}
+        />
+
+        <Space height={40} />
+
+        <Box direction="row">
+          <LakeButton
+            mode="secondary"
+            style={styles.fill}
+            onPress={() => {
+              setShowConfirmModal.off();
+              setMissingDocumentConfirmed.off();
+            }}
+          >
+            {t("company.step.documents.confirmModal.uploadDocuments")}
+          </LakeButton>
+
+          <Space width={24} />
+
+          <LakeButton
+            color="partner"
+            style={styles.fill}
+            loading={updateResult.isLoading()}
+            onPress={goToNextStep}
+            disabled={!missingDocumentConfirmed}
+          >
+            {t("common.next")}
+          </LakeButton>
+        </Box>
+      </LakeModal>
     </>
   );
 };

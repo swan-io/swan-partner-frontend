@@ -49,32 +49,41 @@ import { projectConfiguration } from "../utils/projectId";
 import { accountActivationRoutes, Router } from "../utils/routes";
 import { NotFoundPage } from "./NotFoundPage";
 
-const SupportingDocPendingRightPanel = ({ large }: { large: boolean }) => (
-  <View style={styles.fill}>
-    <StepScrollView onClose={() => {}} large={large}>
-      <LakeHeading level={3} variant="h3">
-        {t("accountActivation.documents.title")}
-      </LakeHeading>
+const SupportingDocPendingRightPanel = ({
+  large,
+  accountMembershipId,
+}: {
+  large: boolean;
+  accountMembershipId: string;
+}) => (
+  <StepScrollView
+    onClose={() => {
+      Router.push("AccountActivationRoot", { accountMembershipId });
+    }}
+    large={large}
+  >
+    <LakeHeading level={3} variant="h3">
+      {t("accountActivation.documents.title")}
+    </LakeHeading>
 
-      <Space height={8} />
-      <LakeText>{t("accountActivation.pendingDocuments.subtitle")}</LakeText>
-      <Space height={32} />
+    <Space height={8} />
+    <LakeText>{t("accountActivation.pendingDocuments.subtitle")}</LakeText>
+    <Space height={32} />
 
-      <Tile style={styles.rightPanelTiles}>
-        <Box alignItems="center">
-          <BorderedIcon name="lake-clock" color="current" />
-          <Space height={32} />
+    <Tile style={styles.rightPanelTiles}>
+      <Box alignItems="center">
+        <BorderedIcon name="lake-clock" color="current" />
+        <Space height={32} />
 
-          <LakeText align="center" variant="medium" color={colors.gray[900]}>
-            {t("accountActivation.pendingDocuments.title")}
-          </LakeText>
-          <LakeText align="center" color={colors.gray[500]}>
-            {t("accountActivation.pendingDocuments.text")}
-          </LakeText>
-        </Box>
-      </Tile>
-    </StepScrollView>
-  </View>
+        <LakeText align="center" variant="medium" color={colors.gray[900]}>
+          {t("accountActivation.pendingDocuments.title")}
+        </LakeText>
+        <LakeText align="center" color={colors.gray[500]}>
+          {t("accountActivation.pendingDocuments.text")}
+        </LakeText>
+      </Box>
+    </Tile>
+  </StepScrollView>
 );
 
 const SupportingDocTodoRightPanel = ({
@@ -122,67 +131,66 @@ const SupportingDocTodoRightPanel = ({
 const SupportingDocFormTodoRightPanel = ({
   large,
   documentCollection,
-  documentsFormRef,
   templateLanguage,
   refetchQueries,
-  isSendingDocumentCollection,
-  setIsSendingDocumentCollection,
   accountMembershipId,
 }: {
   large: boolean;
   documentCollection: SupportingDocumentCollection | undefined;
-  documentsFormRef: React.RefObject<SupportingDocumentsFormRef | null>;
   templateLanguage: "en" | "es" | "de" | "fr";
   refetchQueries: () => void;
-  isSendingDocumentCollection: boolean;
-  setIsSendingDocumentCollection: React.Dispatch<React.SetStateAction<boolean>>;
   accountMembershipId: string;
-}) => (
-  <View style={styles.fill}>
-    <StepScrollView
-      onClose={() => {
-        Router.push("AccountActivationRoot", { accountMembershipId });
-      }}
-      large={large}
-    >
-      <LakeHeading level={3} variant="h3">
-        {t("accountActivation.documents.title")}
-      </LakeHeading>
+}) => {
+  const [isSendingDocumentCollection, setIsSendingDocumentCollection] = useState(false);
+  const documentsFormRef = useRef<SupportingDocumentsFormRef>(null);
 
-      <Space height={8} />
-      <LakeText>{t("accountActivation.documents.subtitle")}</LakeText>
-      <Space height={32} />
-
-      {isNotNullish(documentCollection) && (
-        <SupportingDocumentsForm
-          ref={documentsFormRef}
-          templateLanguage={templateLanguage}
-          collection={documentCollection}
-          refetchCollection={refetchQueries}
-        />
-      )}
-    </StepScrollView>
-
-    <Space height={96} />
-
-    <Box alignItems="start" style={styles.submitSupportedDocs}>
-      <LakeButton
-        color="partner"
-        loading={isSendingDocumentCollection}
-        onPress={() => {
-          const ref = documentsFormRef.current;
-          if (ref == null) {
-            return;
-          }
-          setIsSendingDocumentCollection(true);
-          ref.submit().tap(() => setIsSendingDocumentCollection(false));
+  return (
+    <View style={styles.fill}>
+      <StepScrollView
+        onClose={() => {
+          Router.push("AccountActivationRoot", { accountMembershipId });
         }}
+        large={large}
       >
-        {t("accountActivation.documents.button.submit")}
-      </LakeButton>
-    </Box>
-  </View>
-);
+        <LakeHeading level={3} variant="h3">
+          {t("accountActivation.documents.title")}
+        </LakeHeading>
+
+        <Space height={8} />
+        <LakeText>{t("accountActivation.documents.subtitle")}</LakeText>
+        <Space height={32} />
+
+        {isNotNullish(documentCollection) && (
+          <SupportingDocumentsForm
+            ref={documentsFormRef}
+            templateLanguage={templateLanguage}
+            collection={documentCollection}
+            refetchCollection={refetchQueries}
+          />
+        )}
+      </StepScrollView>
+
+      <Space height={96} />
+
+      <Box alignItems="start" style={styles.submitSupportedDocs}>
+        <LakeButton
+          color="partner"
+          loading={isSendingDocumentCollection}
+          onPress={() => {
+            const ref = documentsFormRef.current;
+            if (ref == null) {
+              return;
+            }
+            setIsSendingDocumentCollection(true);
+            ref.submit().tap(() => setIsSendingDocumentCollection(false));
+          }}
+        >
+          {t("accountActivation.documents.button.submit")}
+        </LakeButton>
+      </Box>
+    </View>
+  );
+};
 
 const IdentificationTodoRightPanel = ({
   large,
@@ -748,17 +756,12 @@ export const AccountActivationPage = ({
   additionalInfo,
   projectName,
   refetchAccountAreaQuery,
-  // requireFirstTransfer,
-  // hasRequiredIdentificationLevel,
   lastIdentification,
   largeViewport,
 }: Props) => {
   const [data, { reload }] = useQuery(AccountActivationPageDocument, { accountMembershipId });
 
   const route = Router.useRoute(accountActivationRoutes);
-
-  const documentsFormRef = useRef<SupportingDocumentsFormRef>(null);
-  const [isSendingDocumentCollection, setIsSendingDocumentCollection] = useState(false);
 
   const refetchQueries = useCallback(() => {
     refetchAccountAreaQuery();
@@ -868,7 +871,7 @@ export const AccountActivationPage = ({
           additionalRequiredInfo?.verificationRequirements ?? [],
         );
 
-        const firstPending:
+        const firstTodoOrPending:
           | { name: (typeof accountActivationRoutes)[number]; status: StepStatus }
           | undefined = [
           {
@@ -953,16 +956,18 @@ export const AccountActivationPage = ({
                         <SupportingDocFormTodoRightPanel
                           accountMembershipId={accountMembershipId}
                           documentCollection={documentCollection}
-                          documentsFormRef={documentsFormRef}
-                          isSendingDocumentCollection={isSendingDocumentCollection}
                           large={large}
                           refetchQueries={refetchQueries}
-                          setIsSendingDocumentCollection={setIsSendingDocumentCollection}
                           templateLanguage={templateLanguage}
                         />
                       ),
                     )
-                    .with("pending", () => <SupportingDocPendingRightPanel large={large} />)
+                    .with("pending", () => (
+                      <SupportingDocPendingRightPanel
+                        accountMembershipId={accountMembershipId}
+                        large={large}
+                      />
+                    ))
                     .with("done", () => null)
                     .exhaustive(),
                 )
@@ -970,8 +975,8 @@ export const AccountActivationPage = ({
                 .exhaustive();
 
               if (largeViewport && route?.name === "AccountActivationRoot") {
-                if (isNotNullish(firstPending?.name)) {
-                  return <Redirect to={Router[firstPending.name]({ accountMembershipId })} />;
+                if (isNotNullish(firstTodoOrPending?.name)) {
+                  return <Redirect to={Router[firstTodoOrPending.name]({ accountMembershipId })} />;
                 } else {
                   <NotFoundPage />;
                 }
@@ -1051,7 +1056,6 @@ export const AccountActivationPage = ({
                           title={t("accountActivation.identity.title")}
                           description={t("accountActivation.identity.description")}
                           variant={lastIdentificationStatus}
-                          // onPress={getProveIdentityUrl}
                           to={Router.AccountActivationIdentification({ accountMembershipId })}
                         />
                       )}

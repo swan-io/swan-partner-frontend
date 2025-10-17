@@ -23,7 +23,7 @@ import { OnboardingIndividualWizard } from "./pages/individual/OnboardingIndivid
 import { env } from "./utils/env";
 import { client } from "./utils/gql";
 import { locale } from "./utils/i18n";
-import { logFrontendError } from "./utils/logger";
+import { logFrontendError, registerOnboardingInfo } from "./utils/logger";
 import { TrackingProvider, useSessionTracking } from "./utils/matomo";
 import { Router } from "./utils/routes";
 import { updateTgglContext } from "./utils/tggl";
@@ -59,6 +59,28 @@ const FlowPicker = ({ onboardingId }: Props) => {
   const [updateCompanyOnboarding, companyOnboardingUpdate] = useMutation(
     UpdateCompanyOnboardingDocument,
   );
+
+  useEffect(() => {
+    match(data)
+      .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ onboardingInfo }) => {
+        if (onboardingInfo == null) {
+          return;
+        }
+
+        const projectId = onboardingInfo.projectInfo?.id;
+        const accountCountry = onboardingInfo.accountCountry;
+        const onboardingType = match(onboardingInfo.info.__typename)
+          .returnType<"Company" | "Individual" | undefined>()
+          .with("OnboardingCompanyAccountHolderInfo", () => "Company")
+          .with("OnboardingIndividualAccountHolderInfo", () => "Individual")
+          .exhaustive(() => undefined);
+
+        if (projectId != null && accountCountry != null && onboardingType != null) {
+          registerOnboardingInfo({ accountCountry, projectId, onboardingType });
+        }
+      })
+      .otherwise(() => {});
+  }, [data]);
 
   useEffect(() => {
     const request = query({ id: onboardingId, language: locale.language }).tapOk(

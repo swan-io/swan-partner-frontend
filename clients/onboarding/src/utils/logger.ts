@@ -1,5 +1,32 @@
 import posthog, { SeverityLevel } from "posthog-js";
+import { AccountCountry } from "../graphql/unauthenticated";
 import { env } from "./env";
+
+type OnboardingInfo = {
+  accountCountry: AccountCountry;
+  projectId: string;
+  onboardingType: "Company" | "Individual";
+};
+
+export const registerOnboardingInfo = ({
+  accountCountry,
+  projectId,
+  onboardingType,
+}: OnboardingInfo) => {
+  posthog.register({ accountCountry, projectId, onboardingType });
+};
+
+const replaceIdInPath = (path: string) => {
+  return path
+    .split("/")
+    .map(segment => {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        segment,
+      );
+      return isUuid ? "<id>" : segment;
+    })
+    .join("/");
+};
 
 export const initPostHog = () => {
   if (import.meta.env.PROD && env.IS_SWAN_MODE) {
@@ -13,6 +40,13 @@ export const initPostHog = () => {
     posthog.init(token, {
       api_host: "https://eu.i.posthog.com",
       defaults: "2025-05-24",
+      before_send: event => {
+        if (event?.properties.$pathname != null) {
+          event.properties.$pathname = replaceIdInPath(event.properties.$pathname);
+        }
+
+        return event;
+      },
     });
   }
 };

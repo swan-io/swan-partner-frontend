@@ -12,6 +12,18 @@ export const setPostHogUser = ({ id, ...properties }: User) => {
   posthog.identify(id, properties);
 };
 
+const replaceIdInPath = (path: string) => {
+  return path
+    .split("/")
+    .map(segment => {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        segment,
+      );
+      return isUuid ? "<id>" : segment;
+    })
+    .join("/");
+};
+
 export const initPostHog = () => {
   if (import.meta.env.PROD && env.IS_SWAN_MODE) {
     const token =
@@ -24,6 +36,13 @@ export const initPostHog = () => {
     posthog.init(token, {
       api_host: "https://eu.i.posthog.com",
       defaults: "2025-05-24",
+      before_send: event => {
+        if (event?.properties.$pathname != null) {
+          event.properties.$pathname = replaceIdInPath(event.properties.$pathname);
+        }
+
+        return event;
+      },
     });
   }
 };

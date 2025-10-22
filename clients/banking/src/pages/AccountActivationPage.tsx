@@ -343,8 +343,8 @@ const AdditionalInfoTodoRightPanel = ({
 
           {match(supportingDocumentSettings?.collectMode)
             .with("API", "Partner", () => (
-              <LakeText color={colors.gray[900]}>
-                t("accountActivation.additionalInformation.tileInfo")
+              <LakeText color={colors.gray[900]} variant="semibold" align="center">
+                {t("accountActivation.additionalInformation.tileInfo")}
               </LakeText>
             ))
             .with("EndCustomer", "EndCustomerCcPartner", () =>
@@ -353,7 +353,11 @@ const AdditionalInfoTodoRightPanel = ({
                   {formatNestedMessage(
                     "accountActivation.additionalInformation.tileInfoExtraInfo",
                     {
-                      bold: text => <LakeText variant="semibold">{text}</LakeText>,
+                      bold: text => (
+                        <LakeText variant="semibold" color={colors.gray[900]}>
+                          {text}
+                        </LakeText>
+                      ),
                       email: emailAddress,
                       date: dayjs(additionalRequiredInfo.waitingForInformationAt).format("LL"),
                     },
@@ -652,53 +656,53 @@ const LeftPanelItemWrapper = ({
   );
 };
 
-type StepTileVariant = "todo" | "pending";
-
 type StepTileProps = {
-  variant: StepTileVariant;
+  variant: StepStatus;
   title: string;
   description: string;
   footer?: ReactNode;
   large: boolean;
   to: string;
+  disabled?: boolean;
 };
 
-const StepTile = ({ variant, title, description, footer, large, to }: StepTileProps) => {
+const StepTile = ({ variant, title, description, footer, large, to, disabled }: StepTileProps) => {
   return (
     <LeftPanelItemWrapper large={large}>
-      <Link to={to}>
+      <Link to={to} disabled={disabled}>
         {({ hovered, active }) => (
-          <>
-            <Tile hovered={hovered} paddingVertical={24} footer={footer}>
+          <Tile hovered={hovered} paddingVertical={24} footer={footer} style={{ width: "100%" }}>
+            <>
               <>
-                <>
-                  {large && active && <View role="none" style={styles.stepTileActiveIndicator} />}
-                  <Box direction="row" justifyContent="spaceBetween">
-                    <LakeHeading level={5} variant="h5">
-                      {title}
-                    </LakeHeading>
+                {large && active && <View role="none" style={styles.stepTileActiveIndicator} />}
+                <Box direction="row" justifyContent="spaceBetween">
+                  <LakeHeading level={5} variant="h5">
+                    {title}
+                  </LakeHeading>
 
-                    <Box>
-                      {match(variant)
-                        .with("todo", () => (
-                          <Tag color="warning">{t("accountActivation.tag.todo")}</Tag>
-                        ))
-                        .with("pending", () => (
-                          <Tag color="shakespear">{t("accountActivation.tag.pending")}</Tag>
-                        ))
-                        .otherwise(() => null)}
+                  <Box>
+                    {match(variant)
+                      .with("todo", () => (
+                        <Tag color="warning">{t("accountActivation.tag.todo")}</Tag>
+                      ))
+                      .with("pending", () => (
+                        <Tag color="shakespear">{t("accountActivation.tag.pending")}</Tag>
+                      ))
+                      .with("done", () => (
+                        <Tag color="positive">{t("accountActivation.tag.done")}</Tag>
+                      ))
+                      .otherwise(() => null)}
 
-                      <Space width={20} />
-                    </Box>
+                    <Space width={20} />
                   </Box>
-                  <Space height={8} />
+                </Box>
+                <Space height={8} />
 
-                  <LakeText>{description}</LakeText>
-                </>
-                <Space width={24} />
+                <LakeText>{description}</LakeText>
               </>
-            </Tile>
-          </>
+              <Space width={24} />
+            </>
+          </Tile>
         )}
       </Link>
     </LeftPanelItemWrapper>
@@ -744,7 +748,6 @@ type Props = {
   additionalInfo: AdditionalInfo;
   projectName: string;
   refetchAccountAreaQuery: () => void;
-  requireFirstTransfer: boolean;
   hasRequiredIdentificationLevel: boolean | undefined;
   lastIdentification: Option<IdentificationFragment>;
   largeViewport: boolean;
@@ -756,6 +759,7 @@ export const AccountActivationPage = ({
   additionalInfo,
   projectName,
   refetchAccountAreaQuery,
+  hasRequiredIdentificationLevel,
   lastIdentification,
   largeViewport,
 }: Props) => {
@@ -856,7 +860,10 @@ export const AccountActivationPage = ({
           );
         }
 
-        const lastIdentificationStatus = getLastIdentificationStatus(lastIdentification);
+        const lastIdentificationStatus =
+          hasRequiredIdentificationLevel === true
+            ? "done"
+            : getLastIdentificationStatus(lastIdentification);
 
         const firstTransferStatus = getFirstTransferStatus(
           additionalRequiredInfo?.verificationRequirements ?? [],
@@ -889,12 +896,12 @@ export const AccountActivationPage = ({
         return (
           <ResponsiveContainer breakpoint={breakpoints.large} style={styles.root}>
             {({ large }) => {
-              const content = match(route)
-                .with({ name: "AccountActivationRoot" }, () => null)
-                .with({ name: "AccountActivationAdditionalInfos" }, () =>
-                  match(additionalInfoStatus)
-                    .with("pending", () => null)
-                    .with("todo", () => (
+              const content = match({ route, lastIdentificationStatus })
+                .with({ route: { name: "AccountActivationRoot" } }, () => null)
+                .with({ route: { name: "AccountActivationAdditionalInfos" } }, () =>
+                  match({ additionalInfoStatus, lastIdentificationStatus })
+                    .with({ additionalInfoStatus: "pending" }, () => null)
+                    .with({ additionalInfoStatus: "todo" }, () => (
                       <AdditionalInfoTodoRightPanel
                         additionalRequiredInfo={additionalRequiredInfo}
                         emailAddress={emailAddress}
@@ -903,12 +910,16 @@ export const AccountActivationPage = ({
                         accountMembershipId={accountMembershipId}
                       />
                     ))
-                    .with("done", () => (
-                      <Redirect to={Router.AccountActivationRoot({ accountMembershipId })} />
-                    ))
-                    .exhaustive(),
+                    .with(
+                      {
+                        additionalInfoStatus: "done",
+                        lastIdentificationStatus: P.union("done", "pending"),
+                      },
+                      () => <Redirect to={Router.AccountActivationRoot({ accountMembershipId })} />,
+                    )
+                    .otherwise(() => null),
                 )
-                .with({ name: "AccountActivationFirstTransfer" }, () =>
+                .with({ route: { name: "AccountActivationFirstTransfer" } }, () =>
                   match(firstTransferStatus)
                     .with("done", () => null)
                     .with("pending", () => null)
@@ -931,19 +942,25 @@ export const AccountActivationPage = ({
                     )
                     .exhaustive(),
                 )
-                .with({ name: "AccountActivationIdentification" }, () => (
-                  <IdentificationTodoRightPanel
-                    birthDate={birthDate}
-                    emailAddress={emailAddress}
-                    handleProveIdentity={handleProveIdentity}
-                    large={large}
-                    lastIdentification={lastIdentification}
-                    phoneNumber={phoneNumber}
-                    user={user}
-                    accountMembershipId={accountMembershipId}
-                  />
-                ))
-                .with({ name: "AccountActivationSupportingDocs" }, () =>
+                .with(
+                  {
+                    route: { name: "AccountActivationIdentification" },
+                    lastIdentificationStatus: "todo",
+                  },
+                  () => (
+                    <IdentificationTodoRightPanel
+                      birthDate={birthDate}
+                      emailAddress={emailAddress}
+                      handleProveIdentity={handleProveIdentity}
+                      large={large}
+                      lastIdentification={lastIdentification}
+                      phoneNumber={phoneNumber}
+                      user={user}
+                      accountMembershipId={accountMembershipId}
+                    />
+                  ),
+                )
+                .with({ route: { name: "AccountActivationSupportingDocs" } }, () =>
                   match(supportingDocumentsStatus)
                     .with("todo", () =>
                       documentCollectMode === "EndCustomer" ? (
@@ -972,7 +989,7 @@ export const AccountActivationPage = ({
                     .exhaustive(),
                 )
                 .with(P.nullish, () => null)
-                .exhaustive();
+                .otherwise(() => null);
 
               if (largeViewport && route?.name === "AccountActivationRoot") {
                 if (isNotNullish(firstTodoOrPending?.name)) {
@@ -1025,14 +1042,16 @@ export const AccountActivationPage = ({
                       </Box>
 
                       {(holder?.verificationStatus === "Pending" ||
-                        holder?.verificationStatus === "WaitingForInformation") && (
+                        holder?.verificationStatus === "WaitingForInformation" ||
+                        holder?.verificationStatus === "NotStarted") && (
                         <>
                           <Space height={24} />
 
                           <LakeAlert
                             title={t("accountActivation.alert.title")}
                             variant={
-                              holder.verificationStatus === "WaitingForInformation"
+                              holder.verificationStatus === "WaitingForInformation" ||
+                              holder.verificationStatus === "NotStarted"
                                 ? "warning"
                                 : "info"
                             }
@@ -1050,15 +1069,20 @@ export const AccountActivationPage = ({
 
                     <Space height={32} />
                     <Stack space={large ? 32 : 24}>
-                      {lastIdentificationStatus !== "done" && (
+                      {
                         <StepTile
                           large={large}
                           title={t("accountActivation.identity.title")}
                           description={t("accountActivation.identity.description")}
                           variant={lastIdentificationStatus}
-                          to={Router.AccountActivationIdentification({ accountMembershipId })}
+                          to={
+                            lastIdentificationStatus === "todo"
+                              ? Router.AccountActivationIdentification({ accountMembershipId })
+                              : Router.AccountActivationRoot({ accountMembershipId })
+                          }
+                          disabled={lastIdentificationStatus === "done"}
                         />
-                      )}
+                      }
 
                       {firstTransferStatus !== "done" && (
                         <StepTile
@@ -1070,15 +1094,16 @@ export const AccountActivationPage = ({
                         />
                       )}
 
-                      {supportingDocumentsStatus !== "done" && (
+                      {
                         <StepTile
                           large={large}
                           title={t("accountActivation.documents.title")}
                           description={t("accountActivation.documents.description")}
                           variant={supportingDocumentsStatus}
                           to={Router.AccountActivationSupportingDocs({ accountMembershipId })}
+                          disabled={supportingDocumentsStatus === "done"}
                         />
-                      )}
+                      }
 
                       {additionalInfoStatus !== "done" && (
                         <StepTile
@@ -1133,7 +1158,9 @@ export const AccountActivationPage = ({
                     <FullViewportLayer
                       visible={
                         (route?.name === "AccountActivationAdditionalInfos" && !large) ||
-                        (route?.name === "AccountActivationFirstTransfer" && !large) ||
+                        (route?.name === "AccountActivationFirstTransfer" &&
+                          lastIdentificationStatus !== "done" &&
+                          !large) ||
                         (route?.name === "AccountActivationIdentification" && !large) ||
                         (route?.name === "AccountActivationSupportingDocs" && !large)
                       }

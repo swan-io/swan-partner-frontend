@@ -34,7 +34,12 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "rea
 import { NativeScrollEvent, NativeSyntheticEvent, Pressable, StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import logoSwan from "../assets/images/logo-swan.svg";
-import { AccountAreaQuery, AccountLanguage, IdentificationFragment } from "../graphql/partner";
+import {
+  AccountAreaQuery,
+  AccountLanguage,
+  IdentificationFragment,
+  VerificationStatus,
+} from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { AccountActivationPage } from "../pages/AccountActivationPage";
 import { AccountNotFoundPage, NotFoundPage } from "../pages/NotFoundPage";
@@ -157,7 +162,7 @@ type Props = {
   projectInfo: NonNullable<AccountAreaQuery["projectInfo"]>;
   lastIdentification: Option<IdentificationFragment>;
   shouldDisplayIdVerification: boolean;
-  requireFirstTransfer: boolean;
+  holderVerificationStatus: Option<VerificationStatus>;
   activationTag: AccountActivationTag;
   reload: () => void;
 };
@@ -171,7 +176,6 @@ export const AccountArea = ({
   activationTag,
   lastIdentification,
   shouldDisplayIdVerification,
-  requireFirstTransfer,
   reload,
 }: Props) => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -468,7 +472,6 @@ export const AccountArea = ({
                         {holder?.verificationStatus === "Refused" ? (
                           <AccountActivationPage
                             largeViewport={largeViewport}
-                            requireFirstTransfer={requireFirstTransfer}
                             hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
                             lastIdentification={lastIdentification}
                             accentColor={accentColor}
@@ -853,7 +856,6 @@ export const AccountArea = ({
                                     largeViewport={largeViewport}
                                     hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
                                     lastIdentification={lastIdentification}
-                                    requireFirstTransfer={requireFirstTransfer}
                                     accentColor={accentColor}
                                     accountMembershipId={accountMembershipId}
                                     additionalInfo={additionalInfo}

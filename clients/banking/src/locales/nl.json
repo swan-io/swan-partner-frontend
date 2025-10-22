@@ -27,7 +27,7 @@
   "accountActivation.additionalInformation.description": "Om uw verificatie te voltooien, is de volgende informatie vereist. Zorg ervoor dat deze is verstrekt.",
   "accountActivation.additionalInformation.subtitle": "De volgende informatie is vereist om uw verificatie te voltooien.",
   "accountActivation.additionalInformation.tileInfo": "U zou een verzoek voor deze informatie moeten hebben ontvangen.",
-  "accountActivation.additionalInformation.tileInfoExtraInfo": "<bold>U zou een verzoek voor deze informatie ({email}) moeten hebben ontvangen vanaf {date}.</bold>\nAls dat niet het geval is, betekent dit waarschijnlijk dat we extra tijd nodig hebben om uw accountgegevens te controleren.",
+  "accountActivation.additionalInformation.tileInfoExtraInfo": "<bold>Je zou een verzoek voor deze informatie moeten hebben ontvangen op {email} vanaf {date}.</bold>.",
   "accountActivation.alert.title": "Je rekening is nog niet geactiveerd",
   "accountActivation.description": "Je kunt je rekening niet gebruiken totdat het is geactiveerd. Volg de volgende stappen om je rekening te activeren.",
   "accountActivation.description.pending": "We zijn uw accountgegevens aan het controleren. Wacht alstublieft terwijl we uw account bekijken. Dit kan tot 3 werkdagen duren.",

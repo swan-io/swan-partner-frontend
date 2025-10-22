@@ -27,7 +27,7 @@
   "accountActivation.additionalInformation.description": "Täydentääksesi varmennusta, tarvitaan seuraavat tiedot. Varmista, että ne on toimitettu.",
   "accountActivation.additionalInformation.subtitle": "Seuraavat tiedot vaaditaan varmennuksen loppuun saattamiseksi.",
   "accountActivation.additionalInformation.tileInfo": "Sinun olisi pitänyt saada pyyntö näistä tiedoista.",
-  "accountActivation.additionalInformation.tileInfoExtraInfo": "<bold>Sinun olisi pitänyt saada pyyntö näistä tiedoista ({email}) {date} mennessä.</bold>\nJos et ole saanut, se tarkoittaa todennäköisesti, että tarvitsemme lisäaikaa tilisi tietojen tarkistamiseen.",
+  "accountActivation.additionalInformation.tileInfoExtraInfo": "<bold>Olet saanut pyynnön tästä tiedosta osoitteesta {email} {date}.</bold>.",
   "accountActivation.alert.title": "Tiliäsi ei ole vielä aktivoitu",
   "accountActivation.description": "Et voi käyttää tiliäsi ennen kuin se on aktivoitu. Noudata näitä vaiheita tilisi aktivoinnin viimeistelemiseksi.",
   "accountActivation.description.pending": "Tarkistamme tilisi tietoja. Odota, kunnes olemme käyneet ne läpi. Tämä voi kestää enintään 3 arkipäivää.",

@@ -231,9 +231,6 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
                   projectInfo,
                   lastIdentification,
                   shouldDisplayIdVerification,
-                  holderVerificationStatus: Option.fromNullable(
-                    accountMembership.account?.holder.verificationStatus,
-                  ),
                   activationTag,
                 });
               },

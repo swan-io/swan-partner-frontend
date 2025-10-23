@@ -164,16 +164,19 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
                 const isIndividual =
                   account?.holder?.info.__typename === "AccountHolderIndividualInfo";
                 const hasTransactions = (account?.transactions?.totalCount ?? 0) >= 1;
-
-                const requireFirstTransfer = match(account?.holder.verificationStatusInfo)
+                const requireFirstTransfer = match({ account, user })
                   .with(
-                    { __typename: "AccountHolderWaitingForInformationVerificationStatusInfo" },
-                    ({ verificationRequirements }) =>
-                      verificationRequirements.some(
-                        verificationRequirement =>
-                          verificationRequirement.type === "FirstTransferRequired",
-                      ),
+                    {
+                      account: { country: "FRA" },
+                      user: { identificationLevels: { PVID: false, QES: false } },
+                    },
+                    () => true,
                   )
+                  .with(
+                    { account: { country: "ESP" }, user: { identificationLevels: { QES: false } } },
+                    () => true,
+                  )
+                  .with({ account: { country: "DEU" } }, () => true)
                   .otherwise(() => false);
 
                 const activationTag = match({
@@ -208,57 +211,16 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
                   )
                   // never show to non-legal rep memberships
                   .with({ isLegalRepresentative: false }, () => "none")
+                  .with({ verificationStatus: "Pending" }, () => "pending")
                   .with(
-                    { identificationStatusInfo: Option.P.Some({ status: "Pending" }) },
-                    () => "pending",
-                  )
-                  .with(
-                    { identificationStatusInfo: Option.P.Some({ status: P.not("Valid") }) },
+                    { verificationStatus: P.union("NotStarted", "WaitingForInformation") },
                     () => "actionRequired",
                   )
                   .with(
                     {
-                      documentCollectionStatus: "PendingReview",
-                      accountHolderType: "AccountHolderCompanyInfo",
-                    },
-                    () => "pending",
-                  )
-                  .with(
-                    {
-                      documentCollectionStatus: P.not("Approved"),
-                      accountHolderType: "AccountHolderCompanyInfo",
-                    },
-                    () => "actionRequired",
-                  )
-                  .with(
-                    {
-                      isIndividual: true,
-                      requireFirstTransfer: false,
-                      account: {
-                        holder: { verificationStatus: P.union("NotStarted", "Pending") },
-                      },
-                    },
-                    {
-                      isIndividual: true,
-                      requireFirstTransfer: false,
-                      documentCollectMode: "API",
-                      account: {
-                        holder: { verificationStatus: P.union("Pending", "WaitingForInformation") },
-                      },
-                    },
-                    () => "pending",
-                  )
-                  .with(
-                    {
-                      isIndividual: true,
-                      requireFirstTransfer: false,
-                      account: { holder: { verificationStatus: "Verified" } },
+                      verificationStatus: "Verified",
                     },
                     () => "none",
-                  )
-                  .with(
-                    { isIndividual: true, requireFirstTransfer: true, hasTransactions: false },
-                    () => "actionRequired",
                   )
                   .otherwise(() => "none");
 
@@ -268,8 +230,9 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
                   projectInfo,
                   lastIdentification,
                   shouldDisplayIdVerification,
-                  requireFirstTransfer,
-
+                  holderVerificationStatus: Option.fromNullable(
+                    accountMembership.account?.holder.verificationStatus,
+                  ),
                   activationTag,
                 });
               },
@@ -289,8 +252,8 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
         accountMembership,
         projectInfo,
         shouldDisplayIdVerification,
-        requireFirstTransfer,
         lastIdentification,
+        holderVerificationStatus,
         activationTag,
       }) => (
         <PermissionProvider
@@ -307,7 +270,7 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
             projectInfo={projectInfo}
             shouldDisplayIdVerification={shouldDisplayIdVerification}
             lastIdentification={lastIdentification}
-            requireFirstTransfer={requireFirstTransfer}
+            holderVerificationStatus={holderVerificationStatus}
             activationTag={activationTag}
             reload={reload}
           />

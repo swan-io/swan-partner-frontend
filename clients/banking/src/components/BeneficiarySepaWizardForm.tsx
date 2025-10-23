@@ -122,8 +122,22 @@ export const BeneficiarySepaWizardForm = ({
   });
 
   useEffect(() => {
-    return listenFields(["name", "iban"], () => {
-      resetBeneficiaryVerification();
+    return listenFields(["iban", "name"], ({ iban, name }) => {
+      if (validateIban(electronicFormat(iban.value)) === undefined) {
+        verifyBeneficiary({
+          input: {
+            beneficiary: {
+              sepa: {
+                name: name.value,
+                iban: electronicFormat(iban.value),
+                save: saveBeneficiary,
+              },
+            },
+          },
+        });
+      } else {
+        resetBeneficiaryVerification();
+      }
     });
   }, [listenFields, resetBeneficiaryVerification]);
 

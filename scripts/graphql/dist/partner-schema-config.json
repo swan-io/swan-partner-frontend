@@ -31,6 +31,7 @@
       "BadRequestRejection",
       "BeneficiaryVerificationTokenAlreadyConsumedRejection",
       "BlacklistedPhoneNumberRejection",
+      "BlocklistedPhoneNumberRejection",
       "CalledByABotRejection",
       "CannotActivatePhysicalCardRejection",
       "CapitalDepositCaseCanNotBeCanceledRejection",
@@ -48,6 +49,7 @@
       "CardSensitiveInfoNoLongerAvailableRejection",
       "CardWrongStatusRejection",
       "CheckRejection",
+      "ClosedAccountNotUpgradableRejection",
       "ConsentNotFoundRejection",
       "ConsentsAlreadyLinkedToMultiConsentRejection",
       "ConsentsNotAllInCreatedStatusRejection",
@@ -223,7 +225,6 @@
       "TransactionConnection",
       "TrustedBeneficiaryConnection",
       "UserConnection",
-      "VerificationRenewalsConnection",
       "VirtualIBANEntryConnection",
       "WebhookEventLogsConnection",
       "WebhookSubscriptionsConnection"
@@ -259,7 +260,6 @@
       "TransactionEdge",
       "TrustedBeneficiaryEdge",
       "UserEdge",
-      "VerificationRenewalsEdge",
       "VirtualIBANEntryEdge",
       "WebhookEventLogsEdge",
       "WebhookSubscriptionsEdge"
@@ -336,6 +336,7 @@
     "MerchantPaymentMethod": [
       "CardMerchantPaymentMethod",
       "CheckMerchantPaymentMethod",
+      "InPersonCardMerchantPaymentMethod",
       "InternalDirectDebitB2BMerchantPaymentMethod",
       "InternalDirectDebitStandardMerchantPaymentMethod",
       "SepaDirectDebitB2BMerchantPaymentMethod",
@@ -363,12 +364,6 @@
     "DigitalCard": [
       "CompleteDigitalCard",
       "PendingDigitalCard"
-    ],
-    "VerificationRenewal": [
-      "CompletedVerificationRenewal",
-      "PendingVerificationRenewal",
-      "RefusedVerificationRenewal",
-      "WaitingForInformationVerificationRenewal"
     ],
     "CreditLimitSettingsRequestStatusInfo": [
       "CreditLimitSettingsRequestApprovedStatusInfo",
@@ -454,6 +449,12 @@
       "ExportExpiredStatusInfo",
       "ExportFailedStatusInfo",
       "ExportRunningStatusInfo"
+    ],
+    "AccountStatementStatusInfo": [
+      "FailedStatusInfo",
+      "GeneratedStatusInfo",
+      "PendingStatusInfo",
+      "VoidedStatusInfo"
     ],
     "FeeCreditor": [
       "FeeInCreditor",
@@ -628,12 +629,6 @@
     "InternationalBeneficiary": [
       "TrustedInternationalBeneficiary",
       "UnsavedInternationalBeneficiary"
-    ],
-    "UltimateBeneficialOwnerInfo": [
-      "UltimateBeneficialDirectOwnerCompanyInfo",
-      "UltimateBeneficialDirectOwnerIndividualInfo",
-      "UltimateBeneficialIndirectOwnerCompanyInfo",
-      "UltimateBeneficialIndirectOwnerIndividualInfo"
     ],
     "VerifyBeneficiaryResult": [
       "VerifyBeneficiaryCloseMatch",

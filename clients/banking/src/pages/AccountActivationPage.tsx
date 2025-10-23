@@ -399,21 +399,22 @@ const FirstTransferIbanMissingRightPanel = ({
       <Space height={8} />
       <LakeText>{t("accountActivation.addMoney.subtitle")}</LakeText>
       <Space height={32} />
+      <Tile style={styles.rightPanelTiles}>
+        <Box alignItems="center" justifyContent="center" style={styles.illustrationPanel}>
+          <BorderedIcon name="lake-email" />
+          <Space height={32} />
 
-      <Box alignItems="center" justifyContent="center" style={styles.illustrationPanel}>
-        <BorderedIcon name="lake-email" />
-        <Space height={32} />
+          <LakeHeading align="center" level={5} variant="h5">
+            {t("accountActivation.addMoney.illustration.title")}
+          </LakeHeading>
 
-        <LakeHeading align="center" level={5} variant="h5">
-          {t("accountActivation.addMoney.illustration.title")}
-        </LakeHeading>
+          <Space height={12} />
 
-        <Space height={12} />
-
-        <LakeText align="center">
-          {t("accountActivation.addMoney.illustration.text", { projectName })}
-        </LakeText>
-      </Box>
+          <LakeText align="center">
+            {t("accountActivation.addMoney.illustration.text", { projectName })}
+          </LakeText>
+        </Box>
+      </Tile>
     </StepScrollView>
   );
 };
@@ -443,7 +444,7 @@ const FirstTransferViaIbanRightPanel = ({
       </LakeHeading>
 
       <Space height={8} />
-      <LakeText>{t("accountActivation.addMoney.subtitle")}</LakeText>
+      <LakeText>{t("accountActivation.addMoney.description")}</LakeText>
       <Space height={40} />
 
       <ReadOnlyFieldList>

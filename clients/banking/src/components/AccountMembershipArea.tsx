@@ -254,7 +254,6 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
         projectInfo,
         shouldDisplayIdVerification,
         lastIdentification,
-        holderVerificationStatus,
         activationTag,
       }) => (
         <PermissionProvider
@@ -271,7 +270,6 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
             projectInfo={projectInfo}
             shouldDisplayIdVerification={shouldDisplayIdVerification}
             lastIdentification={lastIdentification}
-            holderVerificationStatus={holderVerificationStatus}
             activationTag={activationTag}
             reload={reload}
           />

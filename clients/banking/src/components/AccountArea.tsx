@@ -157,7 +157,6 @@ type Props = {
   projectInfo: NonNullable<AccountAreaQuery["projectInfo"]>;
   lastIdentification: Option<IdentificationFragment>;
   shouldDisplayIdVerification: boolean;
-  requireFirstTransfer: boolean;
   activationTag: AccountActivationTag;
   reload: () => void;
 };
@@ -171,7 +170,6 @@ export const AccountArea = ({
   activationTag,
   lastIdentification,
   shouldDisplayIdVerification,
-  requireFirstTransfer,
   reload,
 }: Props) => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -468,7 +466,6 @@ export const AccountArea = ({
                         {holder?.verificationStatus === "Refused" ? (
                           <AccountActivationPage
                             largeViewport={largeViewport}
-                            requireFirstTransfer={requireFirstTransfer}
                             hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
                             lastIdentification={lastIdentification}
                             accentColor={accentColor}
@@ -853,7 +850,6 @@ export const AccountArea = ({
                                     largeViewport={largeViewport}
                                     hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
                                     lastIdentification={lastIdentification}
-                                    requireFirstTransfer={requireFirstTransfer}
                                     accentColor={accentColor}
                                     accountMembershipId={accountMembershipId}
                                     additionalInfo={additionalInfo}

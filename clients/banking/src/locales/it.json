@@ -27,7 +27,7 @@
   "accountActivation.additionalInformation.description": "Per completare la verifica, sono necessarie le seguenti informazioni. Si prega di assicurarsi che siano state fornite.",
   "accountActivation.additionalInformation.subtitle": "Le seguenti informazioni sono necessarie per completare la verifica.",
   "accountActivation.additionalInformation.tileInfo": "Dovrebbe aver ricevuto una richiesta per queste informazioni.",
-  "accountActivation.additionalInformation.tileInfoExtraInfo": "<bold>Dovrebbe aver ricevuto una richiesta per queste informazioni ({email}) dal {date}.</bold>\nSe non l'ha ricevuta, probabilmente significa che abbiamo bisogno di più tempo per verificare le informazioni del suo conto.",
+  "accountActivation.additionalInformation.tileInfoExtraInfo": "<bold>Dovresti aver ricevuto una richiesta per queste informazioni all'indirizzo {email} in data {date}.</bold>.",
   "accountActivation.alert.title": "Il suo conto non è ancora stato attivato",
   "accountActivation.description": "Per utilizzare il conto, è prima necessario attivarlo. Seguite questi passaggi per completare l'attivazione del conto.",
   "accountActivation.description.pending": "Stiamo verificando le informazioni del suo conto. La preghiamo di pazientare mentre controlliamo il suo conto. Questo processo potrebbe richiedere fino a 3 giorni lavorativi.",

@@ -27,7 +27,7 @@
   "accountActivation.additionalInformation.description": "Pour compléter votre vérification, les informations suivantes sont requises. Assurez-vous qu'elles ont été fournies.",
   "accountActivation.additionalInformation.subtitle": "Les informations suivantes sont requises pour compléter votre vérification.",
   "accountActivation.additionalInformation.tileInfo": "Vous auriez dû recevoir une demande pour ces informations.",
-  "accountActivation.additionalInformation.tileInfoExtraInfo": "<bold>Vous auriez dû recevoir une demande pour ces informations ({email}) à partir du {date}.</bold>\nSi ce n'est pas le cas, cela signifie probablement que nous avons besoin de plus de temps pour vérifier vos informations de compte.",
+  "accountActivation.additionalInformation.tileInfoExtraInfo": "<bold>Vous devriez recevoir une demande d'informations à {email} à partir du {date}.</bold>.",
   "accountActivation.alert.title": "Votre compte n'est pas encore activé",
   "accountActivation.description": "Vous ne pouvez pas utiliser votre compte tant qu'il n'est pas activé. Suivez ces étapes pour finaliser l'activation de votre compte.",
   "accountActivation.description.pending": "Nous examinons vos informations de compte. Veuillez patienter pendant que nous vérifions votre compte. Cela peut prendre jusqu'à 3 jours ouvrés.",

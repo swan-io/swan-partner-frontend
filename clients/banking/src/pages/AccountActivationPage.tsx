@@ -110,20 +110,22 @@ const SupportingDocTodoRightPanel = ({
       <LakeText>{t("accountActivation.documents.subtitle")}</LakeText>
       <Space height={32} />
 
-      <Box alignItems="center" justifyContent="center" style={styles.illustrationPanel}>
-        <BorderedIcon name="lake-email" />
-        <Space height={32} />
+      <Tile style={styles.rightPanelTiles}>
+        <Box alignItems="center" justifyContent="center" style={styles.illustrationPanel}>
+          <BorderedIcon name="lake-email" />
+          <Space height={32} />
 
-        <LakeHeading align="center" level={5} variant="h5">
-          {isNotNullish(emailAddress)
-            ? t("accountActivation.documents.email.title", { emailAddress })
-            : t("accountActivation.documents.email.titleNoMail")}
-        </LakeHeading>
+          <LakeHeading align="center" level={5} variant="h5">
+            {isNotNullish(emailAddress)
+              ? t("accountActivation.documents.email.title", { emailAddress })
+              : t("accountActivation.documents.email.titleNoMail")}
+          </LakeHeading>
 
-        <Space height={12} />
+          <Space height={12} />
 
-        <LakeText align="center">{t("accountActivation.documents.email.text")}</LakeText>
-      </Box>
+          <LakeText align="center">{t("accountActivation.documents.email.text")}</LakeText>
+        </Box>
+      </Tile>
     </StepScrollView>
   );
 };

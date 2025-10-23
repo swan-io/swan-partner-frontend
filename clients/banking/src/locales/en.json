@@ -24,7 +24,7 @@
   "accountActivation.documents.confirmModal.message": "If you choose not to provide them now, Swan will contact you for this information shortly. Your account won't be activated until all the supporting documents are received and verified.",
   "accountActivation.documents.confirmModal.title": "Some supporting documents are required",
   "accountActivation.documents.description": "Sometimes we collect supporting documents to better verify your identity, secure your account, and reduce fraud.",
-  "accountActivation.documents.email.text": "If you need help, please send us a message from your profile page.",
+  "accountActivation.documents.email.text": "If not, please send the required details by email.",
   "accountActivation.documents.email.title": "We sent the list of requested documents to this address: {emailAddress}",
   "accountActivation.documents.email.titleNoMail": "We emailed you the list of requested documents",
   "accountActivation.documents.subtitle": "Please upload all the documents requested below.",

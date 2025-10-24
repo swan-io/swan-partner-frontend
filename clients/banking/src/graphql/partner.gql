@@ -1888,6 +1888,7 @@ query GetCardProducts(
   }
   accountMembership(id: $accountMembershipId) {
     id
+    accountHolderType
     account {
       id
       holder {

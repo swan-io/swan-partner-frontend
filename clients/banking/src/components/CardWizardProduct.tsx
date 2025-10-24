@@ -115,7 +115,7 @@ export type CardWizardProductRef = {
 
 type Props = {
   ref?: Ref<CardWizardProductRef>;
-  accountHolderType: AccountHolderType;
+  accountHolderType: AccountHolderType | undefined;
   cardProducts: NonNullable<GetCardProductsQuery["projectInfo"]["cardProducts"]>;
   initialCardProduct?: CardProduct;
   onSubmit: (cardProduct: CardProduct) => void;
@@ -408,7 +408,7 @@ export const CardWizardProduct = ({
                       ),
                     }),
                   )
-                  .exhaustive()}
+                  .otherwise(() => null)}
               </LakeText>
 
               <Space height={8} />

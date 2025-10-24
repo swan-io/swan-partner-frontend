@@ -557,12 +557,7 @@ export const CardWizard = ({
                     {match(step)
                       .with({ name: "CardProductType" }, ({ cardProduct }) => (
                         <CardWizardProduct
-                          accountHolderType={
-                            data?.accountMembership?.account?.holder.info.__typename ===
-                            "AccountHolderCompanyInfo"
-                              ? "Company"
-                              : "Individual"
-                          }
+                          accountHolderType={data?.accountMembership?.accountHolderType}
                           ref={cardWizardProductRef}
                           cardProducts={cardProducts}
                           initialCardProduct={cardProduct}

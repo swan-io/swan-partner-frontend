@@ -120,14 +120,14 @@ test("French company onboarding", async ({ browser, page, request }) => {
 
   await expect(
     page.getByLabel(t("onboarding.company.step.organisation1.addressLabel")),
-  ).toHaveValue("95 AVENUE DU PRESIDENT WILSON");
+  ).toHaveValue("91 RUE DU FAUBOURG SAINT-HONORE");
 
   await expect(page.getByLabel(t("onboarding.company.step.organisation1.cityLabel"))).toHaveValue(
-    "MONTREUIL",
+    "PARIS",
   );
   await expect(
     page.getByLabel(t("onboarding.company.step.organisation1.postCodeLabel")),
-  ).toHaveValue("93100");
+  ).toHaveValue("75008");
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 

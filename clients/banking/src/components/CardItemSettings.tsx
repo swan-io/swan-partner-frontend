@@ -105,7 +105,7 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
 
   return (
     <ResponsiveContainer breakpoint={breakpoints.medium}>
-      {({ small }) => (
+      {({ small, large }) => (
         <>
           {card.accountMembership.canManageCards ? null : (
             <>
@@ -135,7 +135,7 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
 
           <Space height={24} />
 
-          <Box direction={!small && cardHolderType === "Company" ? "row" : "column"}>
+          <Box direction={large && cardHolderType === "Company" ? "row" : "column"}>
             <Box style={small ? undefined : styles.box}>
               {cardInsurance != null &&
                 cardInsurance.package.noticeUrl != null &&

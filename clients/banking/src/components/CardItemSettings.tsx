@@ -46,6 +46,7 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
   const accountHolder = card.accountMembership.account?.holder;
   const settingsRef = useRef<CardWizardSettingsRef>(null);
   const cardInsurance = card.insuranceSubscription;
+  const cardHolderType = card.accountMembership.account?.holder.info.type;
 
   const { canUpdateCard } = usePermissions();
 
@@ -104,7 +105,7 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
 
   return (
     <ResponsiveContainer breakpoint={breakpoints.medium}>
-      {({ small }) => (
+      {({ small, large }) => (
         <>
           {card.accountMembership.canManageCards ? null : (
             <>
@@ -134,68 +135,74 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
 
           <Space height={24} />
 
-          <Box direction={small ? "column" : "row"}>
+          <Box direction={large && cardHolderType === "Company" ? "row" : "column"}>
             <Box style={small ? undefined : styles.box}>
-              {cardInsurance != null && cardInsurance.package.noticeUrl != null && (
-                <>
-                  <Box direction="row" alignItems="center">
-                    <Icon name="shield-checkmark-regular" size={16} color={colors.gray[500]} />
-                    <Space width={8} />
+              {cardInsurance != null &&
+                cardInsurance.package.noticeUrl != null &&
+                cardHolderType === "Company" && (
+                  <>
+                    <Box direction="row" alignItems="center">
+                      <Icon name="shield-checkmark-regular" size={16} color={colors.gray[500]} />
+                      <Space width={8} />
 
-                    <LakeText align="center" variant="smallSemibold">
-                      {match(cardInsurance.package)
-                        .with({ level: "Basic" }, () =>
-                          t("cardDetail.insurance.description.premium"),
-                        )
-                        .with({ level: "Essential" }, () =>
-                          t("cardDetail.insurance.description.essential"),
-                        )
-                        .with({ level: "Premium" }, () =>
-                          t("cardDetail.insurance.description.premium"),
-                        )
-                        .otherwise(() => null)}
-                    </LakeText>
-                  </Box>
-                  <Space height={8} />
+                      <LakeText align="center" variant="smallSemibold">
+                        {match(cardInsurance.package)
+                          .with({ level: "Basic" }, () =>
+                            t("cardDetail.insurance.description.premium"),
+                          )
+                          .with({ level: "Essential" }, () =>
+                            t("cardDetail.insurance.description.essential"),
+                          )
+                          .with({ level: "Premium" }, () =>
+                            t("cardDetail.insurance.description.premium"),
+                          )
+                          .otherwise(() => null)}
+                      </LakeText>
+                    </Box>
+                    <Space height={8} />
 
-                  <LakeText variant="smallRegular">
-                    <Link style={styles.link} to={cardInsurance.package.noticeUrl} target="blank">
-                      <Box direction="row" alignItems="center">
-                        <LakeText color={colors.current.primary} variant="smallRegular">
-                          {t("cardDetail.insurance.link")}
-                        </LakeText>
-
-                        <Space width={4} />
-                        <Icon color={colors.current.primary} name="open-filled" size={16} />
-                      </Box>
-                    </Link>
-                  </LakeText>
-
-                  <Space height={8} />
-                  <Box direction="row" alignItems="center">
                     <LakeText variant="smallRegular">
-                      {formatNestedMessage("cardDetail.insurance.claim", {
-                        link: text => (
-                          <>
-                            <Link style={styles.link} to={cardInsurance.claimsUrl} target="blank">
-                              <Box direction="row" alignItems="center">
-                                <LakeText color={colors.current.primary} variant="smallRegular">
-                                  {text}
-                                </LakeText>
+                      <Link style={styles.link} to={cardInsurance.package.noticeUrl} target="blank">
+                        <Box direction="row" alignItems="center">
+                          <LakeText color={colors.current.primary} variant="smallRegular">
+                            {t("cardDetail.insurance.link")}
+                          </LakeText>
 
-                                <Space width={4} />
-                                <Icon color={colors.current.primary} name="open-filled" size={16} />
-                              </Box>
-                            </Link>
-                          </>
-                        ),
-                      })}
+                          <Space width={4} />
+                          <Icon color={colors.current.primary} name="open-filled" size={16} />
+                        </Box>
+                      </Link>
                     </LakeText>
-                  </Box>
 
-                  <Space height={24} />
-                </>
-              )}
+                    <Space height={8} />
+                    <Box direction="row" alignItems="center">
+                      <LakeText variant="smallRegular">
+                        {formatNestedMessage("cardDetail.insurance.claim", {
+                          link: text => (
+                            <>
+                              <Link style={styles.link} to={cardInsurance.claimsUrl} target="blank">
+                                <Box direction="row" alignItems="center">
+                                  <LakeText color={colors.current.primary} variant="smallRegular">
+                                    {text}
+                                  </LakeText>
+
+                                  <Space width={4} />
+                                  <Icon
+                                    color={colors.current.primary}
+                                    name="open-filled"
+                                    size={16}
+                                  />
+                                </Box>
+                              </Link>
+                            </>
+                          ),
+                        })}
+                      </LakeText>
+                    </Box>
+
+                    <Space height={24} />
+                  </>
+                )}
             </Box>
 
             <Box style={small ? undefined : styles.box}>

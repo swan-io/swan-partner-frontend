@@ -20,7 +20,7 @@ import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useEffect } from "react";
-import { match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
@@ -34,8 +34,8 @@ import { locale, t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 import {
-  ServerInvalidFieldCode,
   getValidationErrorMessage,
+  ServerInvalidFieldCode,
   validateRequired,
 } from "../../utils/validation";
 
@@ -87,10 +87,12 @@ export const OnboardingIndividualDetails = ({
   const [updateOnboarding, updateResult] = useMutation(UpdateIndividualOnboardingDocument);
   const isFirstMount = useFirstMountState();
 
-  const canSetTaxIdentification =
-    (accountCountry === "DEU" && country === "DEU") ||
-    (accountCountry === "ESP" && country === "ESP") ||
-    (accountCountry === "ITA" && country === "ITA");
+  const canSetTaxIdentification = match({ accountCountry, country })
+    .with({ accountCountry: P.not(country) }, () => true)
+    .with({ accountCountry: "DEU", country: "DEU" }, () => true)
+    .with({ accountCountry: "ESP", country: "ESP" }, () => true)
+    .with({ accountCountry: "ITA", country: "ITA" }, () => true)
+    .otherwise(() => false);
 
   const isTaxIdentificationRequired = match({ accountCountry, country })
     .with({ accountCountry: "ITA", country: "ITA" }, () => true)

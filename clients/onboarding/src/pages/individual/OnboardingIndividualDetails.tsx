@@ -95,6 +95,7 @@ export const OnboardingIndividualDetails = ({
     .otherwise(() => false);
 
   const isTaxIdentificationRequired = match({ accountCountry, country })
+    .with({ accountCountry: P.not(country) }, () => true)
     .with({ accountCountry: "ITA", country: "ITA" }, () => true)
     .otherwise(() => false);
 

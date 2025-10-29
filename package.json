@@ -84,7 +84,7 @@
     "@localazy/cli": "1.7.16",
     "@playwright/test": "1.51.1",
     "@posthog/cli": "0.4.6",
-    "@swan-io/boxed": "3.2.0",
+    "@swan-io/boxed": "3.2.1",
     "@types/prompts": "2.4.9",
     "@types/semver": "7.7.0",
     "@types/sodium-native": "2.3.9",

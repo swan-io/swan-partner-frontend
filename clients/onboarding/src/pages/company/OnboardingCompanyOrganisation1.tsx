@@ -26,7 +26,7 @@ import { validateCompanyTaxNumber } from "@swan-io/shared-business/src/utils/val
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { LakeCompanyInput } from "../../components/LakeCompanyInput";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
@@ -45,9 +45,9 @@ import {
   getUpdateOnboardingError,
 } from "../../utils/templateTranslations";
 import {
-  ServerInvalidFieldCode,
   extractServerValidationErrors,
   getValidationErrorMessage,
+  ServerInvalidFieldCode,
   validateRequired,
   validateRequiredBoolean,
   validateVatNumber,
@@ -127,6 +127,7 @@ export const OnboardingCompanyOrganisation1 = ({
   const [autofillInfo, autofillResult] = useMutation(UpdateCompanyOnboardingDocument);
   const isFirstMount = useFirstMountState();
   const canSetTaxIdentification = match({ accountCountry, country })
+    .with({ accountCountry: P.not(country) }, () => true)
     .with({ accountCountry: "DEU", country: "DEU" }, () => true)
     .with({ accountCountry: "ESP", country: "ESP" }, () => true)
     .with({ accountCountry: "ITA", country: "ITA" }, () => true)

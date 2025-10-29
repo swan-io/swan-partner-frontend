@@ -266,7 +266,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = ({
                           error={error}
                           valid={valid}
                           onChange={onChange}
-                          accountCountry={accountCountry}
+                          country={accountCountry}
                           isCompany={false}
                           // is mandatory for German accounts with UBO living in Germany, same for Italy
                           required={

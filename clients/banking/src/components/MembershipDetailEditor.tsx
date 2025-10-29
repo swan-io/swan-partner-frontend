@@ -791,7 +791,7 @@ export const MembershipDetailEditor = ({
                         {({ value, valid, error, onChange, ref }) => (
                           <TaxIdentificationNumberInput
                             ref={ref}
-                            accountCountry={accountCountry}
+                            country={accountCountry}
                             isCompany={false}
                             value={value}
                             valid={valid}

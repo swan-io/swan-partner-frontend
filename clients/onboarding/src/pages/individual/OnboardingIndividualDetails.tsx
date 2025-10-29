@@ -15,7 +15,10 @@ import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { pick } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
-import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import {
+  CountryCCA3,
+  IndividualCountryCCA3,
+} from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
@@ -95,6 +98,7 @@ export const OnboardingIndividualDetails = ({
     .otherwise(() => false);
 
   const isTaxIdentificationRequired = match({ accountCountry, country })
+    .with({ accountCountry: P.not(country) }, () => true)
     .with({ accountCountry: "ITA", country: "ITA" }, () => true)
     .otherwise(() => false);
 
@@ -235,7 +239,7 @@ export const OnboardingIndividualDetails = ({
                           valid={valid}
                           onChange={onChange}
                           onBlur={onBlur}
-                          accountCountry={accountCountry}
+                          country={country as IndividualCountryCCA3}
                           isCompany={false}
                           required={isTaxIdentificationRequired}
                         />

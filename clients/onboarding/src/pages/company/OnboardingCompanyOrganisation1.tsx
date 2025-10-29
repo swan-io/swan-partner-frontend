@@ -20,7 +20,7 @@ import {
   PlacekitAddressSearchInput,
 } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
-import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { CompanyCountryCCA3, CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { validateCompanyTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
@@ -133,6 +133,7 @@ export const OnboardingCompanyOrganisation1 = ({
     .with({ accountCountry: "ITA", country: "ITA" }, () => true)
     .otherwise(() => false);
   const isTaxIdentificationRequired = match({ accountCountry, country })
+    .with({ accountCountry: P.not(country) }, () => true)
     .with({ accountCountry: "ESP", country: "ESP" }, () => true)
     .with({ accountCountry: "ITA", country: "ITA" }, () => true)
     .otherwise(() => false);
@@ -507,7 +508,7 @@ export const OnboardingCompanyOrganisation1 = ({
                           valid={valid}
                           onChange={onChange}
                           onBlur={onBlur}
-                          accountCountry={accountCountry}
+                          country={country as CompanyCountryCCA3}
                           isCompany={true}
                           required={isTaxIdentificationRequired}
                           disabled={autofillResult.isLoading()}

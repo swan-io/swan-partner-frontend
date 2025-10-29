@@ -239,7 +239,7 @@ const UpdateAccountForm = ({
                   disabled={formDisabled}
                   onChange={onChange}
                   onBlur={onBlur}
-                  accountCountry={accountCountry}
+                  country={accountCountry}
                   isCompany={isCompany}
                 />
               )}

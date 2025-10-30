@@ -200,7 +200,7 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
           >
             <>
               {match(supportingDocumentCollection.projectInfo)
-                .with({ name: P.string, logoUri: P.string }, ({ name, logoUri }) => (
+                .with({ name: P.string }, ({ name, logoUri }) => (
                   <OnboardingHeader projectName={name} projectLogo={logoUri} />
                 ))
                 .otherwise(() => null)}

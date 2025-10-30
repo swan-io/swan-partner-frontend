@@ -56,7 +56,7 @@ type Account {
   """
   List of Virtual IBAN
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   virtualIbanEntries(
     """the number of elements to load (maximum: 100)"""
@@ -79,7 +79,7 @@ type Account {
   """
   List of account membership for this account
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   memberships(
     """the number of elements to load (maximum: 100)"""
@@ -143,7 +143,7 @@ type Account {
   """
   Legal Documents linked to the account
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   legalDocuments(
     """the number of elements to load (maximum: 100)"""
@@ -164,7 +164,7 @@ type Account {
   """
   List of statements of an account.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   *For a Project access token, this is all the transactions of the project (only available with project access token)*
   """
   statements(
@@ -178,12 +178,15 @@ type Account {
 
     """a filtering table you can apply to your list of connections"""
     filters: StatementFiltersInput
+
+    """[NEW] the criteria to sort statements"""
+    orderBy: StatementsOrderByInput
   ): StatementConnection
 
   """
   A list of transactions of an account.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   transactions(
     """the number of elements to load (default value 50, maximum: 100)"""
@@ -395,7 +398,7 @@ type AccountClosingStatus implements AccountStatusInfo {
 }
 
 """
-Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
 """
 type AccountConnection implements Connection {
   """Total number of element in the list"""
@@ -527,7 +530,7 @@ type AccountHolder {
   """
   List of accounts owned by the account holder.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   accounts(
     """the number of elements to load (maximum: 100)"""
@@ -550,7 +553,7 @@ type AccountHolder {
   """
   List of supporting document collection for an account holder
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   supportingDocumentCollections(
     """the number of elements to load (maximum: 100)"""
@@ -573,7 +576,7 @@ type AccountHolder {
   """
   List of funding limit settings change request for an account holder
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   fundingLimitSettingsChangeRequests(
     """the number of elements to load (maximum: 100)"""
@@ -599,7 +602,7 @@ type AccountHolder {
   """
   List of external account owned by the account holder
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   externalAccounts(
     """the number of elements to load (maximum: 100)"""
@@ -734,16 +737,16 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
 }
 
 """
-Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination)).
+Implements the Relay Connection interface, used to paginate lists of elements. ([(Learn More)](https://docs.swan.io/developers/using-api/pagination/))
 """
 type AccountHolderConnection implements Connection {
-  """Total number of element in the list"""
+  """Total number of element in the list."""
   totalCount: Int!
 
-  """Information about the current, the previous and the next page"""
+  """Information about the current, the previous and the next page."""
   pageInfo: PageInfo!
 
-  """AccountHolderEdge list"""
+  """AccountHolderEdge list."""
   edges: [AccountHolderEdge!]!
 }
 
@@ -756,10 +759,10 @@ enum AccountHolderDueDiligenceLevel {
 
 """Implements the Relay Edge interface."""
 type AccountHolderEdge implements Edge {
-  """Opaque identifier pointing to this node in the pagination mechanism"""
+  """Opaque identifier pointing to this node in the pagination mechanism."""
   cursor: String!
 
-  """The account holder"""
+  """The account holder."""
   node: AccountHolder!
 }
 
@@ -1172,7 +1175,7 @@ type AccountMembershipCannotBeUpdatedRejection implements Rejection {
 }
 
 """
-Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
 """
 type AccountMembershipConnection implements Connection {
   """Total number of element in the list"""
@@ -1465,6 +1468,29 @@ input AccountStandingOrderOrderByInput {
   direction: OrderByDirection
 }
 
+"""
+[NEW] The different type of statement actually available
+- PDF will be a PDF file with the statement information
+"""
+enum AccountStatementFormat {
+  PDF
+  CSV
+}
+
+"""[NEW] Status information of the account statement"""
+enum AccountStatementStatus {
+  Failed
+  Pending
+  Voided
+  Generated
+}
+
+"""[NEW] Statement Status Information"""
+interface AccountStatementStatusInfo {
+  """status of the Statement"""
+  status: AccountStatementStatus!
+}
+
 enum AccountStatus {
   """When the account is opened"""
   Opened
@@ -1652,7 +1678,7 @@ input AddAccountMembershipInput {
   canManageCards: Boolean
 
   """URL the user is redirected to after consent has been given"""
-  consentRedirectUrl: String!
+  consentRedirectUrl: String
 
   """Residency address of the member to be added"""
   residencyAddress: ResidencyAddressInput
@@ -1675,7 +1701,7 @@ input AddAccountMembershipsInput {
   memberships: [MembershipInfoInput!]!
 
   """URL the user is redirected to after consent has been given"""
-  consentRedirectUrl: String!
+  consentRedirectUrl: String
 }
 
 union AddAccountMembershipsPayload = AddAccountMembershipsSuccessPayload | BadAccountStatusRejection | ForbiddenRejection | InvalidPhoneNumberRejection | MissingPhoneNumberRestrictionRejection | PermissionCannotBeGrantedRejection | TooManyItemsRejection | ValidationRejection
@@ -2677,6 +2703,10 @@ enum BankingFee {
   SddInB2bLevel1
   SddInB2bLevel2
   SddInB2bMerchant
+  SddInCoreDispute
+  SddInCoreFailure
+  SddInB2bDispute
+  SddInB2bFailure
   SddInCoreLevel1
   SddInCoreLevel2
   SddInCoreMerchant
@@ -2823,7 +2853,25 @@ type BindAccountMembershipSuccessPayload {
   accountMembership: AccountMembership!
 }
 
+type BirthInfo {
+  city: String
+  country: CCA3
+  birthDate: Date
+  postalCode: String
+}
+
+input BirthInfoInput {
+  city: String
+  country: CCA3
+  birthDate: Date
+  postalCode: String
+}
+
 type BlacklistedPhoneNumberRejection implements Rejection {
+  message: String! @deprecated(reason: "Use 'BlocklistedPhoneNumberRejection' instead")
+}
+
+type BlocklistedPhoneNumberRejection implements Rejection {
   message: String!
 }
 
@@ -3122,8 +3170,14 @@ type CapitalDepositCase {
   """Unique identifier of the company account."""
   companyAccountId: String
 
-  """Status of the capital deposit case."""
-  status: CapitalDepositCaseStatus!
+  """
+  Status of the capital deposit case.
+  @deprecated(reason: "use `statusInfo` instead")
+  """
+  status: CapitalDepositCaseStatus! @deprecated(reason: "use `statusInfo` instead")
+
+  """Capital deposit case status information."""
+  statusInfo: CapitalDepositCaseStatusInfo!
 
   """Documents to provide to fulfill the capital deposit case."""
   documents: [CapitalDepositDocument!]!
@@ -3133,6 +3187,11 @@ type CapitalDepositCase {
 
   """Updated date"""
   updatedAt: DateTime!
+}
+
+type CapitalDepositCaseCanceledStatusInfo implements CapitalDepositCaseStatusInfo {
+  """Canceled"""
+  status: CapitalDepositStatus!
 }
 
 """
@@ -3147,6 +3206,25 @@ type CapitalDepositCaseCanNotBeCanceledRejection implements Rejection {
 type CapitalDepositCaseCanNotBeFoundRejection implements Rejection {
   id: String!
   message: String!
+}
+
+"""Rejection returned if the capital deposit case cannot be updated"""
+type CapitalDepositCaseCanNotBeUpdatedRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""
+Rejection returned if the capital deposit case's company cannot be updated
+"""
+type CapitalDepositCaseCompanyCannotBeUpdatedRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+type CapitalDepositCaseCompletedStatusInfo implements CapitalDepositCaseStatusInfo {
+  """Completed"""
+  status: CapitalDepositStatus!
 }
 
 """
@@ -3188,8 +3266,8 @@ input CapitalDepositCaseFiltersInput {
   """
   search: String
 
-  """Filter by status"""
-  status: [CapitalDepositCaseStatus!]
+  """Filter by statuses"""
+  statuses: [CapitalDepositStatus!]
 }
 
 """
@@ -3207,7 +3285,15 @@ input CapitalDepositCaseOrderByInput {
   direction: OrderByDirection
 }
 
-"""Status of a capital deposit case."""
+type CapitalDepositCasePendingInternalReviewStatusInfo implements CapitalDepositCaseStatusInfo {
+  """PendingInternalReview"""
+  status: CapitalDepositStatus!
+}
+
+"""
+Status of a capital deposit case.
+@deprecated look for enum `CapitalDepositStatus` instead.
+"""
 enum CapitalDepositCaseStatus {
   """
   Technical state when the mutation to create a new capital deposit case is called.
@@ -3237,6 +3323,36 @@ enum CapitalDepositCaseStatus {
 
   """The capital deposit case is canceled."""
   Canceled
+}
+
+interface CapitalDepositCaseStatusInfo {
+  """Status of the capital deposit case."""
+  status: CapitalDepositStatus!
+}
+
+type CapitalDepositCaseWaitingForAdditionalInformationStatusInfo implements CapitalDepositCaseStatusInfo {
+  """WaitingForAdditionalInformation"""
+  status: CapitalDepositStatus!
+}
+
+type CapitalDepositCaseWaitingForInitialRequirementsStatusInfo implements CapitalDepositCaseStatusInfo {
+  """WaitingForInitialRequirements"""
+  status: CapitalDepositStatus!
+}
+
+type CapitalDepositCaseWaitingForNotaryShareDepositCertificateStatusInfo implements CapitalDepositCaseStatusInfo {
+  """WaitingForNotaryShareDepositCertificate"""
+  status: CapitalDepositStatus!
+}
+
+type CapitalDepositCaseWaitingForNotaryTransferStatusInfo implements CapitalDepositCaseStatusInfo {
+  """WaitingForNotaryTransfer"""
+  status: CapitalDepositStatus!
+}
+
+type CapitalDepositCaseWaitingForRegisterExtractStatusInfo implements CapitalDepositCaseStatusInfo {
+  """WaitingForRegisterExtract"""
+  status: CapitalDepositStatus!
 }
 
 """Document provided for a capital deposit case."""
@@ -3374,6 +3490,59 @@ type CapitalDepositDocumentValidatedStatusInfo implements CapitalDepositDocument
   status: CapitalDepositDocumentStatus!
 }
 
+"""Rejection returned if the shareholder cannot be found"""
+type CapitalDepositShareholderCannotBeFoundRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""
+Rejection returned if the shareholder cannot be updated in its current state
+"""
+type CapitalDepositShareholderCanNotBeUpdatedRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""Status of a capital deposit case."""
+enum CapitalDepositStatus {
+  """
+  The case has been initiated and is waiting for shareholder verification, fund transfers, document uploads, and completion of company onboarding.
+  """
+  WaitingForInitialRequirements
+
+  """Swan is reviewing the information and documents provided."""
+  PendingInternalReview
+
+  """
+  After review, Swan has requested additional details or corrections from the customer and is awaiting their response.
+  """
+  WaitingForAdditionalInformation
+
+  """
+  The notary is reviewing the deposited funds and documents, then preparing and uploading the share deposit certificate to Swan.
+  """
+  WaitingForNotaryShareDepositCertificate
+
+  """The company must upload its register extract for review by the notary."""
+  WaitingForRegisterExtract
+
+  """
+  The notary is reviewing the register extract. If the document is rejected by either Swan or the notary, the case will return to WaitingForRegisterExtract.
+  """
+  WaitingForNotaryTransfer
+
+  """
+  The notary has approved all documents and transferred the funds to the newly created company. The capital deposit process is complete.
+  """
+  Completed
+
+  """
+  The case has been canceled upon request. A capital deposit can be canceled at any time before completion by contacting Swan Support. When canceled, the associated shareholder is also canceled.
+  """
+  Canceled
+}
+
 """Card"""
 type Card {
   """Unique identifier of a card"""
@@ -3382,7 +3551,7 @@ type Card {
   """
   List of transactions of a card.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   transactions(
     """the number of elements to load (default value 50, maximum: 100)"""
@@ -3485,9 +3654,6 @@ type Card {
 
   """Periodic Spending"""
   spending: Spending
-
-  """Experimental field, do not use as it will be removed in the future"""
-  deferredDebitSpending: Spending! @deprecated(reason: "Use spending instead")
 }
 
 enum CardAuthorizationType {
@@ -3597,7 +3763,7 @@ input CardConfigWithGroupDeliveryInput {
 }
 
 """
-Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
 """
 type CardConnection implements Connection {
   """Total number of element in the list"""
@@ -3817,7 +3983,7 @@ type CardMerchantPayment implements MerchantPayment {
   """
   List of transactions associated with the Merchant Payment.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   transactions(
     """the number of elements to load (default value 50, maximum: 100)"""
@@ -4005,7 +4171,7 @@ type CardPaymentMandate implements PaymentMandate {
   """
   List of transactions associated with the Card Mandate.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   transactions(
     """the number of elements to load (default value 50, maximum: 100)"""
@@ -4061,6 +4227,8 @@ enum CardPaymentMandateScheme {
   Visa
   Mastercard
   CartesBancaires
+  AmericanExpress
+  Other
 }
 
 enum CardPaymentMandateType {
@@ -4554,7 +4722,7 @@ type CheckMerchantPayment implements MerchantPayment {
   """
   List of transactions associated with the Merchant Payment.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   transactions(
     """the number of elements to load (default value 50, maximum: 100)"""
@@ -4850,17 +5018,88 @@ type CloseAccountSuccessPayload {
   consent: Consent!
 }
 
-"""
-Data provided following the search for company information by siren number
-"""
+type ClosedAccountNotUpgradableRejection implements Rejection {
+  message: String!
+}
+
+enum CompanyHeadcount {
+  Between1And10
+  Between11And50
+  Between51And250
+  MoreThan250
+}
+
+"""Company registry information"""
 type CompanyInfo {
-  siren: String!
-  companyName: String!
+  """Registration number (e.g., SIREN for France)"""
+  registrationNumber: String!
+
+  """Company legal name"""
+  name: String
+
+  """Trade name (if different from legal name)"""
   tradeName: String
-  headquarters: Headquarters!
+
+  """Company registration date"""
+  registrationDate: Date
+
+  """Legal form of the company"""
+  legalForm: String
+
+  """VAT identification number"""
   vatNumber: String
+
+  """Tax identification number"""
   taxIdentificationNumber: String
-  legalRepresentativePersonalAddress: AddressInformation
+
+  """Business activity description"""
+  businessActivityDescription: String
+
+  """Business classification code (NAF code for France)"""
+  businessClassificationCode: String
+
+  """Company headquarters address"""
+  address: AddressInfo
+
+  """The current company headcount"""
+  headcount: CompanyHeadcount
+
+  """Ultimate beneficial owners"""
+  ultimateBeneficialOwners: [UltimateBeneficialOwner]
+
+  """The list of representatives of the company"""
+  representatives: [OnboardingRepresentative]
+}
+
+"""Input for fetching company registry data"""
+input CompanyInfoRegistryDataInput {
+  """Registration number of the company (e.g., SIREN for France)"""
+  registrationNumber: String!
+
+  """Residency address country code (ISO 3166-1 alpha-3)"""
+  residencyAddressCountry: RegistryCountry!
+}
+
+"""Result payload for company info registry data query"""
+union CompanyInfoRegistryDataPayload = CompanyInfoRegistryDataSuccessPayload | ValidationRejection | CompanyRegistryNotFoundRejection | CompanyRegistryUnavailableRejection | InternalErrorRejection | ForbiddenRejection
+
+"""Success response with comprehensive company information"""
+type CompanyInfoRegistryDataSuccessPayload {
+  companyInfo: CompanyInfo!
+}
+
+"""Rejection returned if registration number is not correct"""
+type CompanyRegistryNotFoundRejection implements Rejection {
+  message: String!
+  registrationNumber: String!
+  country: String!
+}
+
+"""
+Rejection returned when the company registry service is temporarily unavailable
+"""
+type CompanyRegistryUnavailableRejection implements Rejection {
+  message: String!
 }
 
 type CompanyRepresentative {
@@ -4896,6 +5135,28 @@ enum CompanyType {
   HomeOwnerAssociation
   Other
   SelfEmployed
+}
+
+type CompanyVerificationRenewalAccountAdmin {
+  firstName: String!
+  lastName: String!
+  birthInfo: BirthInfo!
+  email: String!
+}
+
+type CompanyVerificationRenewalCompanyInfo {
+  name: String!
+  businessActivityDescription: String!
+  monthlyPaymentVolume: MonthlyPaymentVolume!
+  residencyAddress: Address!
+  ultimateBeneficialOwners: [IndividualUltimateBeneficialOwner!]!
+}
+
+type CompanyVerificationRenewalInfo implements VerificationRenewalInfoBase {
+  type: AccountHolderType!
+  accountAdmin: CompanyVerificationRenewalAccountAdmin!
+  company: CompanyVerificationRenewalCompanyInfo!
+  additionalDetails: String
 }
 
 """Complete Address Information"""
@@ -5050,6 +5311,9 @@ type CompletedVerificationRenewal implements VerificationRenewal {
 
   """Completed date"""
   completedAt: DateTime
+
+  """Verification renewal information"""
+  info: VerificationRenewalInfo!
 }
 
 enum CompletedVerificationRenewalSubStatus {
@@ -5291,7 +5555,10 @@ enum ConsentPurpose {
   ThreeDsPayment
 
   """when updating an account settings"""
-  UpdateAccountSettings
+  UpdateAccountSettings @deprecated(reason: "use OptOutBulkVerificationOfPayee")
+
+  """when opting-out from Verification of Payee for Bulk Payments"""
+  OptOutBulkVerificationOfPayee
 }
 
 """
@@ -5370,9 +5637,6 @@ input CreateCapitalDepositCaseInput {
 
   """Array of shareholders of type individual ("personne physique")."""
   individualShareholders: [OnboardIndividualShareholderInput]!
-
-  """Amount of the capital deposit."""
-  totalCapitalDepositAmount: AmountInput!
 
   """Information required for the onboarding of a company."""
   onboardingCapitalDepositCompany: OnboardCompanyAccountHolderInput!
@@ -5702,7 +5966,7 @@ type CreditStatement {
   updatedAt: DateTime!
 }
 
-union CreditStatementPayload = AccountNotFoundRejection | CreditStatement | CreditStatementSuccessPayload | ForbiddenRejection | RepaymentCycleNotFoundRejection
+union CreditStatementPayload = CreditStatement | CreditStatementSuccessPayload | ForbiddenRejection | AccountNotFoundRejection
 
 type CreditStatementSuccessPayload {
   creditStatement: CreditStatement
@@ -5765,7 +6029,7 @@ enum CreditTransferMode {
   Regular
 }
 
-"""Custom information for a CSV statement"""
+"""[DEPRECATED] Custom information for a CSV statement"""
 type CsvStatement implements StatementInfo {
   """statement type"""
   type: StatementType
@@ -5985,7 +6249,7 @@ type DigitalCardCanceledStatusInfo implements CompleteDigitalCardStatusInfo {
 }
 
 """
-Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
 """
 type DigitalCardConnection implements Connection {
   """Total number of element in the list"""
@@ -6608,9 +6872,9 @@ input ExportAccountDataFilters {
 """Input for the `exportAccountData` mutation."""
 input ExportAccountDataInput {
   """
-  The email address that will receive a notification when the export is completed.
+  If provided, the email address that will receive a notification when the export is completed.
   """
-  email: String!
+  email: String
 
   """Account filters."""
   filters: ExportAccountDataFilters
@@ -6640,9 +6904,9 @@ input ExportAccountHolderDataFilters {
 """Input for the `exportAccountHolderData` mutation."""
 input ExportAccountHolderDataInput {
   """
-  The email address that will receive a notification when the export is completed.
+  If provided, the email address that will receive a notification when the export is completed.
   """
-  email: String!
+  email: String
 
   """Account holder filters."""
   filters: ExportAccountHolderDataFilters
@@ -6681,9 +6945,9 @@ input ExportAccountMembershipDataFilters {
 """Input for the `exportAccountMembershipData` mutation."""
 input ExportAccountMembershipDataInput {
   """
-  The email address that will receive a notification when the export is completed.
+  If provided, the email address that will receive a notification when the export is completed.
   """
-  email: String!
+  email: String
 
   """Account membership filters."""
   filters: ExportAccountMembershipDataFilters
@@ -6710,9 +6974,9 @@ input ExportCardDataFilters {
 """Input for the `exportCardData` mutation."""
 input ExportCardDataInput {
   """
-  The email address that will receive a notification when the export is completed.
+  If provided, the email address that will receive a notification when the export is completed.
   """
-  email: String!
+  email: String
 
   """Card filters."""
   filters: ExportCardDataFilters
@@ -6818,9 +7082,9 @@ input ExportOnboardingDataFilters {
 """Input for the `exportOnboardingData` mutation."""
 input ExportOnboardingDataInput {
   """
-  The email address that will receive a notification when the export is completed.
+  If provided, the email address that will receive a notification when the export is completed.
   """
-  email: String!
+  email: String
 
   """Onboarding filters."""
   filters: ExportOnboardingDataFilters
@@ -6888,9 +7152,9 @@ input ExportTransactionDataFilters {
 """Input for the `exportTransactionData` mutation."""
 input ExportTransactionDataInput {
   """
-  The email address that will receive a notification when the export is completed.
+  If provided, the email address that will receive a notification when the export is completed.
   """
-  email: String!
+  email: String
 
   """Transaction filters."""
   filters: ExportTransactionDataFilters
@@ -6934,9 +7198,9 @@ input ExportUserDataFilters {
 """Input for the `exportUserData` mutation."""
 input ExportUserDataInput {
   """
-  The email address that will receive a notification when the export is completed.
+  If provided, the email address that will receive a notification when the export is completed.
   """
-  email: String!
+  email: String
 
   """User filters."""
   filters: ExportUserDataFilters
@@ -6982,7 +7246,7 @@ type ExternalAccount {
   """
   A list of balances regarding an external account.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   balances(
     """the number of elements to load (maximum: 100)"""
@@ -7078,7 +7342,7 @@ enum ExternalAccountBalanceType {
 }
 
 """
-Implements the Relay Connection interface, used to paginate the list of element ([Learn More](https://docs.swan.io/api/pagination))
+Implements the Relay Connection interface, used to paginate the lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
 """
 type ExternalAccountConnection implements Connection {
   """Total number of elements in the list"""
@@ -7118,7 +7382,7 @@ enum ExternalAccountUsage {
 }
 
 """
-Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
 """
 type ExternalBalanceConnection implements Connection {
   """Total number of elements in the list"""
@@ -7178,6 +7442,11 @@ type FacePhotoDocument {
 
   """The type of the document"""
   type: DocumentType!
+}
+
+type FailedStatusInfo implements AccountStatementStatusInfo {
+  """status of the statement"""
+  status: AccountStatementStatus!
 }
 
 enum FailedThreeDsReason {
@@ -7658,6 +7927,13 @@ type ForbiddenRejection implements Rejection {
   message: String!
 }
 
+enum ForecastYearlyIncome {
+  From0To500000
+  From500001To1000000
+  From1000001To5000000
+  MoreThan5000000
+}
+
 type FundingLimit {
   """Maximum Funding Amount authorized"""
   amount: Amount!
@@ -7740,7 +8016,7 @@ type FundingLimitSettingsChangeRequestBadAmountRejection implements Rejection {
 }
 
 """
-Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
 """
 type FundingLimitSettingsChangeRequestConnection implements Connection {
   """Total number of element in the list"""
@@ -7952,8 +8228,11 @@ input GenerateAccountStatementInput {
   """language to generate the statement in (default to account's language)"""
   language: AccountLanguage
 
-  """Type of statement to generate"""
+  """[DEPRECATED] Type of statement to generate"""
   statementType: StatementType = PDF
+
+  """[NEW] Format of statement to generate"""
+  format: AccountStatementFormat = PDF
 }
 
 input GenerateCapitalDepositDocumentUploadUrlInput {
@@ -7992,12 +8271,17 @@ input GenerateCreditStatementInput {
 
   """language to generate the statement in (default to account's language)"""
   language: AccountLanguage
-
-  """Type of statement to generate"""
-  statementType: StatementType = PDF
 }
 
 union GenerateCreditStatementPayload = BadRequestRejection | ForbiddenRejection | CreditStatement | AccountHolderNotFoundRejection | AccountNotFoundRejection | RepaymentCycleNotFoundRejection | CreditLimitSettingsNotFoundRejection
+
+type GeneratedStatusInfo implements AccountStatementStatusInfo {
+  """status of the statement"""
+  status: AccountStatementStatus!
+
+  """Public url on which the file can be accessed"""
+  url: URL!
+}
 
 type GeneratedTransactionStatementStatusInfo implements TransactionStatementStatusInfo {
   """status of the transaction statement"""
@@ -8128,6 +8412,11 @@ type GenerationNotAllowedRejection implements Rejection {
   message: String!
 }
 
+input GeolocInput {
+  lat: String!
+  lng: String!
+}
+
 """Rejection returned when the Global Funding has been exceeded"""
 type GlobalFundingLimitExceededRejection implements Rejection {
   message: String!
@@ -8155,12 +8444,6 @@ union GrantConsentWithServerSignaturePayload = GrantConsentWithServerSignatureSu
 """Success payload of the `grantConsentWithServerSignature` mutation"""
 type GrantConsentWithServerSignatureSuccessPayload {
   consent: Consent!
-}
-
-type Headquarters {
-  town: String!
-  zipCode: String!
-  address: String!
 }
 
 scalar HexColorCode
@@ -8678,8 +8961,11 @@ type IndividualUltimateBeneficialOwner {
   """Individual beneficial owner residency Address"""
   residencyAddress: AddressInformation
 
-  """Individual beneficial owner title (Mr/Ms)"""
-  title: TitleEnum
+  """
+  Individual beneficial owner title (Mr/Ms)
+  @deprecated(reason: "Use `gender` instead")
+  """
+  title: TitleEnum @deprecated(reason: "Use `gender` instead")
 
   """Ultimate beneficial owner's identity document details"""
   identityDocumentDetails: UBOIdentityDocumentDetails
@@ -8782,6 +9068,20 @@ type IndividualUltimateBeneficialOwnerTypeOther implements IndividualUltimateBen
   type: IndividualUltimateBeneficialOwnerTypeEnum!
 }
 
+type IndividualVerificationRenewalAccountAdmin {
+  firstName: String!
+  lastName: String!
+  residencyAddress: Address!
+  employmentStatus: EmploymentStatus!
+  monthlyIncome: MonthlyIncome!
+}
+
+type IndividualVerificationRenewalInfo implements VerificationRenewalInfoBase {
+  type: AccountHolderType!
+  accountAdmin: IndividualVerificationRenewalAccountAdmin!
+  additionalDetails: String
+}
+
 input InitiateCheckMerchantPaymentInput {
   """
   Amount of the concerned payment collection. For check deposit, the amount should not exceed 10 000€.
@@ -8858,7 +9158,6 @@ type InitiateCreditTransfersSuccessPayload {
   payment: Payment!
 
   """
-  * COMING SOON *
   Results of the beneficiary verifications in the same order as the beneficiary inputs
   """
   beneficiaryVerificationResults: [VerifyBeneficiaryResult]
@@ -9019,6 +9318,47 @@ union InitiateSepaDirectDebitMerchantPaymentPayload = InitiateSepaDirectDebitMer
 type InitiateSepaDirectDebitMerchantPaymentSuccessPayload {
   paymentId: ID! @deprecated(reason: "use merchantPayment instead")
   merchantPayment: MerchantPayment!
+}
+
+type InPersonCardMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+
+  """The Merchant Payment Method payment amount limit"""
+  paymentAmountLimit: Amount
+}
+
+input InPersonCardPaymentMethodInput {
+  """If `true`, the Payment Method will be Pending Review"""
+  activate: Boolean = false
 }
 
 type InstantFundingLimit {
@@ -9485,7 +9825,7 @@ type InternalPaymentDirectDebitMandate implements InternalDirectDebitMandate & P
   """
   List of transactions associated with the Internal Payment Direct Debit Mandate.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   transactions(
     """the number of elements to load (default value 50, maximum: 100)"""
@@ -9609,7 +9949,7 @@ type InternalReceivedDirectDebitMandate implements InternalDirectDebitMandate & 
   """
   List of transactions associated with the Internal Receive Direct Debit Mandate.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   transactions(
     """the number of elements to load (default value 50, maximum: 100)"""
@@ -10432,6 +10772,11 @@ type InvalidPhoneNumberRejection implements Rejection {
   message: String!
 }
 
+"""Rejection returned if registration number is not correct"""
+type InvalidRegistrationNumberRejection implements Rejection {
+  message: String!
+}
+
 """
 Rejection returned when the provided shipping provider is not compatible with the card printing hub and shipping country
 """
@@ -10581,7 +10926,7 @@ type LegalDocumentActiveStatusInfo implements LegalDocumentStatusInfo {
 }
 
 """
-Implements the Relay Connection interface, used to paginate the list of element ([Learn More](https://docs.swan.io/api/pagination))
+Implements the Relay Connection interface, used to paginate the lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
 """
 type LegalDocumentConnection implements Connection {
   """Total number of element in the list"""
@@ -11159,7 +11504,7 @@ interface MerchantPayment {
   """
   List of transactions associated with the Merchant Payment.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   transactions(
     """the number of elements to load (default value 50, maximum: 100)"""
@@ -11630,6 +11975,7 @@ enum MerchantPaymentMethodType {
   SepaDirectDebitB2b
   Check
   Card
+  InPersonCard
 }
 
 interface MerchantPaymentMethodUpdateRequest {
@@ -11727,6 +12073,11 @@ enum MerchantPaymentRejectedReason {
   SoftDeclineRejectedByCardIssuer
   SoftDeclineSwanTechnicalErrorOccurred
   SoftDeclineTransactionAmountIncorrect
+  SoftDeclinePinInvalid
+  SoftDeclineInvalidPinAttemptsExceeded
+  SoftDeclinePinRequired
+  CardNotSupported
+  RejectedByCardAcquirer
   SwanRefused
   SwanTechnicalErrorOccurred
   TransactionDuplicated
@@ -12117,6 +12468,13 @@ enum MerchantSubCategory {
 
 union MerchantVerificationRequirements = MerchantRequirements | AdditionalInformationRequirements | OtherAdditionalInformationRequirements | SupportingDocumentRequirements
 
+type MissingAddressItemRejection implements Rejection {
+  addressLine1: String
+  postalCode: String
+  city: String
+  message: String!
+}
+
 type MissingBirthDateRejection {
   message: String!
 }
@@ -12172,39 +12530,43 @@ type Mutation {
   """
   Add a new account membership to an account.
   
-  *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.*
+  *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.*
   
   *The user must have an account membership for this account with the attribute `canManageAccountMembership=true`.*
+  
+  *If any permission is given, a consent will be required.*
   """
   addAccountMembership(input: AddAccountMembershipInput!): AddAccountMembershipPayload!
 
   """
   Add multiple new account memberships to account
   
-  *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.*
+  *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.*
   
   *The user must have an account membership for this account with the attribute `canManageAccountMembership=true`.*
+  
+  *If any permission is given to any membership, a consent will be required.*
   """
   addAccountMemberships(input: AddAccountMembershipsInput!): AddAccountMembershipsPayload!
 
   """
   Add an external balance to an external account.
   
-  This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication)).
+  This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
   """
   addExternalAccountBalance(input: AddExternalAccountBalanceInput!): AddExternalAccountBalancePayload! @deprecated(reason: "use `AddOrUpdateExternalAccountBalance` instead")
 
   """
   Add an external account to an account holder.
   
-  This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication)).
+  This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
   """
   addExternalAccount(input: AddExternalAccountInput!): AddExternalAccountPayload!
 
   """
   Add a new request for funding limit settings change.
   
-  This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication)).
+  This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
   """
   addFundingLimitSettingsChangeRequest(input: AddFundingLimitSettingsChangeRequestInput!): AddFundingLimitSettingsChangeRequestPayload!
 
@@ -12212,7 +12574,7 @@ type Mutation {
   Add an external balance to an external account.
   If a balance already exist for the day, the balance amount will be updated.
   
-  This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication)).
+  This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
   """
   addOrUpdateExternalAccountBalance(input: AddOrUpdateExternalAccountBalanceInput!): AddOrUpdateExternalAccountBalancePayload!
 
@@ -12228,7 +12590,7 @@ type Mutation {
   """
   Bind a user to an account membership
   
-  *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.*
+  *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.*
   """
   bindAccountMembership(input: BindAccountMembershipInput!): BindAccountMembershipPayload!
 
@@ -12238,7 +12600,7 @@ type Mutation {
   """
   Closes an account.
   
-  *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request with the Swan app.*
+  *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request with the Swan app.*
   
   *The user must have a legal representative account membership for this account.*
   """
@@ -12253,7 +12615,7 @@ type Mutation {
   """
   Disable an account membership
   
-  This mutation is callable with a User access token and a Project access token ([Learn More](https://docs.swan.io/api/authentication))
+  This mutation is callable with a User access token and a Project access token ([Learn More](https://docs.swan.io/developers/using-api/authentication))
   
   With a User access token, the user must have the permission to manage account membership of the account
   """
@@ -12262,28 +12624,28 @@ type Mutation {
   """
   Finalize an onboarding led to the opening of a new account for your client, who thus become the account holder.
   
-  *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)).*
+  *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)).*
   """
   finalizeOnboarding(input: FinalizeOnboardingInput!): FinalizeOnboardingPayload!
 
   """
   Generate and return a presigned URL to upload a file to justify a transaction
   
-  *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
+  This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
   """
   generateTransactionSupportingDocumentUploadUrl(input: GenerateTransactionSupportingDocumentUploadUrlInput!): GenerateTransactionSupportingDocumentUploadUrlPayload!
 
   """
   Creates an onboarding for a new company account holder.
   
-  *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
+  This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
   """
   onboardCompanyAccountHolder(input: OnboardCompanyAccountHolderInput): OnboardCompanyAccountHolderPayload!
 
   """
   Creates an onboarding for a new individual account holder.
   
-  *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
+  This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
   """
   onboardIndividualAccountHolder(input: OnboardIndividualAccountHolderInput): OnboardIndividualAccountHolderPayload!
 
@@ -12293,18 +12655,25 @@ type Mutation {
   """
   Resumes an account membership already suspended.
   
-  *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.*
+  *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.*
   
   *The user must have an account membership for this account with the attribute `canManageAccountMembership=true`.*
   """
   resumeAccountMembership(input: ResumeAccountMembershipInput): ResumeAccountMembershipPayload!
 
   """
-  Suspends an account membership.
+  Send an email invitation to an account member that has been added to your account.
   
-  *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)).
+  *This mutation is restricted to a User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)).*
   
   *The user must have an account membership for this account with the attribute `canManageAccountMembership=true`.*
+  """
+  sendAccountMembershipInviteNotification(input: SendAccountMembershipInviteNotificationInput!): SendAccountMembershipInviteNotificationPayload!
+
+  """
+  Suspends an account membership.
+  
+  This mutation requires either a [Project or User access token](https://docs.swan.io/developers/using-api/authentication/) with the `canManageAccountMembership` permission.
   """
   suspendAccountMembership(input: SuspendAccountMembershipInput!): SuspendAccountMembershipPayload!
   updateAccountHolderRiskInfo(input: UpdateAccountHolderRiskInfoInput!): UpdateAccountHolderRiskInfoPayload!
@@ -12313,7 +12682,7 @@ type Mutation {
   """
   Updates an account membership.
   
-  *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.*
+  *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.*
   
   *The user must have an account membership for this account with the attribute `canManageAccountMembership=true`.*
   """
@@ -12330,14 +12699,14 @@ type Mutation {
   
   If you aim to update Ultimate Beneficiary Owners, you need to provide all of them as they are going to be overridden by your update payload.
   
-  *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
+  This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
   """
   updateCompanyOnboarding(input: UpdateCompanyOnboardingInput): UpdateCompanyOnboardingPayload!
 
   """
   Updates an individual onboarding.
   
-  *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
+  This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
   """
   updateIndividualOnboarding(input: UpdateIndividualOnboardingInput!): UpdateIndividualOnboardingPayload!
   updateSupportingDocument(input: UpdateSupportingDocumentInput!): UpdateSupportingDocumentPayload!
@@ -12347,21 +12716,21 @@ type Mutation {
   
   This mutation can only be used on an "Uploaded" supporting document of a "WaitingForDocument" supporting document collection.
   
-  *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
+  This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
   """
   deleteSupportingDocument(input: DeleteSupportingDocumentInput!): DeleteSupportingDocumentPayload!
 
   """
   Generate and return a presigned URL to upload a unique file for the supporting document collection
   
-  *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
+  This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
   """
   generateSupportingDocumentUploadUrl(input: GenerateSupportingDocumentUploadUrlInput!): GenerateSupportingDocumentUploadUrlPayload!
 
   """
   Ask for Swan's compliance team to review given supporting document collection.
   
-  *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
+  This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
   """
   requestSupportingDocumentCollectionReview(input: RequestSupportingDocumentCollectionReviewInput): RequestSupportingDocumentCollectionReviewPayload!
 
@@ -12394,6 +12763,20 @@ type Mutation {
   """
   generateCapitalDepositDocumentUploadUrl(input: GenerateCapitalDepositDocumentUploadUrlInput!): GenerateCapitalDepositDocumentUploadUrlPayload!
 
+  """
+  Update a capital deposit case 
+  
+  This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication)).
+  """
+  updateCapitalDepositCaseCompany(input: UpdateCapitalDepositCaseCompanyInput!): UpdateCapitalDepositCaseCompanyPayload!
+
+  """
+  Update a shareholder's capital deposit amount.
+  
+  This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication)).
+  """
+  updateCapitalDepositShareholderAmount(input: UpdateCapitalDepositShareholderAmountInput!): UpdateCapitalDepositShareholderAmountPayload!
+
   """Cancel a Card"""
   cancelCard(input: CancelCardInput): CancelCardPayload!
 
@@ -12403,7 +12786,7 @@ type Mutation {
   """
   Resume a Physical Card.
   
-  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.
   
   The user must have the account membership for this card
   """
@@ -12415,7 +12798,7 @@ type Mutation {
   """
   Activate a Digital Card to push to ApplePay or GooglePay
   
-  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.
   
   The user must be the cardholder
   
@@ -12426,7 +12809,7 @@ type Mutation {
   """
   Activate a Physical Card.
   
-  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.
   
   The user must have the account membership for this card
   """
@@ -12435,7 +12818,7 @@ type Mutation {
   """
   Add a new card to an account membership.
   
-  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.
   
   The user must have an account membership for this account with the permission `canManageCards=true`.
   """
@@ -12444,7 +12827,7 @@ type Mutation {
   """
   Add several cards with Group Delivery
   
-  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.
   
   The user must have an account membership for this account with the attribute `canManageAccountMembership=true`.
   """
@@ -12453,7 +12836,7 @@ type Mutation {
   """
   Add several cards
   
-  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.
   
   The user must have an account membership for this account with the attribute `canManageAccountMembership=true`.
   """
@@ -12462,7 +12845,7 @@ type Mutation {
   """
   Add a Digital Card to push to ApplePay or GooglePay
   
-  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.
   
   The user must be the cardholder
   
@@ -12476,7 +12859,7 @@ type Mutation {
   """
   Add several single-use virtual cards
   
-  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.
   
   The user must have an account membership for this account with the attribute `canManageAccountMembership=true`.
   """
@@ -12491,7 +12874,7 @@ type Mutation {
   """
   Print Physical Card.
   
-  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.
   """
   printPhysicalCard(input: PrintPhysicalCardInput!): PrintPhysicalCardPayload!
 
@@ -12501,7 +12884,7 @@ type Mutation {
   """
   Reveal the card numbers in the consent page once consent has been given by the cardholder
   
-  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.
   
   The user must have the account membership for this card
   """
@@ -12519,7 +12902,7 @@ type Mutation {
   """
   Reveal the physical card numbers in the consent page once consent has been given by the cardholder
   
-  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.
   
   The user must have the account membership for this card
   """
@@ -12528,7 +12911,7 @@ type Mutation {
   """
   Reveal the PIN code on Swan app after his consent
   
-  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.
   
   The user must have the account membership for this card
   """
@@ -12538,7 +12921,7 @@ type Mutation {
   generateCreditStatement(input: GenerateCreditStatementInput!): GenerateCreditStatementPayload!
 
   """Request a credit limit with given settings"""
-  requestCreditLimitSettings(input: requestCreditLimitSettingsInput!): RequestCreditLimitSettingsPayload
+  requestCreditLimitSettings(input: RequestCreditLimitSettingsInput!): RequestCreditLimitSettingsPayload
 
   """Create a temporary download link for a completed export."""
   generateExportDownloadLink(input: GenerateExportDownloadLinkInput!): GenerateExportDownloadLinkPayload
@@ -12815,7 +13198,6 @@ type Mutation {
   scheduleStandingOrder(input: ScheduleStandingOrderInput!): ScheduleStandingOrderPayload!
 
   """
-  *** COMING SOON ***
   Get a beneficiary token to initiate SEPA Credit Transfers and Instant SEPA Credit Transfers.
   Note: This feature is in development and will be available soon to meet the European Instant Payments Regulation (IPR) requirements, effective October 9th, 2025.
   """
@@ -13228,8 +13610,11 @@ type Onboarding {
   """
   onboardingUrl: String
 
-  """Current computed state of onboarding"""
-  onboardingState: OnboardingState!
+  """
+  Current computed state of onboarding
+  @deprecated(reason: "use `statusInfo` instead")
+  """
+  onboardingState: OnboardingState! @deprecated(reason: "use `statusInfo` instead")
 
   """
   URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking.
@@ -13331,8 +13716,16 @@ type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
   typeOfRepresentation: TypeOfRepresentation
 }
 
+type OnboardingCompanyRepresentative {
+  roles: [String!]
+  entityName: String
+  registrationNumber: String
+  legalForm: String
+  address: AddressInfo
+}
+
 """
-Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
 """
 type OnboardingConnection implements Connection {
   """Total number of element in the list"""
@@ -13408,6 +13801,17 @@ type OnboardingIndividualAccountHolderInfo implements OnboardingAccountHolderInf
   taxIdentificationNumber: String
 }
 
+type OnboardingIndividualRepresentative {
+  roles: [String!]
+  firstName: String
+  lastName: String
+  preferredFirstName: String
+  sex: Sex
+  birthInfo: BirthInfo
+  nationality: CCA3
+  address: AddressInfo
+}
+
 type OnboardingInfo {
   """Unique identifier of an onboarding"""
   id: String!
@@ -13442,8 +13846,11 @@ type OnboardingInfo {
   """
   onboardingUrl: String!
 
-  """Current computed state of onboarding"""
-  onboardingState: OnboardingState
+  """
+  Current computed state of onboarding
+  @deprecated(reason: "use `statusInfo` instead")
+  """
+  onboardingState: OnboardingState @deprecated(reason: "use `statusInfo` instead")
 
   """
   URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking.
@@ -13453,8 +13860,10 @@ type OnboardingInfo {
   """Project infos you set in the dashboard"""
   projectInfo: ProjectInfo
 
-  """Verification Flow"""
-  verificationFlow: VerificationFlow!
+  """
+  @deprecated(reason: "The progressive verification flow is no longer a supported feature, as all new account holders are now required to complete full KYC upfront.")
+  """
+  verificationFlow: VerificationFlow! @deprecated(reason: "The progressive verification flow is no longer a supported feature, as all new account holders are now required to complete full KYC upfront.")
 
   """Extra parameters provided by partner"""
   oAuthRedirectParameters: OAuthRedirectParameters
@@ -13499,6 +13908,8 @@ input OnboardingOrderByInput {
   field: OnboardingOrderByFieldInput
   direction: OrderByDirection
 }
+
+union OnboardingRepresentative = OnboardingCompanyRepresentative | OnboardingIndividualRepresentative
 
 """Onboarding process state"""
 enum OnboardingState {
@@ -13770,7 +14181,7 @@ type Payment {
   """
   list of transactions associated to this payment
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   transactions(
     """the number of elements to load (default value 50, maximum: 100)"""
@@ -14155,7 +14566,7 @@ interface PaymentStatusInfo {
   status: PaymentStatus!
 }
 
-"""Custom information for a PDF statement"""
+"""[DEPRECATED] Custom information for a PDF statement"""
 type PdfStatement implements StatementInfo {
   """statement type"""
   type: StatementType
@@ -14273,6 +14684,11 @@ type PendingReviewStatusInfo implements AccountVerificationStatusInfo {
   status: AccountVerificationStatus!
 }
 
+type PendingStatusInfo implements AccountStatementStatusInfo {
+  """status of the statement"""
+  status: AccountStatementStatus!
+}
+
 type PendingTransactionStatementStatusInfo implements TransactionStatementStatusInfo {
   """status of the transaction statement"""
   status: TransactionStatementStatusEnum!
@@ -14303,6 +14719,9 @@ type PendingVerificationRenewal implements VerificationRenewal {
 
   """Pending Sub Status of the verification renewal"""
   pendingSubStatus: PendingVerificationRenewalSubStatus!
+
+  """Verification renewal information"""
+  info: VerificationRenewalInfo!
 }
 
 enum PendingVerificationRenewalSubStatus {
@@ -14922,28 +15341,29 @@ type Query {
   """
   Returns the list of account holders.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([(Learn More)](https://docs.swan.io/developers/using-api/pagination/))
   
-  *For a Project access token, this is all the account holders of the project and for an User access token, these are the holders of the accounts of which the user has an account membership.*
+  - For a **Project access token**, returns all account holders of the project.
+  - For a **User access token**, returns account holders of accounts where the user has membership.
   """
   accountHolders(
-    """the number of elements to load (maximum: 100)"""
+    """The number of elements to load (maximum: 100)."""
     first: Int! = 50
 
     """
-    the index (a unique reference in string form) from which you will load the preceding elements
+    The index (a unique reference in string form) from which you will load the preceding elements.
     """
     before: String
 
     """
-    the index (a unique reference in string form) from which you will load the following elements
+    The index (a unique reference in string form) from which you will load the following elements.
     """
     after: String
 
-    """a filtering table you can apply to your list of connections"""
+    """A filtering table you can apply to your list of connections."""
     filters: AccountHolderFilterInput
 
-    """an order you can apply to your list of connections"""
+    """An order you can apply to your list of connections."""
     orderBy: AccountHolderOrderByInput
   ): AccountHolderConnection!
 
@@ -14953,7 +15373,7 @@ type Query {
   """
   The list of account memberships
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   accountMemberships(
     """the number of elements to load (maximum: 100)"""
@@ -14982,7 +15402,7 @@ type Query {
   """
   Returns the list of accounts.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   
   *For a Project access token, this is all the accounts of the project and for an User access token, these are the accounts of which the user has an account membership.*
   """
@@ -15013,18 +15433,25 @@ type Query {
   beneficiaryVerification(input: BeneficiaryVerificationInput): BeneficiaryVerificationResult
 
   """
+  Fetch comprehensive company registry data by registration number and optional country.
+  Returns detailed company information including representatives and beneficial owners.
+  @comingSoon -> this query is not available yet, and its shape is subject to breaking change
+  """
+  companyInfoRegistryData(input: CompanyInfoRegistryDataInput!): CompanyInfoRegistryDataPayload!
+
+  """
   Returns an onboarding from its id.
   
-  *This query is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
+  *This query is restricted to a Project access token ([Learn More](https://docs.swan.io/developers/using-api/authentication))*
   """
   onboarding(id: ID!): Onboarding!
 
   """
   Returns the list of onboardings.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   
-  *This query is restricted to data export or to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
+  *This query is restricted to data export or to a Project access token ([Learn More](https://docs.swan.io/developers/using-api/authentication))*
   """
   onboardings(
     """the number of elements to load (maximum: 100)"""
@@ -15050,7 +15477,7 @@ type Query {
   """
   Returns the list of supporting document collections.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   supportingDocumentCollections(
     """the number of elements to load (maximum: 100)"""
@@ -15085,7 +15512,7 @@ type Query {
   """
   List of payments.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   *For a Project access token, this is all the payments of the project and for an User access token, these are the payments initiated by the user*
   """
   payments(
@@ -15117,14 +15544,14 @@ type Query {
   """
   Returns a transaction from its id.
   
-  *This query is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
+  *This query is restricted to a Project access token ([Learn More](https://docs.swan.io/developers/using-api/authentication))*
   """
   transaction(id: ID!): Transaction!
 
   """
   List of transactions of a project.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   *For a Project access token, this is all the transactions of the project (only available with project access token)*
   """
   transactions(
@@ -15189,7 +15616,7 @@ type Query {
   """
   Returns the list of cards.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   
   *For a Project access token, this is all the cards of the project and for an User access token, these are the cards owned by the user whom have an account membership.*
   """
@@ -15681,10 +16108,18 @@ type RefusedVerificationRenewal implements VerificationRenewal {
 
   """Refused date"""
   refusedAt: DateTime
+
+  """Verification renewal information"""
+  info: VerificationRenewalInfo!
 }
 
 enum RefusedVerificationRenewalSubStatus {
   Discrepancies
+  NoReply
+}
+
+enum RegistryCountry {
+  FRA
 }
 
 """Funding Source Rejected Reason"""
@@ -16343,12 +16778,8 @@ enum RepresentativeType {
   Company
 }
 
-type RequestCreditLimitSettingsFailurePayload {
-  message: String!
-}
-
 """Inputs to request a credit limit"""
-input requestCreditLimitSettingsInput {
+input RequestCreditLimitSettingsInput {
   """The accountId which will benefit from the credit limits"""
   accountId: String!
 
@@ -16365,7 +16796,7 @@ input requestCreditLimitSettingsInput {
   consentRedirectUrl: String!
 }
 
-union RequestCreditLimitSettingsPayload = RequestCreditLimitSettingsSuccessPayload | NotLegalRepresentativeRejection | RequestCreditLimitSettingsFailurePayload | BadRequestRejection | ForbiddenRejection | AccountHolderNotFoundRejection | AccountNotFoundRejection
+union RequestCreditLimitSettingsPayload = RequestCreditLimitSettingsSuccessPayload | NotLegalRepresentativeRejection | BadRequestRejection | ForbiddenRejection | AccountHolderNotFoundRejection | AccountNotFoundRejection | MissingAddressItemRejection
 
 type RequestCreditLimitSettingsSuccessPayload {
   """The created credit limits request"""
@@ -16397,6 +16828,9 @@ input RequestMerchantPaymentMethodsInput {
 
   """Input for Card payment method"""
   card: CardPaymentMethodInput
+
+  """Input for In Person Card payment method"""
+  inPersonCard: InPersonCardPaymentMethodInput
 }
 
 union RequestMerchantPaymentMethodsPayload = RequestMerchantPaymentMethodsSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection | InvalidPaymentMethodRequestRejection
@@ -16909,10 +17343,7 @@ union ScheduleStandingOrderPayload = ScheduleStandingOrderSuccessPayload | Forbi
 type ScheduleStandingOrderSuccessPayload {
   standingOrder: StandingOrder!
 
-  """
-  * COMING SOON *
-  Result of the beneficiary verification
-  """
+  """Result of the beneficiary verification"""
   beneficiaryVerificationResult: VerifyBeneficiaryResult
 }
 
@@ -16934,6 +17365,19 @@ type SelectField implements Field {
   refreshDynamicFieldsOnChange: Boolean!
   required: Boolean!
   allowedValues: [AllowedValue!]!
+}
+
+"""Inputs to send an account membership invitation"""
+input SendAccountMembershipInviteNotificationInput {
+  """Unique identifier of a given account membership to invite"""
+  accountMembershipId: ID!
+}
+
+union SendAccountMembershipInviteNotificationPayload = SendAccountMembershipInviteNotificationSuccessPayload | AccountMembershipNotFoundRejection | AccountMembershipStatusNotEligibleRejection | UserNotAllowedToManageAccountMembershipRejection | UserNotAllowedToSendAccountMembershipInvitationRejection | ForbiddenRejection | ValidationRejection
+
+"""Result when invitation notification request is successfully sent"""
+type SendAccountMembershipInviteNotificationSuccessPayload {
+  notificationRequestId: ID!
 }
 
 """External Beneficiary type SEPA"""
@@ -16980,7 +17424,7 @@ input SepaBeneficiaryInput {
   """
   `true` if this new beneficiary will be saved to the beneficiary list of the debited account.
   """
-  save: Boolean!
+  save: Boolean
 }
 
 """
@@ -17190,7 +17634,6 @@ type SEPACreditTransferTransaction implements Transaction {
   label: String!
 
   """
-  **COMING SOON**
   type of the label of the transaction. The default type is unstructured.
   """
   labelType: LabelType!
@@ -17267,10 +17710,7 @@ type SEPACreditTransferTransaction implements Transaction {
   """`true` if this transaction can still be cancelled"""
   isCancelable: Boolean!
 
-  """
-  * COMING SOON *
-  Result of the beneficiary verification
-  """
+  """Result of the beneficiary verification"""
   beneficiaryVerificationResult: VerifyBeneficiaryResult
 
   """SEPA beneficiary linked to the transaction"""
@@ -17511,7 +17951,7 @@ type SepaDirectDebitMerchantPayment implements MerchantPayment {
   """
   List of transactions associated with the Merchant Payment.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   transactions(
     """the number of elements to load (default value 50, maximum: 100)"""
@@ -17815,7 +18255,7 @@ type SEPAPaymentDirectDebitMandate implements SEPADirectDebitMandate & PaymentDi
   """
   List of transactions associated with the SEPA Payment Direct Debit Mandate.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   transactions(
     """the number of elements to load (default value 50, maximum: 100)"""
@@ -17941,7 +18381,7 @@ type SEPAReceivedDirectDebitMandate implements SEPADirectDebitMandate & Received
   """
   List of transactions associated with the SEPA Receive Direct Debit Mandate.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   transactions(
     """the number of elements to load (default value 50, maximum: 100)"""
@@ -18108,6 +18548,12 @@ Rejection returned when the signature is not valid
 """
 type ServerConsentSignatureNotValidRejection implements Rejection {
   message: String!
+}
+
+enum Sex {
+  Male
+  Female
+  Unknown
 }
 
 """Shareholder of a company creating a Capital Deposit Case"""
@@ -18286,7 +18732,7 @@ type StandingOrder {
   """
   List of payments of an standing order.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   payments(
     """the number of elements to load (default value 50, maximum: 100)"""
@@ -18312,7 +18758,7 @@ type StandingOrder {
   """
   List of transactions of a standing order.
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   transactions(
     """number of elements in the list (default value 50)"""
@@ -18447,7 +18893,7 @@ input StartUserCreationInput {
   locale: OtpLocale
 }
 
-union StartUserCreationPayload = StartUserCreationSuccess | BlacklistedPhoneNumberRejection | CalledByABotRejection | OperationNotAllowedRejection
+union StartUserCreationPayload = StartUserCreationSuccess | BlacklistedPhoneNumberRejection | BlocklistedPhoneNumberRejection | CalledByABotRejection | OperationNotAllowedRejection
 
 type StartUserCreationSuccess {
   requestId: String!
@@ -18475,8 +18921,11 @@ type Statement {
   """ending date of the date window"""
   closingDate: DateTime!
 
-  """status of the statement"""
+  """[DEPRECATED] status of the statement"""
   status: StatementStatus!
+
+  """[NEW] status of the statement"""
+  statusInfo: AccountStatementStatusInfo!
 
   """period of statement (either custom or monthly)"""
   period: StatementPeriod
@@ -18487,11 +18936,20 @@ type Statement {
   """the sum of debit transactions during the window"""
   totalDebits: Amount!
 
-  """the sum of fee transactions during the window"""
+  """[DEPRECATED] the sum of fee transactions during the window"""
   fees: Amount!
 
-  """type of statements (ex: PDF)"""
+  """[NEW] the sum of credit fee transactions during the window"""
+  feeCredits: Amount!
+
+  """[NEW] the sum of debit fee transactions during the window"""
+  feeDebits: Amount!
+
+  """[DEPRECATED] type of statements (ex: PDF)"""
   type: [StatementInfo]!
+
+  """[NEW] format of statements (ex: PDF)"""
+  format: AccountStatementFormat!
 
   """created date"""
   createdAt: DateTime!
@@ -18501,7 +18959,7 @@ type Statement {
 }
 
 """
-Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination)).
+Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination)).
 """
 type StatementConnection implements Connection {
   pageInfo: PageInfo!
@@ -18529,7 +18987,7 @@ input StatementFiltersInput {
   period: StatementPeriod
 }
 
-"""Custom information for a certain type of statement"""
+"""[DEPRECATED] Custom information for a certain type of statement"""
 interface StatementInfo {
   type: StatementType
 }
@@ -18540,7 +18998,18 @@ enum StatementPeriod {
   Custom
 }
 
-"""The different statuses of statement"""
+enum StatementsOrderByField {
+  openingDate
+  closingDate
+}
+
+"""[NEW] The criteria to sort statements"""
+input StatementsOrderByInput {
+  field: StatementsOrderByField
+  direction: OrderByDirection
+}
+
+"""[DEPRECATED] The different statuses of statement"""
 enum StatementStatus {
   Available
   Failed
@@ -18548,7 +19017,7 @@ enum StatementStatus {
 }
 
 """
-The different type of statement actually available
+[DEPRECATED] The different type of statement actually available
 - PDF will be a PDF file with the statement information
 """
 enum StatementType {
@@ -18669,7 +19138,7 @@ type SupportingDocumentCollectionCanceledStatusInfo implements SupportingDocumen
 }
 
 """
-Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
 """
 type SupportingDocumentCollectionConnection implements Connection {
   """Total number of element in the list"""
@@ -19394,6 +19863,26 @@ type SuspendedMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodSt
 type SuspendedMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
   status: MerchantProfileStatus!
   suspendedAt: Date!
+}
+
+type SuspendedVerificationRenewal implements VerificationRenewal {
+  id: ID!
+  accountHolderId: String!
+  status: VerificationRenewalStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  supportTicketId: String
+  dueDate: DateTime
+
+  """Suspended Sub Status of the verification renewal"""
+  suspendedSubStatus: SuspendedVerificationRenewalSubStatus!
+
+  """Verification renewal information"""
+  info: VerificationRenewalInfo!
+}
+
+enum SuspendedVerificationRenewalSubStatus {
+  NoReply
 }
 
 """Inputs to suspend a physical card"""
@@ -20621,102 +21110,31 @@ enum UBOIdentityDocumentType {
   IdCard
 }
 
-"""Ultimate beneficial Direct Owner company info."""
-type UltimateBeneficialDirectOwnerCompanyInfo implements UltimateBeneficialOwnerInfo {
-  """Ultimate Beneficial Owner Unique Identifier ."""
-  id: ID!
-
-  """Ultimate beneficial Direct Owner Company type."""
-  type: UltimateBeneficialOwnerType!
-
-  """
-  Shares ratio of the parent company. Example: 50 if the share ratio is 50%.
-  """
-  parentCompanyShareRatio: Float!
-
-  """Name of the company."""
-  name: String!
-
-  """
-  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
-  - Length must be from 0 to 50 characters.
-  """
-  registrationNumber: String!
+type UltimateBeneficialOwner {
+  birthInfo: BirthInfo
+  qualificationType: UltimateBeneficialOwnerQualificationType
+  controlTypes: [UltimateBeneficialOwnerControlType!]
+  firstName: String
+  sex: Sex
+  lastName: String
+  ownership: UltimateBeneficialOwnerOwnership
+  address: AddressInfo
+  taxIdentificationNumber: String
+  unitedStatesTaxInfo: UnitedStatesTaxInfo
 }
 
-"""Ultimate beneficial Direct Owner individual info."""
-type UltimateBeneficialDirectOwnerIndividualInfo implements UltimateBeneficialOwnerInfo {
-  """Ultimate Beneficial Owner Unique Identifier ."""
-  id: ID!
-
-  """Ultimate beneficial Direct owner Individual type ."""
-  type: UltimateBeneficialOwnerType!
-
-  """
-  Shares ratio of the parent company. Example: 50 if the share ratio is 50%.
-  """
-  parentCompanyShareRatio: Float!
-
-  """First name."""
-  firstName: String!
-
-  """Last name."""
-  lastName: String!
-
-  """Birth date."""
-  birthDate: Date!
+enum UltimateBeneficialOwnerControlType {
+  VotingRights
+  ControlViaTrustOrSimilar
+  RightToAppointOrRemoveBoard
+  ShareholderAgreementOrContract
+  StrategicOrManagerialInfluence
 }
 
-"""Ultimate beneficial owner company info."""
-type UltimateBeneficialIndirectOwnerCompanyInfo implements UltimateBeneficialOwnerInfo {
-  """Ultimate Beneficial Owner Unique Identifier ."""
-  id: ID!
-
-  """Ultimate beneficial Indirect Owner Company type."""
-  type: UltimateBeneficialOwnerType!
-
-  """Unique Reference of the Parent Company."""
-  parentCompanyReference: String!
-
-  """
-  Shares ratio of the parent company. Example: 50 if the share ratio is 50%.
-  """
-  parentCompanyShareRatio: Float!
-
-  """Name of the company."""
-  name: String!
-
-  """
-  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
-  - Length must be from 0 to 50 characters.
-  """
-  registrationNumber: String!
-}
-
-"""Ultimate beneficial Indirect Owner individual info."""
-type UltimateBeneficialIndirectOwnerIndividualInfo implements UltimateBeneficialOwnerInfo {
-  """Ultimate Beneficial Owner Unique Identifier."""
-  id: ID!
-
-  """Ultimate beneficial Indirect Owner Individual type ."""
-  type: UltimateBeneficialOwnerType!
-
-  """Unique Reference of the Parent Company."""
-  parentCompanyReference: String!
-
-  """
-  Shares ratio of the parent company. Example: 50 if the share ratio is 50%.
-  """
-  parentCompanyShareRatio: Float!
-
-  """First name."""
-  firstName: String!
-
-  """Last name."""
-  lastName: String!
-
-  """Birth date."""
-  birthDate: Date!
+input UltimateBeneficialOwnerIdentityDocumentInfoInput {
+  type: UBOIdentityDocumentDetailsInput
+  number: String
+  expiryDate: Date
 }
 
 """
@@ -20735,6 +21153,42 @@ interface UltimateBeneficialOwnerInfo {
   parentCompanyShareRatio: Float!
 }
 
+input UltimateBeneficialOwnerInput {
+  birthInfo: BirthInfoInput
+  qualificationType: UltimateBeneficialOwnerQualificationType
+  controlTypes: [UltimateBeneficialOwnerControlType!]
+  firstName: String
+  sex: Sex
+  identityDocumentInfo: UltimateBeneficialOwnerIdentityDocumentInfoInput
+  lastName: String
+  ownership: UltimateBeneficialOwnerOwnershipInput
+  address: ResidencyAddressInput
+  taxIdentificationNumber: String
+  unitedStatesTaxInfo: UnitedStatesTaxInfoInput
+}
+
+type UltimateBeneficialOwnerOwnership {
+  totalPercentage: Float
+  type: UltimateBeneficialOwnerOwnershipType!
+}
+
+input UltimateBeneficialOwnerOwnershipInput {
+  totalPercentage: Float
+  type: UltimateBeneficialOwnerOwnershipType!
+}
+
+enum UltimateBeneficialOwnerOwnershipType {
+  Direct
+  Indirect
+  DirectAndIndirect
+}
+
+enum UltimateBeneficialOwnerQualificationType {
+  Ownership
+  Control
+  LegalRepresentative
+}
+
 """Ultimate Beneficial Owner type."""
 enum UltimateBeneficialOwnerType {
   """Direct Individual Owner (Natural person) ."""
@@ -20748,6 +21202,22 @@ enum UltimateBeneficialOwnerType {
 
   """Indirect Company Owner (Legal person)."""
   IndirectCompany
+}
+
+type UnitedStatesTaxInfo {
+  """
+  is the ultimate benefial owner a US person as defined by the Foreign Account Tax Compliance Act (FATCA)
+  """
+  isUnitedStatesPerson: Boolean
+  unitedStatesTaxIdentificationNumber: String
+}
+
+input UnitedStatesTaxInfoInput {
+  """
+  is the ultimate benefial owner a US person as defined by the Foreign Account Tax Compliance Act (FATCA)
+  """
+  isUnitedStatesPerson: Boolean!
+  unitedStatesTaxIdentificationNumber: String
 }
 
 """Rejection returned when the provided `exportId` is not found."""
@@ -20916,6 +21386,31 @@ type UpdateAccountSettingsSuccess {
 
 type UpdateAccountSuccessPayload {
   account: Account!
+}
+
+input UpdateCapitalDepositCaseCompanyInput {
+  capitalDepositCaseId: ID!
+  companyName: String
+  residencyAddress: ResidencyAddressInput
+}
+
+union UpdateCapitalDepositCaseCompanyPayload = UpdateCapitalDepositCaseCompanySuccessPayload | ForbiddenRejection | BadRequestRejection | ValidationRejection | CapitalDepositCaseCanNotBeFoundRejection | CapitalDepositCaseCompanyCannotBeUpdatedRejection | InternalErrorRejection
+
+type UpdateCapitalDepositCaseCompanySuccessPayload {
+  capitalDepositCase: CapitalDepositCase!
+}
+
+"""Input to update a shareholder's capital deposit amount."""
+input UpdateCapitalDepositShareholderAmountInput {
+  shareholderId: ID!
+  shareholderAmount: AmountInput!
+}
+
+"""Payload to update a shareholder's capital deposit amount."""
+union UpdateCapitalDepositShareholderAmountPayload = UpdateCapitalDepositShareholderAmountSuccessPayload | CapitalDepositCaseCanNotBeFoundRejection | CapitalDepositCaseCanNotBeUpdatedRejection | CapitalDepositShareholderCannotBeFoundRejection | CapitalDepositShareholderCanNotBeUpdatedRejection | ValidationRejection | ForbiddenRejection | InternalErrorRejection
+
+type UpdateCapitalDepositShareholderAmountSuccessPayload {
+  shareholder: Shareholder!
 }
 
 """Input to Update Card"""
@@ -21302,7 +21797,7 @@ type User {
   """
   The list of account memberships
   
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   accountMemberships(
     """the number of elements to load (maximum: 100)"""
@@ -21457,6 +21952,12 @@ type UserConsentSettings {
   projectId: String!
 }
 
+input UserDeviceInfoInput {
+  geoloc: GeolocInput
+  ip: String
+  userAgent: String
+}
+
 """Implements the Relay Edge interface"""
 type UserEdge implements Edge {
   """
@@ -21529,6 +22030,11 @@ type UserNotAllowedToDisableItsOwnAccountMembershipRejection implements Rejectio
 Rejection returned if a identity does not have enough permission to manage account membership
 """
 type UserNotAllowedToManageAccountMembershipRejection implements Rejection {
+  message: String!
+}
+
+"""Rejection returned if the user's membership is not enabled."""
+type UserNotAllowedToSendAccountMembershipInvitationRejection implements Rejection {
   message: String!
 }
 
@@ -21672,6 +22178,15 @@ interface VerificationRenewal {
 
   """Due date of the verification renewal"""
   dueDate: DateTime
+
+  """Verification renewal information"""
+  info: VerificationRenewalInfo!
+}
+
+union VerificationRenewalInfo = IndividualVerificationRenewalInfo | CompanyVerificationRenewalInfo
+
+interface VerificationRenewalInfoBase {
+  type: AccountHolderType!
 }
 
 enum VerificationRenewalRequirement {
@@ -21695,7 +22210,7 @@ enum VerificationRenewalRequirement {
 }
 
 """
-Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
 """
 type VerificationRenewalsConnection implements Connection {
   """Total number of element in the list"""
@@ -21755,6 +22270,7 @@ input VerificationRenewalsOrderByInput {
 enum VerificationRenewalStatus {
   Pending
   WaitingForInformation
+  Suspended
   Refused
   Completed
 }
@@ -21996,7 +22512,7 @@ type VirtualIBANEntry {
 }
 
 """
-Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
 """
 type VirtualIBANEntryConnection implements Connection {
   """Total number of element in the list"""
@@ -22016,6 +22532,14 @@ type VirtualIBANEntryEdge implements Edge {
 
   """The virtual iban entry"""
   node: VirtualIBANEntry!
+}
+
+type VoidedStatusInfo implements AccountStatementStatusInfo {
+  """status of the statement"""
+  status: AccountStatementStatus!
+
+  """Public url on which the voided file can be accessed"""
+  url: URL!
 }
 
 """WaitingForInformationMerchantPaymentMethodStatusInfo"""
@@ -22041,10 +22565,14 @@ type WaitingForInformationVerificationRenewal implements VerificationRenewal {
   """WaitingForInformation Sub Status of the verification renewal"""
   waitingForInformationSubStatus: WaitingForInformationVerificationRenewalSubStatus!
   verificationRequirements: [VerificationRenewalRequirement!]!
+
+  """Verification renewal information"""
+  info: VerificationRenewalInfo!
 }
 
 enum WaitingForInformationVerificationRenewalSubStatus {
   VerificationRequirements
+  LastChance
 }
 
 """Wallet Provider (ApplePay, GooglePay ...)"""

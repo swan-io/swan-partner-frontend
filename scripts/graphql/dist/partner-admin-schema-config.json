@@ -89,6 +89,7 @@
       "ProjectAlreadyHasSubscriptionRejection",
       "CapitalDepositCaseCanNotBeCanceledRejection",
       "CapitalDepositCaseCanNotBeFoundRejection",
+      "CapitalDepositCaseCompanyCannotBeUpdatedRejection",
       "CapitalDepositDocumentCanNotBeUploaded",
       "CapitalDepositDocumentCanNotBeUploadedRejection",
       "CouldNotFindCapitalDepositCaseRejection",
@@ -101,6 +102,7 @@
       "DocumentParentLinkMissingRejection",
       "PhysicalCardWrongStatusRejection",
       "CreditLimitSettingsNotFoundRejection",
+      "MissingAddressItemRejection",
       "NotLegalRepresentativeRejection",
       "RepaymentCycleNotFoundRejection",
       "RepaymentNotFoundRejection",
@@ -214,6 +216,16 @@
       "SupportingDocumentValidatedStatusInfo",
       "SupportingDocumentWaitingForUploadStatusInfo"
     ],
+    "CapitalDepositCaseStatusInfo": [
+      "CapitalDepositCaseCanceledStatusInfo",
+      "CapitalDepositCaseCompletedStatusInfo",
+      "CapitalDepositCasePendingInternalReviewStatusInfo",
+      "CapitalDepositCaseWaitingForAdditionalInformationStatusInfo",
+      "CapitalDepositCaseWaitingForInitialRequirementsStatusInfo",
+      "CapitalDepositCaseWaitingForNotaryShareDepositCertificateStatusInfo",
+      "CapitalDepositCaseWaitingForNotaryTransferStatusInfo",
+      "CapitalDepositCaseWaitingForRegisterExtractStatusInfo"
+    ],
     "CapitalDepositDocumentStatusInfo": [
       "CapitalDepositDocumentPendingStatusInfo",
       "CapitalDepositDocumentRefusedStatusInfo",
@@ -325,6 +337,7 @@
     "MerchantPaymentMethod": [
       "CardMerchantPaymentMethod",
       "CheckMerchantPaymentMethod",
+      "InPersonCardMerchantPaymentMethod",
       "InternalDirectDebitB2BMerchantPaymentMethod",
       "InternalDirectDebitStandardMerchantPaymentMethod",
       "SepaDirectDebitB2BMerchantPaymentMethod",

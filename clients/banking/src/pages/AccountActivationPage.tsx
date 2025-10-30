@@ -399,7 +399,7 @@ const FirstTransferIbanMissingRightPanel = ({
       </LakeHeading>
 
       <Space height={8} />
-      <LakeText>{t("accountActivation.addMoney.subtitle")}</LakeText>
+      <LakeText>{t("accountActivation.addMoney.description")}</LakeText>
       <Space height={32} />
       <Tile style={styles.rightPanelTiles}>
         <Box alignItems="center" justifyContent="center" style={styles.illustrationPanel}>
@@ -1050,21 +1050,24 @@ export const AccountActivationPage = ({
                         <>
                           <Space height={24} />
 
-                          <LakeAlert
-                            title={t("accountActivation.alert.title")}
-                            variant={
-                              holder.verificationStatus === "WaitingForInformation" ||
-                              holder.verificationStatus === "NotStarted"
-                                ? "warning"
-                                : "info"
-                            }
-                          >
-                            <LakeText>
-                              {holder.verificationStatus === "Pending"
-                                ? t("accountActivation.description.pending")
-                                : t("accountActivation.description")}
-                            </LakeText>
-                          </LakeAlert>
+                          {holder.verificationStatus === "WaitingForInformation" && (
+                            <LakeAlert
+                              tag={t("accountActivation.tag.waitingForInformation")}
+                              title={t("accountActivation.alert.title")}
+                              variant={"warning"}
+                            >
+                              <LakeText>{t("accountActivation.description")}</LakeText>
+                            </LakeAlert>
+                          )}
+                          {holder.verificationStatus === "Pending" && (
+                            <LakeAlert
+                              title={t("accountActivation.alert.title")}
+                              variant={"info"}
+                              tag={t("accountActivation.tag.pendingVerification")}
+                            >
+                              <LakeText>{t("accountActivation.description.pending")}</LakeText>
+                            </LakeAlert>
+                          )}
                         </>
                       )}
                       <Space height={12} />

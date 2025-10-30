@@ -233,6 +233,7 @@ mutation generateSupportingDocumentUploadUrl($input: GenerateSupportingDocumentU
 query SupportingDocumentCollection($supportingDocumentCollectionId: ID!) {
   supportingDocumentCollection(id: $supportingDocumentCollectionId) {
     id
+    type
     accountHolder {
       id
       name

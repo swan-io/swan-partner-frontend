@@ -1,11 +1,13 @@
 import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
+import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { ProjectEnvTag } from "@swan-io/lake/src/components/ProjectEnvTag";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { spacings } from "@swan-io/lake/src/constants/design";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { env } from "../utils/env";
@@ -33,7 +35,7 @@ const styles = StyleSheet.create({
 
 type Props = {
   projectName: string;
-  projectLogo: string;
+  projectLogo?: string | null;
 };
 
 export const OnboardingHeader = ({ projectName, projectLogo }: Props) => {
@@ -55,13 +57,19 @@ export const OnboardingHeader = ({ projectName, projectLogo }: Props) => {
           justifyContent="center"
           style={[styles.container, large && styles.containerDesktop]}
         >
-          <AutoWidthImage
-            ariaLabel={projectName}
-            sourceUri={projectLogo}
-            height={small ? 30 : 40}
-            resizeMode="contain"
-            style={styles.logo}
-          />
+          {isNotNullish(projectLogo) ? (
+            <AutoWidthImage
+              ariaLabel={projectName}
+              sourceUri={projectLogo}
+              height={small ? 30 : 40}
+              resizeMode="contain"
+              style={styles.logo}
+            />
+          ) : (
+            <LakeHeading level={1} variant="h3">
+              {projectName}
+            </LakeHeading>
+          )}
 
           {isSandbox && (
             <>

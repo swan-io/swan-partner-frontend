@@ -227,22 +227,67 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
                       <ResponsiveContainer breakpoint={breakpoints.medium}>
                         {({ small }) => (
                           <>
-                            <StepTitle isMobile={small}>
-                              {t("supportingDocumentCollection.title")}
-                            </StepTitle>
+                            {match(supportingDocumentCollection.type)
+                              .with("Onboarding", () => (
+                                <StepTitle isMobile={small}>
+                                  {t("supportingDocumentCollection.title")}
+                                </StepTitle>
+                              ))
+                              .with("Merchant", () => (
+                                <StepTitle isMobile={small}>
+                                  {t("supportingDocumentCollection.merchant.title")}
+                                </StepTitle>
+                              ))
+                              .otherwise(() => null)}
 
-                            {supportingDocumentCollection.accountHolder.name != null ? (
-                              <>
-                                <Space height={small ? 12 : 16} />
-
-                                <LakeText>
-                                  {t("supportingDocumentCollection.intro", {
-                                    accountHolderName:
-                                      supportingDocumentCollection.accountHolder.name,
-                                  })}
-                                </LakeText>
-                              </>
-                            ) : null}
+                            <LakeText>
+                              {match({ supportingDocumentCollection })
+                                .with(
+                                  {
+                                    supportingDocumentCollection: {
+                                      type: "Onboarding",
+                                      accountHolder: { name: P.nonNullable },
+                                    },
+                                  },
+                                  ({
+                                    supportingDocumentCollection: {
+                                      accountHolder: { name },
+                                    },
+                                  }) => (
+                                    <>
+                                      <Space height={small ? 24 : 32} />
+                                      <LakeText>
+                                        {t("supportingDocumentCollection.onboarding.intro", {
+                                          accountHolderName: name,
+                                        })}
+                                      </LakeText>
+                                    </>
+                                  ),
+                                )
+                                .with(
+                                  {
+                                    supportingDocumentCollection: {
+                                      type: "Merchant",
+                                      accountHolder: { name: P.nonNullable },
+                                    },
+                                  },
+                                  ({
+                                    supportingDocumentCollection: {
+                                      accountHolder: { name },
+                                    },
+                                  }) => (
+                                    <>
+                                      <Space height={small ? 24 : 32} />
+                                      <LakeText>
+                                        {t("supportingDocumentCollection.merchant.intro", {
+                                          accountHolderName: name,
+                                        })}
+                                      </LakeText>
+                                    </>
+                                  ),
+                                )
+                                .otherwise(() => null)}
+                            </LakeText>
 
                             <Space height={small ? 24 : 32} />
 

@@ -58,6 +58,9 @@
       "BadAccountStatusRejection",
       "BadRequestRejection",
       "CardNotFoundRejection",
+      "ClosedAccountNotUpgradableRejection",
+      "CompanyRegistryNotFoundRejection",
+      "CompanyRegistryUnavailableRejection",
       "ExternalAccountAlreadyExistsRejection",
       "ForbiddenRejection",
       "IBANNotReachableRejection",
@@ -67,6 +70,7 @@
       "InternalErrorRejection",
       "InvalidArgumentRejection",
       "InvalidPhoneNumberRejection",
+      "InvalidRegistrationNumberRejection",
       "InvalidSirenNumberRejection",
       "LegalRepresentativeAccountMembershipCannotBeDisabledRejection",
       "LegalRepresentativeAccountMembershipCannotBeSuspendedRejection",
@@ -91,6 +95,7 @@
       "TransactionNotFoundRejection",
       "UserNotAllowedToDisableItsOwnAccountMembershipRejection",
       "UserNotAllowedToManageAccountMembershipRejection",
+      "UserNotAllowedToSendAccountMembershipInvitationRejection",
       "UserNotAllowedToSuspendItsOwnAccountMembershipRejection",
       "ValidationRejection",
       "VerificationRequirementsNotUpdatableRejection",
@@ -154,10 +159,15 @@
       "CloseAccountReason",
       "SuspendAccountReason"
     ],
+    "VerificationRenewalInfoBase": [
+      "CompanyVerificationRenewalInfo",
+      "IndividualVerificationRenewalInfo"
+    ],
     "VerificationRenewal": [
       "CompletedVerificationRenewal",
       "PendingVerificationRenewal",
       "RefusedVerificationRenewal",
+      "SuspendedVerificationRenewal",
       "WaitingForInformationVerificationRenewal"
     ],
     "FundingLimitSettingsChangeRequestStatusInfo": [
@@ -198,12 +208,6 @@
       "SupportingDocumentUploadedStatusInfo",
       "SupportingDocumentValidatedStatusInfo",
       "SupportingDocumentWaitingForUploadStatusInfo"
-    ],
-    "UltimateBeneficialOwnerInfo": [
-      "UltimateBeneficialDirectOwnerCompanyInfo",
-      "UltimateBeneficialDirectOwnerIndividualInfo",
-      "UltimateBeneficialIndirectOwnerCompanyInfo",
-      "UltimateBeneficialIndirectOwnerIndividualInfo"
     ],
     "CardStatusInfo": [
       "CardCanceledStatusInfo",
@@ -256,6 +260,7 @@
     "MerchantPaymentMethod": [
       "CardMerchantPaymentMethod",
       "CheckMerchantPaymentMethod",
+      "InPersonCardMerchantPaymentMethod",
       "InternalDirectDebitB2BMerchantPaymentMethod",
       "InternalDirectDebitStandardMerchantPaymentMethod",
       "SepaDirectDebitB2BMerchantPaymentMethod",

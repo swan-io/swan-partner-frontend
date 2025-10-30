@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
 
 const formatPaymentMethodsName = (paymentMethodType: MerchantPaymentMethodType) => {
   return match(paymentMethodType)
-    .with("Card", () => t("merchantProfile.paymentLink.paymentMethod.card"))
+    .with("Card", "InPersonCard", () => t("merchantProfile.paymentLink.paymentMethod.card"))
     .with(P.union("SepaDirectDebitB2b", "SepaDirectDebitCore"), () =>
       t("merchantProfile.paymentLink.paymentMethod.sepaDirectDebit"),
     )

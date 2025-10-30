@@ -24,7 +24,7 @@ const PaymentCell = ({ payment }: { payment: MerchantPaymentFragment }) => {
     <Cell direction="column">
       <LakeText variant="smallRegular" color={colors.gray[900]}>
         {match(payment.paymentMethod.type)
-          .with("Card", () => t("merchantProfile.paymentLink.paymentMethod.card"))
+          .with("Card", "InPersonCard", () => t("merchantProfile.paymentLink.paymentMethod.card"))
           .with("Check", () => t("merchantProfile.paymentLink.paymentMethod.check"))
           .with("InternalDirectDebitB2b", "InternalDirectDebitStandard", () =>
             t("merchantProfile.paymentLink.paymentMethod.internalDirectDebit"),
@@ -79,7 +79,7 @@ const columns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
         variant="medium"
         color={colors.gray[900]}
         text={match(paymentMethod.type)
-          .with("Card", () => t("merchantProfile.paymentLink.paymentMethod.card"))
+          .with("Card", "InPersonCard", () => t("merchantProfile.paymentLink.paymentMethod.card"))
           .with("Check", () => t("merchantProfile.paymentLink.paymentMethod.check"))
           .with("InternalDirectDebitB2b", "InternalDirectDebitStandard", () =>
             t("merchantProfile.paymentLink.paymentMethod.internalDirectDebit"),

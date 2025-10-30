@@ -31,12 +31,17 @@
       "BadRequestRejection",
       "BeneficiaryVerificationTokenAlreadyConsumedRejection",
       "BlacklistedPhoneNumberRejection",
+      "BlocklistedPhoneNumberRejection",
       "CalledByABotRejection",
       "CannotActivatePhysicalCardRejection",
       "CapitalDepositCaseCanNotBeCanceledRejection",
       "CapitalDepositCaseCanNotBeFoundRejection",
+      "CapitalDepositCaseCanNotBeUpdatedRejection",
+      "CapitalDepositCaseCompanyCannotBeUpdatedRejection",
       "CapitalDepositDocumentCanNotBeUploaded",
       "CapitalDepositDocumentCanNotBeUploadedRejection",
+      "CapitalDepositShareholderCannotBeFoundRejection",
+      "CapitalDepositShareholderCanNotBeUpdatedRejection",
       "CardCanNotBeDigitalizedRejection",
       "CardNotFoundRejection",
       "CardProductDisabledRejection",
@@ -48,6 +53,9 @@
       "CardSensitiveInfoNoLongerAvailableRejection",
       "CardWrongStatusRejection",
       "CheckRejection",
+      "ClosedAccountNotUpgradableRejection",
+      "CompanyRegistryNotFoundRejection",
+      "CompanyRegistryUnavailableRejection",
       "ConsentNotFoundRejection",
       "ConsentsAlreadyLinkedToMultiConsentRejection",
       "ConsentsNotAllInCreatedStatusRejection",
@@ -85,6 +93,7 @@
       "InvalidArgumentRejection",
       "InvalidPaymentMethodRequestRejection",
       "InvalidPhoneNumberRejection",
+      "InvalidRegistrationNumberRejection",
       "InvalidShippingProviderRejection",
       "InvalidSirenNumberRejection",
       "LegalRepresentativeAccountMembershipCannotBeDisabledRejection",
@@ -101,6 +110,7 @@
       "MerchantPaymentNotPartiallyCancellableRejection",
       "MerchantProfileNotValidRejection",
       "MerchantProfileWrongStatusRejection",
+      "MissingAddressItemRejection",
       "MissingMandatoryFieldRejection",
       "MissingPhoneNumberRestrictionRejection",
       "NotAllowedUserStatusRejection",
@@ -177,6 +187,7 @@
       "UserBlockedRejection",
       "UserNotAllowedToDisableItsOwnAccountMembershipRejection",
       "UserNotAllowedToManageAccountMembershipRejection",
+      "UserNotAllowedToSendAccountMembershipInvitationRejection",
       "UserNotAllowedToSuspendItsOwnAccountMembershipRejection",
       "UserNotCardHolderRejection",
       "UserNotFoundRejection",
@@ -309,6 +320,16 @@
       "RejectedFundingSourceStatusInfo",
       "SuspendedFundingSourceStatusInfo"
     ],
+    "CapitalDepositCaseStatusInfo": [
+      "CapitalDepositCaseCanceledStatusInfo",
+      "CapitalDepositCaseCompletedStatusInfo",
+      "CapitalDepositCasePendingInternalReviewStatusInfo",
+      "CapitalDepositCaseWaitingForAdditionalInformationStatusInfo",
+      "CapitalDepositCaseWaitingForInitialRequirementsStatusInfo",
+      "CapitalDepositCaseWaitingForNotaryShareDepositCertificateStatusInfo",
+      "CapitalDepositCaseWaitingForNotaryTransferStatusInfo",
+      "CapitalDepositCaseWaitingForRegisterExtractStatusInfo"
+    ],
     "CapitalDepositDocumentStatusInfo": [
       "CapitalDepositDocumentPendingStatusInfo",
       "CapitalDepositDocumentRefusedStatusInfo",
@@ -336,6 +357,7 @@
     "MerchantPaymentMethod": [
       "CardMerchantPaymentMethod",
       "CheckMerchantPaymentMethod",
+      "InPersonCardMerchantPaymentMethod",
       "InternalDirectDebitB2BMerchantPaymentMethod",
       "InternalDirectDebitStandardMerchantPaymentMethod",
       "SepaDirectDebitB2BMerchantPaymentMethod",
@@ -360,6 +382,10 @@
       "CloseAccountReason",
       "SuspendAccountReason"
     ],
+    "VerificationRenewalInfoBase": [
+      "CompanyVerificationRenewalInfo",
+      "IndividualVerificationRenewalInfo"
+    ],
     "DigitalCard": [
       "CompleteDigitalCard",
       "PendingDigitalCard"
@@ -368,6 +394,7 @@
       "CompletedVerificationRenewal",
       "PendingVerificationRenewal",
       "RefusedVerificationRenewal",
+      "SuspendedVerificationRenewal",
       "WaitingForInformationVerificationRenewal"
     ],
     "CreditLimitSettingsRequestStatusInfo": [
@@ -454,6 +481,12 @@
       "ExportExpiredStatusInfo",
       "ExportFailedStatusInfo",
       "ExportRunningStatusInfo"
+    ],
+    "AccountStatementStatusInfo": [
+      "FailedStatusInfo",
+      "GeneratedStatusInfo",
+      "PendingStatusInfo",
+      "VoidedStatusInfo"
     ],
     "FeeCreditor": [
       "FeeInCreditor",
@@ -628,12 +661,6 @@
     "InternationalBeneficiary": [
       "TrustedInternationalBeneficiary",
       "UnsavedInternationalBeneficiary"
-    ],
-    "UltimateBeneficialOwnerInfo": [
-      "UltimateBeneficialDirectOwnerCompanyInfo",
-      "UltimateBeneficialDirectOwnerIndividualInfo",
-      "UltimateBeneficialIndirectOwnerCompanyInfo",
-      "UltimateBeneficialIndirectOwnerIndividualInfo"
     ],
     "VerifyBeneficiaryResult": [
       "VerifyBeneficiaryCloseMatch",

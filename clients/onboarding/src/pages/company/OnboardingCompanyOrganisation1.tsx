@@ -172,7 +172,7 @@ export const OnboardingCompanyOrganisation1 = ({
       validate: canSetTaxIdentification
         ? combineValidators(
             isTaxIdentificationRequired && validateRequired,
-            validateCompanyTaxNumber(accountCountry),
+            validateCompanyTaxNumber(country as CompanyCountryCCA3),
           )
         : undefined,
     },

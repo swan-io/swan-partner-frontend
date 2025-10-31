@@ -115,7 +115,7 @@ export const OnboardingIndividualDetails = ({
       validate: canSetTaxIdentification
         ? combineValidators(
             isTaxIdentificationRequired && validateRequired,
-            validateIndividualTaxNumber(accountCountry),
+            validateIndividualTaxNumber(country as IndividualCountryCCA3),
           )
         : undefined,
     },

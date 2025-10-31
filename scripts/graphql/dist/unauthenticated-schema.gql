@@ -7476,6 +7476,8 @@ enum MerchantPaymentMethodRejectionReason {
 
   """General rejection where an error occurred on Swan's side."""
   SwanTechnicalErrorOccurred
+  SuspiciousBehavior
+  UnsupportedActivity
 }
 
 """The different statuses a MerchantPaymentMethod can have"""

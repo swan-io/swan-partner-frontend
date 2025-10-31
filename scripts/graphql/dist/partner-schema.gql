@@ -11945,6 +11945,8 @@ enum MerchantPaymentMethodRejectionReason {
 
   """General rejection where an error occurred on Swan's side."""
   SwanTechnicalErrorOccurred
+  SuspiciousBehavior
+  UnsupportedActivity
 }
 
 type MerchantPaymentMethodSepaDirectDebitInvalidRejection implements Rejection {

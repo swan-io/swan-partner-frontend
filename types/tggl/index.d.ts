@@ -31,7 +31,6 @@ declare module "tggl-client" {
   }
 
   export interface TgglFlags {
-    account_contract_enable_maestro_provider: boolean;
     account_contract_send_tcu_notifications: null | true;
     account_contract_use_swan_tcu_templates_for_disabled_projects: true;
     account_contract_use_swan_templates_for_tcu_notifications: true;
@@ -42,6 +41,7 @@ declare module "tggl-client" {
     activate_satd_manual_seizure_in_payment: boolean;
     activatePhysicalCardNotificationEnabledGlobally: boolean;
     add_default_expiration_for_suvc_one_of_at_creation: boolean;
+    adminAuthThroughBFF: boolean;
     allowServerToServerConsent: boolean;
     arbirtray: 1 | 2;
     aria_enabled: boolean;
@@ -54,6 +54,7 @@ declare module "tggl-client" {
       | "PaymentOnly";
     bankingBulkTransfer: true;
     beneficiaries: true;
+    billing_card_package_types_configuration_enabled: boolean;
     billing_check_return_enabled: boolean;
     billing_kafka_consumers_enabled: boolean;
     billing_sms_notification: boolean;
@@ -72,6 +73,7 @@ declare module "tggl-client" {
     cardPermanentlyBlockedNotificationEnabledGlobally: boolean;
     cardPinInvalidNotificationEnabledGlobally: boolean;
     cardSpendingLimitReachedNotificationEnabledGlobally: boolean;
+    categoryPurposeOnSCTOutInitiation: boolean;
     check_order_of_xpay_events: boolean;
     ciao_es_enabled: boolean;
     cms_call_cema_carte_for_choose_pin: true;
@@ -96,19 +98,20 @@ declare module "tggl-client" {
     dataExportOnboarding: boolean;
     dataExportTransactions: boolean;
     dataExportUser: boolean;
-    dateFromWhichEnforceTaxIdNumberWhenCountriesDontMatchForCRS: "-" | "2025-09-19";
+    dateFromWhichEnforceTaxIdNumberWhenCountriesDontMatchForCRS: "-" | "2025-10-28";
+    deferredDebitCard: boolean;
     disable_emails_for_capital_deposit_case: boolean;
     disable_expert_identification_level: true;
     disable_pvid_identification_level: true;
     disable_qes_identification_level: true;
     dont_change_default_expiration_for_suvc_one_off_at_update: boolean;
+    enable_card_risk_assessment: boolean;
     enable_card_token_proxy: boolean;
     enable_cgw_v2: boolean;
     enable_credit_zero_amount_author_public_api: boolean;
     enable_document_convertor_from_csv_generation: boolean;
     enable_document_convertor_generation: boolean;
     enable_document_generation_by_document_convertor: boolean;
-    enable_ict_validation_rejection: boolean;
     enable_new_account_statement_file_name: boolean;
     enable_new_transaction_statement_file_name: boolean;
     enable_transaction_enrichment_from_origin_transaction: boolean;
@@ -118,15 +121,10 @@ declare module "tggl-client" {
     enableIdentityTheftPreventionPage: true;
     end_customer_billing_enabled: boolean;
     end_customer_ict_billing_enabled: boolean;
-    FEATURE_FLAG_KYSELY_ENABLED_CREDIT: boolean;
     FeatureFlagCreditEnabled: 1 | 2;
     forceAllowDesktopAuth: boolean;
     free_units_enabled: boolean;
-    handleLedgerEventTransactionRecordedEnabled: boolean;
-    ict_nats_create_international_beneficiary_enabled: boolean;
-    ict_nats_fetch_quote_from_target_amount_enabled: boolean;
-    ict_nats_fetch_transaction_requirements_enabled: boolean;
-    idempotency_initiate_credit_transfers: boolean;
+    ict_validation_rejection_enabled: boolean;
     identificationUserInfoCollectionAndReview: boolean;
     identityBirthDataCollection: true;
     incomingForeignTransferScreeningEnabled: true;
@@ -137,9 +135,11 @@ declare module "tggl-client" {
     incomingTransferScreeningLimit: 50;
     initiate_international_credit_transfer_outgoing: boolean;
     initiate_seizures_in_payment: boolean;
-    international_gateway_nats_consumer_enabled: true;
+    initiate_seizures_in_payment_for_bailiff: boolean;
+    inPersonCardPaymentMethodEnabled: boolean;
     isConsentFailedEventEnabled: true;
     isCustomerPasswordResetAvailable: true;
+    isDashboardSignupForNewSuspiciousUserCheckEnabled: boolean;
     isForceDesktopAuthenticationEnabled: boolean;
     isPhoneNumberSuspicious: boolean;
     isScaDelegationEnabled: boolean;
@@ -149,10 +149,23 @@ declare module "tggl-client" {
     la_poste_tracked_international_active: boolean;
     lago_partner_event_use_billing_periods: boolean;
     ledgerSpendingMigrationEnabled: boolean;
-    ledgerSpendingMigrationLimit: boolean;
+    ledgerSpendingMigrationInconsistentAccounts: {
+      accounts: Array<
+        | "298904e8-9b09-4c51-8b15-0b42e99e8acd"
+        | "31a685e6-184b-4483-862b-7fb85c42b190"
+        | "3b742bef-f23c-4724-ad97-0d76b3feb401"
+        | "3d358579-8fbb-43df-a6b6-55bcbac3fb4f"
+        | "517b28e1-35a1-4e4d-8763-c243d2286286"
+        | "69dbe1d9-c2b6-4453-9d1f-9d482615f474"
+        | "813e29c3-bc66-4eda-a2b4-8c1c300271cf"
+        | "d262cab2-b4a8-4c90-87cc-786bb25b27fb"
+        | "fb8baa30-a989-4d30-942f-26749eb24449"
+        | "fc4f1e61-31c9-4a5a-87ae-af871854c3c7"
+      >;
+    };
+    ledgerSpendingMigrationLimit: 0 | 1 | 10 | 100 | 1000 | 10000;
     lockRecomputeEnableB2B: true;
     merchantWebBanking: boolean;
-    mutationAddSepaTrustedBeneficiaries: boolean;
     name_matching_use_valid_names_enabled: boolean;
     new_reason_codes_capital_deposit_documents: true;
     newGqlGateway: boolean;
@@ -168,7 +181,6 @@ declare module "tggl-client" {
     recurring_suvc_fee_enabled: boolean;
     refundFeesActivateFixOnInvertedAccountIds: boolean;
     resolve_iban_mode: "normal" | "passive" | "view";
-    retry_settlement_fct_out_enabled: boolean;
     return_ict_in_enabled: boolean;
     return_transaction_mutation_ict_in: boolean;
     riskScoringStrategy:
@@ -180,26 +192,29 @@ declare module "tggl-client" {
     satd_account_matching_check_for_risk_suspicion: boolean;
     satd_account_matching_mode: "AccountContractAndPayment" | "AccountContractOnly" | "PaymentOnly";
     satd_concurrent_cases_enabled: boolean;
+    scaIAMDailyMaximumNumberOfSignInPerIp: 10 | 100 | 1000 | 100000 | 5;
     scaIAMDailyMaximumNumberOfSignInPerPhoneNumber: 10 | 100 | 1000 | 100000;
+    scaIsCountrySuspiciousCheckEnabled: boolean;
     scaIsInternalOtpEnabled: boolean;
+    scaIsLoginChallengeCheckEnabled: boolean;
     scaIsNotificationManagerEnabled: boolean;
     scaIsPhoneCountryCodeBlocked: boolean;
+    scaIsWebBankingBrandlessLoginChallengeCheckEnabled: boolean;
     scale_merchant_onboarding_bo: boolean;
     scaleMerchantOnboarding: boolean;
     scaV1ToV2IdsConversionBatchSize: 0 | 10 | 100 | 20 | 200 | 3 | 5 | 50 | 75;
+    scoreThresholdHCaptcha: 0.75 | 0.8 | 0.9 | 1.5;
     screeningSctInAndFctInWithNats: boolean;
     sctInstEnabled: boolean;
     send_account_invoice_generated_event: boolean;
+    send_activate_physical_card_notification: boolean;
     send_back_new_response_type: boolean;
     sendCreditAndZeroAmountAuthorization: boolean;
-    sepa_beneficiary_verification_enabled: boolean;
     sepaDirectDebitInV2: true;
     SepaDirectDebitV2ActivationFlag: true;
-    sepaGatewayPublishSctInstEventsThroughFastKafkaTopics: true;
     setIssuingProcessorCardProductOnRenewFeature: boolean;
     setUpAdminRole: boolean;
     storeMonextAuthenticationRequest: boolean;
-    structuredLabelType: boolean;
     swan_generate_missing_bank_details: true;
     swan_supports_local_belgian_iban: boolean;
     swan_supports_local_belgian_iban_dashboard: boolean;
@@ -211,10 +226,13 @@ declare module "tggl-client" {
     transfer_suvc_to_legal_rep_on_closed_account_membership: boolean;
     trusted_beneficiary_transfers_consent_free_enabled: boolean;
     twilioRatio: 0 | 0.2 | 0.5 | 0.6 | 0.8 | 0.95 | 1;
-    update_account_range_on_business_cards: true;
     use_account_statement_kms_bucket: boolean;
     use_mailjet_subaccount_for_mass_emailing: true;
     use_notification_manager: boolean;
+    useNotificationStackToSendAccountOpenedEmail: boolean;
+    useNotificationStackToSendNewAccountTcuEmail: boolean;
+    useNotificationStackToSendNewMembershipEmail: boolean;
+    useNotificationStackToSendSupportingDocumentRequestEmail: boolean;
     useNotificationStackToSendTCUUpdates: boolean;
     usePaymentV2FlowForAccountFunding: boolean;
     useTwilioVerifyServiceSidAlan: true;

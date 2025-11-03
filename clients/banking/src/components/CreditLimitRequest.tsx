@@ -1,7 +1,7 @@
 import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
 import { useMutation, useQuery } from "@swan-io/graphql-client";
-import { Box } from "@swan-io/lake/src/components/Box";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
+import { Grid } from "@swan-io/lake/src/components/Grid";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -541,12 +541,11 @@ const CreditLimitRequestForm = ({ account, accountMembershipId, large }: FormPro
                 )}
               </Field>
 
-              <Box direction={large ? "row" : "column"} alignItems="stretch">
+              <Grid numColumns={large ? 2 : 1} horizontalSpace={24}>
                 <Field name="repaymentAccountAddressCity">
                   {({ value, onChange, onBlur, error }) => (
                     <LakeLabel
                       label={t("creditLimitRequest.addressCity")}
-                      style={large ? commonStyles.fill : undefined}
                       render={id => (
                         <LakeTextInput
                           value={value}
@@ -559,14 +558,11 @@ const CreditLimitRequestForm = ({ account, accountMembershipId, large }: FormPro
                     />
                   )}
                 </Field>
-
-                <Space width={large ? 24 : undefined} />
 
                 <Field name="repaymentAccountAddressPostalCode">
                   {({ value, onChange, onBlur, error }) => (
                     <LakeLabel
                       label={t("creditLimitRequest.addressPostalCode")}
-                      style={large ? commonStyles.fill : undefined}
                       render={id => (
                         <LakeTextInput
                           value={value}
@@ -579,7 +575,7 @@ const CreditLimitRequestForm = ({ account, accountMembershipId, large }: FormPro
                     />
                   )}
                 </Field>
-              </Box>
+              </Grid>
             </>
           ) : null
         }

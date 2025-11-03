@@ -120,7 +120,7 @@ export const CreditLimitIntro = ({ accountId }: Props) => {
 
               <Fill minHeight={32} />
 
-              <Link to="#" target="blank">
+              <Link to="https://docs.swan.io/" target="blank">
                 <LakeText color={colors.current.primary} style={styles.learnMore}>
                   {t("common.learnMore")}
 

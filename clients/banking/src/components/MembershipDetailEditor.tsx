@@ -786,6 +786,7 @@ export const MembershipDetailEditor = ({
                   .with(
                     { accountCountry: "DEU", country: "DEU" },
                     { accountCountry: "ITA", country: "ITA" },
+                    { accountCountry: "BEL", country: "BEL" },
                     ({ accountCountry, country }) => (
                       <Field name="taxIdentificationNumber">
                         {({ value, valid, error, onChange, ref }) => (
@@ -810,6 +811,7 @@ export const MembershipDetailEditor = ({
                                   P.union({ canViewAccount: true }, { canInitiatePayment: true }),
                                 ),
                                 { accountCountry: "ITA", country: "ITA", canInitiatePayment: true },
+                                { accountCountry: "BEL", country: "BEL", canInitiatePayment: true },
                                 () => true,
                               )
                               .otherwise(() => false)}

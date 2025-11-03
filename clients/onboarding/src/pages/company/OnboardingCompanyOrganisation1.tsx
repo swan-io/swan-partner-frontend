@@ -131,11 +131,13 @@ export const OnboardingCompanyOrganisation1 = ({
     .with({ accountCountry: "DEU", country: "DEU" }, () => true)
     .with({ accountCountry: "ESP", country: "ESP" }, () => true)
     .with({ accountCountry: "ITA", country: "ITA" }, () => true)
+    .with({ accountCountry: "BEL", country: "BEL" }, () => true)
     .otherwise(() => false);
   const isTaxIdentificationRequired = match({ accountCountry, country })
     .with({ accountCountry: P.not(country) }, () => true)
     .with({ accountCountry: "ESP", country: "ESP" }, () => true)
     .with({ accountCountry: "ITA", country: "ITA" }, () => true)
+    .with({ accountCountry: "BEL", country: "BEL" }, () => true)
     .otherwise(() => false);
 
   const isRegisteredRadioButtonsVisible = country === "DEU";

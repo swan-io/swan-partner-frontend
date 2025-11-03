@@ -52,7 +52,7 @@ export const getUpdateOnboardingError = (
 export const getRegistrationNumberName = (country: CountryCCA3, companyType: CompanyType) => {
   const name = match(country)
     .with("AUT", () => "Firmenbuchnummer")
-    .with("BEL", () => "CBE or Ondernemingsnummer")
+    .with("BEL", () => "Kruispuntbank van Ondernemingen, Crossroads Bank for Enterprises")
     .with("HRV", () => "Matični broj poslovnog subjekta [MBS]")
     .with("CYP", () => "Αριθμός Μητρώου Εταιρίας Şirket kayıt numarası")
     .with("CZE", () => "Identifikační číslo")

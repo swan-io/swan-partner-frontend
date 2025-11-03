@@ -72,7 +72,7 @@ export const OnboardingCompanyOwnershipBeneficiaryForm = ({
   onSave,
 }: Props) => {
   const isAddressRequired = match(accountCountry)
-    .with("DEU", "ESP", "FRA", "NLD", "ITA", () => true)
+    .with("DEU", "ESP", "FRA", "NLD", "ITA", "BEL", () => true)
     .otherwise(() => false);
 
   const isIdentityRequired = match(accountCountry)

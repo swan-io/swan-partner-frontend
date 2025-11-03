@@ -9,11 +9,14 @@ import { P, match } from "ts-pattern";
 import { AccountLanguage } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { AccountDetailsBillingPage } from "../pages/AccountDetailsBillingPage";
+import { AccountDetailsCreditLimitPage } from "../pages/AccountDetailsCreditLimitPage";
 import { AccountDetailsIbanPage } from "../pages/AccountDetailsIbanPage";
 import { AccountDetailsSettingsPage } from "../pages/AccountDetailsSettingsPage";
 import { AccountDetailsVirtualIbansPage } from "../pages/AccountDetailsVirtualIbansPage";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
+import { useTgglFlag } from "../utils/tggl";
+import { Redirect } from "./Redirect";
 
 const styles = StyleSheet.create({
   root: {
@@ -39,9 +42,14 @@ export const AccountDetailsArea = ({
   const route = Router.useRoute([
     "AccountDetailsIban",
     "AccountDetailsVirtualIbans",
+    "AccountDetailsCreditLimit",
     "AccountDetailsSettings",
     "AccountDetailsBilling",
   ]);
+
+  // Feature flag used only during deferred debit card development
+  // Should be removed once the feature is fully developed
+  const showDeferredDebitCard = useTgglFlag("deferredDebitCard").getOr(false);
 
   const tabs = useMemo(
     () => [
@@ -54,6 +62,15 @@ export const AccountDetailsArea = ({
             {
               label: t("accountDetails.virtualIbans.tab"),
               url: Router.AccountDetailsVirtualIbans({ accountMembershipId }),
+            },
+          ]
+        : []),
+
+      ...(!isIndividual && showDeferredDebitCard
+        ? [
+            {
+              label: t("accountDetails.creditLimit.tab"),
+              url: Router.AccountDetailsCreditLimit({ accountMembershipId }),
             },
           ]
         : []),
@@ -71,7 +88,7 @@ export const AccountDetailsArea = ({
         url: Router.AccountDetailsSettings({ accountMembershipId }),
       },
     ],
-    [accountMembershipId, canReadVirtualIBAN, isIndividual],
+    [accountMembershipId, canReadVirtualIBAN, isIndividual, showDeferredDebitCard],
   );
 
   return (
@@ -95,6 +112,16 @@ export const AccountDetailsArea = ({
                 <AccountDetailsVirtualIbansPage accountId={accountId} large={large} />
               </>
             ))
+            .with({ name: "AccountDetailsCreditLimit" }, () =>
+              showDeferredDebitCard ? (
+                <AccountDetailsCreditLimitPage
+                  accountId={accountId}
+                  accountMembershipId={accountMembershipId}
+                />
+              ) : (
+                <Redirect to={Router.AccountDetailsIban({ accountMembershipId })} />
+              ),
+            )
             .with({ name: "AccountDetailsBilling" }, () => (
               <>
                 <Space height={24} />

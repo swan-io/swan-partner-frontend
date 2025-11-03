@@ -117,7 +117,7 @@
   "accountDetails.creditLimit.intro.description": "Get credit immediately after you are approved. This provides your business with easy-to-repay, flexible financial help for growth.",
   "accountDetails.creditLimit.intro.learn.description": "Read more about how Swan deferred debit cards work in the Support Center.",
   "accountDetails.creditLimit.intro.learn.title": "Learn about deferred debit cards",
-  "accountDetails.creditLimit.intro.request": "Request",
+  "accountDetails.creditLimit.intro.request.cta": "Request",
   "accountDetails.creditLimit.intro.request.description": "Request approval for a credit limit that you repay weekly or monthly.",
   "accountDetails.creditLimit.intro.request.title": "Request a credit limit",
   "accountDetails.creditLimit.intro.title": "Request a credit limit to manage cash flow and simplify your payments",

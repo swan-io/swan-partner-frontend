@@ -5,6 +5,6 @@ type Props = {
   accountMembershipId: string;
 };
 
-export const AccountDetailsCreditLimitPage = ({ accountMembershipId }: Props) => {
-  return <CreditLimitIntro accountMembershipId={accountMembershipId} />;
+export const AccountDetailsCreditLimitPage = ({ accountId }: Props) => {
+  return <CreditLimitIntro accountId={accountId} />;
 };

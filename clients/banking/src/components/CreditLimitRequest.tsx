@@ -1,5 +1,6 @@
 import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
 import { useMutation, useQuery } from "@swan-io/graphql-client";
+import { Box } from "@swan-io/lake/src/components/Box";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
@@ -61,6 +62,7 @@ export const CreditLimitRequest = ({ accountId /*resourceId, status*/ }: Props) 
     accountId,
   });
 
+  // Load automatically all account memberships until we find the current account
   useEffect(() => {
     match(data)
       .with(AsyncData.P.Done(Result.P.Ok(P.select({ user: P.nonNullable }))), ({ user }) => {
@@ -68,7 +70,6 @@ export const CreditLimitRequest = ({ accountId /*resourceId, status*/ }: Props) 
           user.accountMemberships.pageInfo.hasNextPage === true &&
           !user.accountMemberships.edges.some(membership => membership.node.accountId === accountId)
         ) {
-          console.log(user.accountMemberships.pageInfo.endCursor);
           setVariables({ after: user.accountMemberships.pageInfo.endCursor });
         }
       })
@@ -129,7 +130,7 @@ export const CreditLimitRequest = ({ accountId /*resourceId, status*/ }: Props) 
                       })
                       .toUndefined()}
                   >
-                    {() => (
+                    {({ large }) => (
                       <>
                         <LakeHeading level={2} variant="h3" color={colors.gray[700]}>
                           {t("creditLimitRequest.title")}
@@ -144,6 +145,7 @@ export const CreditLimitRequest = ({ accountId /*resourceId, status*/ }: Props) 
                           accountMembershipId={userMembershipIdOnCurrentAccount.getOr(
                             account.legalRepresentativeMembership.id,
                           )}
+                          large={large}
                         />
                       </>
                     )}
@@ -208,9 +210,10 @@ const monthDays: Item<number>[] = Array.from({ length: 31 }, (_, i) => i + 1).ma
 type FormProps = {
   account: RepaymentAccountFragment;
   accountMembershipId: string;
+  large: boolean;
 };
 
-const CreditLimitRequestForm = ({ account, accountMembershipId }: FormProps) => {
+const CreditLimitRequestForm = ({ account, accountMembershipId, large }: FormProps) => {
   const [requestCreditLimitSettings, creditLimitSettingsRequest] = useMutation(
     RequestCreditLimitSettingsDocument,
   );
@@ -504,6 +507,23 @@ const CreditLimitRequestForm = ({ account, accountMembershipId }: FormProps) => 
                 )}
               </Field>
 
+              <Field name="repaymentAccountAddressCountry">
+                {({ value, onChange, onBlur, error }) => (
+                  <LakeLabel
+                    label={t("creditLimitRequest.addressCountry")}
+                    render={id => (
+                      <LakeTextInput
+                        value={value}
+                        onChangeText={onChange}
+                        onBlur={onBlur}
+                        id={id}
+                        error={error}
+                      />
+                    )}
+                  />
+                )}
+              </Field>
+
               <Field name="repaymentAccountAddress">
                 {({ value, onChange, onBlur, error }) => (
                   <LakeLabel
@@ -521,56 +541,45 @@ const CreditLimitRequestForm = ({ account, accountMembershipId }: FormProps) => 
                 )}
               </Field>
 
-              <Field name="repaymentAccountAddressPostalCode">
-                {({ value, onChange, onBlur, error }) => (
-                  <LakeLabel
-                    label={t("creditLimitRequest.addressPostalCode")}
-                    render={id => (
-                      <LakeTextInput
-                        value={value}
-                        onChangeText={onChange}
-                        onBlur={onBlur}
-                        id={id}
-                        error={error}
-                      />
-                    )}
-                  />
-                )}
-              </Field>
+              <Box direction={large ? "row" : "column"} alignItems="stretch">
+                <Field name="repaymentAccountAddressCity">
+                  {({ value, onChange, onBlur, error }) => (
+                    <LakeLabel
+                      label={t("creditLimitRequest.addressCity")}
+                      style={large ? commonStyles.fill : undefined}
+                      render={id => (
+                        <LakeTextInput
+                          value={value}
+                          onChangeText={onChange}
+                          onBlur={onBlur}
+                          id={id}
+                          error={error}
+                        />
+                      )}
+                    />
+                  )}
+                </Field>
 
-              <Field name="repaymentAccountAddressCity">
-                {({ value, onChange, onBlur, error }) => (
-                  <LakeLabel
-                    label={t("creditLimitRequest.addressCity")}
-                    render={id => (
-                      <LakeTextInput
-                        value={value}
-                        onChangeText={onChange}
-                        onBlur={onBlur}
-                        id={id}
-                        error={error}
-                      />
-                    )}
-                  />
-                )}
-              </Field>
+                <Space width={large ? 24 : undefined} />
 
-              <Field name="repaymentAccountAddressCountry">
-                {({ value, onChange, onBlur, error }) => (
-                  <LakeLabel
-                    label={t("creditLimitRequest.addressCountry")}
-                    render={id => (
-                      <LakeTextInput
-                        value={value}
-                        onChangeText={onChange}
-                        onBlur={onBlur}
-                        id={id}
-                        error={error}
-                      />
-                    )}
-                  />
-                )}
-              </Field>
+                <Field name="repaymentAccountAddressPostalCode">
+                  {({ value, onChange, onBlur, error }) => (
+                    <LakeLabel
+                      label={t("creditLimitRequest.addressPostalCode")}
+                      style={large ? commonStyles.fill : undefined}
+                      render={id => (
+                        <LakeTextInput
+                          value={value}
+                          onChangeText={onChange}
+                          onBlur={onBlur}
+                          id={id}
+                          error={error}
+                        />
+                      )}
+                    />
+                  )}
+                </Field>
+              </Box>
             </>
           ) : null
         }

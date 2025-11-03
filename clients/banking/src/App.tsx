@@ -10,6 +10,7 @@ import { P, match } from "ts-pattern";
 import { AccountClose } from "./components/AccountClose";
 import { AccountMembershipArea } from "./components/AccountMembershipArea";
 import { AddReceivedSepaDirectDebitB2bMandate } from "./components/AddReceivedSepaDirectDebitB2bMandate";
+import { CreditLimitRequest } from "./components/CreditLimitRequest";
 import { ErrorView } from "./components/ErrorView";
 import { ProjectRootRedirect } from "./components/ProjectRootRedirect";
 import { Redirect } from "./components/Redirect";
@@ -20,6 +21,7 @@ import { partnerClient, unauthenticatedClient } from "./utils/gql";
 import { logFrontendError } from "./utils/logger";
 import { projectConfiguration } from "./utils/projectId";
 import { Router } from "./utils/routes";
+import { useTgglFlag } from "./utils/tggl";
 
 const styles = StyleSheet.create({
   base: {
@@ -34,9 +36,14 @@ const AppContainer = () => {
     "ProjectRootRedirect",
     "AccountArea",
     "AccountClose",
+    "CreditLimitRequest",
     "AddReceivedSepaDirectDebitB2bMandate",
   ]);
   const [authStatus] = useQuery(AuthStatusDocument, {});
+
+  // Feature flag used only during deferred debit card development
+  // Should be removed once the feature is fully developed
+  const showDeferredDebitCard = useTgglFlag("deferredDebitCard").getOr(false);
 
   const loginInfo = authStatus
     .mapOk(data => data.user?.id != null)
@@ -68,6 +75,7 @@ const AppContainer = () => {
           { name: "AccountArea" },
           { name: "ProjectRootRedirect" },
           { name: "AccountClose" },
+          { name: "CreditLimitRequest" },
           { name: "AddReceivedSepaDirectDebitB2bMandate" },
           route =>
             isLoggedIn ? (
@@ -75,6 +83,19 @@ const AppContainer = () => {
                 .with({ name: "AccountClose" }, ({ params: { accountId, resourceId, status } }) => (
                   <AccountClose accountId={accountId} resourceId={resourceId} status={status} />
                 ))
+                .with(
+                  { name: "CreditLimitRequest" },
+                  ({ params: { accountId, resourceId, status } }) =>
+                    showDeferredDebitCard ? (
+                      <CreditLimitRequest
+                        accountId={accountId}
+                        resourceId={resourceId}
+                        status={status}
+                      />
+                    ) : (
+                      <Redirect to={Router.ProjectRootRedirect()} />
+                    ),
+                )
                 .with(
                   { name: "AddReceivedSepaDirectDebitB2bMandate" },
                   ({ params: { accountId, resourceId, status } }) => (

@@ -462,7 +462,7 @@ export const CardWizardSettings = ({
                     render={id => (
                       <LakeTextInput
                         id={id}
-                        unit="€"
+                        unit="EUR"
                         value={dirtyValue ?? ""}
                         onChangeText={setDirtyValue}
                         onBlur={sanitizeInput}

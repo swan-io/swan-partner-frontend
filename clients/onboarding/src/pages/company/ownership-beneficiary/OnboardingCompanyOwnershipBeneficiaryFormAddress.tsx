@@ -127,7 +127,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = ({
             const requiredFields = Option.allFromDict({
               residencyAddressCountry,
               ...match(accountCountry)
-                .with("DEU", "ESP", () => ({
+                .with("DEU", "ESP", "BEL", () => ({
                   residencyAddressLine1,
                   residencyAddressCity,
                   residencyAddressPostalCode,
@@ -254,6 +254,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = ({
                 { accountCountry: "DEU", residencyAddressCountry: "DEU" },
                 { accountCountry: "ESP" },
                 { accountCountry: "ITA" },
+                { accountCountry: "BEL" },
                 () => (
                   <>
                     <Space height={12} />

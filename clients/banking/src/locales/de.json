@@ -121,6 +121,8 @@
   "accountDetails.creditLimit.intro.request.description": "Fordern Sie die Genehmigung für einen Kreditrahmen an, den Sie wöchentlich oder monatlich zurückzahlen.",
   "accountDetails.creditLimit.intro.request.title": "Einen Kreditrahmen anfordern",
   "accountDetails.creditLimit.intro.title": "Fordern Sie einen Kreditrahmen an, um den Cashflow zu steuern und Ihre Zahlungen zu vereinfachen",
+  "accountDetails.creditLimit.pending.description": "Bitte erlauben Sie bis zu 48 Stunden für die Überprüfung.",
+  "accountDetails.creditLimit.pending.title": "Wir überprüfen Ihre Anfrage für {amount}",
   "accountDetails.creditLimit.tab": "Kreditrahmen",
   "accountDetails.iban.addressLabel": "Adresse",
   "accountDetails.iban.bankDetails": "Bankdaten",

@@ -61,9 +61,9 @@ const styles = StyleSheet.create({
 
 const COOKIE_REFRESH_INTERVAL = 30000; // 30s
 
-type Props = { accountId: string };
+type Props = { accountId: string; from: string | undefined };
 
-export const CreditLimitRequest = ({ accountId }: Props) => {
+export const CreditLimitRequest = ({ accountId, from }: Props) => {
   const [data, { setVariables }] = useQuery(CreditLimitRequestDocument, {
     first: 20,
     accountId,
@@ -119,9 +119,18 @@ export const CreditLimitRequest = ({ accountId }: Props) => {
         const onClose = userMembershipIdOnCurrentAccount
           .map(
             accountMembershipId => () =>
-              Router.push("AccountRoot", {
-                accountMembershipId,
-              }),
+              match(from)
+                .with("CreditLimitTab", () =>
+                  Router.push("AccountDetailsCreditLimit", { accountMembershipId }),
+                )
+                .with("NewCard", () =>
+                  Router.push("AccountCardsList", { accountMembershipId, new: "" }),
+                )
+                .otherwise(() =>
+                  Router.push("AccountRoot", {
+                    accountMembershipId,
+                  }),
+                ),
           )
           .getOr(() => Router.push("ProjectRootRedirect"));
 

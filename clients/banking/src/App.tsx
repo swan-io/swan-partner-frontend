@@ -83,9 +83,9 @@ const AppContainer = () => {
                 .with({ name: "AccountClose" }, ({ params: { accountId, resourceId, status } }) => (
                   <AccountClose accountId={accountId} resourceId={resourceId} status={status} />
                 ))
-                .with({ name: "CreditLimitRequest" }, ({ params: { accountId } }) =>
+                .with({ name: "CreditLimitRequest" }, ({ params: { accountId, from } }) =>
                   showDeferredDebitCard ? (
-                    <CreditLimitRequest accountId={accountId} />
+                    <CreditLimitRequest accountId={accountId} from={from} />
                   ) : (
                     <Redirect to={Router.ProjectRootRedirect()} />
                   ),

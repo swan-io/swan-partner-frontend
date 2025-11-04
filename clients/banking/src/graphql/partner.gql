@@ -2620,6 +2620,15 @@ query CreditLimitRequest($accountId: ID!, $after: String, $first: Int!) {
     statusInfo {
       status
     }
+    creditLimitSettings {
+      owedAmount {
+        value
+        currency
+      }
+      statusInfo {
+        status
+      }
+    }
     ...RepaymentAccount
     legalRepresentativeMembership {
       id

@@ -1,5 +1,7 @@
 import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
 import { useMutation, useQuery } from "@swan-io/graphql-client";
+import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
+import { Box } from "@swan-io/lake/src/components/Box";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Grid } from "@swan-io/lake/src/components/Grid";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -25,7 +27,9 @@ import { useCallback, useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import {
+  Amount,
   CreditLimitRequestDocument,
+  CreditLimitStatus,
   DayEnum,
   RepaymentAccountFragment,
   RepaymentCycleLengthInput,
@@ -33,13 +37,16 @@ import {
 } from "../graphql/partner";
 import { PermissionProvider } from "../hooks/usePermissions";
 import { NotFoundPage } from "../pages/NotFoundPage";
-import { t } from "../utils/i18n";
+import { formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { validateNumeric, validateRequired } from "../utils/validations";
 import { ErrorView } from "./ErrorView";
 import { WizardLayout } from "./WizardLayout";
 
 const styles = StyleSheet.create({
+  fill: {
+    ...commonStyles.fill,
+  },
   container: {
     ...commonStyles.fill,
     backgroundColor: backgroundColor.default,
@@ -54,9 +61,9 @@ const styles = StyleSheet.create({
 
 const COOKIE_REFRESH_INTERVAL = 30000; // 30s
 
-type Props = { accountId: string; resourceId: string | undefined; status: string | undefined };
+type Props = { accountId: string };
 
-export const CreditLimitRequest = ({ accountId /*resourceId, status*/ }: Props) => {
+export const CreditLimitRequest = ({ accountId }: Props) => {
   const [data, { setVariables }] = useQuery(CreditLimitRequestDocument, {
     first: 20,
     accountId,
@@ -109,6 +116,15 @@ export const CreditLimitRequest = ({ accountId /*resourceId, status*/ }: Props) 
 
         const accentColor = projectInfo.accentColor ?? invariantColors.defaultAccentColor;
 
+        const onClose = userMembershipIdOnCurrentAccount
+          .map(
+            accountMembershipId => () =>
+              Router.push("AccountRoot", {
+                accountMembershipId,
+              }),
+          )
+          .getOr(() => Router.push("ProjectRootRedirect"));
+
         return (
           <PermissionProvider
             value={Option.Some({
@@ -119,36 +135,20 @@ export const CreditLimitRequest = ({ accountId /*resourceId, status*/ }: Props) 
             <WithPartnerAccentColor color={accentColor}>
               {isLegalRepresentative ? (
                 <View style={styles.container}>
-                  <WizardLayout
-                    title={t("creditLimitRequest.creditLimit")}
-                    onPressClose={userMembershipIdOnCurrentAccount
-                      .map(accountMembershipId => {
-                        return () =>
-                          Router.push("AccountRoot", {
-                            accountMembershipId,
-                          });
-                      })
-                      .toUndefined()}
-                  >
-                    {({ large }) => (
-                      <>
-                        <LakeHeading level={2} variant="h3" color={colors.gray[700]}>
-                          {t("creditLimitRequest.title")}
-                        </LakeHeading>
-
-                        <Space height={12} />
-                        <LakeText>{t("creditLimitRequest.notice")}</LakeText>
-                        <Space height={24} />
-
-                        <CreditLimitRequestForm
-                          account={account}
-                          accountMembershipId={userMembershipIdOnCurrentAccount.getOr(
-                            account.legalRepresentativeMembership.id,
-                          )}
+                  <WizardLayout title={t("creditLimitRequest.creditLimit")} onPressClose={onClose}>
+                    {({ large }) =>
+                      account.creditLimitSettings == null ? (
+                        <CreditLimitRequestForm account={account} large={large} />
+                      ) : (
+                        <CreditLimitRequestResult
+                          status={account.creditLimitSettings.statusInfo.status}
+                          owedAmount={account.creditLimitSettings.owedAmount}
+                          accountMembershipId={userMembershipIdOnCurrentAccount}
                           large={large}
+                          onClose={onClose}
                         />
-                      </>
-                    )}
+                      )
+                    }
                   </WizardLayout>
                 </View>
               ) : (
@@ -209,11 +209,10 @@ const monthDays: Item<number>[] = Array.from({ length: 31 }, (_, i) => i + 1).ma
 
 type FormProps = {
   account: RepaymentAccountFragment;
-  accountMembershipId: string;
   large: boolean;
 };
 
-const CreditLimitRequestForm = ({ account, accountMembershipId, large }: FormProps) => {
+const CreditLimitRequestForm = ({ account, large }: FormProps) => {
   const [requestCreditLimitSettings, creditLimitSettingsRequest] = useMutation(
     RequestCreditLimitSettingsDocument,
   );
@@ -343,14 +342,11 @@ const CreditLimitRequestForm = ({ account, accountMembershipId, large }: FormPro
           creditLimitSettings,
           cycleLength,
         }).tapSome(input => {
-          const consentRedirectUrl = new URL(window.location.href);
-          consentRedirectUrl.pathname = Router.AccountRoot({ accountMembershipId });
-
           requestCreditLimitSettings({
             input: {
               ...input,
               accountId: account.id,
-              consentRedirectUrl: consentRedirectUrl.toString(),
+              consentRedirectUrl: window.location.href,
             },
           })
             .mapOkToResult(data =>
@@ -366,10 +362,18 @@ const CreditLimitRequestForm = ({ account, accountMembershipId, large }: FormPro
         });
       },
     });
-  }, [account, submitForm, accountMembershipId, requestCreditLimitSettings]);
+  }, [account, submitForm, requestCreditLimitSettings]);
 
   return (
     <>
+      <LakeHeading level={2} variant="h3" color={colors.gray[700]}>
+        {t("creditLimitRequest.title")}
+      </LakeHeading>
+
+      <Space height={12} />
+      <LakeText>{t("creditLimitRequest.notice")}</LakeText>
+      <Space height={24} />
+
       <Field name="amount">
         {({ value, onChange, onBlur, error }) => (
           <LakeLabel
@@ -592,5 +596,122 @@ const CreditLimitRequestForm = ({ account, accountMembershipId, large }: FormPro
         </LakeButton>
       </LakeButtonGroup>
     </>
+  );
+};
+
+type CreditLimitRequestResultProps = {
+  accountMembershipId: Option<string>;
+  status: CreditLimitStatus;
+  owedAmount: Amount;
+  onClose: () => void;
+  large: boolean;
+};
+
+const CreditLimitRequestResult = ({
+  accountMembershipId,
+  status,
+  owedAmount,
+  onClose,
+}: CreditLimitRequestResultProps) => {
+  return (
+    <Box alignItems="center" justifyContent="center" style={styles.fill}>
+      {match(status)
+        .with("Activated", () => (
+          <>
+            <BorderedIcon name={"lake-check"} color="positive" size={100} padding={16} />
+            <Space height={24} />
+
+            <LakeText variant="medium" align="center" color={colors.gray[900]}>
+              {formatNestedMessage("creditLimitRequest.result.success.title", {
+                amount: formatCurrency(Number(owedAmount.value), owedAmount.currency),
+                b: text => <LakeText color={colors.current[500]}>{text}</LakeText>,
+              })}
+            </LakeText>
+
+            <Space height={4} />
+
+            <LakeText variant="smallRegular" align="center" color={colors.gray[500]}>
+              {t("creditLimitRequest.result.success.description")}
+            </LakeText>
+
+            <Space height={8} />
+
+            <LakeButtonGroup>
+              <LakeButton mode="secondary" onPress={onClose}>
+                {t("common.closeButton")}
+              </LakeButton>
+              {accountMembershipId.match({
+                Some: accountMembershipId => (
+                  <LakeButton
+                    color="current"
+                    icon="add-circle-filled"
+                    href={Router.AccountCardsList({ accountMembershipId, new: "" })}
+                  >
+                    {t("creditLimitRequest.result.success.cta")}
+                  </LakeButton>
+                ),
+                None: () => null,
+              })}
+            </LakeButtonGroup>
+          </>
+        ))
+        .with("Pending", () => (
+          <>
+            <BorderedIcon name={"clock-regular"} color="shakespear" size={100} padding={16} />
+            <Space height={24} />
+
+            <LakeText variant="medium" align="center" color={colors.gray[900]}>
+              {t("creditLimitRequest.result.pending.title")}
+            </LakeText>
+
+            <Space height={4} />
+
+            <LakeText variant="smallRegular" align="center" color={colors.gray[500]}>
+              {t("creditLimitRequest.result.pending.description")}
+            </LakeText>
+
+            <Space height={24} />
+
+            {accountMembershipId.match({
+              Some: accountMembershipId => (
+                <LakeButton
+                  mode="secondary"
+                  href={Router.AccountDetailsCreditLimit({ accountMembershipId })}
+                >
+                  {t("creditLimitRequest.result.pending.cta")}
+                </LakeButton>
+              ),
+              None: () => (
+                <LakeButton mode="secondary" onPress={onClose}>
+                  {t("common.closeButton")}
+                </LakeButton>
+              ),
+            })}
+          </>
+        ))
+        .with("Deactivated", "Suspended", () => (
+          <>
+            <BorderedIcon name={"dismiss-circle-regular"} color="live" size={100} padding={16} />
+            <Space height={24} />
+
+            <LakeText variant="medium" align="center" color={colors.gray[900]}>
+              {t("creditLimitRequest.result.refused.title")}
+            </LakeText>
+
+            <Space height={4} />
+
+            <LakeText variant="smallRegular" align="center" color={colors.gray[500]}>
+              {t("creditLimitRequest.result.refused.description")}
+            </LakeText>
+
+            <Space height={24} />
+
+            <LakeButton mode="secondary" onPress={onClose}>
+              {t("common.closeButton")}
+            </LakeButton>
+          </>
+        ))
+        .exhaustive()}
+    </Box>
   );
 };

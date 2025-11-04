@@ -114,10 +114,7 @@ export const AccountDetailsArea = ({
             ))
             .with({ name: "AccountDetailsCreditLimit" }, () =>
               showDeferredDebitCard ? (
-                <AccountDetailsCreditLimitPage
-                  accountId={accountId}
-                  accountMembershipId={accountMembershipId}
-                />
+                <AccountDetailsCreditLimitPage accountId={accountId} largeBreakpoint={large} />
               ) : (
                 <Redirect to={Router.AccountDetailsIban({ accountMembershipId })} />
               ),

@@ -121,6 +121,8 @@
   "accountDetails.creditLimit.intro.request.description": "Vraag goedkeuring aan voor een kredietlimiet dat je wekelijks of maandelijks terugbetaalt.",
   "accountDetails.creditLimit.intro.request.title": "Vraag een kredietlimiet aan",
   "accountDetails.creditLimit.intro.title": "Vraag een kredietlimiet aan om de cashflow te beheren en je betalingen te vereenvoudigen",
+  "accountDetails.creditLimit.pending.description": "Gelieve tot 48 uur te wachten voor beoordeling.",
+  "accountDetails.creditLimit.pending.title": "We bekijken je aanvraag voor {amount}",
   "accountDetails.creditLimit.tab": "Kredietlimiet",
   "accountDetails.iban.addressLabel": "Adres",
   "accountDetails.iban.bankDetails": "Bankinformatie",

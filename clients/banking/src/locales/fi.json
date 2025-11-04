@@ -121,6 +121,8 @@
   "accountDetails.creditLimit.intro.request.description": "Pyydä hyväksyntää luottorajalle, jonka maksat viikoittain tai kuukausittain.",
   "accountDetails.creditLimit.intro.request.title": "Pyydä luottorajaa",
   "accountDetails.creditLimit.intro.title": "Pyydä luottorajaa hallitaksesi kassavirtaa ja yksinkertaistaaksesi maksujasi",
+  "accountDetails.creditLimit.pending.description": "Ole hyvä ja odota enintään 48 tuntia tarkastelua varten.",
+  "accountDetails.creditLimit.pending.title": "Käsittelemme pyyntöäsi {amount}",
   "accountDetails.creditLimit.tab": "Luottoraja",
   "accountDetails.iban.addressLabel": "Osoite",
   "accountDetails.iban.bankDetails": "Pankin tiedot",

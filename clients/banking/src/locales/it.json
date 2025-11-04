@@ -121,6 +121,8 @@
   "accountDetails.creditLimit.intro.request.description": "Richiedi l'approvazione per un limite di credito che ripaghi settimanalmente o mensilmente.",
   "accountDetails.creditLimit.intro.request.title": "Richiedi un limite di credito",
   "accountDetails.creditLimit.intro.title": "Richiedi un limite di credito per gestire il flusso di cassa e semplificare i pagamenti",
+  "accountDetails.creditLimit.pending.description": "Si prega di attendere fino a 48 ore per la revisione.",
+  "accountDetails.creditLimit.pending.title": "Stiamo revisionando la tua richiesta per {amount}",
   "accountDetails.creditLimit.tab": "Limite di Credito",
   "accountDetails.iban.addressLabel": "Indirizzo",
   "accountDetails.iban.bankDetails": "Coordinate bancarie",

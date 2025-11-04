@@ -422,6 +422,8 @@
   "cards.format.virtual.description": "Saatavilla välittömästi verkko-ostosten tekemiseen ja Apple Pay- ja Google Pay -sovelluksiin.",
   "cards.format.virtualAndPhysical": "Virtuaalinen ja fyysinen",
   "cards.format.virtualAndPhysical.description": "Kaikki kortit ovat välittömästi virtuaalisia luomisen jälkeen. Valitse tämä vaihtoehto, jos haluat myös fyysisen kortin.",
+  "cards.fundingType.debit": "Pankkikortti",
+  "cards.fundingType.deferredDebit": "Lykätty pankkikortti",
   "cards.maxSpendingLimit": "Enimmäiskäyttöraja",
   "cards.periodicity.oneOff": "Kertaluonteinen",
   "cards.periodicity.oneOff.description": "Jos tarvitset kertamaksun",

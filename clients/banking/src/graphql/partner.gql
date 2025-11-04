@@ -1933,6 +1933,7 @@ fragment CardProduct on CardProduct {
   __typename
   id
   name
+  fundingType
   projectId
   status
   createdAt

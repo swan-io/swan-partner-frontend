@@ -422,6 +422,8 @@
   "cards.format.virtual.description": "Disponível imediatamente para compras online, ou para uso com Apple Pay e Google Pay.",
   "cards.format.virtualAndPhysical": "Virtual + Físico",
   "cards.format.virtualAndPhysical.description": "Todos os nossos cartões são automaticamente virtuais ao serem criados. Escolha esta opção se também quiser uma versão física.",
+  "cards.fundingType.debit": "Débito",
+  "cards.fundingType.deferredDebit": "Débito Diferido",
   "cards.maxSpendingLimit": "Limite de gastos máximo",
   "cards.periodicity.oneOff": "Uso único",
   "cards.periodicity.oneOff.description": "Se precisar de um pagamento único",

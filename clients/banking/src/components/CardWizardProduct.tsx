@@ -3,13 +3,14 @@ import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Link } from "@swan-io/lake/src/components/Link";
+import { SegmentedControl } from "@swan-io/lake/src/components/SegmentedControl";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { colors, radii, spacings } from "@swan-io/lake/src/constants/design";
 import { useDisclosure } from "@swan-io/lake/src/hooks/useDisclosure";
 import { ChoicePicker } from "@swan-io/shared-business/src/components/ChoicePicker";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
-import { CSSProperties, Ref, useEffect, useImperativeHandle, useState } from "react";
+import { CSSProperties, Ref, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import {
   Pressable,
   StyleSheet,
@@ -22,11 +23,17 @@ import { match } from "ts-pattern";
 import {
   CardInsurancePackage,
   CardInsurancePackageLevel,
+  CardProductFundingType,
   GetCardProductsQuery,
 } from "../graphql/partner";
 import { formatCurrency, t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
+  tabsContainer: {
+    maxWidth: 500,
+    width: "100%",
+    marginHorizontal: "auto",
+  },
   cardDesignContainer: {
     ...StyleSheet.absoluteFillObject,
   },
@@ -331,6 +338,14 @@ export const CardWizardProduct = ({
   const [currentCardProduct, setCurrentCardProduct] = useState<CardProduct | undefined>(
     () => initialCardProduct ?? cardProducts.find(cardProduct => cardProduct.defaultCardProduct),
   );
+  const [fundingType, setFundingType] = useState<CardProductFundingType>("Debit");
+  const hasDeferredCardProductsDebit = cardProducts.some(
+    cardProduct => cardProduct.fundingType === "DeferredDebit",
+  );
+  const displayedCardProducts = useMemo(
+    () => cardProducts.filter(cardProduct => cardProduct.fundingType === fundingType),
+    [cardProducts, fundingType],
+  );
 
   useImperativeHandle(
     ref,
@@ -344,18 +359,41 @@ export const CardWizardProduct = ({
     [currentCardProduct, onSubmit],
   );
 
+  // Auto submit when there's only one card product available
   useEffect(() => {
     if (cardProducts.length <= 1 && cardProducts[0] != null) {
       onSubmit(cardProducts[0]);
     }
   }, [cardProducts, onSubmit]);
 
+  // Auto select the first card product when changing funding type
+  useEffect(() => {
+    const defaultCardProduct = displayedCardProducts.find(
+      cardProduct => cardProduct.defaultCardProduct,
+    );
+    setCurrentCardProduct(defaultCardProduct ?? displayedCardProducts[0]);
+  }, [displayedCardProducts]);
+
   const [opened, setOpened] = useDisclosure(false);
   const [insuranceType, setInsuranceType] = useState<CardInsurancePackage>();
   return (
     <>
+      {hasDeferredCardProductsDebit && (
+        <View style={styles.tabsContainer}>
+          <SegmentedControl
+            selected={fundingType}
+            onValueChange={setFundingType}
+            items={[
+              { id: "Debit", name: t("cards.fundingType.debit") },
+              { id: "DeferredDebit", name: t("cards.fundingType.deferredDebit") },
+            ]}
+          />
+          <Space height={24} />
+        </View>
+      )}
+
       <ChoicePicker
-        items={cardProducts}
+        items={displayedCardProducts}
         renderItem={cardProduct => {
           const cardDesign = cardProduct.cardDesigns.find(item => item.status === "Enabled");
           const cardDesignUrl = cardDesign?.cardDesignUrl;

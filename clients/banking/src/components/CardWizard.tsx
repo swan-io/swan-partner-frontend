@@ -34,6 +34,7 @@ import {
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
+import { useTgglFlag } from "../utils/tggl";
 import { CardWizardDelivery, CardWizardDeliveryRef } from "./CardWizardDelivery";
 import { CardFormat, CardWizardFormat, CardWizardFormatRef } from "./CardWizardFormat";
 import {
@@ -208,6 +209,10 @@ export const CardWizard = ({
     accountMembershipId: accountMembership.id,
     first: 20,
   });
+
+  // Feature flag used only during deferred debit card development
+  // Should be removed once the feature is fully developed
+  const showDeferredDebitCard = useTgglFlag("deferredDebitCard").getOr(false);
 
   const [step, setStep] = useState<Step>(INITIAL_STEP);
 
@@ -389,7 +394,14 @@ export const CardWizard = ({
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView />)
     .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), data => {
-      const cardProducts = data?.projectInfo.cardProducts ?? [];
+      const isCompany = data.accountMembership?.accountHolderType === "Company";
+      const projectCardProducts = data?.projectInfo.cardProducts ?? [];
+      // Individual accounts can only order debit cards
+      const cardProducts = isCompany
+        ? projectCardProducts.filter(
+            cardProduct => showDeferredDebitCard || cardProduct.fundingType === "Debit",
+          )
+        : projectCardProducts.filter(cardProduct => cardProduct.fundingType === "Debit");
 
       const canOrderPhysicalCard = step.cardFormat === "VirtualAndPhysical";
 

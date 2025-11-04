@@ -598,6 +598,39 @@ mutation CancelVirtualIban($virtualIbanId: ID!) {
   }
 }
 
+query CreditLimitPage($accountId: ID!) {
+  account(accountId: $accountId) {
+    creditLimitSettings {
+      owedAmount {
+        value
+        currency
+      }
+      repaymentSettings {
+        repaymentCycleLength {
+          ... on MonthlyPeriod {
+            dayOfMonth
+          }
+          ... on WeeklyPeriod {
+            dayOfWeek
+          }
+        }
+      }
+      currentCycle {
+        startDate
+        endDate
+        status
+        owedAmount {
+          value
+          currency
+        }
+      }
+      statusInfo {
+        status
+      }
+    }
+  }
+}
+
 query AccountDetailsBillingPage($accountId: ID!, $first: Int!, $after: String) {
   account(accountId: $accountId) {
     id

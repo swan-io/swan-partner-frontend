@@ -121,6 +121,8 @@
   "accountDetails.creditLimit.intro.request.description": "Request approval for a credit limit that you repay weekly or monthly.",
   "accountDetails.creditLimit.intro.request.title": "Request a credit limit",
   "accountDetails.creditLimit.intro.title": "Request a credit limit to manage cash flow and simplify your payments",
+  "accountDetails.creditLimit.pending.description": "Please allow up to 48 hours for review.",
+  "accountDetails.creditLimit.pending.title": "We're reviewing your request for {amount}",
   "accountDetails.creditLimit.tab": "Credit Limit",
   "accountDetails.iban.addressLabel": "Address",
   "accountDetails.iban.bankDetails": "Bank details",

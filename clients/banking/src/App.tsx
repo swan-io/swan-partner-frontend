@@ -83,18 +83,12 @@ const AppContainer = () => {
                 .with({ name: "AccountClose" }, ({ params: { accountId, resourceId, status } }) => (
                   <AccountClose accountId={accountId} resourceId={resourceId} status={status} />
                 ))
-                .with(
-                  { name: "CreditLimitRequest" },
-                  ({ params: { accountId, resourceId, status } }) =>
-                    showDeferredDebitCard ? (
-                      <CreditLimitRequest
-                        accountId={accountId}
-                        resourceId={resourceId}
-                        status={status}
-                      />
-                    ) : (
-                      <Redirect to={Router.ProjectRootRedirect()} />
-                    ),
+                .with({ name: "CreditLimitRequest" }, ({ params: { accountId } }) =>
+                  showDeferredDebitCard ? (
+                    <CreditLimitRequest accountId={accountId} />
+                  ) : (
+                    <Redirect to={Router.ProjectRootRedirect()} />
+                  ),
                 )
                 .with(
                   { name: "AddReceivedSepaDirectDebitB2bMandate" },

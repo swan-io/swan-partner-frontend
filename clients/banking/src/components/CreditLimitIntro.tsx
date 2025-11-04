@@ -90,12 +90,7 @@ export const CreditLimitIntro = ({ accountId }: Props) => {
                 <LakeButton
                   size="small"
                   color="current"
-                  href={Router.CreditLimitRequest({ accountId })}
-                  onPress={event => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    Router.push("CreditLimitRequest", { accountId });
-                  }}
+                  href={Router.CreditLimitRequest({ accountId, from: "CreditLimitTab" })}
                 >
                   {t("accountDetails.creditLimit.intro.request.cta")}
                 </LakeButton>

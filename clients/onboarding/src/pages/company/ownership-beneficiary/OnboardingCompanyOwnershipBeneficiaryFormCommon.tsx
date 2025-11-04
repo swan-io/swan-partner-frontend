@@ -91,7 +91,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = ({
   onSave,
 }: Props) => {
   const isBirthInfoRequired = match(accountCountry)
-    .with("ESP", "FRA", "NLD", "ITA", () => true)
+    .with("ESP", "FRA", "NLD", "ITA", "BEL", () => true)
     .otherwise(() => false);
 
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm<FormValues>({

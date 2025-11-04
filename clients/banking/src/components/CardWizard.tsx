@@ -570,6 +570,10 @@ export const CardWizard = ({
                       .with({ name: "CardProductType" }, ({ cardProduct }) => (
                         <CardWizardProduct
                           accountHolderType={data?.accountMembership?.accountHolderType}
+                          accountId={accountMembership.accountId}
+                          creditLimitStatus={
+                            data.accountMembership?.account?.creditLimitSettings?.statusInfo.status
+                          }
                           ref={cardWizardProductRef}
                           cardProducts={cardProducts}
                           initialCardProduct={cardProduct}

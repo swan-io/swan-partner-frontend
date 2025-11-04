@@ -1891,6 +1891,11 @@ query GetCardProducts(
     accountHolderType
     account {
       id
+      creditLimitSettings {
+        statusInfo {
+          status
+        }
+      }
       holder {
         id
         info {

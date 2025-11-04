@@ -29,6 +29,7 @@ const routes = {
       Area: "/*",
       Iban: "/iban",
       VirtualIbans: "/virtual-ibans",
+      CreditLimit: "/credit-limit",
       Settings: "/settings",
       Billing: "/billing",
     }),

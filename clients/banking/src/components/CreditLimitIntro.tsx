@@ -15,8 +15,8 @@ import {
   spacings,
 } from "@swan-io/lake/src/constants/design";
 import { Image, StyleSheet } from "react-native";
-import merchantProfileDocsImage from "../assets/images/merchant/merchant-profile-docs.jpg";
-import merchantProfileImage from "../assets/images/merchant/merchant-profile.jpg";
+import deferredDebitDocsImage from "../assets/images/credit-limit/deferred-debit-doc.jpg";
+import requestLimitImage from "../assets/images/credit-limit/request-limit.jpg";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 
@@ -43,11 +43,10 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  accountMembershipId: string;
+  accountId: string;
 };
 
-// TODO: Handle ChoicePicker-like layout with horizontal scroll and buttons
-export const MerchantIntro = ({ accountMembershipId }: Props) => {
+export const CreditLimitIntro = ({ accountId }: Props) => {
   return (
     <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.container}>
       {({ small }) => (
@@ -55,13 +54,13 @@ export const MerchantIntro = ({ accountMembershipId }: Props) => {
           <Fill minHeight={32} />
 
           <LakeHeading level={1} variant={small ? "h5" : "h3"} align="center">
-            {t("merchant.intro.title")}
+            {t("accountDetails.creditLimit.intro.title")}
           </LakeHeading>
 
           <Space height={small ? 8 : 12} />
 
           <LakeText color={colors.gray[500]} align="center">
-            {t("merchant.intro.description")}
+            {t("accountDetails.creditLimit.intro.description")}
           </LakeText>
 
           <Space height={small ? 32 : 72} />
@@ -72,17 +71,17 @@ export const MerchantIntro = ({ accountMembershipId }: Props) => {
             style={styles.tilesContainer}
           >
             <Tile flexGrow={1} flexShrink={1} flexBasis="50%">
-              <Image source={merchantProfileImage} style={styles.image} resizeMode="cover" />
+              <Image source={requestLimitImage} style={styles.image} resizeMode="cover" />
               <Space height={32} />
 
               <LakeText variant="medium" color={colors.gray[900]}>
-                {t("merchant.intro.merchantProfile.title")}
+                {t("accountDetails.creditLimit.intro.request.title")}
               </LakeText>
 
               <Space height={8} />
 
               <LakeText variant="smallRegular">
-                {t("merchant.intro.merchantProfile.description")}
+                {t("accountDetails.creditLimit.intro.request.description")}
               </LakeText>
 
               <Fill minHeight={16} />
@@ -91,15 +90,14 @@ export const MerchantIntro = ({ accountMembershipId }: Props) => {
                 <LakeButton
                   size="small"
                   color="current"
-                  icon="add-circle-filled"
-                  href={Router.AccountMerchantsRoot({ accountMembershipId, new: "true" })}
+                  href={Router.CreditLimitRequest({ accountId })}
                   onPress={event => {
                     event.preventDefault();
                     event.stopPropagation();
-                    Router.push("AccountMerchantsRoot", { accountMembershipId, new: "true" });
+                    Router.push("CreditLimitRequest", { accountId });
                   }}
                 >
-                  {t("merchant.intro.merchantProfile.requestAccess")}
+                  {t("accountDetails.creditLimit.intro.request.cta")}
                 </LakeButton>
               </LakeButtonGroup>
             </Tile>
@@ -107,22 +105,22 @@ export const MerchantIntro = ({ accountMembershipId }: Props) => {
             <Space width={32} height={24} />
 
             <Tile selected={false} flexGrow={1} flexShrink={1} flexBasis="50%">
-              <Image source={merchantProfileDocsImage} style={styles.image} resizeMode="cover" />
+              <Image source={deferredDebitDocsImage} style={styles.image} resizeMode="cover" />
               <Space height={32} />
 
               <LakeText variant="medium" color={colors.gray[900]}>
-                {t("merchant.intro.merchantProfileDocs.title")}
+                {t("accountDetails.creditLimit.intro.learn.title")}
               </LakeText>
 
               <Space height={8} />
 
               <LakeText variant="smallRegular">
-                {t("merchant.intro.merchantProfileDocs.description")}
+                {t("accountDetails.creditLimit.intro.learn.description")}
               </LakeText>
 
               <Fill minHeight={32} />
 
-              <Link to="https://docs.swan.io/topics/merchants/" target="blank">
+              <Link to="https://docs.swan.io/" target="blank">
                 <LakeText color={colors.current.primary} style={styles.learnMore}>
                   {t("common.learnMore")}
 

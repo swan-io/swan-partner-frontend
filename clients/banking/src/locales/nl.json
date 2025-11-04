@@ -422,6 +422,8 @@
   "cards.format.virtual.description": "Direct beschikbaar voor online aankopen, en met Apple Pay en Google Pay.",
   "cards.format.virtualAndPhysical": "Virtueel + fysiek",
   "cards.format.virtualAndPhysical.description": "Al onze kaarten zijn direct virtueel bij het aanmaken. Kies deze optie als je ook een fysieke versie wilt.",
+  "cards.fundingType.debit": "Debet",
+  "cards.fundingType.deferredDebit": "Uitgestelde Debet",
   "cards.maxSpendingLimit": "Maximum bestedingslimiet",
   "cards.periodicity.oneOff": "Eenmalig",
   "cards.periodicity.oneOff.description": "Als je een eenmalige betaling nodig hebt",

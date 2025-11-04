@@ -1,5 +1,6 @@
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Icon } from "@swan-io/lake/src/components/Icon";
+import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Link } from "@swan-io/lake/src/components/Link";
@@ -7,6 +8,7 @@ import { SegmentedControl } from "@swan-io/lake/src/components/SegmentedControl"
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { colors, radii, spacings } from "@swan-io/lake/src/constants/design";
+import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { useDisclosure } from "@swan-io/lake/src/hooks/useDisclosure";
 import { ChoicePicker } from "@swan-io/shared-business/src/components/ChoicePicker";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
@@ -24,9 +26,11 @@ import {
   CardInsurancePackage,
   CardInsurancePackageLevel,
   CardProductFundingType,
+  CreditLimitStatus,
   GetCardProductsQuery,
 } from "../graphql/partner";
-import { formatCurrency, t } from "../utils/i18n";
+import { formatCurrency, formatNestedMessage, t } from "../utils/i18n";
+import { Router } from "../utils/routes";
 
 const styles = StyleSheet.create({
   tabsContainer: {
@@ -91,6 +95,12 @@ const styles = StyleSheet.create({
   tableIcon: {
     margin: "auto",
   },
+  confirmButton: {
+    flex: 1,
+  },
+  modalLink: {
+    textDecorationLine: "underline",
+  },
 });
 
 const IMAGE_STYLE: CSSProperties = {
@@ -123,6 +133,8 @@ export type CardWizardProductRef = {
 type Props = {
   ref?: Ref<CardWizardProductRef>;
   accountHolderType: AccountHolderType | undefined;
+  accountId: string;
+  creditLimitStatus: CreditLimitStatus | undefined;
   cardProducts: NonNullable<GetCardProductsQuery["projectInfo"]["cardProducts"]>;
   initialCardProduct?: CardProduct;
   onSubmit: (cardProduct: CardProduct) => void;
@@ -330,7 +342,9 @@ export const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps
 
 export const CardWizardProduct = ({
   ref,
+  accountId,
   accountHolderType,
+  creditLimitStatus,
   cardProducts,
   initialCardProduct,
   onSubmit,
@@ -346,17 +360,27 @@ export const CardWizardProduct = ({
     () => cardProducts.filter(cardProduct => cardProduct.fundingType === fundingType),
     [cardProducts, fundingType],
   );
+  const [showRequestCreditModal, setShowRequestCreditModal] = useBoolean(false);
 
   useImperativeHandle(
     ref,
     () => ({
       submit: () => {
-        if (currentCardProduct != null) {
-          onSubmit(currentCardProduct);
+        if (currentCardProduct == null) {
+          return;
         }
+        if (
+          currentCardProduct.fundingType === "DeferredDebit" &&
+          creditLimitStatus !== "Activated"
+        ) {
+          setShowRequestCreditModal.on();
+          return;
+        }
+
+        onSubmit(currentCardProduct);
       },
     }),
-    [currentCardProduct, onSubmit],
+    [currentCardProduct, creditLimitStatus, setShowRequestCreditModal, onSubmit],
   );
 
   // Auto submit when there's only one card product available
@@ -504,6 +528,50 @@ export const CardWizardProduct = ({
         getId={item => item.id}
         onChange={setCurrentCardProduct}
       />
+
+      <LakeModal
+        visible={showRequestCreditModal}
+        icon="info-regular"
+        color="current"
+        title={t("cards.requestCreditLimit.title")}
+      >
+        <LakeText>
+          {formatNestedMessage("cards.requestCreditLimit.description", {
+            link: text => (
+              <Link to="https://docs.swan.io/" target="blank">
+                <LakeText style={styles.modalLink} color={colors.current[500]}>
+                  {text}
+                </LakeText>
+              </Link>
+            ),
+          })}
+        </LakeText>
+
+        <Space height={48} />
+
+        <Box direction="row">
+          <LakeButton
+            style={styles.confirmButton}
+            mode="secondary"
+            onPress={setShowRequestCreditModal.off}
+          >
+            {t("common.cancel")}
+          </LakeButton>
+
+          <Space width={24} />
+
+          <LakeButton
+            style={styles.confirmButton}
+            color="current"
+            onPress={() => {
+              setShowRequestCreditModal.off();
+              Router.push("CreditLimitRequest", { accountId, from: "NewCard" });
+            }}
+          >
+            {t("cards.requestCreditLimit.cta")}
+          </LakeButton>
+        </Box>
+      </LakeModal>
 
       {insuranceType !== undefined && (
         <LakeModal

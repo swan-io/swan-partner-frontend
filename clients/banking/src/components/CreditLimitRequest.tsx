@@ -122,7 +122,7 @@ export const CreditLimitRequest = ({ accountId, from }: Props) => {
             accountMembershipId => () =>
               match(from)
                 .with("CreditLimitTab", () =>
-                  Router.push("AccountDetailsCreditLimit", { accountMembershipId }),
+                  Router.push("AccountDetailsCreditLimitRoot", { accountMembershipId }),
                 )
                 .with("NewCard", () =>
                   Router.push("AccountCardsList", { accountMembershipId, new: "" }),
@@ -692,7 +692,7 @@ const CreditLimitRequestResult = ({
               Some: accountMembershipId => (
                 <LakeButton
                   mode="secondary"
-                  href={Router.AccountDetailsCreditLimit({ accountMembershipId })}
+                  href={Router.AccountDetailsCreditLimitRoot({ accountMembershipId })}
                 >
                   {t("creditLimitRequest.result.pending.cta")}
                 </LakeButton>

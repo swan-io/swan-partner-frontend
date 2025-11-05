@@ -165,14 +165,14 @@ export const MembershipsArea = ({
           queryLastCreatedMembership({ accountMembershipId: resourceId }).tapOk(membership => {
             const query = new URLSearchParams();
 
-            query.append("inviterAccountMembershipId", accountMembershipId);
-            query.append("lang", membership.accountMembership?.language ?? locale.language);
-
             if (canUseNotificationStack) {
               sendAccountMembershipInviteNotification({
                 input: { accountMembershipId: resourceId },
               });
             } else {
+              query.append("inviterAccountMembershipId", accountMembershipId);
+              query.append("lang", membership.accountMembership?.language ?? locale.language);
+
               const url = match(projectConfiguration)
                 .with(
                   Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),

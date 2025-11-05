@@ -618,6 +618,19 @@ fragment CreditLimitSettingsRequest on CreditLimitSettingsRequest {
 query CreditLimitPage($accountId: ID!) {
   account(accountId: $accountId) {
     id
+    IBAN
+    holder {
+      id
+      info {
+        name
+      }
+      residencyAddress {
+        addressLine1
+        city
+        postalCode
+        country
+      }
+    }
     creditLimitSettings {
       creditLimitSettingsRequests {
         edges {

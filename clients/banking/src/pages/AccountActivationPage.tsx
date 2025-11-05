@@ -86,50 +86,6 @@ const SupportingDocPendingRightPanel = ({
   </StepScrollView>
 );
 
-const SupportingDocTodoRightPanel = ({
-  large,
-  emailAddress,
-  accountMembershipId,
-}: {
-  large: boolean;
-  emailAddress: string | undefined;
-  accountMembershipId: string;
-}) => {
-  return (
-    <StepScrollView
-      onClose={() => {
-        Router.push("AccountActivationRoot", { accountMembershipId });
-      }}
-      large={large}
-    >
-      <LakeHeading level={3} variant="h3">
-        {t("accountActivation.documents.title")}
-      </LakeHeading>
-
-      <Space height={8} />
-      <LakeText>{t("accountActivation.documents.subtitle")}</LakeText>
-      <Space height={32} />
-
-      <Tile style={styles.rightPanelTiles}>
-        <Box alignItems="center" justifyContent="center" style={styles.illustrationPanel}>
-          <BorderedIcon name="lake-email" />
-          <Space height={32} />
-
-          <LakeHeading align="center" level={5} variant="h5">
-            {isNotNullish(emailAddress)
-              ? t("accountActivation.documents.email.title", { emailAddress })
-              : t("accountActivation.documents.email.titleNoMail")}
-          </LakeHeading>
-
-          <Space height={12} />
-
-          <LakeText align="center">{t("accountActivation.documents.email.text")}</LakeText>
-        </Box>
-      </Tile>
-    </StepScrollView>
-  );
-};
-
 const SupportingDocFormTodoRightPanel = ({
   large,
   documentCollection,
@@ -803,7 +759,6 @@ export const AccountActivationPage = ({
         const birthDate = user?.birthDate;
 
         const { supportingDocumentSettings } = projectInfo;
-        const documentCollectMode = supportingDocumentSettings?.collectMode;
         const documentCollection = holder?.supportingDocumentCollections.edges[0]?.node;
 
         const IBAN = account?.IBAN;
@@ -965,23 +920,15 @@ export const AccountActivationPage = ({
                 )
                 .with({ route: { name: "AccountActivationSupportingDocs" } }, () =>
                   match(supportingDocumentsStatus)
-                    .with("todo", () =>
-                      documentCollectMode === "EndCustomer" ? (
-                        <SupportingDocTodoRightPanel
-                          accountMembershipId={accountMembershipId}
-                          emailAddress={emailAddress}
-                          large={large}
-                        />
-                      ) : (
-                        <SupportingDocFormTodoRightPanel
-                          accountMembershipId={accountMembershipId}
-                          documentCollection={documentCollection}
-                          large={large}
-                          refetchQueries={refetchQueries}
-                          templateLanguage={templateLanguage}
-                        />
-                      ),
-                    )
+                    .with("todo", () => (
+                      <SupportingDocFormTodoRightPanel
+                        accountMembershipId={accountMembershipId}
+                        documentCollection={documentCollection}
+                        large={large}
+                        refetchQueries={refetchQueries}
+                        templateLanguage={templateLanguage}
+                      />
+                    ))
                     .with("pending", () => (
                       <SupportingDocPendingRightPanel
                         accountMembershipId={accountMembershipId}

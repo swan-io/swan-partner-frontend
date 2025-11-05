@@ -32,6 +32,7 @@ import {
   AccountLanguage,
   AccountMembershipFragment,
   ResumeAccountMembershipDocument,
+  SendAccountMembershipInviteNotificationDocument,
   SuspendAccountMembershipDocument,
   UpdateAccountMembershipDocument,
 } from "../graphql/partner";
@@ -40,6 +41,7 @@ import { accountLanguages, locale, t } from "../utils/i18n";
 import { parsePhoneNumber, prefixPhoneNumber } from "../utils/phone";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
+import { useTgglFlag } from "../utils/tggl";
 import { validateAddressLine, validateName, validateRequired } from "../utils/validations";
 import { InputPhoneNumber } from "./InputPhoneNumber";
 import { MembershipCancelConfirmationModal } from "./MembershipCancelConfirmationModal";
@@ -82,11 +84,18 @@ export const MembershipDetailEditor = ({
 }: Props) => {
   const { canUpdateAccountMembership } = usePermissions();
   const [isCancelConfirmationModalOpen, setIsCancelConfirmationModalOpen] = useState(false);
+  const canUseNotificationStack = useTgglFlag("useNotificationStackToSendNewMembershipEmail").getOr(
+    false,
+  );
 
   const [updateMembership, membershipUpdate] = useMutation(UpdateAccountMembershipDocument);
   const [suspendMembership, membershipSuspension] = useMutation(SuspendAccountMembershipDocument);
   const [unsuspendMembership, membershipUnsuspension] = useMutation(
     ResumeAccountMembershipDocument,
+  );
+
+  const [sendAccountMembershipInviteNotification] = useMutation(
+    SendAccountMembershipInviteNotificationDocument,
   );
 
   const isEditingCurrentUserAccountMembership =
@@ -381,46 +390,52 @@ export const MembershipDetailEditor = ({
   >(AsyncData.NotAsked());
 
   const sendInvitation = () => {
-    setInvitationSending(AsyncData.Loading());
-
-    const query = new URLSearchParams();
-
-    query.append("inviterAccountMembershipId", currentUserAccountMembershipId);
-    query.append("lang", getFieldValue("language"));
-
-    const url = match(projectConfiguration)
-      .with(
-        Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
-        projectId =>
-          `/api/projects/${projectId}/invitation/${editingAccountMembershipId}/send?${query.toString()}`,
-      )
-      .otherwise(() => `/api/invitation/${editingAccountMembershipId}/send?${query.toString()}`);
-
-    const request = Request.make({
-      url,
-      method: "POST",
-      credentials: "include",
-      type: "json",
-      body: JSON.stringify({
-        inviteeAccountMembershipId: editingAccountMembershipId,
-        inviterAccountMembershipId: currentUserAccountMembershipId,
-      }),
-    })
-      .mapOkToResult(badStatusToError)
-      .mapOk(() => undefined)
-      .mapError(() => undefined);
-
-    request
-      .tapError(error => {
-        showToast({ variant: "error", error, title: t("error.generic") });
-      })
-      .onResolve(value => {
-        showToast({
-          variant: "success",
-          title: t("membershipDetail.resendInvitationSuccessToast"),
-        });
-        setInvitationSending(AsyncData.Done(value));
+    if (canUseNotificationStack) {
+      sendAccountMembershipInviteNotification({
+        input: { accountMembershipId: editingAccountMembershipId },
       });
+    } else {
+      setInvitationSending(AsyncData.Loading());
+
+      const query = new URLSearchParams();
+
+      query.append("inviterAccountMembershipId", currentUserAccountMembershipId);
+      query.append("lang", getFieldValue("language"));
+
+      const url = match(projectConfiguration)
+        .with(
+          Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
+          projectId =>
+            `/api/projects/${projectId}/invitation/${editingAccountMembershipId}/send?${query.toString()}`,
+        )
+        .otherwise(() => `/api/invitation/${editingAccountMembershipId}/send?${query.toString()}`);
+
+      const request = Request.make({
+        url,
+        method: "POST",
+        credentials: "include",
+        type: "json",
+        body: JSON.stringify({
+          inviteeAccountMembershipId: editingAccountMembershipId,
+          inviterAccountMembershipId: currentUserAccountMembershipId,
+        }),
+      })
+        .mapOkToResult(badStatusToError)
+        .mapOk(() => undefined)
+        .mapError(() => undefined);
+
+      request
+        .tapError(error => {
+          showToast({ variant: "error", error, title: t("error.generic") });
+        })
+        .onResolve(value => {
+          showToast({
+            variant: "success",
+            title: t("membershipDetail.resendInvitationSuccessToast"),
+          });
+          setInvitationSending(AsyncData.Done(value));
+        });
+    }
   };
 
   return (

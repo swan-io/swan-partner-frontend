@@ -3390,3 +3390,17 @@ mutation VerifyBeneficiary($input: VerifyBeneficiaryInput!) {
     }
   }
 }
+
+mutation SendAccountMembershipInviteNotification(
+  $input: SendAccountMembershipInviteNotificationInput!
+) {
+  sendAccountMembershipInviteNotification(input: $input) {
+    __typename
+    ... on SendAccountMembershipInviteNotificationSuccessPayload {
+      notificationRequestId
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import { Option } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
-import { useDeferredQuery, useQuery } from "@swan-io/graphql-client";
+import { useDeferredQuery, useMutation, useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
@@ -23,11 +23,13 @@ import {
   AccountMembershipFragment,
   MembersPageDocument,
   MembershipDetailDocument,
+  SendAccountMembershipInviteNotificationDocument,
 } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { locale, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
 import { RouteParams, Router, membershipsRoutes } from "../utils/routes";
+import { useTgglFlag } from "../utils/tggl";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { MembershipDetailArea } from "./MembershipDetailArea";
@@ -80,6 +82,13 @@ export const MembershipsArea = ({
   const [, { query: queryLastCreatedMembership }] = useDeferredQuery(MembershipDetailDocument);
   const route = Router.useRoute(membershipsRoutes);
 
+  const canUseNotificationStack = useTgglFlag("useNotificationStackToSendNewMembershipEmail").getOr(
+    false,
+  );
+
+  const [sendAccountMembershipInviteNotification] = useMutation(
+    SendAccountMembershipInviteNotificationDocument,
+  );
   const filters = useMemo(
     (): MembershipFilters => ({
       statuses: params.statuses?.filter(
@@ -143,47 +152,60 @@ export const MembershipsArea = ({
     .otherwise(() => undefined);
 
   useEffect(() => {
-    match({
-      params,
-      accountMembershipInvitationMode: __env.ACCOUNT_MEMBERSHIP_INVITATION_MODE,
-    })
-      .with(
-        {
-          params: { resourceId: P.string, status: "Accepted" },
-          accountMembershipInvitationMode: "EMAIL",
-        },
-        ({ params: { resourceId } }) => {
-          queryLastCreatedMembership({ accountMembershipId: resourceId }).tapOk(membership => {
-            const query = new URLSearchParams();
+    if (canUseNotificationStack) {
+      sendAccountMembershipInviteNotification({
+        input: { accountMembershipId: editingAccountMembershipId ?? accountMembershipId },
+      });
+    } else {
+      match({
+        params,
+        accountMembershipInvitationMode: __env.ACCOUNT_MEMBERSHIP_INVITATION_MODE,
+      })
+        .with(
+          {
+            params: { resourceId: P.string, status: "Accepted" },
+            accountMembershipInvitationMode: "EMAIL",
+          },
+          ({ params: { resourceId } }) => {
+            queryLastCreatedMembership({ accountMembershipId: resourceId }).tapOk(membership => {
+              const query = new URLSearchParams();
 
-            query.append("inviterAccountMembershipId", accountMembershipId);
-            query.append("lang", membership.accountMembership?.language ?? locale.language);
+              query.append("inviterAccountMembershipId", accountMembershipId);
+              query.append("lang", membership.accountMembership?.language ?? locale.language);
 
-            const url = match(projectConfiguration)
-              .with(
-                Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
-                projectId =>
-                  `/api/projects/${projectId}/invitation/${resourceId}/send?${query.toString()}`,
-              )
-              .otherwise(() => `/api/invitation/${resourceId}/send?${query.toString()}`);
+              const url = match(projectConfiguration)
+                .with(
+                  Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
+                  projectId =>
+                    `/api/projects/${projectId}/invitation/${resourceId}/send?${query.toString()}`,
+                )
+                .otherwise(() => `/api/invitation/${resourceId}/send?${query.toString()}`);
 
-            Request.make({
-              url,
-              method: "POST",
-              type: "text",
-            }).tap(() => {
-              Router.replace("AccountMembersList", {
-                ...params,
-                accountMembershipId,
-                resourceId: undefined,
-                status: undefined,
+              Request.make({
+                url,
+                method: "POST",
+                type: "text",
+              }).tap(() => {
+                Router.replace("AccountMembersList", {
+                  ...params,
+                  accountMembershipId,
+                  resourceId: undefined,
+                  status: undefined,
+                });
               });
             });
-          });
-        },
-      )
-      .otherwise(() => {});
-  }, [params, accountMembershipId, queryLastCreatedMembership]);
+          },
+        )
+        .otherwise(() => {});
+    }
+  }, [
+    params,
+    accountMembershipId,
+    queryLastCreatedMembership,
+    canUseNotificationStack,
+    editingAccountMembershipId,
+    sendAccountMembershipInviteNotification,
+  ]);
 
   return (
     <ResponsiveContainer breakpoint={breakpoints.large} style={styles.root}>

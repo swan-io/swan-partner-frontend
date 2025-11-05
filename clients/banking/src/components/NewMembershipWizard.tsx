@@ -35,11 +35,13 @@ import {
   AccountLanguage,
   AccountMembershipFragment,
   AddAccountMembershipDocument,
+  SendAccountMembershipInviteNotificationDocument,
 } from "../graphql/partner";
 import { accountLanguages, locale, t } from "../utils/i18n";
 import { prefixPhoneNumber } from "../utils/phone";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
+import { useTgglFlag } from "../utils/tggl";
 import {
   validateAddressLine,
   validateEmail,
@@ -121,6 +123,12 @@ export const NewMembershipWizard = ({
   onSuccess,
   onPressCancel,
 }: Props) => {
+  const canUseNotificationStack = useTgglFlag("useNotificationStackToSendNewMembershipEmail");
+
+  const [sendAccountMembershipInviteNotification] = useMutation(
+    SendAccountMembershipInviteNotificationDocument,
+  );
+
   const [step, setStep] = useState<Step>("Informations");
   const [partiallySavedValues, setPartiallySavedValues] = useState<Partial<FormState> | null>(null);
 
@@ -375,30 +383,36 @@ export const NewMembershipWizard = ({
     query.append("inviterAccountMembershipId", currentUserAccountMembership.id);
     query.append("lang", language);
 
-    const url = match(projectConfiguration)
-      .with(
-        Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
-        projectId =>
-          `/api/projects/${projectId}/invitation/${editingAccountMembershipId}/send?${query.toString()}`,
-      )
-      .otherwise(() => `/api/invitation/${editingAccountMembershipId}/send?${query.toString()}`);
-
-    return Request.make({
-      url,
-      method: "POST",
-      credentials: "include",
-      type: "json",
-      body: JSON.stringify({
-        inviteeAccountMembershipId: editingAccountMembershipId,
-        inviterAccountMembershipId: currentUserAccountMembership.id,
-      }),
-    })
-      .mapOkToResult(badStatusToError)
-      .mapOk(() => undefined)
-      .mapError(() => undefined)
-      .tapError(error => {
-        showToast({ variant: "error", error, title: t("error.generic") });
+    if (canUseNotificationStack) {
+      sendAccountMembershipInviteNotification({
+        input: { accountMembershipId: editingAccountMembershipId },
       });
+    } else {
+      const url = match(projectConfiguration)
+        .with(
+          Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
+          projectId =>
+            `/api/projects/${projectId}/invitation/${editingAccountMembershipId}/send?${query.toString()}`,
+        )
+        .otherwise(() => `/api/invitation/${editingAccountMembershipId}/send?${query.toString()}`);
+
+      return Request.make({
+        url,
+        method: "POST",
+        credentials: "include",
+        type: "json",
+        body: JSON.stringify({
+          inviteeAccountMembershipId: editingAccountMembershipId,
+          inviterAccountMembershipId: currentUserAccountMembership.id,
+        }),
+      })
+        .mapOkToResult(badStatusToError)
+        .mapOk(() => undefined)
+        .mapError(() => undefined)
+        .tapError(error => {
+          showToast({ variant: "error", error, title: t("error.generic") });
+        });
+    }
   };
 
   const onPressSubmit = () => {

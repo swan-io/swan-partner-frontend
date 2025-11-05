@@ -152,27 +152,27 @@ export const MembershipsArea = ({
     .otherwise(() => undefined);
 
   useEffect(() => {
-    if (canUseNotificationStack) {
-      sendAccountMembershipInviteNotification({
-        input: { accountMembershipId: editingAccountMembershipId ?? accountMembershipId },
-      });
-    } else {
-      match({
-        params,
-        accountMembershipInvitationMode: __env.ACCOUNT_MEMBERSHIP_INVITATION_MODE,
-      })
-        .with(
-          {
-            params: { resourceId: P.string, status: "Accepted" },
-            accountMembershipInvitationMode: "EMAIL",
-          },
-          ({ params: { resourceId } }) => {
-            queryLastCreatedMembership({ accountMembershipId: resourceId }).tapOk(membership => {
-              const query = new URLSearchParams();
+    match({
+      params,
+      accountMembershipInvitationMode: __env.ACCOUNT_MEMBERSHIP_INVITATION_MODE,
+    })
+      .with(
+        {
+          params: { resourceId: P.string, status: "Accepted" },
+          accountMembershipInvitationMode: "EMAIL",
+        },
+        ({ params: { resourceId } }) => {
+          queryLastCreatedMembership({ accountMembershipId: resourceId }).tapOk(membership => {
+            const query = new URLSearchParams();
 
-              query.append("inviterAccountMembershipId", accountMembershipId);
-              query.append("lang", membership.accountMembership?.language ?? locale.language);
+            query.append("inviterAccountMembershipId", accountMembershipId);
+            query.append("lang", membership.accountMembership?.language ?? locale.language);
 
+            if (canUseNotificationStack) {
+              sendAccountMembershipInviteNotification({
+                input: { accountMembershipId: resourceId },
+              });
+            } else {
               const url = match(projectConfiguration)
                 .with(
                   Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
@@ -193,17 +193,16 @@ export const MembershipsArea = ({
                   status: undefined,
                 });
               });
-            });
-          },
-        )
-        .otherwise(() => {});
-    }
+            }
+          });
+        },
+      )
+      .otherwise(() => {});
   }, [
     params,
     accountMembershipId,
     queryLastCreatedMembership,
     canUseNotificationStack,
-    editingAccountMembershipId,
     sendAccountMembershipInviteNotification,
   ]);
 

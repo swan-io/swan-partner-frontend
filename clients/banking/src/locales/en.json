@@ -30,7 +30,7 @@
   "accountActivation.additionalInformation.tileInfoExtraInfo": "<bold>You should have received a request for this information at {email} from the {date}.</bold>.",
   "accountActivation.alert.title": "Your account is not activated yet",
   "accountActivation.description": "You cannot use your account until it is activated. Follow these steps to complete your account activation.",
-  "accountActivation.description.pending": "We are reviewing your account informations. Please bear with us while we reviewed your account. This can take up to 3 open days.",
+  "accountActivation.description.pending": "We are reviewing your account information. Please bear with us while we reviewed your account. This can take up to 3 open days.",
   "accountActivation.documents.button.submit": "Submit",
   "accountActivation.documents.confirmModal.confirm": "Yes, I'm sure",
   "accountActivation.documents.confirmModal.message": "If you choose not to provide them now, Swan will contact you for this information shortly. Your account won't be activated until all the supporting documents are received and verified.",

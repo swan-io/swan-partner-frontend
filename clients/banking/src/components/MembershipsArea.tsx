@@ -163,13 +163,12 @@ export const MembershipsArea = ({
         },
         ({ params: { resourceId } }) => {
           queryLastCreatedMembership({ accountMembershipId: resourceId }).tapOk(membership => {
-            const query = new URLSearchParams();
-
             if (canUseNotificationStack) {
               sendAccountMembershipInviteNotification({
                 input: { accountMembershipId: resourceId },
               });
             } else {
+              const query = new URLSearchParams();
               query.append("inviterAccountMembershipId", accountMembershipId);
               query.append("lang", membership.accountMembership?.language ?? locale.language);
 

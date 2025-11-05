@@ -42,7 +42,7 @@ export const AccountDetailsArea = ({
   const route = Router.useRoute([
     "AccountDetailsIban",
     "AccountDetailsVirtualIbans",
-    "AccountDetailsCreditLimit",
+    "AccountDetailsCreditLimitArea",
     "AccountDetailsSettings",
     "AccountDetailsBilling",
   ]);
@@ -70,7 +70,7 @@ export const AccountDetailsArea = ({
         ? [
             {
               label: t("accountDetails.creditLimit.tab"),
-              url: Router.AccountDetailsCreditLimit({ accountMembershipId }),
+              url: Router.AccountDetailsCreditLimitRoot({ accountMembershipId }),
             },
           ]
         : []),
@@ -112,9 +112,13 @@ export const AccountDetailsArea = ({
                 <AccountDetailsVirtualIbansPage accountId={accountId} large={large} />
               </>
             ))
-            .with({ name: "AccountDetailsCreditLimit" }, () =>
+            .with({ name: "AccountDetailsCreditLimitArea" }, () =>
               showDeferredDebitCard ? (
-                <AccountDetailsCreditLimitPage accountId={accountId} largeBreakpoint={large} />
+                <AccountDetailsCreditLimitPage
+                  accountId={accountId}
+                  accountMembershipId={accountMembershipId}
+                  largeBreakpoint={large}
+                />
               ) : (
                 <Redirect to={Router.AccountDetailsIban({ accountMembershipId })} />
               ),

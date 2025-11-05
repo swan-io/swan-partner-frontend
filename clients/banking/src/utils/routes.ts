@@ -29,7 +29,12 @@ const routes = {
       Area: "/*",
       Iban: "/iban",
       VirtualIbans: "/virtual-ibans",
-      CreditLimit: "/credit-limit",
+      ...createGroup("CreditLimit", "/credit-limit", {
+        Area: "/*",
+        Root: "/",
+        Edit: "/edit",
+        Statements: "/statements",
+      }),
       Settings: "/settings",
       Billing: "/billing",
     }),

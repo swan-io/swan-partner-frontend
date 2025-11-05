@@ -3,6 +3,7 @@ import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
+import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -13,15 +14,18 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { GetEdge } from "@swan-io/lake/src/utils/types";
+import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import dayjs from "dayjs";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { CreditLimitIntro } from "../components/CreditLimitIntro";
 import { ErrorView } from "../components/ErrorView";
 import { ProgressBar } from "../components/ProgressBar";
+import { Redirect } from "../components/Redirect";
 import { CreditLimitPageDocument, CreditLimitPageQuery } from "../graphql/partner";
 import { getCreditLimitAmount } from "../utils/creditLimit";
 import { formatCurrency, formatNestedMessage, t } from "../utils/i18n";
+import { Router } from "../utils/routes";
 
 const styles = StyleSheet.create({
   container: {
@@ -54,6 +58,7 @@ const styles = StyleSheet.create({
 
 type Props = {
   accountId: string;
+  accountMembershipId: string;
   largeBreakpoint: boolean;
 };
 
@@ -90,10 +95,18 @@ const smallColumns: ColumnConfig<Edge, ExtraInfo>[] = columns;
 
 const keyExtractor = ({ node: { id } }: Edge) => id;
 
-export const AccountDetailsCreditLimitPage = ({ accountId, largeBreakpoint }: Props) => {
+export const AccountDetailsCreditLimitPage = ({
+  accountId,
+  accountMembershipId,
+  largeBreakpoint,
+}: Props) => {
   const [data] = useQuery(CreditLimitPageDocument, {
     accountId,
   });
+  const route = Router.useRoute([
+    "AccountDetailsCreditLimitEdit",
+    "AccountDetailsCreditLimitStatements",
+  ]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -104,6 +117,17 @@ export const AccountDetailsCreditLimitPage = ({ accountId, largeBreakpoint }: Pr
           result.match({
             Ok: ({ account }) => {
               const creditLimitSettings = account?.creditLimitSettings;
+
+              // Should never happened, in case someone tries to access edit/statements without an active credit limit
+              if (
+                (route?.name === "AccountDetailsCreditLimitEdit" ||
+                  route?.name === "AccountDetailsCreditLimitStatements") &&
+                creditLimitSettings?.statusInfo.status !== "Activated"
+              ) {
+                return (
+                  <Redirect to={Router.AccountDetailsCreditLimitRoot({ accountMembershipId })} />
+                );
+              }
 
               if (creditLimitSettings == null) {
                 return <CreditLimitIntro accountId={accountId} />;
@@ -164,10 +188,37 @@ export const AccountDetailsCreditLimitPage = ({ accountId, largeBreakpoint }: Pr
                   );
                 })
                 .with("Activated", () => (
-                  <CreditLimitInfo
-                    creditLimitSettings={creditLimitSettings}
-                    largeBreakpoint={largeBreakpoint}
-                  />
+                  <>
+                    <CreditLimitInfo
+                      accountMembershipId={accountMembershipId}
+                      creditLimitSettings={creditLimitSettings}
+                      largeBreakpoint={largeBreakpoint}
+                    />
+
+                    <LakeModal
+                      visible={route?.name === "AccountDetailsCreditLimitEdit"}
+                      icon="edit-regular"
+                      color="partner"
+                      title="Edit"
+                      onPressClose={() =>
+                        Router.push("AccountDetailsCreditLimitRoot", { accountMembershipId })
+                      }
+                    >
+                      <LakeText>Edit Credit Limit - to be implemented</LakeText>
+                    </LakeModal>
+
+                    <LakeModal
+                      visible={route?.name === "AccountDetailsCreditLimitStatements"}
+                      icon="arrow-download-filled"
+                      color="partner"
+                      title="Statements"
+                      onPressClose={() =>
+                        Router.push("AccountDetailsCreditLimitRoot", { accountMembershipId })
+                      }
+                    >
+                      <LakeText>Credit Limit Statements - to be implemented</LakeText>
+                    </LakeModal>
+                  </>
                 ))
                 .exhaustive();
             },
@@ -179,13 +230,18 @@ export const AccountDetailsCreditLimitPage = ({ accountId, largeBreakpoint }: Pr
 };
 
 type CreditLimitInfoProps = {
+  accountMembershipId: string;
   creditLimitSettings: NonNullable<
     NonNullable<CreditLimitPageQuery["account"]>["creditLimitSettings"]
   >;
   largeBreakpoint: boolean;
 };
 
-const CreditLimitInfo = ({ creditLimitSettings, largeBreakpoint }: CreditLimitInfoProps) => {
+const CreditLimitInfo = ({
+  accountMembershipId,
+  creditLimitSettings,
+  largeBreakpoint,
+}: CreditLimitInfoProps) => {
   const creditLimitAmount = getCreditLimitAmount(
     creditLimitSettings.creditLimitSettingsRequests.edges.map(edge => edge.node),
   );
@@ -193,9 +249,22 @@ const CreditLimitInfo = ({ creditLimitSettings, largeBreakpoint }: CreditLimitIn
   return (
     <>
       <View style={[styles.content, largeBreakpoint && styles.contentDesktop]}>
-        <LakeHeading level={2} variant="h4">
-          {t("accountDetails.creditLimit.title")}
-        </LakeHeading>
+        <Box direction="row" alignItems="center">
+          <LakeHeading level={2} variant="h4">
+            {t("accountDetails.creditLimit.title")}
+          </LakeHeading>
+
+          <Fill minWidth={16} />
+
+          <LakeButton
+            size="small"
+            icon="edit-regular"
+            mode="tertiary"
+            onPress={() => Router.push("AccountDetailsCreditLimitEdit", { accountMembershipId })}
+          >
+            {t("common.edit")}
+          </LakeButton>
+        </Box>
 
         <Space height={12} />
 
@@ -262,7 +331,14 @@ const CreditLimitInfo = ({ creditLimitSettings, largeBreakpoint }: CreditLimitIn
         <Space height={12} />
 
         <Box direction="row">
-          <LakeButton icon="arrow-download-filled" size="small" color="partner">
+          <LakeButton
+            icon="arrow-download-filled"
+            size="small"
+            color="partner"
+            onPress={() =>
+              Router.push("AccountDetailsCreditLimitStatements", { accountMembershipId })
+            }
+          >
             {t("accountDetails.creditLimit.statements")}
           </LakeButton>
         </Box>

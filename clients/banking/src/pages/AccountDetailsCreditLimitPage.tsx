@@ -1,28 +1,54 @@
 import { useQuery } from "@swan-io/graphql-client";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
+import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
+import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
+import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
+import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
 import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { Tile } from "@swan-io/lake/src/components/Tile";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
-import { StyleSheet } from "react-native";
+import { GetEdge } from "@swan-io/lake/src/utils/types";
+import dayjs from "dayjs";
+import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { CreditLimitIntro } from "../components/CreditLimitIntro";
 import { ErrorView } from "../components/ErrorView";
+import { ProgressBar } from "../components/ProgressBar";
 import { CreditLimitPageDocument, CreditLimitPageQuery } from "../graphql/partner";
-import { formatCurrency, t } from "../utils/i18n";
+import { getCreditLimitAmount } from "../utils/creditLimit";
+import { formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
-  content: {
+  container: {
     flexShrink: 1,
     flexGrow: 1,
+  },
+  content: {
     paddingHorizontal: spacings[24],
     paddingTop: spacings[32],
   },
   contentDesktop: {
     paddingHorizontal: spacings[40],
     paddingTop: spacings[40],
+  },
+  legendDot: {
+    width: 11,
+    height: 11,
+    borderRadius: 6,
+    borderWidth: 3,
+  },
+  legendDotUsed: {
+    backgroundColor: colors.partner[500],
+    borderColor: colors.partner[100],
+  },
+  legendDotRemaining: {
+    backgroundColor: colors.gray[100],
+    borderColor: colors.gray[500],
   },
 });
 
@@ -31,13 +57,46 @@ type Props = {
   largeBreakpoint: boolean;
 };
 
+type Account = NonNullable<CreditLimitPageQuery["account"]>;
+type Edge = GetEdge<NonNullable<NonNullable<Account["creditLimitSettings"]>["cycles"]>>;
+type ExtraInfo = null;
+
+const columns: ColumnConfig<Edge, ExtraInfo>[] = [
+  {
+    width: "grow",
+    id: "date",
+    title: t("accountDetails.creditLimit.repayments.table.repaymentDate"),
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
+    renderCell: ({ item: { node } }) => (
+      <TextCell
+        text={`${dayjs(node.startDate).format("LL")} - ${dayjs(node.endDate).format("LL")}`}
+      />
+    ),
+  },
+  {
+    width: 160,
+    id: "amount",
+    title: t("accountDetails.creditLimit.repayments.table.amount"),
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
+    renderCell: ({
+      item: {
+        node: { owedAmount },
+      },
+    }) => <TextCell text={formatCurrency(Number(owedAmount.value), owedAmount.currency)} />,
+  },
+];
+
+const smallColumns: ColumnConfig<Edge, ExtraInfo>[] = columns;
+
+const keyExtractor = ({ node: { id } }: Edge) => id;
+
 export const AccountDetailsCreditLimitPage = ({ accountId, largeBreakpoint }: Props) => {
   const [data] = useQuery(CreditLimitPageDocument, {
     accountId,
   });
 
   return (
-    <ScrollView contentContainerStyle={[styles.content, largeBreakpoint && styles.contentDesktop]}>
+    <ScrollView contentContainerStyle={styles.container}>
       {data.match({
         NotAsked: () => null,
         Loading: () => <LoadingView color={colors.current[500]} />,
@@ -72,34 +131,43 @@ export const AccountDetailsCreditLimitPage = ({ accountId, largeBreakpoint }: Pr
                     </LakeText>
                   </Box>
                 ))
-                .with("Pending", () => (
-                  <Box direction="column" justifyContent="center" alignItems="center" grow={1}>
-                    <BorderedIcon
-                      name={"clock-regular"}
-                      color="shakespear"
-                      size={100}
-                      padding={16}
-                    />
-                    <Space height={24} />
+                .with("Pending", () => {
+                  const creditLimitAmount = getCreditLimitAmount(
+                    creditLimitSettings.creditLimitSettingsRequests.edges.map(edge => edge.node),
+                  );
 
-                    <LakeText variant="medium" align="center" color={colors.gray[900]}>
-                      {t("accountDetails.creditLimit.pending.title", {
-                        amount: formatCurrency(
-                          Number(creditLimitSettings.owedAmount.value),
-                          creditLimitSettings.owedAmount.currency,
-                        ),
-                      })}
-                    </LakeText>
+                  return (
+                    <Box direction="column" justifyContent="center" alignItems="center" grow={1}>
+                      <BorderedIcon
+                        name={"clock-regular"}
+                        color="shakespear"
+                        size={100}
+                        padding={16}
+                      />
+                      <Space height={24} />
 
-                    <Space height={4} />
+                      <LakeText variant="medium" align="center" color={colors.gray[900]}>
+                        {t("accountDetails.creditLimit.pending.title", {
+                          amount: formatCurrency(
+                            creditLimitAmount.value,
+                            creditLimitAmount.currency,
+                          ),
+                        })}
+                      </LakeText>
 
-                    <LakeText variant="smallRegular" align="center" color={colors.gray[500]}>
-                      {t("accountDetails.creditLimit.pending.description")}
-                    </LakeText>
-                  </Box>
-                ))
+                      <Space height={4} />
+
+                      <LakeText variant="smallRegular" align="center" color={colors.gray[500]}>
+                        {t("accountDetails.creditLimit.pending.description")}
+                      </LakeText>
+                    </Box>
+                  );
+                })
                 .with("Activated", () => (
-                  <CreditLimitInfo creditLimitSettings={creditLimitSettings} />
+                  <CreditLimitInfo
+                    creditLimitSettings={creditLimitSettings}
+                    largeBreakpoint={largeBreakpoint}
+                  />
                 ))
                 .exhaustive();
             },
@@ -114,8 +182,155 @@ type CreditLimitInfoProps = {
   creditLimitSettings: NonNullable<
     NonNullable<CreditLimitPageQuery["account"]>["creditLimitSettings"]
   >;
+  largeBreakpoint: boolean;
 };
 
-const CreditLimitInfo = ({ creditLimitSettings }: CreditLimitInfoProps) => {
-  return <LakeText>CreditLimitInfo {creditLimitSettings.owedAmount.value}</LakeText>;
+const CreditLimitInfo = ({ creditLimitSettings, largeBreakpoint }: CreditLimitInfoProps) => {
+  const creditLimitAmount = getCreditLimitAmount(
+    creditLimitSettings.creditLimitSettingsRequests.edges.map(edge => edge.node),
+  );
+
+  return (
+    <>
+      <View style={[styles.content, largeBreakpoint && styles.contentDesktop]}>
+        <LakeHeading level={2} variant="h4">
+          {t("accountDetails.creditLimit.title")}
+        </LakeHeading>
+
+        <Space height={12} />
+
+        <Tile paddingVertical={24}>
+          <LakeHeading level={3} variant="h3">
+            {formatCurrency(creditLimitAmount.value, creditLimitAmount.currency)}
+          </LakeHeading>
+
+          <LakeText variant="smallRegular" color={colors.gray[500]}>
+            {t("accountDetails.creditLimit.amountLabel")}
+          </LakeText>
+
+          <Space height={12} />
+
+          <LakeText variant="smallMedium" color={colors.gray[900]}>
+            {match(creditLimitSettings.repaymentSettings.repaymentCycleLength)
+              .with({ __typename: "MonthlyPeriod" }, () =>
+                t("accountDetails.creditLimit.monthlyRepayment"),
+              )
+              .with({ __typename: "WeeklyPeriod" }, () =>
+                t("accountDetails.creditLimit.weeklyRepayment"),
+              )
+              .exhaustive()}
+          </LakeText>
+
+          {creditLimitSettings.currentCycle != null && (
+            <>
+              <LakeText variant="regular" color={colors.gray[500]}>
+                {formatNestedMessage("accountDetails.creditLimit.nextRepaymentDate", {
+                  date: dayjs(creditLimitSettings.currentCycle.endDate).format("dddd, LL"),
+                  b: text => (
+                    <LakeText variant="smallMedium" color={colors.gray[900]}>
+                      {text}
+                    </LakeText>
+                  ),
+                })}
+              </LakeText>
+
+              <Space height={12} />
+              <ProgressBar
+                min={0}
+                max={creditLimitAmount.value}
+                value={Number(creditLimitSettings.currentCycle?.owedAmount.value ?? "0")}
+                color="partner"
+              />
+              <Space height={12} />
+              <CreditLimitProgressLegend
+                usedAmount={{
+                  value: Number(creditLimitSettings.currentCycle.owedAmount.value),
+                  currency: creditLimitSettings.currentCycle.owedAmount.currency,
+                }}
+                availableAmount={creditLimitAmount}
+              />
+            </>
+          )}
+        </Tile>
+
+        <Space height={24} />
+
+        <LakeHeading level={2} variant="h4">
+          {t("accountDetails.creditLimit.pastRepayments")}
+        </LakeHeading>
+
+        <Space height={12} />
+
+        <Box direction="row">
+          <LakeButton icon="arrow-download-filled" size="small" color="partner">
+            {t("accountDetails.creditLimit.statements")}
+          </LakeButton>
+        </Box>
+
+        <Space height={12} />
+      </View>
+
+      <PlainListView
+        withoutScroll={true}
+        data={
+          creditLimitSettings.cycles?.edges.filter(
+            edge => edge.node.id !== creditLimitSettings.currentCycle?.id,
+          ) ?? []
+        }
+        extraInfo={null}
+        columns={columns}
+        smallColumns={smallColumns}
+        keyExtractor={keyExtractor}
+        headerHeight={48}
+        groupHeaderHeight={48}
+        rowHeight={56}
+        renderEmptyList={() => (
+          <EmptyView
+            icon="arrow-swap-regular"
+            title={t("accountDetails.virtualIbans.emptyTitle")}
+            subtitle={t("accountDetails.virtualIbans.emptyDescription")}
+          />
+        )}
+      />
+    </>
+  );
+};
+
+type CreditLimitProgressLegendProps = {
+  usedAmount: { value: number; currency: string };
+  availableAmount: { value: number; currency: string };
+};
+
+const CreditLimitProgressLegend = ({
+  usedAmount,
+  availableAmount,
+}: CreditLimitProgressLegendProps) => {
+  const remainingAmount = {
+    value: availableAmount.value - usedAmount.value,
+    currency: availableAmount.currency,
+  };
+
+  return (
+    <Box direction="row" alignItems="center">
+      <View style={[styles.legendDot, styles.legendDotUsed]} />
+      <Space width={8} />
+      <LakeText variant="smallRegular" color={colors.gray[500]}>
+        {formatNestedMessage("accountDetails.creditLimit.amountUsed", {
+          amount: formatCurrency(usedAmount.value, usedAmount.currency),
+          b: text => <LakeText color={colors.gray[900]}>{text}</LakeText>,
+        })}
+      </LakeText>
+
+      <Space width={32} />
+
+      <View style={[styles.legendDot, styles.legendDotRemaining]} />
+      <Space width={8} />
+      <LakeText variant="smallRegular" color={colors.gray[500]}>
+        {formatNestedMessage("accountDetails.creditLimit.amountRemaining", {
+          amount: formatCurrency(remainingAmount.value, remainingAmount.currency),
+          b: text => <LakeText color={colors.gray[900]}>{text}</LakeText>,
+        })}
+      </LakeText>
+    </Box>
+  );
 };

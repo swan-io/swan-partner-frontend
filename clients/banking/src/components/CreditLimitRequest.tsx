@@ -27,8 +27,8 @@ import { useCallback, useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import {
-  Amount,
   CreditLimitRequestDocument,
+  CreditLimitSettingsRequestFragment,
   CreditLimitStatus,
   DayEnum,
   RepaymentAccountFragment,
@@ -37,6 +37,7 @@ import {
 } from "../graphql/partner";
 import { PermissionProvider } from "../hooks/usePermissions";
 import { NotFoundPage } from "../pages/NotFoundPage";
+import { getCreditLimitAmount } from "../utils/creditLimit";
 import { formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { validateNumeric, validateRequired } from "../utils/validations";
@@ -151,7 +152,9 @@ export const CreditLimitRequest = ({ accountId, from }: Props) => {
                       ) : (
                         <CreditLimitRequestResult
                           status={account.creditLimitSettings.statusInfo.status}
-                          owedAmount={account.creditLimitSettings.owedAmount}
+                          creditLimitRequests={account.creditLimitSettings.creditLimitSettingsRequests.edges.map(
+                            edge => edge.node,
+                          )}
                           accountMembershipId={userMembershipIdOnCurrentAccount}
                           large={large}
                           onClose={onClose}
@@ -611,7 +614,7 @@ const CreditLimitRequestForm = ({ account, large }: FormProps) => {
 type CreditLimitRequestResultProps = {
   accountMembershipId: Option<string>;
   status: CreditLimitStatus;
-  owedAmount: Amount;
+  creditLimitRequests: CreditLimitSettingsRequestFragment[];
   onClose: () => void;
   large: boolean;
 };
@@ -619,51 +622,55 @@ type CreditLimitRequestResultProps = {
 const CreditLimitRequestResult = ({
   accountMembershipId,
   status,
-  owedAmount,
+  creditLimitRequests,
   onClose,
 }: CreditLimitRequestResultProps) => {
   return (
     <Box alignItems="center" justifyContent="center" style={styles.fill}>
       {match(status)
-        .with("Activated", () => (
-          <>
-            <BorderedIcon name={"lake-check"} color="positive" size={100} padding={16} />
-            <Space height={24} />
+        .with("Activated", () => {
+          const creditLimitAmount = getCreditLimitAmount(creditLimitRequests);
 
-            <LakeText variant="medium" align="center" color={colors.gray[900]}>
-              {formatNestedMessage("creditLimitRequest.result.success.title", {
-                amount: formatCurrency(Number(owedAmount.value), owedAmount.currency),
-                b: text => <LakeText color={colors.current[500]}>{text}</LakeText>,
-              })}
-            </LakeText>
+          return (
+            <>
+              <BorderedIcon name={"lake-check"} color="positive" size={100} padding={16} />
+              <Space height={24} />
 
-            <Space height={4} />
+              <LakeText variant="medium" align="center" color={colors.gray[900]}>
+                {formatNestedMessage("creditLimitRequest.result.success.title", {
+                  amount: formatCurrency(creditLimitAmount.value, creditLimitAmount.currency),
+                  b: text => <LakeText color={colors.current[500]}>{text}</LakeText>,
+                })}
+              </LakeText>
 
-            <LakeText variant="smallRegular" align="center" color={colors.gray[500]}>
-              {t("creditLimitRequest.result.success.description")}
-            </LakeText>
+              <Space height={4} />
 
-            <Space height={8} />
+              <LakeText variant="smallRegular" align="center" color={colors.gray[500]}>
+                {t("creditLimitRequest.result.success.description")}
+              </LakeText>
 
-            <LakeButtonGroup>
-              <LakeButton mode="secondary" onPress={onClose}>
-                {t("common.closeButton")}
-              </LakeButton>
-              {accountMembershipId.match({
-                Some: accountMembershipId => (
-                  <LakeButton
-                    color="current"
-                    icon="add-circle-filled"
-                    href={Router.AccountCardsList({ accountMembershipId, new: "" })}
-                  >
-                    {t("creditLimitRequest.result.success.cta")}
-                  </LakeButton>
-                ),
-                None: () => null,
-              })}
-            </LakeButtonGroup>
-          </>
-        ))
+              <Space height={8} />
+
+              <LakeButtonGroup>
+                <LakeButton mode="secondary" onPress={onClose}>
+                  {t("common.closeButton")}
+                </LakeButton>
+                {accountMembershipId.match({
+                  Some: accountMembershipId => (
+                    <LakeButton
+                      color="current"
+                      icon="add-circle-filled"
+                      href={Router.AccountCardsList({ accountMembershipId, new: "" })}
+                    >
+                      {t("creditLimitRequest.result.success.cta")}
+                    </LakeButton>
+                  ),
+                  None: () => null,
+                })}
+              </LakeButtonGroup>
+            </>
+          );
+        })
         .with("Pending", () => (
           <>
             <BorderedIcon name={"clock-regular"} color="shakespear" size={100} padding={16} />

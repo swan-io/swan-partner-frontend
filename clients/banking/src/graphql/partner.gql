@@ -598,12 +598,33 @@ mutation CancelVirtualIban($virtualIbanId: ID!) {
   }
 }
 
-query CreditLimitPage($accountId: ID!) {
-  account(accountId: $accountId) {
-    creditLimitSettings {
-      owedAmount {
+fragment CreditLimitSettingsRequest on CreditLimitSettingsRequest {
+  id
+  updatedAt
+  statusInfo {
+    ... on CreditLimitSettingsRequestApprovedStatusInfo {
+      authorizedAmount {
         value
         currency
+      }
+    }
+  }
+  amount {
+    value
+    currency
+  }
+}
+
+query CreditLimitPage($accountId: ID!) {
+  account(accountId: $accountId) {
+    id
+    creditLimitSettings {
+      creditLimitSettingsRequests {
+        edges {
+          node {
+            ...CreditLimitSettingsRequest
+          }
+        }
       }
       repaymentSettings {
         repaymentCycleLength {
@@ -616,12 +637,27 @@ query CreditLimitPage($accountId: ID!) {
         }
       }
       currentCycle {
+        id
         startDate
         endDate
         status
         owedAmount {
           value
           currency
+        }
+      }
+      cycles {
+        edges {
+          node {
+            id
+            startDate
+            endDate
+            status
+            owedAmount {
+              value
+              currency
+            }
+          }
         }
       }
       statusInfo {
@@ -2659,9 +2695,12 @@ query CreditLimitRequest($accountId: ID!, $after: String, $first: Int!) {
       status
     }
     creditLimitSettings {
-      owedAmount {
-        value
-        currency
+      creditLimitSettingsRequests {
+        edges {
+          node {
+            ...CreditLimitSettingsRequest
+          }
+        }
       }
       statusInfo {
         status

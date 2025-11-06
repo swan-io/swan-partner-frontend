@@ -397,11 +397,14 @@ export const CardWizard = ({
       const isCompany = data.accountMembership?.accountHolderType === "Company";
       const projectCardProducts = data?.projectInfo.cardProducts ?? [];
       // Individual accounts can only order debit cards
+
       const cardProducts = isCompany
         ? projectCardProducts.filter(
             cardProduct => showDeferredDebitCard || cardProduct.fundingType === "Debit",
           )
-        : projectCardProducts.filter(cardProduct => cardProduct.fundingType === "Debit");
+        : projectCardProducts.filter(
+            cardProduct => cardProduct.fundingType === "Debit" && isNullish(cardProduct.insurance),
+          );
 
       const canOrderPhysicalCard = step.cardFormat === "VirtualAndPhysical";
 

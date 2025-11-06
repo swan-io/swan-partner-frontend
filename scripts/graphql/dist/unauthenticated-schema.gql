@@ -3,7 +3,7 @@ type Query {
   Fetch company info (name, beneficiaries...) by Siren number
   @deprecated(reason: "This query is deprecated and will be removed in a future version.")
   """
-  companyInfoBySiren(input: CompanyInfoBySirenInput!): CompanyInfoBySirenPayload! @deprecated(reason: "This query is deprecated and will be removed in a future version.")
+  companyInfoBySiren(input: CompanyInfoBySirenInput!): CompanyInfoBySirenPayload! @deprecated(reason: "This query is deprecated and will be removed in a future version. please use publicCompanyInfoRegistryData instead")
 
   """
   Fetch company info (name, beneficiaries...) by Company Ref and Headquarter Country

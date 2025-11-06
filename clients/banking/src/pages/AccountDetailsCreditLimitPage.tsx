@@ -28,7 +28,7 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateIban } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import dayjs from "dayjs";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { CreditLimitIntro } from "../components/CreditLimitIntro";
@@ -140,97 +140,7 @@ export const AccountDetailsCreditLimitPage = ({
                 return <Redirect to={Router.ProjectRootRedirect()} />;
               }
 
-              // const creditLimitSettings = account.creditLimitSettings;
-
-              const creditLimitSettings: NonNullable<
-                CreditLimitPageQuery["account"]
-              >["creditLimitSettings"] = {
-                __typename: "CreditLimitSettings",
-                statusInfo: {
-                  __typename: "CreditLimitStatusActivatedInfo",
-                  status: "Activated",
-                },
-                creditLimitSettingsRequests: {
-                  __typename: "CreditLimitSettingsRequestConnection",
-                  edges: [
-                    {
-                      __typename: "CreditLimitSettingsRequestEdge",
-                      node: {
-                        __typename: "CreditLimitSettingsRequest",
-                        id: "request_123",
-                        updatedAt: "2024-06-10T12:00:00Z",
-                        amount: {
-                          __typename: "Amount",
-                          value: "10000",
-                          currency: "EUR",
-                        },
-                        statusInfo: {
-                          __typename: "CreditLimitSettingsRequestApprovedStatusInfo",
-                          authorizedAmount: {
-                            __typename: "Amount",
-                            value: "8000",
-                            currency: "EUR",
-                          },
-                        },
-                      },
-                    },
-                  ],
-                },
-                repaymentSettings: {
-                  __typename: "RepaymentSettings",
-                  repaymentCycleLength: {
-                    __typename: "MonthlyPeriod",
-                    dayOfMonth: 1,
-                  },
-                },
-                currentCycle: {
-                  __typename: "RepaymentCycle",
-                  id: "cycle_123",
-                  startDate: "2024-06-01",
-                  endDate: "2024-06-30",
-                  status: "Due",
-                  owedAmount: {
-                    __typename: "Amount",
-                    value: "5000",
-                    currency: "EUR",
-                  },
-                },
-                cycles: {
-                  __typename: "RepaymentCycleConnection",
-                  edges: [
-                    {
-                      __typename: "RepaymentCycleEdge",
-                      node: {
-                        __typename: "RepaymentCycle",
-                        id: "cycle_122",
-                        startDate: "2024-05-01",
-                        endDate: "2024-05-31",
-                        status: "Submitted",
-                        owedAmount: {
-                          __typename: "Amount",
-                          value: "5000",
-                          currency: "EUR",
-                        },
-                      },
-                    },
-                    {
-                      __typename: "RepaymentCycleEdge",
-                      node: {
-                        __typename: "RepaymentCycle",
-                        id: "cycle_121",
-                        startDate: "2024-04-01",
-                        endDate: "2024-04-30",
-                        status: "Submitted",
-                        owedAmount: {
-                          __typename: "Amount",
-                          value: "500",
-                          currency: "EUR",
-                        },
-                      },
-                    },
-                  ],
-                },
-              };
+              const creditLimitSettings = account.creditLimitSettings;
 
               // Should never happened, in case someone tries to access edit/statements without an active credit limit
               if (
@@ -572,6 +482,21 @@ const EditCreditLimitForm = ({
     RequestCreditLimitSettingsDocument,
   );
 
+  const repaymentInitialValues = useMemo(
+    () =>
+      match(creditLimitSettings.repaymentSettings.repaymentMethod)
+        .with({ mandate: { __typename: "InternalReceivedDirectDebitMandate" } }, ({ mandate }) => ({
+          repaymentAccountIban: mandate.iban,
+          repaymentAccountName: mandate.creditor.name,
+          repaymentAccountAddress: mandate.creditor.address.addressLine1,
+          repaymentAccountAddressPostalCode: mandate.creditor.address.postalCode,
+          repaymentAccountAddressCity: mandate.creditor.address.city,
+          repaymentAccountAddressCountry: mandate.creditor.address.country,
+        }))
+        .otherwise(() => null),
+    [creditLimitSettings.repaymentSettings.repaymentMethod],
+  );
+
   const { Field, FieldsListener, submitForm } = useForm({
     repaymentFrequency: {
       initialValue: "Monthly" as "Monthly" | "Weekly",
@@ -588,30 +513,33 @@ const EditCreditLimitForm = ({
         .otherwise(() => "Monday" as DayEnum),
     },
     repaymentMethod: {
-      initialValue: "ThisAccount" as "ThisAccount" | "AnotherAccount",
+      initialValue:
+        repaymentInitialValues?.repaymentAccountIban === accountIban
+          ? ("ThisAccount" as const)
+          : ("AnotherAccount" as const),
     },
     repaymentAccountIban: {
-      initialValue: "",
+      initialValue: repaymentInitialValues?.repaymentAccountIban ?? "",
       validate: combineValidators(validateRequired, validateIban),
     },
     repaymentAccountName: {
-      initialValue: "",
+      initialValue: repaymentInitialValues?.repaymentAccountName ?? "",
       validate: validateRequired,
     },
     repaymentAccountAddress: {
-      initialValue: "",
+      initialValue: repaymentInitialValues?.repaymentAccountAddress ?? "",
       validate: validateRequired,
     },
     repaymentAccountAddressPostalCode: {
-      initialValue: "",
+      initialValue: repaymentInitialValues?.repaymentAccountAddressPostalCode ?? "",
       validate: validateRequired,
     },
     repaymentAccountAddressCity: {
-      initialValue: "",
+      initialValue: repaymentInitialValues?.repaymentAccountAddressCity ?? "",
       validate: validateRequired,
     },
     repaymentAccountAddressCountry: {
-      initialValue: "",
+      initialValue: repaymentInitialValues?.repaymentAccountAddressCountry ?? "",
       validate: validateRequired,
     },
   });

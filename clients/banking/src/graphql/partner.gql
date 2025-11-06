@@ -648,6 +648,31 @@ query CreditLimitPage($accountId: ID!) {
             dayOfWeek
           }
         }
+        repaymentMethod {
+          ... on SepaDirectDebitB2b {
+            mandate {
+              id
+              ... on InternalReceivedDirectDebitMandate {
+                iban
+                creditor {
+                  name
+                  address {
+                    ...AddressDetails
+                  }
+                }
+              }
+              ... on SEPAReceivedDirectDebitMandate {
+                iban
+                creditor {
+                  name
+                  address {
+                    ...AddressDetails
+                  }
+                }
+              }
+            }
+          }
+        }
       }
       currentCycle {
         id

@@ -404,7 +404,8 @@ export const CardWizard = ({
           )
         : projectCardProducts.filter(
             cardProduct =>
-              cardProduct.fundingType === "Debit" &&
+              (cardProduct.fundingType === "Debit" &&
+                cardProduct.insurance?.availableInsurancePackages == null) ||
               cardProduct.insurance?.availableInsurancePackages?.length === 0,
           );
 

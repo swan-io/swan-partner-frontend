@@ -2747,51 +2747,11 @@ type BasicPhysicalCardInfo {
 
 union Beneficiary = TrustedSepaBeneficiary | UnsavedSepaBeneficiary
 
-"""BeneficiaryAccountHolderType"""
-enum BeneficiaryAccountHolderType {
-  Individual
-  Company
-
-  """Beneficiary's bank did not disclose account holder type"""
-  Unknown
-}
-
-"""BeneficiaryAccountStatus"""
-enum BeneficiaryAccountStatus {
-  Active
-  Inactive
-
-  """Beneficiary's bank did not disclose account status"""
-  Unknown
-}
-
 """Input parameters for a beneficiary"""
 input BeneficiaryInput {
   sepa: SepaBeneficiaryInput
   swanAccount: SwanAccountBeneficiaryInput
   trustedBeneficiaryId: ID
-}
-
-"""Beneficiary name and IBAN match"""
-type BeneficiaryMatch {
-  accountStatus: BeneficiaryAccountStatus!
-  accountHolderType: BeneficiaryAccountHolderType!
-}
-
-"""Beneficiary name and IBAN did not match"""
-type BeneficiaryMismatch {
-  accountStatus: BeneficiaryAccountStatus!
-  accountHolderType: BeneficiaryAccountHolderType!
-
-  """
-  Only returned if accountHolderType is Company and if the information is provided by the beneficiary's bank
-  """
-  nameSuggestion: String
-
-  """
-  Only returned if accountHolderType is Company and if the information is provided by the beneficiary's bank
-  """
-  accountHolderResidencyCity: String
 }
 
 """Beneficiary type"""
@@ -2805,32 +2765,6 @@ enum BeneficiaryType {
   """for SEPA transfer"""
   Sepa
 }
-
-"""
-Beneficiary name and IBAN did not match entirely possibly caused by a mistype
-"""
-type BeneficiaryTypo {
-  accountStatus: BeneficiaryAccountStatus!
-  accountHolderType: BeneficiaryAccountHolderType!
-
-  """Only returned if the information is provided by the beneficiary's bank"""
-  nameSuggestion: String
-}
-
-"""BeneficiaryVerification input"""
-input BeneficiaryVerificationInput {
-  """IBAN to verify"""
-  iban: IBAN!
-
-  """Name to correlate"""
-  name: String!
-
-  """AccountId of the initiator of the payment"""
-  debtorAccountId: String!
-}
-
-"""BeneficiaryVerificationResult"""
-union BeneficiaryVerificationResult = BeneficiaryMatch | BeneficiaryTypo | BeneficiaryMismatch | InvalidBeneficiaryVerification
 
 """
 Rejection returned if a BeneficiaryVerificationToken was consumed in a transfer initiation
@@ -10700,11 +10634,6 @@ type InvalidArgumentRejectionField {
   errors: [String!]!
 }
 
-"""InvalidVerification"""
-type InvalidBeneficiaryVerification {
-  message: String!
-}
-
 """Information about the invalidity of the IBAN"""
 type InvalidIban {
   """Iban from input"""
@@ -15323,6 +15252,23 @@ enum ProjectType {
   CompanyAndCustomers
 }
 
+"""Input for fetching company registry data"""
+input PublicCompanyInfoRegistryDataInput {
+  """Registration number of the company (e.g., SIREN for France)"""
+  registrationNumber: String!
+
+  """Residency address country code (ISO 3166-1 alpha-3)"""
+  residencyAddressCountry: RegistryCountry!
+}
+
+"""Result payload for company info registry data query"""
+union PublicCompanyInfoRegistryDataPayload = PublicCompanyInfoRegistryDataSuccessPayload | ValidationRejection | CompanyRegistryNotFoundRejection | CompanyRegistryUnavailableRejection | InternalErrorRejection | ForbiddenRejection
+
+"""Success response with comprehensive company information"""
+type PublicCompanyInfoRegistryDataSuccessPayload {
+  companyInfo: CompanyInfo!
+}
+
 """Rejection returned when the public onboarding is disabled"""
 type PublicOnboardingDisabledRejection implements Rejection {
   message: String!
@@ -15430,11 +15376,6 @@ type Query {
   ): AccountConnection!
 
   """
-  Allows to verify the consistency between a beneficiary name and an IBAN.
-  """
-  beneficiaryVerification(input: BeneficiaryVerificationInput): BeneficiaryVerificationResult
-
-  """
   Fetch comprehensive company registry data by registration number and optional country.
   Returns detailed company information including representatives and beneficial owners.
   @comingSoon -> this query is not available yet, and its shape is subject to breaking change
@@ -15475,6 +15416,13 @@ type Query {
     """an order you can apply to your list of connections"""
     orderBy: OnboardingOrderByInput
   ): OnboardingConnection!
+
+  """
+  Fetch comprehensive company registry data by registration number and optional country.
+  Returns detailed company information including representatives and beneficial owners.
+  @comingSoon -> this query is not available yet, and its shape is subject to breaking change
+  """
+  publicCompanyInfoRegistryData(input: PublicCompanyInfoRegistryDataInput!): PublicCompanyInfoRegistryDataPayload!
 
   """
   Returns the list of supporting document collections.
@@ -16120,6 +16068,7 @@ enum RefusedVerificationRenewalSubStatus {
   NoReply
 }
 
+"""Currently supported countries in the registry querying"""
 enum RegistryCountry {
   FRA
 }

@@ -396,12 +396,18 @@ export const CardWizard = ({
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), data => {
       const isCompany = data.accountMembership?.accountHolderType === "Company";
       const projectCardProducts = data?.projectInfo.cardProducts ?? [];
-      // Individual accounts can only order debit cards
+      // Individual accounts can only order debit cards and cards with no insurances
+
       const cardProducts = isCompany
         ? projectCardProducts.filter(
             cardProduct => showDeferredDebitCard || cardProduct.fundingType === "Debit",
           )
-        : projectCardProducts.filter(cardProduct => cardProduct.fundingType === "Debit");
+        : projectCardProducts.filter(
+            cardProduct =>
+              (cardProduct.fundingType === "Debit" &&
+                cardProduct.insurance?.availableInsurancePackages == null) ||
+              cardProduct.insurance?.availableInsurancePackages?.length === 0,
+          );
 
       const canOrderPhysicalCard = step.cardFormat === "VirtualAndPhysical";
 

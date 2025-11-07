@@ -134,6 +134,7 @@ type Props = {
   ref?: Ref<CardWizardProductRef>;
   accountHolderType: AccountHolderType | undefined;
   accountId: string;
+  isLegalRepresentative: boolean;
   creditLimitStatus: CreditLimitStatus | undefined;
   cardProducts: NonNullable<GetCardProductsQuery["projectInfo"]["cardProducts"]>;
   initialCardProduct?: CardProduct;
@@ -344,6 +345,7 @@ export const CardWizardProduct = ({
   ref,
   accountId,
   accountHolderType,
+  isLegalRepresentative,
   creditLimitStatus,
   cardProducts,
   initialCardProduct,
@@ -558,18 +560,22 @@ export const CardWizardProduct = ({
             {t("common.cancel")}
           </LakeButton>
 
-          <Space width={24} />
+          {isLegalRepresentative && (
+            <>
+              <Space width={24} />
 
-          <LakeButton
-            style={styles.confirmButton}
-            color="current"
-            onPress={() => {
-              setShowRequestCreditModal.off();
-              Router.push("CreditLimitRequest", { accountId, from: "NewCard" });
-            }}
-          >
-            {t("cards.requestCreditLimit.cta")}
-          </LakeButton>
+              <LakeButton
+                style={styles.confirmButton}
+                color="current"
+                onPress={() => {
+                  setShowRequestCreditModal.off();
+                  Router.push("CreditLimitRequest", { accountId, from: "NewCard" });
+                }}
+              >
+                {t("cards.requestCreditLimit.cta")}
+              </LakeButton>
+            </>
+          )}
         </Box>
       </LakeModal>
 

@@ -394,6 +394,8 @@ export const CardWizard = ({
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView />)
     .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), data => {
+      const isLegalRepresentative =
+        data.accountMembership?.account?.legalRepresentativeMembership.id === accountMembership.id;
       const isCompany = data.accountMembership?.accountHolderType === "Company";
       const projectCardProducts = data?.projectInfo.cardProducts ?? [];
       // Individual accounts can only order debit cards and cards with no insurances
@@ -575,8 +577,9 @@ export const CardWizard = ({
                     {match(step)
                       .with({ name: "CardProductType" }, ({ cardProduct }) => (
                         <CardWizardProduct
-                          accountHolderType={data?.accountMembership?.accountHolderType}
+                          accountHolderType={data.accountMembership?.accountHolderType}
                           accountId={accountMembership.accountId}
+                          isLegalRepresentative={isLegalRepresentative}
                           creditLimitStatus={
                             data.accountMembership?.account?.creditLimitSettings?.statusInfo.status
                           }

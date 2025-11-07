@@ -404,9 +404,9 @@ export const CardWizard = ({
           )
         : projectCardProducts.filter(
             cardProduct =>
-              (cardProduct.fundingType === "Debit" &&
-                cardProduct.insurance?.availableInsurancePackages == null) ||
-              cardProduct.insurance?.availableInsurancePackages?.length === 0,
+              cardProduct.fundingType === "Debit" &&
+              (cardProduct.insurance?.availableInsurancePackages == null ||
+                cardProduct.insurance.availableInsurancePackages.length === 0),
           );
 
       const canOrderPhysicalCard = step.cardFormat === "VirtualAndPhysical";

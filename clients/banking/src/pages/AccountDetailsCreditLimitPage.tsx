@@ -42,7 +42,7 @@ import {
   RepaymentCycleLengthInput,
   RequestCreditLimitSettingsDocument,
 } from "../graphql/partner";
-import { getCreditLimitAmount } from "../utils/creditLimit";
+import { getCreditLimitAmount, getPendingCreditLimitAmount } from "../utils/creditLimit";
 import { formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { validateRequired } from "../utils/validations";
@@ -180,7 +180,7 @@ export const AccountDetailsCreditLimitPage = ({
                   </Box>
                 ))
                 .with("Pending", () => {
-                  const creditLimitAmount = getCreditLimitAmount(
+                  const creditLimitAmount = getPendingCreditLimitAmount(
                     creditLimitSettings.creditLimitSettingsRequests.edges.map(edge => edge.node),
                   );
 

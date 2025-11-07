@@ -394,8 +394,13 @@ const CreditLimitInfo = ({
         renderEmptyList={() => (
           <EmptyView
             icon="arrow-swap-regular"
-            title={t("accountDetails.virtualIbans.emptyTitle")}
-            subtitle={t("accountDetails.virtualIbans.emptyDescription")}
+            title={
+              creditLimitSettings.currentCycle?.endDate != null
+                ? t("accountDetails.creditLimit.firstRepaymentScheduledAt", {
+                    date: dayjs(creditLimitSettings.currentCycle.endDate).format("LL"),
+                  })
+                : t("accountDetails.creditLimit.noRepaymentYet")
+            }
           />
         )}
       />

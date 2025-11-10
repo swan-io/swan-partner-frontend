@@ -137,6 +137,8 @@
   "accountDetails.creditLimit.repayments.table.amount": "Amount",
   "accountDetails.creditLimit.repayments.table.repaymentDate": "Repayment date",
   "accountDetails.creditLimit.statements": "Statements",
+  "accountDetails.creditLimit.statements.table.actions": "Actions",
+  "accountDetails.creditLimit.statements.table.period": "Period",
   "accountDetails.creditLimit.statements.title": "Download repayment statements",
   "accountDetails.creditLimit.tab": "Credit Limit",
   "accountDetails.creditLimit.title": "Credit Limit",

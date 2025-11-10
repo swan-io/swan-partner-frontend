@@ -1,4 +1,4 @@
-import { AsyncData, Option } from "@swan-io/boxed";
+import { Option } from "@swan-io/boxed";
 import { useMutation, useQuery } from "@swan-io/graphql-client";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -27,6 +27,7 @@ import {
   negativeSpacings,
   spacings,
 } from "@swan-io/lake/src/constants/design";
+import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { GetEdge } from "@swan-io/lake/src/utils/types";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
@@ -35,9 +36,9 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateIban } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import dayjs from "dayjs";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-import { match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { CreditLimitIntro } from "../components/CreditLimitIntro";
 import { ErrorView } from "../components/ErrorView";
 import { ProgressBar } from "../components/ProgressBar";
@@ -46,6 +47,7 @@ import {
   CreditLimitPageDocument,
   CreditLimitPageQuery,
   DayEnum,
+  GenerateCreditStatementDocument,
   RepaymentCycleLengthInput,
   RequestCreditLimitSettingsDocument,
 } from "../graphql/partner";
@@ -100,7 +102,9 @@ type Props = {
 
 type Account = NonNullable<CreditLimitPageQuery["account"]>;
 type Edge = GetEdge<NonNullable<NonNullable<Account["creditLimitSettings"]>["cycles"]>>;
-type ExtraInfo = null;
+type ExtraInfo = {
+  accountId: string;
+};
 
 const columns: ColumnConfig<Edge, ExtraInfo>[] = [
   {
@@ -146,8 +150,8 @@ const modalColumns: ColumnConfig<Edge, ExtraInfo>[] = [
     id: "actions",
     title: t("accountDetails.creditLimit.statements.table.actions"),
     renderTitle: ({ title }) => <HeaderCell align="right" text={title} />,
-    renderCell: ({ item: { node }, isHovered }) => (
-      <StatementActionsCell cycle={node} isRowHovered={isHovered} />
+    renderCell: ({ item: { node }, extraInfo: { accountId }, isHovered }) => (
+      <StatementActionsCell accountId={accountId} cycle={node} isRowHovered={isHovered} />
     ),
   },
 ];
@@ -267,6 +271,7 @@ export const AccountDetailsCreditLimitPage = ({
                 .with("Activated", () => (
                   <>
                     <CreditLimitInfo
+                      accountId={accountId}
                       isLegalRepresentative={isLegalRepresentative}
                       accountMembershipId={accountMembershipId}
                       creditLimitSettings={creditLimitSettings}
@@ -308,7 +313,7 @@ export const AccountDetailsCreditLimitPage = ({
                           <PlainListView
                             withoutScroll={true}
                             data={pastRepayments}
-                            extraInfo={null}
+                            extraInfo={{ accountId }}
                             breakpoint={breakpoints.small}
                             columns={modalColumns}
                             keyExtractor={keyExtractor}
@@ -347,6 +352,7 @@ export const AccountDetailsCreditLimitPage = ({
 };
 
 type CreditLimitInfoProps = {
+  accountId: string;
   isLegalRepresentative: boolean;
   accountMembershipId: string;
   creditLimitSettings: NonNullable<
@@ -357,6 +363,7 @@ type CreditLimitInfoProps = {
 };
 
 const CreditLimitInfo = ({
+  accountId,
   isLegalRepresentative,
   accountMembershipId,
   creditLimitSettings,
@@ -477,7 +484,7 @@ const CreditLimitInfo = ({
       <PlainListView
         withoutScroll={true}
         data={pastRepayments}
-        extraInfo={null}
+        extraInfo={{ accountId }}
         columns={columns}
         smallColumns={smallColumns}
         keyExtractor={keyExtractor}
@@ -993,25 +1000,33 @@ const EditCreditLimitForm = ({
 };
 
 type StatementActionsCellProps = {
+  accountId: string;
   cycle: Edge["node"];
   isRowHovered: boolean;
 };
 
-const StatementActionsCell = ({ cycle, isRowHovered }: StatementActionsCellProps) => {
-  const [downloadStatus, setDownloadStatus] = useState(AsyncData.NotAsked);
+const StatementActionsCell = ({ accountId, cycle, isRowHovered }: StatementActionsCellProps) => {
+  const [generateCreditStatement, creditStatement] = useMutation(GenerateCreditStatementDocument);
 
   const downloadStatement = useCallback(async () => {
-    setDownloadStatus(AsyncData.Loading);
-    console.log("Downloading statement for cycle:", cycle.id);
-
-    setTimeout(() => {
-      setDownloadStatus(AsyncData.Done(undefined));
-    }, 1000); // Simulate network delay
-  }, [cycle.id]);
+    generateCreditStatement({ input: { accountId, repaymentCycleId: cycle.id } })
+      .mapOk(data => data.generateCreditStatement)
+      .mapOkToResult(filterRejectionsToResult)
+      .tapOk(({ type }) => {
+        match(type)
+          .with({ url: P.nonNullable }, ({ url }) => {
+            window.open(url, "_blank");
+          })
+          .otherwise(noop);
+      })
+      .tapError(error => {
+        showToast({ variant: "error", error, title: translateError(error) });
+      });
+  }, [accountId, cycle.id, generateCreditStatement]);
 
   return (
     <Cell align="right">
-      {downloadStatus.isLoading() ? (
+      {creditStatement.isLoading() ? (
         <ActivityIndicator size="small" color={colors.gray[500]} />
       ) : (
         <Pressable

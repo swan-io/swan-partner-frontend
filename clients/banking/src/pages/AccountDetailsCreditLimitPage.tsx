@@ -516,6 +516,14 @@ const EditCreditLimitForm = ({
           repaymentAccountAddressCity: mandate.creditor.address.city,
           repaymentAccountAddressCountry: mandate.creditor.address.country,
         }))
+        .with({ mandate: { __typename: "SEPAReceivedDirectDebitMandate" } }, ({ mandate }) => ({
+          repaymentAccountIban: mandate.iban,
+          repaymentAccountName: mandate.creditor.name,
+          repaymentAccountAddress: mandate.creditor.address.addressLine1,
+          repaymentAccountAddressPostalCode: mandate.creditor.address.postalCode,
+          repaymentAccountAddressCity: mandate.creditor.address.city,
+          repaymentAccountAddressCountry: mandate.creditor.address.country,
+        }))
         .otherwise(() => null),
     [creditLimitSettings.repaymentSettings.repaymentMethod],
   );

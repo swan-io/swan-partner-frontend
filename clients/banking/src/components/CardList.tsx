@@ -4,6 +4,7 @@ import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainL
 import { LinkConfig } from "@swan-io/lake/src/components/VirtualizedList";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { ReactElement, ReactNode, useState } from "react";
+import { match } from "ts-pattern";
 import { CardListItemFragment } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { CardCancelConfirmationModal } from "./CardCancelConfirmationModal";
@@ -40,6 +41,21 @@ const columns: ColumnConfig<CardListItemFragment, ExtraInfo>[] = [
     title: t("cardList.fullNameAndCardType"),
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => <FullNameAndCardTypeCell card={item} />,
+  },
+  {
+    id: "fundingType",
+    width: 150,
+    title: t("cardList.fundingType"),
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
+    renderCell: ({ item }) => (
+      <TextCell
+        color={colors.gray[600]}
+        text={match(item.cardProduct.fundingType)
+          .with("Debit", () => t("cardList.fundingType.debit"))
+          .with("DeferredDebit", () => t("cardList.fundingType.deferredDebit"))
+          .exhaustive()}
+      />
+    ),
   },
   {
     id: "name",

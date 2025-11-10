@@ -42,7 +42,7 @@ import {
   RepaymentCycleLengthInput,
   RequestCreditLimitSettingsDocument,
 } from "../graphql/partner";
-import { getCreditLimitAmount } from "../utils/creditLimit";
+import { getCreditLimitAmount, getPendingCreditLimitAmount } from "../utils/creditLimit";
 import { formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { validateRequired } from "../utils/validations";
@@ -140,6 +140,8 @@ export const AccountDetailsCreditLimitPage = ({
                 return <Redirect to={Router.ProjectRootRedirect()} />;
               }
 
+              const isLegalRepresentative =
+                account.legalRepresentativeMembership.id === accountMembershipId;
               const creditLimitSettings = account.creditLimitSettings;
 
               // Should never happened, in case someone tries to access edit/statements without an active credit limit
@@ -148,6 +150,13 @@ export const AccountDetailsCreditLimitPage = ({
                   route?.name === "AccountDetailsCreditLimitStatements") &&
                 creditLimitSettings?.statusInfo.status !== "Activated"
               ) {
+                return (
+                  <Redirect to={Router.AccountDetailsCreditLimitRoot({ accountMembershipId })} />
+                );
+              }
+
+              // Even if we hide the edit button, prevent access to non-legal representatives to edit modal
+              if (route?.name === "AccountDetailsCreditLimitEdit" && !isLegalRepresentative) {
                 return (
                   <Redirect to={Router.AccountDetailsCreditLimitRoot({ accountMembershipId })} />
                 );
@@ -180,7 +189,7 @@ export const AccountDetailsCreditLimitPage = ({
                   </Box>
                 ))
                 .with("Pending", () => {
-                  const creditLimitAmount = getCreditLimitAmount(
+                  const creditLimitAmount = getPendingCreditLimitAmount(
                     creditLimitSettings.creditLimitSettingsRequests.edges.map(edge => edge.node),
                   );
 
@@ -214,6 +223,7 @@ export const AccountDetailsCreditLimitPage = ({
                 .with("Activated", () => (
                   <>
                     <CreditLimitInfo
+                      isLegalRepresentative={isLegalRepresentative}
                       accountMembershipId={accountMembershipId}
                       creditLimitSettings={creditLimitSettings}
                       largeBreakpoint={largeBreakpoint}
@@ -261,6 +271,7 @@ export const AccountDetailsCreditLimitPage = ({
 };
 
 type CreditLimitInfoProps = {
+  isLegalRepresentative: boolean;
   accountMembershipId: string;
   creditLimitSettings: NonNullable<
     NonNullable<CreditLimitPageQuery["account"]>["creditLimitSettings"]
@@ -269,6 +280,7 @@ type CreditLimitInfoProps = {
 };
 
 const CreditLimitInfo = ({
+  isLegalRepresentative,
   accountMembershipId,
   creditLimitSettings,
   largeBreakpoint,
@@ -285,16 +297,22 @@ const CreditLimitInfo = ({
             {t("accountDetails.creditLimit.title")}
           </LakeHeading>
 
-          <Fill minWidth={16} />
+          {isLegalRepresentative && (
+            <>
+              <Fill minWidth={16} />
 
-          <LakeButton
-            size="small"
-            icon="edit-regular"
-            mode="tertiary"
-            onPress={() => Router.push("AccountDetailsCreditLimitEdit", { accountMembershipId })}
-          >
-            {t("common.edit")}
-          </LakeButton>
+              <LakeButton
+                size="small"
+                icon="edit-regular"
+                mode="tertiary"
+                onPress={() =>
+                  Router.push("AccountDetailsCreditLimitEdit", { accountMembershipId })
+                }
+              >
+                {t("common.edit")}
+              </LakeButton>
+            </>
+          )}
         </Box>
 
         <Space height={12} />
@@ -394,8 +412,13 @@ const CreditLimitInfo = ({
         renderEmptyList={() => (
           <EmptyView
             icon="arrow-swap-regular"
-            title={t("accountDetails.virtualIbans.emptyTitle")}
-            subtitle={t("accountDetails.virtualIbans.emptyDescription")}
+            title={
+              creditLimitSettings.currentCycle?.endDate != null
+                ? t("accountDetails.creditLimit.firstRepaymentScheduledAt", {
+                    date: dayjs(creditLimitSettings.currentCycle.endDate).format("LL"),
+                  })
+                : t("accountDetails.creditLimit.noRepaymentYet")
+            }
           />
         )}
       />

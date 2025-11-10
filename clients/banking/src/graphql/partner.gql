@@ -619,6 +619,9 @@ query CreditLimitPage($accountId: ID!) {
   account(accountId: $accountId) {
     id
     IBAN
+    legalRepresentativeMembership {
+      id
+    }
     holder {
       id
       info {
@@ -1998,6 +2001,9 @@ query GetCardProducts(
     accountHolderType
     account {
       id
+      legalRepresentativeMembership {
+        id
+      }
       creditLimitSettings {
         statusInfo {
           status

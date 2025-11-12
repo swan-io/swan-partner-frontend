@@ -708,6 +708,26 @@ query CreditLimitPage($accountId: ID!) {
   }
 }
 
+mutation GenerateCreditStatement($input: GenerateCreditStatementInput!) {
+  generateCreditStatement(input: $input) {
+    __typename
+    ... on CreditStatement {
+      id
+      type {
+        ... on PdfStatement {
+          url
+        }
+        ... on CsvStatement {
+          url
+        }
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
+
 query AccountDetailsBillingPage($accountId: ID!, $first: Int!, $after: String) {
   account(accountId: $accountId) {
     id

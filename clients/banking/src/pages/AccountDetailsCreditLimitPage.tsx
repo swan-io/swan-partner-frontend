@@ -2,10 +2,11 @@ import { Option } from "@swan-io/boxed";
 import { useMutation, useQuery } from "@swan-io/graphql-client";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
+import { Cell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Grid } from "@swan-io/lake/src/components/Grid";
+import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
@@ -15,11 +16,18 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
+import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { colors, spacings } from "@swan-io/lake/src/constants/design";
+import {
+  breakpoints,
+  colors,
+  negativeSpacings,
+  spacings,
+} from "@swan-io/lake/src/constants/design";
+import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { GetEdge } from "@swan-io/lake/src/utils/types";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
@@ -29,8 +37,8 @@ import { validateIban } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import dayjs from "dayjs";
 import { useCallback, useMemo } from "react";
-import { StyleSheet, View } from "react-native";
-import { match } from "ts-pattern";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { match, P } from "ts-pattern";
 import { CreditLimitIntro } from "../components/CreditLimitIntro";
 import { ErrorView } from "../components/ErrorView";
 import { ProgressBar } from "../components/ProgressBar";
@@ -39,6 +47,7 @@ import {
   CreditLimitPageDocument,
   CreditLimitPageQuery,
   DayEnum,
+  GenerateCreditStatementDocument,
   RepaymentCycleLengthInput,
   RequestCreditLimitSettingsDocument,
 } from "../graphql/partner";
@@ -74,6 +83,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.gray[100],
     borderColor: colors.gray[500],
   },
+  statements: {
+    marginHorizontal: negativeSpacings[24],
+  },
+  statementsLarge: {
+    marginHorizontal: negativeSpacings[48],
+  },
+  statementRow: {
+    paddingHorizontal: spacings[40],
+  },
 });
 
 type Props = {
@@ -84,7 +102,9 @@ type Props = {
 
 type Account = NonNullable<CreditLimitPageQuery["account"]>;
 type Edge = GetEdge<NonNullable<NonNullable<Account["creditLimitSettings"]>["cycles"]>>;
-type ExtraInfo = null;
+type ExtraInfo = {
+  accountId: string;
+};
 
 const columns: ColumnConfig<Edge, ExtraInfo>[] = [
   {
@@ -112,6 +132,29 @@ const columns: ColumnConfig<Edge, ExtraInfo>[] = [
 ];
 
 const smallColumns: ColumnConfig<Edge, ExtraInfo>[] = columns;
+
+const modalColumns: ColumnConfig<Edge, ExtraInfo>[] = [
+  {
+    width: "grow",
+    id: "date",
+    title: t("accountDetails.creditLimit.statements.table.period"),
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
+    renderCell: ({ item: { node } }) => (
+      <TextCell
+        text={`${dayjs(node.startDate).format("LL")} - ${dayjs(node.endDate).format("LL")}`}
+      />
+    ),
+  },
+  {
+    width: 100,
+    id: "actions",
+    title: t("accountDetails.creditLimit.statements.table.actions"),
+    renderTitle: ({ title }) => <HeaderCell align="right" text={title} />,
+    renderCell: ({ item: { node }, extraInfo: { accountId }, isHovered }) => (
+      <StatementActionsCell accountId={accountId} cycle={node} isRowHovered={isHovered} />
+    ),
+  },
+];
 
 const keyExtractor = ({ node: { id } }: Edge) => id;
 
@@ -165,6 +208,11 @@ export const AccountDetailsCreditLimitPage = ({
               if (creditLimitSettings == null) {
                 return <CreditLimitIntro accountId={accountId} />;
               }
+
+              const pastRepayments =
+                creditLimitSettings.cycles?.edges.filter(
+                  edge => edge.node.id !== creditLimitSettings.currentCycle?.id,
+                ) ?? [];
 
               return match(creditLimitSettings.statusInfo.status)
                 .with("Deactivated", "Suspended", () => (
@@ -223,9 +271,11 @@ export const AccountDetailsCreditLimitPage = ({
                 .with("Activated", () => (
                   <>
                     <CreditLimitInfo
+                      accountId={accountId}
                       isLegalRepresentative={isLegalRepresentative}
                       accountMembershipId={accountMembershipId}
                       creditLimitSettings={creditLimitSettings}
+                      pastRepayments={pastRepayments}
                       largeBreakpoint={largeBreakpoint}
                     />
 
@@ -250,6 +300,7 @@ export const AccountDetailsCreditLimitPage = ({
 
                     <LakeModal
                       visible={route?.name === "AccountDetailsCreditLimitStatements"}
+                      maxWidth={breakpoints.medium}
                       icon="arrow-download-filled"
                       color="partner"
                       title={t("accountDetails.creditLimit.statements.title")}
@@ -257,7 +308,37 @@ export const AccountDetailsCreditLimitPage = ({
                         Router.push("AccountDetailsCreditLimitRoot", { accountMembershipId })
                       }
                     >
-                      <LakeText>Credit Limit Statements - to be implemented</LakeText>
+                      {({ large }) => (
+                        <View style={large ? styles.statementsLarge : styles.statements}>
+                          <PlainListView
+                            withoutScroll={true}
+                            data={pastRepayments}
+                            extraInfo={{ accountId }}
+                            breakpoint={breakpoints.small}
+                            columns={modalColumns}
+                            keyExtractor={keyExtractor}
+                            headerHeight={48}
+                            groupHeaderHeight={48}
+                            rowHeight={56}
+                            headerStyle={styles.statementRow}
+                            rowStyle={() => styles.statementRow}
+                            renderEmptyList={() => (
+                              <EmptyView
+                                icon="arrow-swap-regular"
+                                title={
+                                  creditLimitSettings.currentCycle?.endDate != null
+                                    ? t("accountDetails.creditLimit.firstRepaymentScheduledAt", {
+                                        date: dayjs(
+                                          creditLimitSettings.currentCycle.endDate,
+                                        ).format("LL"),
+                                      })
+                                    : t("accountDetails.creditLimit.noRepaymentYet")
+                                }
+                              />
+                            )}
+                          />
+                        </View>
+                      )}
                     </LakeModal>
                   </>
                 ))
@@ -271,18 +352,22 @@ export const AccountDetailsCreditLimitPage = ({
 };
 
 type CreditLimitInfoProps = {
+  accountId: string;
   isLegalRepresentative: boolean;
   accountMembershipId: string;
   creditLimitSettings: NonNullable<
     NonNullable<CreditLimitPageQuery["account"]>["creditLimitSettings"]
   >;
+  pastRepayments: Edge[];
   largeBreakpoint: boolean;
 };
 
 const CreditLimitInfo = ({
+  accountId,
   isLegalRepresentative,
   accountMembershipId,
   creditLimitSettings,
+  pastRepayments,
   largeBreakpoint,
 }: CreditLimitInfoProps) => {
   const creditLimitAmount = getCreditLimitAmount(
@@ -384,6 +469,7 @@ const CreditLimitInfo = ({
             icon="arrow-download-filled"
             size="small"
             color="partner"
+            disabled={pastRepayments.length === 0}
             onPress={() =>
               Router.push("AccountDetailsCreditLimitStatements", { accountMembershipId })
             }
@@ -397,12 +483,8 @@ const CreditLimitInfo = ({
 
       <PlainListView
         withoutScroll={true}
-        data={
-          creditLimitSettings.cycles?.edges.filter(
-            edge => edge.node.id !== creditLimitSettings.currentCycle?.id,
-          ) ?? []
-        }
-        extraInfo={null}
+        data={pastRepayments}
+        extraInfo={{ accountId }}
         columns={columns}
         smallColumns={smallColumns}
         keyExtractor={keyExtractor}
@@ -914,5 +996,57 @@ const EditCreditLimitForm = ({
         </LakeButton>
       </LakeButtonGroup>
     </>
+  );
+};
+
+type StatementActionsCellProps = {
+  accountId: string;
+  cycle: Edge["node"];
+  isRowHovered: boolean;
+};
+
+const StatementActionsCell = ({ accountId, cycle, isRowHovered }: StatementActionsCellProps) => {
+  const [generateCreditStatement, creditStatement] = useMutation(GenerateCreditStatementDocument);
+
+  const downloadStatement = useCallback(async () => {
+    generateCreditStatement({ input: { accountId, repaymentCycleId: cycle.id } })
+      .mapOk(data => data.generateCreditStatement)
+      .mapOkToResult(filterRejectionsToResult)
+      .tapOk(({ type }) => {
+        match(type)
+          .with({ url: P.nonNullable }, ({ url }) => {
+            window.open(url, "_blank");
+          })
+          .otherwise(noop);
+      })
+      .tapError(error => {
+        showToast({ variant: "error", error, title: translateError(error) });
+      });
+  }, [accountId, cycle.id, generateCreditStatement]);
+
+  return (
+    <Cell align="right">
+      {creditStatement.isLoading() ? (
+        <ActivityIndicator size="small" color={colors.gray[500]} />
+      ) : (
+        <Pressable
+          onPress={event => {
+            event.stopPropagation();
+            event.preventDefault();
+            downloadStatement();
+          }}
+        >
+          {({ hovered }) => (
+            <Icon
+              name="open-regular"
+              color={
+                hovered ? colors.positive[500] : isRowHovered ? colors.gray[700] : colors.gray[500]
+              }
+              size={16}
+            />
+          )}
+        </Pressable>
+      )}
+    </Cell>
   );
 };

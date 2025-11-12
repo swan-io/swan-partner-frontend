@@ -1461,6 +1461,7 @@
   "transactionRejectedReason.TransactionTypeNotAllowed": "Transaction type not allowed",
   "transactionStatus.booked": "Booked",
   "transactionStatus.canceled": "Canceled",
+  "transactionStatus.deferred": "Deferred",
   "transactionStatus.pending": "Pending",
   "transactionStatus.rejected": "Rejected",
   "transactions.amount": "Amount",

@@ -1462,6 +1462,7 @@
   "transactionRejectedReason.TransactionTypeNotAllowed": "Tapahtumatyyppiä ei ole sallittu",
   "transactionStatus.booked": "Varmennetut",
   "transactionStatus.canceled": "Peruttu",
+  "transactionStatus.deferred": "Lykätty",
   "transactionStatus.pending": "Odottaa",
   "transactionStatus.rejected": "Hylätty",
   "transactions.amount": "Summa",

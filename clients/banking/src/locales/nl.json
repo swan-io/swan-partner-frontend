@@ -1462,6 +1462,7 @@
   "transactionRejectedReason.TransactionTypeNotAllowed": "Transactietype niet toegestaan",
   "transactionStatus.booked": "Geboekt",
   "transactionStatus.canceled": "Geannuleerd",
+  "transactionStatus.deferred": "Uitgesteld",
   "transactionStatus.pending": "In behandeling",
   "transactionStatus.rejected": "Afgewezen",
   "transactions.amount": "Bedrag",

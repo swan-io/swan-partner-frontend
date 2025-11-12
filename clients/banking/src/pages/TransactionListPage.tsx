@@ -82,7 +82,7 @@ export const TransactionListPage = ({ accountId, transferConsent, params }: Prop
         isMatching(P.union("CreditTransfer", "DirectDebit", "Card", "Fees", "Check")),
       ),
       status: params.transactionStatus?.filter(
-        isMatching(P.union("Booked", "Canceled", "Pending", "Rejected", "Released")),
+        isMatching(P.union("Booked", "Canceled", "Pending", "Rejected", "Released", "Deferred")),
       ),
     }),
     [params],

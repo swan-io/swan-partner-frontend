@@ -1462,6 +1462,7 @@
   "transactionRejectedReason.TransactionTypeNotAllowed": "Tipo de transação não permitido",
   "transactionStatus.booked": "Reservado",
   "transactionStatus.canceled": "Cancelado",
+  "transactionStatus.deferred": "Diferido",
   "transactionStatus.pending": "Pendente",
   "transactionStatus.rejected": "Rejeitado",
   "transactions.amount": "Montante",

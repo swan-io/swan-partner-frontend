@@ -407,8 +407,7 @@ export const CardWizard = ({
         : projectCardProducts.filter(
             cardProduct =>
               cardProduct.fundingType === "Debit" &&
-              (cardProduct.insurance?.availableInsurancePackages == null ||
-                cardProduct.insurance.availableInsurancePackages.length === 0),
+              cardProduct.insurance?.defaultInsurancePackage == null,
           );
 
       const canOrderPhysicalCard = step.cardFormat === "VirtualAndPhysical";

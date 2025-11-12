@@ -47,6 +47,7 @@ const DEFAULT_STATUSES = [
   "Canceled" as const,
   "Pending" as const,
   "Rejected" as const,
+  "Deferred" as const,
 ];
 
 export const CardItemTransactionList = ({ params }: Props) => {
@@ -56,7 +57,9 @@ export const CardItemTransactionList = ({ params }: Props) => {
       isBeforeUpdatedAt: params.isBeforeUpdatedAt,
       isAfterUpdatedAt: params.isAfterUpdatedAt,
       status: params.status?.filter(
-        isMatching(P.union("Booked", "Canceled", "Pending", "Rejected", "Released", "Upcoming")),
+        isMatching(
+          P.union("Booked", "Canceled", "Pending", "Rejected", "Released", "Upcoming", "Deferred"),
+        ),
       ),
     }),
     [params],

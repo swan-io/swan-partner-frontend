@@ -33,6 +33,7 @@ const filtersDefinition = {
       { value: "Booked", label: t("transactionStatus.booked") },
       { value: "Rejected", label: t("transactionStatus.rejected") },
       { value: "Canceled", label: t("transactionStatus.canceled") },
+      { value: "Deferred", label: t("transactionStatus.deferred") },
     ],
   }),
   paymentProduct: filter.checkbox({

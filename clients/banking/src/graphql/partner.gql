@@ -44,11 +44,9 @@ fragment TransactionDetails on Transaction {
       canceledDate
     }
     ... on RejectedTransactionStatusInfo {
-      status
       reason
     }
     ... on UpcomingTransactionStatusInfo {
-      status
       executionDate
     }
   }

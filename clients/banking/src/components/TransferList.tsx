@@ -60,7 +60,7 @@ export const TransferList = ({ accountId, params }: Props) => {
       isBeforeUpdatedAt: params.isBeforeUpdatedAt,
       isAfterUpdatedAt: params.isAfterUpdatedAt,
       status: params.transactionStatus?.filter(
-        isMatching(P.union("Booked", "Canceled", "Pending", "Rejected", "Released")),
+        isMatching(P.union("Booked", "Canceled", "Pending", "Rejected", "Released", "Deferred")),
       ),
     }),
     [params],

@@ -654,20 +654,24 @@ query CreditLimitPage($accountId: ID!) {
             mandate {
               id
               ... on InternalReceivedDirectDebitMandate {
+                name
                 iban
-                creditor {
-                  name
-                  address {
-                    ...AddressDetails
+                account {
+                  holder {
+                    residencyAddress {
+                      ...AddressInfo
+                    }
                   }
                 }
               }
               ... on SEPAReceivedDirectDebitMandate {
+                name
                 iban
-                creditor {
-                  name
-                  address {
-                    ...AddressDetails
+                account {
+                  holder {
+                    residencyAddress {
+                      ...AddressInfo
+                    }
                   }
                 }
               }

@@ -592,19 +592,19 @@ const EditCreditLimitForm = ({
       match(creditLimitSettings.repaymentSettings.repaymentMethod)
         .with({ mandate: { __typename: "InternalReceivedDirectDebitMandate" } }, ({ mandate }) => ({
           repaymentAccountIban: mandate.iban,
-          repaymentAccountName: mandate.creditor.name,
-          repaymentAccountAddress: mandate.creditor.address.addressLine1,
-          repaymentAccountAddressPostalCode: mandate.creditor.address.postalCode,
-          repaymentAccountAddressCity: mandate.creditor.address.city,
-          repaymentAccountAddressCountry: mandate.creditor.address.country,
+          repaymentAccountName: mandate.name,
+          repaymentAccountAddress: mandate.account?.holder.residencyAddress.addressLine1,
+          repaymentAccountAddressPostalCode: mandate.account?.holder.residencyAddress.postalCode,
+          repaymentAccountAddressCity: mandate.account?.holder.residencyAddress.city,
+          repaymentAccountAddressCountry: mandate.account?.holder.residencyAddress.country,
         }))
         .with({ mandate: { __typename: "SEPAReceivedDirectDebitMandate" } }, ({ mandate }) => ({
           repaymentAccountIban: mandate.iban,
-          repaymentAccountName: mandate.creditor.name,
-          repaymentAccountAddress: mandate.creditor.address.addressLine1,
-          repaymentAccountAddressPostalCode: mandate.creditor.address.postalCode,
-          repaymentAccountAddressCity: mandate.creditor.address.city,
-          repaymentAccountAddressCountry: mandate.creditor.address.country,
+          repaymentAccountName: mandate.name,
+          repaymentAccountAddress: mandate.account?.holder.residencyAddress.addressLine1,
+          repaymentAccountAddressPostalCode: mandate.account?.holder.residencyAddress.postalCode,
+          repaymentAccountAddressCity: mandate.account?.holder.residencyAddress.city,
+          repaymentAccountAddressCountry: mandate.account?.holder.residencyAddress.country,
         }))
         .otherwise(() => null),
     [creditLimitSettings.repaymentSettings.repaymentMethod],

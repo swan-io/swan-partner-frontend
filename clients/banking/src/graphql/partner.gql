@@ -659,10 +659,7 @@ query CreditLimitPage($accountId: ID!) {
                 account {
                   holder {
                     residencyAddress {
-                      addressLine1
-                      city
-                      country
-                      postalCode
+                      ...AddressInfo
                     }
                   }
                 }
@@ -673,10 +670,7 @@ query CreditLimitPage($accountId: ID!) {
                 account {
                   holder {
                     residencyAddress {
-                      addressLine1
-                      city
-                      country
-                      postalCode
+                      ...AddressInfo
                     }
                   }
                 }

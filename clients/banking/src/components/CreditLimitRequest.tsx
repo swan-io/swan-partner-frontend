@@ -19,6 +19,8 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { backgroundColor, colors, invariantColors } from "@swan-io/lake/src/constants/design";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { Request } from "@swan-io/request";
+import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
+import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateIban } from "@swan-io/shared-business/src/utils/validation";
@@ -213,6 +215,8 @@ const weekDays: Item<DayEnum>[] = [
   { value: "Saturday", name: t("common.form.weekDay.saturday") },
   { value: "Sunday", name: t("common.form.weekDay.sunday") },
 ];
+
+const creditSupportedCountries: CountryCCA3[] = ["FRA", "DEU", "ESP", "NLD", "ITA", "BEL"];
 
 const monthDays: Item<number>[] = Array.from({ length: 31 }, (_, i) => i + 1).map(day => ({
   value: day,
@@ -524,16 +528,17 @@ const CreditLimitRequestForm = ({ account, large }: FormProps) => {
               </Field>
 
               <Field name="repaymentAccountAddressCountry">
-                {({ value, onChange, onBlur, error }) => (
+                {({ value, onChange, ref, error }) => (
                   <LakeLabel
                     label={t("creditLimitRequest.addressCountry")}
                     render={id => (
-                      <LakeTextInput
-                        value={value}
-                        onChangeText={onChange}
-                        onBlur={onBlur}
+                      <CountryPicker
                         id={id}
+                        countries={creditSupportedCountries}
+                        value={value as CountryCCA3}
+                        onValueChange={onChange}
                         error={error}
+                        ref={ref}
                       />
                     )}
                   />

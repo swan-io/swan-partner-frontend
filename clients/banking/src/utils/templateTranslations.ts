@@ -40,3 +40,8 @@ export const getInternationalTransferFormRouteLabel = (route: string) => {
     .with(P.when(isTranslationKey), key => t(key))
     .otherwise(() => route);
 };
+
+export const formatPascalCaseToWords = (text: string): string =>
+  text.replace(/([A-Z])/g, (_, letter, offset) =>
+    offset === 0 ? letter : ` ${letter.toLowerCase()}`,
+  );

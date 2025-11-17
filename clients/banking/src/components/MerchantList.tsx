@@ -97,10 +97,10 @@ const columns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
     title: t("merchantProfile.list.website"),
     renderTitle: ({ title }) => <HeaderCell align="left" text={title} />,
     renderCell: ({ item }) =>
-      isNotNullish(item.merchantWebsite) ? (
+      isNotNullish(item.merchantWebsiteUrl) ? (
         <CopyableTextCell
-          textToCopy={item.merchantWebsite}
-          text={item.merchantWebsite}
+          textToCopy={item.merchantWebsiteUrl}
+          text={item.merchantWebsiteUrl}
           copyWording={t("copyButton.copyTooltip")}
           copiedWording={t("copyButton.copiedTooltip")}
         />

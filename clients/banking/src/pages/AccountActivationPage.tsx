@@ -468,12 +468,8 @@ type SupportingDocumentCollection = NonNullable<
 type User = NonNullable<AccountActivationPageQuery["accountMembership"]>["user"];
 
 const getSupportingDocumentsStatus = (
-  isCompany: boolean,
   supportingDocumentCollection: Option<SupportingDocumentCollection>,
 ): StepStatus => {
-  if (!isCompany) {
-    return "done";
-  }
   return supportingDocumentCollection.match({
     None: () => "todo" as StepStatus,
     Some: collection => {
@@ -828,7 +824,6 @@ export const AccountActivationPage = ({
         );
 
         const supportingDocumentsStatus = getSupportingDocumentsStatus(
-          isCompany,
           isNotNullish(documentCollection) ? Option.Some(documentCollection) : Option.None(),
         );
 

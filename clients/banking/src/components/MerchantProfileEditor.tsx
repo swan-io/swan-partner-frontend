@@ -96,8 +96,8 @@ export const MerchantProfileEditor = ({ ref, merchantProfile, onSubmit }: Props)
     },
     expectedMonthlyPaymentVolume: {
       initialValue:
-        merchantProfile?.requestMerchantProfileUpdate?.expectedMonthlyPaymentVolume?.value ??
-        merchantProfile?.expectedMonthlyPaymentVolume.value ??
+        merchantProfile?.requestMerchantProfileUpdate?.expectedMonthlyMerchantProcessingVolume ??
+        merchantProfile?.expectedMonthlyMerchantProcessingVolume ??
         "",
       validate: validateNumeric({ min: 0 }),
     },
@@ -110,8 +110,8 @@ export const MerchantProfileEditor = ({ ref, merchantProfile, onSubmit }: Props)
     },
     merchantWebsite: {
       initialValue:
-        merchantProfile?.requestMerchantProfileUpdate?.merchantWebsite ??
-        merchantProfile?.merchantWebsite ??
+        merchantProfile?.requestMerchantProfileUpdate?.merchantWebsiteUrl ??
+        merchantProfile?.merchantWebsiteUrl ??
         "",
       sanitize: value => value.trim(),
       validate: toOptionalValidator(validateUrl),

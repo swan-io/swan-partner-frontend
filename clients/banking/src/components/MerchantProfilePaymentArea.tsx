@@ -430,7 +430,18 @@ export const MerchantProfilePaymentArea = ({
                       items={payments?.edges.map(item => item.node) ?? []}
                       render={(item, large) => (
                         <MerchantProfilePaymentDetail
-                          paymentLinkId={item.paymentLink?.id}
+                          paymentLinkId={match(item)
+                            .with(
+                              {
+                                __typename: P.union(
+                                  "CardMerchantPayment",
+                                  "SepaDirectDebitMerchantPayment",
+                                ),
+                                paymentLink: P.nonNullable,
+                              },
+                              ({ paymentLink }) => paymentLink.id,
+                            )
+                            .otherwise(() => null)}
                           paymentId={item.id}
                           large={large}
                         />

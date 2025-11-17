@@ -2548,11 +2548,16 @@ fragment MerchantPayment on MerchantPayment {
       value
     }
   }
-  paymentLink {
-    id
-  }
   reference
+  ... on SepaDirectDebitMerchantPayment {
+    paymentLink {
+      id
+    }
+  }
   ... on CardMerchantPayment {
+    paymentLink {
+      id
+    }
     threeDs {
       statusInfo {
         status
@@ -2595,11 +2600,7 @@ query MerchantPayments(
       ...MerchantPaymentsConnection
     }
     merchantPaymentMethods {
-      id
-      type
-      statusInfo {
-        status
-      }
+      ...MerchantPaymentMethod
     }
   }
 }
@@ -3308,6 +3309,22 @@ fragment MerchantPaymentMethod on MerchantPaymentMethod {
   statusInfo {
     __typename
     status
+    ... on WaitingForInformationMerchantPaymentMethodStatusInfo {
+      verificationRequirements {
+        ... on AdditionalInformationRequirements {
+          additionalInformation
+        }
+        ... on MerchantRequirements {
+          fields
+        }
+        ... on OtherAdditionalInformationRequirements {
+          otherAdditionalInformation
+        }
+        ... on SupportingDocumentRequirements {
+          supportingDocumentPurposes
+        }
+      }
+    }
   }
   ... on SepaDirectDebitB2BMerchantPaymentMethod {
     sepaCreditorIdentifier
@@ -3329,13 +3346,10 @@ fragment MerchantProfile on MerchantProfile {
     value
     currency
   }
-  expectedMonthlyPaymentVolume {
-    value
-    currency
-  }
+  expectedMonthlyMerchantProcessingVolume
   merchantLogoUrl
   merchantName
-  merchantWebsite
+  merchantWebsiteUrl
   productType
   statusInfo {
     status
@@ -3347,13 +3361,10 @@ fragment MerchantProfile on MerchantProfile {
     id
     status
     merchantName
-    merchantWebsite
+    merchantWebsiteUrl
     merchantLogoUrl
     productType
-    expectedMonthlyPaymentVolume {
-      value
-      currency
-    }
+    expectedMonthlyMerchantProcessingVolume
     expectedAverageBasket {
       value
       currency

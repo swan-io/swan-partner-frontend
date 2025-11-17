@@ -124,7 +124,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 24,
   },
-  requirementBulletPoints: { marginBlock: 0, paddingLeft: spacings[16] },
 });
 
 const UNKNOWN_VALUE = <LakeText style={styles.unknownValue}>{t("common.unknown")}</LakeText>;
@@ -441,15 +440,17 @@ const MerchantProfileSettingsPaymentMethodTile = ({
                                   )}
                                 </LakeText>
 
-                                <ul style={styles.requirementBulletPoints}>
+                                <View>
                                   {[...additionalInformation].sort().map(info => (
-                                    <li color={colors.gray[700]} key={info}>
+                                    <Box direction="row">
+                                      <LakeText color={colors.gray[700]}>•</LakeText>
+                                      <Space width={4} />
                                       <LakeText color={colors.gray[700]}>
                                         {formatPascalCaseToWords(info)}
                                       </LakeText>
-                                    </li>
+                                    </Box>
                                   ))}
-                                </ul>
+                                </View>
                               </>
                             ),
                           )
@@ -462,15 +463,17 @@ const MerchantProfileSettingsPaymentMethodTile = ({
                                 )}
                               </LakeText>
 
-                              <ul style={styles.requirementBulletPoints}>
+                              <View>
                                 {[...fields].sort().map(info => (
-                                  <li color={colors.gray[700]} key={info}>
+                                  <Box direction="row">
+                                    <LakeText color={colors.gray[700]}>•</LakeText>
+                                    <Space width={4} />
                                     <LakeText color={colors.gray[700]}>
                                       {formatPascalCaseToWords(info)}
                                     </LakeText>
-                                  </li>
+                                  </Box>
                                 ))}
-                              </ul>
+                              </View>
                             </>
                           ))
                           .with(
@@ -484,15 +487,17 @@ const MerchantProfileSettingsPaymentMethodTile = ({
                                   )}
                                 </LakeText>
 
-                                <ul style={styles.requirementBulletPoints}>
+                                <View>
                                   {[...otherAdditionalInformation].sort().map(info => (
-                                    <li color={colors.gray[700]} key={info}>
+                                    <Box direction="row">
+                                      <LakeText color={colors.gray[700]}>•</LakeText>
+                                      <Space width={4} />
                                       <LakeText color={colors.gray[700]}>
                                         {formatPascalCaseToWords(info)}
                                       </LakeText>
-                                    </li>
+                                    </Box>
                                   ))}
-                                </ul>
+                                </View>
                               </>
                             ),
                           )
@@ -507,15 +512,17 @@ const MerchantProfileSettingsPaymentMethodTile = ({
                                   )}
                                 </LakeText>
 
-                                <ul style={styles.requirementBulletPoints}>
+                                <View>
                                   {[...supportingDocumentPurposes].sort().map(info => (
-                                    <li color={colors.gray[700]} key={info}>
+                                    <Box direction="row">
+                                      <LakeText color={colors.gray[700]}>•</LakeText>
+                                      <Space width={4} />
                                       <LakeText color={colors.gray[700]}>
                                         {formatPascalCaseToWords(info)}
                                       </LakeText>
-                                    </li>
+                                    </Box>
                                   ))}
-                                </ul>
+                                </View>
                               </>
                             ),
                           )

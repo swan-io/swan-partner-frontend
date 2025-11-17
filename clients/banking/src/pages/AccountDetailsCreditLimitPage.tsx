@@ -30,7 +30,9 @@ import {
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { GetEdge } from "@swan-io/lake/src/utils/types";
+import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
+import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateIban } from "@swan-io/shared-business/src/utils/validation";
@@ -569,6 +571,8 @@ const weekDays: Item<DayEnum>[] = [
   { value: "Sunday", name: t("common.form.weekDay.sunday") },
 ];
 
+const creditSupportedCountries: CountryCCA3[] = ["FRA", "DEU", "ESP", "NLD", "ITA", "BEL"];
+
 const monthDays: Item<number>[] = Array.from({ length: 31 }, (_, i) => i + 1).map(day => ({
   value: day,
   name: day.toString(),
@@ -908,16 +912,17 @@ const EditCreditLimitForm = ({
               </Field>
 
               <Field name="repaymentAccountAddressCountry">
-                {({ value, onChange, onBlur, error }) => (
+                {({ value, onChange, ref, error }) => (
                   <LakeLabel
                     label={t("creditLimitRequest.addressCountry")}
                     render={id => (
-                      <LakeTextInput
-                        value={value}
-                        onChangeText={onChange}
-                        onBlur={onBlur}
+                      <CountryPicker
                         id={id}
+                        countries={creditSupportedCountries}
+                        value={value as CountryCCA3}
+                        onValueChange={onChange}
                         error={error}
+                        ref={ref}
                       />
                     )}
                   />

@@ -34,10 +34,13 @@ import { ReactNode, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
+  AdditionalInformationType,
   ExpectedMonthlyMerchantProcessingVolume,
   MerchantPaymentMethodFragment,
   MerchantProfileFragment,
+  MerchantRequirementType,
   RequestMerchantPaymentMethodsDocument,
+  SupportingDocumentPurposeEnum,
 } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { formatNestedMessage, t } from "../utils/i18n";
@@ -153,6 +156,82 @@ const getExpectedMonthlyMerchantProcessingVolume = (
     .with("MoreThan100000", () => t("merchantProfile.settings.processingVolume.moreThan100000"))
 
     .exhaustive();
+
+const translateAdditionalInformations = (additionalInfo: AdditionalInformationType) =>
+  match(additionalInfo)
+    .with("NumberOfEmployees", () => t("merchantProfile.additionalInformation.NumberOfEmployees"))
+    .with("NumberOfOwners", () => t("merchantProfile.additionalInformation.NumberOfOwners"))
+    .with("NumberOfProperties", () => t("merchantProfile.additionalInformation.NumberOfProperties"))
+    .otherwise(() => additionalInfo);
+
+const translateRequirements = (fields: MerchantRequirementType) =>
+  match(fields)
+    .with("CustomerRegion", () => t("merchantProfile.requirements.CustomerRegion"))
+    .with("ExpectedAverageBasket", () => t("merchantProfile.requirements.ExpectedAverageBasket"))
+    .with("ExpectedMonthlyMerchantProcessingVolume", () =>
+      t("merchantProfile.requirements.ExpectedMonthlyMerchantProcessingVolume"),
+    )
+    .with("MerchantWebsite", () => t("merchantProfile.requirements.MerchantWebsite"))
+    .with("PaymentFrequency", () => t("merchantProfile.requirements.PaymentFrequency"))
+    .with("ProductType", () => t("merchantProfile.requirements.ProductType"))
+    .with("SocialNetwork", () => t("merchantProfile.requirements.SocialNetwork"))
+    .with("SupportWebsite", () => t("merchantProfile.requirements.SupportWebsite"))
+    .with("TermsAndConditions", () => t("merchantProfile.requirements.TermsAndConditions"))
+    .otherwise(() => fields);
+
+const translateSupportingDocuments = (supportingDoc: SupportingDocumentPurposeEnum) =>
+  match(supportingDoc)
+    .with("AdministratorDecisionOfAppointment", () =>
+      t("supportingDocuments.AdministratorDecisionOfAppointment.title"),
+    )
+    .with("AssociationRegistration", () => t("supportingDocuments.AssociationRegistration.title"))
+    .with("Banking", () => t("supportingDocuments.Banking.title"))
+    .with("CompanyFormationRegistration", () =>
+      t("supportingDocuments.CompanyFormationRegistration.title"),
+    )
+    .with("CompanyObligations", () => t("supportingDocuments.CompanyObligations.title"))
+    .with("CompanyRegistration", () => t("supportingDocuments.CompanyRegistration.title"))
+    .with("CompanyTreasury", () => t("supportingDocuments.CompanyTreasury.title"))
+    .with("Donation", () => t("supportingDocuments.Donation.title"))
+    .with("FinancialStatements", () => t("supportingDocuments.FinancialStatements.title"))
+    .with("GamblingPrizeWinnings", () => t("supportingDocuments.GamblingPrizeWinnings.title"))
+    .with("GeneralAssemblyMinutes", () => t("supportingDocuments.GeneralAssemblyMinutes.title"))
+    .with("Inheritance", () => t("supportingDocuments.Inheritance.title"))
+    .with("Investment", () => t("supportingDocuments.Investment.title"))
+    .with("LegalRepresentativeProofOfIdentity", () =>
+      t("supportingDocuments.LegalRepresentativeProofOfIdentity.title"),
+    )
+    .with("NIFAccreditationCard", () => t("supportingDocuments.NIFAccreditationCard.title"))
+    .with("Other", () => t("supportingDocuments.Other.title"))
+    .with("PepDeclaration", () => t("supportingDocuments.PepDeclaration.title"))
+    .with("PersonalIncome", () => t("supportingDocuments.PersonalIncome.title"))
+    .with("PersonalSavings", () => t("supportingDocuments.PersonalSavings.title"))
+    .with("PowerOfAttorney", () => t("supportingDocuments.PowerOfAttorney.title"))
+    .with("PresidentDecisionOfAppointment", () =>
+      t("supportingDocuments.PresidentDecisionOfAppointment.title"),
+    )
+    .with("ProofOfBusinessActivity", () => t("supportingDocuments.ProofOfBusinessActivity.title"))
+    .with("ProofOfCompanyAddress", () => t("supportingDocuments.ProofOfCompanyAddress.title"))
+    .with("ProofOfCompanyIncome", () => t("supportingDocuments.ProofOfCompanyIncome.title"))
+    .with("ProofOfIdentity", () => t("supportingDocuments.ProofOfIdentity.title"))
+    .with("ProofOfIndividualAddress", () => t("supportingDocuments.ProofOfIndividualAddress.title"))
+    .with("ProofOfIndividualIncome", () => t("supportingDocuments.ProofOfIndividualIncome.title"))
+    .with("ProofOfOriginOfFunds", () => t("supportingDocuments.ProofOfOriginOfFunds.title"))
+    .with("RealEstateIncome", () => t("supportingDocuments.RealEstateIncome.title"))
+    .with("SignedStatus", () => t("supportingDocuments.SignedStatus.title"))
+    .with("SwornStatement", () => t("supportingDocuments.SwornStatement.title"))
+    .with("Trade", () => t("supportingDocuments.Trade.title"))
+    .with("UBODeclaration", () => t("supportingDocuments.UBODeclaration.title"))
+    .with("USPersonStatusDeclaration", () =>
+      t("supportingDocuments.USPersonStatusDeclaration.title"),
+    )
+    .with("UltimateBeneficialOwnerProofOfAddress", () =>
+      t("supportingDocuments.UltimateBeneficialOwnerProofOfAddress.title"),
+    )
+    .with("UltimateBeneficialOwnerProofOfIdentity", () =>
+      t("supportingDocuments.UltimateBeneficialOwnerProofOfIdentity.title"),
+    )
+    .otherwise(() => supportingDoc);
 
 const MerchantProfileSettingsPaymentMethodTile = ({
   title,
@@ -446,7 +525,7 @@ const MerchantProfileSettingsPaymentMethodTile = ({
                                       <LakeText color={colors.gray[700]}>•</LakeText>
                                       <Space width={4} />
                                       <LakeText color={colors.gray[700]}>
-                                        {formatPascalCaseToWords(info)}
+                                        {translateAdditionalInformations(info)}
                                       </LakeText>
                                     </Box>
                                   ))}
@@ -469,7 +548,7 @@ const MerchantProfileSettingsPaymentMethodTile = ({
                                     <LakeText color={colors.gray[700]}>•</LakeText>
                                     <Space width={4} />
                                     <LakeText color={colors.gray[700]}>
-                                      {formatPascalCaseToWords(info)}
+                                      {translateRequirements(info)}
                                     </LakeText>
                                   </Box>
                                 ))}
@@ -518,7 +597,7 @@ const MerchantProfileSettingsPaymentMethodTile = ({
                                       <LakeText color={colors.gray[700]}>•</LakeText>
                                       <Space width={4} />
                                       <LakeText color={colors.gray[700]}>
-                                        {formatPascalCaseToWords(info)}
+                                        {translateSupportingDocuments(info)}
                                       </LakeText>
                                     </Box>
                                   ))}

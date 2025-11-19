@@ -35,32 +35,37 @@ const styles = StyleSheet.create({
 type Props = {
   accountAdmin: IndividualVerificationRenewalAccountAdmin;
   projectInfo: NonNullable<GetVerificationRenewalQuery["projectInfo"]>;
+  verificationRenewalId: string;
 };
 
-export const VerificationRenewalIndividual = ({ accountAdmin, projectInfo }: Props) => {
+export const VerificationRenewalIndividual = ({
+  accountAdmin,
+  projectInfo,
+  verificationRenewalId,
+}: Props) => {
   console.log(accountAdmin);
   const route = Router.useRoute(verificationRenewalRoutes);
 
   return (
     <Box grow={1} style={styles.container} justifyContent="center">
       <Box style={styles.sticky}>
-        {match(route)
-          .with({ name: "VerificationRenewalRoot" }, () => (
-            <VerificationRenewalHeader
-              projectName={projectInfo.name}
-              projectLogo={projectInfo.logoUri}
-            />
-          ))
-          .with({ name: "VerificationRenewalDocuments" }, () => <p>VerificationRenewalDocuments</p>)
-          .with({ name: "VerificationRenewalPersonalInformation" }, () => (
-            <p>VerificationRenewalPersonalInformation</p>
-          ))
-          .with({ name: "VerificationRenewalFinalize" }, () => <p>VerificationRenewalFinalize</p>)
-          .with(P.nullish, () => <NotFoundPage />)
-
-          .exhaustive()}
-        <VerificationRenewalIntro />
+        <VerificationRenewalHeader
+          projectName={projectInfo.name}
+          projectLogo={projectInfo.logoUri}
+        />
       </Box>
+      {match(route)
+        .with({ name: "VerificationRenewalRoot" }, () => (
+          <VerificationRenewalIntro verificationRenewalId={verificationRenewalId} />
+        ))
+        .with({ name: "VerificationRenewalDocuments" }, () => <p>VerificationRenewalDocuments</p>)
+        .with({ name: "VerificationRenewalPersonalInformation" }, () => (
+          <p>VerificationRenewalPersonalInformation</p>
+        ))
+        .with({ name: "VerificationRenewalFinalize" }, () => <p>VerificationRenewalFinalize</p>)
+        .with(P.nullish, () => <NotFoundPage />)
+
+        .exhaustive()}
     </Box>
   );
 };

@@ -1698,5 +1698,7 @@
   "verificationRenewal.subtitle": "To keep your account active, please update your information.",
   "verificationRenewal.intro.step1": "Update your personal informations",
   "verificationRenewal.intro.step2": "Attach the documents",
-  "verificationRenewal.intro.step3": "Finalize"
+  "verificationRenewal.intro.step3": "Finalize",
+  "verificationRenewal.next": "Next",
+  "verificationRenewal.back": "Back"
 }

@@ -161,7 +161,12 @@ type Routes = InferRoutes<typeof Router>;
 export type RouteName = keyof Routes;
 export type RouteParams<T extends RouteName> = Routes[T];
 
-export const verificationRenewalRoutes = ["VerificationRenewalRoot"];
+export const verificationRenewalRoutes = [
+  "VerificationRenewalRoot",
+  "VerificationRenewalPersonalInformation",
+  "VerificationRenewalDocuments",
+  "VerificationRenewalFinalize",
+] as const satisfies RouteName[];
 
 export const accountActivationRoutes = [
   "AccountActivationRoot",

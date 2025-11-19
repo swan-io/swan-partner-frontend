@@ -4,6 +4,7 @@ import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Grid } from "@swan-io/lake/src/components/Grid";
+import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -390,6 +391,16 @@ const CreditLimitRequestForm = ({ account, large }: FormProps) => {
       <LakeText>{t("creditLimitRequest.notice")}</LakeText>
       <Space height={24} />
 
+      {account.holder.verificationStatus !== "Verified" && (
+        <>
+          <LakeAlert
+            variant="warning"
+            title={t("creditLimitRequest.legalRepresentativeNotverify")}
+          />
+          <Space height={24} />
+        </>
+      )}
+
       <Field name="amount">
         {({ value, onChange, onBlur, error }) => (
           <LakeLabel
@@ -607,6 +618,7 @@ const CreditLimitRequestForm = ({ account, large }: FormProps) => {
           grow={true}
           color="current"
           loading={creditLimitSettingsRequest.isLoading()}
+          disabled={account.holder.verificationStatus !== "Verified"}
           onPress={onPressSubmit}
         >
           {t("creditLimitRequest.requestCreditLimit")}

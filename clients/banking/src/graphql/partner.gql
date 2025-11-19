@@ -2723,6 +2723,7 @@ fragment RepaymentAccount on Account {
       postalCode
       country
     }
+    verificationStatus
     info {
       ... on AccountHolderCompanyInfo {
         name

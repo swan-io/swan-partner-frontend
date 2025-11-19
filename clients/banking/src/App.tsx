@@ -46,6 +46,7 @@ const AppContainer = () => {
   // Feature flag used only during deferred debit card development
   // Should be removed once the feature is fully developed
   const showDeferredDebitCard = useTgglFlag("deferredDebitCard").getOr(false);
+  const showReKYC = useTgglFlag("reKYCFrontend").getOr(false);
 
   const loginInfo = authStatus
     .mapOk(data => data.user?.id != null)
@@ -111,9 +112,12 @@ const AppContainer = () => {
                 ))
                 .with(
                   { name: "VerificationRenewalArea" },
-                  ({ params: { verificationRenewalId } }) => (
-                    <VerificationRenewalArea verificationRenewalId={verificationRenewalId} />
-                  ),
+                  ({ params: { verificationRenewalId } }) =>
+                    showReKYC ? (
+                      <VerificationRenewalArea verificationRenewalId={verificationRenewalId} />
+                    ) : (
+                      <Redirect to={Router.ProjectRootRedirect()} />
+                    ),
                 )
                 .with(P.nullish, () => <NotFoundPage />)
                 .exhaustive()

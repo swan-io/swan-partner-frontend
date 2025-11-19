@@ -14,6 +14,7 @@ import { CreditLimitRequest } from "./components/CreditLimitRequest";
 import { ErrorView } from "./components/ErrorView";
 import { ProjectRootRedirect } from "./components/ProjectRootRedirect";
 import { Redirect } from "./components/Redirect";
+import { VerificationRenewalArea } from "./components/VerificationRenewal/VerificationRenewalArea";
 import { AuthStatusDocument } from "./graphql/partner";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { ProjectLoginPage } from "./pages/ProjectLoginPage";
@@ -38,12 +39,14 @@ const AppContainer = () => {
     "AccountClose",
     "CreditLimitRequest",
     "AddReceivedSepaDirectDebitB2bMandate",
+    "VerificationRenewalArea",
   ]);
   const [authStatus] = useQuery(AuthStatusDocument, {});
 
   // Feature flag used only during deferred debit card development
   // Should be removed once the feature is fully developed
   const showDeferredDebitCard = useTgglFlag("deferredDebitCard").getOr(false);
+  const showReKYC = useTgglFlag("reKYCFrontend").getOr(false);
 
   const loginInfo = authStatus
     .mapOk(data => data.user?.id != null)
@@ -77,6 +80,7 @@ const AppContainer = () => {
           { name: "AccountClose" },
           { name: "CreditLimitRequest" },
           { name: "AddReceivedSepaDirectDebitB2bMandate" },
+          { name: "VerificationRenewalArea" },
           route =>
             isLoggedIn ? (
               match(route)
@@ -106,6 +110,15 @@ const AppContainer = () => {
                 .with({ name: "ProjectRootRedirect" }, ({ params: { to, source } }) => (
                   <ProjectRootRedirect to={to} source={source} />
                 ))
+                .with(
+                  { name: "VerificationRenewalArea" },
+                  ({ params: { verificationRenewalId } }) =>
+                    showReKYC ? (
+                      <VerificationRenewalArea verificationRenewalId={verificationRenewalId} />
+                    ) : (
+                      <Redirect to={Router.ProjectRootRedirect()} />
+                    ),
+                )
                 .with(P.nullish, () => <NotFoundPage />)
                 .exhaustive()
             ) : (

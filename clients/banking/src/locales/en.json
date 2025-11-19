@@ -1693,5 +1693,10 @@
   "transfer.tile.transfer.title": "Transfer",
   "transfer.transfer": "Transfer",
   "upcomingTransansactionList.noResults": "No upcoming transactions",
-  "upcomingTransansactionList.noResultsDescription": "There aren't any incoming or outgoing transactions underway."
+  "upcomingTransansactionList.noResultsDescription": "There aren't any incoming or outgoing transactions underway.",
+  "verificationRenewal.title": "Your account needs an update",
+  "verificationRenewal.subtitle": "To keep your account active, please update your information.",
+  "verificationRenewal.intro.step1": "Update your personal informations",
+  "verificationRenewal.intro.step2": "Attach the documents",
+  "verificationRenewal.intro.step3": "Finalize"
 }

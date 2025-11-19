@@ -9,6 +9,8 @@ import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { t } from "../../utils/i18n";
+import { Router } from "../../utils/routes";
+import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 
 const desktopIconSize = 100;
 const borderHeight = 2;
@@ -87,7 +89,11 @@ const styles = StyleSheet.create({
   },
 });
 
-export const VerificationRenewalIntro = () => {
+type Props = {
+  verificationRenewalId: string;
+};
+
+export const VerificationRenewalIntro = ({ verificationRenewalId }: Props) => {
   const steps = useMemo(() => {
     const steps: FlowStep[] = [];
 
@@ -138,7 +144,13 @@ export const VerificationRenewalIntro = () => {
                     <FlowPresentation mode={small ? "mobile" : "desktop"} steps={steps} />
                     <Space height={small ? 16 : 24} />
                   </Box>
-
+                  <VerificationRenewalFooter
+                    onNext={() =>
+                      Router.push("VerificationRenewalPersonalInformation", {
+                        verificationRenewalId,
+                      })
+                    }
+                  />
                   <Space height={small ? 16 : 24} />
                 </Box>
               </Box>

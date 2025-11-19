@@ -50,7 +50,11 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
             {match(accountAdmin)
               .with({ __typename: "CompanyVerificationRenewalAccountAdmin" }, () => <p>Company</p>)
               .with({ __typename: "IndividualVerificationRenewalAccountAdmin" }, admin => (
-                <VerificationRenewalIndividual accountAdmin={admin} projectInfo={projectInfo} />
+                <VerificationRenewalIndividual
+                  accountAdmin={admin}
+                  projectInfo={projectInfo}
+                  verificationRenewalId={verificationRenewalId}
+                />
               ))
               .otherwise(() => (
                 <ErrorView />

@@ -1,10 +1,13 @@
 import { Box } from "@swan-io/lake/src/components/Box";
 import { backgroundColor, spacings } from "@swan-io/lake/src/constants/design";
 import { StyleSheet } from "react-native";
+import { match, P } from "ts-pattern";
 import {
   GetVerificationRenewalQuery,
   IndividualVerificationRenewalAccountAdmin,
 } from "../../graphql/partner";
+import { NotFoundPage } from "../../pages/NotFoundPage";
+import { Router, verificationRenewalRoutes } from "../../utils/routes";
 import { VerificationRenewalHeader } from "./VerificationRenewalHeader";
 import { VerificationRenewalIntro } from "./VerificationRenewalIntro";
 
@@ -36,15 +39,26 @@ type Props = {
 
 export const VerificationRenewalIndividual = ({ accountAdmin, projectInfo }: Props) => {
   console.log(accountAdmin);
+  const route = Router.useRoute(verificationRenewalRoutes);
 
   return (
     <Box grow={1} style={styles.container} justifyContent="center">
       <Box style={styles.sticky}>
-        <VerificationRenewalHeader
-          projectName={projectInfo.name}
-          projectLogo={projectInfo.logoUri}
-        />
+        {match(route)
+          .with({ name: "VerificationRenewalRoot" }, () => (
+            <VerificationRenewalHeader
+              projectName={projectInfo.name}
+              projectLogo={projectInfo.logoUri}
+            />
+          ))
+          .with({ name: "VerificationRenewalDocuments" }, () => <p>VerificationRenewalDocuments</p>)
+          .with({ name: "VerificationRenewalPersonalInformation" }, () => (
+            <p>VerificationRenewalPersonalInformation</p>
+          ))
+          .with({ name: "VerificationRenewalFinalize" }, () => <p>VerificationRenewalFinalize</p>)
+          .with(P.nullish, () => <NotFoundPage />)
 
+          .exhaustive()}
         <VerificationRenewalIntro />
       </Box>
     </Box>

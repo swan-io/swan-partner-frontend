@@ -188,7 +188,12 @@ export const CreditLimitRequest = ({ accountId, from }: Props) => {
                       onPressClose={onClose}
                     >
                       {({ large }) =>
-                        account.creditLimitSettings == null ? (
+                        account.creditLimitSettings == null ||
+                        account.creditLimitSettings.creditLimitSettingsRequests.edges.every(
+                          edge =>
+                            edge.node.statusInfo.__typename ===
+                            "CreditLimitSettingsRequestCanceledStatusInfo",
+                        ) ? (
                           <CreditLimitRequestForm account={account} large={large} />
                         ) : (
                           <CreditLimitRequestResult

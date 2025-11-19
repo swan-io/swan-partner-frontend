@@ -207,7 +207,14 @@ export const AccountDetailsCreditLimitPage = ({
                 );
               }
 
-              if (creditLimitSettings == null) {
+              if (
+                creditLimitSettings == null ||
+                creditLimitSettings.creditLimitSettingsRequests.edges.every(
+                  edge =>
+                    edge.node.statusInfo.__typename ===
+                    "CreditLimitSettingsRequestCanceledStatusInfo",
+                )
+              ) {
                 return <CreditLimitIntro accountId={accountId} />;
               }
 

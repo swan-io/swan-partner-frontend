@@ -8,6 +8,7 @@ import { useCallback, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { t } from "../utils/i18n";
 import { RouteParams, Router } from "../utils/routes";
+import { useTgglFlag } from "../utils/tggl";
 import { BeneficiaryInternationalWizard } from "./BeneficiaryInternationalWizard";
 import { BeneficiarySepaWizard } from "./BeneficiarySepaWizard";
 import { TypePickerLink } from "./TypePickerLink";
@@ -42,6 +43,8 @@ type Props = {
 };
 
 export const BeneficiaryTypePicker = ({ accountMembershipId, accountId, params }: Props) => {
+  const ictEnabled = useTgglFlag("initiate_international_credit_transfer_outgoing");
+
   useCrumb(
     useMemo(
       () => ({
@@ -60,14 +63,21 @@ export const BeneficiaryTypePicker = ({ accountMembershipId, accountId, params }
         title: t("beneficiaries.wizards.picker.sepa.title"),
         subtitle: t("beneficiaries.wizards.picker.sepa.subtitle"),
       },
-      {
-        url: Router.AccountPaymentsBeneficiariesNew({ accountMembershipId, type: "international" }),
-        icon: "earth-regular" as const,
-        title: t("beneficiaries.wizards.picker.international.title"),
-        subtitle: t("beneficiaries.wizards.picker.international.subtitle"),
-      },
+      ...(ictEnabled.getOr(false)
+        ? [
+            {
+              url: Router.AccountPaymentsBeneficiariesNew({
+                accountMembershipId,
+                type: "international",
+              }),
+              icon: "earth-regular" as const,
+              title: t("beneficiaries.wizards.picker.international.title"),
+              subtitle: t("beneficiaries.wizards.picker.international.subtitle"),
+            },
+          ]
+        : []),
     ],
-    [accountMembershipId],
+    [accountMembershipId, ictEnabled],
   );
 
   const handleOnPressClose = useCallback(() => {

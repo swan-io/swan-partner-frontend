@@ -14,6 +14,7 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { sanitizeDecimal } from "@swan-io/shared-business/src/utils/validation";
 import { toOptionalValidator, useForm } from "@swan-io/use-form";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -71,7 +72,7 @@ const TransferRecurringWizardDetailsFixedAmount = ({
   const { Field, getFieldValue, submitForm } = useForm({
     amount: {
       initialValue: initialDetails?.amount.value ?? "",
-      sanitize: value => value.replace(/,/g, "."),
+      sanitize: sanitizeDecimal,
       validate: value => {
         const amount = Number(value);
 
@@ -260,7 +261,7 @@ const TransferRecurringWizardDetailsTargetAccountBalance = ({
   const { Field, getFieldValue, submitForm } = useForm({
     targetAmount: {
       initialValue: initialDetails?.targetAmount.value ?? "",
-      sanitize: value => value.replace(/,/g, "."),
+      sanitize: sanitizeDecimal,
       validate: value => {
         const amount = Number(value);
 

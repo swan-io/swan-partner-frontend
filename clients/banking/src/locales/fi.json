@@ -586,7 +586,7 @@
   "creditLimitRequest.creditLimitAmount": "Luottorajan määrä",
   "creditLimitRequest.fullName": "Koko nimi",
   "creditLimitRequest.iban": "IBAN",
-  "creditLimitRequest.legalRepresentativeNotverify": "Tilin laillisen edustajan on varmistettava voidakseen pyytää luottorajaa",
+  "creditLimitRequest.legalRepresentativeNotverify": "Tilisi on varmennettava ennen luottorajan pyytämistä",
   "creditLimitRequest.notLegalRepresentative.description": "Pyydä tilin laillista edustajaa pyytämään luottorajaa puolestasi.",
   "creditLimitRequest.notLegalRepresentative.description.withName": "Pyydä tilin laillista edustajaa pyytämään luottorajaa puolestasi.\n({legalRepresentativeName}, {legalRepresentativeEmail}).",
   "creditLimitRequest.notLegalRepresentative.title": "Et ole tämän tilin laillinen edustaja.",

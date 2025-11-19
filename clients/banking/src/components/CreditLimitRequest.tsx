@@ -4,7 +4,6 @@ import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Grid } from "@swan-io/lake/src/components/Grid";
-import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -64,6 +63,41 @@ const styles = StyleSheet.create({
 });
 
 const COOKIE_REFRESH_INTERVAL = 30000; // 30s
+
+type ErrorViewProps = {
+  title: string;
+  subtitle?: string;
+  userMembershipIdOnCurrentAccount: Option<string>;
+};
+
+const CreditLimitErrorView = ({
+  title,
+  subtitle,
+  userMembershipIdOnCurrentAccount,
+}: ErrorViewProps) => (
+  <WithCurrentColor variant="negative" style={styles.notLegalRepresentativeContainer}>
+    <EmptyView
+      icon="dismiss-circle-regular"
+      borderedIcon={true}
+      borderedIconPadding={20}
+      title={title}
+      subtitle={subtitle}
+    >
+      {userMembershipIdOnCurrentAccount
+        .map(accountMembershipId => (
+          <LakeButtonGroup>
+            <LakeButton
+              onPress={() => Router.push("AccountRoot", { accountMembershipId })}
+              mode="secondary"
+            >
+              {t("common.closeButton")}
+            </LakeButton>
+          </LakeButtonGroup>
+        ))
+        .toNull()}
+    </EmptyView>
+  </WithCurrentColor>
+);
 
 type Props = { accountId: string; from: string | undefined };
 
@@ -146,32 +180,39 @@ export const CreditLimitRequest = ({ accountId, from }: Props) => {
             })}
           >
             <WithPartnerAccentColor color={accentColor}>
-              {isLegalRepresentative ? (
-                <View style={styles.container}>
-                  <WizardLayout title={t("creditLimitRequest.creditLimit")} onPressClose={onClose}>
-                    {({ large }) =>
-                      account.creditLimitSettings == null ? (
-                        <CreditLimitRequestForm account={account} large={large} />
-                      ) : (
-                        <CreditLimitRequestResult
-                          status={account.creditLimitSettings.statusInfo.status}
-                          creditLimitRequests={account.creditLimitSettings.creditLimitSettingsRequests.edges.map(
-                            edge => edge.node,
-                          )}
-                          accountMembershipId={userMembershipIdOnCurrentAccount}
-                          large={large}
-                          onClose={onClose}
-                        />
-                      )
-                    }
-                  </WizardLayout>
-                </View>
-              ) : (
-                <WithCurrentColor variant="negative" style={styles.notLegalRepresentativeContainer}>
-                  <EmptyView
-                    icon="dismiss-circle-regular"
-                    borderedIcon={true}
-                    borderedIconPadding={20}
+              {match([isLegalRepresentative, account.holder.verificationStatus])
+                .with([true, "Verified"], () => (
+                  <View style={styles.container}>
+                    <WizardLayout
+                      title={t("creditLimitRequest.creditLimit")}
+                      onPressClose={onClose}
+                    >
+                      {({ large }) =>
+                        account.creditLimitSettings == null ? (
+                          <CreditLimitRequestForm account={account} large={large} />
+                        ) : (
+                          <CreditLimitRequestResult
+                            status={account.creditLimitSettings.statusInfo.status}
+                            creditLimitRequests={account.creditLimitSettings.creditLimitSettingsRequests.edges.map(
+                              edge => edge.node,
+                            )}
+                            accountMembershipId={userMembershipIdOnCurrentAccount}
+                            large={large}
+                            onClose={onClose}
+                          />
+                        )
+                      }
+                    </WizardLayout>
+                  </View>
+                ))
+                .with([true, P.not("Verified")], () => (
+                  <CreditLimitErrorView
+                    title={t("creditLimitRequest.legalRepresentativeNotverify")}
+                    userMembershipIdOnCurrentAccount={userMembershipIdOnCurrentAccount}
+                  />
+                ))
+                .otherwise(() => (
+                  <CreditLimitErrorView
                     title={t("creditLimitRequest.notLegalRepresentative.title")}
                     subtitle={match(legalRepresentativeName)
                       .with(Option.P.Some(P.select()), legalRepresentativeName =>
@@ -181,24 +222,9 @@ export const CreditLimitRequest = ({ accountId, from }: Props) => {
                         }),
                       )
                       .otherwise(() => t("creditLimitRequest.notLegalRepresentative.description"))}
-                  >
-                    {userMembershipIdOnCurrentAccount
-                      .map(accountMembershipId => {
-                        return (
-                          <LakeButtonGroup>
-                            <LakeButton
-                              onPress={() => Router.push("AccountRoot", { accountMembershipId })}
-                              mode="secondary"
-                            >
-                              {t("common.closeButton")}
-                            </LakeButton>
-                          </LakeButtonGroup>
-                        );
-                      })
-                      .toNull()}
-                  </EmptyView>
-                </WithCurrentColor>
-              )}
+                    userMembershipIdOnCurrentAccount={userMembershipIdOnCurrentAccount}
+                  />
+                ))}
             </WithPartnerAccentColor>
           </PermissionProvider>
         );
@@ -390,16 +416,6 @@ const CreditLimitRequestForm = ({ account, large }: FormProps) => {
       <Space height={12} />
       <LakeText>{t("creditLimitRequest.notice")}</LakeText>
       <Space height={24} />
-
-      {account.holder.verificationStatus !== "Verified" && (
-        <>
-          <LakeAlert
-            variant="warning"
-            title={t("creditLimitRequest.legalRepresentativeNotverify")}
-          />
-          <Space height={24} />
-        </>
-      )}
 
       <Field name="amount">
         {({ value, onChange, onBlur, error }) => (
@@ -618,7 +634,6 @@ const CreditLimitRequestForm = ({ account, large }: FormProps) => {
           grow={true}
           color="current"
           loading={creditLimitSettingsRequest.isLoading()}
-          disabled={account.holder.verificationStatus !== "Verified"}
           onPress={onPressSubmit}
         >
           {t("creditLimitRequest.requestCreditLimit")}

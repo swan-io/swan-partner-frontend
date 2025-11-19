@@ -586,7 +586,7 @@
   "creditLimitRequest.creditLimitAmount": "Montant de la limite de crédit",
   "creditLimitRequest.fullName": "Nom complet",
   "creditLimitRequest.iban": "IBAN",
-  "creditLimitRequest.legalRepresentativeNotverify": "Le représentant légal du compte doit être vérifié pour demander une limite de crédit",
+  "creditLimitRequest.legalRepresentativeNotverify": "Votre compte doit être vérifié pour demander une limite de crédit",
   "creditLimitRequest.notLegalRepresentative.description": "Veuillez demander au représentant légal du compte de demander une limite de crédit pour vous.",
   "creditLimitRequest.notLegalRepresentative.description.withName": "Veuillez demander au représentant légal du compte de demander une limite de crédit pour vous.\n({legalRepresentativeName}, {legalRepresentativeEmail}).",
   "creditLimitRequest.notLegalRepresentative.title": "Vous n'êtes pas le représentant légal de ce compte.",

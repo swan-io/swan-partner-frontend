@@ -586,7 +586,7 @@
   "creditLimitRequest.creditLimitAmount": "Kredietlimietbedrag",
   "creditLimitRequest.fullName": "Volledige naam",
   "creditLimitRequest.iban": "IBAN",
-  "creditLimitRequest.legalRepresentativeNotverify": "De wettelijke vertegenwoordiger van de rekening moet worden geverifieerd om een kredietlimiet aan te vragen",
+  "creditLimitRequest.legalRepresentativeNotverify": "Je account moet geverifieerd worden om een kredietlimiet aan te vragen",
   "creditLimitRequest.notLegalRepresentative.description": "Vraag de wettelijke vertegenwoordiger van de rekening om een kredietlimiet voor jou aan te vragen.",
   "creditLimitRequest.notLegalRepresentative.description.withName": "Vraag de wettelijke vertegenwoordiger van de rekening om een kredietlimiet voor jou aan te vragen.\n({legalRepresentativeName}, {legalRepresentativeEmail}).",
   "creditLimitRequest.notLegalRepresentative.title": "Jij bent niet de wettelijke vertegenwoordiger van deze rekening.",

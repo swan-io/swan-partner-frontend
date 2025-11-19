@@ -8,8 +8,11 @@ import {
 } from "../../graphql/partner";
 import { NotFoundPage } from "../../pages/NotFoundPage";
 import { Router, verificationRenewalRoutes } from "../../utils/routes";
+import { VerificationRenewalDocuments } from "./VerificationRenewalDocuments";
+import { VerificationRenewalFinalize } from "./VerificationRenewalFinalize";
 import { VerificationRenewalHeader } from "./VerificationRenewalHeader";
 import { VerificationRenewalIntro } from "./VerificationRenewalIntro";
+import { VerificationRenewalPersonalInfo } from "./VerificationRenewalPersonalInfo";
 
 const styles = StyleSheet.create({
   container: {
@@ -58,11 +61,13 @@ export const VerificationRenewalIndividual = ({
         .with({ name: "VerificationRenewalRoot" }, () => (
           <VerificationRenewalIntro verificationRenewalId={verificationRenewalId} />
         ))
-        .with({ name: "VerificationRenewalDocuments" }, () => <p>VerificationRenewalDocuments</p>)
-        .with({ name: "VerificationRenewalPersonalInformation" }, () => (
-          <p>VerificationRenewalPersonalInformation</p>
+        .with({ name: "VerificationRenewalDocuments" }, () => (
+          <VerificationRenewalDocuments verificationRenewalId={verificationRenewalId} />
         ))
-        .with({ name: "VerificationRenewalFinalize" }, () => <p>VerificationRenewalFinalize</p>)
+        .with({ name: "VerificationRenewalPersonalInformation" }, () => (
+          <VerificationRenewalPersonalInfo verificationRenewalId={verificationRenewalId} />
+        ))
+        .with({ name: "VerificationRenewalFinalize" }, () => <VerificationRenewalFinalize />)
         .with(P.nullish, () => <NotFoundPage />)
 
         .exhaustive()}

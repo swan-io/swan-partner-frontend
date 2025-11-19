@@ -1700,5 +1700,18 @@
   "verificationRenewal.intro.step2": "Attach the documents",
   "verificationRenewal.intro.step3": "Finalize",
   "verificationRenewal.next": "Next",
-  "verificationRenewal.back": "Back"
+  "verificationRenewal.back": "Back",
+  "verificationRenewal.confirm": "Confirm",
+  "verificationRenewal.cancel": "Cancel",
+  "verificationRenewal.close": "Close",
+  "verificationRenewal.personalInformation.subtitle": "Add any person holding at least 25% of {companyName} (directly or indirectly). Depending on your country this could be called, x, y, z.",
+  "verificationRenewal.personalInformation.title": "Who has ownership your organization?",
+  "verificationRenewal.personalInformation.name": "Name",
+  "verificationRenewal.personalInformation.address": "Address",
+  "verificationRenewal.personalInformation.monthlyIncomes": "Monthly incomes",
+  "verificationRenewal.personalInformation.occupation": "Occupation",
+  "verificationRenewal.documents.title": "Supporting documents",
+  "verificationRenewal.documents.subtitle": "Please provide high-quality, full-color files that capture the entire document.",
+  "verificationRenewal.finalize.title": "Thank you!",
+  "verificationRenewal.finalize.subtitle": "We've received your updated details and will review them shortly. If we need any additional information, we'll contact you.\n\nYou can now close this page."
 }

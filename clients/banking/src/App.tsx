@@ -14,6 +14,7 @@ import { CreditLimitRequest } from "./components/CreditLimitRequest";
 import { ErrorView } from "./components/ErrorView";
 import { ProjectRootRedirect } from "./components/ProjectRootRedirect";
 import { Redirect } from "./components/Redirect";
+import { VerificationRenewalArea } from "./components/VerificationRenewal/VerificationRenewalArea";
 import { AuthStatusDocument } from "./graphql/partner";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { ProjectLoginPage } from "./pages/ProjectLoginPage";
@@ -38,6 +39,7 @@ const AppContainer = () => {
     "AccountClose",
     "CreditLimitRequest",
     "AddReceivedSepaDirectDebitB2bMandate",
+    "VerificationRenewalArea",
   ]);
   const [authStatus] = useQuery(AuthStatusDocument, {});
 
@@ -77,6 +79,7 @@ const AppContainer = () => {
           { name: "AccountClose" },
           { name: "CreditLimitRequest" },
           { name: "AddReceivedSepaDirectDebitB2bMandate" },
+          { name: "VerificationRenewalArea" },
           route =>
             isLoggedIn ? (
               match(route)
@@ -106,6 +109,12 @@ const AppContainer = () => {
                 .with({ name: "ProjectRootRedirect" }, ({ params: { to, source } }) => (
                   <ProjectRootRedirect to={to} source={source} />
                 ))
+                .with(
+                  { name: "VerificationRenewalArea" },
+                  ({ params: { verificationRenewalId } }) => (
+                    <VerificationRenewalArea verificationRenewalId={verificationRenewalId} />
+                  ),
+                )
                 .with(P.nullish, () => <NotFoundPage />)
                 .exhaustive()
             ) : (

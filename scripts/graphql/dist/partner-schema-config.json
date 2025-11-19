@@ -81,6 +81,7 @@
       "GenerationNotAllowedRejection",
       "GlobalFundingLimitExceededRejection",
       "GlobalInstantFundingLimitExceededRejection",
+      "IbanEntryNotFoundRejection",
       "IBANNotReachableRejection",
       "IBANNotValidRejection",
       "IbanValidationRejection",
@@ -99,6 +100,7 @@
       "LegalRepresentativeAccountMembershipCannotBeDisabledRejection",
       "LegalRepresentativeAccountMembershipCannotBeSuspendedRejection",
       "MaximumDailyExportsReachedRejection",
+      "MaximumDailyInvitationsReachedRejection",
       "MaximumSimultaneousExportsRejection",
       "MerchantCardPaymentDeclinedRejection",
       "MerchantPaymentMethodNotActiveRejection",
@@ -192,6 +194,8 @@
       "UserNotCardHolderRejection",
       "UserNotFoundRejection",
       "ValidationRejection",
+      "VerificationRenewalNotFoundRejection",
+      "VerificationRenewalUpdateNotAllowedRejection",
       "VerificationRequirementsNotUpdatableRejection",
       "WebhookEventLogNotFoundRejection",
       "WebhookSubscriptionNotFoundRejection",
@@ -381,6 +385,10 @@
     "Reason": [
       "CloseAccountReason",
       "SuspendAccountReason"
+    ],
+    "AccountHolderOnboardingBase": [
+      "CompanyAccountHolderOnboarding",
+      "IndividualAccountHolderOnboarding"
     ],
     "VerificationRenewalInfoBase": [
       "CompanyVerificationRenewalInfo",

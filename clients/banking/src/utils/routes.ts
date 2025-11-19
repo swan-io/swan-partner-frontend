@@ -12,6 +12,14 @@ const routes = {
   AccountClose: "/accounts/:accountId/close?:resourceId&:status",
   CreditLimitRequest: "/accounts/:accountId/request-credit-limit?:from",
 
+  ...createGroup("VerificationRenewal", "/verification-renewal/:verificationRenewalId", {
+    Area: "/*",
+    Root: "/",
+    PersonalInformation: "/personal-information",
+    Documents: "/documents",
+    Finalize: "finalize",
+  }),
+
   ...createGroup("Account", "/:accountMembershipId", {
     Area: "/*",
     Root: "/",
@@ -152,6 +160,8 @@ type Routes = InferRoutes<typeof Router>;
 
 export type RouteName = keyof Routes;
 export type RouteParams<T extends RouteName> = Routes[T];
+
+export const verificationRenewalRoutes = ["VerificationRenewalRoot"];
 
 export const accountActivationRoutes = [
   "AccountActivationRoot",

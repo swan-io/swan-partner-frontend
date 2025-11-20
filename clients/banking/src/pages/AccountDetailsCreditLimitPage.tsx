@@ -35,7 +35,7 @@ import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
-import { validateIban } from "@swan-io/shared-business/src/utils/validation";
+import { sanitizeDecimal, validateIban } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import dayjs from "dayjs";
 import { useCallback, useMemo } from "react";
@@ -56,7 +56,7 @@ import {
 import { getCreditLimitAmount, getPendingCreditLimitAmount } from "../utils/creditLimit";
 import { formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { validateRequired } from "../utils/validations";
+import { validateNumeric, validateRequired } from "../utils/validations";
 
 const styles = StyleSheet.create({
   container: {
@@ -622,6 +622,11 @@ const EditCreditLimitForm = ({
   );
 
   const { Field, FieldsListener, submitForm } = useForm({
+    amount: {
+      initialValue: "",
+      sanitize: sanitizeDecimal,
+      validate: combineValidators(validateRequired, validateNumeric()),
+    },
     repaymentFrequency: {
       initialValue: "Monthly" as "Monthly" | "Weekly",
       validate: validateRequired,
@@ -671,6 +676,7 @@ const EditCreditLimitForm = ({
   const onPressSubmit = useCallback(() => {
     submitForm({
       onSuccess: ({
+        amount,
         repaymentFrequency,
         repaymentDayOfMonth,
         repaymentDayOfWeek,
@@ -719,6 +725,13 @@ const EditCreditLimitForm = ({
           .map(sepaDirectDebitB2B => ({ sepaDirectDebitB2B }))
           .map(repaymentMethod => ({ repaymentMethod }));
 
+        const creditLimitSettings = Option.allFromDict({
+          amount: amount.map(value => ({
+            value,
+            currency: "EUR",
+          })),
+        });
+
         const cycleLength = repaymentFrequency.flatMap<RepaymentCycleLengthInput>(
           repaymentFrequency =>
             match(repaymentFrequency)
@@ -736,13 +749,10 @@ const EditCreditLimitForm = ({
         );
 
         Option.allFromDict({
+          creditLimitSettings,
           repaymentSettings,
           cycleLength,
         }).tapSome(input => {
-          const creditLimitAmount = getCreditLimitAmount(
-            creditLimitSettings.creditLimitSettingsRequests.edges.map(edge => edge.node),
-          );
-
           const consentRedirectUrl = new URL(window.location.href);
           consentRedirectUrl.pathname = Router.AccountDetailsCreditLimitRoot({
             accountMembershipId,
@@ -751,12 +761,6 @@ const EditCreditLimitForm = ({
           requestCreditLimitSettings({
             input: {
               ...input,
-              creditLimitSettings: {
-                amount: {
-                  value: creditLimitAmount.value.toString(),
-                  currency: creditLimitAmount.currency,
-                },
-              },
               accountId,
               consentRedirectUrl: consentRedirectUrl.toString(),
             },
@@ -779,7 +783,6 @@ const EditCreditLimitForm = ({
     accountIban,
     accountHolder,
     accountMembershipId,
-    creditLimitSettings,
     submitForm,
     requestCreditLimitSettings,
   ]);
@@ -798,6 +801,24 @@ const EditCreditLimitForm = ({
           <Space height={24} />
         </>
       )}
+
+      <Field name="amount">
+        {({ value, onChange, onBlur, error }) => (
+          <LakeLabel
+            label={t("creditLimitRequest.creditLimitAmount")}
+            render={id => (
+              <LakeTextInput
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                id={id}
+                unit="EUR"
+                error={error}
+              />
+            )}
+          />
+        )}
+      </Field>
 
       <Field name="repaymentFrequency">
         {({ value, onChange, error }) => (

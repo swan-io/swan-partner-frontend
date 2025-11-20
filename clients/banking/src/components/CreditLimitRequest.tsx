@@ -23,7 +23,7 @@ import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPi
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
-import { validateIban } from "@swan-io/shared-business/src/utils/validation";
+import { sanitizeDecimal, validateIban } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useCallback, useEffect } from "react";
 import { StyleSheet, View } from "react-native";
@@ -268,6 +268,7 @@ const CreditLimitRequestForm = ({ account, large }: FormProps) => {
   const { Field, FieldsListener, submitForm } = useForm({
     amount: {
       initialValue: "",
+      sanitize: sanitizeDecimal,
       validate: combineValidators(validateRequired, validateNumeric()),
     },
     repaymentFrequency: {

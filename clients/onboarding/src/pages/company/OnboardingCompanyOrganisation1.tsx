@@ -145,7 +145,7 @@ export const OnboardingCompanyOrganisation1 = ({
     .with({ accountCountry: P.not("BEL"), country: P.not("BEL") }, () => true)
     .otherwise(() => false);
 
-  const isRegisteredRadioButtonsVisible = country === "BEL";
+  const isRegisteredRadioButtonsVisible = country === "DEU";
 
   const { Field, FieldsListener, submitForm, setFieldValue, setFieldError } = useForm({
     isRegistered: {
@@ -166,7 +166,11 @@ export const OnboardingCompanyOrganisation1 = ({
           return;
         }
         return isRegistered === true
-          ? combineValidators(validateRequired, validateRegistrationNumber)(value)
+          ? match(accountCountry)
+              .with("BEL", () =>
+                combineValidators(validateRequired, validateRegistrationNumber)(value),
+              )
+              .otherwise(() => validateRequired(value))
           : undefined;
       },
     },
@@ -468,7 +472,11 @@ export const OnboardingCompanyOrganisation1 = ({
                           render={id => (
                             <LakeTextInput
                               onBlur={onBlur}
-                              help={t("common.form.help.nbDigits", { nbDigits: "10" })}
+                              help={
+                                accountCountry === "BEL"
+                                  ? t("common.form.help.nbDigits", { nbDigits: "10" })
+                                  : undefined
+                              }
                               id={id}
                               ref={ref}
                               placeholder={t(

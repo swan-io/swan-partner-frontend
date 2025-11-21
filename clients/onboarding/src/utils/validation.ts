@@ -126,3 +126,10 @@ export const validateDate: Validator<string> = combineValidators<string>(
     }
   },
 );
+
+export const validateRegistrationNumber: Validator<string> = value => {
+  // test integer
+  if (!/^\d{10}$/.test(value)) {
+    return t("common.form.help.nbDigits", { nbDigits: "10" });
+  }
+};

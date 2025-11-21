@@ -48,6 +48,7 @@ import {
   extractServerValidationErrors,
   getValidationErrorMessage,
   ServerInvalidFieldCode,
+  validateRegistrationNumber,
   validateRequired,
   validateRequiredBoolean,
   validateVatNumber,
@@ -133,10 +134,15 @@ export const OnboardingCompanyOrganisation1 = ({
     .with({ accountCountry: "ITA", country: "ITA" }, () => true)
     .with({ accountCountry: "BEL", country: "BEL" }, () => true)
     .otherwise(() => false);
+
   const isTaxIdentificationRequired = match({ accountCountry, country })
     .with({ accountCountry: P.not(country) }, () => true)
     .with({ accountCountry: "ESP", country: "ESP" }, () => true)
     .with({ accountCountry: "ITA", country: "ITA" }, () => true)
+    .otherwise(() => false);
+
+  const displayVat = match({ accountCountry, country })
+    .with({ accountCountry: P.not("BEL"), country: P.not("BEL") }, () => true)
     .otherwise(() => false);
 
   const isRegisteredRadioButtonsVisible = country === "DEU";
@@ -159,7 +165,13 @@ export const OnboardingCompanyOrganisation1 = ({
         if (!isRegisteredRadioButtonsVisible && initialIsRegistered === false) {
           return;
         }
-        return isRegistered === true ? validateRequired(value) : undefined;
+        return isRegistered === true
+          ? match(accountCountry)
+              .with("BEL", () =>
+                combineValidators(validateRequired, validateRegistrationNumber)(value),
+              )
+              .otherwise(() => validateRequired(value))
+          : undefined;
       },
     },
     vatNumber: {
@@ -211,7 +223,7 @@ export const OnboardingCompanyOrganisation1 = ({
     submitForm({
       onSuccess: values => {
         const option = Option.allFromDict(
-          omit(values, ["taxIdentificationNumber", "isRegistered"]),
+          omit(values, ["taxIdentificationNumber", "isRegistered", "vatNumber"]),
         );
 
         if (option.isNone()) {
@@ -222,6 +234,10 @@ export const OnboardingCompanyOrganisation1 = ({
           .flatMap(value => Option.fromUndefined(emptyToUndefined(value)))
           .toUndefined();
 
+        const vatNumber = values.vatNumber
+          .flatMap(value => Option.fromUndefined(emptyToUndefined(value)))
+          .toUndefined();
+
         // we fallback to true if the isRegistered field isn't mounted (for company and self employed)
         const isRegistered = values.isRegistered.map(value => Boolean(value)).getOr(true);
 
@@ -229,9 +245,10 @@ export const OnboardingCompanyOrganisation1 = ({
           ...option.get(),
           taxIdentificationNumber,
           isRegistered,
+          vatNumber,
         };
 
-        const { name, registrationNumber, vatNumber, address, city, postalCode } = currentValues;
+        const { name, registrationNumber, address, city, postalCode } = currentValues;
 
         updateOnboarding({
           input: {
@@ -239,7 +256,7 @@ export const OnboardingCompanyOrganisation1 = ({
             isRegistered,
             name,
             registrationNumber,
-            vatNumber: emptyToUndefined(vatNumber),
+            vatNumber,
             taxIdentificationNumber,
             residencyAddress: {
               addressLine1: address,
@@ -441,7 +458,7 @@ export const OnboardingCompanyOrganisation1 = ({
                 <FieldsListener names={["isRegistered"]}>
                   {({ isRegistered }) => (
                     <Field name="registrationNumber">
-                      {({ value, valid, error, onChange, ref }) => (
+                      {({ value, valid, error, onChange, ref, onBlur }) => (
                         <LakeLabel
                           label={t("company.step.organisation1.registrationNumberLabel", {
                             registrationNumberLegalName: getRegistrationNumberName(
@@ -454,6 +471,12 @@ export const OnboardingCompanyOrganisation1 = ({
                           }
                           render={id => (
                             <LakeTextInput
+                              onBlur={onBlur}
+                              help={
+                                accountCountry === "BEL"
+                                  ? t("common.form.help.nbDigits", { nbDigits: "10" })
+                                  : undefined
+                              }
                               id={id}
                               ref={ref}
                               placeholder={t(
@@ -475,26 +498,30 @@ export const OnboardingCompanyOrganisation1 = ({
 
                 <Space height={12} />
 
-                <Field name="vatNumber">
-                  {({ value, valid, error, onChange, ref }) => (
-                    <LakeLabel
-                      label={t("company.step.organisation1.vatLabel")}
-                      optionalLabel={t("common.optional")}
-                      render={id => (
-                        <LakeTextInput
-                          id={id}
-                          ref={ref}
-                          placeholder={t("company.step.organisation1.vatPlaceholder")}
-                          value={value}
-                          valid={valid}
-                          error={error}
-                          onChangeText={onChange}
-                          disabled={autofillResult.isLoading()}
-                        />
-                      )}
-                    />
-                  )}
-                </Field>
+                {displayVat && (
+                  <Field name="vatNumber">
+                    {({ value, valid, error, onChange, ref, onBlur }) => (
+                      <LakeLabel
+                        label={t("company.step.organisation1.vatLabel")}
+                        optionalLabel={t("common.optional")}
+                        render={id => (
+                          <LakeTextInput
+                            help={t("common.form.help.nbDigits", { nbDigits: "10-12" })}
+                            id={id}
+                            onBlur={onBlur}
+                            ref={ref}
+                            placeholder={t("company.step.organisation1.vatPlaceholder")}
+                            value={value}
+                            valid={valid}
+                            error={error}
+                            onChangeText={onChange}
+                            disabled={autofillResult.isLoading()}
+                          />
+                        )}
+                      />
+                    )}
+                  </Field>
+                )}
 
                 {canSetTaxIdentification && (
                   <>

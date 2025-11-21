@@ -109,7 +109,7 @@ export const OnboardingCompanyRegistration = ({
 
   const haveToAcceptTcu = accountCountry === "DEU" || accountCountry === "ITA";
   const isAddressRequired = match(accountCountry)
-    .with("DEU", "NLD", () => true)
+    .with("DEU", "NLD", "BEL", () => true)
     .otherwise(() => false);
 
   const { Field, submitForm, setFieldValue, setFieldError, FieldsListener } = useForm({

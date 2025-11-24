@@ -61,11 +61,11 @@ export const VerificationRenewalIndividual = ({
         .with({ name: "VerificationRenewalRoot" }, () => (
           <VerificationRenewalIntro verificationRenewalId={verificationRenewalId} />
         ))
-        .with({ name: "VerificationRenewalDocuments" }, () => (
-          <VerificationRenewalDocuments verificationRenewalId={verificationRenewalId} />
-        ))
         .with({ name: "VerificationRenewalPersonalInformation" }, () => (
           <VerificationRenewalPersonalInfo verificationRenewalId={verificationRenewalId} />
+        ))
+        .with({ name: "VerificationRenewalDocuments" }, () => (
+          <VerificationRenewalDocuments verificationRenewalId={verificationRenewalId} />
         ))
         .with({ name: "VerificationRenewalFinalize" }, () => <VerificationRenewalFinalize />)
         .with(P.nullish, () => <NotFoundPage />)

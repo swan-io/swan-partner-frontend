@@ -2624,11 +2624,6 @@ type OnboardingInfo {
   """Project infos you set in the dashboard"""
   projectInfo: ProjectInfo
 
-  """
-  @deprecated(reason: "The progressive verification flow is no longer a supported feature, as all new account holders are now required to complete full KYC upfront.")
-  """
-  verificationFlow: VerificationFlow! @deprecated(reason: "The progressive verification flow is no longer a supported feature, as all new account holders are now required to complete full KYC upfront.")
-
   """Extra parameters provided by partner"""
   oAuthRedirectParameters: OAuthRedirectParameters
 
@@ -4051,19 +4046,6 @@ type ValidationRejection implements Rejection {
   message: String!
 }
 
-"""Verification Flow."""
-enum VerificationFlow {
-  """
-  When you ask the account holder to start the verification process at the beginning of the relationship to get an unlimited account.
-  """
-  Upfront
-
-  """
-  When you ask the account holder the minimum required to comply the law at the beginning of the relationship.
-  """
-  Progressive
-}
-
 """
 Account Holder Verification Requirement
 
@@ -5051,75 +5033,79 @@ type DocumentParentLinkMissingRejection implements Rejection {
 
 """Reason code of the document."""
 enum DocumentReasonCode {
-  """Company name in document doesn’t match our records"""
+  """Company name in document doesn't match our records."""
   CompanyNameMismatch
 
-  """Declared amount in document doesn’t match the amount received"""
+  """Declared amount in document doesn't match the expected amount."""
   DeclaredAmountMismatch
 
-  """Document must be dated less than 3 months ago"""
+  """One of the provided documents is too old."""
   ExpiredDocument
 
-  """Address in document doesn’t match our records"""
+  """Address in document doesn't match our records."""
   InvalidAddress
 
-  """Default value when none of the other values is appropriate"""
+  """Default value when none of the other values is appropriate."""
   InvalidDocument
 
-  """Some information is missing"""
+  """Some information is missing."""
   InvalidOrMissingData
 
-  """Missing identity document of accommodation provider"""
+  """Missing identity document of accommodation provider."""
   MissingAccommodationProviderId
 
   """
-  Missing identity document and proof of accommodation from accommodation provider
+  Missing identity document and proof of accommodation from accommodation provider.
   """
   MissingAccommodationProviderIdLetter
 
-  """Missing proof of accommodation from accommodation provider"""
+  """Missing proof of accommodation from accommodation provider."""
   MissingAccommodationProviderLetter
 
-  """Document cannot be accepted for the requested document type"""
+  """
+  Document cannot be accepted for the requested document type. Refer to the [list of accepted documents](https://docs.swan.io/partnership/document-center/proof-address/).
+  """
   UnacceptableDocument
 
-  """Accommodation provider's identity document must be in full color"""
+  """Accommodation provider's identity document must be in full color."""
   ProviderColorIdDocumentRequired
 
   """
-  Document must be signed, either by hand or electronically with certification
+  Document must be signed, either by hand or electronically with certification.
   """
   MissingSignature
 
-  """Document is damaged or in poor condition"""
+  """
+  Document is damaged, in poor condition, or has not been uploaded in the correct file type.
+  """
   BadDocumentQuality
 
-  """Only part of the document was provided"""
+  """Only part of the document was provided."""
   FullDocumentRequired
 
-  """Missing accommodation provider's proof of address"""
+  """Missing accommodation provider's proof of address."""
   MissingProviderProofOfAddress
 
-  """Missing accommodation provider's proof of address and ID document"""
+  """Missing accommodation provider's proof of address and ID document."""
   MissingProviderProofOfAddressAndIdDocument
 
-  """Power of attorney must be provided to Swan"""
+  """Power of attorney must be provided to Swan."""
   PowerOfAttorneyToSwanRequired
 
-  """Missing company domiciliation statement"""
+  """Missing company domiciliation statement."""
   MissingCompanyDomiciliationStatement
 
-  """The signature is not handwritten or electronically certified"""
+  """The signature is not handwritten or electronically certified."""
   HandwrittenOrCertifiedElectronicSignatureRequired
 
-  """Document refused for compliance reasons"""
+  """Document refused for compliance reasons."""
   ComplianceReason
 
-  """Bank name in articles of association document is invalid"""
+  """Bank name in articles of association document is invalid."""
   InvalidDepositBankName
 
   """
-  Missing the register extract of the company providing accommodation and ID document of the legal representative
+  Missing the register extract of the company providing accommodation and ID document of the legal representative.
   """
   MissingCompanyProviderRegisterExtract
 }
@@ -5812,7 +5798,6 @@ type CreditLimitSettingsRequest {
 type CreditLimitSettingsRequestApprovedStatusInfo implements CreditLimitSettingsRequestStatusInfo {
   status: CreditLimitSettingsRequestStatus!
   approvedAt: DateTime!
-  authorizedAmount: Amount
 }
 
 type CreditLimitSettingsRequestCanceledStatusInfo implements CreditLimitSettingsRequestStatusInfo {
@@ -10433,7 +10418,7 @@ input SimulateMerchantPaymentMethodRequestOutcomeInput {
 }
 
 """SimulateMerchantPaymentMethodPayload"""
-union SimulateMerchantPaymentMethodRequestOutcomePayload = CheckMerchantPaymentMethod | InternalDirectDebitStandardMerchantPaymentMethod | InternalDirectDebitB2BMerchantPaymentMethod | SepaDirectDebitCoreMerchantPaymentMethod | SepaDirectDebitB2BMerchantPaymentMethod | CardMerchantPaymentMethod | NotFoundRejection | ForbiddenRejection | InternalErrorRejection | MerchantPaymentMethodWrongStatusRejection | RejectionReasonMandatoryRejection | VerificationRequirementsMandatoryRejection | ValidationRejection | MerchantProfileUpdateRequestPendingRejection
+union SimulateMerchantPaymentMethodRequestOutcomePayload = CheckMerchantPaymentMethod | InternalDirectDebitStandardMerchantPaymentMethod | InternalDirectDebitB2BMerchantPaymentMethod | SepaDirectDebitCoreMerchantPaymentMethod | SepaDirectDebitB2BMerchantPaymentMethod | InPersonCardMerchantPaymentMethod | CardMerchantPaymentMethod | NotFoundRejection | ForbiddenRejection | InternalErrorRejection | MerchantPaymentMethodWrongStatusRejection | RejectionReasonMandatoryRejection | VerificationRequirementsMandatoryRejection | ValidationRejection | MerchantProfileUpdateRequestPendingRejection
 
 input SimulateMerchantPaymentMethodUpdateRequestOutcomeInput {
   """

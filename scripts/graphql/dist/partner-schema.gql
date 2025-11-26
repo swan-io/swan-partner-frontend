@@ -868,6 +868,51 @@ type AccountHolderNotStartedVerificationStatusInfo implements AccountHolderVerif
 }
 
 """
+Union type for account holder onboarding - returned by accountHolderOnboarding query
+"""
+union AccountHolderOnboarding = IndividualAccountHolderOnboarding | CompanyAccountHolderOnboarding
+
+"""Base interface for account holder onboarding"""
+interface AccountHolderOnboardingBase {
+  id: ID!
+  statusInfo: OnboardingStatusInfo!
+  supportingDocumentCollection: SupportingDocumentCollection
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""Connection type for paginated AccountHolderOnboarding results"""
+type AccountHolderOnboardingConnection implements Connection {
+  """Total number of elements in the list"""
+  totalCount: Int!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """AccountHolderOnboardingEdge list"""
+  edges: [AccountHolderOnboardingEdge!]!
+}
+
+"""Edge type for AccountHolderOnboarding in a paginated list"""
+type AccountHolderOnboardingEdge implements Edge {
+  """
+  Opaque identifier pointing to this account holder onboarding node in the pagination mechanism
+  """
+  cursor: String!
+
+  """The AccountHolderOnboarding"""
+  node: AccountHolderOnboarding!
+}
+
+"""Result payload for account holder onboarding query"""
+union AccountHolderOnboardingPayload = AccountHolderOnboardingSuccessPayload | OnboardingNotFoundRejection | InternalErrorRejection | ForbiddenRejection
+
+"""Success response with account holder onboarding information"""
+type AccountHolderOnboardingSuccessPayload {
+  onboarding: AccountHolderOnboarding!
+}
+
+"""
 Field we can use when ordering that can be applied when listing account holders
 """
 enum AccountHolderOrderByFieldInput {
@@ -3072,7 +3117,7 @@ input CancelVirtualIbanEntryInput {
   virtualIbanEntryId: ID!
 }
 
-union CancelVirtualIbanEntryPayload = CancelVirtualIbanEntrySuccessPayload | AccountNotFoundRejection | BadAccountStatusRejection | InternalErrorRejection | ValidationRejection
+union CancelVirtualIbanEntryPayload = CancelVirtualIbanEntrySuccessPayload | IbanEntryNotFoundRejection | AccountNotFoundRejection | BadAccountStatusRejection | InternalErrorRejection | ValidationRejection
 
 type CancelVirtualIbanEntrySuccessPayload {
   virtualIbanEntry: VirtualIBANEntry!
@@ -4630,6 +4675,144 @@ enum Category {
   Other
 }
 
+"""Enum CategoryPurpose - Purpose of the payment transaction"""
+enum CategoryPurpose {
+  """Account Sweep"""
+  AccountSweep
+
+  """Account Top-Up"""
+  AccountTopUp
+
+  """Bonus Payment"""
+  BonusPayment
+
+  """Card Bulk Settlement"""
+  CardBulkSettlement
+
+  """Card Fee Collection"""
+  CardFeeCollection
+
+  """Cash in Transit Payment"""
+  CashInTransitPayment
+
+  """Cash Management"""
+  CashManagement
+
+  """Cash Order Direct Debit"""
+  CashOrderDirectDebit
+
+  """Commercial Reimbursement"""
+  CommercialReimbursement
+
+  """Credit Card Payment"""
+  CreditCardPayment
+
+  """Credit Card Reimbursement"""
+  CreditCardReimbursement
+
+  """Debit Card Payment"""
+  DebitCardPayment
+
+  """Debit Card Reimbursement"""
+  DebitCardReimbursement
+
+  """Deliver Against Payment"""
+  DeliverAgainstPayment
+
+  """Direct Debit Representment"""
+  DirectDebitRepresentment
+
+  """Dividend Payment"""
+  DividendPayment
+
+  """Dodd Frank Cross Border"""
+  DoddFrankCrossBorder
+
+  """E-Payment"""
+  EPayment
+
+  """Fee Interest Payment"""
+  FeeInterestPayment
+
+  """Foreign Currency Domestic"""
+  ForeignCurrencyDomestic
+
+  """General P2P Payment"""
+  GeneralP2PPayment
+
+  """Government Payment"""
+  GovernmentPayment
+
+  """Hedging Payment"""
+  HedgingPayment
+
+  """Interest Payment"""
+  InterestPayment
+
+  """Intra-Company Payment"""
+  IntraCompanyPayment
+
+  """Loan Transfer"""
+  LoanTransfer
+
+  """Lockbox Cash Handling"""
+  LockboxCashHandling
+
+  """Mobile P2B Payment"""
+  MobileP2BPayment
+
+  """Mobile P2P Payment"""
+  MobileP2PPayment
+
+  """Other"""
+  Other
+
+  """Pension Payment"""
+  PensionPayment
+
+  """Receive Against Payment"""
+  ReceiveAgainstPayment
+
+  """Salary Payment"""
+  SalaryPayment
+
+  """Savings Transfer"""
+  SavingsTransfer
+
+  """Securities Payment"""
+  SecuritiesPayment
+
+  """Social Security Benefit"""
+  SocialSecurityBenefit
+
+  """Supplier Payment"""
+  SupplierPayment
+
+  """Tax Payment"""
+  TaxPayment
+
+  """Trade Finance Payment"""
+  TradeFinancePayment
+
+  """Trade Settlement"""
+  TradeSettlement
+
+  """Treasury Payment"""
+  TreasuryPayment
+
+  """VAT Payment"""
+  VATPayment
+
+  """Vostro Payment"""
+  VostroPayment
+
+  """Withholding Tax Payment"""
+  WithholdingTaxPayment
+
+  """Zero Balance Account"""
+  ZeroBalanceAccount
+}
+
 """Country code alpha 2 (ISO 3166)"""
 scalar CCA2
 
@@ -4956,6 +5139,66 @@ type ClosedAccountNotUpgradableRejection implements Rejection {
   message: String!
 }
 
+"""Company account holder onboarding"""
+type CompanyAccountHolderOnboarding implements AccountHolderOnboardingBase {
+  id: ID!
+  statusInfo: OnboardingStatusInfo!
+  supportingDocumentCollection: SupportingDocumentCollection
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  accountInfo: CompanyAccountHolderOnboardingAccount
+  accountAdmin: CompanyAccountHolderOnboardingAccountAdmin
+  company: CompanyInfo
+}
+
+"""Company account information for onboarding"""
+type CompanyAccountHolderOnboardingAccount {
+  name: String
+  country: AccountCountry
+  intendedUsage: [CompanyAccountIntendedUsage!]
+}
+
+"""Company account admin information for onboarding"""
+type CompanyAccountHolderOnboardingAccountAdmin {
+  birthInfo: BirthInfo
+  email: String
+  firstName: String
+  preferredLanguage: AccountLanguage
+  lastName: String
+  nationality: CCA3
+  address: AddressInfo
+  taxIdentificationNumber: String
+  typeOfRepresentation: TypeOfRepresentation
+  unitedStatesTaxInfo: UnitedStatesTaxInfo
+}
+
+"""Input for company account admin information during onboarding"""
+input CompanyAccountHolderOnboardingAccountAdminInput {
+  birthInfo: BirthInfoInput
+  email: String
+  firstName: String
+  preferredLanguage: AccountLanguage
+  lastName: String
+  nationality: CCA3
+  address: ResidencyAddressInput
+  taxIdentificationNumber: String
+  typeOfRepresentation: TypeOfRepresentation
+  unitedStatesTaxInfo: UnitedStatesTaxInfoInput
+  userDeviceInfo: UserDeviceInfoInput
+}
+
+"""Input for company account information during onboarding"""
+input CompanyAccountHolderOnboardingAccountInput {
+  name: String
+  country: AccountCountry!
+  intendedUsage: [CompanyAccountIntendedUsage!]
+}
+
+"""Company account intended usage"""
+enum CompanyAccountIntendedUsage {
+  Placeholder
+}
+
 enum CompanyHeadcount {
   Between1And10
   Between11And50
@@ -4998,11 +5241,47 @@ type CompanyInfo {
   """The current company headcount"""
   headcount: CompanyHeadcount
 
+  """Forecast yearly income range"""
+  forecastYearlyIncome: ForecastYearlyIncome
+
+  """Monthly payment volume"""
+  monthlyPaymentVolume: MonthlyPaymentVolume
+
+  """Regulatory classification of the company"""
+  regulatoryClassification: RegulatoryClassification
+
+  """Company websites"""
+  websites: [String!]
+
   """Ultimate beneficial owners"""
   ultimateBeneficialOwners: [UltimateBeneficialOwner]
 
   """The list of representatives of the company"""
   representatives: [OnboardingRepresentative]
+}
+
+"""Input for company information during onboarding"""
+input CompanyInfoInput {
+  acquisitionChannel: AcquisitionChannel
+  signupDate: Date
+  businessActivityDescription: String
+  businessClassificationCode: String
+  forecastYearlyIncome: ForecastYearlyIncome
+  legalForm: LegalForm
+  monthlyPaymentVolume: MonthlyPaymentVolume
+  name: String
+  tradeName: String
+  companyType: CompanyType
+  headcount: CompanyHeadcount
+  registrationDate: Date
+  registrationNumber: String
+  regulatoryClassification: RegulatoryClassification
+  representatives: [OnboardingRepresentativeInput!]
+  address: ResidencyAddressInput
+  taxIdentificationNumber: String
+  ultimateBeneficialOwners: [UltimateBeneficialOwnerInput!]
+  vatNumber: String
+  websites: [String!]
 }
 
 """Input for fetching company registry data"""
@@ -5076,14 +5355,24 @@ type CompanyVerificationRenewalAccountAdmin {
   lastName: String!
   birthInfo: BirthInfo!
   email: String!
+  typeOfRepresentation: TypeOfRepresentation
+}
+
+input CompanyVerificationRenewalAccountAdminInput {
+  firstName: String
+  lastName: String
+  birthInfo: BirthInfoInput
+  email: String
+  typeOfRepresentation: TypeOfRepresentation
 }
 
 type CompanyVerificationRenewalCompanyInfo {
+  verificationRenewalId: String!
   name: String!
   businessActivityDescription: String!
   monthlyPaymentVolume: MonthlyPaymentVolume!
   residencyAddress: Address!
-  ultimateBeneficialOwners: [IndividualUltimateBeneficialOwner!]!
+  ultimateBeneficialOwners: [UltimateBeneficialOwner!]!
 }
 
 type CompanyVerificationRenewalInfo implements VerificationRenewalInfoBase {
@@ -5091,6 +5380,14 @@ type CompanyVerificationRenewalInfo implements VerificationRenewalInfoBase {
   accountAdmin: CompanyVerificationRenewalAccountAdmin!
   company: CompanyVerificationRenewalCompanyInfo!
   additionalDetails: String
+}
+
+input CompanyVerificationRenewalInfoInput {
+  name: String
+  businessActivityDescription: String
+  monthlyPaymentVolume: MonthlyPaymentVolume
+  residencyAddress: ResidencyAddressInput
+  ultimateBeneficialOwners: [UltimateBeneficialOwnerInput!]
 }
 
 """Complete Address Information"""
@@ -5240,19 +5537,11 @@ type CompletedVerificationRenewal implements VerificationRenewal {
   supportTicketId: String
   dueDate: DateTime
 
-  """Completed Sub Status of the verification renewal"""
-  completedSubStatus: CompletedVerificationRenewalSubStatus!
-
   """Completed date"""
   completedAt: DateTime
 
   """Verification renewal information"""
   info: VerificationRenewalInfo!
-}
-
-enum CompletedVerificationRenewalSubStatus {
-  Verified
-  Postponed
 }
 
 input CompleteUserCreationInput {
@@ -5582,6 +5871,30 @@ type CreateCapitalDepositCaseSuccessPayload {
   capitalDepositCase: CapitalDepositCase!
 }
 
+"""Input for creating a company account holder onboarding"""
+input CreateCompanyAccountHolderOnboardingInput {
+  """Account information for the company account holder"""
+  accountInfo: CompanyAccountHolderOnboardingAccountInput!
+
+  """Account admin information for the company account holder"""
+  accountAdmin: CompanyAccountHolderOnboardingAccountAdminInput!
+
+  """OAuth redirect parameters for the onboarding flow"""
+  oAuthRedirectParameters: OAuthRedirectParametersInput
+
+  """Company information"""
+  company: CompanyInfoInput!
+}
+
+"""Payload for creating a company account holder onboarding"""
+union CreateCompanyAccountHolderOnboardingPayload = CreateCompanyAccountHolderOnboardingSuccessPayload | BadRequestRejection | ForbiddenRejection | ValidationRejection
+
+"""Success response for creating a company account holder onboarding"""
+type CreateCompanyAccountHolderOnboardingSuccessPayload {
+  """The created company account holder onboarding"""
+  onboarding: CompanyAccountHolderOnboarding!
+}
+
 input CreateInPersonPaymentIntentInput {
   merchantProfileId: ID!
   amount: AmountInput!
@@ -5730,6 +6043,9 @@ type CreditLimitSettings {
 
   """The total amount owed"""
   owedAmount: Amount!
+
+  """Authorized amount for the credit limit settings"""
+  authorizedAmount: Amount
 }
 
 """Inputs on the maximum credit limits requested."""
@@ -5769,7 +6085,6 @@ type CreditLimitSettingsRequest {
 type CreditLimitSettingsRequestApprovedStatusInfo implements CreditLimitSettingsRequestStatusInfo {
   status: CreditLimitSettingsRequestStatus!
   approvedAt: DateTime!
-  authorizedAmount: Amount
 }
 
 type CreditLimitSettingsRequestCanceledStatusInfo implements CreditLimitSettingsRequestStatusInfo {
@@ -6481,75 +6796,79 @@ type DocumentParentLinkMissingRejection implements Rejection {
 
 """Reason code of the document."""
 enum DocumentReasonCode {
-  """Company name in document doesn’t match our records"""
+  """Company name in document doesn't match our records."""
   CompanyNameMismatch
 
-  """Declared amount in document doesn’t match the amount received"""
+  """Declared amount in document doesn't match the expected amount."""
   DeclaredAmountMismatch
 
-  """Document must be dated less than 3 months ago"""
+  """One of the provided documents is too old."""
   ExpiredDocument
 
-  """Address in document doesn’t match our records"""
+  """Address in document doesn't match our records."""
   InvalidAddress
 
-  """Default value when none of the other values is appropriate"""
+  """Default value when none of the other values is appropriate."""
   InvalidDocument
 
-  """Some information is missing"""
+  """Some information is missing."""
   InvalidOrMissingData
 
-  """Missing identity document of accommodation provider"""
+  """Missing identity document of accommodation provider."""
   MissingAccommodationProviderId
 
   """
-  Missing identity document and proof of accommodation from accommodation provider
+  Missing identity document and proof of accommodation from accommodation provider.
   """
   MissingAccommodationProviderIdLetter
 
-  """Missing proof of accommodation from accommodation provider"""
+  """Missing proof of accommodation from accommodation provider."""
   MissingAccommodationProviderLetter
 
-  """Document cannot be accepted for the requested document type"""
+  """
+  Document cannot be accepted for the requested document type. Refer to the [list of accepted documents](https://docs.swan.io/partnership/document-center/proof-address/).
+  """
   UnacceptableDocument
 
-  """Accommodation provider's identity document must be in full color"""
+  """Accommodation provider's identity document must be in full color."""
   ProviderColorIdDocumentRequired
 
   """
-  Document must be signed, either by hand or electronically with certification
+  Document must be signed, either by hand or electronically with certification.
   """
   MissingSignature
 
-  """Document is damaged or in poor condition"""
+  """
+  Document is damaged, in poor condition, or has not been uploaded in the correct file type.
+  """
   BadDocumentQuality
 
-  """Only part of the document was provided"""
+  """Only part of the document was provided."""
   FullDocumentRequired
 
-  """Missing accommodation provider's proof of address"""
+  """Missing accommodation provider's proof of address."""
   MissingProviderProofOfAddress
 
-  """Missing accommodation provider's proof of address and ID document"""
+  """Missing accommodation provider's proof of address and ID document."""
   MissingProviderProofOfAddressAndIdDocument
 
-  """Power of attorney must be provided to Swan"""
+  """Power of attorney must be provided to Swan."""
   PowerOfAttorneyToSwanRequired
 
-  """Missing company domiciliation statement"""
+  """Missing company domiciliation statement."""
   MissingCompanyDomiciliationStatement
 
-  """The signature is not handwritten or electronically certified"""
+  """The signature is not handwritten or electronically certified."""
   HandwrittenOrCertifiedElectronicSignatureRequired
 
-  """Document refused for compliance reasons"""
+  """Document refused for compliance reasons."""
   ComplianceReason
 
-  """Bank name in articles of association document is invalid"""
+  """Bank name in articles of association document is invalid."""
   InvalidDepositBankName
 
   """
-  Missing the register extract of the company providing accommodation and ID document of the legal representative
+  Missing the register extract of the company providing accommodation and ID document of the legal representative.
   """
   MissingCompanyProviderRegisterExtract
 }
@@ -7820,6 +8139,16 @@ type FinalizeOnboardingSuccessPayload {
   onboarding: Onboarding!
 }
 
+input FinalizeVerificationRenewalInput {
+  verificationRenewalId: ID!
+}
+
+union FinalizeVerificationRenewalPayload = FinalizeVerificationRenewalSuccessPayload | ForbiddenRejection | VerificationRenewalNotFoundRejection | VerificationRenewalUpdateNotAllowedRejection
+
+type FinalizeVerificationRenewalSuccessPayload {
+  verificationRenewal: VerificationRenewal!
+}
+
 type FinancialInstitution {
   id: ID!
   name: String!
@@ -8385,6 +8714,12 @@ scalar HexColorCode
 """International Bank Account Number"""
 scalar IBAN
 
+"""Rejection returned when the Iban Entry was not found"""
+type IbanEntryNotFoundRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
 """Rejection returned when the IBAN is not reachable"""
 type IBANNotReachableRejection implements Rejection {
   message: String!
@@ -8806,6 +9141,61 @@ enum IncomingThreeDsStatus {
   Failed
 }
 
+"""Individual account holder onboarding"""
+type IndividualAccountHolderOnboarding implements AccountHolderOnboardingBase {
+  id: ID!
+  statusInfo: OnboardingStatusInfo!
+  supportingDocumentCollection: SupportingDocumentCollection
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  accountInfo: IndividualAccountHolderOnboardingAccount
+  accountAdmin: IndividualAccountHolderOnboardingAccountAdmin
+}
+
+"""Individual account information for onboarding"""
+type IndividualAccountHolderOnboardingAccount {
+  name: String
+  country: AccountCountry
+  intendedUsage: [IndividualAccountIntendedUsage!]
+}
+
+"""Individual account admin information for onboarding"""
+type IndividualAccountHolderOnboardingAccountAdmin {
+  birthInfo: BirthInfo
+  email: String
+  employmentStatus: EmploymentStatus
+  firstName: String
+  preferredLanguage: AccountLanguage
+  lastName: String
+  monthlyIncome: MonthlyIncome
+  nationality: CCA3
+  address: AddressInfo
+  taxIdentificationNumber: String
+  sourceOfFunds: IndividualAccountSourceOfFunds
+  unitedStatesTaxInfo: UnitedStatesTaxInfo
+}
+
+enum IndividualAccountIntendedUsage {
+  FamilySupport
+  Investment
+  PersonalUse
+  Salary
+  SelfEmployment
+}
+
+enum IndividualAccountSourceOfFunds {
+  BusinessActivity
+  CapitalGains
+  FamilyContributions
+  InheritanceOrGift
+  Other
+  PersonalWealth
+  RealEstateIncome
+  Salary
+  SaleOfAssets
+  SelfEmployment
+}
+
 type IndividualRepresentative {
   """List of representative roles."""
   roles: [String!]
@@ -9008,6 +9398,14 @@ type IndividualVerificationRenewalAccountAdmin {
   residencyAddress: Address!
   employmentStatus: EmploymentStatus!
   monthlyIncome: MonthlyIncome!
+}
+
+input IndividualVerificationRenewalAccountAdminInput {
+  firstName: String
+  lastName: String
+  residencyAddress: ResidencyAddressInput
+  employmentStatus: EmploymentStatus
+  monthlyIncome: MonthlyIncome
 }
 
 type IndividualVerificationRenewalInfo implements VerificationRenewalInfoBase {
@@ -10932,6 +11330,11 @@ type LegalDocumentUpcomingStatusInfo implements LegalDocumentStatusInfo {
   effectiveDate: DateTime
 }
 
+"""Legal form of the company"""
+enum LegalForm {
+  Placeholder
+}
+
 type LegalRepresentativeAccountMembershipCannotBeDisabledRejection implements Rejection {
   accountMembershipId: String!
   message: String!
@@ -10966,6 +11369,11 @@ enum MandateLanguage {
 Rejection returned when the project has already reached the maximum daily exports.
 """
 type MaximumDailyExportsReachedRejection implements Rejection {
+  message: String!
+}
+
+"""Rejection returned if notification daily rate limit has been reached"""
+type MaximumDailyInvitationsReachedRejection implements Rejection {
   message: String!
 }
 
@@ -12537,6 +12945,15 @@ type Mutation {
   """
   closeAccount(input: CloseAccountInput!): CloseAccountPayload!
 
+  """
+  Creates an onboarding for a new company account holder.
+  
+  This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
+  
+  @comingSoon -> this query is not available yet, and its shape is subject to breaking change
+  """
+  createCompanyAccountHolderOnboarding(input: CreateCompanyAccountHolderOnboardingInput!): CreateCompanyAccountHolderOnboardingPayload!
+
   """Allows to refuse all Sepa Direct Debit received on a Virtual IBAN."""
   denySddVirtualIbanEntry(input: DenySddVirtualIbanEntryInput!): DenySddVirtualIbanEntryPayload!
 
@@ -12558,6 +12975,9 @@ type Mutation {
   *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)).*
   """
   finalizeOnboarding(input: FinalizeOnboardingInput!): FinalizeOnboardingPayload!
+
+  """Internal Beta - do not use"""
+  finalizeVerificationRenewal(input: FinalizeVerificationRenewalInput!): FinalizeVerificationRenewalPayload!
 
   """
   Generate and return a presigned URL to upload a file to justify a transaction
@@ -12634,12 +13054,18 @@ type Mutation {
   """
   updateCompanyOnboarding(input: UpdateCompanyOnboardingInput): UpdateCompanyOnboardingPayload!
 
+  """Internal Beta - do not use"""
+  updateCompanyVerificationRenewal(input: UpdateCompanyVerificationRenewalInput!): UpdateCompanyVerificationRenewalPayload!
+
   """
   Updates an individual onboarding.
   
   This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
   """
   updateIndividualOnboarding(input: UpdateIndividualOnboardingInput!): UpdateIndividualOnboardingPayload!
+
+  """Internal Beta - do not use"""
+  updateIndividualVerificationRenewal(input: UpdateIndividualVerificationRenewalInput!): UpdateIndividualVerificationRenewalPayload!
   updateSupportingDocument(input: UpdateSupportingDocumentInput!): UpdateSupportingDocumentPayload!
 
   """
@@ -13580,6 +14006,12 @@ interface OnboardingAccountHolderInfo {
   type: AccountHolderType!
 }
 
+"""Rejection returned if the onboarding is already finalized"""
+type OnboardingAlreadyFinalizedRejection implements Rejection {
+  message: String!
+  onboardingId: String!
+}
+
 """Company Account Holder Information"""
 type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
   """
@@ -13791,11 +14223,6 @@ type OnboardingInfo {
   """Project infos you set in the dashboard"""
   projectInfo: ProjectInfo
 
-  """
-  @deprecated(reason: "The progressive verification flow is no longer a supported feature, as all new account holders are now required to complete full KYC upfront.")
-  """
-  verificationFlow: VerificationFlow! @deprecated(reason: "The progressive verification flow is no longer a supported feature, as all new account holders are now required to complete full KYC upfront.")
-
   """Extra parameters provided by partner"""
   oAuthRedirectParameters: OAuthRedirectParameters
 
@@ -13825,6 +14252,12 @@ type OnboardingNotCompletedRejection implements Rejection {
   onboarding: Onboarding!
 }
 
+"""Rejection returned if the onboarding was not found"""
+type OnboardingNotFoundRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
 """
 Field we can use when ordering that can be applied when listing onboardings
 """
@@ -13841,6 +14274,22 @@ input OnboardingOrderByInput {
 }
 
 union OnboardingRepresentative = OnboardingCompanyRepresentative | OnboardingIndividualRepresentative
+
+"""Input for onboarding representative (company or individual)"""
+input OnboardingRepresentativeInput {
+  type: RepresentativeType!
+  roles: [String!]
+  entityName: String
+  registrationNumber: String
+  legalForm: String
+  address: ResidencyAddressInput
+  firstName: String
+  lastName: String
+  preferredFirstName: String
+  sex: Sex
+  birthInfo: BirthInfoInput
+  nationality: CCA3
+}
 
 """Onboarding process state"""
 enum OnboardingState {
@@ -14648,19 +15097,8 @@ type PendingVerificationRenewal implements VerificationRenewal {
   supportTicketId: String
   dueDate: DateTime
 
-  """Pending Sub Status of the verification renewal"""
-  pendingSubStatus: PendingVerificationRenewalSubStatus!
-
   """Verification renewal information"""
   info: VerificationRenewalInfo!
-}
-
-enum PendingVerificationRenewalSubStatus {
-  ToStart
-  FirstResponseReceived
-  AdditionalResponseReceived
-  RiskEscalation
-  LastChance
 }
 
 """Pending Verification Information"""
@@ -15252,6 +15690,14 @@ enum ProjectType {
   CompanyAndCustomers
 }
 
+"""Result payload for public account holder onboarding query"""
+union PublicAccountHolderOnboardingPayload = PublicAccountHolderOnboardingSuccessPayload | OnboardingNotFoundRejection | OnboardingAlreadyFinalizedRejection | InternalErrorRejection | ForbiddenRejection | PublicOnboardingDisabledRejection
+
+"""Success response with account holder onboarding information"""
+type PublicAccountHolderOnboardingSuccessPayload {
+  onboarding: AccountHolderOnboarding!
+}
+
 """Input for fetching company registry data"""
 input PublicCompanyInfoRegistryDataInput {
   """Registration number of the company (e.g., SIREN for France)"""
@@ -15282,6 +15728,43 @@ type Query {
   Allows to check iban validation. It also returns its bank and reachability information
   """
   ibanValidation(input: IbanValidationInput): IbanValidationResult
+
+  """
+  Returns an account holder onboarding from its id.
+  
+  *This query is restricted to a Project access token ([Learn More](https://docs.swan.io/developers/using-api/authentication))*
+  
+  @comingSoon -> this query is not available yet, and its shape is subject to breaking change
+  """
+  accountHolderOnboarding(id: ID!): AccountHolderOnboardingPayload!
+
+  """
+  Returns the list of account holder onboardings.
+  
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
+  
+  *This query is restricted to a Project access token ([Learn More](https://docs.swan.io/developers/using-api/authentication))*
+  """
+  accountHolderOnboardings(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the preceding elements
+    """
+    before: String
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """a filtering table you can apply to your list of connections"""
+    filters: OnboardingFiltersInput
+
+    """an order you can apply to your list of connections"""
+    orderBy: OnboardingOrderByInput
+  ): AccountHolderOnboardingConnection!
 
   """Returns an account holder from its id."""
   accountHolder(id: ID!): AccountHolder
@@ -15418,6 +15901,14 @@ type Query {
   ): OnboardingConnection!
 
   """
+  Returns an account holder onboarding from its id without authentication.
+  This query can be used in unauthenticated contexts to fetch onboarding information.
+  
+  @comingSoon -> this query is not available yet, and its shape is subject to breaking change
+  """
+  publicAccountHolderOnboarding(id: ID!): PublicAccountHolderOnboardingPayload!
+
+  """
   Fetch comprehensive company registry data by registration number and optional country.
   Returns detailed company information including representatives and beneficial owners.
   @comingSoon -> this query is not available yet, and its shape is subject to breaking change
@@ -15449,6 +15940,9 @@ type Query {
     """an order you can apply to your list of connections"""
     orderBy: SupportingDocumentCollectionOrderByInput
   ): SupportingDocumentCollectionConnection!
+
+  """Internal Beta - do not use"""
+  verificationRenewal(id: ID!): VerificationRenewal
 
   """Returns a supporting document collection from its id."""
   supportingDocumentCollection(id: ID!): SupportingDocumentCollection
@@ -16053,9 +16547,6 @@ type RefusedVerificationRenewal implements VerificationRenewal {
   supportTicketId: String
   dueDate: DateTime
 
-  """Refused Sub Status of the verification renewal"""
-  refusedSubStatus: RefusedVerificationRenewalSubStatus!
-
   """Refused date"""
   refusedAt: DateTime
 
@@ -16063,14 +16554,15 @@ type RefusedVerificationRenewal implements VerificationRenewal {
   info: VerificationRenewalInfo!
 }
 
-enum RefusedVerificationRenewalSubStatus {
-  Discrepancies
-  NoReply
-}
-
 """Currently supported countries in the registry querying"""
 enum RegistryCountry {
   FRA
+}
+
+enum RegulatoryClassification {
+  NonFinancialActive
+  NonFinancialPassive
+  FinancialInstitution
 }
 
 """Funding Source Rejected Reason"""
@@ -17324,7 +17816,7 @@ input SendAccountMembershipInviteNotificationInput {
   accountMembershipId: ID!
 }
 
-union SendAccountMembershipInviteNotificationPayload = SendAccountMembershipInviteNotificationSuccessPayload | AccountMembershipNotFoundRejection | AccountMembershipStatusNotEligibleRejection | UserNotAllowedToManageAccountMembershipRejection | UserNotAllowedToSendAccountMembershipInvitationRejection | ForbiddenRejection | ValidationRejection
+union SendAccountMembershipInviteNotificationPayload = SendAccountMembershipInviteNotificationSuccessPayload | AccountMembershipNotFoundRejection | AccountMembershipStatusNotEligibleRejection | MaximumDailyInvitationsReachedRejection | UserNotAllowedToManageAccountMembershipRejection | UserNotAllowedToSendAccountMembershipInvitationRejection | ForbiddenRejection | ValidationRejection
 
 """Result when invitation notification request is successfully sent"""
 type SendAccountMembershipInviteNotificationSuccessPayload {
@@ -17580,6 +18072,12 @@ type SEPACreditTransferTransaction implements Transaction {
 
   """amount"""
   amount: Amount!
+
+  """
+  ** COMING SOON**
+  categoryPurpose - Purpose of the payment transaction
+  """
+  categoryPurpose: CategoryPurpose
 
   """label (max 140 characters)"""
   label: String!
@@ -19825,15 +20323,8 @@ type SuspendedVerificationRenewal implements VerificationRenewal {
   supportTicketId: String
   dueDate: DateTime
 
-  """Suspended Sub Status of the verification renewal"""
-  suspendedSubStatus: SuspendedVerificationRenewalSubStatus!
-
   """Verification renewal information"""
   info: VerificationRenewalInfo!
-}
-
-enum SuspendedVerificationRenewalSubStatus {
-  NoReply
 }
 
 """Inputs to suspend a physical card"""
@@ -21547,6 +22038,19 @@ type UpdateCompanyOnboardingSuccessPayload {
   onboarding: OnboardingInfo!
 }
 
+input UpdateCompanyVerificationRenewalInput {
+  verificationRenewalId: ID!
+  accountAdmin: CompanyVerificationRenewalAccountAdminInput
+  company: CompanyVerificationRenewalInfoInput
+  additionalDetails: String
+}
+
+union UpdateCompanyVerificationRenewalPayload = UpdateCompanyVerificationRenewalSuccessPayload | ForbiddenRejection | ValidationRejection | VerificationRenewalNotFoundRejection | VerificationRenewalUpdateNotAllowedRejection
+
+type UpdateCompanyVerificationRenewalSuccessPayload {
+  verificationRenewal: VerificationRenewal!
+}
+
 """Input when the account membership is restricted to a verified user"""
 input UpdatedRestrictedToInput {
   """Account member first name"""
@@ -21622,6 +22126,18 @@ union UpdateIndividualOnboardingPayload = ForbiddenRejection | InternalErrorReje
 """Type of result when updateIndividualOnboarding is a success"""
 type UpdateIndividualOnboardingSuccessPayload {
   onboarding: OnboardingInfo!
+}
+
+input UpdateIndividualVerificationRenewalInput {
+  verificationRenewalId: ID!
+  accountAdmin: IndividualVerificationRenewalAccountAdminInput
+  additionalDetails: String
+}
+
+union UpdateIndividualVerificationRenewalPayload = UpdateIndividualVerificationRenewalSuccessPayload | ForbiddenRejection | ValidationRejection | VerificationRenewalNotFoundRejection | VerificationRenewalUpdateNotAllowedRejection
+
+type UpdateIndividualVerificationRenewalSuccessPayload {
+  verificationRenewal: VerificationRenewal!
 }
 
 """Inputs to update a received sepa direct debit mandate B2b."""
@@ -22094,19 +22610,6 @@ type ValidIdentificationLevelStatusInfo {
   status: SwanIdentificationStatus!
 }
 
-"""Verification Flow."""
-enum VerificationFlow {
-  """
-  When you ask the account holder to start the verification process at the beginning of the relationship to get an unlimited account.
-  """
-  Upfront
-
-  """
-  When you ask the account holder the minimum required to comply the law at the beginning of the relationship.
-  """
-  Progressive
-}
-
 """Verification Renewals"""
 interface VerificationRenewal {
   """Unique identifier of a verification renewal"""
@@ -22138,6 +22641,11 @@ union VerificationRenewalInfo = IndividualVerificationRenewalInfo | CompanyVerif
 
 interface VerificationRenewalInfoBase {
   type: AccountHolderType!
+}
+
+type VerificationRenewalNotFoundRejection implements Rejection {
+  id: ID!
+  message: String!
 }
 
 enum VerificationRenewalRequirement {
@@ -22185,24 +22693,6 @@ type VerificationRenewalsEdge implements Edge {
   node: VerificationRenewal!
 }
 
-"""Filters that can be applied when listing verification renewals"""
-input VerificationRenewalsFiltersInput {
-  """Filter by IDs"""
-  id: [String!]
-
-  """Filter by Account Holder IDs"""
-  accountHolderId: [String!]
-
-  """Filter by Project IDs"""
-  projectId: [String!]
-
-  """Filter by VerificationRenewal status"""
-  status: VerificationRenewalStatus
-
-  """Filter by VerificationRenewal Sub statuses"""
-  subStatus: [VerificationRenewalSubStatus!]
-}
-
 """
 Field we can use when ordering that can be applied when listing verification renewals
 """
@@ -22226,16 +22716,9 @@ enum VerificationRenewalStatus {
   Completed
 }
 
-enum VerificationRenewalSubStatus {
-  ToStart
-  FirstResponseReceived
-  AdditionalResponseReceived
-  RiskEscalation
-  LastChance
-  VerificationRequirements
-  Verified
-  Postponed
-  Discrepancies
+type VerificationRenewalUpdateNotAllowedRejection implements Rejection {
+  id: ID!
+  message: String!
 }
 
 """
@@ -22512,18 +22995,11 @@ type WaitingForInformationVerificationRenewal implements VerificationRenewal {
   updatedAt: DateTime!
   supportTicketId: String
   dueDate: DateTime
-
-  """WaitingForInformation Sub Status of the verification renewal"""
-  waitingForInformationSubStatus: WaitingForInformationVerificationRenewalSubStatus!
   verificationRequirements: [VerificationRenewalRequirement!]!
 
   """Verification renewal information"""
   info: VerificationRenewalInfo!
-}
-
-enum WaitingForInformationVerificationRenewalSubStatus {
-  VerificationRequirements
-  LastChance
+  supportingDocumentCollection: SupportingDocumentCollection
 }
 
 """Wallet Provider (ApplePay, GooglePay ...)"""

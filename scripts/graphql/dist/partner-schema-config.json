@@ -81,6 +81,7 @@
       "GenerationNotAllowedRejection",
       "GlobalFundingLimitExceededRejection",
       "GlobalInstantFundingLimitExceededRejection",
+      "IbanEntryNotFoundRejection",
       "IBANNotReachableRejection",
       "IBANNotValidRejection",
       "IbanValidationRejection",
@@ -99,6 +100,7 @@
       "LegalRepresentativeAccountMembershipCannotBeDisabledRejection",
       "LegalRepresentativeAccountMembershipCannotBeSuspendedRejection",
       "MaximumDailyExportsReachedRejection",
+      "MaximumDailyInvitationsReachedRejection",
       "MaximumSimultaneousExportsRejection",
       "MerchantCardPaymentDeclinedRejection",
       "MerchantPaymentMethodNotActiveRejection",
@@ -118,7 +120,9 @@
       "NotLegalRepresentativeRejection",
       "NotReachableConsentStatusRejection",
       "NotSupportedCountryRejection",
+      "OnboardingAlreadyFinalizedRejection",
       "OnboardingNotCompletedRejection",
+      "OnboardingNotFoundRejection",
       "OperationNotAllowedRejection",
       "PaymentMandateMandateNotFoundRejection",
       "PaymentMandateReferenceAlreadyUsedRejection",
@@ -192,6 +196,8 @@
       "UserNotCardHolderRejection",
       "UserNotFoundRejection",
       "ValidationRejection",
+      "VerificationRenewalNotFoundRejection",
+      "VerificationRenewalUpdateNotAllowedRejection",
       "VerificationRequirementsNotUpdatableRejection",
       "WebhookEventLogNotFoundRejection",
       "WebhookSubscriptionNotFoundRejection",
@@ -207,6 +213,7 @@
     "Connection": [
       "AccountConnection",
       "AccountHolderConnection",
+      "AccountHolderOnboardingConnection",
       "AccountMembershipConnection",
       "CapitalDepositCaseConnection",
       "CardConnection",
@@ -242,6 +249,7 @@
     "Edge": [
       "AccountEdge",
       "AccountHolderEdge",
+      "AccountHolderOnboardingEdge",
       "AccountMembershipEdge",
       "CapitalDepositCaseEdge",
       "CardEdge",
@@ -381,6 +389,10 @@
     "Reason": [
       "CloseAccountReason",
       "SuspendAccountReason"
+    ],
+    "AccountHolderOnboardingBase": [
+      "CompanyAccountHolderOnboarding",
+      "IndividualAccountHolderOnboarding"
     ],
     "VerificationRenewalInfoBase": [
       "CompanyVerificationRenewalInfo",

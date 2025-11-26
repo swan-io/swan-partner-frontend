@@ -30,7 +30,6 @@ import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import {
   CreditLimitRequestDocument,
-  CreditLimitSettingsRequestFragment,
   CreditLimitStatus,
   DayEnum,
   RepaymentAccountFragment,
@@ -39,7 +38,6 @@ import {
 } from "../graphql/partner";
 import { PermissionProvider } from "../hooks/usePermissions";
 import { NotFoundPage } from "../pages/NotFoundPage";
-import { getCreditLimitAmount } from "../utils/creditLimit";
 import { formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { validateNumeric, validateRequired } from "../utils/validations";
@@ -198,9 +196,7 @@ export const CreditLimitRequest = ({ accountId, from }: Props) => {
                         ) : (
                           <CreditLimitRequestResult
                             status={account.creditLimitSettings.statusInfo.status}
-                            creditLimitRequests={account.creditLimitSettings.creditLimitSettingsRequests.edges.map(
-                              edge => edge.node,
-                            )}
+                            authorizedAmount={account.creditLimitSettings.authorizedAmount}
                             accountMembershipId={userMembershipIdOnCurrentAccount}
                             large={large}
                             onClose={onClose}
@@ -652,7 +648,7 @@ const CreditLimitRequestForm = ({ account, large }: FormProps) => {
 type CreditLimitRequestResultProps = {
   accountMembershipId: Option<string>;
   status: CreditLimitStatus;
-  creditLimitRequests: CreditLimitSettingsRequestFragment[];
+  authorizedAmount: { value: number | string; currency: string } | null | undefined;
   onClose: () => void;
   large: boolean;
 };
@@ -660,15 +656,18 @@ type CreditLimitRequestResultProps = {
 const CreditLimitRequestResult = ({
   accountMembershipId,
   status,
-  creditLimitRequests,
+  authorizedAmount,
   onClose,
 }: CreditLimitRequestResultProps) => {
+  const creditLimitAmount = authorizedAmount ?? {
+    value: 0,
+    currency: "EUR",
+  };
+
   return (
     <Box alignItems="center" justifyContent="center" style={styles.fill}>
       {match(status)
         .with("Activated", () => {
-          const creditLimitAmount = getCreditLimitAmount(creditLimitRequests);
-
           return (
             <>
               <BorderedIcon name={"lake-check"} color="positive" size={100} padding={16} />
@@ -676,7 +675,10 @@ const CreditLimitRequestResult = ({
 
               <LakeText variant="medium" align="center" color={colors.gray[900]}>
                 {formatNestedMessage("creditLimitRequest.result.success.title", {
-                  amount: formatCurrency(creditLimitAmount.value, creditLimitAmount.currency),
+                  amount: formatCurrency(
+                    Number(creditLimitAmount.value),
+                    creditLimitAmount.currency,
+                  ),
                   b: text => <LakeText color={colors.current[500]}>{text}</LakeText>,
                 })}
               </LakeText>

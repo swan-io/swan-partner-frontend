@@ -600,12 +600,7 @@ fragment CreditLimitSettingsRequest on CreditLimitSettingsRequest {
   id
   updatedAt
   statusInfo {
-    ... on CreditLimitSettingsRequestApprovedStatusInfo {
-      authorizedAmount {
-        value
-        currency
-      }
-    }
+    __typename
   }
   amount {
     value
@@ -639,6 +634,10 @@ query CreditLimitPage($accountId: ID!) {
             ...CreditLimitSettingsRequest
           }
         }
+      }
+      authorizedAmount {
+        currency
+        value
       }
       repaymentSettings {
         repaymentCycleLength {
@@ -2756,6 +2755,10 @@ query CreditLimitRequest($accountId: ID!, $after: String, $first: Int!) {
             ...CreditLimitSettingsRequest
           }
         }
+      }
+      authorizedAmount {
+        currency
+        value
       }
       statusInfo {
         status

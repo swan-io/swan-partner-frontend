@@ -5,9 +5,11 @@ import { match, P } from "ts-pattern";
 import {
   GetVerificationRenewalQuery,
   IndividualVerificationRenewalAccountAdmin,
+  SupportingDocumentRenewalFragment,
 } from "../../graphql/partner";
 import { NotFoundPage } from "../../pages/NotFoundPage";
 import { Router, verificationRenewalRoutes } from "../../utils/routes";
+import { ErrorView } from "../ErrorView";
 import { VerificationRenewalDocuments } from "./VerificationRenewalDocuments";
 import { VerificationRenewalFinalize } from "./VerificationRenewalFinalize";
 import { VerificationRenewalHeader } from "./VerificationRenewalHeader";
@@ -38,13 +40,17 @@ const styles = StyleSheet.create({
 type Props = {
   accountAdmin: IndividualVerificationRenewalAccountAdmin;
   projectInfo: NonNullable<GetVerificationRenewalQuery["projectInfo"]>;
+  verificationRenewal: NonNullable<GetVerificationRenewalQuery["verificationRenewal"]>;
   verificationRenewalId: string;
+  supportingDocumentCollection: SupportingDocumentRenewalFragment | null;
 };
 
 export const VerificationRenewalIndividual = ({
   accountAdmin,
   projectInfo,
   verificationRenewalId,
+  verificationRenewal,
+  supportingDocumentCollection,
 }: Props) => {
   console.log(accountAdmin);
   const route = Router.useRoute(verificationRenewalRoutes);
@@ -57,20 +63,36 @@ export const VerificationRenewalIndividual = ({
           projectLogo={projectInfo.logoUri}
         />
       </Box>
-      {match(route)
-        .with({ name: "VerificationRenewalRoot" }, () => (
+      {match({ route, supportingDocumentCollection })
+        .with({ route: { name: "VerificationRenewalRoot" } }, () => (
           <VerificationRenewalIntro verificationRenewalId={verificationRenewalId} />
         ))
-        .with({ name: "VerificationRenewalPersonalInformation" }, () => (
-          <VerificationRenewalPersonalInfo verificationRenewalId={verificationRenewalId} />
+        .with({ route: { name: "VerificationRenewalPersonalInformation" } }, () => (
+          <VerificationRenewalPersonalInfo
+            projectInfo={projectInfo}
+            verificationRenewal={verificationRenewal}
+          />
         ))
-        .with({ name: "VerificationRenewalDocuments" }, () => (
-          <VerificationRenewalDocuments verificationRenewalId={verificationRenewalId} />
+        .with(
+          {
+            route: { name: "VerificationRenewalDocuments" },
+            supportingDocumentCollection: P.nonNullable,
+          },
+          ({ supportingDocumentCollection }) => (
+            <VerificationRenewalDocuments
+              verificationRenewal={verificationRenewal}
+              supportingDocumentCollection={supportingDocumentCollection}
+            />
+          ),
+        )
+        .with({ route: { name: "VerificationRenewalFinalize" } }, () => (
+          <VerificationRenewalFinalize />
         ))
-        .with({ name: "VerificationRenewalFinalize" }, () => <VerificationRenewalFinalize />)
         .with(P.nullish, () => <NotFoundPage />)
 
-        .exhaustive()}
+        .otherwise(() => (
+          <ErrorView />
+        ))}
     </Box>
   );
 };

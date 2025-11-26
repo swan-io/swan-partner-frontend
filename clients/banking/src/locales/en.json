@@ -1718,5 +1718,15 @@
   "verificationRenewal.monthlyIncome.Between500And1500": "Between 500 and 1500",
   "verificationRenewal.monthlyIncome.LessThan500": "Less than 500",
   "verificationRenewal.monthlyIncome.MoreThan4500": "More than 4500",
-  "verificationRenewal.finalize.subtitle": "We've received your updated details and will review them shortly. If we need any additional information, we'll contact you.\n\nYou can now close this page."
+  "verificationRenewal.finalize.subtitle": "We've received your updated details and will review them shortly. If we need any additional information, we'll contact you.\n\nYou can now close this page.",
+  "verificationRenewal.monthlyIncome.Craftsman": "Craftsman",
+  "verificationRenewal.monthlyIncome.Employee": "Employee",
+  "verificationRenewal.monthlyIncome.Entrepreneur": "Entrepreneur",
+  "verificationRenewal.monthlyIncome.Farmer": "Farmer",
+  "verificationRenewal.monthlyIncome.Manager": "Manager",
+  "verificationRenewal.monthlyIncome.Practitioner": "Practitioner",
+  "verificationRenewal.monthlyIncome.Retiree": "Retiree",
+  "verificationRenewal.monthlyIncome.ShopOwner": "Shop owner",
+  "verificationRenewal.monthlyIncome.Student": "Student",
+  "verificationRenewal.monthlyIncome.Unemployed": "Unemployed"
 }

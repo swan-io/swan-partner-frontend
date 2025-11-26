@@ -3550,6 +3550,42 @@ mutation SendAccountMembershipInviteNotification(
   }
 }
 
+fragment SupportingDocumentRenewal on SupportingDocumentCollection {
+  id
+  type
+  supportingDocuments {
+    id
+    statusInfo {
+      status
+      ... on SupportingDocumentRefusedStatusInfo {
+        filename
+        reason
+        reasonCode
+      }
+      ... on SupportingDocumentUploadedStatusInfo {
+        filename
+      }
+    }
+    supportingDocumentPurpose
+  }
+  requiredSupportingDocumentPurposes {
+    name
+    label
+  }
+  statusInfo {
+    __typename
+    status
+  }
+  requiredSupportingDocumentPurposes {
+    name
+    acceptableSupportingDocumentTypes
+    label
+    description
+  }
+  createdAt
+  updatedAt
+}
+
 query GetVerificationRenewal($id: ID!) {
   projectInfo {
     id
@@ -3558,11 +3594,21 @@ query GetVerificationRenewal($id: ID!) {
     logoUri
   }
   verificationRenewal(id: $id) {
+    ... on WaitingForInformationVerificationRenewal {
+      id
+      supportingDocumentCollection {
+        ...SupportingDocumentRenewal
+      }
+    }
     __typename
     id
     info {
       ... on CompanyVerificationRenewalInfo {
         type
+        additionalDetails
+        company {
+          name
+        }
         accountAdmin {
           firstName
           lastName
@@ -3577,6 +3623,7 @@ query GetVerificationRenewal($id: ID!) {
       }
       ... on IndividualVerificationRenewalInfo {
         type
+        additionalDetails
         accountAdmin {
           firstName
           lastName

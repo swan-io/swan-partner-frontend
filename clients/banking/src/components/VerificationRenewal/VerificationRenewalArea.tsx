@@ -30,38 +30,64 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
     .with({ data: AsyncData.P.Done(Result.P.Error(P.select())) }, error => (
       <ErrorView error={error} />
     ))
-    .with({ data: AsyncData.P.Done(Result.P.Ok(P.select())) }, data => {
-      const { projectInfo, verificationRenewal } = data;
-      const projectColor = projectInfo?.accentColor ?? invariantColors.defaultAccentColor;
-      const accountAdmin = match(verificationRenewal?.info)
-        .with(
-          { __typename: "CompanyVerificationRenewalInfo", accountAdmin: P.select() },
-          accountAdmin => accountAdmin,
-        )
-        .with(
-          { __typename: "IndividualVerificationRenewalInfo", accountAdmin: P.select() },
-          accountAdmin => accountAdmin,
-        )
-        .otherwise(() => null);
+    .with(
+      { data: AsyncData.P.Done(Result.P.Ok(P.select())) },
+      ({ projectInfo, verificationRenewal }) => {
+        const projectColor = projectInfo?.accentColor ?? invariantColors.defaultAccentColor;
+        const accountAdmin = match(verificationRenewal?.info)
+          .with(
+            { __typename: "CompanyVerificationRenewalInfo", accountAdmin: P.select() },
+            accountAdmin => accountAdmin,
+          )
+          .with(
+            { __typename: "IndividualVerificationRenewalInfo", accountAdmin: P.select() },
+            accountAdmin => accountAdmin,
+          )
+          .otherwise(() => null);
 
-      return (
-        <View style={styles.main}>
-          <WithPartnerAccentColor color={projectColor}>
-            {match(accountAdmin)
-              .with({ __typename: "CompanyVerificationRenewalAccountAdmin" }, () => <p>Company</p>)
-              .with({ __typename: "IndividualVerificationRenewalAccountAdmin" }, admin => (
-                <VerificationRenewalIndividual
-                  accountAdmin={admin}
-                  projectInfo={projectInfo}
-                  verificationRenewalId={verificationRenewalId}
-                />
-              ))
-              .otherwise(() => (
-                <ErrorView />
-              ))}
-          </WithPartnerAccentColor>
-        </View>
-      );
-    })
+        const renewalSupportingDoc = match(verificationRenewal)
+          .with(
+            {
+              __typename: "WaitingForInformationVerificationRenewal",
+              supportingDocumentCollection: P.nonNullable,
+            },
+            ({ supportingDocumentCollection }) => supportingDocumentCollection,
+          )
+          .otherwise(() => null);
+
+        return (
+          <View style={styles.main}>
+            <WithPartnerAccentColor color={projectColor}>
+              {match({ accountAdmin, verificationRenewal })
+                .with(
+                  {
+                    accountAdmin: { __typename: "CompanyVerificationRenewalAccountAdmin" },
+                    verificationRenewal: P.nonNullable,
+                  },
+                  () => <p>Company</p>,
+                )
+                .with(
+                  {
+                    accountAdmin: { __typename: "IndividualVerificationRenewalAccountAdmin" },
+                    verificationRenewal: P.nonNullable,
+                  },
+                  ({ accountAdmin, verificationRenewal }) => (
+                    <VerificationRenewalIndividual
+                      verificationRenewal={verificationRenewal}
+                      accountAdmin={accountAdmin}
+                      projectInfo={projectInfo}
+                      verificationRenewalId={verificationRenewalId}
+                      supportingDocumentCollection={renewalSupportingDoc}
+                    />
+                  ),
+                )
+                .otherwise(() => (
+                  <ErrorView />
+                ))}
+            </WithPartnerAccentColor>
+          </View>
+        );
+      },
+    )
     .exhaustive();
 };

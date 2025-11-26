@@ -546,6 +546,20 @@ type AccountHolderNotStartedVerificationStatusInfo implements AccountHolderVerif
 }
 
 """
+Union type for account holder onboarding - returned by accountHolderOnboarding query
+"""
+union AccountHolderOnboarding = IndividualAccountHolderOnboarding | CompanyAccountHolderOnboarding
+
+"""Base interface for account holder onboarding"""
+interface AccountHolderOnboardingBase {
+  id: ID!
+  statusInfo: OnboardingStatusInfo!
+  supportingDocumentCollection: SupportingDocumentCollection
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""
 Field we can use when ordering that can be applied when listing account holders
 """
 enum AccountHolderOrderByFieldInput {
@@ -1348,6 +1362,73 @@ type ClosedAccountNotUpgradableRejection implements Rejection {
   message: String!
 }
 
+"""Company account holder onboarding"""
+type CompanyAccountHolderOnboarding implements AccountHolderOnboardingBase {
+  id: ID!
+  statusInfo: OnboardingStatusInfo!
+  supportingDocumentCollection: SupportingDocumentCollection
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  accountInfo: CompanyAccountHolderOnboardingAccount
+  accountAdmin: CompanyAccountHolderOnboardingAccountAdmin
+  company: CompanyInfo
+}
+
+"""Company account information for onboarding"""
+type CompanyAccountHolderOnboardingAccount {
+  name: String
+  country: AccountCountry
+  intendedUsage: [CompanyAccountIntendedUsage!]
+}
+
+"""Company account admin information for onboarding"""
+type CompanyAccountHolderOnboardingAccountAdmin {
+  birthInfo: BirthInfo
+  email: String
+  firstName: String
+  preferredLanguage: AccountLanguage
+  lastName: String
+  nationality: CCA3
+  address: AddressInfo
+  taxIdentificationNumber: String
+  typeOfRepresentation: TypeOfRepresentation
+  unitedStatesTaxInfo: UnitedStatesTaxInfo
+}
+
+"""Input for company account admin information during onboarding"""
+input CompanyAccountHolderOnboardingAccountAdminInput {
+  birthInfo: BirthInfoInput
+  email: String
+  firstName: String
+  preferredLanguage: AccountLanguage
+  lastName: String
+  nationality: CCA3
+  address: ResidencyAddressInput
+  taxIdentificationNumber: String
+  typeOfRepresentation: TypeOfRepresentation
+  unitedStatesTaxInfo: UnitedStatesTaxInfoInput
+  userDeviceInfo: UserDeviceInfoInput
+}
+
+"""Input for company account information during onboarding"""
+input CompanyAccountHolderOnboardingAccountInput {
+  name: String
+  country: AccountCountry!
+  intendedUsage: [CompanyAccountIntendedUsage!]
+}
+
+"""Company account intended usage"""
+enum CompanyAccountIntendedUsage {
+  Placeholder
+}
+
+enum CompanyHeadcount {
+  Between1And10
+  Between11And50
+  Between51And250
+  MoreThan250
+}
+
 """
 Data provided following the search for company information by siren number
 """
@@ -1374,6 +1455,30 @@ union CompanyInfoBySirenPayload = CompanyInfoBySirenSuccessPayload | NotSupporte
 
 type CompanyInfoBySirenSuccessPayload {
   companyInfo: CompanyInfo!
+}
+
+"""Input for company information during onboarding"""
+input CompanyInfoInput {
+  acquisitionChannel: AcquisitionChannel
+  signupDate: Date
+  businessActivityDescription: String
+  businessClassificationCode: String
+  forecastYearlyIncome: ForecastYearlyIncome
+  legalForm: LegalForm
+  monthlyPaymentVolume: MonthlyPaymentVolume
+  name: String
+  tradeName: String
+  companyType: CompanyType
+  headcount: CompanyHeadcount
+  registrationDate: Date
+  registrationNumber: String
+  regulatoryClassification: RegulatoryClassification
+  representatives: [OnboardingRepresentativeInput!]
+  address: ResidencyAddressInput
+  taxIdentificationNumber: String
+  ultimateBeneficialOwners: [UltimateBeneficialOwnerInput!]
+  vatNumber: String
+  websites: [String!]
 }
 
 """Rejection returned if registration number is not correct"""
@@ -1429,28 +1534,6 @@ type CompanyUboByCompanyRefAndHeadquarterCountryPayload {
   individualUltimateBeneficialOwners: [IndividualUltimateBeneficialOwner!]!
 }
 
-type CompanyVerificationRenewalAccountAdmin {
-  firstName: String!
-  lastName: String!
-  birthInfo: BirthInfo!
-  email: String!
-}
-
-type CompanyVerificationRenewalCompanyInfo {
-  name: String!
-  businessActivityDescription: String!
-  monthlyPaymentVolume: MonthlyPaymentVolume!
-  residencyAddress: Address!
-  ultimateBeneficialOwners: [IndividualUltimateBeneficialOwner!]!
-}
-
-type CompanyVerificationRenewalInfo implements VerificationRenewalInfoBase {
-  type: AccountHolderType!
-  accountAdmin: CompanyVerificationRenewalAccountAdmin!
-  company: CompanyVerificationRenewalCompanyInfo!
-  additionalDetails: String
-}
-
 """Complete Address Information"""
 input CompleteAddressInput {
   """address line 1 (max 38 characters)"""
@@ -1503,30 +1586,6 @@ input CompleteAddressWithContactInput {
 
   """contact company name (max 38 characters)"""
   companyName: String
-}
-
-type CompletedVerificationRenewal implements VerificationRenewal {
-  id: ID!
-  accountHolderId: String!
-  status: VerificationRenewalStatus!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  supportTicketId: String
-  dueDate: DateTime
-
-  """Completed Sub Status of the verification renewal"""
-  completedSubStatus: CompletedVerificationRenewalSubStatus!
-
-  """Completed date"""
-  completedAt: DateTime
-
-  """Verification renewal information"""
-  info: VerificationRenewalInfo!
-}
-
-enum CompletedVerificationRenewalSubStatus {
-  Verified
-  Postponed
 }
 
 """
@@ -1859,6 +1918,12 @@ scalar HexColorCode
 """International Bank Account Number"""
 scalar IBAN
 
+"""Rejection returned when the Iban Entry was not found"""
+type IbanEntryNotFoundRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
 """Rejection returned when the IBAN is not reachable"""
 type IBANNotReachableRejection implements Rejection {
   message: String!
@@ -1904,6 +1969,61 @@ type IdentityAlreadyBindToAccountMembershipRejection implements Rejection {
   accountId: String!
   identityId: String!
   message: String!
+}
+
+"""Individual account holder onboarding"""
+type IndividualAccountHolderOnboarding implements AccountHolderOnboardingBase {
+  id: ID!
+  statusInfo: OnboardingStatusInfo!
+  supportingDocumentCollection: SupportingDocumentCollection
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  accountInfo: IndividualAccountHolderOnboardingAccount
+  accountAdmin: IndividualAccountHolderOnboardingAccountAdmin
+}
+
+"""Individual account information for onboarding"""
+type IndividualAccountHolderOnboardingAccount {
+  name: String
+  country: AccountCountry
+  intendedUsage: [IndividualAccountIntendedUsage!]
+}
+
+"""Individual account admin information for onboarding"""
+type IndividualAccountHolderOnboardingAccountAdmin {
+  birthInfo: BirthInfo
+  email: String
+  employmentStatus: EmploymentStatus
+  firstName: String
+  preferredLanguage: AccountLanguage
+  lastName: String
+  monthlyIncome: MonthlyIncome
+  nationality: CCA3
+  address: AddressInfo
+  taxIdentificationNumber: String
+  sourceOfFunds: IndividualAccountSourceOfFunds
+  unitedStatesTaxInfo: UnitedStatesTaxInfo
+}
+
+enum IndividualAccountIntendedUsage {
+  FamilySupport
+  Investment
+  PersonalUse
+  Salary
+  SelfEmployment
+}
+
+enum IndividualAccountSourceOfFunds {
+  BusinessActivity
+  CapitalGains
+  FamilyContributions
+  InheritanceOrGift
+  Other
+  PersonalWealth
+  RealEstateIncome
+  Salary
+  SaleOfAssets
+  SelfEmployment
 }
 
 type IndividualRepresentative {
@@ -2084,20 +2204,6 @@ type IndividualUltimateBeneficialOwnerTypeOther implements IndividualUltimateBen
   type: IndividualUltimateBeneficialOwnerTypeEnum!
 }
 
-type IndividualVerificationRenewalAccountAdmin {
-  firstName: String!
-  lastName: String!
-  residencyAddress: Address!
-  employmentStatus: EmploymentStatus!
-  monthlyIncome: MonthlyIncome!
-}
-
-type IndividualVerificationRenewalInfo implements VerificationRenewalInfoBase {
-  type: AccountHolderType!
-  accountAdmin: IndividualVerificationRenewalAccountAdmin!
-  additionalDetails: String
-}
-
 """Rejection returned on unexpected server error"""
 type InternalErrorRejection implements Rejection {
   message: String!
@@ -2134,6 +2240,11 @@ type InvalidSirenNumberRejection implements Rejection {
   message: String!
 }
 
+"""Legal form of the company"""
+enum LegalForm {
+  Placeholder
+}
+
 type LegalRepresentativeAccountMembershipCannotBeDisabledRejection implements Rejection {
   accountMembershipId: String!
   message: String!
@@ -2149,6 +2260,11 @@ type LegalRepresentativeEmailCannotBeUpdatedRejection {
 }
 
 type LegalRepresentativePermissionsCannotBeUpdatedRejection {
+  message: String!
+}
+
+"""Rejection returned if notification daily rate limit has been reached"""
+type MaximumDailyInvitationsReachedRejection implements Rejection {
   message: String!
 }
 
@@ -2365,6 +2481,12 @@ interface OnboardingAccountHolderInfo {
   type: AccountHolderType!
 }
 
+"""Rejection returned if the onboarding is already finalized"""
+type OnboardingAlreadyFinalizedRejection implements Rejection {
+  message: String!
+  onboardingId: String!
+}
+
 """Company Account Holder Information"""
 type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
   """
@@ -2576,11 +2698,6 @@ type OnboardingInfo {
   """Project infos you set in the dashboard"""
   projectInfo: ProjectInfo
 
-  """
-  @deprecated(reason: "The progressive verification flow is no longer a supported feature, as all new account holders are now required to complete full KYC upfront.")
-  """
-  verificationFlow: VerificationFlow! @deprecated(reason: "The progressive verification flow is no longer a supported feature, as all new account holders are now required to complete full KYC upfront.")
-
   """Extra parameters provided by partner"""
   oAuthRedirectParameters: OAuthRedirectParameters
 
@@ -2616,6 +2733,12 @@ type OnboardingNotCompletedRejection implements Rejection {
   onboarding: Onboarding!
 }
 
+"""Rejection returned if the onboarding was not found"""
+type OnboardingNotFoundRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
 """
 Field we can use when ordering that can be applied when listing onboardings
 """
@@ -2632,6 +2755,22 @@ input OnboardingOrderByInput {
 }
 
 union OnboardingRepresentative = OnboardingCompanyRepresentative | OnboardingIndividualRepresentative
+
+"""Input for onboarding representative (company or individual)"""
+input OnboardingRepresentativeInput {
+  type: RepresentativeType!
+  roles: [String!]
+  entityName: String
+  registrationNumber: String
+  legalForm: String
+  address: ResidencyAddressInput
+  firstName: String
+  lastName: String
+  preferredFirstName: String
+  sex: Sex
+  birthInfo: BirthInfoInput
+  nationality: CCA3
+}
 
 """Onboarding process state"""
 enum OnboardingState {
@@ -2785,30 +2924,6 @@ enum PaymentLevel {
   Unlimited
 }
 
-type PendingVerificationRenewal implements VerificationRenewal {
-  id: ID!
-  accountHolderId: String!
-  status: VerificationRenewalStatus!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  supportTicketId: String
-  dueDate: DateTime
-
-  """Pending Sub Status of the verification renewal"""
-  pendingSubStatus: PendingVerificationRenewalSubStatus!
-
-  """Verification renewal information"""
-  info: VerificationRenewalInfo!
-}
-
-enum PendingVerificationRenewalSubStatus {
-  ToStart
-  FirstResponseReceived
-  AdditionalResponseReceived
-  RiskEscalation
-  LastChance
-}
-
 type PermissionCannotBeGrantedRejection implements Rejection {
   message: String!
 }
@@ -2909,28 +3024,10 @@ input ReasonInput {
   message: String
 }
 
-type RefusedVerificationRenewal implements VerificationRenewal {
-  id: ID!
-  accountHolderId: String!
-  status: VerificationRenewalStatus!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  supportTicketId: String
-  dueDate: DateTime
-
-  """Refused Sub Status of the verification renewal"""
-  refusedSubStatus: RefusedVerificationRenewalSubStatus!
-
-  """Refused date"""
-  refusedAt: DateTime
-
-  """Verification renewal information"""
-  info: VerificationRenewalInfo!
-}
-
-enum RefusedVerificationRenewalSubStatus {
-  Discrepancies
-  NoReply
+enum RegulatoryClassification {
+  NonFinancialActive
+  NonFinancialPassive
+  FinancialInstitution
 }
 
 interface Rejection {
@@ -3870,26 +3967,6 @@ enum SuspendAccountReasonType {
 """SuspendAccountStatusReason"""
 union SuspendAccountStatusReason = SuspendAccountReason
 
-type SuspendedVerificationRenewal implements VerificationRenewal {
-  id: ID!
-  accountHolderId: String!
-  status: VerificationRenewalStatus!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  supportTicketId: String
-  dueDate: DateTime
-
-  """Suspended Sub Status of the verification renewal"""
-  suspendedSubStatus: SuspendedVerificationRenewalSubStatus!
-
-  """Verification renewal information"""
-  info: VerificationRenewalInfo!
-}
-
-enum SuspendedVerificationRenewalSubStatus {
-  NoReply
-}
-
 """Individual ultimate beneficial owner title (Mr/Ms)"""
 enum TitleEnum {
   """Identified as a man"""
@@ -4056,11 +4133,6 @@ input UnauthenticatedOnboardPublicCompanyAccountHolderInput {
   """ID of the project."""
   projectId: ID!
 
-  """
-  @deprecated(reason: "The progressive verification flow is no longer a supported feature, as all new account holders are now required to complete full KYC upfront.")
-  """
-  verificationFlow: VerificationFlow! = Upfront
-
   """Country of the account created at the end of onboarding."""
   accountCountry: AccountCountry
 }
@@ -4074,11 +4146,6 @@ type UnauthenticatedOnboardPublicCompanyAccountHolderSuccessPayload {
 input UnauthenticatedOnboardPublicIndividualAccountHolderInput {
   """ID of the project."""
   projectId: ID!
-
-  """
-  @deprecated(reason: "The progressive verification flow is no longer a supported feature, as all new account holders are now required to complete full KYC upfront.")
-  """
-  verificationFlow: VerificationFlow! = Upfront
 
   """Country of the account created at the end of onboarding."""
   accountCountry: AccountCountry
@@ -4469,148 +4536,14 @@ type ValidationRejection implements Rejection {
   message: String!
 }
 
-"""Verification Flow."""
-enum VerificationFlow {
-  """
-  When you ask the account holder to start the verification process at the beginning of the relationship to get an unlimited account.
-  """
-  Upfront
-
-  """
-  When you ask the account holder the minimum required to comply the law at the beginning of the relationship.
-  """
-  Progressive
-}
-
-"""Verification Renewals"""
-interface VerificationRenewal {
-  """Unique identifier of a verification renewal"""
+type VerificationRenewalNotFoundRejection implements Rejection {
   id: ID!
-
-  """Unique identifier of account holder"""
-  accountHolderId: String!
-
-  """Status of the verification renewal"""
-  status: VerificationRenewalStatus!
-
-  """Created date"""
-  createdAt: DateTime!
-
-  """Updated date"""
-  updatedAt: DateTime!
-
-  """Zendesk Ticket ID"""
-  supportTicketId: String
-
-  """Due date of the verification renewal"""
-  dueDate: DateTime
-
-  """Verification renewal information"""
-  info: VerificationRenewalInfo!
+  message: String!
 }
 
-union VerificationRenewalInfo = IndividualVerificationRenewalInfo | CompanyVerificationRenewalInfo
-
-interface VerificationRenewalInfoBase {
-  type: AccountHolderType!
-}
-
-enum VerificationRenewalRequirement {
-  """Account Holder Details Required"""
-  AccountHolderDetailsRequired
-
-  """Swan is requesting some tax identifier"""
-  TaxIdRequired
-
-  """Swan is requesting some clarification on the UBO"""
-  UboDetailsRequired
-
-  """Legal Representative Details Required"""
-  LegalRepresentativeDetailsRequired
-
-  """Swan is requesting some Supporting Documents"""
-  SupportingDocumentsRequired
-
-  """Swan is requesting more information on the account holders"""
-  Other
-}
-
-"""
-Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
-"""
-type VerificationRenewalsConnection implements Connection {
-  """Total number of element in the list"""
-  totalCount: Int!
-
-  """Information about the current, the previous and the next page"""
-  pageInfo: PageInfo!
-
-  """VerificationRenewalsEdge list"""
-  edges: [VerificationRenewalsEdge!]!
-}
-
-"""Implements the Relay Edge interface"""
-type VerificationRenewalsEdge implements Edge {
-  """
-  Opaque identifier pointing to this onboarding node in the pagination mechanism
-  """
-  cursor: String!
-
-  """The VerificationRenewal"""
-  node: VerificationRenewal!
-}
-
-"""Filters that can be applied when listing verification renewals"""
-input VerificationRenewalsFiltersInput {
-  """Filter by IDs"""
-  id: [String!]
-
-  """Filter by Account Holder IDs"""
-  accountHolderId: [String!]
-
-  """Filter by Project IDs"""
-  projectId: [String!]
-
-  """Filter by VerificationRenewal status"""
-  status: VerificationRenewalStatus
-
-  """Filter by VerificationRenewal Sub statuses"""
-  subStatus: [VerificationRenewalSubStatus!]
-}
-
-"""
-Field we can use when ordering that can be applied when listing verification renewals
-"""
-enum VerificationRenewalsOrderByFieldInput {
-  id
-  createdAt
-  updatedAt
-}
-
-"""Order that can be applied when listing verification renewals"""
-input VerificationRenewalsOrderByInput {
-  field: VerificationRenewalsOrderByFieldInput
-  direction: OrderByDirection
-}
-
-enum VerificationRenewalStatus {
-  Pending
-  WaitingForInformation
-  Suspended
-  Refused
-  Completed
-}
-
-enum VerificationRenewalSubStatus {
-  ToStart
-  FirstResponseReceived
-  AdditionalResponseReceived
-  RiskEscalation
-  LastChance
-  VerificationRequirements
-  Verified
-  Postponed
-  Discrepancies
+type VerificationRenewalUpdateNotAllowedRejection implements Rejection {
+  id: ID!
+  message: String!
 }
 
 """
@@ -4729,28 +4662,6 @@ type VirtualIBANEntryEdge implements Edge {
 
   """The virtual iban entry"""
   node: VirtualIBANEntry!
-}
-
-type WaitingForInformationVerificationRenewal implements VerificationRenewal {
-  id: ID!
-  accountHolderId: String!
-  status: VerificationRenewalStatus!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  supportTicketId: String
-  dueDate: DateTime
-
-  """WaitingForInformation Sub Status of the verification renewal"""
-  waitingForInformationSubStatus: WaitingForInformationVerificationRenewalSubStatus!
-  verificationRequirements: [VerificationRenewalRequirement!]!
-
-  """Verification renewal information"""
-  info: VerificationRenewalInfo!
-}
-
-enum WaitingForInformationVerificationRenewalSubStatus {
-  VerificationRequirements
-  LastChance
 }
 
 scalar WalletToken

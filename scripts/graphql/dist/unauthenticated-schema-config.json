@@ -13,7 +13,6 @@
       "FundingLimitSettingsChangeRequestConnection",
       "OnboardingConnection",
       "SupportingDocumentCollectionConnection",
-      "VerificationRenewalsConnection",
       "VirtualIBANEntryConnection",
       "CardConnection",
       "DigitalCardConnection",
@@ -29,7 +28,6 @@
       "FundingLimitSettingsChangeRequestEdge",
       "OnboardingEdge",
       "SupportingDocumentCollectionEdge",
-      "VerificationRenewalsEdge",
       "VirtualIBANEntryEdge",
       "CardEdge",
       "DigitalCardEdge",
@@ -63,6 +61,7 @@
       "CompanyRegistryUnavailableRejection",
       "ExternalAccountAlreadyExistsRejection",
       "ForbiddenRejection",
+      "IbanEntryNotFoundRejection",
       "IBANNotReachableRejection",
       "IBANNotValidRejection",
       "IbanValidationRejection",
@@ -74,9 +73,12 @@
       "InvalidSirenNumberRejection",
       "LegalRepresentativeAccountMembershipCannotBeDisabledRejection",
       "LegalRepresentativeAccountMembershipCannotBeSuspendedRejection",
+      "MaximumDailyInvitationsReachedRejection",
       "NotFoundRejection",
       "NotSupportedCountryRejection",
+      "OnboardingAlreadyFinalizedRejection",
       "OnboardingNotCompletedRejection",
+      "OnboardingNotFoundRejection",
       "PermissionCannotBeGrantedRejection",
       "ProjectNotFoundRejection",
       "PublicOnboardingDisabledRejection",
@@ -98,6 +100,8 @@
       "UserNotAllowedToSendAccountMembershipInvitationRejection",
       "UserNotAllowedToSuspendItsOwnAccountMembershipRejection",
       "ValidationRejection",
+      "VerificationRenewalNotFoundRejection",
+      "VerificationRenewalUpdateNotAllowedRejection",
       "VerificationRequirementsNotUpdatableRejection",
       "AccountMembershipNotAllowedRejection",
       "AddingCardsToDifferentAccountsRejection",
@@ -159,16 +163,9 @@
       "CloseAccountReason",
       "SuspendAccountReason"
     ],
-    "VerificationRenewalInfoBase": [
-      "CompanyVerificationRenewalInfo",
-      "IndividualVerificationRenewalInfo"
-    ],
-    "VerificationRenewal": [
-      "CompletedVerificationRenewal",
-      "PendingVerificationRenewal",
-      "RefusedVerificationRenewal",
-      "SuspendedVerificationRenewal",
-      "WaitingForInformationVerificationRenewal"
+    "AccountHolderOnboardingBase": [
+      "CompanyAccountHolderOnboarding",
+      "IndividualAccountHolderOnboarding"
     ],
     "FundingLimitSettingsChangeRequestStatusInfo": [
       "FundingLimitSettingsChangeRequestApprovedStatusInfo",

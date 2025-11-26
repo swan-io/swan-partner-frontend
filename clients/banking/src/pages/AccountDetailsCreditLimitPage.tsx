@@ -53,7 +53,7 @@ import {
   RepaymentCycleLengthInput,
   RequestCreditLimitSettingsDocument,
 } from "../graphql/partner";
-import { getCreditLimitAmount, getPendingCreditLimitAmount } from "../utils/creditLimit";
+import { getPendingCreditLimitAmount } from "../utils/creditLimit";
 import { formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { validateNumeric, validateRequired } from "../utils/validations";
@@ -379,9 +379,10 @@ const CreditLimitInfo = ({
   pastRepayments,
   largeBreakpoint,
 }: CreditLimitInfoProps) => {
-  const creditLimitAmount = getCreditLimitAmount(
-    creditLimitSettings.creditLimitSettingsRequests.edges.map(edge => edge.node),
-  );
+  const creditLimitAmount = creditLimitSettings.authorizedAmount || {
+    value: 0,
+    currency: "EUR",
+  };
 
   return (
     <>
@@ -413,7 +414,7 @@ const CreditLimitInfo = ({
 
         <Tile paddingVertical={24}>
           <LakeHeading level={3} variant="h3">
-            {formatCurrency(creditLimitAmount.value, creditLimitAmount.currency)}
+            {formatCurrency(Number(creditLimitAmount.value), creditLimitAmount.currency)}
           </LakeHeading>
 
           <LakeText variant="smallRegular" color={colors.gray[500]}>
@@ -449,7 +450,7 @@ const CreditLimitInfo = ({
               <Space height={12} />
               <ProgressBar
                 min={0}
-                max={creditLimitAmount.value}
+                max={Number(creditLimitAmount.value)}
                 value={Number(creditLimitSettings.currentCycle?.owedAmount.value ?? "0")}
                 color="partner"
               />
@@ -459,7 +460,10 @@ const CreditLimitInfo = ({
                   value: Number(creditLimitSettings.currentCycle.owedAmount.value),
                   currency: creditLimitSettings.currentCycle.owedAmount.currency,
                 }}
-                availableAmount={creditLimitAmount}
+                availableAmount={{
+                  value: Number(creditLimitAmount.value),
+                  currency: creditLimitAmount.currency,
+                }}
               />
             </>
           )}

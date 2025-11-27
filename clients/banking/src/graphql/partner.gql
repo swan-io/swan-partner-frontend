@@ -3642,3 +3642,31 @@ query GetVerificationRenewal($id: ID!) {
     }
   }
 }
+
+mutation UpdateIndividualVerificationRenewal($input: UpdateIndividualVerificationRenewalInput!) {
+  updateIndividualVerificationRenewal(input: $input) {
+    __typename
+    ... on UpdateIndividualVerificationRenewalSuccessPayload {
+      verificationRenewal {
+        id
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
+
+mutation UpdateCompanyVerificationRenewal($input: UpdateCompanyVerificationRenewalInput!) {
+  updateCompanyVerificationRenewal(input: $input) {
+    __typename
+    ... on UpdateCompanyVerificationRenewalSuccessPayload {
+      verificationRenewal {
+        id
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}

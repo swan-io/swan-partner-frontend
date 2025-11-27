@@ -71,10 +71,9 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
                     accountAdmin: { __typename: "IndividualVerificationRenewalAccountAdmin" },
                     verificationRenewal: P.nonNullable,
                   },
-                  ({ accountAdmin, verificationRenewal }) => (
+                  ({ verificationRenewal }) => (
                     <VerificationRenewalIndividual
                       verificationRenewal={verificationRenewal}
-                      accountAdmin={accountAdmin}
                       projectInfo={projectInfo}
                       verificationRenewalId={verificationRenewalId}
                       supportingDocumentCollection={renewalSupportingDoc}

@@ -4,7 +4,6 @@ import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import {
   GetVerificationRenewalQuery,
-  IndividualVerificationRenewalAccountAdmin,
   SupportingDocumentRenewalFragment,
 } from "../../graphql/partner";
 import { NotFoundPage } from "../../pages/NotFoundPage";
@@ -38,7 +37,6 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  accountAdmin: IndividualVerificationRenewalAccountAdmin;
   projectInfo: NonNullable<GetVerificationRenewalQuery["projectInfo"]>;
   verificationRenewal: NonNullable<GetVerificationRenewalQuery["verificationRenewal"]>;
   verificationRenewalId: string;
@@ -46,13 +44,11 @@ type Props = {
 };
 
 export const VerificationRenewalIndividual = ({
-  accountAdmin,
   projectInfo,
   verificationRenewalId,
   verificationRenewal,
   supportingDocumentCollection,
 }: Props) => {
-  console.log(accountAdmin);
   const route = Router.useRoute(verificationRenewalRoutes);
 
   return (

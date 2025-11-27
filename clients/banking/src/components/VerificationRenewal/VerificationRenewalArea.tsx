@@ -1,9 +1,10 @@
 import { AsyncData, Result } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
+import { LakeScrollView } from "@swan-io/lake/src/components/LakeScrollView";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
 import { backgroundColor, colors, invariantColors } from "@swan-io/lake/src/constants/design";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import { GetVerificationRenewalDocument } from "../../graphql/partner";
 import { ErrorView } from "../ErrorView";
@@ -12,7 +13,7 @@ import { VerificationRenewalIndividual } from "./VerificationRenewalIndividual";
 const styles = StyleSheet.create({
   main: {
     backgroundColor: backgroundColor.default90Transparency,
-    // backdropFilter: "blur(4px)",
+    flex: 1,
   },
 });
 
@@ -56,7 +57,7 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
           .otherwise(() => null);
 
         return (
-          <View style={styles.main}>
+          <LakeScrollView style={styles.main}>
             <WithPartnerAccentColor color={projectColor}>
               {match({ accountAdmin, verificationRenewal })
                 .with(
@@ -84,7 +85,7 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
                   <ErrorView />
                 ))}
             </WithPartnerAccentColor>
-          </View>
+          </LakeScrollView>
         );
       },
     )

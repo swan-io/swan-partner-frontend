@@ -99,7 +99,7 @@ export const InputPhoneNumber = ({
   return (
     <LakeLabel
       label={label}
-      render={() => (
+      render={id => (
         <View>
           <Popover
             referenceRef={referenceRef}
@@ -144,6 +144,7 @@ export const InputPhoneNumber = ({
             </Pressable>
 
             <LakeTextInput
+              id={id}
               valid={valid}
               ref={inputRef}
               autoComplete="tel"

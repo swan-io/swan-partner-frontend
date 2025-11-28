@@ -18,9 +18,11 @@ const useOptions: PlaywrightTestConfig["use"] = {
   ...devices["Desktop Chrome"],
   headless: env.CI,
   locale: "en-US",
-  actionTimeout: seconds(20),
-  navigationTimeout: seconds(20),
-  trace: "on",
+  actionTimeout: seconds(15),
+  navigationTimeout: seconds(15),
+  trace: "retain-on-failure",
+  screenshot: "only-on-failure",
+  // video: "retain-on-failure",
   viewport: {
     width: 1440,
     height: 900,
@@ -32,10 +34,11 @@ export default defineConfig({
   globalTeardown: path.join(testDir, "global-teardown"),
 
   forbidOnly: env.CI,
-  maxFailures: 1,
+  maxFailures: 4,
   workers: 1,
+  fullyParallel: true,
   preserveOutput: "always",
-  timeout: minutes(5),
+  timeout: minutes(2),
 
   testDir,
   outputDir,

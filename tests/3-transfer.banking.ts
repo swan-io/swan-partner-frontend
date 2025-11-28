@@ -15,7 +15,7 @@ type Options = {
 const initiate = async (page: Page, options: Options) => {
   const { benady } = await getSession();
   const id = randomUUID().replaceAll("-", "");
-  const label = `E2E transfer - ${id}`;
+  const label = `E2E transfer`;
   const url = `${env.BANKING_URL}/${benady.memberships.individual.french.id}`;
 
   await page.goto(`${url}/payments`);

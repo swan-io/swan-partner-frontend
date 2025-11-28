@@ -35,9 +35,9 @@ const styles = StyleSheet.create({
     margin: "auto",
   },
   stepsContainer: {
-    // width: "100%",
-    // flexGrow: 1,
-    // flexShrink: 0,
+    width: "100%",
+    flexGrow: 1,
+    flexShrink: 0,
   },
   container: {
     width: "100%",
@@ -141,6 +141,7 @@ export const VerificationRenewalIntro = ({ verificationRenewalId }: Props) => {
 
                   <Box justifyContent="center" alignItems="center" style={styles.stepsContainer}>
                     <Space height={small ? 16 : 24} />
+
                     <FlowPresentation mode={small ? "mobile" : "desktop"} steps={steps} />
                     <Space height={small ? 16 : 24} />
                   </Box>

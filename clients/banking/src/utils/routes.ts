@@ -168,6 +168,8 @@ export const verificationRenewalRoutes = [
   "VerificationRenewalFinalize",
 ] as const satisfies RouteName[];
 
+export type VerificationRenewalRoute = (typeof verificationRenewalRoutes)[number];
+
 export const accountActivationRoutes = [
   "AccountActivationRoot",
   "AccountActivationAdditionalInfos",

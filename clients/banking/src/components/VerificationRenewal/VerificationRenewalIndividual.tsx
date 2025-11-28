@@ -1,9 +1,14 @@
-import { FlowPresentation, FlowStep } from "@swan-io/lake/src/components/FlowPresentation";
+import { Box } from "@swan-io/lake/src/components/Box";
+import {
+  LakeStepper,
+  MobileStepTitle,
+  TopLevelStep,
+} from "@swan-io/lake/src/components/LakeStepper";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
-import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { breakpoints } from "@swan-io/lake/src/constants/design";
+import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import {
   GetVerificationRenewalQuery,
@@ -11,12 +16,27 @@ import {
 } from "../../graphql/partner";
 import { NotFoundPage } from "../../pages/NotFoundPage";
 import { t } from "../../utils/i18n";
-import { Router, verificationRenewalRoutes } from "../../utils/routes";
+import { Router, VerificationRenewalRoute, verificationRenewalRoutes } from "../../utils/routes";
 import { ErrorView } from "../ErrorView";
 import { VerificationRenewalDocuments } from "./VerificationRenewalDocuments";
 import { VerificationRenewalFinalize } from "./VerificationRenewalFinalize";
 import { VerificationRenewalIntro } from "./VerificationRenewalIntro";
 import { VerificationRenewalPersonalInfo } from "./VerificationRenewalPersonalInfo";
+
+const styles = StyleSheet.create({
+  stepper: {
+    width: "100%",
+    maxWidth: 1280,
+    paddingHorizontal: 40,
+  },
+  sticky: {
+    position: "sticky",
+    top: 0,
+    backgroundColor: backgroundColor.default90Transparency,
+    backdropFilter: "blur(4px)",
+    zIndex: 10,
+  },
+});
 
 type Props = {
   projectInfo: NonNullable<GetVerificationRenewalQuery["projectInfo"]>;
@@ -33,68 +53,144 @@ export const VerificationRenewalIndividual = ({
 }: Props) => {
   const route = Router.useRoute(verificationRenewalRoutes);
 
-  const steps = useMemo(() => {
-    const steps: FlowStep[] = [];
+  //TODO: custom
+  const errors = [
+    {
+      fieldName: "fieldName",
+      code: "code",
+    },
+  ];
 
-    steps.push({
-      label: t("verificationRenewal.intro.step1"),
-      icon: "person-regular",
-    });
+  const steps = useMemo<WizardStep<VerificationRenewalRoute>[]>(() => {
+    const steps: WizardStep<VerificationRenewalRoute>[] = [];
+    steps.push(
+      {
+        id: "VerificationRenewalPersonalInformation",
+        label: t("step.title.registration"),
+        errors: errors,
+      },
+      {
+        id: "VerificationRenewalDocuments",
+        label: t("step.title.organisationPart1"),
+        errors: errors,
+      },
+    );
 
     if (isNotNullish(supportingDocumentCollection)) {
       steps.push({
-        label: t("verificationRenewal.intro.step2"),
-        icon: "document-regular",
+        id: "VerificationRenewalDocuments",
+        label: t("step.title.document"),
+        errors: [],
       });
     }
     steps.push({
-      label: t("verificationRenewal.intro.step3"),
-      icon: "phone-regular",
+      id: "VerificationRenewalFinalize",
+      label: t("step.title.swanApp"),
+      errors: [],
     });
 
     return steps;
   }, [supportingDocumentCollection]);
 
+  const stepperSteps = useMemo<TopLevelStep[]>(
+    () =>
+      steps
+        // Remove organisation steps except the first one
+        // .filter(step => step.id === "" || !step.id.startsWith("Organisation"))
+        .map(step => {
+          // Organisation steps are grouped
+          if (step.id === "VerificationRenewalPersonalInformation") {
+            return {
+              label: t("step.title.organisation"),
+              children: steps
+                .filter(({ id }) => id.startsWith("Organisation"))
+                .map(step => ({
+                  id: step.id,
+                  label: step.label,
+                  url: Router[step.id]({ verificationRenewalId }),
+                  hasErrors: step.errors.length > 0,
+                })),
+            };
+          }
+
+          return {
+            id: step.id,
+            label: step.label,
+            url: Router[step.id]({ verificationRenewalId }),
+            hasErrors: step.errors.length > 0,
+          };
+        }),
+    [steps, verificationRenewalId],
+  );
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies(route?.name):
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [route?.name]);
+
   return (
-    <>
-      <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fill}>
-        {({ small }) => (
-          <>
-            <FlowPresentation mode={small ? "mobile" : "desktop"} steps={steps} />
+    // <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fill}>
+    //   {({ small }) => (
+    //     <>
+    //       {
+    <Box grow={1}>
+      <Box style={styles.sticky}>
+        {/* <OnboardingHeader projectName={projectName} projectLogo={projectLogo} /> */}
 
-            {match({ route, supportingDocumentCollection })
-              .with({ route: { name: "VerificationRenewalRoot" } }, () => (
-                <VerificationRenewalIntro verificationRenewalId={verificationRenewalId} />
-              ))
-              .with({ route: { name: "VerificationRenewalPersonalInformation" } }, () => (
-                <VerificationRenewalPersonalInfo
-                  projectInfo={projectInfo}
-                  verificationRenewal={verificationRenewal}
+        {/* {isStepperDisplayed ? ( */}
+        <ResponsiveContainer>
+          {({ small }) =>
+            small ? (
+              <MobileStepTitle activeStepId={route.name} steps={stepperSteps} />
+            ) : (
+              <Box alignItems="center">
+                <LakeStepper
+                  activeStepId={route.name}
+                  steps={stepperSteps}
+                  style={styles.stepper}
                 />
-              ))
-              .with(
-                {
-                  route: { name: "VerificationRenewalDocuments" },
-                  supportingDocumentCollection: P.nonNullable,
-                },
-                ({ supportingDocumentCollection }) => (
-                  <VerificationRenewalDocuments
-                    verificationRenewal={verificationRenewal}
-                    supportingDocumentCollection={supportingDocumentCollection}
-                  />
-                ),
-              )
-              .with({ route: { name: "VerificationRenewalFinalize" } }, () => (
-                <VerificationRenewalFinalize />
-              ))
-              .with(P.nullish, () => <NotFoundPage />)
+              </Box>
+            )
+          }
+        </ResponsiveContainer>
+        {/* ) : null} */}
+      </Box>
 
-              .otherwise(() => (
-                <ErrorView />
-              ))}
-          </>
-        )}
-      </ResponsiveContainer>
-    </>
+      {match({ route, supportingDocumentCollection })
+        .with({ route: { name: "VerificationRenewalRoot" } }, () => (
+          <VerificationRenewalIntro verificationRenewalId={verificationRenewalId} />
+        ))
+        .with({ route: { name: "VerificationRenewalPersonalInformation" } }, () => (
+          <VerificationRenewalPersonalInfo
+            projectInfo={projectInfo}
+            verificationRenewal={verificationRenewal}
+          />
+        ))
+        .with(
+          {
+            route: { name: "VerificationRenewalDocuments" },
+            supportingDocumentCollection: P.nonNullable,
+          },
+          ({ supportingDocumentCollection }) => (
+            <VerificationRenewalDocuments
+              verificationRenewal={verificationRenewal}
+              supportingDocumentCollection={supportingDocumentCollection}
+            />
+          ),
+        )
+        .with({ route: { name: "VerificationRenewalFinalize" } }, () => (
+          <VerificationRenewalFinalize />
+        ))
+        .with(P.nullish, () => <NotFoundPage />)
+
+        .otherwise(() => (
+          <ErrorView />
+        ))}
+    </Box>
+    //       }
+    //     </>
+
+    //   )}
+    // </ResponsiveContainer>
   );
 };

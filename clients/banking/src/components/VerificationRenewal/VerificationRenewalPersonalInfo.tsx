@@ -14,6 +14,7 @@ import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useForm } from "@swan-io/use-form";
 import { useState } from "react";
+import { TextInput } from "react-native";
 import { match } from "ts-pattern";
 import { OnboardingStepContent } from "../../../../onboarding/src/components/OnboardingStepContent";
 import { StepTitle } from "../../../../onboarding/src/components/StepTitle";
@@ -28,22 +29,23 @@ import { t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
 
 type Step = {
-  firstName: "View" | "Edit";
-  lastName: "View" | "Edit";
-  address: "View" | "Edit";
-  monthlyIncomes: "View" | "Edit";
-  occupation: "View" | "Edit";
+  firstName: { state: "View" | "Edit"; value: string };
+  lastName: { state: "View" | "Edit"; value: string };
+  addressLine1: { state: "View" | "Edit"; value: string };
+  addressLine2: { state: "View" | "Edit"; value: string };
+  postalCode: { state: "View" | "Edit"; value: string };
+  city: { state: "View" | "Edit"; value: string };
+  monthlyIncomes: { state: "View" | "Edit"; value: string };
+  occupation: { state: "View" | "Edit"; value: string };
 };
 
 type Form = {
   firstName: string;
   lastName: string;
-  address: {
-    addressLine1: string;
-    addressLine2: string;
-    postalCode: string;
-    city: string;
-  };
+  addressLine1: string;
+  addressLine2: string;
+  postalCode: string;
+  city: string;
   monthlyIncomes: string;
   occupation: string;
 };
@@ -51,6 +53,68 @@ type Props = {
   verificationRenewal: NonNullable<GetVerificationRenewalQuery["verificationRenewal"]>;
   projectInfo: NonNullable<GetVerificationRenewalQuery["projectInfo"]>;
 };
+
+type FieldViewProps = {
+  label: string;
+  onPress: () => void;
+  text: string;
+};
+const FieldView = ({ label, onPress, text }: FieldViewProps) => (
+  <LakeLabel
+    type="view"
+    label={label}
+    actions={
+      <LakeButton
+        size="small"
+        mode="tertiary"
+        icon="edit-regular"
+        ariaLabel={t("common.edit")}
+        onPress={onPress}
+      />
+    }
+    render={() => <LakeText color={colors.gray[900]}>{text}</LakeText>}
+  />
+);
+
+type FieldEditProps = {
+  value: string;
+  onChange: (value: string) => void;
+  ref: React.Ref<TextInput>;
+  onPressValidate: () => void;
+  onPressCancel: () => void;
+};
+
+const FieldEdit = ({ value, onChange, ref, onPressValidate, onPressCancel }: FieldEditProps) => (
+  <LakeLabel
+    type="view"
+    label={t("verificationRenewal.personalInformation.firstName")}
+    render={() => (
+      <Box direction="row">
+        <LakeTextInput value={value} onChangeText={onChange} ref={ref} />
+        <Space width={8} />
+        <LakeButton
+          ariaLabel={t("verificationRenewal.ariaLabel.validate")}
+          // loading={updatingIndividualVerificationRenewal.isLoading()}
+          size="small"
+          color="partner"
+          icon="checkmark-filled"
+          onPress={onPressValidate}
+        />
+
+        <Space width={8} />
+        <LakeButton
+          mode="secondary"
+          ariaLabel={t("verificationRenewal.ariaLabel.cancel")}
+          // loading={updatingIndividualVerificationRenewal.isLoading()}
+          size="small"
+          color="partner"
+          icon="dismiss-filled"
+          onPress={onPressCancel}
+        />
+      </Box>
+    )}
+  />
+);
 
 const translateMonthlyIncome = (monthlyIncome: MonthlyIncome) =>
   match(monthlyIncome)
@@ -114,13 +178,23 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewal, projectIn
       sanitize: value => value.trim(),
       // validate: combineValidators(validateRequired, validateFirstName),
     },
-    address: {
-      initialValue: {
-        addressLine1: dataToDisplay.residencyAddress.addressLine1,
-        addressLine2: dataToDisplay.residencyAddress.addressLine2,
-        postalCode: dataToDisplay.residencyAddress.postalCode,
-        city: dataToDisplay.residencyAddress.city,
-      },
+    addressLine1: {
+      initialValue: dataToDisplay.residencyAddress.addressLine1,
+      strategy: "onBlur",
+      // sanitize: value => value.trim(),
+    },
+    addressLine2: {
+      initialValue: dataToDisplay.residencyAddress.addressLine2,
+      strategy: "onBlur",
+      // sanitize: value => value.trim(),
+    },
+    postalCode: {
+      initialValue: dataToDisplay.residencyAddress.postalCode,
+      strategy: "onBlur",
+      // sanitize: value => value.trim(),
+    },
+    city: {
+      initialValue: dataToDisplay.residencyAddress.city,
       strategy: "onBlur",
       // sanitize: value => value.trim(),
     },
@@ -145,11 +219,14 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewal, projectIn
   );
 
   const [step, setStep] = useState<Step>({
-    firstName: "View",
-    lastName: "View",
-    address: "View",
-    monthlyIncomes: "View",
-    occupation: "View",
+    firstName: { state: "View", value: dataToDisplay.firstName },
+    lastName: { state: "View", value: dataToDisplay.lastName },
+    addressLine1: { state: "View", value: dataToDisplay.addressLine1 },
+    addressLine2: { state: "View", value: dataToDisplay.addressLine2 },
+    postalCode: { state: "View", value: dataToDisplay.postalCode },
+    city: { state: "View", value: dataToDisplay.city },
+    monthlyIncomes: { state: "View", value: dataToDisplay.monthlyIncomes },
+    occupation: { state: "View", value: dataToDisplay.occupation },
   });
 
   const onPressSubmit = () => {
@@ -242,106 +319,64 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewal, projectIn
                   },
                 }) => (
                   <Tile>
-                    {step.firstName === "View" ? (
-                      <LakeLabel
-                        type="view"
+                    {step.firstName.state === "View" ? (
+                      <FieldView
                         label={t("verificationRenewal.personalInformation.firstName")}
-                        actions={
-                          <LakeButton
-                            size="small"
-                            mode="tertiary"
-                            icon="edit-regular"
-                            ariaLabel={t("common.edit")}
-                            onPress={() => setStep({ ...step, firstName: "Edit" })}
-                          />
+                        onPress={() =>
+                          setStep({
+                            ...step,
+                            firstName: { state: "Edit", value: step.firstName.value },
+                          })
                         }
-                        render={() => <LakeText color={colors.gray[900]}>{firstName}</LakeText>}
+                        text={step.firstName.value}
                       />
                     ) : (
                       <Field name="firstName">
-                        {({ value, onChange, ref }) => (
-                          <LakeLabel
-                            type="view"
-                            label={t("verificationRenewal.personalInformation.firstName")}
-                            render={() => (
-                              <Box direction="row">
-                                <LakeTextInput value={value} onChangeText={onChange} ref={ref} />
-                                <Space width={8} />
-                                <LakeButton
-                                  ariaLabel={t("verificationRenewal.ariaLabel.validate")}
-                                  loading={updatingIndividualVerificationRenewal.isLoading()}
-                                  size="small"
-                                  color="partner"
-                                  icon="checkmark-filled"
-                                  onPress={onPressSubmit}
-                                />
+                        {({ value, onChange, ref }) => {
+                          console.log(value);
 
-                                <Space width={8} />
-                                <LakeButton
-                                  mode="secondary"
-                                  ariaLabel={t("verificationRenewal.ariaLabel.cancel")}
-                                  loading={updatingIndividualVerificationRenewal.isLoading()}
-                                  size="small"
-                                  color="partner"
-                                  icon="dismiss-filled"
-                                  onPress={() => {
-                                    setStep({ ...step, firstName: "View" });
-                                  }}
-                                />
-                              </Box>
-                            )}
-                          />
-                        )}
+                          return (
+                            <FieldEdit
+                              onChange={onChange}
+                              onPressCancel={() => {
+                                setStep({ ...step, firstName: { state: "View", value } });
+                              }}
+                              onPressValidate={() =>
+                                setStep({ ...step, firstName: { state: "View", value } })
+                              }
+                              ref={ref}
+                              value={value}
+                            />
+                          );
+                        }}
                       </Field>
                     )}
 
                     <Space height={24} />
-                    {step.lastName === "View" ? (
-                      <LakeLabel
-                        type="view"
+                    {step.lastName.state === "View" ? (
+                      <FieldView
                         label={t("verificationRenewal.personalInformation.lastName")}
-                        actions={
-                          <LakeButton
-                            size="small"
-                            mode="tertiary"
-                            icon="edit-regular"
-                            ariaLabel={t("common.edit")}
-                            onPress={() => setStep({ ...step, lastName: "Edit" })}
-                          />
+                        onPress={() =>
+                          setStep({
+                            ...step,
+                            lastName: { state: "Edit", value: step.lastName.value },
+                          })
                         }
-                        render={() => <LakeText color={colors.gray[900]}>{lastName}</LakeText>}
+                        text={lastName}
                       />
                     ) : (
                       <Field name="lastName">
                         {({ value, onChange, ref }) => (
-                          <LakeLabel
-                            type="view"
-                            label={t("verificationRenewal.personalInformation.lastName")}
-                            render={() => (
-                              <Box direction="row">
-                                <LakeTextInput value={value} onChangeText={onChange} ref={ref} />
-                                <Space width={8} />
-                                <LakeButton
-                                  ariaLabel={t("verificationRenewal.ariaLabel.validate")}
-                                  loading={updatingIndividualVerificationRenewal.isLoading()}
-                                  size="small"
-                                  color="partner"
-                                  icon="checkmark-filled"
-                                  onPress={onPressSubmit}
-                                />
-
-                                <Space width={8} />
-                                <LakeButton
-                                  mode="secondary"
-                                  ariaLabel={t("verificationRenewal.ariaLabel.cancel")}
-                                  loading={updatingIndividualVerificationRenewal.isLoading()}
-                                  size="small"
-                                  color="partner"
-                                  icon="dismiss-filled"
-                                  onPress={() => setStep({ ...step, lastName: "View" })}
-                                />
-                              </Box>
-                            )}
+                          <FieldEdit
+                            onChange={onChange}
+                            onPressCancel={() => {
+                              setStep({ ...step, lastName: { state: "View", value } });
+                            }}
+                            onPressValidate={() =>
+                              setStep({ ...step, lastName: { state: "View", value } })
+                            }
+                            ref={ref}
+                            value={value}
                           />
                         )}
                       </Field>
@@ -349,182 +384,177 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewal, projectIn
 
                     <Space height={24} />
 
-                    {step.address === "View" ? (
-                      <LakeLabel
-                        color="current"
-                        label={t("verificationRenewal.personalInformation.address")}
-                        actions={
-                          <LakeButton
-                            size="small"
-                            mode="tertiary"
-                            icon="edit-regular"
-                            ariaLabel={t("common.edit")}
-                            onPress={() => setStep({ ...step, address: "Edit" })}
-                          />
+                    {step.addressLine1.state === "View" ? (
+                      <FieldView
+                        label={t("verificationRenewal.personalInformation.addressLine1")}
+                        onPress={() =>
+                          setStep({
+                            ...step,
+                            addressLine1: { state: "Edit", value: step.addressLine1.value },
+                          })
                         }
-                        render={() => (
-                          <Box>
-                            <LakeText color={colors.gray[900]}>
-                              {residencyAddress.addressLine1}
-                            </LakeText>
-                            <LakeText color={colors.gray[900]}>
-                              {residencyAddress.addressLine2}
-                            </LakeText>
-                            <LakeText color={colors.gray[900]}>
-                              {`${residencyAddress.postalCode} ${residencyAddress.city}`}
-                            </LakeText>
-                          </Box>
-                        )}
+                        text={residencyAddress.addressLine1 ?? ""}
                       />
                     ) : (
-                      <Field name="address">
+                      <Field name="addressLine1">
                         {({ value, onChange, ref }) => (
-                          <LakeLabel
-                            type="view"
-                            label={t("verificationRenewal.personalInformation.firstName")}
-                            render={() => (
-                              <Box direction="row">
-                                <LakeTextInput value={value} onChangeText={onChange} ref={ref} />
-                                <Space width={8} />
-                                <LakeButton
-                                  ariaLabel={t("verificationRenewal.ariaLabel.validate")}
-                                  loading={updatingIndividualVerificationRenewal.isLoading()}
-                                  size="small"
-                                  color="partner"
-                                  icon="checkmark-filled"
-                                  onPress={onPressSubmit}
-                                />
+                          <FieldEdit
+                            onChange={onChange}
+                            onPressCancel={() => {
+                              setStep({ ...step, addressLine1: { state: "View", value } });
+                            }}
+                            onPressValidate={() =>
+                              setStep({ ...step, addressLine1: { state: "View", value } })
+                            }
+                            ref={ref}
+                            value={value}
+                          />
+                        )}
+                      </Field>
+                    )}
 
-                                <Space width={8} />
-                                <LakeButton
-                                  mode="secondary"
-                                  ariaLabel={t("verificationRenewal.ariaLabel.cancel")}
-                                  loading={updatingIndividualVerificationRenewal.isLoading()}
-                                  size="small"
-                                  color="partner"
-                                  icon="dismiss-filled"
-                                  onPress={() => {
-                                    setStep({ ...step, address: "View" });
-                                  }}
-                                />
-                              </Box>
-                            )}
+                    {step.addressLine2.state === "View" ? (
+                      <FieldView
+                        label={t("verificationRenewal.personalInformation.addressLine2")}
+                        onPress={() =>
+                          setStep({
+                            ...step,
+                            addressLine2: { state: "Edit", value: step.addressLine2.value },
+                          })
+                        }
+                        text={residencyAddress.addressLine2 ?? ""}
+                      />
+                    ) : (
+                      <Field name="addressLine2">
+                        {({ value, onChange, ref }) => (
+                          <FieldEdit
+                            onChange={onChange}
+                            onPressCancel={() => {
+                              setStep({ ...step, addressLine2: { state: "View", value } });
+                            }}
+                            onPressValidate={() =>
+                              setStep({ ...step, addressLine2: { state: "View", value } })
+                            }
+                            ref={ref}
+                            value={value}
+                          />
+                        )}
+                      </Field>
+                    )}
+
+                    {step.postalCode.state === "View" ? (
+                      <FieldView
+                        label={t("verificationRenewal.personalInformation.postalCode")}
+                        onPress={() =>
+                          setStep({
+                            ...step,
+                            addressLine2: { state: "Edit", value: step.postalCode.value },
+                          })
+                        }
+                        text={residencyAddress.postalCode ?? ""}
+                      />
+                    ) : (
+                      <Field name="postalCode">
+                        {({ value, onChange, ref }) => (
+                          <FieldEdit
+                            onChange={onChange}
+                            onPressCancel={() => {
+                              setStep({ ...step, postalCode: { state: "View", value } });
+                            }}
+                            onPressValidate={() =>
+                              setStep({ ...step, postalCode: { state: "View", value } })
+                            }
+                            ref={ref}
+                            value={value}
+                          />
+                        )}
+                      </Field>
+                    )}
+
+                    {step.city.state === "View" ? (
+                      <FieldView
+                        label={t("verificationRenewal.personalInformation.city")}
+                        onPress={() =>
+                          setStep({
+                            ...step,
+                            addressLine2: { state: "Edit", value: step.city.value },
+                          })
+                        }
+                        text={residencyAddress.addressLine2 ?? ""}
+                      />
+                    ) : (
+                      <Field name="city">
+                        {({ value, onChange, ref }) => (
+                          <FieldEdit
+                            onChange={onChange}
+                            onPressCancel={() => {
+                              setStep({ ...step, city: { state: "View", value } });
+                            }}
+                            onPressValidate={() =>
+                              setStep({ ...step, city: { state: "View", value } })
+                            }
+                            ref={ref}
+                            value={value}
                           />
                         )}
                       </Field>
                     )}
 
                     <Space height={24} />
-                    {step.monthlyIncomes === "View" ? (
-                      <LakeLabel
-                        color="current"
+                    {step.monthlyIncomes.state === "View" ? (
+                      <FieldView
                         label={t("verificationRenewal.personalInformation.monthlyIncomes")}
-                        actions={
-                          <LakeButton
-                            size="small"
-                            mode="tertiary"
-                            icon="edit-regular"
-                            ariaLabel={t("common.edit")}
-                            onPress={() => setStep({ ...step, monthlyIncomes: "Edit" })}
-                          />
+                        onPress={() =>
+                          setStep({
+                            ...step,
+                            monthlyIncomes: { state: "Edit", value: step.monthlyIncomes.value },
+                          })
                         }
-                        render={() => (
-                          <LakeText color={colors.gray[900]}>
-                            {translateMonthlyIncome(monthlyIncome)}
-                          </LakeText>
-                        )}
+                        text={translateMonthlyIncome(monthlyIncome)}
                       />
                     ) : (
                       <Field name="monthlyIncomes">
                         {({ value, onChange, ref }) => (
-                          <LakeLabel
-                            type="view"
-                            label={t("verificationRenewal.personalInformation.firstName")}
-                            render={() => (
-                              <Box direction="row">
-                                <LakeTextInput value={value} onChangeText={onChange} ref={ref} />
-                                <Space width={8} />
-                                <LakeButton
-                                  ariaLabel={t("verificationRenewal.ariaLabel.validate")}
-                                  loading={updatingIndividualVerificationRenewal.isLoading()}
-                                  size="small"
-                                  color="partner"
-                                  icon="checkmark-filled"
-                                  onPress={onPressSubmit}
-                                />
-
-                                <Space width={8} />
-                                <LakeButton
-                                  mode="secondary"
-                                  ariaLabel={t("verificationRenewal.ariaLabel.cancel")}
-                                  loading={updatingIndividualVerificationRenewal.isLoading()}
-                                  size="small"
-                                  color="partner"
-                                  icon="dismiss-filled"
-                                  onPress={() => {
-                                    setStep({ ...step, monthlyIncomes: "View" });
-                                  }}
-                                />
-                              </Box>
-                            )}
+                          <FieldEdit
+                            onChange={onChange}
+                            onPressCancel={() => {
+                              setStep({ ...step, monthlyIncomes: { state: "View", value } });
+                            }}
+                            onPressValidate={() =>
+                              setStep({ ...step, monthlyIncomes: { state: "View", value } })
+                            }
+                            ref={ref}
+                            value={value}
                           />
                         )}
                       </Field>
                     )}
 
                     <Space height={24} />
-                    {step.occupation === "View" ? (
-                      <LakeLabel
-                        color="current"
+                    {step.occupation.state === "View" ? (
+                      <FieldView
                         label={t("verificationRenewal.personalInformation.occupation")}
-                        actions={
-                          <LakeButton
-                            size="small"
-                            mode="tertiary"
-                            icon="edit-regular"
-                            ariaLabel={t("common.edit")}
-                            onPress={() => setStep({ ...step, occupation: "Edit" })}
-                          />
+                        onPress={() =>
+                          setStep({
+                            ...step,
+                            occupation: { state: "Edit", value: step.occupation.value },
+                          })
                         }
-                        render={() => (
-                          <LakeText color={colors.gray[900]}>
-                            {translateEmploymentStatus(employmentStatus)}
-                          </LakeText>
-                        )}
+                        text={translateEmploymentStatus(employmentStatus)}
                       />
                     ) : (
                       <Field name="occupation">
                         {({ value, onChange, ref }) => (
-                          <LakeLabel
-                            type="view"
-                            label={t("verificationRenewal.personalInformation.occupation")}
-                            render={() => (
-                              <Box direction="row">
-                                <LakeTextInput value={value} onChangeText={onChange} ref={ref} />
-                                <Space width={8} />
-                                <LakeButton
-                                  ariaLabel={t("verificationRenewal.ariaLabel.validate")}
-                                  loading={updatingIndividualVerificationRenewal.isLoading()}
-                                  size="small"
-                                  color="partner"
-                                  icon="checkmark-filled"
-                                  onPress={onPressSubmit}
-                                />
-
-                                <Space width={8} />
-                                <LakeButton
-                                  mode="secondary"
-                                  ariaLabel={t("verificationRenewal.ariaLabel.cancel")}
-                                  loading={updatingIndividualVerificationRenewal.isLoading()}
-                                  size="small"
-                                  color="partner"
-                                  icon="dismiss-filled"
-                                  onPress={() => {
-                                    setStep({ ...step, occupation: "View" });
-                                  }}
-                                />
-                              </Box>
-                            )}
+                          <FieldEdit
+                            onChange={onChange}
+                            onPressCancel={() => {
+                              setStep({ ...step, occupation: { state: "View", value } });
+                            }}
+                            onPressValidate={() =>
+                              setStep({ ...step, occupation: { state: "View", value } })
+                            }
+                            ref={ref}
+                            value={value}
                           />
                         )}
                       </Field>

@@ -5,8 +5,9 @@ import {
   TopLevelStep,
 } from "@swan-io/lake/src/components/LakeStepper";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
@@ -54,38 +55,30 @@ export const VerificationRenewalIndividual = ({
   const route = Router.useRoute(verificationRenewalRoutes);
 
   //TODO: custom
-  const errors = [
-    {
-      fieldName: "fieldName",
-      code: "code",
-    },
-  ];
+
+  const isStepperDisplayed =
+    !isNullish(route) &&
+    route.name !== "VerificationRenewalRoot" &&
+    route.name !== "VerificationRenewalFinalize";
 
   const steps = useMemo<WizardStep<VerificationRenewalRoute>[]>(() => {
     const steps: WizardStep<VerificationRenewalRoute>[] = [];
-    steps.push(
-      {
-        id: "VerificationRenewalPersonalInformation",
-        label: t("step.title.registration"),
-        errors: errors,
-      },
-      {
-        id: "VerificationRenewalDocuments",
-        label: t("step.title.organisationPart1"),
-        errors: errors,
-      },
-    );
+    steps.push({
+      id: "VerificationRenewalPersonalInformation",
+      label: t("verificationRenewal.step.personalInfo"),
+      errors: [],
+    });
 
     if (isNotNullish(supportingDocumentCollection)) {
       steps.push({
         id: "VerificationRenewalDocuments",
-        label: t("step.title.document"),
+        label: t("verificationRenewal.step.documents"),
         errors: [],
       });
     }
     steps.push({
       id: "VerificationRenewalFinalize",
-      label: t("step.title.swanApp"),
+      label: t("verificationRenewal.step.finalize"),
       errors: [],
     });
 
@@ -94,32 +87,14 @@ export const VerificationRenewalIndividual = ({
 
   const stepperSteps = useMemo<TopLevelStep[]>(
     () =>
-      steps
-        // Remove organisation steps except the first one
-        // .filter(step => step.id === "" || !step.id.startsWith("Organisation"))
-        .map(step => {
-          // Organisation steps are grouped
-          if (step.id === "VerificationRenewalPersonalInformation") {
-            return {
-              label: t("step.title.organisation"),
-              children: steps
-                .filter(({ id }) => id.startsWith("Organisation"))
-                .map(step => ({
-                  id: step.id,
-                  label: step.label,
-                  url: Router[step.id]({ verificationRenewalId }),
-                  hasErrors: step.errors.length > 0,
-                })),
-            };
-          }
-
-          return {
-            id: step.id,
-            label: step.label,
-            url: Router[step.id]({ verificationRenewalId }),
-            hasErrors: step.errors.length > 0,
-          };
-        }),
+      steps.map(step => {
+        return {
+          id: step.id,
+          label: step.label,
+          url: Router[step.id]({ verificationRenewalId }),
+          hasErrors: step.errors.length > 0,
+        };
+      }),
     [steps, verificationRenewalId],
   );
 
@@ -135,26 +110,26 @@ export const VerificationRenewalIndividual = ({
     //       {
     <Box grow={1}>
       <Box style={styles.sticky}>
-        {/* <OnboardingHeader projectName={projectName} projectLogo={projectLogo} /> */}
-
-        {/* {isStepperDisplayed ? ( */}
-        <ResponsiveContainer>
-          {({ small }) =>
-            small ? (
-              <MobileStepTitle activeStepId={route.name} steps={stepperSteps} />
-            ) : (
-              <Box alignItems="center">
-                <LakeStepper
-                  activeStepId={route.name}
-                  steps={stepperSteps}
-                  style={styles.stepper}
-                />
-              </Box>
-            )
-          }
-        </ResponsiveContainer>
-        {/* ) : null} */}
+        {isStepperDisplayed ? (
+          <ResponsiveContainer>
+            {({ small }) =>
+              small ? (
+                <MobileStepTitle activeStepId={route.name} steps={stepperSteps} />
+              ) : (
+                <Box alignItems="center">
+                  <LakeStepper
+                    activeStepId={route.name}
+                    steps={stepperSteps}
+                    style={styles.stepper}
+                  />
+                </Box>
+              )
+            }
+          </ResponsiveContainer>
+        ) : null}
       </Box>
+
+      <Space height={40} />
 
       {match({ route, supportingDocumentCollection })
         .with({ route: { name: "VerificationRenewalRoot" } }, () => (

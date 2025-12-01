@@ -104,11 +104,11 @@ export const VerificationRenewalIntro = ({ verificationRenewalId }: Props) => {
       },
       {
         label: t("verificationRenewal.intro.step2"),
-        icon: "lake-clipboard-bullet",
+        icon: "document-regular",
       },
       {
         label: t("verificationRenewal.intro.step3"),
-        icon: "mail-regular",
+        icon: "checkmark-filled",
       },
     );
 

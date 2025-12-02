@@ -3621,6 +3621,7 @@ fragment CompanyRenewalInfo on CompanyVerificationRenewalInfo {
       birthDate
       postalCode
     }
+    typeOfRepresentation
     email
   }
 }

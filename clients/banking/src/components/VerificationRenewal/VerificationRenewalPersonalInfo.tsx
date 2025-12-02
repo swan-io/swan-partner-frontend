@@ -273,7 +273,7 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewalId, info }:
 
             <Tile>
               <EditableField
-                label={t("verificationRenewal.personalInformation.firstName")}
+                label={t("verificationRenewal.firstName")}
                 value={savedValues.firstName}
                 validate={validateRequired}
                 onChange={value => setSaveValues({ ...savedValues, firstName: value })}
@@ -289,7 +289,7 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewalId, info }:
 
               <Space height={12} />
               <EditableField
-                label={t("verificationRenewal.personalInformation.lastName")}
+                label={t("verificationRenewal.lastName")}
                 value={savedValues.lastName}
                 validate={validateRequired}
                 onChange={value => setSaveValues({ ...savedValues, lastName: value })}

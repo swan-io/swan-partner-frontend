@@ -108,7 +108,7 @@ export const VerificationRenewalAccountHolderInformation = ({
       .mapOkToResult(data => Option.fromNullable(data).toResult(data))
       .mapOkToResult(filterRejectionsToResult)
       .tapOk(() => {
-        Router.push("VerificationRenewalDocuments", {
+        Router.push("VerificationRenewalAdministratorInformation", {
           verificationRenewalId: verificationRenewalId,
         });
       })

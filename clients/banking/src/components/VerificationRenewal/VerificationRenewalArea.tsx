@@ -94,7 +94,7 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
                           },
                           verificationRenewal => (
                             <VerificationRenewalIndividual
-                              verificationRenewal={verificationRenewal}
+                              verificationRenewalId={verificationRenewalId}
                               info={verificationRenewal.info}
                               supportingDocumentCollection={renewalSupportingDoc}
                             />

@@ -10,6 +10,7 @@ import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { GetVerificationRenewalDocument } from "../../graphql/partner";
 import { ErrorView } from "../ErrorView";
+import { VerificationRenewalCompany } from "./VerificationRenewalCompany";
 import { VerificationRenewalHeader } from "./VerificationRenewalHeader";
 import { VerificationRenewalIndividual } from "./VerificationRenewalIndividual";
 
@@ -86,7 +87,13 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
                           {
                             info: { __typename: "CompanyVerificationRenewalInfo" },
                           },
-                          ({ info }) => <p>{info.__typename}</p>,
+                          verificationRenewal => (
+                            <VerificationRenewalCompany
+                              verificationRenewalId={verificationRenewalId}
+                              info={verificationRenewal.info}
+                              supportingDocumentCollection={renewalSupportingDoc}
+                            />
+                          ),
                         )
                         .with(
                           {

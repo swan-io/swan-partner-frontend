@@ -12,17 +12,17 @@ import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import {
-  IndividualRenewalInfoFragment,
+  CompanyRenewalInfoFragment,
   SupportingDocumentRenewalFragment,
 } from "../../graphql/partner";
 import { NotFoundPage } from "../../pages/NotFoundPage";
 import { t } from "../../utils/i18n";
 import { Router, VerificationRenewalRoute, verificationRenewalRoutes } from "../../utils/routes";
 import { ErrorView } from "../ErrorView";
+import { VerificationRenewalAccountHolderInformation } from "./VerificationRenewalAccountHolderInformation";
 import { VerificationRenewalDocuments } from "./VerificationRenewalDocuments";
 import { VerificationRenewalFinalize } from "./VerificationRenewalFinalize";
 import { VerificationRenewalIntro } from "./VerificationRenewalIntro";
-import { VerificationRenewalPersonalInfo } from "./VerificationRenewalPersonalInfo";
 
 const styles = StyleSheet.create({
   stepper: {
@@ -41,14 +41,14 @@ const styles = StyleSheet.create({
 
 type Props = {
   verificationRenewalId: string;
-  info: IndividualRenewalInfoFragment;
+  info: CompanyRenewalInfoFragment;
   supportingDocumentCollection: SupportingDocumentRenewalFragment | null;
 };
 
-export const VerificationRenewalIndividual = ({
-  verificationRenewalId,
+export const VerificationRenewalCompany = ({
   info,
   supportingDocumentCollection,
+  verificationRenewalId,
 }: Props) => {
   const route = Router.useRoute(verificationRenewalRoutes);
 
@@ -60,11 +60,20 @@ export const VerificationRenewalIndividual = ({
   const steps = useMemo<WizardStep<VerificationRenewalRoute>[]>(() => {
     const steps: WizardStep<VerificationRenewalRoute>[] = [];
     steps.push({
-      id: "VerificationRenewalPersonalInformation",
+      id: "VerificationRenewalAccountHolderInformation",
       label: t("verificationRenewal.step.personalInfo"),
       errors: [],
     });
-
+    steps.push({
+      id: "VerificationRenewalAdministratorInformation",
+      label: t("verificationRenewal.step.personalInfo"),
+      errors: [],
+    });
+    steps.push({
+      id: "VerificationRenewalOwnership",
+      label: t("verificationRenewal.step.personalInfo"),
+      errors: [],
+    });
     if (isNotNullish(supportingDocumentCollection)) {
       steps.push({
         id: "VerificationRenewalDocuments",
@@ -100,10 +109,6 @@ export const VerificationRenewalIndividual = ({
   }, [route?.name]);
 
   return (
-    // <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fill}>
-    //   {({ small }) => (
-    //     <>
-    //       {
     <Box grow={1}>
       <Box style={styles.sticky}>
         {isStepperDisplayed ? (
@@ -134,11 +139,17 @@ export const VerificationRenewalIndividual = ({
             renewalTypename={info.__typename}
           />
         ))
-        .with({ route: { name: "VerificationRenewalPersonalInformation" } }, () => (
-          <VerificationRenewalPersonalInfo
+        .with({ route: { name: "VerificationRenewalAccountHolderInformation" } }, () => (
+          <VerificationRenewalAccountHolderInformation
             info={info}
             verificationRenewalId={verificationRenewalId}
           />
+        ))
+        .with({ route: { name: "VerificationRenewalAdministratorInformation" } }, () => (
+          <p>VerificationRenewalAdministratorInformation</p>
+        ))
+        .with({ route: { name: "VerificationRenewalOwnership" } }, () => (
+          <p>VerificationRenewalOwnership</p>
         ))
         .with(
           {
@@ -161,10 +172,5 @@ export const VerificationRenewalIndividual = ({
           <ErrorView />
         ))}
     </Box>
-    //       }
-    //     </>
-
-    //   )}
-    // </ResponsiveContainer>
   );
 };

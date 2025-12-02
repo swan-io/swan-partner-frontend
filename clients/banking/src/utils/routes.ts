@@ -16,6 +16,9 @@ const routes = {
     Area: "/*",
     Root: "/",
     PersonalInformation: "/personal-information",
+    AdministratorInformation: "/administrator-information",
+    AccountHolderInformation: "/account-holder-information",
+    Ownership: "/ownership",
     Documents: "/documents",
     Finalize: "finalize",
   }),
@@ -166,6 +169,9 @@ export const verificationRenewalRoutes = [
   "VerificationRenewalPersonalInformation",
   "VerificationRenewalDocuments",
   "VerificationRenewalFinalize",
+  "VerificationRenewalAdministratorInformation",
+  "VerificationRenewalOwnership",
+  "VerificationRenewalAccountHolderInformation",
 ] as const satisfies RouteName[];
 
 export type VerificationRenewalRoute = (typeof verificationRenewalRoutes)[number];

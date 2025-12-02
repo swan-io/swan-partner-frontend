@@ -8,6 +8,7 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
+import { match } from "ts-pattern";
 import { t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
@@ -91,29 +92,57 @@ const styles = StyleSheet.create({
 
 type Props = {
   verificationRenewalId: string;
+  renewalTypename: "CompanyVerificationRenewalInfo" | "IndividualVerificationRenewalInfo";
 };
 
-export const VerificationRenewalIntro = ({ verificationRenewalId }: Props) => {
+export const VerificationRenewalIntro = ({ verificationRenewalId, renewalTypename }: Props) => {
   const steps = useMemo(() => {
     const steps: FlowStep[] = [];
-
-    steps.push(
-      {
-        label: t("verificationRenewal.intro.step1"),
-        icon: "person-regular",
-      },
-      {
-        label: t("verificationRenewal.intro.step2"),
-        icon: "document-regular",
-      },
-      {
-        label: t("verificationRenewal.intro.step3"),
-        icon: "checkmark-filled",
-      },
-    );
+    match(renewalTypename)
+      .with("IndividualVerificationRenewalInfo", () =>
+        steps.push(
+          {
+            label: t("verificationRenewal.intro.individual.step1"),
+            icon: "person-regular",
+          },
+          {
+            label: t("verificationRenewal.intro.individual.step2"),
+            icon: "document-regular",
+          },
+          {
+            label: t("verificationRenewal.intro.individual.step3"),
+            icon: "checkmark-filled",
+          },
+        ),
+      )
+      .with("CompanyVerificationRenewalInfo", () =>
+        steps.push(
+          {
+            label: t("verificationRenewal.intro.company.step1"),
+            icon: "building-multiple-regular",
+          },
+          {
+            label: t("verificationRenewal.intro.company.step2"),
+            icon: "person-regular",
+          },
+          {
+            label: t("verificationRenewal.intro.company.step3"),
+            icon: "people-add-regular",
+          },
+          {
+            label: t("verificationRenewal.intro.company.step4"),
+            icon: "document-regular",
+          },
+          {
+            label: t("verificationRenewal.intro.company.step5"),
+            icon: "checkmark-filled",
+          },
+        ),
+      )
+      .exhaustive();
 
     return steps;
-  }, []);
+  }, [renewalTypename]);
 
   return (
     <ResponsiveContainer style={commonStyles.fill}>
@@ -147,9 +176,18 @@ export const VerificationRenewalIntro = ({ verificationRenewalId }: Props) => {
                   </Box>
                   <VerificationRenewalFooter
                     onNext={() =>
-                      Router.push("VerificationRenewalPersonalInformation", {
-                        verificationRenewalId,
-                      })
+                      match(renewalTypename)
+                        .with("IndividualVerificationRenewalInfo", () =>
+                          Router.push("VerificationRenewalPersonalInformation", {
+                            verificationRenewalId,
+                          }),
+                        )
+                        .with("CompanyVerificationRenewalInfo", () =>
+                          Router.push("VerificationRenewalAccountHolderInformation", {
+                            verificationRenewalId,
+                          }),
+                        )
+                        .exhaustive()
                     }
                   />
                   <Space height={small ? 16 : 24} />

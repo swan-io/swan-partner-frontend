@@ -11,12 +11,12 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
-import { deriveUnion } from "@swan-io/lake/src/utils/function";
+import { deriveUnion, noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
-import { useForm } from "@swan-io/use-form";
-import { ReactNode, useState } from "react";
+import { useForm, Validator } from "@swan-io/use-form";
+import { ReactElement, useCallback, useState } from "react";
 import { match } from "ts-pattern";
 import { OnboardingStepContent } from "../../../../onboarding/src/components/OnboardingStepContent";
 import { StepTitle } from "../../../../onboarding/src/components/StepTitle";
@@ -49,19 +49,48 @@ type Props = {
 type EditableFieldProps<T> = {
   label: string;
   value: T;
-  onSubmitField: () => void;
-  onCancel: () => void;
-  renderEditing: () => ReactNode;
+  onChange: (value: T) => void;
+  formatValue?: (value: T) => string;
+  validate?: Validator<T>;
+  renderEditing: (props: {
+    value: T;
+    valid: boolean;
+    error: string | undefined;
+    onChange: (value: T) => void;
+    onBlur: () => void;
+  }) => ReactElement;
 };
 
 const EditableField = <T extends string>({
   label,
   value,
-  onSubmitField,
-  onCancel,
+  onChange,
+  formatValue,
+  validate,
   renderEditing,
 }: EditableFieldProps<T>) => {
   const [editing, setEditing] = useBoolean(false);
+  const { Field, setFieldValue, submitForm } = useForm({
+    fieldName: {
+      initialValue: value,
+      validate,
+      sanitize: value => value.trim() as T,
+    },
+  });
+
+  const onSubmit = useCallback(() => {
+    submitForm({
+      onSuccess: ({ fieldName }) => {
+        fieldName.match({
+          Some: value => {
+            onChange(value);
+            setEditing.off();
+          },
+          None: noop,
+        });
+      },
+    });
+  }, [submitForm, onChange, setEditing]);
 
   return (
     <Box direction="row">
@@ -70,10 +99,10 @@ const EditableField = <T extends string>({
         label={label}
         render={() =>
           editing ? (
-            renderEditing()
+            <Field name="fieldName">{fieldState => renderEditing(fieldState)}</Field>
           ) : (
             <LakeText color={colors.gray[900]} style={{ height: spacings[40] }}>
-              {value}
+              {formatValue ? formatValue(value) : value}
             </LakeText>
           )
         }
@@ -88,10 +117,7 @@ const EditableField = <T extends string>({
             size="small"
             color="partner"
             icon="checkmark-filled"
-            onPress={() => {
-              onSubmitField();
-              setEditing.off();
-            }}
+            onPress={onSubmit}
           />
 
           <Space width={8} />
@@ -102,8 +128,8 @@ const EditableField = <T extends string>({
             color="partner"
             icon="dismiss-filled"
             onPress={() => {
-              onCancel();
               setEditing.off();
+              setFieldValue("fieldName", value);
             }}
           />
         </Box>
@@ -168,47 +194,6 @@ const employmentStatusItems = deriveUnion<EmploymentStatus>({
 }).array.map(value => ({ name: translateEmploymentStatus(value), value }));
 
 export const VerificationRenewalPersonalInfo = ({ verificationRenewalId, info }: Props) => {
-  const { Field, submitForm, getFieldValue, setFieldValue } = useForm<Form>({
-    firstName: {
-      initialValue: info.accountAdmin.firstName,
-      sanitize: value => value.trim(),
-      validate: validateRequired,
-    },
-    lastName: {
-      initialValue: info.accountAdmin.lastName,
-      sanitize: value => value.trim(),
-      validate: validateRequired,
-    },
-    addressLine1: {
-      initialValue: info.accountAdmin.residencyAddress.addressLine1 ?? "",
-      validate: validateRequired,
-      sanitize: value => value.trim(),
-    },
-    addressLine2: {
-      initialValue: info.accountAdmin.residencyAddress.addressLine2 ?? "",
-      validate: validateRequired,
-      sanitize: value => value.trim(),
-    },
-    postalCode: {
-      initialValue: info.accountAdmin.residencyAddress.postalCode ?? "",
-      validate: validateRequired,
-      sanitize: value => value.trim(),
-    },
-    city: {
-      initialValue: info.accountAdmin.residencyAddress.city ?? "",
-      validate: validateRequired,
-      sanitize: value => value.trim(),
-    },
-    monthlyIncome: {
-      initialValue: info.accountAdmin.monthlyIncome,
-      validate: validateRequired,
-    },
-    employmentStatus: {
-      initialValue: info.accountAdmin.employmentStatus,
-      validate: validateRequired,
-    },
-  });
-
   const [updateIndividualVerificationRenewal, updatingIndividualVerificationRenewal] = useMutation(
     UpdateIndividualVerificationRenewalDocument,
   );
@@ -225,53 +210,49 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewalId, info }:
   });
 
   const onPressSubmit = () => {
-    submitForm({
-      onSuccess: () => {
-        const {
-          firstName,
-          lastName,
-          addressLine1,
-          addressLine2,
-          city,
-          monthlyIncome,
-          employmentStatus,
-          postalCode,
-        } = savedValues;
+    const {
+      firstName,
+      lastName,
+      addressLine1,
+      addressLine2,
+      city,
+      monthlyIncome,
+      employmentStatus,
+      postalCode,
+    } = savedValues;
 
-        return match(info)
-          .with({ __typename: "IndividualVerificationRenewalInfo" }, () =>
-            updateIndividualVerificationRenewal({
-              input: {
-                verificationRenewalId: verificationRenewalId,
-                accountAdmin: {
-                  firstName,
-                  lastName,
-                  employmentStatus,
-                  residencyAddress: {
-                    addressLine1,
-                    addressLine2,
-                    postalCode,
-                    city,
-                  },
-                  monthlyIncome,
-                },
+    return match(info)
+      .with({ __typename: "IndividualVerificationRenewalInfo" }, () =>
+        updateIndividualVerificationRenewal({
+          input: {
+            verificationRenewalId: verificationRenewalId,
+            accountAdmin: {
+              firstName,
+              lastName,
+              employmentStatus,
+              residencyAddress: {
+                addressLine1,
+                addressLine2,
+                postalCode,
+                city,
               },
-            })
-              .mapOk(data => data.updateIndividualVerificationRenewal)
-              .mapOkToResult(data => Option.fromNullable(data).toResult(data))
-              .mapOkToResult(filterRejectionsToResult)
-              .tapOk(() => {
-                Router.push("VerificationRenewalDocuments", {
-                  verificationRenewalId: verificationRenewalId,
-                });
-              })
-              .tapError(error => {
-                showToast({ variant: "error", error, title: translateError(error) });
-              }),
-          )
-          .exhaustive();
-      },
-    });
+              monthlyIncome,
+            },
+          },
+        })
+          .mapOk(data => data.updateIndividualVerificationRenewal)
+          .mapOkToResult(data => Option.fromNullable(data).toResult(data))
+          .mapOkToResult(filterRejectionsToResult)
+          .tapOk(() => {
+            Router.push("VerificationRenewalDocuments", {
+              verificationRenewalId: verificationRenewalId,
+            });
+          })
+          .tapError(error => {
+            showToast({ variant: "error", error, title: translateError(error) });
+          }),
+      )
+      .exhaustive();
   };
 
   return (
@@ -294,26 +275,15 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewalId, info }:
               <EditableField
                 label={t("verificationRenewal.personalInformation.firstName")}
                 value={savedValues.firstName}
-                onCancel={() => {
-                  setFieldValue("firstName", savedValues.firstName);
-                }}
-                onSubmitField={() => {
-                  const value = getFieldValue("firstName");
-                  setSaveValues({ ...savedValues, firstName: value });
-                }}
-                renderEditing={() => (
-                  <Field name="firstName">
-                    {({ value, onChange, onBlur, ref }) => {
-                      return (
-                        <LakeTextInput
-                          ref={ref}
-                          value={value}
-                          onChangeText={onChange}
-                          onBlur={onBlur}
-                        />
-                      );
-                    }}
-                  </Field>
+                validate={validateRequired}
+                onChange={value => setSaveValues({ ...savedValues, firstName: value })}
+                renderEditing={({ value, error, onChange, onBlur }) => (
+                  <LakeTextInput
+                    value={value}
+                    error={error}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                  />
                 )}
               />
 
@@ -321,26 +291,15 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewalId, info }:
               <EditableField
                 label={t("verificationRenewal.personalInformation.lastName")}
                 value={savedValues.lastName}
-                onCancel={() => {
-                  setFieldValue("lastName", savedValues.lastName);
-                }}
-                onSubmitField={() => {
-                  const value = getFieldValue("lastName");
-                  setSaveValues({ ...savedValues, lastName: value });
-                }}
-                renderEditing={() => (
-                  <Field name="lastName">
-                    {({ value, onChange, onBlur, ref }) => {
-                      return (
-                        <LakeTextInput
-                          ref={ref}
-                          value={value}
-                          onChangeText={onChange}
-                          onBlur={onBlur}
-                        />
-                      );
-                    }}
-                  </Field>
+                validate={validateRequired}
+                onChange={value => setSaveValues({ ...savedValues, lastName: value })}
+                renderEditing={({ value, error, onChange, onBlur }) => (
+                  <LakeTextInput
+                    value={value}
+                    error={error}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                  />
                 )}
               />
 
@@ -348,26 +307,15 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewalId, info }:
               <EditableField
                 label={t("verificationRenewal.personalInformation.addressLine1")}
                 value={savedValues.addressLine1}
-                onCancel={() => {
-                  setFieldValue("addressLine1", savedValues.addressLine1);
-                }}
-                onSubmitField={() => {
-                  const value = getFieldValue("addressLine1");
-                  setSaveValues({ ...savedValues, lastName: value });
-                }}
-                renderEditing={() => (
-                  <Field name="addressLine1">
-                    {({ value, onChange, onBlur, ref }) => {
-                      return (
-                        <LakeTextInput
-                          ref={ref}
-                          value={value}
-                          onChangeText={onChange}
-                          onBlur={onBlur}
-                        />
-                      );
-                    }}
-                  </Field>
+                validate={validateRequired}
+                onChange={value => setSaveValues({ ...savedValues, addressLine1: value })}
+                renderEditing={({ value, error, onChange, onBlur }) => (
+                  <LakeTextInput
+                    value={value}
+                    error={error}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                  />
                 )}
               />
 
@@ -375,26 +323,15 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewalId, info }:
               <EditableField
                 label={t("verificationRenewal.personalInformation.addressLine2")}
                 value={savedValues.addressLine2}
-                onCancel={() => {
-                  setFieldValue("addressLine2", savedValues.addressLine2);
-                }}
-                onSubmitField={() => {
-                  const value = getFieldValue("addressLine2");
-                  setSaveValues({ ...savedValues, lastName: value });
-                }}
-                renderEditing={() => (
-                  <Field name="addressLine2">
-                    {({ value, onChange, onBlur, ref }) => {
-                      return (
-                        <LakeTextInput
-                          ref={ref}
-                          value={value}
-                          onChangeText={onChange}
-                          onBlur={onBlur}
-                        />
-                      );
-                    }}
-                  </Field>
+                validate={validateRequired}
+                onChange={value => setSaveValues({ ...savedValues, addressLine2: value })}
+                renderEditing={({ value, error, onChange, onBlur }) => (
+                  <LakeTextInput
+                    value={value}
+                    error={error}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                  />
                 )}
               />
 
@@ -402,26 +339,15 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewalId, info }:
               <EditableField
                 label={t("verificationRenewal.personalInformation.postalCode")}
                 value={savedValues.postalCode}
-                onCancel={() => {
-                  setFieldValue("postalCode", savedValues.postalCode);
-                }}
-                onSubmitField={() => {
-                  const value = getFieldValue("postalCode");
-                  setSaveValues({ ...savedValues, lastName: value });
-                }}
-                renderEditing={() => (
-                  <Field name="postalCode">
-                    {({ value, onChange, onBlur, ref }) => {
-                      return (
-                        <LakeTextInput
-                          ref={ref}
-                          value={value}
-                          onChangeText={onChange}
-                          onBlur={onBlur}
-                        />
-                      );
-                    }}
-                  </Field>
+                validate={validateRequired}
+                onChange={value => setSaveValues({ ...savedValues, postalCode: value })}
+                renderEditing={({ value, error, onChange, onBlur }) => (
+                  <LakeTextInput
+                    value={value}
+                    error={error}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                  />
                 )}
               />
 
@@ -429,80 +355,42 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewalId, info }:
               <EditableField
                 label={t("verificationRenewal.personalInformation.city")}
                 value={savedValues.city}
-                onCancel={() => {
-                  setFieldValue("city", savedValues.city);
-                }}
-                onSubmitField={() => {
-                  const value = getFieldValue("city");
-                  setSaveValues({ ...savedValues, lastName: value });
-                }}
-                renderEditing={() => (
-                  <Field name="city">
-                    {({ value, onChange, onBlur, ref }) => {
-                      return (
-                        <LakeTextInput
-                          ref={ref}
-                          value={value}
-                          onChangeText={onChange}
-                          onBlur={onBlur}
-                        />
-                      );
-                    }}
-                  </Field>
+                validate={validateRequired}
+                onChange={value => setSaveValues({ ...savedValues, city: value })}
+                renderEditing={({ value, error, onChange, onBlur }) => (
+                  <LakeTextInput
+                    value={value}
+                    error={error}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                  />
                 )}
               />
 
               <Space height={12} />
               <EditableField
                 label={t("verificationRenewal.personalInformation.monthlyIncome")}
-                value={translateMonthlyIncome(savedValues.monthlyIncome)}
-                onCancel={() => {
-                  setFieldValue("monthlyIncome", savedValues.monthlyIncome);
-                }}
-                onSubmitField={() => {
-                  const value = getFieldValue("monthlyIncome");
-                  setSaveValues({ ...savedValues, monthlyIncome: value });
-                }}
-                renderEditing={() => (
-                  <Field name="monthlyIncome">
-                    {({ value, onChange, ref }) => {
-                      return (
-                        <LakeSelect
-                          ref={ref}
-                          value={value}
-                          items={monthlyIncomeItems}
-                          onValueChange={onChange}
-                        />
-                      );
-                    }}
-                  </Field>
+                value={savedValues.monthlyIncome}
+                formatValue={translateMonthlyIncome}
+                validate={validateRequired}
+                onChange={value => setSaveValues({ ...savedValues, monthlyIncome: value })}
+                renderEditing={({ value, onChange }) => (
+                  <LakeSelect value={value} items={monthlyIncomeItems} onValueChange={onChange} />
                 )}
               />
 
               <Space height={12} />
               <EditableField
                 label={t("verificationRenewal.personalInformation.employmentStatus")}
-                value={translateEmploymentStatus(savedValues.employmentStatus)}
-                onCancel={() => {
-                  setFieldValue("employmentStatus", savedValues.employmentStatus);
-                }}
-                onSubmitField={() => {
-                  const value = getFieldValue("employmentStatus");
-                  setSaveValues({ ...savedValues, employmentStatus: value });
-                }}
-                renderEditing={() => (
-                  <Field name="employmentStatus">
-                    {({ value, onChange, ref }) => {
-                      return (
-                        <LakeSelect
-                          ref={ref}
-                          value={value}
-                          items={employmentStatusItems}
-                          onValueChange={onChange}
-                        />
-                      );
-                    }}
-                  </Field>
+                value={savedValues.employmentStatus}
+                formatValue={translateEmploymentStatus}
+                onChange={value => setSaveValues({ ...savedValues, employmentStatus: value })}
+                renderEditing={({ value, onChange }) => (
+                  <LakeSelect
+                    value={value}
+                    items={employmentStatusItems}
+                    onValueChange={onChange}
+                  />
                 )}
               />
             </Tile>

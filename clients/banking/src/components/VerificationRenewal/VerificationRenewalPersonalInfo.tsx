@@ -61,7 +61,7 @@ type EditableFieldProps<T> = {
   }) => ReactElement;
 };
 
-const EditableField = <T extends string>({
+export const EditableField = <T extends string>({
   label,
   value,
   onChange,
@@ -305,7 +305,7 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewalId, info }:
 
               <Space height={12} />
               <EditableField
-                label={t("verificationRenewal.personalInformation.addressLine1")}
+                label={t("verificationRenewal.addressLine1")}
                 value={savedValues.addressLine1}
                 validate={validateRequired}
                 onChange={value => setSaveValues({ ...savedValues, addressLine1: value })}
@@ -321,7 +321,7 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewalId, info }:
 
               <Space height={12} />
               <EditableField
-                label={t("verificationRenewal.personalInformation.addressLine2")}
+                label={t("verificationRenewal.addressLine2")}
                 value={savedValues.addressLine2}
                 validate={validateRequired}
                 onChange={value => setSaveValues({ ...savedValues, addressLine2: value })}
@@ -337,7 +337,7 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewalId, info }:
 
               <Space height={12} />
               <EditableField
-                label={t("verificationRenewal.personalInformation.postalCode")}
+                label={t("verificationRenewal.postalCode")}
                 value={savedValues.postalCode}
                 validate={validateRequired}
                 onChange={value => setSaveValues({ ...savedValues, postalCode: value })}
@@ -353,7 +353,7 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewalId, info }:
 
               <Space height={12} />
               <EditableField
-                label={t("verificationRenewal.personalInformation.city")}
+                label={t("verificationRenewal.city")}
                 value={savedValues.city}
                 validate={validateRequired}
                 onChange={value => setSaveValues({ ...savedValues, city: value })}

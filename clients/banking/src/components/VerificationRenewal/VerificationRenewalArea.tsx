@@ -56,16 +56,6 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
       { data: AsyncData.P.Done(Result.P.Ok(P.select())) },
       ({ projectInfo, verificationRenewal }) => {
         const projectColor = projectInfo?.accentColor ?? invariantColors.defaultAccentColor;
-        const accountAdmin = match(verificationRenewal?.info)
-          .with(
-            { __typename: "CompanyVerificationRenewalInfo", accountAdmin: P.select() },
-            accountAdmin => accountAdmin,
-          )
-          .with(
-            { __typename: "IndividualVerificationRenewalInfo", accountAdmin: P.select() },
-            accountAdmin => accountAdmin,
-          )
-          .otherwise(() => null);
 
         const renewalSupportingDoc = match(verificationRenewal)
           .with(
@@ -91,26 +81,21 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
                     </Box>
 
                     <View style={[styles.content, large && styles.contentDesktop]}>
-                      {match({ accountAdmin, verificationRenewal })
+                      {match(verificationRenewal)
                         .with(
                           {
-                            accountAdmin: { __typename: "CompanyVerificationRenewalAccountAdmin" },
-                            verificationRenewal: P.nonNullable,
+                            info: { __typename: "CompanyVerificationRenewalInfo" },
                           },
-                          () => <p>Company</p>,
+                          ({ info }) => <p>{info.__typename}</p>,
                         )
                         .with(
                           {
-                            accountAdmin: {
-                              __typename: "IndividualVerificationRenewalAccountAdmin",
-                            },
-                            verificationRenewal: P.nonNullable,
+                            info: { __typename: "IndividualVerificationRenewalInfo" },
                           },
-                          ({ verificationRenewal }) => (
+                          verificationRenewal => (
                             <VerificationRenewalIndividual
                               verificationRenewal={verificationRenewal}
-                              projectInfo={projectInfo}
-                              verificationRenewalId={verificationRenewalId}
+                              info={verificationRenewal.info}
                               supportingDocumentCollection={renewalSupportingDoc}
                             />
                           ),

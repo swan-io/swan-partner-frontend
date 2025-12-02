@@ -13,7 +13,6 @@ import { OnboardingStepContent } from "../../../../onboarding/src/components/Onb
 import { StepTitle } from "../../../../onboarding/src/components/StepTitle";
 import {
   GenerateSupportingDocumentUploadUrlDocument,
-  GetVerificationRenewalQuery,
   SupportingDocumentPurposeEnum,
   SupportingDocumentRenewalFragment,
 } from "../../graphql/partner";
@@ -26,12 +25,12 @@ export type Document<Purpose extends string> = {
 };
 
 type Props = {
-  verificationRenewal: NonNullable<GetVerificationRenewalQuery["verificationRenewal"]>;
+  verificationRenewalId: string;
   supportingDocumentCollection: SupportingDocumentRenewalFragment;
 };
 
 export const VerificationRenewalDocuments = ({
-  verificationRenewal,
+  verificationRenewalId,
   supportingDocumentCollection,
 }: Props) => {
   console.log(supportingDocumentCollection);
@@ -140,7 +139,7 @@ export const VerificationRenewalDocuments = ({
                 mode="secondary"
                 onPress={() =>
                   Router.push("VerificationRenewalRoot", {
-                    verificationRenewalId: verificationRenewal.id,
+                    verificationRenewalId,
                   })
                 }
               >
@@ -150,7 +149,7 @@ export const VerificationRenewalDocuments = ({
               <LakeButton
                 onPress={() =>
                   Router.push("VerificationRenewalFinalize", {
-                    verificationRenewalId: verificationRenewal.id,
+                    verificationRenewalId,
                   })
                 }
                 color="current"

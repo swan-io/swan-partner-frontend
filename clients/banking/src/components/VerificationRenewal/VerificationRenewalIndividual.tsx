@@ -12,7 +12,7 @@ import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import {
-  GetVerificationRenewalQuery,
+  IndividualRenewalInfoFragment,
   SupportingDocumentRenewalFragment,
 } from "../../graphql/partner";
 import { NotFoundPage } from "../../pages/NotFoundPage";
@@ -40,21 +40,17 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  projectInfo: NonNullable<GetVerificationRenewalQuery["projectInfo"]>;
-  verificationRenewal: NonNullable<GetVerificationRenewalQuery["verificationRenewal"]>;
   verificationRenewalId: string;
+  info: IndividualRenewalInfoFragment;
   supportingDocumentCollection: SupportingDocumentRenewalFragment | null;
 };
 
 export const VerificationRenewalIndividual = ({
-  projectInfo,
   verificationRenewalId,
-  verificationRenewal,
+  info,
   supportingDocumentCollection,
 }: Props) => {
   const route = Router.useRoute(verificationRenewalRoutes);
-
-  //TODO: custom
 
   const isStepperDisplayed =
     !isNullish(route) &&
@@ -137,8 +133,8 @@ export const VerificationRenewalIndividual = ({
         ))
         .with({ route: { name: "VerificationRenewalPersonalInformation" } }, () => (
           <VerificationRenewalPersonalInfo
-            projectInfo={projectInfo}
-            verificationRenewal={verificationRenewal}
+            info={info}
+            verificationRenewalId={verificationRenewalId}
           />
         ))
         .with(
@@ -148,7 +144,7 @@ export const VerificationRenewalIndividual = ({
           },
           ({ supportingDocumentCollection }) => (
             <VerificationRenewalDocuments
-              verificationRenewal={verificationRenewal}
+              verificationRenewalId={verificationRenewalId}
               supportingDocumentCollection={supportingDocumentCollection}
             />
           ),

@@ -3586,6 +3586,44 @@ fragment SupportingDocumentRenewal on SupportingDocumentCollection {
   updatedAt
 }
 
+fragment CompanyRenewalInfo on CompanyVerificationRenewalInfo {
+  type
+  additionalDetails
+  company {
+    name
+  }
+  accountAdmin {
+    firstName
+    lastName
+    birthInfo {
+      city
+      country
+      birthDate
+      postalCode
+    }
+    email
+  }
+}
+
+fragment IndividualRenewalInfo on IndividualVerificationRenewalInfo {
+  type
+  additionalDetails
+  accountAdmin {
+    firstName
+    lastName
+    residencyAddress {
+      addressLine1
+      addressLine2
+      city
+      postalCode
+      state
+      country
+    }
+    employmentStatus
+    monthlyIncome
+  }
+}
+
 query GetVerificationRenewal($id: ID!) {
   projectInfo {
     id
@@ -3604,40 +3642,10 @@ query GetVerificationRenewal($id: ID!) {
     id
     info {
       ... on CompanyVerificationRenewalInfo {
-        type
-        additionalDetails
-        company {
-          name
-        }
-        accountAdmin {
-          firstName
-          lastName
-          birthInfo {
-            city
-            country
-            birthDate
-            postalCode
-          }
-          email
-        }
+        ...CompanyRenewalInfo
       }
       ... on IndividualVerificationRenewalInfo {
-        type
-        additionalDetails
-        accountAdmin {
-          firstName
-          lastName
-          residencyAddress {
-            addressLine1
-            addressLine2
-            city
-            postalCode
-            state
-            country
-          }
-          employmentStatus
-          monthlyIncome
-        }
+        ...IndividualRenewalInfo
       }
     }
   }

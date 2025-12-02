@@ -1718,8 +1718,8 @@
   "verificationRenewal.personalInformation.addressLine2": "Address line 2",
   "verificationRenewal.personalInformation.postalCode": "Postal code",
   "verificationRenewal.personalInformation.city": "City",
-  "verificationRenewal.personalInformation.monthlyIncomes": "Monthly incomes",
-  "verificationRenewal.personalInformation.occupation": "Occupation",
+  "verificationRenewal.personalInformation.monthlyIncome": "Monthly income",
+  "verificationRenewal.personalInformation.employmentStatus": "Occupation",
   "verificationRenewal.documents.title": "Supporting documents",
   "verificationRenewal.documents.subtitle": "Please provide high-quality, full-color files that capture the entire document.",
   "verificationRenewal.finalize.title": "Thank you!",
@@ -1740,5 +1740,6 @@
   "verificationRenewal.monthlyIncome.Student": "Student",
   "verificationRenewal.monthlyIncome.Unemployed": "Unemployed",
   "verificationRenewal.ariaLabel.validate": "Validate",
-  "verificationRenewal.ariaLabel.cancel": "Cancel"
+  "verificationRenewal.ariaLabel.cancel": "Cancel",
+  "verificationRenewal.ariaLabel.edit": "Edit"
 }

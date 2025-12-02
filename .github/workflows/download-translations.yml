@@ -50,9 +50,9 @@ jobs:
           groups: payment
 
       - name: Sort locales
-        run: pnpm sort-locales
+        run: pnpm format-locales
 
-      - uses: peter-evans/create-pull-request@v5
+      - uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.CREATE_PR_TOKEN }}
           title: Update translations

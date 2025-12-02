@@ -1,3 +1,4 @@
+import { Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
@@ -7,6 +8,9 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { deriveUnion } from "@swan-io/lake/src/utils/function";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { match } from "ts-pattern";
 import { OnboardingStepContent } from "../../../../onboarding/src/components/OnboardingStepContent";
@@ -100,7 +104,7 @@ export const VerificationRenewalAccountHolderInformation = ({
         },
       },
     })
-      .mapOk(data => data.updateIndividualVerificationRenewal)
+      .mapOk(data => data.updateCompanyVerificationRenewal)
       .mapOkToResult(data => Option.fromNullable(data).toResult(data))
       .mapOkToResult(filterRejectionsToResult)
       .tapOk(() => {

@@ -3598,27 +3598,18 @@ fragment CompanyRenewalInfo on CompanyVerificationRenewalInfo {
       postalCode
       country
     }
-
     businessActivityDescription
     monthlyPaymentVolume
     ultimateBeneficialOwners {
       firstName
       lastName
-      birthDate
-      birthCity
-      birthCityPostalCode
-      birthCountryCode
-      info {
-        type
-      }
-      taxIdentificationNumber
-      residencyAddress {
-        addressLine1
-        addressLine2
+      birthInfo {
         city
         country
+        birthDate
         postalCode
       }
+      taxIdentificationNumber
     }
   }
   accountAdmin {

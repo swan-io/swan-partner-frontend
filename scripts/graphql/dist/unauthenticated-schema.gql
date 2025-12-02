@@ -32,23 +32,23 @@ type Mutation {
 
   """
   Delete a supporting document, in case uploaded file is not what was wanted. This action can not be undone.
-
+  
   This mutation can only be used on an "Uploaded" supporting document of a "WaitingForDocument" supporting document collection.
-
+  
   This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
   """
   deleteSupportingDocument(input: DeleteSupportingDocumentInput!): DeleteSupportingDocumentPayload!
 
   """
   Generate and return a presigned URL to upload a unique file for the supporting document collection
-
+  
   This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
   """
   generateSupportingDocumentUploadUrl(input: GenerateSupportingDocumentUploadUrlInput!): GenerateSupportingDocumentUploadUrlPayload!
 
   """
   Ask for Swan's compliance team to review given supporting document collection.
-
+  
   This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
   """
   requestSupportingDocumentCollectionReview(input: RequestSupportingDocumentCollectionReviewInput): RequestSupportingDocumentCollectionReviewPayload!
@@ -100,7 +100,7 @@ type Account {
 
   """
   List of Virtual IBAN
-
+  
   Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   virtualIbanEntries(
@@ -123,7 +123,7 @@ type Account {
 
   """
   List of account membership for this account
-
+  
   Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   memberships(
@@ -281,7 +281,7 @@ type AccountHolder {
 
   """
   List of accounts owned by the account holder.
-
+  
   Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   accounts(
@@ -304,7 +304,7 @@ type AccountHolder {
 
   """
   List of supporting document collection for an account holder
-
+  
   Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   supportingDocumentCollections(
@@ -327,7 +327,7 @@ type AccountHolder {
 
   """
   List of funding limit settings change request for an account holder
-
+  
   Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   fundingLimitSettingsChangeRequests(
@@ -391,7 +391,7 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
 
   """
   The ultimate beneficiary is defined as the natural person (s) who own or control, directly or indirectly, the reporting company.
-
+  
   The ultimate beneficiary is :
   - either the natural person (s) who hold, directly or indirectly, more than 25% of the capital or the rights of vote of the reporting company;
   - either the natural person (s) who exercise, by other means, a power of control of the company;
@@ -458,7 +458,7 @@ input AccountHolderFilterInput {
   """
   Filter by registration number of the company
   (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
-
+  
   - Length must be from 0 to 50 characters.
   """
   registrationNumber: String
@@ -474,7 +474,7 @@ input AccountHolderFilterInput {
 
   """
   Search string to look for
-
+  
   Search will be performed in following fields:
    - First name
    - Last name
@@ -485,14 +485,14 @@ input AccountHolderFilterInput {
 
   """
   Search by first name
-
+  
   @deprecated(reason: "use `search` instead")
   """
   firstName: String
 
   """
   Search by last name
-
+  
   @deprecated(reason: "use `search` instead")
   """
   lastName: String
@@ -947,21 +947,21 @@ input AccountMembershipsFilterInput {
 
   """
   Search by first name
-
+  
   @deprecated(reason: "use `search` instead")
   """
   firstName: String
 
   """
   Search by last name
-
+  
   @deprecated(reason: "use `search` instead")
   """
   lastName: String
 
   """
   Search string to look for
-
+  
   Search will be performed in following fields:
   - First name
   - Last name
@@ -2292,28 +2292,28 @@ input MembershipsFilterInput {
 
   """
   Search by email
-
+  
   @deprecated(reason: "use `search` instead")
   """
   email: String
 
   """
   Search by first name
-
+  
   @deprecated(reason: "use `search` instead")
   """
   firstName: String
 
   """
   Search by last name
-
+  
   @deprecated(reason: "use `search` instead")
   """
   lastName: String
 
   """
   Search string to look for
-
+  
   Search will be performed in following fields:
   - First name
   - Last name
@@ -2520,7 +2520,7 @@ type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
 
   """
   The ultimate beneficiary is defined as the natural person (s) who own or control, directly or indirectly, the reporting company.
-
+  
   The ultimate beneficiary is :
   - either the natural person (s) who hold, directly or indirectly, more than 25% of the capital or the rights of vote of the reporting company;
   - either the natural person (s) who exercise, by other means, a power of control of the company;
@@ -2594,7 +2594,7 @@ input OnboardingFiltersInput {
 
   """
   Search string to look for
-
+  
   Search will be performed in following fields:
    - Account holder's first name
    - Account holder's last name
@@ -4057,7 +4057,7 @@ enum UltimateBeneficialOwnerControlType {
 }
 
 input UltimateBeneficialOwnerIdentityDocumentInfoInput {
-  type: UBOIdentityDocumentDetailsInput
+  type: UBOIdentityDocumentType!
   number: String
   expiryDate: Date
 }
@@ -4192,7 +4192,7 @@ input UnauthenticatedUpdateCompanyOnboardingInput {
 
   """
   The ultimate beneficial owner is defined as the natural person (s) who own or control, directly and/or indirectly, the reporting company.
-
+  
   The ultimate beneficial owner is :
   - either the natural person (s) who hold, directly or indirectly, more than 25% of the capital or the rights of vote of the reporting company;
   - either the natural person (s) who exercise, by other means, a power of control of the company;
@@ -4389,7 +4389,7 @@ type User {
 
   """
   The list of account memberships
-
+  
   Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
   """
   accountMemberships(
@@ -4449,14 +4449,14 @@ type User {
 
   """
   List of identification levels available for the user.
-
+  
   Whenever TRUE, it means the identification was successful for the associated level.
   """
   identificationLevels: IdentificationLevels
 
   """
   Preferred notification channel
-
+  
   When it is "null" it means that the preferences have not been updated. Default SMS in use
   """
   preferredNotificationChannel: PreferredNotificationChannel
@@ -4539,6 +4539,28 @@ type ValidationRejection implements Rejection {
 type VerificationRenewalNotFoundRejection implements Rejection {
   id: ID!
   message: String!
+}
+
+type VerificationRenewalUltimateBeneficialOwner {
+  birthInfo: BirthInfo
+  qualificationType: UltimateBeneficialOwnerQualificationType
+  firstName: String
+  sex: Sex
+  lastName: String
+  ownership: UltimateBeneficialOwnerOwnership
+  address: AddressInfo
+  taxIdentificationNumber: String
+}
+
+input VerificationRenewalUltimateBeneficialOwnerInput {
+  birthInfo: BirthInfoInput
+  qualificationType: UltimateBeneficialOwnerQualificationType
+  firstName: String
+  sex: Sex
+  lastName: String
+  ownership: UltimateBeneficialOwnerOwnershipInput
+  address: ResidencyAddressInput
+  taxIdentificationNumber: String
 }
 
 type VerificationRenewalUpdateNotAllowedRejection implements Rejection {
@@ -4934,7 +4956,7 @@ type CardEnabledStatusInfo implements CardStatusInfo {
 input CardFiltersInput {
   """
   Filter by status
-
+  
   @deprecated(reason: "use filter `statuses` instead")
   """
   status: CardStatus
@@ -4944,7 +4966,7 @@ input CardFiltersInput {
 
   """
   Filter by type
-
+  
   @deprecated(reason: "use filter `types` instead")
   """
   type: CardType
@@ -4954,7 +4976,7 @@ input CardFiltersInput {
 
   """
   Search string to look for
-
+  
   Search will be performed in following fields:
    - Embossed line
    - Card masked number
@@ -4968,7 +4990,7 @@ input CardFiltersInput {
 
   """
   Filter by User ID
-
+  
   Only usable on Cards query
   """
   userId: String
@@ -5351,7 +5373,7 @@ type CardWrongStatusRejection implements Rejection {
 input Certificate {
   """
   CertificateType
-
+  
   Can be either LEAF or INTERMEDIATE
   """
   key: String!
@@ -5389,14 +5411,14 @@ type CompleteDigitalCard implements DigitalCard {
 
   """
   Masked DPAN with the last four digits visible
-
+  
   This value is present in the user wallet application
   """
   cardMaskedNumber: String!
 
   """
   Digital Card status information
-
+  
   In this type the status will be either ConsentPending or Pending
   """
   statusInfo: CompleteDigitalCardStatusInfo!
@@ -5418,14 +5440,14 @@ enum CompleteDigitalCardStatus {
 
   """
   when the digital card is suspended
-
+  
   the transactions will be blocked
   """
   Suspended
 
   """
   when the digital card is canceled
-
+  
   this is a final state
   """
   Canceled
@@ -5622,7 +5644,7 @@ type DigitalCardSuspendedStatusInfo implements CompleteDigitalCardStatusInfo {
 enum DigitalizationType {
   """
   This digital card was created by direct input of the PAN into a wallet application
-
+  
   This direct input can also be done using the device camera
   """
   Manual
@@ -5711,16 +5733,16 @@ type PendingDigitalCard implements DigitalCard {
 
   """
   Digital Card status information
-
+  
   In this type the status will be either ConsentPending or Pending
   """
   statusInfo: PendingDigitalCardStatusInfo!
 
   """
   Data to provide to the wallet during InApp Provisioning
-
+  
   Signature Data is mandatory for ApplePay
-
+  
   This data is only available for a digital card in
   - status: Pending
   - type: InApp
@@ -5747,7 +5769,7 @@ enum PendingDigitalCardStatus {
 
   """
   when the creation of a digital card is declined
-
+  
   this is a final state
   """
   Declined
@@ -7128,7 +7150,7 @@ input MerchantPaymentFiltersInput {
 
   """
   Search string to look for
-
+  
   Search will be performed in following fields:
    - Label
    - Reference
@@ -7184,7 +7206,7 @@ type MerchantPaymentLink {
   """
   The customer billing Address
   These fields should be completed also to pre-fill a SEPA direct debit mandate.
-
+  
   We strongly advice to complete these fields if merchants want to get paid through card payment method, in order to minimize the risk of payment rejection by Visa / Mastercard schemes
   """
   billingAddress: Address
@@ -7193,7 +7215,7 @@ type MerchantPaymentLink {
     A date that reflects the time at which the user asked the transaction to be executed.
   For card transactions, request execution must occur within 7 days after authorization or the authorization may expire.
   For SEPA Direct Debit transactions, request execution must occur up to 1 year in the future.
-
+  
   Default value means that the execution will be as soon as possible
   """
   requestedExecutionAt: DateTime
@@ -7277,7 +7299,7 @@ input MerchantPaymentLinkFiltersInput {
 
   """
   Search string to look for
-
+  
   Search will be performed in following fields:
    - Label
    - Reference
@@ -7585,7 +7607,7 @@ type MerchantProfile {
 
   """
   Returns a list of merchant payment links
-
+  
   Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
   """
   merchantPaymentLinks(
@@ -7609,7 +7631,7 @@ type MerchantProfile {
 
   """
   Returns a list of merchant payments
-
+  
   Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
   """
   merchantPayments(

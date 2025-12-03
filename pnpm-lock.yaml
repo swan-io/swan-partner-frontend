@@ -141,20 +141,20 @@ importers:
         specifier: 3.2.1
         version: 3.2.1(typescript@5.9.2)
       '@swan-io/chicane':
-        specifier: 2.2.0
-        version: 2.2.0(react@19.1.1)
+        specifier: 3.0.0
+        version: 3.0.0(react@19.1.1)
       '@swan-io/graphql-client':
         specifier: 0.8.0
         version: 0.8.0(graphql@16.11.0)(react@19.1.1)(typescript@5.9.2)
       '@swan-io/lake':
-        specifier: 13.2.5
-        version: 13.2.5(typescript@5.9.2)
+        specifier: 13.3.0
+        version: 13.3.0(typescript@5.9.2)
       '@swan-io/request':
         specifier: 3.1.0
         version: 3.1.0(@swan-io/boxed@3.2.1(typescript@5.9.2))
       '@swan-io/shared-business':
-        specifier: 13.2.5
-        version: 13.2.5(@swan-io/lake@13.2.5(typescript@5.9.2))(typescript@5.9.2)
+        specifier: 13.3.0
+        version: 13.3.0(@swan-io/lake@13.3.0(typescript@5.9.2))(typescript@5.9.2)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@19.1.1)(typescript@5.9.2)
@@ -226,20 +226,20 @@ importers:
         specifier: 3.2.1
         version: 3.2.1(typescript@5.9.2)
       '@swan-io/chicane':
-        specifier: 2.2.0
-        version: 2.2.0(react@19.1.1)
+        specifier: 3.0.0
+        version: 3.0.0(react@19.1.1)
       '@swan-io/graphql-client':
         specifier: 0.8.0
         version: 0.8.0(graphql@16.11.0)(react@19.1.1)(typescript@5.9.2)
       '@swan-io/lake':
-        specifier: 13.2.5
-        version: 13.2.5(typescript@5.9.2)
+        specifier: 13.3.0
+        version: 13.3.0(typescript@5.9.2)
       '@swan-io/request':
         specifier: 3.1.0
         version: 3.1.0(@swan-io/boxed@3.2.1(typescript@5.9.2))
       '@swan-io/shared-business':
-        specifier: 13.2.5
-        version: 13.2.5(@swan-io/lake@13.2.5(typescript@5.9.2))(typescript@5.9.2)
+        specifier: 13.3.0
+        version: 13.3.0(@swan-io/lake@13.3.0(typescript@5.9.2))(typescript@5.9.2)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@19.1.1)(typescript@5.9.2)
@@ -302,17 +302,17 @@ importers:
         specifier: 3.2.1
         version: 3.2.1(typescript@5.9.2)
       '@swan-io/chicane':
-        specifier: 2.2.0
-        version: 2.2.0(react@19.1.1)
+        specifier: 3.0.0
+        version: 3.0.0(react@19.1.1)
       '@swan-io/graphql-client':
         specifier: 0.8.0
         version: 0.8.0(graphql@16.11.0)(react@19.1.1)(typescript@5.9.2)
       '@swan-io/lake':
-        specifier: 13.2.5
-        version: 13.2.5(typescript@5.9.2)
+        specifier: 13.3.0
+        version: 13.3.0(typescript@5.9.2)
       '@swan-io/shared-business':
-        specifier: 13.2.5
-        version: 13.2.5(@swan-io/lake@13.2.5(typescript@5.9.2))(typescript@5.9.2)
+        specifier: 13.3.0
+        version: 13.3.0(@swan-io/lake@13.3.0(typescript@5.9.2))(typescript@5.9.2)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@19.1.1)(typescript@5.9.2)
@@ -2151,10 +2151,10 @@ packages:
       typescript:
         optional: true
 
-  '@swan-io/chicane@2.2.0':
-    resolution: {integrity: sha512-NvVNuqxMSVWIAOApygR6+7GK2V/2y9QMlrNnYkrEgNHxloaYVMre/CiEZVeZgE8/VnByQhqePG9POkGhPwxU3g==, tarball: https://registry.npmjs.org/@swan-io/chicane/-/chicane-2.2.0.tgz}
+  '@swan-io/chicane@3.0.0':
+    resolution: {integrity: sha512-ELguiTjrK2+wYqiUfguusOXaAXUBdizGJjXM6pg5Jvye0Yefp18coVmSCpGJLdJY4hCaWXis/ct4i/DyV2FIuw==, tarball: https://registry.npmjs.org/@swan-io/chicane/-/chicane-3.0.0.tgz}
     peerDependencies:
-      react: '>=18.0.0'
+      react: '>=19.0.0'
 
   '@swan-io/graphql-client@0.8.0':
     resolution: {integrity: sha512-+7cQV9NKUc5plt4hYt8nNz16gotnzGEGKcU2/xKaj1pjWjzSagKNoBt/ymLAy0d+U7wGLCgf0hF0yZyKLfYyaw==, tarball: https://registry.npmjs.org/@swan-io/graphql-client/-/graphql-client-0.8.0.tgz}
@@ -2162,8 +2162,8 @@ packages:
     peerDependencies:
       react: '>=18.2.0'
 
-  '@swan-io/lake@13.2.5':
-    resolution: {integrity: sha512-CbWMRGfa4lhGAiAx0sLyb6P+zdFcGta+EC40ERwnBQ+G+FuBoio9P2O+/RZx/sKZ6u1NV6bPqRUNThkAYWEdnw==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-13.2.5.tgz}
+  '@swan-io/lake@13.3.0':
+    resolution: {integrity: sha512-NIr863JrSThIm1TwDkHZdth/MUljpdhBYzZwbzil7h9iq39uppz/r5dQUrc9fqHuYC+9CYaVMH+4Dk06jDCNaA==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-13.3.0.tgz}
     engines: {node: ^22.12.0}
 
   '@swan-io/request@3.1.0':
@@ -2171,11 +2171,11 @@ packages:
     peerDependencies:
       '@swan-io/boxed': '>=2.2.1'
 
-  '@swan-io/shared-business@13.2.5':
-    resolution: {integrity: sha512-B8cbJVEboDM00OACElwFXQFVkn1kdvojWRONi310vyOwQX3725bx2KW5kH0Qx032U/IYqnv6MBShvLThenrl/Q==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-13.2.5.tgz}
+  '@swan-io/shared-business@13.3.0':
+    resolution: {integrity: sha512-f5BBTOqHTUoS6bWj/nnzjAoGrZngNVB7HrNv1KeVIQLpIgby22tZ/IyWs/OZdmgv9YKg10YvLNBrFEAp9TKwYQ==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-13.3.0.tgz}
     engines: {node: ^22.12.0}
     peerDependencies:
-      '@swan-io/lake': 13.2.5
+      '@swan-io/lake': 13.3.0
 
   '@swan-io/use-form@3.1.0':
     resolution: {integrity: sha512-X6NpZ7LCeo7eS9RVCZrtpX+3GXZFUfUZpIwtVa2GNmqTLgyDbLhN8N6zBv+dmHL9KAQ+Zng2fTCCQpCZvmDu5A==, tarball: https://registry.npmjs.org/@swan-io/use-form/-/use-form-3.1.0.tgz}
@@ -4672,8 +4672,8 @@ packages:
   urlpattern-polyfill@10.1.0:
     resolution: {integrity: sha512-IGjKp/o0NL3Bso1PymYURCJxMPNAf/ILOpendP9f5B6e1rTJgdgiOvgfoT8VxCAdY+Wisb9uhGaJJf3yZ2V9nw==, tarball: https://registry.npmjs.org/urlpattern-polyfill/-/urlpattern-polyfill-10.1.0.tgz}
 
-  use-sync-external-store@1.5.0:
-    resolution: {integrity: sha512-Rb46I4cGGVBmjamjphe8L/UnvJD+uPPtTkNvX5mZgqdbavhI4EbgIWJiIHXJ8bc/i9EQGPRh4DwEURJ552Do0A==, tarball: https://registry.npmjs.org/use-sync-external-store/-/use-sync-external-store-1.5.0.tgz}
+  use-sync-external-store@1.6.0:
+    resolution: {integrity: sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w==, tarball: https://registry.npmjs.org/use-sync-external-store/-/use-sync-external-store-1.6.0.tgz}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -6030,7 +6030,7 @@ snapshots:
   '@graphql-tools/optimize@2.0.0(graphql@16.11.0)':
     dependencies:
       graphql: 16.11.0
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   '@graphql-tools/prisma-loader@8.0.17(@types/node@24.3.1)(graphql@16.11.0)':
     dependencies:
@@ -6076,7 +6076,7 @@ snapshots:
       '@ardatan/relay-compiler': 12.0.3(graphql@16.11.0)
       '@graphql-tools/utils': 10.9.1(graphql@16.11.0)
       graphql: 16.11.0
-      tslib: 2.6.3
+      tslib: 2.8.1
     transitivePeerDependencies:
       - encoding
 
@@ -7089,11 +7089,11 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.2
 
-  '@swan-io/chicane@2.2.0(react@19.1.1)':
+  '@swan-io/chicane@3.0.0(react@19.1.1)':
     dependencies:
       '@emotion/hash': 0.9.2
       react: 19.1.1
-      use-sync-external-store: 1.5.0(react@19.1.1)
+      use-sync-external-store: 1.6.0(react@19.1.1)
 
   '@swan-io/graphql-client@0.8.0(graphql@16.11.0)(react@19.1.1)(typescript@5.9.2)':
     dependencies:
@@ -7105,10 +7105,10 @@ snapshots:
       - graphql
       - typescript
 
-  '@swan-io/lake@13.2.5(typescript@5.9.2)':
+  '@swan-io/lake@13.3.0(typescript@5.9.2)':
     dependencies:
       '@swan-io/boxed': 3.2.1(typescript@5.9.2)
-      '@swan-io/chicane': 2.2.0(react@19.1.1)
+      '@swan-io/chicane': 3.0.0(react@19.1.1)
       '@swan-io/use-form': 3.1.0(react@19.1.1)(typescript@5.9.2)
       dayjs: 1.11.13
       polished: 4.3.1
@@ -7127,12 +7127,12 @@ snapshots:
     dependencies:
       '@swan-io/boxed': 3.2.1(typescript@5.9.2)
 
-  '@swan-io/shared-business@13.2.5(@swan-io/lake@13.2.5(typescript@5.9.2))(typescript@5.9.2)':
+  '@swan-io/shared-business@13.3.0(@swan-io/lake@13.3.0(typescript@5.9.2))(typescript@5.9.2)':
     dependencies:
       '@formatjs/intl': 3.1.6(typescript@5.9.2)
       '@placekit/client-js': 2.3.0
       '@swan-io/boxed': 3.2.1(typescript@5.9.2)
-      '@swan-io/lake': 13.2.5(typescript@5.9.2)
+      '@swan-io/lake': 13.3.0(typescript@5.9.2)
       '@swan-io/request': 3.1.0(@swan-io/boxed@3.2.1(typescript@5.9.2))
       '@swan-io/use-form': 3.1.0(react@19.1.1)(typescript@5.9.2)
       dayjs: 1.11.13
@@ -7594,7 +7594,7 @@ snapshots:
   camel-case@4.1.2:
     dependencies:
       pascal-case: 3.1.2
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   camelcase@5.3.1: {}
 
@@ -7603,7 +7603,7 @@ snapshots:
   capital-case@1.0.4:
     dependencies:
       no-case: 3.0.4
-      tslib: 2.6.3
+      tslib: 2.8.1
       upper-case-first: 2.0.2
 
   ccount@1.1.0: {}
@@ -7649,7 +7649,7 @@ snapshots:
       path-case: 3.0.4
       sentence-case: 3.0.4
       snake-case: 3.0.4
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   character-entities-legacy@1.1.4: {}
 
@@ -7734,7 +7734,7 @@ snapshots:
   constant-case@3.0.4:
     dependencies:
       no-case: 3.0.4
-      tslib: 2.6.3
+      tslib: 2.8.1
       upper-case: 2.0.2
 
   content-disposition@0.5.4:
@@ -7843,7 +7843,7 @@ snapshots:
   dot-case@3.0.4:
     dependencies:
       no-case: 3.0.4
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   dotenv@16.6.1: {}
 
@@ -8279,7 +8279,7 @@ snapshots:
   header-case@2.0.4:
     dependencies:
       capital-case: 1.0.4
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   helmet@8.1.0: {}
 
@@ -8431,7 +8431,7 @@ snapshots:
 
   is-lower-case@2.0.2:
     dependencies:
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   is-number@7.0.0: {}
 
@@ -8459,7 +8459,7 @@ snapshots:
 
   is-upper-case@2.0.2:
     dependencies:
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   is-windows@1.0.2: {}
 
@@ -8641,11 +8641,11 @@ snapshots:
 
   lower-case-first@2.0.2:
     dependencies:
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   lower-case@2.0.2:
     dependencies:
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   lru-cache@10.4.3: {}
 
@@ -8837,7 +8837,7 @@ snapshots:
   no-case@3.0.4:
     dependencies:
       lower-case: 2.0.2
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   node-domexception@1.0.0: {}
 
@@ -8948,7 +8948,7 @@ snapshots:
   param-case@3.0.4:
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   parent-module@1.0.1:
     dependencies:
@@ -8983,12 +8983,12 @@ snapshots:
   pascal-case@3.1.2:
     dependencies:
       no-case: 3.0.4
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   path-case@3.0.4:
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   path-exists@4.0.0: {}
 
@@ -9182,7 +9182,7 @@ snapshots:
   react-atomic-state@2.1.0(react@19.1.1):
     dependencies:
       react: 19.1.1
-      use-sync-external-store: 1.5.0(react@19.1.1)
+      use-sync-external-store: 1.6.0(react@19.1.1)
 
   react-dom@19.1.1(react@19.1.1):
     dependencies:
@@ -9394,7 +9394,7 @@ snapshots:
   sentence-case@3.0.4:
     dependencies:
       no-case: 3.0.4
-      tslib: 2.6.3
+      tslib: 2.8.1
       upper-case-first: 2.0.2
 
   set-blocking@2.0.0: {}
@@ -9480,7 +9480,7 @@ snapshots:
   snake-case@3.0.4:
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   sodium-native@4.3.3:
     dependencies:
@@ -9496,7 +9496,7 @@ snapshots:
 
   sponge-case@1.0.1:
     dependencies:
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   stackback@0.0.2: {}
 
@@ -9558,7 +9558,7 @@ snapshots:
 
   swap-case@2.0.2:
     dependencies:
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   symbol-tree@3.2.4: {}
 
@@ -9611,7 +9611,7 @@ snapshots:
 
   title-case@3.0.3:
     dependencies:
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   tldts-core@6.1.86: {}
 
@@ -9728,17 +9728,17 @@ snapshots:
 
   upper-case-first@2.0.2:
     dependencies:
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   upper-case@2.0.2:
     dependencies:
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   url-join@4.0.1: {}
 
   urlpattern-polyfill@10.1.0: {}
 
-  use-sync-external-store@1.5.0(react@19.1.1):
+  use-sync-external-store@1.6.0(react@19.1.1):
     dependencies:
       react: 19.1.1
 

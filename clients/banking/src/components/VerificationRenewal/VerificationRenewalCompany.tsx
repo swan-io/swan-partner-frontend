@@ -20,6 +20,7 @@ import { t } from "../../utils/i18n";
 import { Router, VerificationRenewalRoute, verificationRenewalRoutes } from "../../utils/routes";
 import { ErrorView } from "../ErrorView";
 import { VerificationRenewalAccountHolderInformation } from "./VerificationRenewalAccountHolderInformation";
+import { VerificationRenewalAdministratorInformation } from "./VerificationRenewalAdministratorInformation";
 import { VerificationRenewalDocuments } from "./VerificationRenewalDocuments";
 import { VerificationRenewalFinalize } from "./VerificationRenewalFinalize";
 import { VerificationRenewalIntro } from "./VerificationRenewalIntro";
@@ -146,7 +147,10 @@ export const VerificationRenewalCompany = ({
           />
         ))
         .with({ route: { name: "VerificationRenewalAdministratorInformation" } }, () => (
-          <p>VerificationRenewalAdministratorInformation</p>
+          <VerificationRenewalAdministratorInformation
+            info={info}
+            verificationRenewalId={verificationRenewalId}
+          />
         ))
         .with({ route: { name: "VerificationRenewalOwnership" } }, () => (
           <p>VerificationRenewalOwnership</p>

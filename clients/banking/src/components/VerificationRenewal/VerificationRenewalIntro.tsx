@@ -1,16 +1,16 @@
 import { Box } from "@swan-io/lake/src/components/Box";
-import { FlowPresentation, FlowStep } from "@swan-io/lake/src/components/FlowPresentation";
+import { FlowPresentation } from "@swan-io/lake/src/components/FlowPresentation";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
-import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
+import { RenewalStep } from "./VerificationRenewalCompany";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 
 const desktopIconSize = 100;
@@ -93,56 +93,76 @@ const styles = StyleSheet.create({
 type Props = {
   verificationRenewalId: string;
   renewalTypename: "CompanyVerificationRenewalInfo" | "IndividualVerificationRenewalInfo";
+  steps: RenewalStep[];
 };
 
-export const VerificationRenewalIntro = ({ verificationRenewalId, renewalTypename }: Props) => {
-  const steps = useMemo(() => {
-    const steps: FlowStep[] = [];
-    match(renewalTypename)
-      .with("IndividualVerificationRenewalInfo", () =>
-        steps.push(
-          {
-            label: t("verificationRenewal.intro.individual.step1"),
-            icon: "person-regular",
-          },
-          {
-            label: t("verificationRenewal.intro.individual.step2"),
-            icon: "document-regular",
-          },
-          {
-            label: t("verificationRenewal.intro.individual.step3"),
-            icon: "checkmark-filled",
-          },
-        ),
-      )
-      .with("CompanyVerificationRenewalInfo", () =>
-        steps.push(
-          {
-            label: t("verificationRenewal.intro.company.step1"),
-            icon: "building-multiple-regular",
-          },
-          {
-            label: t("verificationRenewal.intro.company.step2"),
-            icon: "person-regular",
-          },
-          {
-            label: t("verificationRenewal.intro.company.step3"),
-            icon: "people-add-regular",
-          },
-          {
-            label: t("verificationRenewal.intro.company.step4"),
-            icon: "document-regular",
-          },
-          {
-            label: t("verificationRenewal.intro.company.step5"),
-            icon: "checkmark-filled",
-          },
-        ),
-      )
-      .exhaustive();
+export const VerificationRenewalIntro = ({
+  verificationRenewalId,
+  renewalTypename,
+  steps,
+}: Props) => {
+  // const steps = useMemo(() => {
+  //   const steps: FlowStep[] = [];
+  //   match(renewalTypename)
+  //     .with("IndividualVerificationRenewalInfo", () => {
+  //       verificationRequirements?.forEach(requirement =>
+  //         match(requirement)
+  //           .with("AccountHolderDetailsRequired", () =>
+  //             steps.push({
+  //               label: t("verificationRenewal.intro.individual.step1"),
+  //               icon: "person-regular",
+  //             }),
+  //           )
+  //           .with("SupportingDocumentsRequired", () =>
+  //             steps.push({
+  //               label: t("verificationRenewal.intro.individual.step2"),
+  //               icon: "document-regular",
+  //             }),
+  //           ),
+  //       );
+  //       steps.push({
+  //         label: t("verificationRenewal.intro.company.step5"),
+  //         icon: "checkmark-filled",
+  //       });
+  //     })
+  //     .with("CompanyVerificationRenewalInfo", () => {
+  //       verificationRequirements?.forEach(requirement =>
+  //         match(requirement)
+  //           .with("AccountHolderDetailsRequired", () =>
+  //             steps.push({
+  //               label: t("verificationRenewal.intro.company.step1"),
+  //               icon: "building-multiple-regular",
+  //             }),
+  //           )
+  //           .with("LegalRepresentativeDetailsRequired", () =>
+  //             steps.push({
+  //               label: t("verificationRenewal.intro.company.step2"),
+  //               icon: "person-regular",
+  //             }),
+  //           )
+  //           .with("UboDetailsRequired", () =>
+  //             steps.push({
+  //               label: t("verificationRenewal.intro.company.step3"),
+  //               icon: "people-add-regular",
+  //             }),
+  //           )
+  //           .with("SupportingDocumentsRequired", () =>
+  //             steps.push({
+  //               label: t("verificationRenewal.intro.company.step4"),
+  //               icon: "document-regular",
+  //             }),
+  //           )
+  //           .otherwise(() => null),
+  //       );
+  //       steps.push({
+  //         label: t("verificationRenewal.intro.company.step5"),
+  //         icon: "checkmark-filled",
+  //       });
+  //     })
+  //     .exhaustive();
 
-    return steps;
-  }, [renewalTypename]);
+  //   return steps;
+  // }, [renewalTypename, verificationRequirements]);
 
   return (
     <ResponsiveContainer style={commonStyles.fill}>

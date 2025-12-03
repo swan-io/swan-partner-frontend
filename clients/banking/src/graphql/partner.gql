@@ -3655,6 +3655,7 @@ query GetVerificationRenewal($id: ID!) {
   verificationRenewal(id: $id) {
     ... on WaitingForInformationVerificationRenewal {
       id
+      verificationRequirements
       supportingDocumentCollection {
         ...SupportingDocumentRenewal
       }

@@ -68,6 +68,16 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
           )
           .otherwise(() => null);
 
+        const verificationRequirements = match(verificationRenewal)
+          .with(
+            {
+              __typename: "WaitingForInformationVerificationRenewal",
+              verificationRequirements: P.nonNullable,
+            },
+            ({ verificationRequirements }) => verificationRequirements,
+          )
+          .otherwise(() => null);
+
         return (
           <LakeScrollView style={styles.main}>
             <WithPartnerAccentColor color={projectColor}>
@@ -92,6 +102,7 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
                               verificationRenewalId={verificationRenewalId}
                               info={verificationRenewal.info}
                               supportingDocumentCollection={renewalSupportingDoc}
+                              verificationRequirements={verificationRequirements}
                             />
                           ),
                         )

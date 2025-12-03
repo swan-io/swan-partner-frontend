@@ -1,6 +1,8 @@
 import { Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
+import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
+import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -10,6 +12,7 @@ import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
+import { useForm } from "@swan-io/use-form";
 import { useState } from "react";
 import { OnboardingStepContent } from "../../../../onboarding/src/components/OnboardingStepContent";
 import { StepTitle } from "../../../../onboarding/src/components/StepTitle";
@@ -20,7 +23,7 @@ import {
 } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
-import { validateRequired } from "../../utils/validations";
+import { validateNullableRequired, validateRequired } from "../../utils/validations";
 import { EditableField } from "./VerificationRenewalPersonalInfo";
 
 type Form = {
@@ -52,34 +55,51 @@ export const VerificationRenewalAdministratorInformation = ({
     typeOfRepresentation: info.accountAdmin.typeOfRepresentation ?? "LegalRepresentative",
   });
 
-  const onPressSubmit = () => {
-    const { firstName, lastName, email, birthDate, typeOfRepresentation } = savedValues;
+  const { Field, submitForm } = useForm<{
+    typeOfRepresentation: TypeOfRepresentation | undefined;
+  }>({
+    typeOfRepresentation: {
+      initialValue: info.accountAdmin.typeOfRepresentation ?? undefined,
+      validate: validateNullableRequired,
+    },
+  });
 
-    return updateCompanyVerificationRenewal({
-      input: {
-        verificationRenewalId: verificationRenewalId,
-        accountAdmin: {
-          firstName,
-          lastName,
-          email,
-          birthInfo: {
-            birthDate,
-          },
-          typeOfRepresentation,
-        },
+  const onPressSubmit = () => {
+    submitForm({
+      onSuccess: values => {
+        const option = Option.allFromDict(values);
+        if (option.isSome()) {
+          const { firstName, lastName, email, birthDate } = savedValues;
+          const { typeOfRepresentation } = option.value;
+
+          return updateCompanyVerificationRenewal({
+            input: {
+              verificationRenewalId: verificationRenewalId,
+              accountAdmin: {
+                firstName,
+                lastName,
+                email,
+                birthInfo: {
+                  birthDate,
+                },
+                typeOfRepresentation,
+              },
+            },
+          })
+            .mapOk(data => data.updateCompanyVerificationRenewal)
+            .mapOkToResult(data => Option.fromNullable(data).toResult(data))
+            .mapOkToResult(filterRejectionsToResult)
+            .tapOk(() => {
+              Router.push("VerificationRenewalOwnership", {
+                verificationRenewalId: verificationRenewalId,
+              });
+            })
+            .tapError(error => {
+              showToast({ variant: "error", error, title: translateError(error) });
+            });
+        }
       },
-    })
-      .mapOk(data => data.updateCompanyVerificationRenewal)
-      .mapOkToResult(data => Option.fromNullable(data).toResult(data))
-      .mapOkToResult(filterRejectionsToResult)
-      .tapOk(() => {
-        Router.push("VerificationRenewalOwnership", {
-          verificationRenewalId: verificationRenewalId,
-        });
-      })
-      .tapError(error => {
-        showToast({ variant: "error", error, title: translateError(error) });
-      });
+    });
   };
 
   return (
@@ -158,7 +178,37 @@ export const VerificationRenewalAdministratorInformation = ({
               />
 
               <Space height={12} />
-              <EditableField
+
+              <Box direction="row">
+                <LakeLabel
+                  type="view"
+                  label={t("verificationRenewal.administratorInformation.typeOfRepresentation")}
+                  render={() => (
+                    <Field name="typeOfRepresentation">
+                      {({ value, error, onChange }) => (
+                        <RadioGroup
+                          direction="row"
+                          value={value}
+                          error={error}
+                          items={[
+                            {
+                              name: t("verificationRenewal.typeOfRepresentation.yes"),
+                              value: "LegalRepresentative",
+                            },
+                            {
+                              name: t("verificationRenewal.typeOfRepresentation.no"),
+                              value: "PowerOfAttorney",
+                            },
+                          ]}
+                          onValueChange={onChange}
+                        />
+                      )}
+                    </Field>
+                  )}
+                />
+              </Box>
+
+              {/* <EditableField
                 label={t("verificationRenewal.administratorInformation.typeOfRepresentation")}
                 value={savedValues.typeOfRepresentation}
                 validate={validateRequired}
@@ -181,7 +231,7 @@ export const VerificationRenewalAdministratorInformation = ({
                     onValueChange={onChange}
                   />
                 )}
-              />
+              /> */}
               <Space height={12} />
             </Tile>
 

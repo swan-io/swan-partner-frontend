@@ -141,8 +141,8 @@ importers:
         specifier: 3.2.1
         version: 3.2.1(typescript@5.9.2)
       '@swan-io/chicane':
-        specifier: 2.2.0
-        version: 2.2.0(react@19.1.1)
+        specifier: 3.0.0
+        version: 3.0.0(react@19.1.1)
       '@swan-io/graphql-client':
         specifier: 0.8.0
         version: 0.8.0(graphql@16.11.0)(react@19.1.1)(typescript@5.9.2)
@@ -226,8 +226,8 @@ importers:
         specifier: 3.2.1
         version: 3.2.1(typescript@5.9.2)
       '@swan-io/chicane':
-        specifier: 2.2.0
-        version: 2.2.0(react@19.1.1)
+        specifier: 3.0.0
+        version: 3.0.0(react@19.1.1)
       '@swan-io/graphql-client':
         specifier: 0.8.0
         version: 0.8.0(graphql@16.11.0)(react@19.1.1)(typescript@5.9.2)
@@ -302,8 +302,8 @@ importers:
         specifier: 3.2.1
         version: 3.2.1(typescript@5.9.2)
       '@swan-io/chicane':
-        specifier: 2.2.0
-        version: 2.2.0(react@19.1.1)
+        specifier: 3.0.0
+        version: 3.0.0(react@19.1.1)
       '@swan-io/graphql-client':
         specifier: 0.8.0
         version: 0.8.0(graphql@16.11.0)(react@19.1.1)(typescript@5.9.2)
@@ -2150,11 +2150,6 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
-
-  '@swan-io/chicane@2.2.0':
-    resolution: {integrity: sha512-NvVNuqxMSVWIAOApygR6+7GK2V/2y9QMlrNnYkrEgNHxloaYVMre/CiEZVeZgE8/VnByQhqePG9POkGhPwxU3g==, tarball: https://registry.npmjs.org/@swan-io/chicane/-/chicane-2.2.0.tgz}
-    peerDependencies:
-      react: '>=18.0.0'
 
   '@swan-io/chicane@3.0.0':
     resolution: {integrity: sha512-ELguiTjrK2+wYqiUfguusOXaAXUBdizGJjXM6pg5Jvye0Yefp18coVmSCpGJLdJY4hCaWXis/ct4i/DyV2FIuw==, tarball: https://registry.npmjs.org/@swan-io/chicane/-/chicane-3.0.0.tgz}
@@ -7093,12 +7088,6 @@ snapshots:
   '@swan-io/boxed@3.2.1(typescript@5.9.2)':
     optionalDependencies:
       typescript: 5.9.2
-
-  '@swan-io/chicane@2.2.0(react@19.1.1)':
-    dependencies:
-      '@emotion/hash': 0.9.2
-      react: 19.1.1
-      use-sync-external-store: 1.6.0(react@19.1.1)
 
   '@swan-io/chicane@3.0.0(react@19.1.1)':
     dependencies:

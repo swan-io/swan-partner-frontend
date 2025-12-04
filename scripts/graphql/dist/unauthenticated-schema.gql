@@ -4057,7 +4057,7 @@ enum UltimateBeneficialOwnerControlType {
 }
 
 input UltimateBeneficialOwnerIdentityDocumentInfoInput {
-  type: UBOIdentityDocumentDetailsInput
+  type: UBOIdentityDocumentType!
   number: String
   expiryDate: Date
 }
@@ -4539,6 +4539,28 @@ type ValidationRejection implements Rejection {
 type VerificationRenewalNotFoundRejection implements Rejection {
   id: ID!
   message: String!
+}
+
+type VerificationRenewalUltimateBeneficialOwner {
+  birthInfo: BirthInfo
+  qualificationType: UltimateBeneficialOwnerQualificationType
+  firstName: String
+  sex: Sex
+  lastName: String
+  ownership: UltimateBeneficialOwnerOwnership
+  address: AddressInfo
+  taxIdentificationNumber: String
+}
+
+input VerificationRenewalUltimateBeneficialOwnerInput {
+  birthInfo: BirthInfoInput
+  qualificationType: UltimateBeneficialOwnerQualificationType
+  firstName: String
+  sex: Sex
+  lastName: String
+  ownership: UltimateBeneficialOwnerOwnershipInput
+  address: ResidencyAddressInput
+  taxIdentificationNumber: String
 }
 
 type VerificationRenewalUpdateNotAllowedRejection implements Rejection {

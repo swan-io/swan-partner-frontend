@@ -2750,6 +2750,7 @@ enum BankingFee {
   SddInB2bMerchant
   SddInCoreDispute
   SddInCoreFailure
+  SddInCoreDisputePennylaneAccountingFirm
   SddInB2bDispute
   SddInB2bFailure
   SddInCoreLevel1
@@ -5372,7 +5373,7 @@ type CompanyVerificationRenewalCompanyInfo {
   businessActivityDescription: String!
   monthlyPaymentVolume: MonthlyPaymentVolume!
   residencyAddress: Address!
-  ultimateBeneficialOwners: [UltimateBeneficialOwner!]!
+  ultimateBeneficialOwners: [VerificationRenewalUltimateBeneficialOwner!]!
 }
 
 type CompanyVerificationRenewalInfo implements VerificationRenewalInfoBase {
@@ -5387,7 +5388,7 @@ input CompanyVerificationRenewalInfoInput {
   businessActivityDescription: String
   monthlyPaymentVolume: MonthlyPaymentVolume
   residencyAddress: ResidencyAddressInput
-  ultimateBeneficialOwners: [UltimateBeneficialOwnerInput!]
+  ultimateBeneficialOwners: [VerificationRenewalUltimateBeneficialOwnerInput!]
 }
 
 """Complete Address Information"""
@@ -5887,12 +5888,33 @@ input CreateCompanyAccountHolderOnboardingInput {
 }
 
 """Payload for creating a company account holder onboarding"""
-union CreateCompanyAccountHolderOnboardingPayload = CreateCompanyAccountHolderOnboardingSuccessPayload | BadRequestRejection | ForbiddenRejection | ValidationRejection
+union CreateCompanyAccountHolderOnboardingPayload = CreateCompanyAccountHolderOnboardingSuccessPayload | ForbiddenRejection | ValidationRejection
 
 """Success response for creating a company account holder onboarding"""
 type CreateCompanyAccountHolderOnboardingSuccessPayload {
   """The created company account holder onboarding"""
   onboarding: CompanyAccountHolderOnboarding!
+}
+
+"""Input for creating an individual account holder onboarding"""
+input CreateIndividualAccountHolderOnboardingInput {
+  """Account information for the individual account holder"""
+  accountInfo: IndividualAccountHolderOnboardingAccountInput!
+
+  """Account admin information for the individual account holder"""
+  accountAdmin: IndividualAccountHolderOnboardingAccountAdminInput!
+
+  """OAuth redirect parameters for the onboarding flow"""
+  oAuthRedirectParameters: OAuthRedirectParametersInput
+}
+
+"""Payload for creating an individual account holder onboarding"""
+union CreateIndividualAccountHolderOnboardingPayload = CreateIndividualAccountHolderOnboardingSuccessPayload | ForbiddenRejection | ValidationRejection
+
+"""Success response for creating an individual account holder onboarding"""
+type CreateIndividualAccountHolderOnboardingSuccessPayload {
+  """The created individual account holder onboarding"""
+  onboarding: IndividualAccountHolderOnboarding!
 }
 
 input CreateInPersonPaymentIntentInput {
@@ -6013,6 +6035,33 @@ union CreateMultiConsentPayload = CreateMultiConsentSuccessPayload | ConsentsNot
 """Success payload of the `createMultiConsent` mutation"""
 type CreateMultiConsentSuccessPayload {
   consent: Consent
+}
+
+"""Input for creating a company account holder onboarding"""
+input CreatePublicCompanyAccountHolderOnboardingInput {
+  """ID of the project."""
+  projectId: ID!
+
+  """Account information for the company account holder"""
+  accountInfo: CompanyAccountHolderOnboardingAccountInput!
+
+  """Account admin information for the company account holder"""
+  accountAdmin: CompanyAccountHolderOnboardingAccountAdminInput!
+
+  """OAuth redirect parameters for the onboarding flow"""
+  oAuthRedirectParameters: OAuthRedirectParametersInput
+
+  """Company information"""
+  company: CompanyInfoInput!
+}
+
+"""Payload for creating a company account holder onboarding"""
+union CreatePublicCompanyAccountHolderOnboardingPayload = CreatePublicCompanyAccountHolderOnboardingSuccessPayload | ForbiddenRejection | ValidationRejection | PublicOnboardingDisabledRejection
+
+"""Success response for creating a company account holder onboarding"""
+type CreatePublicCompanyAccountHolderOnboardingSuccessPayload {
+  """The created company account holder onboarding"""
+  onboarding: CompanyAccountHolderOnboarding!
 }
 
 """Inputs to set the repayment details for the SepaDirectDebitB2B"""
@@ -9173,6 +9222,32 @@ type IndividualAccountHolderOnboardingAccountAdmin {
   taxIdentificationNumber: String
   sourceOfFunds: IndividualAccountSourceOfFunds
   unitedStatesTaxInfo: UnitedStatesTaxInfo
+}
+
+"""Input for individual account admin information during onboarding"""
+input IndividualAccountHolderOnboardingAccountAdminInput {
+  acquisitionChannel: AcquisitionChannel
+  birthInfo: BirthInfoInput
+  email: String
+  employmentStatus: EmploymentStatus
+  firstName: String
+  preferredLanguage: AccountLanguage
+  lastName: String
+  monthlyIncome: MonthlyIncome
+  nationality: CCA3
+  address: ResidencyAddressInput
+  signupDate: Date
+  sourceOfFunds: IndividualAccountSourceOfFunds
+  taxIdentificationNumber: String
+  unitedStatesTaxInfo: UnitedStatesTaxInfoInput
+  userDeviceInfo: UserDeviceInfoInput
+}
+
+"""Input for individual account information during onboarding"""
+input IndividualAccountHolderOnboardingAccountInput {
+  name: String
+  country: AccountCountry!
+  intendedUsage: [IndividualAccountIntendedUsage!]
 }
 
 enum IndividualAccountIntendedUsage {
@@ -12954,6 +13029,15 @@ type Mutation {
   """
   createCompanyAccountHolderOnboarding(input: CreateCompanyAccountHolderOnboardingInput!): CreateCompanyAccountHolderOnboardingPayload!
 
+  """
+  Creates an onboarding for a new individual account holder.
+  
+  This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
+  
+  @comingSoon -> this query is not available yet, and its shape is subject to breaking change
+  """
+  createIndividualAccountHolderOnboarding(input: CreateIndividualAccountHolderOnboardingInput!): CreateIndividualAccountHolderOnboardingPayload!
+
   """Allows to refuse all Sepa Direct Debit received on a Virtual IBAN."""
   denySddVirtualIbanEntry(input: DenySddVirtualIbanEntryInput!): DenySddVirtualIbanEntryPayload!
 
@@ -13002,6 +13086,15 @@ type Mutation {
 
   """Open an additional account"""
   openAccount(input: OpenAccountInput!): OpenAccountPayload!
+
+  """
+  Creates an onboarding for a new company account holder.
+  
+  This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
+  
+  @comingSoon -> this query is not available yet, and its shape is subject to breaking change
+  """
+  createPublicCompanyAccountHolderOnboarding(input: CreatePublicCompanyAccountHolderOnboardingInput!): CreatePublicCompanyAccountHolderOnboardingPayload!
 
   """
   Resumes an account membership already suspended.
@@ -18999,6 +19092,21 @@ type ServerConsentSignatureNotValidRejection implements Rejection {
   message: String!
 }
 
+"""Settled transaction status information"""
+type SettledTransactionStatusInfo implements TransactionStatusInfo {
+  """unique identifier of the transaction"""
+  id: ID!
+
+  """status of the transaction"""
+  status: TransactionStatus!
+
+  """the booked transaction which settled this transaction."""
+  settlementTransactionId: String!
+
+  """the date when the transaction got settled."""
+  settledAt: Date!
+}
+
 enum Sex {
   Male
   Female
@@ -21039,6 +21147,11 @@ enum TransactionStatus {
   when a card authorization is released after X days or fully consumed by X debits
   """
   Released
+
+  """
+  when the transaction has successfully been posted on the Swan book through another booked transaction.
+  """
+  Settled
 }
 
 """Transaction Status information"""
@@ -21574,7 +21687,7 @@ enum UltimateBeneficialOwnerControlType {
 }
 
 input UltimateBeneficialOwnerIdentityDocumentInfoInput {
-  type: UBOIdentityDocumentDetailsInput
+  type: UBOIdentityDocumentType!
   number: String
   expiryDate: Date
 }
@@ -22716,6 +22829,28 @@ enum VerificationRenewalStatus {
   Completed
 }
 
+type VerificationRenewalUltimateBeneficialOwner {
+  birthInfo: BirthInfo
+  qualificationType: UltimateBeneficialOwnerQualificationType
+  firstName: String
+  sex: Sex
+  lastName: String
+  ownership: UltimateBeneficialOwnerOwnership
+  address: AddressInfo
+  taxIdentificationNumber: String
+}
+
+input VerificationRenewalUltimateBeneficialOwnerInput {
+  birthInfo: BirthInfoInput
+  qualificationType: UltimateBeneficialOwnerQualificationType
+  firstName: String
+  sex: Sex
+  lastName: String
+  ownership: UltimateBeneficialOwnerOwnershipInput
+  address: ResidencyAddressInput
+  taxIdentificationNumber: String
+}
+
 type VerificationRenewalUpdateNotAllowedRejection implements Rejection {
   id: ID!
   message: String!
@@ -22862,7 +22997,7 @@ input ViewCardNumbersInput {
   consentRedirectUrl: String!
 }
 
-union ViewCardNumbersPayload = ViewCardNumbersSuccessPayload | UserNotCardHolderRejection | CardNotFoundRejection | ValidationRejection
+union ViewCardNumbersPayload = ViewCardNumbersSuccessPayload | UserNotCardHolderRejection | CardNotFoundRejection | ValidationRejection | ForbiddenRejection
 
 type ViewCardNumbersSuccessPayload {
   """The consent required to view card numbers"""
@@ -22891,7 +23026,7 @@ input ViewPhysicalCardNumbersInput {
   consentRedirectUrl: String!
 }
 
-union ViewPhysicalCardNumbersPayload = ViewPhysicalCardNumbersSuccessPayload | UserNotCardHolderRejection | CardNotFoundRejection | ValidationRejection
+union ViewPhysicalCardNumbersPayload = ViewPhysicalCardNumbersSuccessPayload | UserNotCardHolderRejection | CardNotFoundRejection | ValidationRejection | ForbiddenRejection
 
 type ViewPhysicalCardNumbersSuccessPayload {
   """The consent required to view card numbers"""

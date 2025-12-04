@@ -13,11 +13,14 @@ declare module "tggl-client" {
     carrierNetworkIdentifier: string;
     carriersCountryCode: string;
     countryCode: string;
+    doesUserHaveAProject: boolean;
     email: string;
     environment: "development" | "master" | "preprod" | "prod";
     environmentType: "admin" | "live" | "sandbox";
     iban: string;
     ip?: string;
+    ipAddressCountry: string;
+    ipAndPhoneCountryMismatch: boolean;
     label: string;
     phoneCountryCode: string;
     phoneNumber: string;
@@ -78,15 +81,14 @@ declare module "tggl-client" {
     ciao_es_enabled: boolean;
     cms_call_cema_carte_for_choose_pin: true;
     cms_choose_pin_token_always_valid: true;
-    complete_capital_deposit_case_enabled: boolean;
     create_card_delivery_method_id: boolean;
     create_verification_renewal_cron: boolean;
     createFraudPreventionCampaign: boolean;
     createVerificationRenewalFlowChart: boolean;
     dashboardAccountClosingLink: true;
     dashboardBanner: null | {
-      text: "Recent data leaks at Air France, Bouygues, and Pandora may put your users at risk of scams. Advise them to be cautious with suspicious messages and to never share their login or payment details.";
-      title: "Security alert";
+      text: "Please advise your users to be careful with unsolicited calls, texts or emails and to always protect their login and payment info.";
+      title: "Ongoing phishing risk";
     };
     dashboardInsightsServiceSection: boolean;
     dashboardNotificationSettings: true;
@@ -98,13 +100,14 @@ declare module "tggl-client" {
     dataExportOnboarding: boolean;
     dataExportTransactions: boolean;
     dataExportUser: boolean;
-    dateFromWhichEnforceTaxIdNumberWhenCountriesDontMatchForCRS: "-" | "2025-10-28";
+    dateFromWhichEnforceTaxIdNumberWhenCountriesDontMatchForCRS: "-" | "2025-11-07";
     deferredDebitCard: boolean;
     disable_emails_for_capital_deposit_case: boolean;
     disable_expert_identification_level: true;
     disable_pvid_identification_level: true;
     disable_qes_identification_level: true;
     dont_change_default_expiration_for_suvc_one_off_at_update: boolean;
+    enable_automatic_identity_documents_upload: boolean;
     enable_card_risk_assessment: boolean;
     enable_card_token_proxy: boolean;
     enable_cgw_v2: boolean;
@@ -112,8 +115,8 @@ declare module "tggl-client" {
     enable_document_convertor_from_csv_generation: boolean;
     enable_document_convertor_generation: boolean;
     enable_document_generation_by_document_convertor: boolean;
+    enable_mastercard_presettlement_reconciliation: true;
     enable_new_account_statement_file_name: boolean;
-    enable_new_transaction_statement_file_name: boolean;
     enable_transaction_enrichment_from_origin_transaction: boolean;
     enable_transaction_statements: boolean;
     enableBouyguesFraudPreventionPage: boolean;
@@ -167,7 +170,6 @@ declare module "tggl-client" {
     lockRecomputeEnableB2B: true;
     merchantWebBanking: boolean;
     name_matching_use_valid_names_enabled: boolean;
-    new_reason_codes_capital_deposit_documents: true;
     newGqlGateway: boolean;
     outboundFundsTransferRejectedNotificationEnabledGlobally: boolean;
     outboundFundsTransferSuccessfulNotificationEnabledGlobally: boolean;
@@ -180,6 +182,7 @@ declare module "tggl-client" {
     pexTcuEventKillSwitch: boolean;
     recurring_suvc_fee_enabled: boolean;
     refundFeesActivateFixOnInvertedAccountIds: boolean;
+    reKYCFrontend: boolean;
     resolve_iban_mode: "normal" | "passive" | "view";
     return_ict_in_enabled: boolean;
     return_transaction_mutation_ict_in: boolean;
@@ -191,7 +194,7 @@ declare module "tggl-client" {
       | "marble_only";
     satd_account_matching_check_for_risk_suspicion: boolean;
     satd_account_matching_mode: "AccountContractAndPayment" | "AccountContractOnly" | "PaymentOnly";
-    satd_concurrent_cases_enabled: boolean;
+    scaAnonymizeUserInfo: boolean;
     scaIAMDailyMaximumNumberOfSignInPerIp: 10 | 100 | 1000 | 100000 | 5;
     scaIAMDailyMaximumNumberOfSignInPerPhoneNumber: 10 | 100 | 1000 | 100000;
     scaIsCountrySuspiciousCheckEnabled: boolean;
@@ -210,6 +213,7 @@ declare module "tggl-client" {
     send_activate_physical_card_notification: boolean;
     send_back_new_response_type: boolean;
     sendCreditAndZeroAmountAuthorization: boolean;
+    sendValidationInsteadOfForbiddenRejection: boolean;
     sepaDirectDebitInV2: true;
     SepaDirectDebitV2ActivationFlag: true;
     setIssuingProcessorCardProductOnRenewFeature: boolean;
@@ -227,9 +231,11 @@ declare module "tggl-client" {
     trusted_beneficiary_transfers_consent_free_enabled: boolean;
     twilioRatio: 0 | 0.2 | 0.5 | 0.6 | 0.8 | 0.95 | 1;
     use_account_statement_kms_bucket: boolean;
+    use_card_package_on_card_product_creation: boolean;
     use_mailjet_subaccount_for_mass_emailing: true;
     use_notification_manager: boolean;
     useNotificationStackToSendAccountOpenedEmail: boolean;
+    useNotificationStackToSendFirstTransferRequestEmail: boolean;
     useNotificationStackToSendNewAccountTcuEmail: boolean;
     useNotificationStackToSendNewMembershipEmail: boolean;
     useNotificationStackToSendSupportingDocumentRequestEmail: boolean;

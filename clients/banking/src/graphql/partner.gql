@@ -3549,3 +3549,218 @@ mutation SendAccountMembershipInviteNotification(
     }
   }
 }
+
+fragment SupportingDocumentRenewal on SupportingDocumentCollection {
+  id
+  type
+  supportingDocuments {
+    id
+    statusInfo {
+      status
+      ... on SupportingDocumentRefusedStatusInfo {
+        filename
+        reason
+        reasonCode
+      }
+      ... on SupportingDocumentUploadedStatusInfo {
+        filename
+      }
+    }
+    supportingDocumentPurpose
+  }
+  requiredSupportingDocumentPurposes {
+    name
+    label
+  }
+  statusInfo {
+    __typename
+    status
+  }
+  requiredSupportingDocumentPurposes {
+    name
+    acceptableSupportingDocumentTypes
+    label
+    description
+  }
+  createdAt
+  updatedAt
+}
+
+fragment VerificationRenewalUBO on VerificationRenewalUltimateBeneficialOwner {
+  address {
+    ...AddressInfo
+  }
+  taxIdentificationNumber
+  firstName
+  lastName
+  sex
+  ownership {
+    totalPercentage
+    type
+  }
+  birthInfo {
+    city
+    country
+    birthDate
+    postalCode
+  }
+  qualificationType
+  taxIdentificationNumber
+}
+
+fragment CompanyRenewalInfo on CompanyVerificationRenewalInfo {
+  type
+  additionalDetails
+  company {
+    name
+    residencyAddress {
+      addressLine1
+      addressLine2
+      city
+      postalCode
+      country
+    }
+    businessActivityDescription
+    monthlyPaymentVolume
+    ultimateBeneficialOwners {
+      ...VerificationRenewalUBO
+    }
+  }
+  accountAdmin {
+    firstName
+    lastName
+    birthInfo {
+      city
+      country
+      birthDate
+      postalCode
+    }
+    typeOfRepresentation
+    email
+  }
+}
+
+fragment IndividualRenewalInfo on IndividualVerificationRenewalInfo {
+  type
+  additionalDetails
+  accountAdmin {
+    firstName
+    lastName
+    residencyAddress {
+      addressLine1
+      addressLine2
+      city
+      postalCode
+      state
+      country
+    }
+    employmentStatus
+    monthlyIncome
+  }
+}
+
+query GetVerificationRenewal($id: ID!) {
+  projectInfo {
+    id
+    accentColor
+    name
+    logoUri
+  }
+  verificationRenewal(id: $id) {
+    ... on WaitingForInformationVerificationRenewal {
+      id
+      verificationRequirements
+      supportingDocumentCollection {
+        ...SupportingDocumentRenewal
+      }
+    }
+    __typename
+    id
+    info {
+      ... on CompanyVerificationRenewalInfo {
+        ...CompanyRenewalInfo
+      }
+      ... on IndividualVerificationRenewalInfo {
+        ...IndividualRenewalInfo
+      }
+    }
+  }
+}
+
+mutation UpdateIndividualVerificationRenewal($input: UpdateIndividualVerificationRenewalInput!) {
+  updateIndividualVerificationRenewal(input: $input) {
+    __typename
+    ... on UpdateIndividualVerificationRenewalSuccessPayload {
+      verificationRenewal {
+        __typename
+        id
+        ... on WaitingForInformationVerificationRenewal {
+          verificationRequirements
+          supportingDocumentCollection {
+            ...SupportingDocumentRenewal
+          }
+        }
+        info {
+          ... on CompanyVerificationRenewalInfo {
+            ...CompanyRenewalInfo
+          }
+          ... on IndividualVerificationRenewalInfo {
+            ...IndividualRenewalInfo
+          }
+        }
+      }
+    }
+    ... on ValidationRejection {
+      fields {
+        path
+        message
+      }
+      message
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
+
+mutation UpdateCompanyVerificationRenewal($input: UpdateCompanyVerificationRenewalInput!) {
+  updateCompanyVerificationRenewal(input: $input) {
+    __typename
+    ... on UpdateCompanyVerificationRenewalSuccessPayload {
+      verificationRenewal {
+        __typename
+        id
+        ... on WaitingForInformationVerificationRenewal {
+          verificationRequirements
+          supportingDocumentCollection {
+            ...SupportingDocumentRenewal
+          }
+        }
+        info {
+          ... on CompanyVerificationRenewalInfo {
+            ...CompanyRenewalInfo
+          }
+          ... on IndividualVerificationRenewalInfo {
+            ...IndividualRenewalInfo
+          }
+        }
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
+
+mutation FinalizeVerificationRenewal($input: FinalizeVerificationRenewalInput!) {
+  finalizeVerificationRenewal(input: $input) {
+    ... on FinalizeVerificationRenewalSuccessPayload {
+      verificationRenewal {
+        id
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}

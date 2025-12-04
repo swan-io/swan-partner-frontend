@@ -4422,6 +4422,7 @@ enum BankingFee {
   SddInB2bMerchant
   SddInCoreDispute
   SddInCoreFailure
+  SddInCoreDisputePennylaneAccountingFirm
   SddInB2bDispute
   SddInB2bFailure
   SddInCoreLevel1
@@ -6082,7 +6083,7 @@ type RepaymentSettings {
 """Repayment status"""
 enum RepaymentStatus {
   Failed
-  Succeeded
+  Success
   Confirmed
 }
 
@@ -10658,6 +10659,144 @@ enum CardTransactionCategory {
   eCommerceWith3DS
   Withdrawal
   Other
+}
+
+"""Enum CategoryPurpose - Purpose of the payment transaction"""
+enum CategoryPurpose {
+  """Account Sweep"""
+  AccountSweep
+
+  """Account Top-Up"""
+  AccountTopUp
+
+  """Bonus Payment"""
+  BonusPayment
+
+  """Card Bulk Settlement"""
+  CardBulkSettlement
+
+  """Card Fee Collection"""
+  CardFeeCollection
+
+  """Cash in Transit Payment"""
+  CashInTransitPayment
+
+  """Cash Management"""
+  CashManagement
+
+  """Cash Order Direct Debit"""
+  CashOrderDirectDebit
+
+  """Commercial Reimbursement"""
+  CommercialReimbursement
+
+  """Credit Card Payment"""
+  CreditCardPayment
+
+  """Credit Card Reimbursement"""
+  CreditCardReimbursement
+
+  """Debit Card Payment"""
+  DebitCardPayment
+
+  """Debit Card Reimbursement"""
+  DebitCardReimbursement
+
+  """Deliver Against Payment"""
+  DeliverAgainstPayment
+
+  """Direct Debit Representment"""
+  DirectDebitRepresentment
+
+  """Dividend Payment"""
+  DividendPayment
+
+  """Dodd Frank Cross Border"""
+  DoddFrankCrossBorder
+
+  """E-Payment"""
+  EPayment
+
+  """Fee Interest Payment"""
+  FeeInterestPayment
+
+  """Foreign Currency Domestic"""
+  ForeignCurrencyDomestic
+
+  """General P2P Payment"""
+  GeneralP2PPayment
+
+  """Government Payment"""
+  GovernmentPayment
+
+  """Hedging Payment"""
+  HedgingPayment
+
+  """Interest Payment"""
+  InterestPayment
+
+  """Intra-Company Payment"""
+  IntraCompanyPayment
+
+  """Loan Transfer"""
+  LoanTransfer
+
+  """Lockbox Cash Handling"""
+  LockboxCashHandling
+
+  """Mobile P2B Payment"""
+  MobileP2BPayment
+
+  """Mobile P2P Payment"""
+  MobileP2PPayment
+
+  """Other"""
+  Other
+
+  """Pension Payment"""
+  PensionPayment
+
+  """Receive Against Payment"""
+  ReceiveAgainstPayment
+
+  """Salary Payment"""
+  SalaryPayment
+
+  """Savings Transfer"""
+  SavingsTransfer
+
+  """Securities Payment"""
+  SecuritiesPayment
+
+  """Social Security Benefit"""
+  SocialSecurityBenefit
+
+  """Supplier Payment"""
+  SupplierPayment
+
+  """Tax Payment"""
+  TaxPayment
+
+  """Trade Finance Payment"""
+  TradeFinancePayment
+
+  """Trade Settlement"""
+  TradeSettlement
+
+  """Treasury Payment"""
+  TreasuryPayment
+
+  """VAT Payment"""
+  VATPayment
+
+  """Vostro Payment"""
+  VostroPayment
+
+  """Withholding Tax Payment"""
+  WithholdingTaxPayment
+
+  """Zero Balance Account"""
+  ZeroBalanceAccount
 }
 
 """List of Check return reasons"""

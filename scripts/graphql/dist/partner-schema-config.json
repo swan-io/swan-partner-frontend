@@ -319,6 +319,7 @@
       "PendingTransactionStatusInfo",
       "RejectedTransactionStatusInfo",
       "ReleasedTransactionStatusInfo",
+      "SettledTransactionStatusInfo",
       "UpcomingTransactionStatusInfo"
     ],
     "FundingSourceStatusInfo": [

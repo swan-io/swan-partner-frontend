@@ -13,28 +13,28 @@ const styles = StyleSheet.create({
     ...commonStyles.fill,
     backgroundColor: backgroundColor.default,
   },
-  successContainer: {
+  errorContainer: {
     ...commonStyles.fill,
     alignItems: "center",
     justifyContent: "center",
   },
 });
 
-export const VerificationRenewalFinalize = () => {
+export const VerificationRenewalFinalizeError = () => {
   return (
-    <View style={styles.successContainer}>
-      <BorderedIcon padding={24} name="lake-check" size={100} />
+    <View style={styles.errorContainer}>
+      <BorderedIcon padding={24} name="lake-error" size={100} />
 
       <Space height={32} />
       <LakeHeading variant="h4" level={1}>
-        {t("verificationRenewal.finalize.title")}
+        {t("verificationRenewal.finalize.error.title")}
       </LakeHeading>
 
       <Space height={16} />
-      <LakeText align="center">{t("verificationRenewal.finalize.subtitle")}</LakeText>
+      <LakeText align="center">{t("verificationRenewal.finalize.error.subtitle")}</LakeText>
 
       <Space height={16} />
-      <LakeButton color="partner">{t("verificationRenewal.close")}</LakeButton>
+      <LakeButton color="partner">{t("verificationRenewal.finalize.error.button")}</LakeButton>
     </View>
   );
 };

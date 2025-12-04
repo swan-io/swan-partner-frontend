@@ -7,7 +7,6 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { StyleSheet, View } from "react-native";
-import { match } from "ts-pattern";
 import { t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
 import { RenewalStep } from "./VerificationRenewalCompany";
@@ -92,78 +91,10 @@ const styles = StyleSheet.create({
 
 type Props = {
   verificationRenewalId: string;
-  renewalTypename: "CompanyVerificationRenewalInfo" | "IndividualVerificationRenewalInfo";
   steps: RenewalStep[];
 };
 
-export const VerificationRenewalIntro = ({
-  verificationRenewalId,
-  renewalTypename,
-  steps,
-}: Props) => {
-  // const steps = useMemo(() => {
-  //   const steps: FlowStep[] = [];
-  //   match(renewalTypename)
-  //     .with("IndividualVerificationRenewalInfo", () => {
-  //       verificationRequirements?.forEach(requirement =>
-  //         match(requirement)
-  //           .with("AccountHolderDetailsRequired", () =>
-  //             steps.push({
-  //               label: t("verificationRenewal.intro.individual.step1"),
-  //               icon: "person-regular",
-  //             }),
-  //           )
-  //           .with("SupportingDocumentsRequired", () =>
-  //             steps.push({
-  //               label: t("verificationRenewal.intro.individual.step2"),
-  //               icon: "document-regular",
-  //             }),
-  //           ),
-  //       );
-  //       steps.push({
-  //         label: t("verificationRenewal.intro.company.step5"),
-  //         icon: "checkmark-filled",
-  //       });
-  //     })
-  //     .with("CompanyVerificationRenewalInfo", () => {
-  //       verificationRequirements?.forEach(requirement =>
-  //         match(requirement)
-  //           .with("AccountHolderDetailsRequired", () =>
-  //             steps.push({
-  //               label: t("verificationRenewal.intro.company.step1"),
-  //               icon: "building-multiple-regular",
-  //             }),
-  //           )
-  //           .with("LegalRepresentativeDetailsRequired", () =>
-  //             steps.push({
-  //               label: t("verificationRenewal.intro.company.step2"),
-  //               icon: "person-regular",
-  //             }),
-  //           )
-  //           .with("UboDetailsRequired", () =>
-  //             steps.push({
-  //               label: t("verificationRenewal.intro.company.step3"),
-  //               icon: "people-add-regular",
-  //             }),
-  //           )
-  //           .with("SupportingDocumentsRequired", () =>
-  //             steps.push({
-  //               label: t("verificationRenewal.intro.company.step4"),
-  //               icon: "document-regular",
-  //             }),
-  //           )
-  //           .otherwise(() => null),
-  //       );
-  //       steps.push({
-  //         label: t("verificationRenewal.intro.company.step5"),
-  //         icon: "checkmark-filled",
-  //       });
-  //     })
-  //     .exhaustive();
-
-  //   return steps;
-  // }, [renewalTypename, verificationRequirements]);
-
+export const VerificationRenewalIntro = ({ verificationRenewalId, steps }: Props) => {
   return (
     <ResponsiveContainer style={commonStyles.fill}>
       {({ large }) => (
@@ -196,18 +127,10 @@ export const VerificationRenewalIntro = ({
                   </Box>
                   <VerificationRenewalFooter
                     onNext={() =>
-                      match(renewalTypename)
-                        .with("IndividualVerificationRenewalInfo", () =>
-                          Router.push("VerificationRenewalPersonalInformation", {
-                            verificationRenewalId,
-                          }),
-                        )
-                        .with("CompanyVerificationRenewalInfo", () =>
-                          Router.push("VerificationRenewalAccountHolderInformation", {
-                            verificationRenewalId,
-                          }),
-                        )
-                        .exhaustive()
+                      steps[0] != null &&
+                      Router.push(steps[0].id, {
+                        verificationRenewalId,
+                      })
                     }
                   />
                   <Space height={small ? 16 : 24} />

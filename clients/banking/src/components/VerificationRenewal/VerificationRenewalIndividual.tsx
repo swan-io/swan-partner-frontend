@@ -20,7 +20,7 @@ import { t } from "../../utils/i18n";
 import { Router, VerificationRenewalRoute, verificationRenewalRoutes } from "../../utils/routes";
 import { ErrorView } from "../ErrorView";
 import { VerificationRenewalDocuments } from "./VerificationRenewalDocuments";
-import { VerificationRenewalFinalize } from "./VerificationRenewalFinalize";
+import { VerificationRenewalFinalizeSuccess } from "./VerificationRenewalFinalizeSuccess";
 import { VerificationRenewalIntro } from "./VerificationRenewalIntro";
 import { VerificationRenewalPersonalInfo } from "./VerificationRenewalPersonalInfo";
 
@@ -153,7 +153,7 @@ export const VerificationRenewalIndividual = ({
           ),
         )
         .with({ route: { name: "VerificationRenewalFinalize" } }, () => (
-          <VerificationRenewalFinalize />
+          <VerificationRenewalFinalizeSuccess />
         ))
         .with(P.nullish, () => <NotFoundPage />)
 

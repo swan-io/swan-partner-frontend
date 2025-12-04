@@ -22,8 +22,9 @@ import {
   UpdateCompanyVerificationRenewalDocument,
 } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
-import { Router } from "../../utils/routes";
+import { Router, VerificationRenewalRoute } from "../../utils/routes";
 import { validateNullableRequired, validateRequired } from "../../utils/validations";
+import type { RenewalStep } from "./VerificationRenewalCompany";
 import { EditableField } from "./VerificationRenewalPersonalInfo";
 
 type Form = {
@@ -37,11 +38,15 @@ type Form = {
 type Props = {
   verificationRenewalId: string;
   info: CompanyRenewalInfoFragment;
+  previousStep: RenewalStep | undefined;
+  nextStep: RenewalStep | undefined;
 };
 
 export const VerificationRenewalAdministratorInformation = ({
   info,
   verificationRenewalId,
+  previousStep,
+  nextStep,
 }: Props) => {
   const [updateCompanyVerificationRenewal, updatingCompanyVerificationRenewal] = useMutation(
     UpdateCompanyVerificationRenewalDocument,
@@ -90,7 +95,9 @@ export const VerificationRenewalAdministratorInformation = ({
             .mapOkToResult(data => Option.fromNullable(data).toResult(data))
             .mapOkToResult(filterRejectionsToResult)
             .tapOk(() => {
-              Router.push("VerificationRenewalOwnership", {
+              const nextRoute: VerificationRenewalRoute =
+                nextStep?.id ?? "VerificationRenewalFinalize";
+              Router.push(nextRoute, {
                 verificationRenewalId: verificationRenewalId,
               });
             })
@@ -208,45 +215,23 @@ export const VerificationRenewalAdministratorInformation = ({
                 />
               </Box>
 
-              {/* <EditableField
-                label={t("verificationRenewal.administratorInformation.typeOfRepresentation")}
-                value={savedValues.typeOfRepresentation}
-                validate={validateRequired}
-                onChange={value => setSaveValues({ ...savedValues, typeOfRepresentation: value })}
-                renderEditing={({ value, error, onChange }) => (
-                  <RadioGroup
-                    direction="row"
-                    value={value}
-                    error={error}
-                    items={[
-                      {
-                        name: t("verificationRenewal.typeOfRepresentation.yes"),
-                        value: "LegalRepresentative",
-                      },
-                      {
-                        name: t("verificationRenewal.typeOfRepresentation.no"),
-                        value: "PowerOfAttorney",
-                      },
-                    ]}
-                    onValueChange={onChange}
-                  />
-                )}
-              /> */}
               <Space height={12} />
             </Tile>
 
             <Space height={40} />
             <LakeButtonGroup>
-              <LakeButton
-                mode="secondary"
-                onPress={() =>
-                  Router.push("VerificationRenewalRoot", {
-                    verificationRenewalId: verificationRenewalId,
-                  })
-                }
-              >
-                {t("verificationRenewal.cancel")}
-              </LakeButton>
+              {previousStep != null && (
+                <LakeButton
+                  mode="secondary"
+                  onPress={() =>
+                    Router.push(previousStep.id, {
+                      verificationRenewalId: verificationRenewalId,
+                    })
+                  }
+                >
+                  {t("verificationRenewal.cancel")}
+                </LakeButton>
+              )}
 
               <LakeButton
                 onPress={onPressSubmit}

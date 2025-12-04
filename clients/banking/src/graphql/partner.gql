@@ -3692,7 +3692,22 @@ mutation UpdateIndividualVerificationRenewal($input: UpdateIndividualVerificatio
     __typename
     ... on UpdateIndividualVerificationRenewalSuccessPayload {
       verificationRenewal {
+        __typename
         id
+        ... on WaitingForInformationVerificationRenewal {
+          verificationRequirements
+          supportingDocumentCollection {
+            ...SupportingDocumentRenewal
+          }
+        }
+        info {
+          ... on CompanyVerificationRenewalInfo {
+            ...CompanyRenewalInfo
+          }
+          ... on IndividualVerificationRenewalInfo {
+            ...IndividualRenewalInfo
+          }
+        }
       }
     }
     ... on Rejection {
@@ -3706,7 +3721,22 @@ mutation UpdateCompanyVerificationRenewal($input: UpdateCompanyVerificationRenew
     __typename
     ... on UpdateCompanyVerificationRenewalSuccessPayload {
       verificationRenewal {
+        __typename
         id
+        ... on WaitingForInformationVerificationRenewal {
+          verificationRequirements
+          supportingDocumentCollection {
+            ...SupportingDocumentRenewal
+          }
+        }
+        info {
+          ... on CompanyVerificationRenewalInfo {
+            ...CompanyRenewalInfo
+          }
+          ... on IndividualVerificationRenewalInfo {
+            ...IndividualRenewalInfo
+          }
+        }
       }
     }
     ... on Rejection {

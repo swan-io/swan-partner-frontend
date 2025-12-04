@@ -21,8 +21,9 @@ import {
   UpdateCompanyVerificationRenewalDocument,
 } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
-import { Router } from "../../utils/routes";
+import { Router, VerificationRenewalRoute } from "../../utils/routes";
 import { validateRequired } from "../../utils/validations";
+import type { RenewalStep } from "./VerificationRenewalCompany";
 import { EditableField } from "./VerificationRenewalPersonalInfo";
 
 const translateMonthlyPaymentVolume = (monthlyPaymentVolume: MonthlyPaymentVolume) =>
@@ -57,11 +58,13 @@ type Form = {
 type Props = {
   verificationRenewalId: string;
   info: CompanyRenewalInfoFragment;
+  nextStep: RenewalStep | undefined;
 };
 
 export const VerificationRenewalAccountHolderInformation = ({
   verificationRenewalId,
   info,
+  nextStep,
 }: Props) => {
   const [updateCompanyVerificationRenewal, updatingCompanyVerificationRenewal] = useMutation(
     UpdateCompanyVerificationRenewalDocument,
@@ -108,7 +111,8 @@ export const VerificationRenewalAccountHolderInformation = ({
       .mapOkToResult(data => Option.fromNullable(data).toResult(data))
       .mapOkToResult(filterRejectionsToResult)
       .tapOk(() => {
-        Router.push("VerificationRenewalAdministratorInformation", {
+        const nextRoute: VerificationRenewalRoute = nextStep?.id ?? "VerificationRenewalFinalize";
+        Router.push(nextRoute, {
           verificationRenewalId: verificationRenewalId,
         });
       })

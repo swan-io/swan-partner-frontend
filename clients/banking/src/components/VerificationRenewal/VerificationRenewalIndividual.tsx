@@ -7,20 +7,25 @@ import {
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
-import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
+import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import {
   IndividualRenewalInfoFragment,
   SupportingDocumentRenewalFragment,
+  VerificationRenewalRequirement,
 } from "../../graphql/partner";
 import { NotFoundPage } from "../../pages/NotFoundPage";
 import { t } from "../../utils/i18n";
 import { Router, VerificationRenewalRoute, verificationRenewalRoutes } from "../../utils/routes";
 import { ErrorView } from "../ErrorView";
+import { RenewalStep } from "./VerificationRenewalCompany";
 import { VerificationRenewalDocuments } from "./VerificationRenewalDocuments";
-import { VerificationRenewalFinalizeSuccess } from "./VerificationRenewalFinalizeSuccess";
+import {
+  VerificationRenewalFinalize,
+  VerificationRenewalFinalizeSuccess,
+} from "./VerificationRenewalFinalize";
 import { VerificationRenewalIntro } from "./VerificationRenewalIntro";
 import { VerificationRenewalPersonalInfo } from "./VerificationRenewalPersonalInfo";
 
@@ -39,15 +44,71 @@ const styles = StyleSheet.create({
   },
 });
 
+const getRenewalSteps = (requirements: VerificationRenewalRequirement[] | null): RenewalStep[] => {
+  const steps: RenewalStep[] = [];
+
+  requirements?.forEach(requirement =>
+    match(requirement)
+      .with("AccountHolderDetailsRequired", () =>
+        steps.push({
+          id: "VerificationRenewalPersonalInformation",
+          label: t("verificationRenewal.step.personalInfo"),
+          icon: "person-regular",
+        }),
+      )
+      .with("SupportingDocumentsRequired", () =>
+        steps.push({
+          id: "VerificationRenewalDocuments",
+          label: t("verificationRenewal.step.documents"),
+          icon: "document-regular",
+        }),
+      )
+      .otherwise(() => null),
+  );
+
+  steps.push({
+    id: "VerificationRenewalFinalize",
+    label: t("verificationRenewal.step.finalize"),
+    icon: "checkmark-filled",
+  });
+
+  return steps;
+};
+
+const getCurrentStep = (
+  routeName: VerificationRenewalRoute | undefined,
+  steps: RenewalStep[],
+): RenewalStep | undefined => {
+  return steps.find(step => step.id === routeName);
+};
+
+const getPreviousStep = (currentStep: RenewalStep, steps: RenewalStep[]) => {
+  const index = steps.indexOf(currentStep);
+  if (index === -1 || index === 0) {
+    return undefined;
+  }
+  return steps[index - 1];
+};
+
+const getNextStep = (currentStep: RenewalStep, steps: RenewalStep[]) => {
+  const index = steps.indexOf(currentStep);
+  if (index === -1) {
+    return undefined;
+  }
+  return steps[index + 1];
+};
+
 type Props = {
   verificationRenewalId: string;
   info: IndividualRenewalInfoFragment;
+  verificationRequirements: VerificationRenewalRequirement[] | null;
   supportingDocumentCollection: SupportingDocumentRenewalFragment | null;
 };
 
 export const VerificationRenewalIndividual = ({
   verificationRenewalId,
   info,
+  verificationRequirements,
   supportingDocumentCollection,
 }: Props) => {
   const route = Router.useRoute(verificationRenewalRoutes);
@@ -57,29 +118,10 @@ export const VerificationRenewalIndividual = ({
     route.name !== "VerificationRenewalRoot" &&
     route.name !== "VerificationRenewalFinalize";
 
-  const steps = useMemo<WizardStep<VerificationRenewalRoute>[]>(() => {
-    const steps: WizardStep<VerificationRenewalRoute>[] = [];
-    steps.push({
-      id: "VerificationRenewalPersonalInformation",
-      label: t("verificationRenewal.step.personalInfo"),
-      errors: [],
-    });
-
-    if (isNotNullish(supportingDocumentCollection)) {
-      steps.push({
-        id: "VerificationRenewalDocuments",
-        label: t("verificationRenewal.step.documents"),
-        errors: [],
-      });
-    }
-    steps.push({
-      id: "VerificationRenewalFinalize",
-      label: t("verificationRenewal.step.finalize"),
-      errors: [],
-    });
-
-    return steps;
-  }, [supportingDocumentCollection]);
+  const steps = useMemo(
+    () => getRenewalSteps(verificationRequirements),
+    [verificationRequirements],
+  );
 
   const stepperSteps = useMemo<TopLevelStep[]>(
     () =>
@@ -88,11 +130,16 @@ export const VerificationRenewalIndividual = ({
           id: step.id,
           label: step.label,
           url: Router[step.id]({ verificationRenewalId }),
-          hasErrors: step.errors.length > 0,
         };
       }),
     [steps, verificationRenewalId],
   );
+
+  const currentStep = getCurrentStep(route?.name, steps);
+  const previousStep = currentStep != null ? getPreviousStep(currentStep, steps) : undefined;
+  const nextStep = currentStep != null ? getNextStep(currentStep, steps) : undefined;
+
+  const isFinalized = steps.length === 0 || steps.length === 1;
 
   // biome-ignore lint/correctness/useExhaustiveDependencies(route?.name):
   useEffect(() => {
@@ -100,10 +147,6 @@ export const VerificationRenewalIndividual = ({
   }, [route?.name]);
 
   return (
-    // <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fill}>
-    //   {({ small }) => (
-    //     <>
-    //       {
     <Box grow={1}>
       <Box style={styles.sticky}>
         {isStepperDisplayed ? (
@@ -127,17 +170,17 @@ export const VerificationRenewalIndividual = ({
 
       <Space height={40} />
 
-      {match({ route, supportingDocumentCollection })
+      {match({ route, isFinalized, supportingDocumentCollection })
+        .with({ isFinalized: true }, () => <VerificationRenewalFinalizeSuccess />)
         .with({ route: { name: "VerificationRenewalRoot" } }, () => (
-          <VerificationRenewalIntro
-            verificationRenewalId={verificationRenewalId}
-            renewalTypename={info.__typename}
-          />
+          <VerificationRenewalIntro verificationRenewalId={verificationRenewalId} steps={steps} />
         ))
         .with({ route: { name: "VerificationRenewalPersonalInformation" } }, () => (
           <VerificationRenewalPersonalInfo
             info={info}
             verificationRenewalId={verificationRenewalId}
+            previousStep={previousStep}
+            nextStep={nextStep}
           />
         ))
         .with(
@@ -153,7 +196,7 @@ export const VerificationRenewalIndividual = ({
           ),
         )
         .with({ route: { name: "VerificationRenewalFinalize" } }, () => (
-          <VerificationRenewalFinalizeSuccess />
+          <VerificationRenewalFinalize verificationRenewalId={verificationRenewalId} />
         ))
         .with(P.nullish, () => <NotFoundPage />)
 
@@ -161,10 +204,5 @@ export const VerificationRenewalIndividual = ({
           <ErrorView />
         ))}
     </Box>
-    //       }
-    //     </>
-
-    //   )}
-    // </ResponsiveContainer>
   );
 };

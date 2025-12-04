@@ -4,6 +4,7 @@ import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeBu
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { SupportingDocumentCollection } from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
@@ -125,12 +126,18 @@ export const VerificationRenewalDocuments = ({
             <Space height={4} />
             <LakeText>{t("verificationRenewal.documents.subtitle")}</LakeText>
             <Space height={40} />
-            <SupportingDocumentCollection
-              generateUpload={generateUpload}
-              requiredDocumentPurposes={requiredDocumentsPurposes}
-              status={supportingDocumentCollection.statusInfo.status}
-              documents={docs}
-            />
+            {requiredDocumentsPurposes.length === 0 ? (
+              <Tile>
+                <LakeText>{t("verificationRenewal.documents.noDocuments")}</LakeText>
+              </Tile>
+            ) : (
+              <SupportingDocumentCollection
+                generateUpload={generateUpload}
+                requiredDocumentPurposes={requiredDocumentsPurposes}
+                status={supportingDocumentCollection.statusInfo.status}
+                documents={docs}
+              />
+            )}
 
             <Space height={40} />
 

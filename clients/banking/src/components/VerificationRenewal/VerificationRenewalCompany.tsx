@@ -24,7 +24,10 @@ import { ErrorView } from "../ErrorView";
 import { VerificationRenewalAccountHolderInformation } from "./VerificationRenewalAccountHolderInformation";
 import { VerificationRenewalAdministratorInformation } from "./VerificationRenewalAdministratorInformation";
 import { VerificationRenewalDocuments } from "./VerificationRenewalDocuments";
-import { VerificationRenewalFinalizeSuccess } from "./VerificationRenewalFinalizeSuccess";
+import {
+  VerificationRenewalFinalize,
+  VerificationRenewalFinalizeSuccess,
+} from "./VerificationRenewalFinalize";
 import { VerificationRenewalIntro } from "./VerificationRenewalIntro";
 import { VerificationRenewalOwnership } from "./VerificationRenewalOwnership";
 
@@ -58,7 +61,7 @@ const getRenewalSteps = (requirements: VerificationRenewalRequirement[] | null):
         steps.push({
           id: "VerificationRenewalAccountHolderInformation",
           label: t("verificationRenewal.step.accountHolderInfo"),
-          icon: "person-regular",
+          icon: "building-regular",
         }),
       )
       .with("LegalRepresentativeDetailsRequired", () =>
@@ -68,13 +71,14 @@ const getRenewalSteps = (requirements: VerificationRenewalRequirement[] | null):
           icon: "person-regular",
         }),
       )
-      .with("UboDetailsRequired", () =>
-        steps.push({
-          id: "VerificationRenewalOwnership",
-          label: t("verificationRenewal.step.ownership"),
-          icon: "people-add-regular",
-        }),
-      )
+      // TODO put it back once UBO step development is done
+      // .with("UboDetailsRequired", () =>
+      //   steps.push({
+      //     id: "VerificationRenewalOwnership",
+      //     label: t("verificationRenewal.step.ownership"),
+      //     icon: "people-add-regular",
+      //   }),
+      // )
       .with("SupportingDocumentsRequired", () =>
         steps.push({
           id: "VerificationRenewalDocuments",
@@ -91,17 +95,6 @@ const getRenewalSteps = (requirements: VerificationRenewalRequirement[] | null):
   });
 
   return steps;
-};
-
-const getCompletedSteps = (
-  routeName: VerificationRenewalRoute,
-  steps: RenewalStep[],
-): RenewalStep[] => {
-  const currentStepIndex = steps.findIndex(step => step.id === routeName);
-  if (currentStepIndex < 0) {
-    return [];
-  }
-  return steps.slice(0, currentStepIndex);
 };
 
 const getCurrentStep = (
@@ -158,7 +151,6 @@ export const VerificationRenewalCompany = ({
           id: step.id,
           label: step.label,
           url: Router[step.id]({ verificationRenewalId }),
-          // hasErrors: step.errors.length > 0,
         };
       }),
     [steps, verificationRenewalId],
@@ -167,6 +159,8 @@ export const VerificationRenewalCompany = ({
   const currentStep = getCurrentStep(route?.name, steps);
   const previousStep = currentStep != null ? getPreviousStep(currentStep, steps) : undefined;
   const nextStep = currentStep != null ? getNextStep(currentStep, steps) : undefined;
+
+  const isFinalized = steps.length === 0 || steps.length === 1;
 
   // biome-ignore lint/correctness/useExhaustiveDependencies(route?.name):
   useEffect(() => {
@@ -197,7 +191,8 @@ export const VerificationRenewalCompany = ({
 
       <Space height={40} />
 
-      {match({ route, supportingDocumentCollection })
+      {match({ route, isFinalized, supportingDocumentCollection })
+        .with({ isFinalized: true }, () => <VerificationRenewalFinalizeSuccess />)
         .with({ route: { name: "VerificationRenewalRoot" } }, () => (
           <VerificationRenewalIntro verificationRenewalId={verificationRenewalId} steps={steps} />
         ))
@@ -232,7 +227,7 @@ export const VerificationRenewalCompany = ({
           ),
         )
         .with({ route: { name: "VerificationRenewalFinalize" } }, () => (
-          <VerificationRenewalFinalizeSuccess />
+          <VerificationRenewalFinalize verificationRenewalId={verificationRenewalId} />
         ))
         .with(P.nullish, () => <NotFoundPage />)
 

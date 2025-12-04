@@ -3710,6 +3710,13 @@ mutation UpdateIndividualVerificationRenewal($input: UpdateIndividualVerificatio
         }
       }
     }
+    ... on ValidationRejection {
+      fields {
+        path
+        message
+      }
+      message
+    }
     ... on Rejection {
       message
     }
@@ -3737,6 +3744,19 @@ mutation UpdateCompanyVerificationRenewal($input: UpdateCompanyVerificationRenew
             ...IndividualRenewalInfo
           }
         }
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
+
+mutation FinalizeVerificationRenewal($input: FinalizeVerificationRenewalInput!) {
+  finalizeVerificationRenewal(input: $input) {
+    ... on FinalizeVerificationRenewalSuccessPayload {
+      verificationRenewal {
+        id
       }
     }
     ... on Rejection {

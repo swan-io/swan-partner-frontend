@@ -27,8 +27,9 @@ import {
   UpdateIndividualVerificationRenewalDocument,
 } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
-import { Router } from "../../utils/routes";
+import { Router, VerificationRenewalRoute } from "../../utils/routes";
 import { validateRequired } from "../../utils/validations";
+import { RenewalStep } from "./VerificationRenewalCompany";
 
 type Form = {
   firstName: string;
@@ -37,6 +38,7 @@ type Form = {
   addressLine2: string;
   postalCode: string;
   city: string;
+  country: string;
   monthlyIncome: MonthlyIncome;
   employmentStatus: EmploymentStatus;
 };
@@ -44,6 +46,8 @@ type Form = {
 type Props = {
   verificationRenewalId: string;
   info: IndividualRenewalInfoFragment;
+  previousStep: RenewalStep | undefined;
+  nextStep: RenewalStep | undefined;
 };
 
 type EditableFieldProps<T> = {
@@ -193,7 +197,12 @@ const employmentStatusItems = deriveUnion<EmploymentStatus>({
   Unemployed: true,
 }).array.map(value => ({ name: translateEmploymentStatus(value), value }));
 
-export const VerificationRenewalPersonalInfo = ({ verificationRenewalId, info }: Props) => {
+export const VerificationRenewalPersonalInfo = ({
+  verificationRenewalId,
+  info,
+  previousStep,
+  nextStep,
+}: Props) => {
   const [updateIndividualVerificationRenewal, updatingIndividualVerificationRenewal] = useMutation(
     UpdateIndividualVerificationRenewalDocument,
   );
@@ -205,6 +214,7 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewalId, info }:
     addressLine2: info.accountAdmin.residencyAddress.addressLine2 ?? "",
     postalCode: info.accountAdmin.residencyAddress.postalCode ?? "",
     city: info.accountAdmin.residencyAddress.city ?? "",
+    country: info.accountAdmin.residencyAddress.country ?? "",
     monthlyIncome: info.accountAdmin.monthlyIncome ?? "",
     employmentStatus: info.accountAdmin.employmentStatus,
   });
@@ -219,6 +229,7 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewalId, info }:
       monthlyIncome,
       employmentStatus,
       postalCode,
+      country,
     } = savedValues;
 
     return match(info)
@@ -235,6 +246,7 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewalId, info }:
                 addressLine2,
                 postalCode,
                 city,
+                country,
               },
               monthlyIncome,
             },
@@ -244,7 +256,9 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewalId, info }:
           .mapOkToResult(data => Option.fromNullable(data).toResult(data))
           .mapOkToResult(filterRejectionsToResult)
           .tapOk(() => {
-            Router.push("VerificationRenewalDocuments", {
+            const nextRoute: VerificationRenewalRoute =
+              nextStep?.id ?? "VerificationRenewalFinalize";
+            Router.push(nextRoute, {
               verificationRenewalId: verificationRenewalId,
             });
           })
@@ -369,6 +383,22 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewalId, info }:
 
               <Space height={12} />
               <EditableField
+                label={t("verificationRenewal.country")}
+                value={savedValues.country}
+                validate={validateRequired}
+                onChange={value => setSaveValues({ ...savedValues, city: value })}
+                renderEditing={({ value, error, onChange, onBlur }) => (
+                  <LakeTextInput
+                    value={value}
+                    error={error}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                  />
+                )}
+              />
+
+              <Space height={12} />
+              <EditableField
                 label={t("verificationRenewal.personalInformation.monthlyIncome")}
                 value={savedValues.monthlyIncome}
                 formatValue={translateMonthlyIncome}
@@ -397,16 +427,18 @@ export const VerificationRenewalPersonalInfo = ({ verificationRenewalId, info }:
 
             <Space height={40} />
             <LakeButtonGroup>
-              <LakeButton
-                mode="secondary"
-                onPress={() =>
-                  Router.push("VerificationRenewalRoot", {
-                    verificationRenewalId: verificationRenewalId,
-                  })
-                }
-              >
-                {t("verificationRenewal.cancel")}
-              </LakeButton>
+              {previousStep != null && (
+                <LakeButton
+                  mode="secondary"
+                  onPress={() =>
+                    Router.push(previousStep.id, {
+                      verificationRenewalId: verificationRenewalId,
+                    })
+                  }
+                >
+                  {t("verificationRenewal.cancel")}
+                </LakeButton>
+              )}
 
               <LakeButton
                 onPress={onPressSubmit}

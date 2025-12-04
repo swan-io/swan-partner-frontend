@@ -3586,6 +3586,28 @@ fragment SupportingDocumentRenewal on SupportingDocumentCollection {
   updatedAt
 }
 
+fragment VerificationRenewalUBO on VerificationRenewalUltimateBeneficialOwner {
+  address {
+    ...AddressInfo
+  }
+  taxIdentificationNumber
+  firstName
+  lastName
+  sex
+  ownership {
+    totalPercentage
+    type
+  }
+  birthInfo {
+    city
+    country
+    birthDate
+    postalCode
+  }
+  qualificationType
+  taxIdentificationNumber
+}
+
 fragment CompanyRenewalInfo on CompanyVerificationRenewalInfo {
   type
   additionalDetails
@@ -3601,15 +3623,7 @@ fragment CompanyRenewalInfo on CompanyVerificationRenewalInfo {
     businessActivityDescription
     monthlyPaymentVolume
     ultimateBeneficialOwners {
-      firstName
-      lastName
-      birthInfo {
-        city
-        country
-        birthDate
-        postalCode
-      }
-      taxIdentificationNumber
+      ...VerificationRenewalUBO
     }
   }
   accountAdmin {

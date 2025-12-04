@@ -27,6 +27,7 @@ import { VerificationRenewalAdministratorInformation } from "./VerificationRenew
 import { VerificationRenewalDocuments } from "./VerificationRenewalDocuments";
 import { VerificationRenewalFinalize } from "./VerificationRenewalFinalize";
 import { VerificationRenewalIntro } from "./VerificationRenewalIntro";
+import { VerificationRenewalOwnership } from "./VerificationRenewalOwnership";
 
 export type RenewalStep = {
   id: VerificationRenewalRoute;
@@ -271,7 +272,7 @@ export const VerificationRenewalCompany = ({
           />
         ))
         .with({ route: { name: "VerificationRenewalOwnership" } }, () => (
-          <p>VerificationRenewalOwnership</p>
+          <VerificationRenewalOwnership info={info} verificationRenewalId={verificationRenewalId} />
         ))
         .with(
           {

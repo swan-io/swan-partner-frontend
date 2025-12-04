@@ -17,6 +17,7 @@ import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useForm, Validator } from "@swan-io/use-form";
 import { ReactElement, useCallback, useState } from "react";
+import { StyleSheet } from "react-native";
 import { match } from "ts-pattern";
 import { OnboardingStepContent } from "../../../../onboarding/src/components/OnboardingStepContent";
 import { StepTitle } from "../../../../onboarding/src/components/StepTitle";
@@ -30,6 +31,10 @@ import { t } from "../../utils/i18n";
 import { Router, VerificationRenewalRoute } from "../../utils/routes";
 import { validateRequired } from "../../utils/validations";
 import { RenewalStep } from "./VerificationRenewalCompany";
+
+const styles = StyleSheet.create({
+  label: { flexGrow: 1, paddingBottom: 0 },
+});
 
 type Form = {
   firstName: string;
@@ -110,7 +115,7 @@ export const EditableField = <T extends string>({
             </LakeText>
           )
         }
-        style={{ flexGrow: 1, paddingBottom: 0 }}
+        style={styles.label}
       />
       <Space width={8} />
 
@@ -277,12 +282,6 @@ export const VerificationRenewalPersonalInfo = ({
             <StepTitle isMobile={small}>
               {t("verificationRenewal.personalInformation.title")}
             </StepTitle>
-            <Space height={4} />
-            <LakeText>
-              {t("verificationRenewal.personalInformation.subtitle", {
-                companyName: "TODO",
-              })}
-            </LakeText>
             <Space height={40} />
 
             <Tile>

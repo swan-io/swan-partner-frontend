@@ -1719,7 +1719,6 @@
   "verificationRenewal.confirm": "Confirm",
   "verificationRenewal.cancel": "Cancel",
   "verificationRenewal.close": "Close",
-  "verificationRenewal.personalInformation.subtitle": "Add any person holding at least 25% of {companyName} (directly or indirectly). Depending on your country this could be called, x, y, z.",
   "verificationRenewal.personalInformation.title": "Who has ownership your organization?",
   "verificationRenewal.accountHolderInformation.title": "Account holder information",
   "verificationRenewal.firstName": "First name",

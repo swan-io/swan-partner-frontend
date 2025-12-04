@@ -34,8 +34,6 @@ export const VerificationRenewalDocuments = ({
   verificationRenewalId,
   supportingDocumentCollection,
 }: Props) => {
-  console.log(supportingDocumentCollection);
-
   const requiredDocumentsPurposes =
     supportingDocumentCollection.requiredSupportingDocumentPurposes.map(purpose => purpose.name) ??
     [];

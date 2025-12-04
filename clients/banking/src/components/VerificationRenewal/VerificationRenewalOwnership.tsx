@@ -126,7 +126,7 @@ export const VerificationRenewalOwnership = ({ info, verificationRenewalId }: Pr
 
             <Space height={40} />
 
-            <LakeText>TOTO</LakeText>
+            <LakeText>Verification Renewal Ownership Step</LakeText>
 
             <Space height={40} />
             <LakeButtonGroup>

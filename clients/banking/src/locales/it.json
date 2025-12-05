@@ -122,6 +122,7 @@
   "accountDetails.creditLimit.edit.title": "Aggiorna le tue informazioni di rimborso",
   "accountDetails.creditLimit.firstRepaymentScheduled": "Il tuo primo rimborso è programmato per il {date}.",
   "accountDetails.creditLimit.firstRepaymentScheduledAt": "Il tuo primo pagamento è previsto per il {date}.",
+  "accountDetails.creditLimit.infoUpdatePendingReview": "L'aggiornamento delle informazioni sul rimborso è in attesa di revisione",
   "accountDetails.creditLimit.intro.description": "Ottieni subito credito dopo l'approvazione. Questo fornisce alla tua azienda un aiuto finanziario flessibile e facile da ripagare per la crescita.",
   "accountDetails.creditLimit.intro.learn.description": "Scopri di più su come funzionano le carte di addebito differito Swan nel Centro di supporto.",
   "accountDetails.creditLimit.intro.learn.title": "Scopri le carte di addebito differito",

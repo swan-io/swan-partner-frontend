@@ -122,6 +122,7 @@
   "accountDetails.creditLimit.edit.title": "Mettre à jour vos informations de remboursement",
   "accountDetails.creditLimit.firstRepaymentScheduled": "Votre premier remboursement est prévu pour le {date}.",
   "accountDetails.creditLimit.firstRepaymentScheduledAt": "Votre premier remboursement est prévu pour le {date}.",
+  "accountDetails.creditLimit.infoUpdatePendingReview": "La mise à jour des informations de remboursement est en attente de révision",
   "accountDetails.creditLimit.intro.description": "Obtenez un crédit immédiatement après approbation. Cela fournit à votre entreprise une aide financière flexible et facile à rembourser pour la croissance.",
   "accountDetails.creditLimit.intro.learn.description": "En savoir plus sur le fonctionnement des cartes de débit différé Swan dans le Centre d'assistance.",
   "accountDetails.creditLimit.intro.learn.title": "Découvrez les cartes de débit différé",

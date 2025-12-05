@@ -122,6 +122,7 @@
   "accountDetails.creditLimit.edit.title": "Aktualisieren Sie Ihre Rückzahlungsinformationen",
   "accountDetails.creditLimit.firstRepaymentScheduled": "Ihre erste Rückzahlung ist für den {date} geplant.",
   "accountDetails.creditLimit.firstRepaymentScheduledAt": "Ihre erste Rückzahlung ist für {date} geplant.",
+  "accountDetails.creditLimit.infoUpdatePendingReview": "Rückzahlungsinformationen werden überprüft",
   "accountDetails.creditLimit.intro.description": "Erhalten Sie sofort Kredit, nachdem Sie genehmigt wurden. Dies bietet Ihrem Unternehmen einfach zurückzuzahlende, flexible finanzielle Unterstützung für das Wachstum.",
   "accountDetails.creditLimit.intro.learn.description": "Erfahren Sie mehr darüber, wie Swan gestundete Debitkarten im Support Center funktionieren.",
   "accountDetails.creditLimit.intro.learn.title": "Erfahren Sie mehr über gestundete Debitkarten",

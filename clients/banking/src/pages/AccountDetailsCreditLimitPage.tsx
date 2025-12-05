@@ -53,7 +53,7 @@ import {
   RepaymentCycleLengthInput,
   RequestCreditLimitSettingsDocument,
 } from "../graphql/partner";
-import { getPendingCreditLimitAmount } from "../utils/creditLimit";
+import { getPendingCreditLimitAmount, hasPendingCreditLimitRequest } from "../utils/creditLimit";
 import { formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { validateNumeric, validateRequired } from "../utils/validations";
@@ -277,80 +277,89 @@ export const AccountDetailsCreditLimitPage = ({
                     </Box>
                   );
                 })
-                .with("Activated", () => (
-                  <>
-                    <CreditLimitInfo
-                      accountId={accountId}
-                      isLegalRepresentative={isLegalRepresentative}
-                      accountMembershipId={accountMembershipId}
-                      creditLimitSettings={creditLimitSettings}
-                      pastRepayments={pastRepayments}
-                      largeBreakpoint={largeBreakpoint}
-                    />
+                .with("Activated", () => {
+                  const hasPendingRequest = hasPendingCreditLimitRequest(
+                    creditLimitSettings.creditLimitSettingsRequests.edges.map(edge => edge.node),
+                  );
 
-                    <LakeModal
-                      visible={route?.name === "AccountDetailsCreditLimitEdit"}
-                      icon="edit-regular"
-                      color="partner"
-                      title={t("accountDetails.creditLimit.edit.title")}
-                    >
-                      <EditCreditLimitForm
-                        accountId={account.id}
-                        accountIban={account.IBAN ?? ""}
-                        accountHolder={account.holder}
+                  return (
+                    <>
+                      <CreditLimitInfo
+                        accountId={accountId}
+                        isLegalRepresentative={isLegalRepresentative}
                         accountMembershipId={accountMembershipId}
                         creditLimitSettings={creditLimitSettings}
+                        pastRepayments={pastRepayments}
+                        hasPendingRequest={hasPendingRequest}
                         largeBreakpoint={largeBreakpoint}
-                        onClose={() =>
+                      />
+
+                      <LakeModal
+                        visible={route?.name === "AccountDetailsCreditLimitEdit"}
+                        maxWidth={700}
+                        icon="edit-regular"
+                        color="partner"
+                        title={t("accountDetails.creditLimit.edit.title")}
+                      >
+                        <EditCreditLimitForm
+                          accountId={account.id}
+                          accountIban={account.IBAN ?? ""}
+                          accountHolder={account.holder}
+                          accountMembershipId={accountMembershipId}
+                          creditLimitSettings={creditLimitSettings}
+                          hasPendingRequest={hasPendingRequest}
+                          largeBreakpoint={largeBreakpoint}
+                          onClose={() =>
+                            Router.push("AccountDetailsCreditLimitRoot", { accountMembershipId })
+                          }
+                        />
+                      </LakeModal>
+
+                      <LakeModal
+                        visible={route?.name === "AccountDetailsCreditLimitStatements"}
+                        maxWidth={breakpoints.medium}
+                        icon="arrow-download-filled"
+                        color="partner"
+                        title={t("accountDetails.creditLimit.statements.title")}
+                        onPressClose={() =>
                           Router.push("AccountDetailsCreditLimitRoot", { accountMembershipId })
                         }
-                      />
-                    </LakeModal>
-
-                    <LakeModal
-                      visible={route?.name === "AccountDetailsCreditLimitStatements"}
-                      maxWidth={breakpoints.medium}
-                      icon="arrow-download-filled"
-                      color="partner"
-                      title={t("accountDetails.creditLimit.statements.title")}
-                      onPressClose={() =>
-                        Router.push("AccountDetailsCreditLimitRoot", { accountMembershipId })
-                      }
-                    >
-                      {({ large }) => (
-                        <View style={large ? styles.statementsLarge : styles.statements}>
-                          <PlainListView
-                            withoutScroll={true}
-                            data={pastRepayments}
-                            extraInfo={{ accountId }}
-                            breakpoint={breakpoints.small}
-                            columns={modalColumns}
-                            keyExtractor={keyExtractor}
-                            headerHeight={48}
-                            groupHeaderHeight={48}
-                            rowHeight={56}
-                            headerStyle={styles.statementRow}
-                            rowStyle={() => styles.statementRow}
-                            renderEmptyList={() => (
-                              <EmptyView
-                                icon="arrow-swap-regular"
-                                title={
-                                  creditLimitSettings.currentCycle?.endDate != null
-                                    ? t("accountDetails.creditLimit.firstRepaymentScheduledAt", {
-                                        date: dayjs(
-                                          creditLimitSettings.currentCycle.endDate,
-                                        ).format("LL"),
-                                      })
-                                    : t("accountDetails.creditLimit.noRepaymentYet")
-                                }
-                              />
-                            )}
-                          />
-                        </View>
-                      )}
-                    </LakeModal>
-                  </>
-                ))
+                      >
+                        {({ large }) => (
+                          <View style={large ? styles.statementsLarge : styles.statements}>
+                            <PlainListView
+                              withoutScroll={true}
+                              data={pastRepayments}
+                              extraInfo={{ accountId }}
+                              breakpoint={breakpoints.small}
+                              columns={modalColumns}
+                              keyExtractor={keyExtractor}
+                              headerHeight={48}
+                              groupHeaderHeight={48}
+                              rowHeight={56}
+                              headerStyle={styles.statementRow}
+                              rowStyle={() => styles.statementRow}
+                              renderEmptyList={() => (
+                                <EmptyView
+                                  icon="arrow-swap-regular"
+                                  title={
+                                    creditLimitSettings.currentCycle?.endDate != null
+                                      ? t("accountDetails.creditLimit.firstRepaymentScheduledAt", {
+                                          date: dayjs(
+                                            creditLimitSettings.currentCycle.endDate,
+                                          ).format("LL"),
+                                        })
+                                      : t("accountDetails.creditLimit.noRepaymentYet")
+                                  }
+                                />
+                              )}
+                            />
+                          </View>
+                        )}
+                      </LakeModal>
+                    </>
+                  );
+                })
                 .exhaustive();
             },
             Error: error => <ErrorView error={error} />,
@@ -368,6 +377,7 @@ type CreditLimitInfoProps = {
     NonNullable<CreditLimitPageQuery["account"]>["creditLimitSettings"]
   >;
   pastRepayments: Edge[];
+  hasPendingRequest: boolean;
   largeBreakpoint: boolean;
 };
 
@@ -377,12 +387,15 @@ const CreditLimitInfo = ({
   accountMembershipId,
   creditLimitSettings,
   pastRepayments,
+  hasPendingRequest,
   largeBreakpoint,
 }: CreditLimitInfoProps) => {
-  const creditLimitAmount = creditLimitSettings.authorizedAmount || {
+  const creditLimitAmount = creditLimitSettings.authorizedAmount ?? {
     value: 0,
     currency: "EUR",
   };
+
+  console.log(creditLimitSettings);
 
   return (
     <>
@@ -412,7 +425,18 @@ const CreditLimitInfo = ({
 
         <Space height={12} />
 
-        <Tile paddingVertical={24}>
+        <Tile
+          paddingVertical={24}
+          footer={
+            hasPendingRequest ? (
+              <LakeAlert
+                anchored={true}
+                variant="info"
+                title={t("accountDetails.creditLimit.infoUpdatePendingReview")}
+              />
+            ) : undefined
+          }
+        >
           <LakeHeading level={3} variant="h3">
             {formatCurrency(Number(creditLimitAmount.value), creditLimitAmount.currency)}
           </LakeHeading>
@@ -568,6 +592,7 @@ type EditCreditLimitFormProps = {
   creditLimitSettings: NonNullable<
     NonNullable<CreditLimitPageQuery["account"]>["creditLimitSettings"]
   >;
+  hasPendingRequest: boolean;
   largeBreakpoint: boolean;
   onClose: () => void;
 };
@@ -595,6 +620,7 @@ const EditCreditLimitForm = ({
   accountHolder,
   accountMembershipId,
   creditLimitSettings,
+  hasPendingRequest,
   largeBreakpoint,
   onClose,
 }: EditCreditLimitFormProps) => {
@@ -627,7 +653,7 @@ const EditCreditLimitForm = ({
 
   const { Field, FieldsListener, submitForm } = useForm({
     amount: {
-      initialValue: "",
+      initialValue: creditLimitSettings.authorizedAmount?.value ?? "",
       sanitize: sanitizeDecimal,
       validate: combineValidators(validateRequired, validateNumeric()),
     },
@@ -799,7 +825,7 @@ const EditCreditLimitForm = ({
 
       <Space height={24} />
 
-      {creditLimitSettings.statusInfo.__typename === "CreditLimitStatusPendingInfo" && (
+      {hasPendingRequest && (
         <>
           <LakeAlert variant="info" title={t("accountDetails.creditLimit.edit.pendingWarning")} />
           <Space height={24} />

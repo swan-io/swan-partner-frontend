@@ -122,6 +122,7 @@
   "accountDetails.creditLimit.edit.title": "Actualiza tu información de pago",
   "accountDetails.creditLimit.firstRepaymentScheduled": "Tu primer pago está programado para el {date}.",
   "accountDetails.creditLimit.firstRepaymentScheduledAt": "Tu primer pago está programado para el {date}.",
+  "accountDetails.creditLimit.infoUpdatePendingReview": "La actualización de la información de pago está pendiente de revisión",
   "accountDetails.creditLimit.intro.description": "Obtén crédito inmediatamente después de ser aprobado. Esto proporciona a tu negocio una ayuda financiera flexible y fácil de pagar para su crecimiento.",
   "accountDetails.creditLimit.intro.learn.description": "Lee más sobre cómo funcionan las tarjetas de débito aplazado de Swan en el Centro de Soporte.",
   "accountDetails.creditLimit.intro.learn.title": "Información sobre tarjetas de débito aplazado",

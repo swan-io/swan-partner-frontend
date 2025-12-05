@@ -23,3 +23,13 @@ export const getPendingCreditLimitAmount = (
     currency: lastPendingRequest.amount.currency,
   };
 };
+
+export const hasPendingCreditLimitRequest = (
+  creditLimitRequests: CreditLimitSettingsRequestFragment[],
+): boolean => {
+  const lastRequest = creditLimitRequests
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    .at(0);
+
+  return lastRequest?.statusInfo.__typename === "CreditLimitSettingsRequestPendingReviewStatusInfo";
+};

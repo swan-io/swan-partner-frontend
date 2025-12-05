@@ -122,6 +122,7 @@
   "accountDetails.creditLimit.edit.title": "Atualize as suas informações de reembolso",
   "accountDetails.creditLimit.firstRepaymentScheduled": "O seu primeiro pagamento está agendado para {date}.",
   "accountDetails.creditLimit.firstRepaymentScheduledAt": "O seu primeiro reembolso está agendado para {date}.",
+  "accountDetails.creditLimit.infoUpdatePendingReview": "Atualização das informações de reembolso está pendente de revisão",
   "accountDetails.creditLimit.intro.description": "Obtenha crédito imediatamente após a aprovação. Isso proporciona à sua empresa uma ajuda financeira flexível e fácil de pagar para o crescimento.",
   "accountDetails.creditLimit.intro.learn.description": "Saiba mais sobre como funcionam os cartões de débito com pagamento diferido da Swan na Central de Apoio.",
   "accountDetails.creditLimit.intro.learn.title": "Saiba mais sobre cartões de débito diferidos",

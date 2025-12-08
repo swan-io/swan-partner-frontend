@@ -393,7 +393,18 @@ export const MembershipDetailEditor = ({
     if (canUseNotificationStack) {
       sendAccountMembershipInviteNotification({
         input: { accountMembershipId: editingAccountMembershipId },
-      });
+      })
+        .mapOk(data => data.sendAccountMembershipInviteNotification)
+        .mapOkToResult(filterRejectionsToResult)
+        .tapOk(() => {
+          showToast({
+            variant: "success",
+            title: t("membershipDetail.resendInvitationSuccessToast"),
+          });
+        })
+        .tapError(error => {
+          showToast({ variant: "error", error, title: translateError(error) });
+        });
     } else {
       setInvitationSending(AsyncData.Loading());
 

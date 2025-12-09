@@ -227,87 +227,13 @@ export const AccountDetailsCreditLimitPage = ({
                   edge => edge.node.id !== creditLimitSettings.currentCycle?.id,
                 ) ?? [];
 
-              return match(creditLimitSettings.statusInfo.status)
-                .with("Deactivated", "Suspended", () => {
-                  const creditLimitAmount = getRefusedCreditLimitAmount(
-                    creditLimitSettings.creditLimitSettingsRequests.edges.map(edge => edge.node),
-                  );
+              const lastRequestStatus = creditLimitSettings.creditLimitSettingsRequests.edges
+                .map(edge => edge.node)
+                .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+                .at(0)?.statusInfo.__typename;
 
-                  return (
-                    <Box direction="column" justifyContent="center" alignItems="center" grow={1}>
-                      <BorderedIcon
-                        name={"dismiss-circle-regular"}
-                        color="live"
-                        size={100}
-                        padding={16}
-                      />
-                      <Space height={24} />
-
-                      <LakeText variant="medium" align="center" color={colors.gray[900]}>
-                        {t("creditLimitRequest.result.refused.title", {
-                          amount: formatCurrency(
-                            creditLimitAmount.value,
-                            creditLimitAmount.currency,
-                          ),
-                        })}
-                      </LakeText>
-
-                      <Space height={4} />
-
-                      <LakeText variant="smallRegular" align="center" color={colors.gray[500]}>
-                        {t("creditLimitRequest.result.refused.description")}
-                      </LakeText>
-
-                      <Space height={24} />
-
-                      <LakeButton
-                        mode="secondary"
-                        onPress={() =>
-                          Router.push("CreditLimitRequest", {
-                            accountId,
-                            from: "CreditLimitTab",
-                            requestAgain: "true",
-                          })
-                        }
-                      >
-                        {t("creditLimitRequest.result.refused.requestAgain")}
-                      </LakeButton>
-                    </Box>
-                  );
-                })
-                .with("Pending", () => {
-                  const creditLimitAmount = getPendingCreditLimitAmount(
-                    creditLimitSettings.creditLimitSettingsRequests.edges.map(edge => edge.node),
-                  );
-
-                  return (
-                    <Box direction="column" justifyContent="center" alignItems="center" grow={1}>
-                      <BorderedIcon
-                        name={"clock-regular"}
-                        color="shakespear"
-                        size={100}
-                        padding={16}
-                      />
-                      <Space height={24} />
-
-                      <LakeText variant="medium" align="center" color={colors.gray[900]}>
-                        {t("accountDetails.creditLimit.pending.title", {
-                          amount: formatCurrency(
-                            creditLimitAmount.value,
-                            creditLimitAmount.currency,
-                          ),
-                        })}
-                      </LakeText>
-
-                      <Space height={4} />
-
-                      <LakeText variant="smallRegular" align="center" color={colors.gray[500]}>
-                        {t("accountDetails.creditLimit.pending.description")}
-                      </LakeText>
-                    </Box>
-                  );
-                })
-                .with("Activated", () => {
+              return match({ status: creditLimitSettings.statusInfo.status, lastRequestStatus })
+                .with({ status: "Activated" }, () => {
                   const hasPendingRequest = hasPendingCreditLimitRequest(
                     creditLimitSettings.creditLimitSettingsRequests.edges.map(edge => edge.node),
                   );
@@ -388,6 +314,89 @@ export const AccountDetailsCreditLimitPage = ({
                         )}
                       </LakeModal>
                     </>
+                  );
+                })
+                .with(
+                  { status: "Pending" },
+                  { lastRequestStatus: "CreditLimitSettingsRequestPendingReviewStatusInfo" },
+                  () => {
+                    const creditLimitAmount = getPendingCreditLimitAmount(
+                      creditLimitSettings.creditLimitSettingsRequests.edges.map(edge => edge.node),
+                    );
+
+                    return (
+                      <Box direction="column" justifyContent="center" alignItems="center" grow={1}>
+                        <BorderedIcon
+                          name={"clock-regular"}
+                          color="shakespear"
+                          size={100}
+                          padding={16}
+                        />
+                        <Space height={24} />
+
+                        <LakeText variant="medium" align="center" color={colors.gray[900]}>
+                          {t("accountDetails.creditLimit.pending.title", {
+                            amount: formatCurrency(
+                              creditLimitAmount.value,
+                              creditLimitAmount.currency,
+                            ),
+                          })}
+                        </LakeText>
+
+                        <Space height={4} />
+
+                        <LakeText variant="smallRegular" align="center" color={colors.gray[500]}>
+                          {t("accountDetails.creditLimit.pending.description")}
+                        </LakeText>
+                      </Box>
+                    );
+                  },
+                )
+                .with({ status: P.union("Deactivated", "Suspended") }, () => {
+                  const creditLimitAmount = getRefusedCreditLimitAmount(
+                    creditLimitSettings.creditLimitSettingsRequests.edges.map(edge => edge.node),
+                  );
+
+                  return (
+                    <Box direction="column" justifyContent="center" alignItems="center" grow={1}>
+                      <BorderedIcon
+                        name={"dismiss-circle-regular"}
+                        color="live"
+                        size={100}
+                        padding={16}
+                      />
+                      <Space height={24} />
+
+                      <LakeText variant="medium" align="center" color={colors.gray[900]}>
+                        {t("creditLimitRequest.result.refused.title", {
+                          amount: formatCurrency(
+                            creditLimitAmount.value,
+                            creditLimitAmount.currency,
+                          ),
+                        })}
+                      </LakeText>
+
+                      <Space height={4} />
+
+                      <LakeText variant="smallRegular" align="center" color={colors.gray[500]}>
+                        {t("creditLimitRequest.result.refused.description")}
+                      </LakeText>
+
+                      <Space height={24} />
+
+                      <LakeButton
+                        mode="secondary"
+                        onPress={() =>
+                          Router.push("CreditLimitRequest", {
+                            accountId,
+                            from: "CreditLimitTab",
+                            requestAgain: "true",
+                          })
+                        }
+                      >
+                        {t("creditLimitRequest.result.refused.requestAgain")}
+                      </LakeButton>
+                    </Box>
                   );
                 })
                 .exhaustive();

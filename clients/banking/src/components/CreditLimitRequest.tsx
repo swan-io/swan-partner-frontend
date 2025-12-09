@@ -195,7 +195,7 @@ export const CreditLimitRequest = ({ accountId, from, requestAgain }: Props) => 
                             "CreditLimitSettingsRequestCanceledStatusInfo",
                         ) ||
                         requestAgain ? (
-                          <CreditLimitRequestForm account={account} large={large} />
+                          <CreditLimitRequestForm account={account} from={from} large={large} />
                         ) : (
                           <CreditLimitRequestResult
                             accountId={account.id}
@@ -205,6 +205,7 @@ export const CreditLimitRequest = ({ accountId, from, requestAgain }: Props) => 
                             creditLimitRequests={account.creditLimitSettings.creditLimitSettingsRequests.edges.map(
                               edge => edge.node,
                             )}
+                            from={from}
                             large={large}
                             onClose={onClose}
                           />
@@ -260,10 +261,11 @@ const monthDays: Item<number>[] = Array.from({ length: 31 }, (_, i) => i + 1).ma
 
 type FormProps = {
   account: RepaymentAccountFragment;
+  from: string | undefined;
   large: boolean;
 };
 
-const CreditLimitRequestForm = ({ account, large }: FormProps) => {
+const CreditLimitRequestForm = ({ account, from, large }: FormProps) => {
   const [requestCreditLimitSettings, creditLimitSettingsRequest] = useMutation(
     RequestCreditLimitSettingsDocument,
   );
@@ -398,7 +400,8 @@ const CreditLimitRequestForm = ({ account, large }: FormProps) => {
             input: {
               ...input,
               accountId: account.id,
-              consentRedirectUrl: window.location.href,
+              consentRedirectUrl:
+                window.location.origin + Router.CreditLimitRequest({ accountId: account.id, from }),
             },
           })
             .mapOkToResult(data =>
@@ -414,7 +417,7 @@ const CreditLimitRequestForm = ({ account, large }: FormProps) => {
         });
       },
     });
-  }, [account, submitForm, requestCreditLimitSettings]);
+  }, [account, from, submitForm, requestCreditLimitSettings]);
 
   return (
     <>
@@ -658,6 +661,7 @@ type CreditLimitRequestResultProps = {
   status: CreditLimitStatus;
   authorizedAmount: { value: number | string; currency: string } | null | undefined;
   creditLimitRequests: CreditLimitSettingsRequestFragment[];
+  from: string | undefined;
   onClose: () => void;
   large: boolean;
 };
@@ -668,17 +672,21 @@ const CreditLimitRequestResult = ({
   status,
   authorizedAmount,
   creditLimitRequests,
+  from,
   onClose,
 }: CreditLimitRequestResultProps) => {
   const creditLimitAmount = authorizedAmount ?? {
     value: 0,
     currency: "EUR",
   };
+  const lastRequestStatus = creditLimitRequests
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+    .at(0)?.statusInfo.__typename;
 
   return (
     <Box alignItems="center" justifyContent="center" style={styles.fill}>
-      {match(status)
-        .with("Activated", () => {
+      {match({ status, lastRequestStatus })
+        .with({ status: "Activated" }, () => {
           return (
             <>
               <BorderedIcon name={"lake-check"} color="positive" size={100} padding={16} />
@@ -722,47 +730,51 @@ const CreditLimitRequestResult = ({
             </>
           );
         })
-        .with("Pending", () => {
-          const creditLimitAmount = getPendingCreditLimitAmount(creditLimitRequests);
+        .with(
+          { status: "Pending" },
+          { lastRequestStatus: "CreditLimitSettingsRequestPendingReviewStatusInfo" },
+          () => {
+            const creditLimitAmount = getPendingCreditLimitAmount(creditLimitRequests);
 
-          return (
-            <>
-              <BorderedIcon name={"clock-regular"} color="shakespear" size={100} padding={16} />
-              <Space height={24} />
+            return (
+              <>
+                <BorderedIcon name={"clock-regular"} color="shakespear" size={100} padding={16} />
+                <Space height={24} />
 
-              <LakeText variant="medium" align="center" color={colors.gray[900]}>
-                {t("creditLimitRequest.result.pending.title", {
-                  amount: formatCurrency(creditLimitAmount.value, creditLimitAmount.currency),
+                <LakeText variant="medium" align="center" color={colors.gray[900]}>
+                  {t("creditLimitRequest.result.pending.title", {
+                    amount: formatCurrency(creditLimitAmount.value, creditLimitAmount.currency),
+                  })}
+                </LakeText>
+
+                <Space height={4} />
+
+                <LakeText variant="smallRegular" align="center" color={colors.gray[500]}>
+                  {t("creditLimitRequest.result.pending.description")}
+                </LakeText>
+
+                <Space height={24} />
+
+                {accountMembershipId.match({
+                  Some: accountMembershipId => (
+                    <LakeButton
+                      mode="secondary"
+                      href={Router.AccountDetailsCreditLimitRoot({ accountMembershipId })}
+                    >
+                      {t("creditLimitRequest.result.pending.cta")}
+                    </LakeButton>
+                  ),
+                  None: () => (
+                    <LakeButton mode="secondary" onPress={onClose}>
+                      {t("common.closeButton")}
+                    </LakeButton>
+                  ),
                 })}
-              </LakeText>
-
-              <Space height={4} />
-
-              <LakeText variant="smallRegular" align="center" color={colors.gray[500]}>
-                {t("creditLimitRequest.result.pending.description")}
-              </LakeText>
-
-              <Space height={24} />
-
-              {accountMembershipId.match({
-                Some: accountMembershipId => (
-                  <LakeButton
-                    mode="secondary"
-                    href={Router.AccountDetailsCreditLimitRoot({ accountMembershipId })}
-                  >
-                    {t("creditLimitRequest.result.pending.cta")}
-                  </LakeButton>
-                ),
-                None: () => (
-                  <LakeButton mode="secondary" onPress={onClose}>
-                    {t("common.closeButton")}
-                  </LakeButton>
-                ),
-              })}
-            </>
-          );
-        })
-        .with("Deactivated", "Suspended", () => {
+              </>
+            );
+          },
+        )
+        .with({ status: P.union("Deactivated", "Suspended") }, () => {
           const creditLimitAmount = getRefusedCreditLimitAmount(creditLimitRequests);
 
           return (
@@ -787,7 +799,7 @@ const CreditLimitRequestResult = ({
               <LakeButton
                 mode="secondary"
                 onPress={() =>
-                  Router.push("CreditLimitRequest", { accountId, requestAgain: "true" })
+                  Router.push("CreditLimitRequest", { accountId, from, requestAgain: "true" })
                 }
               >
                 {t("creditLimitRequest.result.refused.requestAgain")}

@@ -425,8 +425,6 @@ const CreditLimitInfo = ({
     currency: "EUR",
   };
 
-  console.log(creditLimitSettings);
-
   return (
     <>
       <View style={[styles.content, largeBreakpoint && styles.contentDesktop]}>

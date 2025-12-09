@@ -172,8 +172,6 @@ export const CreditLimitRequest = ({ accountId, from, requestAgain }: Props) => 
           )
           .getOr(() => Router.push("ProjectRootRedirect"));
 
-        console.log(data);
-
         return (
           <PermissionProvider
             value={Option.Some({

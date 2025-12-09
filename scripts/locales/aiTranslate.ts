@@ -6,8 +6,7 @@ import ora from "ora";
 import os from "os";
 import path from "pathe";
 import pc from "picocolors";
-import prompts from "prompts";
-import tiktoken from "tiktoken-node";
+import { encoding_for_model } from "tiktoken";
 import { P, match } from "ts-pattern";
 import type { Except } from "type-fest";
 
@@ -31,9 +30,9 @@ if (OPENAI_API_KEY == null) {
   throw new Error("OPENAI_API_KEY is not defined");
 }
 
-const MODEL = "gpt-3.5-turbo";
-const MODEL_TOKEN_PRICE = 0.002; // $/1000 tokens https://openai.com/pricing
-const tokenEncoder = tiktoken.encodingForModel(MODEL);
+const MODEL = "gpt-5-mini";
+const MODEL_TOKEN_PRICE = 0.00025; // $/1000 tokens https://openai.com/pricing
+const tokenEncoder = encoding_for_model(MODEL);
 
 const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
@@ -358,7 +357,7 @@ const createChatCompletion = async (
     const data = await openai.chat.completions.create({
       model: MODEL,
       messages,
-      temperature: 0.5,
+      temperature: 1,
     });
 
     const nbTotalTokens = data.usage?.total_tokens ?? 0;
@@ -429,21 +428,7 @@ const translateApp = async (
     return Result.Ok({ cost: Option.None(), duration: 0, nbTranslatedKeys: 0 });
   }
 
-  const { messages, approximatedPrice, nbKeys } = promptOption.value;
-
-  const response = await prompts({
-    type: "confirm",
-    name: "confirmed",
-    message: `Translate ${nbKeys} keys of ${printAppName(app)} into ${printLocale(
-      targetLocale,
-    )}? This will cost ${printCost(approximatedPrice)}`,
-  });
-
-  const confirmed = response.confirmed === true;
-
-  if (!confirmed) {
-    return Result.Ok({ cost: Option.None(), cancelled: true, duration: 0, nbTranslatedKeys: 0 });
-  }
+  const { messages } = promptOption.value;
 
   const stopSpinner = startSpinner(
     `Translating ${printAppName(app)} to ${printLocale(targetLocale)}`,

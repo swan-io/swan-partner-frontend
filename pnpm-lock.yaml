@@ -107,9 +107,9 @@ importers:
       tggl-cli:
         specifier: 1.4.0
         version: 1.4.0
-      tiktoken-node:
-        specifier: 0.0.7
-        version: 0.0.7
+      tiktoken:
+        specifier: 1.0.22
+        version: 1.0.22
       tsx:
         specifier: 4.20.4
         version: 4.20.4
@@ -4524,9 +4524,8 @@ packages:
   through@2.3.8:
     resolution: {integrity: sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==, tarball: https://registry.npmjs.org/through/-/through-2.3.8.tgz}
 
-  tiktoken-node@0.0.7:
-    resolution: {integrity: sha512-eYtUh1jDLl7TXLj7HXujP+3IPkDieMl1G1HUsG52rysc91YoNw9IIeR4kNoISsc29mk+JDKQ7jEVRN07VOzaDQ==, tarball: https://registry.npmjs.org/tiktoken-node/-/tiktoken-node-0.0.7.tgz}
-    engines: {node: '>= 14'}
+  tiktoken@1.0.22:
+    resolution: {integrity: sha512-PKvy1rVF1RibfF3JlXBSP0Jrcw2uq3yXdgcEXtKTYn3QJ/cBRBHDnrJ5jHky+MENZ6DIPwNUGWpkVx+7joCpNA==, tarball: https://registry.npmjs.org/tiktoken/-/tiktoken-1.0.22.tgz}
 
   timeout-signal@2.0.0:
     resolution: {integrity: sha512-YBGpG4bWsHoPvofT6y/5iqulfXIiIErl5B0LdtHT1mGXDFTAhhRrbUpTvBgYbovr+3cKblya2WAOcpoy90XguA==, tarball: https://registry.npmjs.org/timeout-signal/-/timeout-signal-2.0.0.tgz}
@@ -9655,7 +9654,7 @@ snapshots:
 
   through@2.3.8: {}
 
-  tiktoken-node@0.0.7: {}
+  tiktoken@1.0.22: {}
 
   timeout-signal@2.0.0: {}
 

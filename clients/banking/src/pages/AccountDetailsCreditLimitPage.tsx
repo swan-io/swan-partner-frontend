@@ -695,7 +695,10 @@ const EditCreditLimitForm = ({
       validate: combineValidators(validateRequired, validateNumeric()),
     },
     repaymentFrequency: {
-      initialValue: "Monthly" as "Monthly" | "Weekly",
+      initialValue: match(creditLimitSettings.repaymentSettings.repaymentCycleLength)
+        .with({ __typename: "MonthlyPeriod" }, () => "Monthly" as const)
+        .with({ __typename: "WeeklyPeriod" }, () => "Weekly" as const)
+        .exhaustive(),
       validate: validateRequired,
     },
     repaymentDayOfMonth: {

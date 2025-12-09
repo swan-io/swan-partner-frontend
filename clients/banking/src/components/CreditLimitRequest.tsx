@@ -30,6 +30,7 @@ import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import {
   CreditLimitRequestDocument,
+  CreditLimitSettingsRequestFragment,
   CreditLimitStatus,
   DayEnum,
   RepaymentAccountFragment,
@@ -38,6 +39,7 @@ import {
 } from "../graphql/partner";
 import { PermissionProvider } from "../hooks/usePermissions";
 import { NotFoundPage } from "../pages/NotFoundPage";
+import { getPendingCreditLimitAmount, getRefusedCreditLimitAmount } from "../utils/creditLimit";
 import { formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { validateNumeric, validateRequired } from "../utils/validations";
@@ -97,9 +99,9 @@ const CreditLimitErrorView = ({
   </WithCurrentColor>
 );
 
-type Props = { accountId: string; from: string | undefined };
+type Props = { accountId: string; from: string | undefined; requestAgain: boolean };
 
-export const CreditLimitRequest = ({ accountId, from }: Props) => {
+export const CreditLimitRequest = ({ accountId, from, requestAgain }: Props) => {
   const [data, { setVariables }] = useQuery(CreditLimitRequestDocument, {
     first: 20,
     accountId,
@@ -170,6 +172,8 @@ export const CreditLimitRequest = ({ accountId, from }: Props) => {
           )
           .getOr(() => Router.push("ProjectRootRedirect"));
 
+        console.log(data);
+
         return (
           <PermissionProvider
             value={Option.Some({
@@ -191,13 +195,18 @@ export const CreditLimitRequest = ({ accountId, from }: Props) => {
                           edge =>
                             edge.node.statusInfo.__typename ===
                             "CreditLimitSettingsRequestCanceledStatusInfo",
-                        ) ? (
+                        ) ||
+                        requestAgain ? (
                           <CreditLimitRequestForm account={account} large={large} />
                         ) : (
                           <CreditLimitRequestResult
+                            accountId={account.id}
                             status={account.creditLimitSettings.statusInfo.status}
                             authorizedAmount={account.creditLimitSettings.authorizedAmount}
                             accountMembershipId={userMembershipIdOnCurrentAccount}
+                            creditLimitRequests={account.creditLimitSettings.creditLimitSettingsRequests.edges.map(
+                              edge => edge.node,
+                            )}
                             large={large}
                             onClose={onClose}
                           />
@@ -646,17 +655,21 @@ const CreditLimitRequestForm = ({ account, large }: FormProps) => {
 };
 
 type CreditLimitRequestResultProps = {
+  accountId: string;
   accountMembershipId: Option<string>;
   status: CreditLimitStatus;
   authorizedAmount: { value: number | string; currency: string } | null | undefined;
+  creditLimitRequests: CreditLimitSettingsRequestFragment[];
   onClose: () => void;
   large: boolean;
 };
 
 const CreditLimitRequestResult = ({
+  accountId,
   accountMembershipId,
   status,
   authorizedAmount,
+  creditLimitRequests,
   onClose,
 }: CreditLimitRequestResultProps) => {
   const creditLimitAmount = authorizedAmount ?? {
@@ -711,62 +724,79 @@ const CreditLimitRequestResult = ({
             </>
           );
         })
-        .with("Pending", () => (
-          <>
-            <BorderedIcon name={"clock-regular"} color="shakespear" size={100} padding={16} />
-            <Space height={24} />
+        .with("Pending", () => {
+          const creditLimitAmount = getPendingCreditLimitAmount(creditLimitRequests);
 
-            <LakeText variant="medium" align="center" color={colors.gray[900]}>
-              {t("creditLimitRequest.result.pending.title")}
-            </LakeText>
+          return (
+            <>
+              <BorderedIcon name={"clock-regular"} color="shakespear" size={100} padding={16} />
+              <Space height={24} />
 
-            <Space height={4} />
+              <LakeText variant="medium" align="center" color={colors.gray[900]}>
+                {t("creditLimitRequest.result.pending.title", {
+                  amount: formatCurrency(creditLimitAmount.value, creditLimitAmount.currency),
+                })}
+              </LakeText>
 
-            <LakeText variant="smallRegular" align="center" color={colors.gray[500]}>
-              {t("creditLimitRequest.result.pending.description")}
-            </LakeText>
+              <Space height={4} />
 
-            <Space height={24} />
+              <LakeText variant="smallRegular" align="center" color={colors.gray[500]}>
+                {t("creditLimitRequest.result.pending.description")}
+              </LakeText>
 
-            {accountMembershipId.match({
-              Some: accountMembershipId => (
-                <LakeButton
-                  mode="secondary"
-                  href={Router.AccountDetailsCreditLimitRoot({ accountMembershipId })}
-                >
-                  {t("creditLimitRequest.result.pending.cta")}
-                </LakeButton>
-              ),
-              None: () => (
-                <LakeButton mode="secondary" onPress={onClose}>
-                  {t("common.closeButton")}
-                </LakeButton>
-              ),
-            })}
-          </>
-        ))
-        .with("Deactivated", "Suspended", () => (
-          <>
-            <BorderedIcon name={"dismiss-circle-regular"} color="live" size={100} padding={16} />
-            <Space height={24} />
+              <Space height={24} />
 
-            <LakeText variant="medium" align="center" color={colors.gray[900]}>
-              {t("creditLimitRequest.result.refused.title")}
-            </LakeText>
+              {accountMembershipId.match({
+                Some: accountMembershipId => (
+                  <LakeButton
+                    mode="secondary"
+                    href={Router.AccountDetailsCreditLimitRoot({ accountMembershipId })}
+                  >
+                    {t("creditLimitRequest.result.pending.cta")}
+                  </LakeButton>
+                ),
+                None: () => (
+                  <LakeButton mode="secondary" onPress={onClose}>
+                    {t("common.closeButton")}
+                  </LakeButton>
+                ),
+              })}
+            </>
+          );
+        })
+        .with("Deactivated", "Suspended", () => {
+          const creditLimitAmount = getRefusedCreditLimitAmount(creditLimitRequests);
 
-            <Space height={4} />
+          return (
+            <>
+              <BorderedIcon name={"dismiss-circle-regular"} color="live" size={100} padding={16} />
+              <Space height={24} />
 
-            <LakeText variant="smallRegular" align="center" color={colors.gray[500]}>
-              {t("creditLimitRequest.result.refused.description")}
-            </LakeText>
+              <LakeText variant="medium" align="center" color={colors.gray[900]}>
+                {t("creditLimitRequest.result.refused.title", {
+                  amount: formatCurrency(creditLimitAmount.value, creditLimitAmount.currency),
+                })}
+              </LakeText>
 
-            <Space height={24} />
+              <Space height={4} />
 
-            <LakeButton mode="secondary" onPress={onClose}>
-              {t("common.closeButton")}
-            </LakeButton>
-          </>
-        ))
+              <LakeText variant="smallRegular" align="center" color={colors.gray[500]}>
+                {t("creditLimitRequest.result.refused.description")}
+              </LakeText>
+
+              <Space height={24} />
+
+              <LakeButton
+                mode="secondary"
+                onPress={() =>
+                  Router.push("CreditLimitRequest", { accountId, requestAgain: "true" })
+                }
+              >
+                {t("creditLimitRequest.result.refused.requestAgain")}
+              </LakeButton>
+            </>
+          );
+        })
         .exhaustive()}
     </Box>
   );

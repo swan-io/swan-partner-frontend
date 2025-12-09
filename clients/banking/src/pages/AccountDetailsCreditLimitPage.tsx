@@ -53,7 +53,11 @@ import {
   RepaymentCycleLengthInput,
   RequestCreditLimitSettingsDocument,
 } from "../graphql/partner";
-import { getPendingCreditLimitAmount, hasPendingCreditLimitRequest } from "../utils/creditLimit";
+import {
+  getPendingCreditLimitAmount,
+  getRefusedCreditLimitAmount,
+  hasPendingCreditLimitRequest,
+} from "../utils/creditLimit";
 import { formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { validateNumeric, validateRequired } from "../utils/validations";
@@ -224,27 +228,53 @@ export const AccountDetailsCreditLimitPage = ({
                 ) ?? [];
 
               return match(creditLimitSettings.statusInfo.status)
-                .with("Deactivated", "Suspended", () => (
-                  <Box direction="column" justifyContent="center" alignItems="center" grow={1}>
-                    <BorderedIcon
-                      name={"dismiss-circle-regular"}
-                      color="live"
-                      size={100}
-                      padding={16}
-                    />
-                    <Space height={24} />
+                .with("Deactivated", "Suspended", () => {
+                  const creditLimitAmount = getRefusedCreditLimitAmount(
+                    creditLimitSettings.creditLimitSettingsRequests.edges.map(edge => edge.node),
+                  );
 
-                    <LakeText variant="medium" align="center" color={colors.gray[900]}>
-                      {t("creditLimitRequest.result.refused.title")}
-                    </LakeText>
+                  return (
+                    <Box direction="column" justifyContent="center" alignItems="center" grow={1}>
+                      <BorderedIcon
+                        name={"dismiss-circle-regular"}
+                        color="live"
+                        size={100}
+                        padding={16}
+                      />
+                      <Space height={24} />
 
-                    <Space height={4} />
+                      <LakeText variant="medium" align="center" color={colors.gray[900]}>
+                        {t("creditLimitRequest.result.refused.title", {
+                          amount: formatCurrency(
+                            creditLimitAmount.value,
+                            creditLimitAmount.currency,
+                          ),
+                        })}
+                      </LakeText>
 
-                    <LakeText variant="smallRegular" align="center" color={colors.gray[500]}>
-                      {t("creditLimitRequest.result.refused.description")}
-                    </LakeText>
-                  </Box>
-                ))
+                      <Space height={4} />
+
+                      <LakeText variant="smallRegular" align="center" color={colors.gray[500]}>
+                        {t("creditLimitRequest.result.refused.description")}
+                      </LakeText>
+
+                      <Space height={24} />
+
+                      <LakeButton
+                        mode="secondary"
+                        onPress={() =>
+                          Router.push("CreditLimitRequest", {
+                            accountId,
+                            from: "CreditLimitTab",
+                            requestAgain: "true",
+                          })
+                        }
+                      >
+                        {t("creditLimitRequest.result.refused.requestAgain")}
+                      </LakeButton>
+                    </Box>
+                  );
+                })
                 .with("Pending", () => {
                   const creditLimitAmount = getPendingCreditLimitAmount(
                     creditLimitSettings.creditLimitSettingsRequests.edges.map(edge => edge.node),

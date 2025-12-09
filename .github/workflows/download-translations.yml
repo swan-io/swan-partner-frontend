@@ -48,14 +48,8 @@ jobs:
           write_key: ${{ secrets.LOCALAZY_PAYMENT_WRITE_KEY }}
           groups: payment
 
-      - name: Debug git
-        run: git status
-
       - name: Sort locales
         run: pnpm format-locales
-
-      - name: Debug git
-        run: git status
 
       - uses: peter-evans/create-pull-request@v7
         with:
@@ -63,5 +57,4 @@ jobs:
           branch: update-translations
           commit-message: update translations from localazy
           body: Update translations
-          team-reviewers: front
           sign-commits: true

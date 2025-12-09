@@ -106,7 +106,7 @@
     "slackify-markdown": "4.5.0",
     "sodium-native": "4.3.3",
     "tggl-cli": "1.4.0",
-    "tiktoken-node": "0.0.7",
+    "tiktoken": "1.0.22",
     "tsx": "4.20.4",
     "type-fest": "4.41.0",
     "typescript": "5.9.2",

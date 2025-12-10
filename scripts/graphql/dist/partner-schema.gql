@@ -8228,13 +8228,6 @@ type InternalBeneficiary {
   """full name of the beneficiary"""
   name: String!
 
-  """
-  `true` if this new beneficiary is the account holder himself in an other financial institution.
-  *SOON TO BE DEPRECATED*
-  Not used. It will be removed soon.
-  """
-  isMyOwnIban: Boolean! @deprecated(reason: "this field is never filled. It will be removed soon.")
-
   """account number if the beneficiary is a swan account"""
   accountNumber: AccountNumber! @deprecated(reason: "because it is not already implemented (a default value is set).")
 }
@@ -15603,13 +15596,6 @@ type SEPABeneficiary {
   """full name of the beneficiary"""
   name: String!
 
-  """
-  `true` if this new beneficiary is the account holder himself in an other financial institution.
-  *SOON TO BE DEPRECATED*
-  Not used. It will be removed soon.
-  """
-  isMyOwnIban: Boolean! @deprecated(reason: "this field is never filled. It will be removed soon.")
-
   """beneficiary address"""
   address: Address
 
@@ -15631,11 +15617,6 @@ input SepaBeneficiaryInput {
 
   """beneficiary address"""
   address: AddressInput
-
-  """
-  `true` if this new beneficiary is the account holder himself in another financial institution.
-  """
-  isMyOwnIban: Boolean!
 
   """
   `true` if this new beneficiary will be saved to the beneficiary list of the debited account.

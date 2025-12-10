@@ -74,7 +74,6 @@ const parseCsv = (text: string): Result<CreditTransferInput[], ParsingError[]> =
                 sepaBeneficiary: {
                   iban: iban.trim(),
                   name: beneficiary_name.trim(),
-                  isMyOwnIban: false,
                   save: false,
                 },
                 amount: {

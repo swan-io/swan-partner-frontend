@@ -7652,11 +7652,6 @@ input SepaBeneficiaryInput {
   address: AddressInput
 
   """
-  `true` if this new beneficiary is the account holder himself in another financial institution.
-  """
-  isMyOwnIban: Boolean!
-
-  """
   `true` if this new beneficiary will be saved to the beneficiary list of the debited account.
   """
   save: Boolean!

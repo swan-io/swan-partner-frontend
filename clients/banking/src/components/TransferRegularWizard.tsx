@@ -189,7 +189,6 @@ export const TransferRegularWizard = ({
                   name: beneficiary.name,
                   save: beneficiary.kind === "new" && beneficiary.save,
                   iban: beneficiary.iban,
-                  isMyOwnIban: false, // TODO
                 },
               }))
               .with({ kind: "saved" }, ({ id }) => ({

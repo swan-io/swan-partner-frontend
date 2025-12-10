@@ -97,7 +97,6 @@ export const TransferRecurringWizard = ({
           name: beneficiary.name,
           save: false,
           iban: beneficiary.iban,
-          isMyOwnIban: false, // TODO
         },
         label: details.label,
         reference: details.reference,

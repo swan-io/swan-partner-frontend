@@ -18,8 +18,6 @@ import partnerSchemaConfig from "../../../../scripts/graphql/dist/partner-schema
 import unauthenticatedSchemaConfig from "../../../../scripts/graphql/dist/unauthenticated-schema-config.json";
 import { projectConfiguration } from "./projectId";
 import { Router } from "./routes";
-import { getTgglFlag } from "./tggl";
-import * as Sentry from "@sentry/browser"
 
 const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
 const nanoid = customAlphabet(alphabet, 8);
@@ -76,7 +74,6 @@ export const filterOutUnauthorizedError = (operationName: string, clientError: C
 };
 
 const makeRequest: MakeRequest = ({ url, headers, operationName, document, variables }) => {
-  const newGqlGateway = getTgglFlag("newGqlGateway").getOr(false);
   const requestId = "req-" + nanoid();
   const traceparent = `${traceparentVersion}-${generateTraceId()}-${generateSpanId()}-${traceFlags}`;
 
@@ -88,7 +85,6 @@ const makeRequest: MakeRequest = ({ url, headers, operationName, document, varia
       ...headers,
       "x-swan-request-id": requestId,
       traceparent,
-      ...(newGqlGateway && { "x-swan-version": "beta" }),
     },
     body: JSON.stringify({
       operationName,
@@ -105,19 +101,6 @@ const makeRequest: MakeRequest = ({ url, headers, operationName, document, varia
           Result.Error(errors.map(parseGraphQLError)),
         )
         .with({ data: P.select(P.nonNullable) }, data => {
-          type TData = [key: string, { __typename?: string; message?: string; [k: string]: unknown }];
-          const capturedTypename = ['ForbiddenRejection', 'Rejection'];
-          const dataArray: TData[] = Object.entries(data)
-          
-          const rejections = dataArray.filter(([_, value]) => capturedTypename.includes(value['__typename'] as string)
-           )
-           .map(([key, value]) => `${key}: ${value.__typename}, message: ${value.message}`)
-
-          if (rejections.length > 0) {
-            rejections.forEach(rejection => 
-              Sentry.captureMessage(rejection)
-            );
-          }
           return Result.Ok(data);
         })
         .otherwise(response => Result.Error(new InvalidGraphQLResponseError(response))),

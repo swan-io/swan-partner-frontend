@@ -156,7 +156,7 @@
   "error.pageNotFound": "Sivua ei löydy",
   "error.requiredField": "Vaadittu kenttä",
   "error.tryAgain": "Yritä uudelleen. Jos ongelma jatkuu, ota yhteyttä meihin.",
-  "error.unrecognizedKeys": "",
+  "error.unrecognizedKeys": "Tunnistamattomat avaimet",
   "individual.step.details.description": "Laki velvoittaa meitä tuntemaan käyttäjämme hyvin. Tämä auttaa meitä estämään petoksia ja talousrikoksia.",
   "individual.step.details.title": "Mikä on ammattisi?",
   "individual.step.email.description": "Käytä henkilön sähköpostia, joka suorittaa asiakkuuden aloittamisen prosessin. Se on henkilö, johon otetaan yhteyttä tilin avaamisprosessin aikana.",

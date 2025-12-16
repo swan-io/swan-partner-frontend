@@ -1,6 +1,11 @@
 {
   "addressInput.placeholder": "Start typing…",
   "addressPage.countryNotAvailable": "What if my country isn't listed?",
+  "changeAdmin.step.confirm": "Confirm request",
+  "changeAdmin.step.context": "Context",
+  "changeAdmin.step.documents": "Supporting documents",
+  "changeAdmin.step.newAdminInfo": "New Admin Information",
+  "changeAdmin.step.requesterInfo": "Requester Information",
   "common.add": "Add",
   "common.back": "Back",
   "common.cancel": "Cancel",
@@ -234,5 +239,6 @@
   "taxIdentificationNumber.germanInfo": "Your Tax ID is required, but you can provide it later. Please provide it within 90 days. Otherwise, your account will be suspended.",
   "wizard.back": "Previous",
   "wizard.finalize": "Finalize",
-  "wizard.next": "Next"
+  "wizard.next": "Next",
+  "wizard.partnership": "in partnership with"
 }

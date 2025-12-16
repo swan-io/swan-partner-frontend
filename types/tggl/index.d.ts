@@ -40,6 +40,7 @@ declare module "tggl-client" {
     accountContractActivateRPCAgent: boolean;
     accountContractFetchAccountMembershipsByUserDataLoaded: boolean;
     accountContractPartnersCanOpenAdditionalAccounts: boolean;
+    activate_card_package_on_card_product: boolean;
     activate_digital_card_use_case: boolean;
     activate_satd_manual_seizure_in_payment: boolean;
     activatePhysicalCardNotificationEnabledGlobally: boolean;
@@ -77,6 +78,7 @@ declare module "tggl-client" {
     cardPinInvalidNotificationEnabledGlobally: boolean;
     cardSpendingLimitReachedNotificationEnabledGlobally: boolean;
     categoryPurposeOnSCTOutInitiation: boolean;
+    changeAccountAdmin: boolean;
     check_order_of_xpay_events: boolean;
     ciao_es_enabled: boolean;
     cms_call_cema_carte_for_choose_pin: true;
@@ -100,12 +102,12 @@ declare module "tggl-client" {
     dataExportOnboarding: boolean;
     dataExportTransactions: boolean;
     dataExportUser: boolean;
-    dateFromWhichEnforceTaxIdNumberWhenCountriesDontMatchForCRS: "-" | "2025-11-07";
     deferredDebitCard: boolean;
     disable_emails_for_capital_deposit_case: boolean;
     disable_expert_identification_level: true;
     disable_pvid_identification_level: true;
     disable_qes_identification_level: true;
+    displaySsoButton: boolean;
     dont_change_default_expiration_for_suvc_one_off_at_update: boolean;
     enable_automatic_identity_documents_upload: boolean;
     enable_card_risk_assessment: boolean;
@@ -115,10 +117,10 @@ declare module "tggl-client" {
     enable_document_convertor_from_csv_generation: boolean;
     enable_document_convertor_generation: boolean;
     enable_document_generation_by_document_convertor: boolean;
+    enable_mastercard_presettlement: true;
     enable_mastercard_presettlement_reconciliation: true;
     enable_new_account_statement_file_name: boolean;
     enable_transaction_enrichment_from_origin_transaction: boolean;
-    enable_transaction_statements: boolean;
     enableBouyguesFraudPreventionPage: boolean;
     enableFraudPreventionPage: boolean;
     enableIdentityTheftPreventionPage: true;
@@ -127,6 +129,7 @@ declare module "tggl-client" {
     FeatureFlagCreditEnabled: 1 | 2;
     forceAllowDesktopAuth: boolean;
     free_units_enabled: boolean;
+    generate_mastercard_emi_banking: true;
     ict_validation_rejection_enabled: boolean;
     identificationUserInfoCollectionAndReview: boolean;
     identityBirthDataCollection: true;
@@ -156,12 +159,8 @@ declare module "tggl-client" {
       accounts: Array<
         | "298904e8-9b09-4c51-8b15-0b42e99e8acd"
         | "31a685e6-184b-4483-862b-7fb85c42b190"
-        | "3b742bef-f23c-4724-ad97-0d76b3feb401"
-        | "3d358579-8fbb-43df-a6b6-55bcbac3fb4f"
         | "517b28e1-35a1-4e4d-8763-c243d2286286"
-        | "69dbe1d9-c2b6-4453-9d1f-9d482615f474"
         | "813e29c3-bc66-4eda-a2b4-8c1c300271cf"
-        | "d262cab2-b4a8-4c90-87cc-786bb25b27fb"
         | "fb8baa30-a989-4d30-942f-26749eb24449"
         | "fc4f1e61-31c9-4a5a-87ae-af871854c3c7"
       >;
@@ -178,11 +177,11 @@ declare module "tggl-client" {
     passcodeResetFaceAuthVerification: boolean;
     passcodeResetIdentificationVerification: boolean;
     passcodeResetNoVerification: boolean;
-    paymentIgnoreCheckSpendingV2: boolean;
     pexTcuEventKillSwitch: boolean;
     recurring_suvc_fee_enabled: boolean;
     refundFeesActivateFixOnInvertedAccountIds: boolean;
     reKYCFrontend: boolean;
+    reKYCRequestIdentityProof: boolean;
     resolve_iban_mode: "normal" | "passive" | "view";
     return_ict_in_enabled: boolean;
     return_transaction_mutation_ict_in: boolean;
@@ -195,8 +194,8 @@ declare module "tggl-client" {
     satd_account_matching_check_for_risk_suspicion: boolean;
     satd_account_matching_mode: "AccountContractAndPayment" | "AccountContractOnly" | "PaymentOnly";
     scaAnonymizeUserInfo: boolean;
-    scaIAMDailyMaximumNumberOfSignInPerIp: 10 | 100 | 1000 | 100000 | 5;
-    scaIAMDailyMaximumNumberOfSignInPerPhoneNumber: 10 | 100 | 1000 | 100000;
+    scaIAMDailyMaximumNumberOfSignInPerIp: 10 | 100 | 1000 | 100000 | 20 | 3 | 5;
+    scaIAMDailyMaximumNumberOfSignInPerPhoneNumber: 10 | 100 | 1000 | 100000 | 5;
     scaIsCountrySuspiciousCheckEnabled: boolean;
     scaIsInternalOtpEnabled: boolean;
     scaIsLoginChallengeCheckEnabled: boolean;
@@ -205,8 +204,10 @@ declare module "tggl-client" {
     scaIsWebBankingBrandlessLoginChallengeCheckEnabled: boolean;
     scale_merchant_onboarding_bo: boolean;
     scaleMerchantOnboarding: boolean;
+    scaShouldIncludeCustomSubdomainInConsentUrl: boolean;
     scaV1ToV2IdsConversionBatchSize: 0 | 10 | 100 | 20 | 200 | 3 | 5 | 50 | 75;
     scoreThresholdHCaptcha: 0.75 | 0.8 | 0.9 | 1.5;
+    scoring_mode: "risk_assessment_first" | "scoring_and_risk_assessment_dry_run" | "scoring_only";
     screeningSctInAndFctInWithNats: boolean;
     sctInstEnabled: boolean;
     send_account_invoice_generated_event: boolean;
@@ -214,11 +215,14 @@ declare module "tggl-client" {
     send_back_new_response_type: boolean;
     sendCreditAndZeroAmountAuthorization: boolean;
     sendValidationInsteadOfForbiddenRejection: boolean;
+    sendVerificationRenewalEmails: boolean;
     sepaDirectDebitInV2: true;
     SepaDirectDebitV2ActivationFlag: true;
     setIssuingProcessorCardProductOnRenewFeature: boolean;
     setUpAdminRole: boolean;
+    shouldHistorizeIncomingVOPRequest: boolean;
     storeMonextAuthenticationRequest: boolean;
+    supportingDocumentsUseBucketV2: boolean;
     swan_generate_missing_bank_details: true;
     swan_supports_local_belgian_iban: boolean;
     swan_supports_local_belgian_iban_dashboard: boolean;

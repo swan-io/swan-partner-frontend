@@ -1,6 +1,11 @@
 {
   "addressInput.placeholder": "Mit der Eingabe beginnen …",
   "addressPage.countryNotAvailable": "Was, wenn mein Land nicht aufgeführt wird?",
+  "changeAdmin.presentation.description": "Der Kontoadministrator ist der primäre Ansprechpartner für alle Kontoangelegenheiten, einschließlich Transaktionen, Aktualisierungen, rechtlicher Informationen und Kontoschließung. Dies ist eine sensible Änderung, die eine Überprüfung erfordert. Bitte geben Sie korrekte Angaben an, um diese Änderung abzuschließen.",
+  "changeAdmin.presentation.expireNotice": "Dieses Portal ist für <bold>48 Stunden</bold> zugänglich. Danach wenden Sie sich für einen neuen Link an den Kundensupport.",
+  "changeAdmin.presentation.powerOfAttorneyNotice": "Sie benötigen eine unterschriebene Vollmacht, wenn der neue Administrator nicht der gesetzliche Vertreter ist. Laden Sie unsere <link>Vollmachtsvorlage</link> herunter, um Ihre Anfrage zu beschleunigen.",
+  "changeAdmin.presentation.start": "Anfrage starten",
+  "changeAdmin.presentation.title": "Änderung des Kontoadministrators: {count} Schritte",
   "changeAdmin.step.confirm": "Anfrage bestätigen",
   "changeAdmin.step.context": "Kontext",
   "changeAdmin.step.documents": "Unterstützende Dokumente",

@@ -1,6 +1,11 @@
 {
   "addressInput.placeholder": "Begin met typen…",
   "addressPage.countryNotAvailable": "Wat als mijn land niet in de lijst staat?",
+  "changeAdmin.presentation.description": "De accountbeheerder is het primaire contact voor alle accounthandelingen, waaronder transacties, updates, juridische informatie en het sluiten van de rekening. Dit is een gevoelige wijziging die verificatie vereist. Geef nauwkeurige informatie om deze wijziging te voltooien.",
+  "changeAdmin.presentation.expireNotice": "Deze portal is <bold>48 uur</bold> toegankelijk. Neem daarna contact op met de klantenservice voor een nieuwe link",
+  "changeAdmin.presentation.powerOfAttorneyNotice": "Je hebt een ondertekende volmacht nodig als de nieuwe beheerder niet de wettelijke vertegenwoordiger is. Download onze <link>modelvolmacht</link> om je verzoek te versnellen.",
+  "changeAdmin.presentation.start": "Aanvraag starten",
+  "changeAdmin.presentation.title": "Wijziging accountbeheerder: {count} stappen",
   "changeAdmin.step.confirm": "Bevestig aanvraag",
   "changeAdmin.step.context": "Context",
   "changeAdmin.step.documents": "Ondersteunende documenten",

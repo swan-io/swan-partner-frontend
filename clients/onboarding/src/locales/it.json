@@ -1,6 +1,11 @@
 {
   "addressInput.placeholder": "Inizi a digitare…",
   "addressPage.countryNotAvailable": "E se il mio paese non è presente nell'elenco?",
+  "changeAdmin.presentation.description": "L'amministratore dell'account è il contatto principale per tutte le operazioni dell'account, comprese le transazioni, gli aggiornamenti, le informazioni legali e la chiusura dell'account. Si tratta di una modifica sensibile che richiede verifica. Fornisca informazioni accurate per completare questa modifica.",
+  "changeAdmin.presentation.expireNotice": "Questo portale è accessibile per <bold>48 ore</bold>. Trascorso tale termine, contatti l'assistenza clienti per ottenere un nuovo link",
+  "changeAdmin.presentation.powerOfAttorneyNotice": "Avrà bisogno di una procura firmata se il nuovo amministratore non è il rappresentante legale. Scarichi il nostro <link>modello di procura</link> per velocizzare la richiesta.",
+  "changeAdmin.presentation.start": "Avvia la richiesta",
+  "changeAdmin.presentation.title": "Modifica dell'amministratore dell'account: {count} passaggi",
   "changeAdmin.step.confirm": "Conferma richiesta",
   "changeAdmin.step.context": "Contesto",
   "changeAdmin.step.documents": "Documenti di supporto",

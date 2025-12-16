@@ -1,6 +1,11 @@
 {
   "addressInput.placeholder": "Inizi a digitare…",
   "addressPage.countryNotAvailable": "E se il mio paese non è presente nell'elenco?",
+  "changeAdmin.step.confirm": "Conferma richiesta",
+  "changeAdmin.step.context": "Contesto",
+  "changeAdmin.step.documents": "Documenti di supporto",
+  "changeAdmin.step.newAdminInfo": "Informazioni sul nuovo amministratore",
+  "changeAdmin.step.requesterInfo": "Informazioni sul richiedente",
   "common.add": "Aggiungi",
   "common.back": "Indietro",
   "common.cancel": "Annulla",
@@ -234,5 +239,6 @@
   "taxIdentificationNumber.germanInfo": "Il codice fiscale è obbligatorio, ma può fornirlo successivamente entro 90 giorni. In caso contrario, il suo conto sarà sospeso.",
   "wizard.back": "Indietro",
   "wizard.finalize": "Termina",
-  "wizard.next": "Avanti"
+  "wizard.next": "Avanti",
+  "wizard.partnership": "in collaborazione con"
 }

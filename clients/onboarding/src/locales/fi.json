@@ -1,6 +1,11 @@
 {
   "addressInput.placeholder": "Aloita kirjoittaminen...",
   "addressPage.countryNotAvailable": "Entä jos maatani ei ole luettelossa?",
+  "changeAdmin.step.confirm": "Vahvista pyyntö",
+  "changeAdmin.step.context": "Konteksti",
+  "changeAdmin.step.documents": "Liitteet",
+  "changeAdmin.step.newAdminInfo": "Uuden ylläpitäjän tiedot",
+  "changeAdmin.step.requesterInfo": "Pyynnön tekijän tiedot",
   "common.add": "Lisää",
   "common.back": "Takaisin",
   "common.cancel": "Peruuta",
@@ -234,5 +239,6 @@
   "taxIdentificationNumber.germanInfo": "Tarvitsemme verotunnuksesi, mutta voit toimittaa sen meille myöhemmin. Lähetä se meille 90 päivän kuluessa, muutoin tilisi lakkaa olemasta voimassa.",
   "wizard.back": "Edellinen",
   "wizard.finalize": "Viimeistele",
-  "wizard.next": "Seuraava"
+  "wizard.next": "Seuraava",
+  "wizard.partnership": "yhteistyössä"
 }

@@ -1,6 +1,11 @@
 {
   "addressInput.placeholder": "Mit der Eingabe beginnen …",
   "addressPage.countryNotAvailable": "Was, wenn mein Land nicht aufgeführt wird?",
+  "changeAdmin.step.confirm": "Anfrage bestätigen",
+  "changeAdmin.step.context": "Kontext",
+  "changeAdmin.step.documents": "Unterstützende Dokumente",
+  "changeAdmin.step.newAdminInfo": "Informationen zum neuen Administrator",
+  "changeAdmin.step.requesterInfo": "Informationen zum Antragsteller",
   "common.add": "Hinzufügen",
   "common.back": "Zurück",
   "common.cancel": "Abbrechen",
@@ -234,5 +239,6 @@
   "taxIdentificationNumber.germanInfo": "Ihre Steuernummer ist erforderlich, aber Sie können sie später angeben. Bitte geben Sie sie innerhalb von 90 Tagen an. Andernfalls wird Ihr Konto gesperrt.",
   "wizard.back": "Zurück",
   "wizard.finalize": "Abschließen",
-  "wizard.next": "Weiter"
+  "wizard.next": "Weiter",
+  "wizard.partnership": "in Partnerschaft mit"
 }

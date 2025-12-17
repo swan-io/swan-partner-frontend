@@ -1,6 +1,11 @@
 {
   "addressInput.placeholder": "Begin met typen…",
   "addressPage.countryNotAvailable": "Wat als mijn land niet in de lijst staat?",
+  "changeAdmin.step.confirm": "Bevestig aanvraag",
+  "changeAdmin.step.context": "Context",
+  "changeAdmin.step.documents": "Ondersteunende documenten",
+  "changeAdmin.step.newAdminInfo": "Gegevens nieuwe beheerder",
+  "changeAdmin.step.requesterInfo": "Gegevens aanvrager",
   "common.add": "Toevoegen",
   "common.back": "Terug",
   "common.cancel": "Annuleren",
@@ -234,5 +239,6 @@
   "taxIdentificationNumber.germanInfo": "Je belastingnummer is vereist, maar je kunt het later opgeven. Doe dit binnen 90 dagen, anders wordt je account geschorst.",
   "wizard.back": "Vorige",
   "wizard.finalize": "Afronden",
-  "wizard.next": "Volgende"
+  "wizard.next": "Volgende",
+  "wizard.partnership": "in samenwerking met"
 }

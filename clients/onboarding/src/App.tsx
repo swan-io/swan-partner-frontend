@@ -18,6 +18,7 @@ import {
 } from "./graphql/unauthenticated";
 import { useTitle } from "./hooks/useTitle";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { ChangeAdminWizard } from "./pages/changeAdmin/ChangeAdminWizard";
 import { OnboardingCompanyWizard } from "./pages/company/CompanyOnboardingWizard";
 import { OnboardingIndividualWizard } from "./pages/individual/OnboardingIndividualWizard";
 import { env } from "./utils/env";
@@ -26,7 +27,7 @@ import { locale } from "./utils/i18n";
 import { logFrontendError, registerOnboardingInfo } from "./utils/logger";
 import { TrackingProvider, useSessionTracking } from "./utils/matomo";
 import { Router } from "./utils/routes";
-import { updateTgglContext } from "./utils/tggl";
+import { updateTgglContext, useTgglFlag } from "./utils/tggl";
 
 type Props = {
   onboardingId: string;
@@ -186,7 +187,8 @@ const FlowPicker = ({ onboardingId }: Props) => {
 };
 
 export const App = () => {
-  const route = Router.useRoute(["Area", "SupportingDocumentCollectionArea"]);
+  const route = Router.useRoute(["Area", "SupportingDocumentCollectionArea", "ChangeAdminArea"]);
+  const displayChangeAccountAdmin = useTgglFlag("changeAccountAdmin").getOr(false);
 
   return (
     <ErrorBoundary
@@ -202,6 +204,13 @@ export const App = () => {
               <SupportingDocumentCollectionFlow
                 supportingDocumentCollectionId={supportingDocumentCollectionId}
               />
+            ),
+          )
+          .with({ name: "ChangeAdminArea" }, ({ params: { requestId } }) =>
+            displayChangeAccountAdmin ? (
+              <ChangeAdminWizard changeAdminRequestId={requestId} />
+            ) : (
+              <NotFoundPage />
             ),
           )
           .with({ name: "Area" }, ({ params: { onboardingId } }) => (

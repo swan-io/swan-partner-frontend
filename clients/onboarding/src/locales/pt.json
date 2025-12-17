@@ -1,6 +1,11 @@
 {
   "addressInput.placeholder": "Começar a escrever...",
   "addressPage.countryNotAvailable": "E se o meu país não estiver na lista?",
+  "changeAdmin.step.confirm": "Confirmar pedido",
+  "changeAdmin.step.context": "Contexto",
+  "changeAdmin.step.documents": "Documentos de apoio",
+  "changeAdmin.step.newAdminInfo": "Informação do novo administrador",
+  "changeAdmin.step.requesterInfo": "Informação do solicitante",
   "common.add": "Adicionar",
   "common.back": "Voltar",
   "common.cancel": "Cancelar",
@@ -234,5 +239,6 @@
   "taxIdentificationNumber.germanInfo": "O seu número de identificação fiscal é obrigatório, mas pode fornecê-lo mais tarde. Por favor, forneça-o no prazo de 90 dias. Caso contrário, a sua conta será suspensa.",
   "wizard.back": "Anterior",
   "wizard.finalize": "Finalizar",
-  "wizard.next": "Próximo"
+  "wizard.next": "Próximo",
+  "wizard.partnership": "em parceria com"
 }

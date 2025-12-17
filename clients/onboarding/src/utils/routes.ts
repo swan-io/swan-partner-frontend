@@ -14,6 +14,17 @@ export const routes = {
     },
   ),
 
+  ...createGroup("ChangeAdmin", "/change-account-admin/:requestId", {
+    Area: "/*",
+    Root: "/",
+    Context1: "/context-1",
+    Context2: "/context-2",
+    Requester: "/requester",
+    NewAdmin: "/new-admin",
+    Documents: "/documents",
+    Confirm: "/confirm",
+  }),
+
   ...createGroup("", "/onboardings/:onboardingId", {
     Root: "/",
     Area: "/*",
@@ -29,6 +40,18 @@ export const routes = {
     Finalize: "/finalize",
   }),
 } as const;
+
+export const changeAdminRoutes = [
+  "ChangeAdminRoot",
+  "ChangeAdminContext1",
+  "ChangeAdminContext2",
+  "ChangeAdminRequester",
+  "ChangeAdminNewAdmin",
+  "ChangeAdminDocuments",
+  "ChangeAdminConfirm",
+] as const;
+
+export type ChangeAdminRoute = (typeof changeAdminRoutes)[number];
 
 export const individualOnboardingRoutes = [
   "Root",

@@ -104,6 +104,14 @@ const config: CodegenConfig = {
       documentTransforms: [{ transform: addTypenames }],
     },
 
+    [file("../../clients/onboarding/src/graphql/partner.ts")]: {
+      documents: file("../../clients/onboarding/src/graphql/partner.gql"),
+      schema: file("./dist/partner-schema.gql"),
+      plugins: frontendPlugins,
+      config: frontendConfig,
+      documentTransforms: [{ transform: addTypenames }],
+    },
+
     [file("../../clients/banking/src/graphql/partner.ts")]: {
       documents: file("../../clients/banking/src/graphql/partner.gql"),
       schema: file("./dist/partner-schema.gql"),

@@ -1,6 +1,11 @@
 {
   "addressInput.placeholder": "Start typing…",
   "addressPage.countryNotAvailable": "What if my country isn't listed?",
+  "changeAdmin.presentation.description": "The account admin is the primary contact for all account operations, including transactions, updates, legal information, and account closure. This is a sensitive change that requires verification. Please provide accurate information to complete this change.",
+  "changeAdmin.presentation.expireNotice": "This portal is accessible for <bold>48 hours</bold>. After that, contact customer support for a new link",
+  "changeAdmin.presentation.powerOfAttorneyNotice": "You'll need a signed power of attorney if the new admin isn't the legal representative. Download our <link>power of attorney template</link> to speed up your request.",
+  "changeAdmin.presentation.start": "Start request",
+  "changeAdmin.presentation.title": "Account admin change: {count} steps",
   "changeAdmin.step.confirm": "Confirm request",
   "changeAdmin.step.context": "Context",
   "changeAdmin.step.documents": "Supporting documents",

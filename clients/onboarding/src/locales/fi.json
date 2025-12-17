@@ -1,6 +1,11 @@
 {
   "addressInput.placeholder": "Aloita kirjoittaminen...",
   "addressPage.countryNotAvailable": "Entä jos maatani ei ole luettelossa?",
+  "changeAdmin.presentation.description": "Tilin ylläpitäjä on ensisijainen yhteyshenkilö kaikissa tilin toiminnoissa, kuten maksutapahtumissa, päivityksissä, lakiasioissa ja tilin sulkemisessa. Tämä on arkaluontoinen muutos, joka edellyttää varmennusta. Anna oikeat tiedot, jotta muutos voidaan toteuttaa.",
+  "changeAdmin.presentation.expireNotice": "Tähän portaaliin pääsee <bold>48 tunnin</bold> ajan. Tämän jälkeen ota yhteyttä asiakastukeen saadaksesi uuden linkin",
+  "changeAdmin.presentation.powerOfAttorneyNotice": "Tarvitset allekirjoitetun valtakirjan, jos uusi ylläpitäjä ei ole laillinen edustaja. Lataa <link>valtakirjamallimme</link> nopeuttaaksesi pyyntöäsi.",
+  "changeAdmin.presentation.start": "Aloita pyyntö",
+  "changeAdmin.presentation.title": "Tilin ylläpitäjän vaihto: {count} vaihetta",
   "changeAdmin.step.confirm": "Vahvista pyyntö",
   "changeAdmin.step.context": "Konteksti",
   "changeAdmin.step.documents": "Liitteet",

@@ -1,6 +1,11 @@
 {
   "addressInput.placeholder": "Escribe aquí...",
   "addressPage.countryNotAvailable": "¿Y si mi país no está en la lista?",
+  "changeAdmin.presentation.description": "El administrador de la cuenta es el contacto principal para todas las operaciones de la cuenta, incluidas transacciones, actualizaciones, información legal y el cierre de la cuenta. Se trata de un cambio sensible que requiere verificación. Proporciona información precisa para completar este cambio.",
+  "changeAdmin.presentation.expireNotice": "Este portal está accesible durante <bold>48 horas</bold>. Después de ese plazo, ponte en contacto con el servicio de atención al cliente para obtener un nuevo enlace",
+  "changeAdmin.presentation.powerOfAttorneyNotice": "Necesitarás un poder notarial firmado si el nuevo administrador no es el representante legal. Descarga nuestra <link>plantilla de poder notarial</link> para agilizar tu solicitud.",
+  "changeAdmin.presentation.start": "Iniciar solicitud",
+  "changeAdmin.presentation.title": "Cambio de administrador de la cuenta: {count} pasos",
   "changeAdmin.step.confirm": "Confirmar solicitud",
   "changeAdmin.step.context": "Contexto",
   "changeAdmin.step.documents": "Documentos justificativos",

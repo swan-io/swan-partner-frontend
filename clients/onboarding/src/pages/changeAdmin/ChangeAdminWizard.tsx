@@ -1,4 +1,5 @@
 import { Box } from "@swan-io/lake/src/components/Box";
+import { IconName } from "@swan-io/lake/src/components/Icon";
 import {
   LakeStepper,
   MobileStepTitle,
@@ -47,42 +48,48 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
 
   const isStepperDisplayed = !isNullish(route) && route.name !== "ChangeAdminRoot";
 
-  const steps = useMemo<WizardStep<ChangeAdminRoute>[]>(() => {
+  const steps = useMemo<(WizardStep<ChangeAdminRoute> & { icon: IconName })[]>(() => {
     return [
       {
         id: "ChangeAdminContext1",
         label: t("changeAdmin.step.context"),
+        icon: "mail-regular",
         errors: [],
       },
       {
         id: "ChangeAdminContext2",
         label: t("changeAdmin.step.context"),
+        icon: "mail-regular",
         errors: [],
       },
       {
         id: "ChangeAdminRequester",
         label: t("changeAdmin.step.requesterInfo"),
+        icon: "lake-clipboard-bullet",
         errors: [],
       },
       {
         id: "ChangeAdminNewAdmin",
         label: t("changeAdmin.step.newAdminInfo"),
+        icon: "lake-clipboard-bullet",
         errors: [],
       },
       {
         id: "ChangeAdminDocuments",
         label: t("changeAdmin.step.documents"),
+        icon: "document-regular",
         errors: [],
       },
       {
         id: "ChangeAdminConfirm",
         label: t("changeAdmin.step.confirm"),
+        icon: "phone-regular",
         errors: [],
       },
     ];
   }, []);
 
-  const stepperSteps = useMemo<TopLevelStep[]>(
+  const stepperSteps = useMemo<(TopLevelStep & { icon: IconName })[]>(
     () =>
       steps
         // Remove context steps except the first one
@@ -93,7 +100,9 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
           // Organisation steps are grouped
           if (step.id === "ChangeAdminContext1") {
             return {
+              id: step.id,
               label: t("changeAdmin.step.context"),
+              icon: step.icon,
               children: steps
                 .filter(({ id }) => id.startsWith("ChangeAdminContext"))
                 .map(step => ({
@@ -108,6 +117,7 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
           return {
             id: step.id,
             label: step.label,
+            icon: step.icon,
             url: Router[step.id]({ requestId: changeAdminRequestId }),
             hasErrors: false,
           };
@@ -153,6 +163,7 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
       {match(route)
         .with({ name: "ChangeAdminRoot" }, () => (
           <ChangeAdminFlowPresentation
+            steps={stepperSteps}
             changeAdminRequestId={changeAdminRequestId}
             nextStep="ChangeAdminContext1"
           />

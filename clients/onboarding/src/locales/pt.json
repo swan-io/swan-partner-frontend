@@ -1,6 +1,11 @@
 {
   "addressInput.placeholder": "Começar a escrever...",
   "addressPage.countryNotAvailable": "E se o meu país não estiver na lista?",
+  "changeAdmin.presentation.description": "O administrador da conta é o contacto principal para todas as operações da conta, incluindo transações, actualizações, informações legais e encerramento da conta. Esta é uma alteração sensível que requer verificação. Forneça informações precisas para concluir esta alteração.",
+  "changeAdmin.presentation.expireNotice": "Este portal está acessível durante <bold>48 horas</bold>. Após esse prazo, contacte o apoio ao cliente para obter um novo link",
+  "changeAdmin.presentation.powerOfAttorneyNotice": "Será necessária uma procuração assinada se o novo administrador não for o representante legal. Descarregue o nosso <link>modelo de procuração</link> para acelerar o seu pedido.",
+  "changeAdmin.presentation.start": "Iniciar pedido",
+  "changeAdmin.presentation.title": "Alteração do administrador da conta: {count} etapas",
   "changeAdmin.step.confirm": "Confirmar pedido",
   "changeAdmin.step.context": "Contexto",
   "changeAdmin.step.documents": "Documentos de apoio",

@@ -1378,7 +1378,7 @@ type CompanyAccountHolderOnboarding implements AccountHolderOnboardingBase {
 type CompanyAccountHolderOnboardingAccount {
   name: String
   country: AccountCountry
-  intendedUsage: [CompanyAccountIntendedUsage!]
+  intendedUsages: [CompanyAccountIntendedUsage!]
 }
 
 """Company account admin information for onboarding"""
@@ -1414,7 +1414,7 @@ input CompanyAccountHolderOnboardingAccountAdminInput {
 input CompanyAccountHolderOnboardingAccountInput {
   name: String
   country: AccountCountry!
-  intendedUsage: [CompanyAccountIntendedUsage!]
+  intendedUsages: [CompanyAccountIntendedUsage!]
 }
 
 """Company account intended usage"""
@@ -1903,8 +1903,8 @@ type GenerateSupportingDocumentUploadUrlSuccessPayload {
 }
 
 input GeolocInput {
-  lat: String!
-  lng: String!
+  lat: Float!
+  lng: Float!
 }
 
 type Headquarters {
@@ -1986,7 +1986,7 @@ type IndividualAccountHolderOnboarding implements AccountHolderOnboardingBase {
 type IndividualAccountHolderOnboardingAccount {
   name: String
   country: AccountCountry
-  intendedUsage: [IndividualAccountIntendedUsage!]
+  intendedUsages: [IndividualAccountIntendedUsage!]
 }
 
 """Individual account admin information for onboarding"""
@@ -2001,7 +2001,7 @@ type IndividualAccountHolderOnboardingAccountAdmin {
   nationality: CCA3
   address: AddressInfo
   taxIdentificationNumber: String
-  sourceOfFunds: IndividualAccountSourceOfFunds
+  sourcesOfFunds: [IndividualAccountSourceOfFunds!]
   unitedStatesTaxInfo: UnitedStatesTaxInfo
 }
 
@@ -2096,12 +2096,6 @@ type IndividualUltimateBeneficialOwner {
 
   """Individual beneficial owner residency Address"""
   residencyAddress: AddressInformation
-
-  """
-  Individual beneficial owner title (Mr/Ms)
-  @deprecated(reason: "Use `gender` instead")
-  """
-  title: TitleEnum @deprecated(reason: "Use `gender` instead")
 
   """Ultimate beneficial owner's identity document details"""
   identityDocumentDetails: UBOIdentityDocumentDetails
@@ -2448,11 +2442,6 @@ type Onboarding {
   """
   onboardingState: OnboardingState! @deprecated(reason: "use `statusInfo` instead")
 
-  """
-  URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking.
-  """
-  redirectUrl: String! @deprecated(reason: "Use `redirectUrl` field on oauthRedirectParameters parameters instead.")
-
   """Extra parameters provided by partner"""
   oAuthRedirectParameters: OAuthRedirectParameters
 
@@ -2689,11 +2678,6 @@ type OnboardingInfo {
   @deprecated(reason: "use `statusInfo` instead")
   """
   onboardingState: OnboardingState @deprecated(reason: "use `statusInfo` instead")
-
-  """
-  URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking.
-  """
-  redirectUrl: String!
 
   """Project infos you set in the dashboard"""
   projectInfo: ProjectInfo
@@ -3967,15 +3951,6 @@ enum SuspendAccountReasonType {
 """SuspendAccountStatusReason"""
 union SuspendAccountStatusReason = SuspendAccountReason
 
-"""Individual ultimate beneficial owner title (Mr/Ms)"""
-enum TitleEnum {
-  """Identified as a man"""
-  Mr
-
-  """Identified as a woman"""
-  Ms
-}
-
 """Rejection returned if too many items are given"""
 type TooManyItemsRejection implements Rejection {
   message: String!
@@ -4046,6 +4021,7 @@ type UltimateBeneficialOwner {
   address: AddressInfo
   taxIdentificationNumber: String
   unitedStatesTaxInfo: UnitedStatesTaxInfo
+  identityDocumentInfo: UltimateBeneficialOwnerIdentityDocumentInfo
 }
 
 enum UltimateBeneficialOwnerControlType {
@@ -4056,10 +4032,20 @@ enum UltimateBeneficialOwnerControlType {
   StrategicOrManagerialInfluence
 }
 
-input UltimateBeneficialOwnerIdentityDocumentInfoInput {
-  type: UBOIdentityDocumentType!
+type UltimateBeneficialOwnerIdentityDocumentInfo {
+  type: UBOIdentityDocumentType
   number: String
   expiryDate: Date
+  issueDate: Date
+  issuingAuthority: String
+}
+
+input UltimateBeneficialOwnerIdentityDocumentInfoInput {
+  type: UBOIdentityDocumentType
+  number: String
+  expiryDate: Date
+  issueDate: Date
+  issuingAuthority: String
 }
 
 """
@@ -5103,6 +5089,12 @@ input CardOrderByInput {
   direction: OrderByDirection
 }
 
+enum CardPackageLevel {
+  Standard
+  Essential
+  Premium
+}
+
 type CardPINInfos {
   urlToCall: String!
   requestRef: String!
@@ -5145,6 +5137,7 @@ type CardProduct {
   companySpendingLimit: SpendingLimit!
   insurance: CardInsuranceConfiguration
   fundingType: CardProductFundingType!
+  cardPackage: CardPackageLevel
 
   """Card printing hub"""
   cardPrintingHub: CardPrintingHub
@@ -5457,6 +5450,16 @@ enum CompleteDigitalCardStatus {
 interface CompleteDigitalCardStatusInfo {
   """Status of the digital card."""
   status: CompleteDigitalCardStatus!
+}
+
+enum DayEnum {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
 }
 
 """Device"""
@@ -6090,6 +6093,55 @@ input SignatureData {
 
   """list of apple generated certificates"""
   certificates: [Certificate!]!
+}
+
+input SpendingLimitCalendarDayModeInput {
+  """a starting hour for the spending limit (0 to 23)."""
+  startHour: Int! = 0
+}
+
+input SpendingLimitCalendarModeInput {
+  """a daily based calendar spending limit."""
+  daily: SpendingLimitCalendarDayModeInput
+
+  """a weekly based calendar spending limit."""
+  weekly: SpendingLimitCalendarWeekModeInput
+
+  """a monthly based calendar spending limit."""
+  monthly: SpendingLimitCalendarMonthModeInput
+}
+
+input SpendingLimitCalendarMonthModeInput {
+  """a starting hour for the spending limit (0 to 23)."""
+  startHour: Int! = 0
+
+  """a day in month for the spending limit (1 to 31)."""
+  startDay: Int! = 1
+}
+
+input SpendingLimitCalendarWeekModeInput {
+  """a starting hour for the spending limit (0 to 23)."""
+  startHour: Int! = 0
+
+  """a day of week enum."""
+  startDay: DayEnum! = Monday
+}
+
+input SpendingLimitModeInput {
+  """a rolling period, defining a period of x days/weeks/months."""
+  rolling: SpendingLimitRollingModeInput
+
+  """
+  a fixed calendar period starting either at a given hour of day, a given hour and day in week/month
+  """
+  calendar: SpendingLimitCalendarModeInput
+}
+
+input SpendingLimitRollingModeInput {
+  """
+  a rolling value for a spending limit. For a monthly period, only 1 is valid.
+  """
+  rollingValue: Int!
 }
 
 """Rejection returned when the User is not the cardholder"""

@@ -96,6 +96,39 @@ type Mutation {
   """Simulate physical card renewal process."""
   simulatePhysicalCardRenewalProcess(input: SimulatePhysicalCardRenewalProcessInput!): SimulatePhysicalCardRenewalProcessPayload!
 
+  """
+  Simulate a card advice (amendment) received for a previous authorization for a card issued on a Swan account.
+  """
+  simulateOutgoingCardAdvice(input: SimulateOutgoingCardAdviceInput!): SimulateOutgoingCardAuthorizationPayload!
+
+  """
+  Simulate a card authorization release being received for a card authorization.
+  """
+  simulateOutgoingCardAuthorizationRelease(input: SimulateOutgoingCardAuthorizationReleaseInput!): SimulateOutgoingCardAuthorizationReleasePayload!
+
+  """
+  Simulate a card authorization request being received for a card issued on a Swan account.
+  """
+  simulateOutgoingCardAuthorization(input: SimulateOutgoingCardAuthorizationInput!): SimulateOutgoingCardAuthorizationPayload!
+
+  """
+  After a Card Credit has been booked on a Swan account, simulate the merchant reversing the transaction and the subsequent debit of funds from the Swan account.
+  """
+  simulateOutgoingCardCreditReverse(input: SimulateOutgoingCardCreditReverseInput!): SimulateOutgoingCardCreditReversePayload!
+
+  """Simulate the reception of a card credit on a Swan account."""
+  simulateOutgoingCardCredit(input: SimulateOutgoingCardCreditInput!): SimulateOutgoingCardCreditPayload!
+
+  """
+  After a Card Debit has been booked on a Swan account, simulate the merchant reversing the transaction and the subsequent return of funds to the Swan account.
+  """
+  simulateOutgoingCardDebitReverse(input: SimulateOutgoingCardDebitReverseInput!): SimulateOutgoingCardDebitReversePayload!
+
+  """
+  Simulate a card debit being received on a previously authorized card transaction.
+  """
+  simulateOutgoingCardDebit(input: SimulateOutgoingCardDebitInput!): SimulateOutgoingCardDebitPayload!
+
   """Request a credit limit with given settings"""
   simulateCreditLimitUpdated(input: SimulateCreditLimitUpdatedWebhookInput!): SimulateCreditLimitUpdatedResponse
 
@@ -167,39 +200,6 @@ type Mutation {
   After an incoming Card transaction has been scheduled, simulate the corresponding transaction being booked on the Swan creditor account.
   """
   simulateIncomingCardBooking(input: SimulateIncomingCardBookingInput!): SimulateIncomingCardBookingPayload!
-
-  """
-  Simulate a card advice (amendment) received for a previous authorization for a card issued on a Swan account.
-  """
-  simulateOutgoingCardAdvice(input: SimulateOutgoingCardAdviceInput!): SimulateOutgoingCardAuthorizationPayload!
-
-  """
-  Simulate a card authorization release being received for a card authorization.
-  """
-  simulateOutgoingCardAuthorizationRelease(input: SimulateOutgoingCardAuthorizationReleaseInput!): SimulateOutgoingCardAuthorizationReleasePayload!
-
-  """
-  Simulate a card authorization request being received for a card issued on a Swan account.
-  """
-  simulateOutgoingCardAuthorization(input: SimulateOutgoingCardAuthorizationInput!): SimulateOutgoingCardAuthorizationPayload!
-
-  """
-  After a Card Credit has been booked on a Swan account, simulate the merchant reversing the transaction and the subsequent debit of funds from the Swan account.
-  """
-  simulateOutgoingCardCreditReverse(input: SimulateOutgoingCardCreditReverseInput!): SimulateOutgoingCardCreditReversePayload!
-
-  """Simulate the reception of a card credit on a Swan account."""
-  simulateOutgoingCardCredit(input: SimulateOutgoingCardCreditInput!): SimulateOutgoingCardCreditPayload!
-
-  """
-  After a Card Debit has been booked on a Swan account, simulate the merchant reversing the transaction and the subsequent return of funds to the Swan account.
-  """
-  simulateOutgoingCardDebitReverse(input: SimulateOutgoingCardDebitReverseInput!): SimulateOutgoingCardDebitReversePayload!
-
-  """
-  Simulate a card debit being received on a previously authorized card transaction.
-  """
-  simulateOutgoingCardDebit(input: SimulateOutgoingCardDebitInput!): SimulateOutgoingCardDebitPayload!
 
   """
   After an incoming Check has been scheduled, simulate the corresponding transaction being booked on the Swan creditor account.
@@ -2114,12 +2114,6 @@ type IndividualUltimateBeneficialOwner {
   """Individual beneficial owner residency Address"""
   residencyAddress: AddressInformation
 
-  """
-  Individual beneficial owner title (Mr/Ms)
-  @deprecated(reason: "Use `gender` instead")
-  """
-  title: TitleEnum @deprecated(reason: "Use `gender` instead")
-
   """Ultimate beneficial owner's identity document details"""
   identityDocumentDetails: UBOIdentityDocumentDetails
 }
@@ -2399,11 +2393,6 @@ type Onboarding {
   """
   onboardingState: OnboardingState! @deprecated(reason: "use `statusInfo` instead")
 
-  """
-  URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking.
-  """
-  redirectUrl: String! @deprecated(reason: "Use `redirectUrl` field on oauthRedirectParameters parameters instead.")
-
   """Extra parameters provided by partner"""
   oAuthRedirectParameters: OAuthRedirectParameters
 
@@ -2615,11 +2604,6 @@ type OnboardingInfo {
   @deprecated(reason: "use `statusInfo` instead")
   """
   onboardingState: OnboardingState @deprecated(reason: "use `statusInfo` instead")
-
-  """
-  URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking.
-  """
-  redirectUrl: String!
 
   """Project infos you set in the dashboard"""
   projectInfo: ProjectInfo
@@ -3790,15 +3774,6 @@ enum SuspendAccountReasonType {
 """SuspendAccountStatusReason"""
 union SuspendAccountStatusReason = SuspendAccountReason
 
-"""Individual ultimate beneficial owner title (Mr/Ms)"""
-enum TitleEnum {
-  """Identified as a man"""
-  Mr
-
-  """Identified as a woman"""
-  Ms
-}
-
 """Rejection returned if too many items are given"""
 type TooManyItemsRejection implements Rejection {
   message: String!
@@ -4366,80 +4341,6 @@ type SimulateCardTransactionEnrichmentSuccessPayload {
 """Thrown when an related account is not eligible to the feature"""
 type AccountNotEligibleRejection implements Rejection {
   message: String!
-}
-
-enum BankingFee {
-  AccountMembershipSubscription
-  BusinessAccountSubscription
-  CardAcquiringAmex
-  CardAcquiringChargeback
-  CardAcquiringCommercialCB
-  CardAcquiringCommercialVisaMcOutsideEEA
-  CardAcquiringCommercialVisaMcWithinEEA
-  CardAcquiringCommercialWithinEEA
-  CardAcquiringConsumerCB
-  CardAcquiringConsumerVisaMcOutsideEEA
-  CardAcquiringConsumerVisaMcWithinEEA
-  CardAcquiringConsumerWithinEEA
-  CardAcquiringOutsideEEA
-  CardPaymentsOutsideSEPA
-  CardTransaction
-  CashWithdrawalsOutsideSEPA
-  CashWithdrawalsWithinSEPA
-  CheckDeposit
-  CheckIncident
-  CheckReturn
-  CirculationLetterDraftingFee
-  CompanyAccountHolderVerified
-  ConfirmationLetterDraftingFee
-  DirectDebitRejection
-  DocumentIssuance
-  IctInGroup1
-  IctInGroup2
-  IctInGroup3
-  IctInGroup4
-  IctOutGroup1
-  IctOutGroup2
-  IctOutGroup3
-  IctOutGroup4
-  IctOutSwiftGroup1
-  ImproperUseOfAccount
-  InactiveAccount
-  IndividualAccountSubscription
-  InstantSctIn
-  InstantSctOut
-  PhysicalCardDeliveryExpress
-  PhysicalCardDeliveryFrance
-  PhysicalCardDeliveryIntl
-  PhysicalCardDeliverySpain
-  PhysicalCardPrinting
-  ProcessingJudicialOrAdministrativeSeizure
-  SctIn
-  SctOut
-  SddIn
-  SddInB2bLevel1
-  SddInB2bLevel2
-  SddInB2bMerchant
-  SddInCoreDispute
-  SddInCoreFailure
-  SddInCoreDisputePennylaneAccountingFirm
-  SddInB2bDispute
-  SddInB2bFailure
-  SddInCoreLevel1
-  SddInCoreLevel2
-  SddInCoreMerchant
-  SddInCoreReturn
-  SddOut
-  SepaCreditorIdentifierRequest
-  SingleUseVirtualCard
-  UnauthorizedOverdraft
-  VirtualCardSubscription
-}
-
-enum BankingFeePackageType {
-  CardStandard
-  CardEssential
-  CardPremium
 }
 
 """Invoice"""
@@ -5257,6 +5158,16 @@ enum CardType {
   Virtual
 }
 
+enum DayEnum {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
+}
+
 """Input to decide on digitalization"""
 input DigitalizationInput {
   """The card id to provision"""
@@ -5380,7 +5291,7 @@ input PhysicalCardReceptionInput {
   cardId: ID!
 }
 
-union PhysicalCardReceptionPayload = PhysicalCardReceptionSuccessPayload | SimulationRejection | ValidationRejection
+union PhysicalCardReceptionPayload = PhysicalCardReceptionSuccessPayload | SimulationRejection | ValidationRejection | ForbiddenRejection
 
 type PhysicalCardReceptionSuccessPayload {
   physicalCardIdentifier: String!
@@ -5552,7 +5463,7 @@ input SimulateInsuranceSubscriptionEnablementInput {
 """
 Union of all possible payloads for insurance subscription enablement process
 """
-union SimulateInsuranceSubscriptionEnablementPayload = SimulateInsuranceSubscriptionEnablementSuccessPayload | BadRequestRejection
+union SimulateInsuranceSubscriptionEnablementPayload = SimulateInsuranceSubscriptionEnablementSuccessPayload | BadRequestRejection | ForbiddenRejection
 
 type SimulateInsuranceSubscriptionEnablementSuccessPayload {
   """Unique identifier of the enabled insurance contract"""
@@ -5608,7 +5519,7 @@ enum SimulationRejectionCode {
 The response to a simulation call.
 Will alway be true and mean that the simulation was successfully executed
 """
-union SimulationResponse = SimulationSuccessfulResponse | SimulationRejection | ValidationRejection
+union SimulationResponse = SimulationSuccessfulResponse | SimulationRejection | ValidationRejection | ForbiddenRejection
 
 """
 The response to a simulation call.
@@ -5618,10 +5529,454 @@ type SimulationSuccessfulResponse {
   noop: Boolean
 }
 
+input SpendingLimitCalendarDayModeInput {
+  """a starting hour for the spending limit (0 to 23)."""
+  startHour: Int! = 0
+}
+
+input SpendingLimitCalendarModeInput {
+  """a daily based calendar spending limit."""
+  daily: SpendingLimitCalendarDayModeInput
+
+  """a weekly based calendar spending limit."""
+  weekly: SpendingLimitCalendarWeekModeInput
+
+  """a monthly based calendar spending limit."""
+  monthly: SpendingLimitCalendarMonthModeInput
+}
+
+input SpendingLimitCalendarMonthModeInput {
+  """a starting hour for the spending limit (0 to 23)."""
+  startHour: Int! = 0
+
+  """a day in month for the spending limit (1 to 31)."""
+  startDay: Int! = 1
+}
+
+input SpendingLimitCalendarWeekModeInput {
+  """a starting hour for the spending limit (0 to 23)."""
+  startHour: Int! = 0
+
+  """a day of week enum."""
+  startDay: DayEnum! = Monday
+}
+
+input SpendingLimitModeInput {
+  """a rolling period, defining a period of x days/weeks/months."""
+  rolling: SpendingLimitRollingModeInput
+
+  """
+  a fixed calendar period starting either at a given hour of day, a given hour and day in week/month
+  """
+  calendar: SpendingLimitCalendarModeInput
+}
+
+input SpendingLimitRollingModeInput {
+  """
+  a rolling value for a spending limit. For a monthly period, only 1 is valid.
+  """
+  rollingValue: Int!
+}
+
 """Wallet Provider"""
 enum WalletProviderType {
   ApplePay
   GooglePay
+}
+
+scalar AuditId
+
+scalar AuthorizationId
+
+"""Card authorization operation type"""
+enum CardAuthorizationOperationType {
+  AtmWithdrawal
+  CashBackPayment
+  Credit
+  InStoreWithdrawal
+  Payment
+  QuasiCash
+  TokenizationRequest
+}
+
+enum CardAuthorizationOutcome {
+  Accepted
+  AccountClosed
+  AccountSuspended
+  AmountInvalid
+  AtmWithdrawalAmountLimitExceeded
+  AtmWithdrawalNumberLimitExceeded
+  CanceledByCardHolder
+  CardExpired
+  CardNotActivated
+  CardNumberInvalid
+  CardOutOfOrder
+  CardPermanentlyBlocked
+  CardSuspended
+  CardHolderVerificationMethodMissing
+  CardUnknown
+  ChipCryptogramControlRefusal
+  ContactlessAmountLimitExceeded
+  ContactlessCumulativeAmountLimitExceeded
+  DigitalCardDeactivated
+  DigitalCardEnrollmentInvalid
+  DigitalCardRefusal
+  DigitalCardSuspended
+  DigitalCardTokenInvalid
+  DoNotHonor
+  DomesticTransactionNotAllowed
+  FraudRossAndersonRefusal
+  InconsistentEmvAmount
+  InPersonTransactionsNotAuthorized
+  InvalidAuthorizationResponse
+  InvalidExpirationDate
+  InvalidPinAttemptsExceeded
+  InvalidSecurityNumber
+  MagstripeNotSupported
+  MerchantNotFound
+  MerchantShouldResubmitAuthorization
+  MissingExpirationDate
+  MiscellaneousReason
+  PartialCancelation
+  PartialApproval
+  PinInvalid
+  PinRequired
+  SchemeAccountConversionError
+  SchemeStandInRefusal
+  SchemeTransactionBlockingRefusal
+  SecurityViolation
+  SoftDecline
+  SwanTechnicalErrorOccurred
+  SwanTimeout
+  TerminalVerificationResultsInvalid
+  ThreeDsError
+  TransactionAmountLimitExceeded
+  TransactionCurrencyIncorrect
+  TransactionDuplicated
+  TransactionInvalid
+  TransactionNotAllowed
+  TransactionNotAuthorizedForCardHolder
+  UnableToDetectTransactionEnvironment
+}
+
+enum CardAuthorizationReleaseReason {
+  """Authorization expired"""
+  Expired
+
+  """Authorization manually released by Swan"""
+  ManuallyReleased
+
+  """Authorization released by the merchant"""
+  MerchantReleased
+}
+
+enum CardAuthorizationType {
+  Classic
+  PreAuthorization
+  DataRequest
+}
+
+scalar CardToken
+
+enum CardTransactionCategory {
+  InStore
+  eCommerce
+  eCommerceWith3DS
+  Withdrawal
+  Other
+}
+
+input Merchant {
+  """Acquirer ID"""
+  acquirerId: String
+
+  """Sub merchant ID"""
+  subMerchantId: String
+
+  """Merchant city"""
+  city: String = "PARIS"
+
+  """Merchant code"""
+  code: String = "0000"
+
+  """Merchant country"""
+  country: CCA3 = "FRA"
+
+  """Merchant ID"""
+  id: String = "SWAN01"
+
+  """Merchant name"""
+  name: String = "SWAN"
+
+  """Merchant postal Code"""
+  postalCode: String = "75010"
+}
+
+"""Sepa beneficiary account"""
+input SepaBeneficiaryInput {
+  """International Bank Account Number"""
+  iban: IBAN!
+
+  """
+  Full name of the beneficiary (min 2 characters, max 70 characters). The name should not include any special characters.
+  """
+  name: String!
+
+  """beneficiary address"""
+  address: AddressInput
+
+  """
+  `true` if this new beneficiary is the account holder himself in another financial institution.
+  *SOON TO BE DEPRECATED*
+  Not used. It will be removed soon.
+  """
+  isMyOwnIban: Boolean
+
+  """
+  `true` if this new beneficiary will be saved to the beneficiary list of the debited account.
+  """
+  save: Boolean
+}
+
+"""Request a card advice simulation input"""
+input SimulateOutgoingCardAdviceInput {
+  amount: AmountInput!
+
+  """Card transaction category"""
+  cardTransactionCategory: CardTransactionCategory = Other
+
+  """Merchant"""
+  merchant: Merchant
+
+  """Original amount"""
+  originalAmount: AmountInput
+
+  """Authorization wanted outcome"""
+  outcome: CardAuthorizationOutcome
+
+  """Terminal ID"""
+  terminalId: String = "SWAN01"
+
+  """Transaction ID"""
+  transactionId: ID!
+
+  """Expiration date time"""
+  expirationDateTime: DateTime
+
+  """"""
+  transactionTransportType: TransactionTransportType
+}
+
+"""Request a card authorization simulation input"""
+input SimulateOutgoingCardAuthorizationInput {
+  amount: AmountInput
+
+  """Authorization request type"""
+  authorizationType: CardAuthorizationType = Classic
+
+  """Card ID"""
+  cardId: String!
+
+  """Card transaction category"""
+  cardTransactionCategory: CardTransactionCategory = Other
+
+  """Simulation card type"""
+  cardType: SimulationCardType
+
+  """Merchant"""
+  merchant: Merchant
+
+  """Operation type"""
+  operationType: CardAuthorizationOperationType
+
+  """Original amount"""
+  originalAmount: AmountInput
+
+  """Authorization wanted outcome"""
+  outcome: CardAuthorizationOutcome
+
+  """Terminal ID"""
+  terminalId: String = "SWAN01"
+
+  """Expiration date time"""
+  expirationDateTime: DateTime
+
+  """"""
+  allowsPartialAuthorization: Boolean = false
+
+  """"""
+  transactionTransportType: TransactionTransportType
+}
+
+"""Union of Success payload and potential rejections"""
+union SimulateOutgoingCardAuthorizationPayload = SimulateOutgoingCardAuthorizationSuccessPayload | SimulateOutgoingCardAuthorizationRejectPayload | CardNotFoundRejection | ForbiddenRejection
+
+"""Reject payload type"""
+type SimulateOutgoingCardAuthorizationRejectPayload {
+  transactionId: ID!
+  rejectedReason: String!
+}
+
+"""Input to simulate a release of a card authorization"""
+input SimulateOutgoingCardAuthorizationReleaseInput {
+  transactionId: ID!
+  reason: CardAuthorizationReleaseReason = Expired
+}
+
+"""Union of Success payload and potential rejections"""
+union SimulateOutgoingCardAuthorizationReleasePayload = SimulateOutgoingCardAuthorizationReleaseSuccessPayload | ForbiddenRejection | TransactionNotFoundRejection
+
+"""Success payload type"""
+type SimulateOutgoingCardAuthorizationReleaseSuccessPayload {
+  transactionId: ID!
+}
+
+"""Success payload type"""
+type SimulateOutgoingCardAuthorizationSuccessPayload {
+  transactionId: ID!
+}
+
+"""Credit a card simulation input"""
+input SimulateOutgoingCardCreditInput {
+  """Amount"""
+  amount: AmountInput!
+
+  """Card ID"""
+  cardId: String!
+
+  """Card type"""
+  cardType: SimulationCardType
+
+  """Origin Transaction ID"""
+  originTransactionId: String
+
+  """Original amount"""
+  originalAmount: AmountInput
+
+  """Terminal Id"""
+  terminalId: String
+
+  """Merchant Id"""
+  merchantId: String
+
+  """Merchant Category Code"""
+  merchantCategoryCode: String
+
+  """Merchant Name"""
+  merchantName: String
+
+  """Merchant City"""
+  merchantCity: String
+
+  """Merchant Postal Code"""
+  merchantPostalCode: String
+
+  """Merchant Country"""
+  merchantCountry: CCA3
+}
+
+"""Union of Success payload and potential rejections"""
+union SimulateOutgoingCardCreditPayload = SimulateOutgoingCardCreditSuccessPayload | CardNotFoundRejection | ForbiddenRejection
+
+"""Reverse a credit simulation input"""
+input SimulateOutgoingCardCreditReverseInput {
+  """Amount"""
+  amount: AmountInput
+
+  """Original amount"""
+  originalAmount: AmountInput
+
+  """Transaction ID to be reversed"""
+  transactionId: ID!
+}
+
+"""Union of Success payload and potential rejections"""
+union SimulateOutgoingCardCreditReversePayload = SimulateOutgoingCardCreditReverseSuccessPayload | ForbiddenRejection | TransactionNotFoundRejection
+
+"""Success payload type"""
+type SimulateOutgoingCardCreditReverseSuccessPayload {
+  transactionId: ID!
+}
+
+"""Success payload type"""
+type SimulateOutgoingCardCreditSuccessPayload {
+  transactionId: ID!
+}
+
+"""Debit a card simulation input"""
+input SimulateOutgoingCardDebitInput {
+  """Amount"""
+  amount: AmountInput
+
+  """Originalmount"""
+  originalAmount: AmountInput
+
+  """Transaction ID to be debited"""
+  transactionId: ID!
+}
+
+"""Union of Success payload and potential rejections"""
+union SimulateOutgoingCardDebitPayload = SimulateOutgoingCardDebitSuccessPayload | ForbiddenRejection | TransactionNotFoundRejection | CardNotFoundRejection
+
+"""Debit Reversal simulation input"""
+input SimulateOutgoingCardDebitReverseInput {
+  """Amount"""
+  amount: AmountInput
+
+  """Originalmount"""
+  originalAmount: AmountInput
+
+  """Transaction ID to be reversed"""
+  transactionId: ID!
+}
+
+"""Union of Success payload and potential rejections"""
+union SimulateOutgoingCardDebitReversePayload = SimulateOutgoingCardDebitReverseSuccessPayload | ForbiddenRejection | TransactionNotFoundRejection
+
+"""Success payload type"""
+type SimulateOutgoingCardDebitReverseSuccessPayload {
+  transactionId: ID!
+}
+
+"""Success payload type"""
+type SimulateOutgoingCardDebitSuccessPayload {
+  transactionId: ID!
+}
+
+enum SimulationCardType {
+  Physical
+  Virtual
+}
+
+"""Swan account beneficiary"""
+input SwanAccountBeneficiaryInput {
+  """account number to be credited"""
+  accountNumber: AccountNumber!
+
+  """full name of the beneficiary  (max 70 characters)"""
+  name: String!
+
+  """
+  `true` if this new beneficiary will be saved to the beneficiary list of the debited account.
+  """
+  save: Boolean!
+}
+
+scalar TokenRequestorId
+
+enum TransactionSide {
+  Credit
+  Debit
+}
+
+enum TransactionTransportType {
+  Prefunded
+  RealTimeAuthorized
+  PostAuthorizedAggregated
+  PostAuthorizedAggregatedMaestro
+  AuthorizedAggregatedSplitClearing
+  Other
+  DebtRecovery
 }
 
 """Purpose of a consent"""
@@ -5939,16 +6294,6 @@ type CsvStatement implements StatementInfo {
 
   """date at which the link will not be useable anymore"""
   expiresAt: DateTime
-}
-
-enum DayEnum {
-  Monday
-  Tuesday
-  Wednesday
-  Thursday
-  Friday
-  Saturday
-  Sunday
 }
 
 type MissingAddressItemRejection implements Rejection {
@@ -10559,108 +10904,6 @@ type WaitingForInformationMerchantPaymentMethodStatusInfo implements MerchantPay
   verificationRequirements: [MerchantVerificationRequirements!]!
 }
 
-scalar AuditId
-
-scalar AuthorizationId
-
-"""Card authorization operation type"""
-enum CardAuthorizationOperationType {
-  AtmWithdrawal
-  CashBackPayment
-  Credit
-  InStoreWithdrawal
-  Payment
-  QuasiCash
-  TokenizationRequest
-}
-
-enum CardAuthorizationOutcome {
-  Accepted
-  AccountClosed
-  AccountSuspended
-  AmountInvalid
-  AtmWithdrawalAmountLimitExceeded
-  AtmWithdrawalNumberLimitExceeded
-  CanceledByCardHolder
-  CardExpired
-  CardNotActivated
-  CardNumberInvalid
-  CardOutOfOrder
-  CardPermanentlyBlocked
-  CardSuspended
-  CardHolderVerificationMethodMissing
-  CardUnknown
-  ChipCryptogramControlRefusal
-  ContactlessAmountLimitExceeded
-  ContactlessCumulativeAmountLimitExceeded
-  DigitalCardDeactivated
-  DigitalCardEnrollmentInvalid
-  DigitalCardRefusal
-  DigitalCardSuspended
-  DigitalCardTokenInvalid
-  DoNotHonor
-  DomesticTransactionNotAllowed
-  FraudRossAndersonRefusal
-  InconsistentEmvAmount
-  InPersonTransactionsNotAuthorized
-  InvalidAuthorizationResponse
-  InvalidExpirationDate
-  InvalidPinAttemptsExceeded
-  InvalidSecurityNumber
-  MagstripeNotSupported
-  MerchantNotFound
-  MerchantShouldResubmitAuthorization
-  MissingExpirationDate
-  MiscellaneousReason
-  PartialCancelation
-  PartialApproval
-  PinInvalid
-  PinRequired
-  SchemeAccountConversionError
-  SchemeStandInRefusal
-  SchemeTransactionBlockingRefusal
-  SecurityViolation
-  SoftDecline
-  SwanTechnicalErrorOccurred
-  SwanTimeout
-  TerminalVerificationResultsInvalid
-  ThreeDsError
-  TransactionAmountLimitExceeded
-  TransactionCurrencyIncorrect
-  TransactionDuplicated
-  TransactionInvalid
-  TransactionNotAllowed
-  TransactionNotAuthorizedForCardHolder
-  UnableToDetectTransactionEnvironment
-}
-
-enum CardAuthorizationReleaseReason {
-  """Authorization expired"""
-  Expired
-
-  """Authorization manually released by Swan"""
-  ManuallyReleased
-
-  """Authorization released by the merchant"""
-  MerchantReleased
-}
-
-enum CardAuthorizationType {
-  Classic
-  PreAuthorization
-  DataRequest
-}
-
-scalar CardToken
-
-enum CardTransactionCategory {
-  InStore
-  eCommerce
-  eCommerceWith3DS
-  Withdrawal
-  Other
-}
-
 """Enum CategoryPurpose - Purpose of the payment transaction"""
 enum CategoryPurpose {
   """Account Sweep"""
@@ -10935,32 +11178,6 @@ input MandateAmendment {
   previousMandateReference: SepaReference
 }
 
-input Merchant {
-  """Acquirer ID"""
-  acquirerId: String
-
-  """Sub merchant ID"""
-  subMerchantId: String
-
-  """Merchant city"""
-  city: String = "PARIS"
-
-  """Merchant code"""
-  code: String = "0000"
-
-  """Merchant country"""
-  country: CCA3 = "FRA"
-
-  """Merchant ID"""
-  id: String = "SWAN01"
-
-  """Merchant name"""
-  name: String = "SWAN"
-
-  """Merchant postal Code"""
-  postalCode: String = "75010"
-}
-
 """Reason codes for returning an outgoing transfer"""
 enum OutgoingInternationalCreditTransferReturnReasonCode {
   AccountBlocked
@@ -10996,32 +11213,6 @@ enum OutgoingInternationalCreditTransferReturnReasonCode {
 """Success payload type"""
 type ReleaseReservedBalanceSuccessPayload {
   transactionId: ID!
-}
-
-"""Sepa beneficiary account"""
-input SepaBeneficiaryInput {
-  """International Bank Account Number"""
-  iban: IBAN!
-
-  """
-  Full name of the beneficiary (min 2 characters, max 70 characters). The name should not include any special characters.
-  """
-  name: String!
-
-  """beneficiary address"""
-  address: AddressInput
-
-  """
-  `true` if this new beneficiary is the account holder himself in another financial institution.
-  *SOON TO BE DEPRECATED*
-  Not used. It will be removed soon.
-  """
-  isMyOwnIban: Boolean
-
-  """
-  `true` if this new beneficiary will be saved to the beneficiary list of the debited account.
-  """
-  save: Boolean
 }
 
 """List of recalled reasons"""
@@ -11436,211 +11627,6 @@ type SimulateIncomingSepaDirectDebitReturnSuccessPayload {
   transactionId: ID!
 }
 
-"""Request a card advice simulation input"""
-input SimulateOutgoingCardAdviceInput {
-  amount: AmountInput!
-
-  """Card transaction category"""
-  cardTransactionCategory: CardTransactionCategory = Other
-
-  """Merchant"""
-  merchant: Merchant
-
-  """Original amount"""
-  originalAmount: AmountInput
-
-  """Authorization wanted outcome"""
-  outcome: CardAuthorizationOutcome
-
-  """Terminal ID"""
-  terminalId: String = "SWAN01"
-
-  """Transaction ID"""
-  transactionId: ID!
-
-  """Expiration date time"""
-  expirationDateTime: DateTime
-
-  """"""
-  transactionTransportType: TransactionTransportType
-}
-
-"""Request a card authorization simulation input"""
-input SimulateOutgoingCardAuthorizationInput {
-  amount: AmountInput
-
-  """Authorization request type"""
-  authorizationType: CardAuthorizationType = Classic
-
-  """Card ID"""
-  cardId: String!
-
-  """Card transaction category"""
-  cardTransactionCategory: CardTransactionCategory = Other
-
-  """Simulation card type"""
-  cardType: SimulationCardType
-
-  """Merchant"""
-  merchant: Merchant
-
-  """Operation type"""
-  operationType: CardAuthorizationOperationType
-
-  """Original amount"""
-  originalAmount: AmountInput
-
-  """Authorization wanted outcome"""
-  outcome: CardAuthorizationOutcome
-
-  """Terminal ID"""
-  terminalId: String = "SWAN01"
-
-  """Expiration date time"""
-  expirationDateTime: DateTime
-
-  """"""
-  allowsPartialAuthorization: Boolean = false
-
-  """"""
-  transactionTransportType: TransactionTransportType
-}
-
-"""Union of Success payload and potential rejections"""
-union SimulateOutgoingCardAuthorizationPayload = SimulateOutgoingCardAuthorizationSuccessPayload | SimulateOutgoingCardAuthorizationRejectPayload | CardNotFoundRejection | ForbiddenRejection
-
-"""Reject payload type"""
-type SimulateOutgoingCardAuthorizationRejectPayload {
-  transactionId: ID!
-  rejectedReason: String!
-}
-
-"""Input to simulate a release of a card authorization"""
-input SimulateOutgoingCardAuthorizationReleaseInput {
-  transactionId: ID!
-  reason: CardAuthorizationReleaseReason = Expired
-}
-
-"""Union of Success payload and potential rejections"""
-union SimulateOutgoingCardAuthorizationReleasePayload = SimulateOutgoingCardAuthorizationReleaseSuccessPayload | ForbiddenRejection | TransactionNotFoundRejection
-
-"""Success payload type"""
-type SimulateOutgoingCardAuthorizationReleaseSuccessPayload {
-  transactionId: ID!
-}
-
-"""Success payload type"""
-type SimulateOutgoingCardAuthorizationSuccessPayload {
-  transactionId: ID!
-}
-
-"""Credit a card simulation input"""
-input SimulateOutgoingCardCreditInput {
-  """Amount"""
-  amount: AmountInput!
-
-  """Card ID"""
-  cardId: String!
-
-  """Card type"""
-  cardType: SimulationCardType
-
-  """Origin Transaction ID"""
-  originTransactionId: String
-
-  """Original amount"""
-  originalAmount: AmountInput
-
-  """Terminal Id"""
-  terminalId: String
-
-  """Merchant Id"""
-  merchantId: String
-
-  """Merchant Category Code"""
-  merchantCategoryCode: String
-
-  """Merchant Name"""
-  merchantName: String
-
-  """Merchant City"""
-  merchantCity: String
-
-  """Merchant Postal Code"""
-  merchantPostalCode: String
-
-  """Merchant Country"""
-  merchantCountry: CCA3
-}
-
-"""Union of Success payload and potential rejections"""
-union SimulateOutgoingCardCreditPayload = SimulateOutgoingCardCreditSuccessPayload | CardNotFoundRejection | ForbiddenRejection
-
-"""Reverse a credit simulation input"""
-input SimulateOutgoingCardCreditReverseInput {
-  """Amount"""
-  amount: AmountInput
-
-  """Original amount"""
-  originalAmount: AmountInput
-
-  """Transaction ID to be reversed"""
-  transactionId: ID!
-}
-
-"""Union of Success payload and potential rejections"""
-union SimulateOutgoingCardCreditReversePayload = SimulateOutgoingCardCreditReverseSuccessPayload | ForbiddenRejection | TransactionNotFoundRejection
-
-"""Success payload type"""
-type SimulateOutgoingCardCreditReverseSuccessPayload {
-  transactionId: ID!
-}
-
-"""Success payload type"""
-type SimulateOutgoingCardCreditSuccessPayload {
-  transactionId: ID!
-}
-
-"""Debit a card simulation input"""
-input SimulateOutgoingCardDebitInput {
-  """Amount"""
-  amount: AmountInput
-
-  """Originalmount"""
-  originalAmount: AmountInput
-
-  """Transaction ID to be debited"""
-  transactionId: ID!
-}
-
-"""Union of Success payload and potential rejections"""
-union SimulateOutgoingCardDebitPayload = SimulateOutgoingCardDebitSuccessPayload | ForbiddenRejection | TransactionNotFoundRejection | CardNotFoundRejection
-
-"""Debit Reversal simulation input"""
-input SimulateOutgoingCardDebitReverseInput {
-  """Amount"""
-  amount: AmountInput
-
-  """Originalmount"""
-  originalAmount: AmountInput
-
-  """Transaction ID to be reversed"""
-  transactionId: ID!
-}
-
-"""Union of Success payload and potential rejections"""
-union SimulateOutgoingCardDebitReversePayload = SimulateOutgoingCardDebitReverseSuccessPayload | ForbiddenRejection | TransactionNotFoundRejection
-
-"""Success payload type"""
-type SimulateOutgoingCardDebitReverseSuccessPayload {
-  transactionId: ID!
-}
-
-"""Success payload type"""
-type SimulateOutgoingCardDebitSuccessPayload {
-  transactionId: ID!
-}
-
 """Book an outgoing transfer simulation input"""
 input SimulateOutgoingInternationalCreditTransferBookingInput {
   """Transaction ID to be booked"""
@@ -11872,46 +11858,10 @@ input SimulateReleaseReservedBalanceInput {
 """Union of Success payload and potential rejections"""
 union SimulateReleaseReservedBalancePayload = ForbiddenRejection | TransactionNotFoundRejection | ReleaseReservedBalanceSuccessPayload
 
-enum SimulationCardType {
-  Physical
-  Virtual
-}
-
-"""Swan account beneficiary"""
-input SwanAccountBeneficiaryInput {
-  """account number to be credited"""
-  accountNumber: AccountNumber!
-
-  """full name of the beneficiary  (max 70 characters)"""
-  name: String!
-
-  """
-  `true` if this new beneficiary will be saved to the beneficiary list of the debited account.
-  """
-  save: Boolean!
-}
-
-scalar TokenRequestorId
-
 """Rejection returned if the transaction was already returned"""
 type TransactionAlreadyReturnedRejection implements Rejection {
   message: String!
   returnTransactionId: ID!
-}
-
-enum TransactionSide {
-  Credit
-  Debit
-}
-
-enum TransactionTransportType {
-  Prefunded
-  RealTimeAuthorized
-  PostAuthorizedAggregated
-  PostAuthorizedAggregatedMaestro
-  AuthorizedAggregatedSplitClearing
-  Other
-  DebtRecovery
 }
 
 enum AccountFundingLimitsReachedReason {

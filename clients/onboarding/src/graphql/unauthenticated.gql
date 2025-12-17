@@ -126,12 +126,10 @@ fragment OnboardingData on OnboardingInfo {
   accountCountry
   email
   language
-  redirectUrl
   tcuUrl
   oAuthRedirectParameters {
     redirectUrl
   }
-  onboardingState
   projectInfo {
     id
     accentColor

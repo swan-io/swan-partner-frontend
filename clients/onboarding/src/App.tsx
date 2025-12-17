@@ -132,16 +132,12 @@ const FlowPicker = ({ onboardingId }: Props) => {
       const accountHolder = onboardingInfo.info;
 
       // In case of the user returns to an already completed onboarding (back navigator, or a bookmarked one)
-      if (onboardingInfo.onboardingState === "Completed") {
+      if (onboardingInfo.statusInfo.__typename === "OnboardingFinalizedStatusInfo") {
         const oAuthRedirect = onboardingInfo.oAuthRedirectParameters?.redirectUrl?.trim() ?? "";
 
         // By order of priority
         if (oAuthRedirect !== "") {
           return <Redirect to={oAuthRedirect} />;
-        }
-
-        if (onboardingInfo.redirectUrl.trim()) {
-          return <Redirect to={onboardingInfo.redirectUrl.trim()} />;
         }
 
         // Default cases, same behavior as PopupCallbackPage

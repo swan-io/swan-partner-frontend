@@ -1,4 +1,4 @@
-fragment PublicAddress on AddressInfo {
+fragment Address on AddressInfo {
   addressLine1
   addressLine2
   city
@@ -33,13 +33,6 @@ fragment PublicSupportingDocumentCollection on SupportingDocumentCollection {
   statusInfo {
     status
   }
-  projectInfo {
-    id
-    accentColor
-    name
-    logoUri
-    #tcuDocumentUri(language: $language)
-  }
   supportingDocuments {
     id
     supportingDocumentPurpose
@@ -73,7 +66,7 @@ fragment PublicCompanyOnboarding on CompanyAccountHolderOnboarding {
     lastName
     nationality
     address {
-    ...PublicAddress
+    ...Address
     }
     taxIdentificationNumber
     typeOfRepresentation
@@ -88,7 +81,7 @@ fragment PublicCompanyOnboarding on CompanyAccountHolderOnboarding {
     taxIdentificationNumber
     businessActivityDescription
     address {
-      ...PublicAddress
+      ...Address
     }
   }
 }
@@ -118,7 +111,7 @@ fragment PublicIndividualOnboarding on IndividualAccountHolderOnboarding {
     monthlyIncome
     nationality
     address {
-      ...PublicAddress
+      ...Address
     }
     taxIdentificationNumber
   }

@@ -72,13 +72,13 @@ const getRenewalSteps = (requirements: VerificationRenewalRequirement[] | null):
         }),
       )
       // TODO put it back once UBO step development is done
-      // .with("UboDetailsRequired", () =>
-      //   steps.push({
-      //     id: "VerificationRenewalOwnership",
-      //     label: t("verificationRenewal.step.ownership"),
-      //     icon: "people-add-regular",
-      //   }),
-      // )
+      .with("UboDetailsRequired", () =>
+        steps.push({
+          id: "VerificationRenewalOwnership",
+          label: t("verificationRenewal.step.ownership"),
+          icon: "people-add-regular",
+        }),
+      )
       .with("SupportingDocumentsRequired", () =>
         steps.push({
           id: "VerificationRenewalDocuments",

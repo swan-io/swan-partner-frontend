@@ -280,7 +280,7 @@ export const VerificationRenewalPersonalInfo = ({
         {({ small }) => (
           <>
             <StepTitle isMobile={small}>
-              {t("verificationRenewal.personalInformation.title")}
+              {t("verificationRenewal.accountHolderInformation.title")}
             </StepTitle>
             <Space height={40} />
 

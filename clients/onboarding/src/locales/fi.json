@@ -18,7 +18,7 @@
   "common.edit": "Edit",
   "common.form.help.nbDigits": "{nbDigits} numeroa",
   "common.form.invalidDate": "Virheellinen päivämäärä",
-  "common.form.invalidLength": "Tämä kenttä on rajoitettu {maxLength} merkkiin",
+  "common.form.invalidLength": "Tämä kenttä on rajoitettu {maxLength} merkkiin.",
   "common.form.invalidVatNumber": "Virheellinen ALV-numero",
   "common.learnMore": "Lue lisää",
   "common.next": "Seuraava",

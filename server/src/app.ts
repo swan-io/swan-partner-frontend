@@ -40,6 +40,7 @@ import { startDevServer } from "./client/devServer";
 import { getProductionRequestHandler } from "./client/prodServer";
 import { env } from "./env";
 import { replyWithAuthError, replyWithError } from "./error";
+import { getTgglClient } from "./utils/tggl";
 
 const packageJson = JSON.parse(
   fs.readFileSync(path.join(__dirname, "../package.json"), "utf-8"),
@@ -408,9 +409,16 @@ export const start = async ({
       const projectId = await getProjectId();
 
       return Future.value(Result.allFromDict({ accountCountry, projectId }))
-        .flatMapOk(({ accountCountry, projectId }) =>
-          onboardIndividualAccountHolder({ accountCountry, projectId }),
-        )
+        .flatMapOk(({ accountCountry, projectId }) => {
+          const tgglClient = getTgglClient(projectId);
+          const isOnboardingV2 = tgglClient.get("OnboardingV2NoCode", false);
+          if (isOnboardingV2) {
+            // todo: use CreatePublicIndividualAccountHolderOnboarding
+            return onboardIndividualAccountHolder({ accountCountry, projectId });
+          } else {
+            return onboardIndividualAccountHolder({ accountCountry, projectId });
+          }
+        })
         .tapOk(onboardingId => {
           return reply
             .header("cache-control", "private, max-age=0")

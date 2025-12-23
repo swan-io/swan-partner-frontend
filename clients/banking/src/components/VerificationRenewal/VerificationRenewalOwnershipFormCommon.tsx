@@ -18,11 +18,7 @@ import { combineValidators, useForm } from "@swan-io/use-form";
 import { Ref, useImperativeHandle } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
-import {
-  AccountCountry,
-  UltimateBeneficialOwnerQualificationType,
-  VerificationRenewalUboFragment,
-} from "../../graphql/partner";
+import { AccountCountry, UltimateBeneficialOwnerQualificationType } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
 import { validateName, validateNullableRequired, validateRequired } from "../../utils/validations";
 
@@ -39,10 +35,10 @@ type FormValues = {
   birthCountryCode: CountryCCA3;
   birthCity: string;
   birthCityPostalCode: string;
-  type: UltimateBeneficialOwnerQualificationType;
+  qualificationType: UltimateBeneficialOwnerQualificationType;
   indirect: boolean;
   direct: boolean;
-  totalCapitalPercentage: string;
+  totalPercentage: string;
 };
 
 const beneficiaryTypes: RadioGroupItem<UltimateBeneficialOwnerQualificationType>[] = [
@@ -61,10 +57,10 @@ export type Input = {
   birthCountryCode: CountryCCA3;
   birthCity: string;
   birthCityPostalCode: string;
-  type: UltimateBeneficialOwnerQualificationType;
-  indirect?: boolean;
+  qualificationType: UltimateBeneficialOwnerQualificationType | undefined;
   direct?: boolean;
-  totalCapitalPercentage?: number;
+  indirect?: boolean;
+  totalPercentage?: number;
 };
 
 export type VerificationRenewalOwnershipFormCommonRef = {
@@ -76,8 +72,8 @@ type Props = {
   placekitApiKey: string | undefined;
   accountCountry: AccountCountry;
   companyCountry: CountryCCA3;
-  initialValues: VerificationRenewalUboFragment;
-  onSave: (input: VerificationRenewalUboFragment) => void | Promise<void>;
+  initialValues: Partial<Input>;
+  onSave: (input: Input) => void | Promise<void>;
 };
 
 export const VerificationRenewalOwnershipFormCommon = ({
@@ -104,29 +100,29 @@ export const VerificationRenewalOwnershipFormCommon = ({
       validate: combineValidators(validateRequired, validateName),
     },
     birthDate: {
-      initialValue: initialValues.birthInfo?.birthDate ?? undefined,
+      initialValue: initialValues.birthDate ?? undefined,
       validate: isBirthInfoRequired ? validateNullableRequired : undefined,
     },
     birthCountryCode: {
-      initialValue: initialValues.birthInfo?.country ?? companyCountry,
+      initialValue: initialValues.birthCountryCode ?? companyCountry,
       validate: validateRequired,
     },
     birthCity: {
-      initialValue: initialValues.birthInfo?.city ?? "",
+      initialValue: initialValues.birthCity ?? "",
       sanitize: trim,
       validate: isBirthInfoRequired ? validateRequired : undefined,
     },
     birthCityPostalCode: {
-      initialValue: initialValues.birthInfo?.postalCode ?? "",
+      initialValue: initialValues.birthCityPostalCode ?? "",
       sanitize: trim,
       validate: isBirthInfoRequired ? validateRequired : undefined,
     },
-    type: {
-      initialValue: initialValues.qualificationType ?? "Control",
+    qualificationType: {
+      initialValue: initialValues.qualificationType ?? "Ownership",
       validate: validateRequired,
     },
     direct: {
-      initialValue: initialValues.ownership?.type === "Direct",
+      initialValue: initialValues.direct ?? false,
       validate: (value, { getFieldValue }) => {
         if (value === false && getFieldValue("indirect") === false) {
           return t("verificationRenewal.ownership.type.direct");
@@ -134,15 +130,15 @@ export const VerificationRenewalOwnershipFormCommon = ({
       },
     },
     indirect: {
-      initialValue: initialValues.ownership?.type === "Indirect",
+      initialValue: initialValues.indirect ?? false,
       validate: (value, { getFieldValue }) => {
         if (value === false && getFieldValue("direct") === false) {
           return t("verificationRenewal.ownership.type.indirect");
         }
       },
     },
-    totalCapitalPercentage: {
-      initialValue: initialValues.ownership?.totalPercentage?.toString() ?? "",
+    totalPercentage: {
+      initialValue: initialValues.totalPercentage?.toString() ?? "",
       sanitize: trim,
       validate: validateRequired,
     },
@@ -159,10 +155,10 @@ export const VerificationRenewalOwnershipFormCommon = ({
             birthCountryCode,
             birthCity,
             birthCityPostalCode,
-            type,
+            qualificationType,
             direct,
             indirect,
-            totalCapitalPercentage,
+            totalPercentage,
           }) => {
             const requiredFields = Option.allFromDict({
               firstName,
@@ -170,33 +166,38 @@ export const VerificationRenewalOwnershipFormCommon = ({
               birthCountryCode,
               birthCity,
               birthCityPostalCode,
-              type,
+              qualificationType,
             });
 
             const requiredFieldsForCapitalOwners = Option.allFromDict({
-              direct,
               indirect,
-              totalCapitalPercentage,
+              direct,
+              totalPercentage,
             });
 
             return match({ requiredFields, requiredFieldsForCapitalOwners })
               .with(
                 {
-                  requiredFields: Option.P.Some({ type: "HasCapital" }),
+                  requiredFields: Option.P.Some({ qualificationType: "Ownership" }),
                   requiredFieldsForCapitalOwners: Option.P.Some(P.any),
                 },
                 ({ requiredFields, requiredFieldsForCapitalOwners }) => {
-                  const { direct, indirect, totalCapitalPercentage } =
+                  const { direct, indirect, totalPercentage } =
                     requiredFieldsForCapitalOwners.get();
 
                   return onSave({
                     ...requiredFields.get(),
-                    birthInfo: {
-                      birthDate: birthDate.flatMap(Option.fromNullable).toNull(),
-                    },
+                    birthDate: birthDate.flatMap(Option.fromNullable).toNull(),
                     direct,
                     indirect,
-                    totalCapitalPercentage: Number(totalCapitalPercentage),
+                    totalPercentage: Number(totalPercentage),
+                    // type: match({ direct, indirect })
+                    //   .returnType<UltimateBeneficialOwnerOwnershipType | undefined>()
+                    //   .with({ direct: true, indirect: true }, () => "DirectAndIndirect")
+                    //   .with({ direct: false, indirect: true }, () => "Indirect")
+                    //   .with({ direct: true, indirect: false }, () => "Direct")
+                    //   .with({ direct: false, indirect: false }, () => undefined)
+                    //   .exhaustive(),
                   });
                 },
               )
@@ -306,7 +307,7 @@ export const VerificationRenewalOwnershipFormCommon = ({
                           render={id => (
                             <PlacekitCityInput
                               id={id}
-                              apiKey={__env.CLIENT_PLACEKIT_API_KEY}
+                              apiKey={placekitApiKey}
                               error={error}
                               country={birthCountryCode.value}
                               value={value ?? ""}
@@ -359,7 +360,7 @@ export const VerificationRenewalOwnershipFormCommon = ({
               </FieldsListener>
             </Box>
 
-            <Field name="type">
+            <Field name="qualificationType">
               {({ value, onChange }) => (
                 <LakeLabel
                   label={t("verificationRenewal.ownership.type")}
@@ -376,11 +377,11 @@ export const VerificationRenewalOwnershipFormCommon = ({
               )}
             </Field>
 
-            <FieldsListener names={["type"]}>
-              {({ type }) =>
-                type.value === "Ownership" ? (
+            <FieldsListener names={["qualificationType"]}>
+              {({ qualificationType }) =>
+                qualificationType.value === "Ownership" ? (
                   <>
-                    <Field name="totalCapitalPercentage">
+                    <Field name="totalPercentage">
                       {({ value, onChange, error }) => (
                         <LakeLabel
                           label={t("verificationRenewal.ownership.totalCapitalPercentage")}

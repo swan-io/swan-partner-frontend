@@ -1,4 +1,4 @@
-import { AsyncData, Result } from "@swan-io/boxed";
+import { AsyncData, Option, Result } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeScrollView } from "@swan-io/lake/src/components/LakeScrollView";
@@ -8,7 +8,11 @@ import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartner
 import { backgroundColor, colors, invariantColors } from "@swan-io/lake/src/constants/design";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
-import { GetVerificationRenewalDocument } from "../../graphql/partner";
+import {
+  AccountCountry,
+  GetVerificationRenewalDocument,
+  VerificationRenewalRequirement,
+} from "../../graphql/partner";
 import { ErrorView } from "../ErrorView";
 import { VerificationRenewalCompany } from "./VerificationRenewalCompany";
 import { VerificationRenewalHeader } from "./VerificationRenewalHeader";
@@ -68,15 +72,26 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
           )
           .otherwise(() => null);
 
-        const verificationRequirements = match(verificationRenewal)
+        const { verificationRequirements, accountCountry } = match(verificationRenewal)
+          .returnType<{
+            verificationRequirements: VerificationRenewalRequirement[];
+            accountCountry: Option<AccountCountry>;
+          }>()
           .with(
             {
               __typename: "WaitingForInformationVerificationRenewal",
               verificationRequirements: P.nonNullable,
             },
-            ({ verificationRequirements }) => verificationRequirements,
+            ({ verificationRequirements, accountCountries }) => ({
+              verificationRequirements,
+              // only individuals could have several account countries. As we need it only for company UBOs, we could get only the first one
+              accountCountry: Option.fromNullable((accountCountries ?? [])[0]),
+            }),
           )
-          .otherwise(() => null);
+          .otherwise(() => ({
+            verificationRequirements: [],
+            accountCountry: Option.None(),
+          }));
 
         return (
           <LakeScrollView style={styles.main}>
@@ -92,13 +107,17 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
                     </Box>
 
                     <View style={[styles.content, large && styles.contentDesktop]}>
-                      {match(verificationRenewal)
+                      {match({ verificationRenewal, accountCountry })
                         .with(
                           {
-                            info: { __typename: "CompanyVerificationRenewalInfo" },
+                            verificationRenewal: {
+                              info: { __typename: "CompanyVerificationRenewalInfo" },
+                            },
+                            accountCountry: Option.P.Some(P.string),
                           },
-                          verificationRenewal => (
+                          ({ verificationRenewal, accountCountry }) => (
                             <VerificationRenewalCompany
+                              accountCountry={accountCountry.get()}
                               verificationRenewalId={verificationRenewalId}
                               info={verificationRenewal.info}
                               supportingDocumentCollection={renewalSupportingDoc}
@@ -108,9 +127,11 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
                         )
                         .with(
                           {
-                            info: { __typename: "IndividualVerificationRenewalInfo" },
+                            verificationRenewal: {
+                              info: { __typename: "IndividualVerificationRenewalInfo" },
+                            },
                           },
-                          verificationRenewal => (
+                          ({ verificationRenewal }) => (
                             <VerificationRenewalIndividual
                               verificationRenewalId={verificationRenewalId}
                               info={verificationRenewal.info}

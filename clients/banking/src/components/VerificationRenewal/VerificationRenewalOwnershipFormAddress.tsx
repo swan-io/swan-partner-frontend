@@ -26,28 +26,28 @@ import { AccountCountry } from "../../graphql/partner";
 import { locale, t } from "../../utils/i18n";
 
 export type FormValues = {
-  residencyAddressLine1: string;
-  residencyAddressCity: string;
-  residencyAddressPostalCode: string;
-  residencyAddressCountry: CountryCCA3;
+  addressLine1: string;
+  city: string;
+  postalCode: string;
+  country: CountryCCA3;
   taxIdentificationNumber: string;
 };
 
 export type Input = {
-  residencyAddressLine1?: string;
-  residencyAddressCity?: string;
-  residencyAddressPostalCode?: string;
-  residencyAddressCountry: CountryCCA3;
+  addressLine1?: string;
+  city?: string;
+  postalCode?: string;
+  country: CountryCCA3;
   taxIdentificationNumber?: string;
 };
 
-export type VerificationRenewalOwnershipBeneficiaryFormAddressRef = {
+export type VerificationRenewalOwnershipFormAddressRef = {
   getInput: () => Input;
   submit: () => void;
 };
 
 type Props = {
-  ref?: Ref<VerificationRenewalOwnershipBeneficiaryFormAddressRef>;
+  ref?: Ref<VerificationRenewalOwnershipFormAddressRef>;
   placekitApiKey: string | undefined;
   accountCountry: AccountCountry;
   companyCountry: CountryCCA3;
@@ -64,32 +64,30 @@ export const VerificationRenewalOwnershipFormAddress = ({
   onSave,
 }: Props) => {
   const { Field, FieldsListener, getFieldValue, setFieldValue, submitForm } = useForm<FormValues>({
-    residencyAddressLine1: {
-      initialValue: initialValues.residencyAddressLine1 ?? "",
+    addressLine1: {
+      initialValue: initialValues.addressLine1 ?? "",
       sanitize: trim,
       validate: validateRequired,
     },
-    residencyAddressCity: {
-      initialValue: initialValues.residencyAddressCity ?? "",
+    city: {
+      initialValue: initialValues.city ?? "",
       sanitize: trim,
       validate: validateRequired,
     },
-    residencyAddressPostalCode: {
-      initialValue: initialValues.residencyAddressPostalCode ?? "",
+    postalCode: {
+      initialValue: initialValues.postalCode ?? "",
       sanitize: trim,
       validate: validateRequired,
     },
-    residencyAddressCountry: {
-      initialValue: isCountryCCA3(initialValues.residencyAddressCountry)
-        ? initialValues.residencyAddressCountry
-        : companyCountry,
+    country: {
+      initialValue: isCountryCCA3(initialValues.country) ? initialValues.country : companyCountry,
       validate: validateRequired,
     },
     taxIdentificationNumber: {
       initialValue: initialValues.taxIdentificationNumber ?? "",
       sanitize: trim,
       validate: (value, { getFieldValue }) => {
-        const beneficiaryCountry = getFieldValue("residencyAddressCountry");
+        const beneficiaryCountry = getFieldValue("country");
 
         if (
           (accountCountry === "DEU" && beneficiaryCountry === "DEU") ||
@@ -109,28 +107,22 @@ export const VerificationRenewalOwnershipFormAddress = ({
   useImperativeHandle(ref, () => {
     return {
       getInput: () => ({
-        residencyAddressLine1: getFieldValue("residencyAddressLine1"),
-        residencyAddressCity: getFieldValue("residencyAddressCity"),
-        residencyAddressPostalCode: getFieldValue("residencyAddressPostalCode"),
-        residencyAddressCountry: getFieldValue("residencyAddressCountry"),
+        addressLine1: getFieldValue("addressLine1"),
+        city: getFieldValue("city"),
+        postalCode: getFieldValue("postalCode"),
+        country: getFieldValue("country"),
         taxIdentificationNumber: getFieldValue("taxIdentificationNumber"),
       }),
       submit: () => {
         submitForm({
-          onSuccess: ({
-            residencyAddressLine1,
-            residencyAddressCity,
-            residencyAddressPostalCode,
-            residencyAddressCountry,
-            taxIdentificationNumber,
-          }) => {
+          onSuccess: ({ addressLine1, city, postalCode, country, taxIdentificationNumber }) => {
             const requiredFields = Option.allFromDict({
-              residencyAddressCountry,
+              country,
               ...match(accountCountry)
                 .with("DEU", "ESP", "BEL", () => ({
-                  residencyAddressLine1,
-                  residencyAddressCity,
-                  residencyAddressPostalCode,
+                  addressLine1,
+                  city,
+                  postalCode,
                 }))
                 .otherwise(() => ({})),
             });
@@ -138,9 +130,9 @@ export const VerificationRenewalOwnershipFormAddress = ({
             return match(requiredFields)
               .with(Option.P.Some(P.select()), requiredFields => {
                 return onSave({
-                  residencyAddressLine1: residencyAddressLine1.toUndefined(),
-                  residencyAddressCity: residencyAddressCity.toUndefined(),
-                  residencyAddressPostalCode: residencyAddressPostalCode.toUndefined(),
+                  addressLine1: addressLine1.toUndefined(),
+                  city: city.toUndefined(),
+                  postalCode: postalCode.toUndefined(),
                   ...requiredFields,
                   taxIdentificationNumber: taxIdentificationNumber.toUndefined(),
                 });
@@ -154,10 +146,10 @@ export const VerificationRenewalOwnershipFormAddress = ({
 
   const onSuggestion = useCallback(
     (place: AddressDetail) => {
-      setFieldValue("residencyAddressLine1", place.completeAddress);
-      setFieldValue("residencyAddressCity", place.city);
+      setFieldValue("addressLine1", place.completeAddress);
+      setFieldValue("city", place.city);
       if (place.postalCode != null) {
-        setFieldValue("residencyAddressPostalCode", place.postalCode);
+        setFieldValue("postalCode", place.postalCode);
       }
     },
     [setFieldValue],
@@ -165,7 +157,7 @@ export const VerificationRenewalOwnershipFormAddress = ({
 
   return (
     <View role="form">
-      <Field name="residencyAddressCountry">
+      <Field name="country">
         {({ value, onChange }) => (
           <LakeLabel
             label={t("verificationRenewal.ownership.country")}
@@ -183,10 +175,10 @@ export const VerificationRenewalOwnershipFormAddress = ({
 
       <Space height={12} />
 
-      <FieldsListener names={["residencyAddressCountry"]}>
-        {({ residencyAddressCountry }) => (
+      <FieldsListener names={["country"]}>
+        {({ country }) => (
           <>
-            <Field name="residencyAddressLine1">
+            <Field name="addressLine1">
               {({ ref, value, onChange, error }) => (
                 <LakeLabel
                   label={t("verificationRenewal.ownership.residencyAddress")}
@@ -198,7 +190,7 @@ export const VerificationRenewalOwnershipFormAddress = ({
                       placeholder={t("verificationRenewal.ownership.residencyAddressPlaceholder")}
                       language={locale.language}
                       id={id}
-                      country={residencyAddressCountry.value ?? accountCountry}
+                      country={country.value ?? accountCountry}
                       value={value}
                       error={error}
                       onValueChange={onChange}
@@ -211,7 +203,7 @@ export const VerificationRenewalOwnershipFormAddress = ({
 
             <Space height={12} />
 
-            <Field name="residencyAddressCity">
+            <Field name="city">
               {({ ref, value, valid, error, onChange }) => (
                 <LakeLabel
                   label={t("verificationRenewal.ownership.residencyAddressCity")}
@@ -231,7 +223,7 @@ export const VerificationRenewalOwnershipFormAddress = ({
 
             <Space height={12} />
 
-            <Field name="residencyAddressPostalCode">
+            <Field name="postalCode">
               {({ ref, value, valid, error, onChange }) => (
                 <LakeLabel
                   label={t("verificationRenewal.ownership.residencyAddressPostalCode")}
@@ -249,7 +241,7 @@ export const VerificationRenewalOwnershipFormAddress = ({
               )}
             </Field>
 
-            {match({ accountCountry, residencyAddressCountry: residencyAddressCountry.value })
+            {match({ accountCountry, residencyAddressCountry: country.value })
               .with(
                 { accountCountry: "DEU", residencyAddressCountry: "DEU" },
                 { accountCountry: "ESP" },
@@ -271,8 +263,8 @@ export const VerificationRenewalOwnershipFormAddress = ({
                           isCompany={false}
                           // is mandatory for German accounts with UBO living in Germany, same for Italy
                           required={
-                            (accountCountry === "DEU" && residencyAddressCountry.value === "DEU") ||
-                            (accountCountry === "ITA" && residencyAddressCountry.value === "ITA")
+                            (accountCountry === "DEU" && country.value === "DEU") ||
+                            (accountCountry === "ITA" && country.value === "ITA")
                           }
                         />
                       )}

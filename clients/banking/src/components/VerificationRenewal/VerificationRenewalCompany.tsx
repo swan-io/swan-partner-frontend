@@ -1,3 +1,4 @@
+import { Option } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { IconName } from "@swan-io/lake/src/components/Icon";
 import {
@@ -9,10 +10,12 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
+import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import {
+  AccountCountry,
   CompanyRenewalInfoFragment,
   SupportingDocumentRenewalFragment,
   VerificationRenewalRequirement,
@@ -125,6 +128,7 @@ type Props = {
   verificationRequirements: VerificationRenewalRequirement[] | null;
   info: CompanyRenewalInfoFragment;
   supportingDocumentCollection: SupportingDocumentRenewalFragment | null;
+  accountCountry: AccountCountry;
 };
 
 export const VerificationRenewalCompany = ({
@@ -132,6 +136,7 @@ export const VerificationRenewalCompany = ({
   supportingDocumentCollection,
   verificationRenewalId,
   verificationRequirements,
+  accountCountry,
 }: Props) => {
   const route = Router.useRoute(verificationRenewalRoutes);
 
@@ -161,6 +166,13 @@ export const VerificationRenewalCompany = ({
   const nextStep = currentStep != null ? getNextStep(currentStep, steps) : undefined;
 
   const isFinalized = steps.length === 0 || steps.length === 1;
+
+  const companyAddress = Option.allFromDict({
+    addressLine1: Option.fromNullable(info.company.residencyAddress.addressLine1),
+    country: Option.fromNullable(info.company.residencyAddress.country),
+    city: Option.fromNullable(info.company.residencyAddress.city),
+    postalCode: Option.fromNullable(info.company.residencyAddress.postalCode),
+  });
 
   // biome-ignore lint/correctness/useExhaustiveDependencies(route?.name):
   useEffect(() => {
@@ -211,9 +223,19 @@ export const VerificationRenewalCompany = ({
             nextStep={nextStep}
           />
         ))
-        .with({ route: { name: "VerificationRenewalOwnership" } }, () => (
-          <VerificationRenewalOwnership info={info} verificationRenewalId={verificationRenewalId} />
-        ))
+
+        .with({ route: { name: "VerificationRenewalOwnership" } }, () =>
+          match(companyAddress)
+            .with({ value: P.select({ country: P.nonNullable }) }, address => (
+              <VerificationRenewalOwnership
+                info={info}
+                verificationRenewalId={verificationRenewalId}
+                accountCountry={accountCountry}
+                companyCountry={address.country as CountryCCA3}
+              />
+            ))
+            .otherwise(() => <ErrorView />),
+        )
         .with(
           {
             route: { name: "VerificationRenewalDocuments" },

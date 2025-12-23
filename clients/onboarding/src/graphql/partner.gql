@@ -7,14 +7,14 @@ fragment Address on AddressInfo {
   state
 }
 
-fragment PublicBirthInfo on BirthInfo {
+fragment BirthInfo on BirthInfo {
   city
   country
   postalCode
   birthDate
 }
 
-fragment PublicOnboardingStatus on OnboardingStatusInfo {
+fragment OnboardingStatus on OnboardingStatusInfo {
   __typename
   status
   ... on OnboardingInvalidStatusInfo {
@@ -25,7 +25,7 @@ fragment PublicOnboardingStatus on OnboardingStatusInfo {
   }
 }
 
-fragment PublicSupportingDocumentCollection on SupportingDocumentCollection {
+fragment SupportingDocumentCollection on SupportingDocumentCollection {
   id
   requiredSupportingDocumentPurposes {
     name
@@ -43,14 +43,14 @@ fragment PublicSupportingDocumentCollection on SupportingDocumentCollection {
   }
 }
 
-fragment PublicCompanyOnboarding on CompanyAccountHolderOnboarding {
+fragment CompanyOnboarding on CompanyAccountHolderOnboarding {
   __typename
   id
   statusInfo {
-    ...PublicOnboardingStatus
+    ...OnboardingStatus
   }
   supportingDocumentCollection {
-    ...PublicSupportingDocumentCollection
+    ...SupportingDocumentCollection
   }
   accountInfo {
     name
@@ -58,7 +58,7 @@ fragment PublicCompanyOnboarding on CompanyAccountHolderOnboarding {
   }
   accountAdmin {
     birthInfo {
-      ...PublicBirthInfo
+      ...BirthInfo
     }
     email
     firstName
@@ -86,14 +86,14 @@ fragment PublicCompanyOnboarding on CompanyAccountHolderOnboarding {
   }
 }
 
-fragment PublicIndividualOnboarding on IndividualAccountHolderOnboarding {
+fragment IndividualOnboarding on IndividualAccountHolderOnboarding {
   __typename
   id
   statusInfo {
-    ...PublicOnboardingStatus
+    ...OnboardingStatus
   }
   supportingDocumentCollection {
-    ...PublicSupportingDocumentCollection
+    ...SupportingDocumentCollection
   }
   accountInfo {
     name
@@ -101,7 +101,7 @@ fragment PublicIndividualOnboarding on IndividualAccountHolderOnboarding {
   }
   accountAdmin {
     birthInfo {
-      ...PublicBirthInfo
+      ...BirthInfo
     }
     email
     employmentStatus
@@ -122,8 +122,8 @@ query GetPublicOnboarding($id: ID!) {
     __typename
     ... on PublicAccountHolderOnboardingSuccessPayload {
       onboarding {
-        ...PublicCompanyOnboarding
-        ...PublicIndividualOnboarding
+        ...CompanyOnboarding
+        ...IndividualOnboarding
       }
     }
     ... on OnboardingNotFoundRejection {

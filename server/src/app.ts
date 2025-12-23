@@ -410,7 +410,7 @@ export const start = async ({
 
       return Future.value(Result.allFromDict({ accountCountry, projectId }))
         .flatMapOk(({ accountCountry, projectId }) => {
-          const tgglClient = getTgglClient("test");
+          const tgglClient = getTgglClient(projectId);
           const isOnboardingV2 = tgglClient.get("OnboardingV2NoCode", false);
           if (isOnboardingV2) {
             // todo: use CreatePublicIndividualAccountHolderOnboarding

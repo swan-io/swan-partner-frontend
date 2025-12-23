@@ -1,0 +1,146 @@
+fragment Address on AddressInfo {
+  addressLine1
+  addressLine2
+  city
+  country
+  postalCode
+  state
+}
+
+fragment BirthInfo on BirthInfo {
+  city
+  country
+  postalCode
+  birthDate
+}
+
+fragment OnboardingStatus on OnboardingStatusInfo {
+  __typename
+  status
+  ... on OnboardingInvalidStatusInfo {
+    errors {
+      field
+      errors
+    }
+  }
+}
+
+fragment SupportingDocumentCollection on SupportingDocumentCollection {
+  id
+  requiredSupportingDocumentPurposes {
+    name
+  }
+  statusInfo {
+    status
+  }
+  supportingDocuments {
+    id
+    supportingDocumentPurpose
+    supportingDocumentType
+    statusInfo {
+      status
+    }
+  }
+}
+
+fragment CompanyOnboarding on CompanyAccountHolderOnboarding {
+  __typename
+  id
+  statusInfo {
+    ...OnboardingStatus
+  }
+  supportingDocumentCollection {
+    ...SupportingDocumentCollection
+  }
+  accountInfo {
+    name
+    country
+  }
+  accountAdmin {
+    birthInfo {
+      ...BirthInfo
+    }
+    email
+    firstName
+    preferredLanguage
+    lastName
+    nationality
+    address {
+    ...Address
+    }
+    taxIdentificationNumber
+    typeOfRepresentation
+  }
+  company {
+    registrationNumber
+    name
+    tradeName
+    registrationDate
+    legalForm
+    vatNumber
+    taxIdentificationNumber
+    businessActivityDescription
+    address {
+      ...Address
+    }
+  }
+}
+
+fragment IndividualOnboarding on IndividualAccountHolderOnboarding {
+  __typename
+  id
+  statusInfo {
+    ...OnboardingStatus
+  }
+  supportingDocumentCollection {
+    ...SupportingDocumentCollection
+  }
+  accountInfo {
+    name
+    country
+  }
+  accountAdmin {
+    birthInfo {
+      ...BirthInfo
+    }
+    email
+    employmentStatus
+    firstName
+    preferredLanguage
+    lastName
+    monthlyIncome
+    nationality
+    address {
+      ...Address
+    }
+    taxIdentificationNumber
+  }
+}
+
+query GetPublicOnboarding($id: ID!) {
+  publicAccountHolderOnboarding(id: $id) {
+    __typename
+    ... on PublicAccountHolderOnboardingSuccessPayload {
+      onboarding {
+        ...CompanyOnboarding
+        ...IndividualOnboarding
+      }
+    }
+    ... on OnboardingNotFoundRejection {
+      id
+    }
+    ... on OnboardingAlreadyFinalizedRejection {
+      __typename
+    }
+    ... on InternalErrorRejection {
+      __typename
+    }
+    ... on ForbiddenRejection {
+      __typename
+      message
+    }
+    ... on PublicOnboardingDisabledRejection {
+      __typename
+    }
+  }
+}

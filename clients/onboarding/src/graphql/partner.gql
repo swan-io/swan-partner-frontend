@@ -43,15 +43,28 @@ fragment SupportingDocumentCollection on SupportingDocumentCollection {
   }
 }
 
-fragment CompanyOnboarding on CompanyAccountHolderOnboarding {
-  __typename
+fragment IndividualOrCompanyOnboarding on  AccountHolderOnboardingBase{
   id
+  oAuthRedirectParameters {
+    redirectUrl
+  }
   statusInfo {
     ...OnboardingStatus
   }
   supportingDocumentCollection {
     ...SupportingDocumentCollection
   }
+  projectInfo {
+    id
+    accentColor
+    name
+    logoUri
+  }
+}
+
+
+fragment CompanyOnboarding on CompanyAccountHolderOnboarding {
+  ...IndividualOrCompanyOnboarding
   accountInfo {
     name
     country
@@ -87,14 +100,7 @@ fragment CompanyOnboarding on CompanyAccountHolderOnboarding {
 }
 
 fragment IndividualOnboarding on IndividualAccountHolderOnboarding {
-  __typename
-  id
-  statusInfo {
-    ...OnboardingStatus
-  }
-  supportingDocumentCollection {
-    ...SupportingDocumentCollection
-  }
+  ...IndividualOrCompanyOnboarding
   accountInfo {
     name
     country
@@ -141,6 +147,41 @@ query GetPublicOnboarding($id: ID!) {
     }
     ... on PublicOnboardingDisabledRejection {
       __typename
+    }
+  }
+}
+
+fragment UpdateValidationErrors on ValidationRejection {
+  __typename
+  fields {
+    path
+    code
+    message
+  }
+}
+
+mutation UpdatePublicIndividualAccountHolderOnboarding ($input: UpdatePublicIndividualAccountHolderOnboardingInput!) {
+  updatePublicIndividualAccountHolderOnboarding(input: $input) {
+    ... on UpdatePublicIndividualAccountHolderOnboardingSuccessPayload {
+      onboarding {
+        ...IndividualOnboarding
+      }
+    }
+    ... on ValidationRejection {
+      ...UpdateValidationErrors
+    }
+  }
+}
+
+mutation UpdatePublicCompanyAccountHolderOnboarding ($input: UpdatePublicCompanyAccountHolderOnboardingInput!) {
+  updatePublicCompanyAccountHolderOnboarding(input: $input) {
+    ... on UpdatePublicCompanyAccountHolderOnboardingSuccessPayload {
+      onboarding {
+        ...CompanyOnboarding
+      }
+    }
+    ... on ValidationRejection {
+      ...UpdateValidationErrors
     }
   }
 }

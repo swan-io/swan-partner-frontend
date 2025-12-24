@@ -1,8 +1,14 @@
+import { Option } from "@swan-io/boxed";
+import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { RadioGroup, RadioGroupItem } from "@swan-io/lake/src/components/RadioGroup";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
+import { noop } from "@swan-io/lake/src/utils/function";
+import { useForm } from "@swan-io/use-form";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { PartnershipFooter } from "../../components/PartnershipFooter";
@@ -16,14 +22,76 @@ type Props = {
   nextStep: ChangeAdminRoute;
 };
 
+// TODO get from graphql schema once available
+type AccountAdminChangeReason =
+  | "CurrentAdministratorLeft"
+  | "InternalReorganization"
+  | "AppointedByGeneralAssembly"
+  | "AppointedByBoardDecision"
+  | "Other";
+
+const isNewAdminItems: RadioGroupItem<boolean>[] = [
+  {
+    name: t("common.yes"),
+    value: true,
+  },
+  {
+    name: t("common.no"),
+    value: false,
+  },
+];
+
+const reasonItems: Item<AccountAdminChangeReason>[] = [
+  {
+    name: t("changeAdmin.step.context2.requestReason.currentAdministratorLeft"),
+    value: "CurrentAdministratorLeft",
+  },
+  {
+    name: t("changeAdmin.step.context2.requestReason.internalReorganization"),
+    value: "InternalReorganization",
+  },
+  {
+    name: t("changeAdmin.step.context2.requestReason.appointedByGeneralAssembly"),
+    value: "AppointedByGeneralAssembly",
+  },
+  {
+    name: t("changeAdmin.step.context2.requestReason.appointedByBoardDecision"),
+    value: "AppointedByBoardDecision",
+  },
+  {
+    name: t("changeAdmin.step.context2.requestReason.other"),
+    value: "Other",
+  },
+];
+
 export const ChangeAdminContext2 = ({ changeAdminRequestId, previousStep, nextStep }: Props) => {
+  const { Field, submitForm } = useForm({
+    isNewAdmin: {
+      initialValue: true,
+    },
+    reason: {
+      initialValue: "CurrentAdministratorLeft" as AccountAdminChangeReason,
+    },
+  });
+
   const onPressPrevious = () => {
     Router.push(previousStep, { requestId: changeAdminRequestId });
   };
 
-  const onPressNext = () => {
-    Router.push(nextStep, { requestId: changeAdminRequestId });
-  };
+  const onPressNext = () =>
+    submitForm({
+      onSuccess: values => {
+        const option = Option.allFromDict(values);
+
+        option.match({
+          Some: values => {
+            console.log("Submit with", values);
+            Router.push(nextStep, { requestId: changeAdminRequestId });
+          },
+          None: noop,
+        });
+      },
+    });
 
   return (
     <OnboardingStepContent>
@@ -36,7 +104,43 @@ export const ChangeAdminContext2 = ({ changeAdminRequestId, previousStep, nextSt
             <Space height={small ? 24 : 32} />
 
             <Tile>
-              <LakeText>ChangeAdminContext2</LakeText>
+              <LakeLabel
+                type="form"
+                label={t("changeAdmin.step.context2.areYouNewAdmin")}
+                render={() => (
+                  <Field name="isNewAdmin">
+                    {({ value, onChange }) => (
+                      <RadioGroup
+                        direction="row"
+                        items={isNewAdminItems}
+                        value={value}
+                        hideErrors={true}
+                        onValueChange={onChange}
+                      />
+                    )}
+                  </Field>
+                )}
+              />
+
+              <Space height={12} />
+
+              <LakeLabel
+                type="form"
+                label={t("changeAdmin.step.context2.requestReason")}
+                render={() => (
+                  <Field name="reason">
+                    {({ value, onChange }) => (
+                      <LakeSelect
+                        placeholder={t("changeAdmin.step.context2.requestReason.placeholder")}
+                        items={reasonItems}
+                        value={value}
+                        hideErrors={true}
+                        onValueChange={onChange}
+                      />
+                    )}
+                  </Field>
+                )}
+              />
             </Tile>
           </>
         )}

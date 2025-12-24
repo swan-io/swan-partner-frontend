@@ -1,14 +1,25 @@
+import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { breakpoints } from "@swan-io/lake/src/constants/design";
+import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
+import { StyleSheet, View } from "react-native";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { PartnershipFooter } from "../../components/PartnershipFooter";
 import { StepTitle } from "../../components/StepTitle";
 import { t } from "../../utils/i18n";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
+
+const styles = StyleSheet.create({
+  listItem: {
+    display: "list-item",
+    listStyleType: "disc",
+    marginLeft: spacings[24],
+  },
+});
 
 type Props = {
   changeAdminRequestId: string;
@@ -19,6 +30,12 @@ export const ChangeAdminContext1 = ({ changeAdminRequestId, nextStep }: Props) =
   const onPressNext = () => {
     Router.push(nextStep, { requestId: changeAdminRequestId });
   };
+
+  const accountHolderName = "John Doe";
+  const accountList = [
+    { id: "acc_1", name: "Account 1" },
+    { id: "acc_2", name: "Account 2" },
+  ];
 
   return (
     <OnboardingStepContent>
@@ -31,7 +48,31 @@ export const ChangeAdminContext1 = ({ changeAdminRequestId, nextStep }: Props) =
             <Space height={small ? 24 : 32} />
 
             <Tile>
-              <LakeText>ChangeAdminContext1</LakeText>
+              <ReadOnlyFieldList>
+                <LakeLabel
+                  type="view"
+                  label={t("changeAdmin.step.context1.accountHolder")}
+                  render={() => <LakeText color={colors.gray[900]}>{accountHolderName}</LakeText>}
+                />
+                <LakeLabel
+                  type="view"
+                  label={t("changeAdmin.step.context1.accounts")}
+                  render={() => (
+                    <View role="list" style={{ padding: 0, margin: 0 }}>
+                      {accountList.map(account => (
+                        <LakeText
+                          key={account.id}
+                          role="listitem"
+                          style={styles.listItem}
+                          color={colors.gray[900]}
+                        >
+                          {account.name}
+                        </LakeText>
+                      ))}
+                    </View>
+                  )}
+                />
+              </ReadOnlyFieldList>
             </Tile>
           </>
         )}

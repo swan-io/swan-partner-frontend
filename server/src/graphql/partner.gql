@@ -97,3 +97,41 @@ mutation BindAccountMembership($input: BindAccountMembershipInput!) {
     }
   }
 }
+
+mutation CreatePublicIndividualAccountHolderOnboarding($input: CreatePublicIndividualAccountHolderOnboardingInput!) {
+  createPublicIndividualAccountHolderOnboarding(input: $input) {
+    ... on CreatePublicIndividualAccountHolderOnboardingSuccessPayload {
+      onboarding {
+        id
+      }
+    }
+    ... on ForbiddenRejection {
+      message
+    }
+    ... on ValidationRejection {
+      message
+    }
+    ... on PublicOnboardingDisabledRejection {
+      message
+    }
+  }
+}
+
+mutation CreatePublicCompanyAccountHolderOnboarding($input: CreatePublicCompanyAccountHolderOnboardingInput!) {
+  createPublicCompanyAccountHolderOnboarding(input: $input) {
+    ... on CreatePublicCompanyAccountHolderOnboardingSuccessPayload {
+      onboarding {
+        id
+      }
+    }
+    ... on ForbiddenRejection {
+      message
+    }
+    ... on ValidationRejection {
+      message
+    }
+    ... on PublicOnboardingDisabledRejection {
+      message
+    }
+  }
+}

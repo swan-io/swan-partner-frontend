@@ -1,10 +1,10 @@
 import { Future, Result } from "@swan-io/boxed";
 import { GraphQLClient } from "graphql-request";
-import { match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { env } from "../env";
 import { AccountCountry, getSdk } from "../graphql/partner";
 import { fetchWithTimeout } from "../utils/fetch";
-import { OAuth2ClientCredentialsError, OAuth2NetworkError, getClientAccessToken } from "./oauth2";
+import { getClientAccessToken, OAuth2ClientCredentialsError, OAuth2NetworkError } from "./oauth2";
 
 export const sdk = getSdk(new GraphQLClient(env.PARTNER_API_URL, { fetch: fetchWithTimeout }));
 
@@ -41,6 +41,13 @@ export const parseAccountCountry = (
 ): Result<AccountCountry | undefined, UnsupportedAccountCountryError> =>
   match(accountCountry)
     .with("FRA", "DEU", "ESP", "NLD", "ITA", "BEL", undefined, value => Result.Ok(value))
+    .otherwise(country => Result.Error(new UnsupportedAccountCountryError(String(country))));
+
+export const parseAccountCountryStrict = (
+  accountCountry: unknown,
+): Result<AccountCountry, UnsupportedAccountCountryError> =>
+  match(accountCountry)
+    .with("FRA", "DEU", "ESP", "NLD", "ITA", "BEL", value => Result.Ok(value))
     .otherwise(country => Result.Error(new UnsupportedAccountCountryError(String(country))));
 
 export class FinalizeOnboardingRejectionError extends Error {
@@ -114,4 +121,74 @@ export const bindAccountMembership = ({
         ),
       );
   });
+};
+
+export class CreateOnboardingRejectionError extends Error {
+  tag = "CreateOnboardingRejectionError";
+}
+
+export const createPublicIndividualAccountHolderOnboarding = ({
+  projectId,
+  accountCountry,
+}: {
+  projectId: string;
+  accountCountry: AccountCountry;
+}) => {
+  console.log(projectId);
+  return toFuture(
+    sdk.CreatePublicIndividualAccountHolderOnboarding({
+      input: { accountInfo: { country: accountCountry }, accountAdmin: {} },
+    }),
+  ).mapOkToResult(({ createPublicIndividualAccountHolderOnboarding }) =>
+    match(createPublicIndividualAccountHolderOnboarding)
+      .with(
+        { __typename: "CreatePublicIndividualAccountHolderOnboardingSuccessPayload" },
+        ({ onboarding: { id } }) => Result.Ok(id),
+      )
+      .with(
+        {
+          __typename: P.union(
+            "ValidationRejection",
+            "PublicOnboardingDisabledRejection",
+            "ForbiddenRejection",
+          ),
+        },
+        ({ __typename, message }) =>
+          Result.Error(new CreateOnboardingRejectionError(JSON.stringify({ __typename, message }))),
+      )
+      .exhaustive(),
+  );
+};
+
+export const createPublicCompanyAccountHolderOnboarding = ({
+  projectId,
+  accountCountry,
+}: {
+  projectId: string;
+  accountCountry: AccountCountry;
+}) => {
+  console.log(projectId);
+  return toFuture(
+    sdk.CreatePublicCompanyAccountHolderOnboarding({
+      input: { accountInfo: { country: accountCountry }, accountAdmin: {}, company: {}, projectId },
+    }),
+  ).mapOkToResult(({ createPublicCompanyAccountHolderOnboarding }) =>
+    match(createPublicCompanyAccountHolderOnboarding)
+      .with(
+        { __typename: "CreatePublicCompanyAccountHolderOnboardingSuccessPayload" },
+        ({ onboarding: { id } }) => Result.Ok(id),
+      )
+      .with(
+        {
+          __typename: P.union(
+            "ValidationRejection",
+            "PublicOnboardingDisabledRejection",
+            "ForbiddenRejection",
+          ),
+        },
+        ({ __typename, message }) =>
+          Result.Error(new CreateOnboardingRejectionError(JSON.stringify({ __typename, message }))),
+      )
+      .exhaustive(),
+  );
 };

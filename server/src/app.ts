@@ -25,9 +25,11 @@ import {
 import {
   UnsupportedAccountCountryError,
   bindAccountMembership,
+  createPublicCompanyAccountHolderOnboarding,
+  createPublicIndividualAccountHolderOnboarding,
   finalizeOnboarding,
   getProjectId,
-  parseAccountCountry,
+  parseAccountCountryStrict,
 } from "./api/partner";
 import { swan__bindAccountMembership, swan__finalizeOnboarding } from "./api/partner.swan";
 import {
@@ -405,16 +407,19 @@ export const start = async ({
   app.get<{ Querystring: Record<string, string> }>(
     "/onboarding/individual/start",
     async (request, reply) => {
-      const accountCountry = parseAccountCountry(request.query.accountCountry);
+      const accountCountry = parseAccountCountryStrict(request.query.accountCountry);
       const projectId = await getProjectId();
 
       return Future.value(Result.allFromDict({ accountCountry, projectId }))
         .flatMapOk(({ accountCountry, projectId }) => {
           const tgglClient = getTgglClient(projectId);
           const isOnboardingV2 = tgglClient.get("OnboardingV2NoCode", false);
+          console.log("#isOnboardingV2", isOnboardingV2);
           if (isOnboardingV2) {
-            // todo: use CreatePublicIndividualAccountHolderOnboarding
-            return onboardIndividualAccountHolder({ accountCountry, projectId });
+            return createPublicIndividualAccountHolderOnboarding({
+              accountCountry,
+              projectId,
+            });
           } else {
             return onboardIndividualAccountHolder({ accountCountry, projectId });
           }
@@ -449,13 +454,22 @@ export const start = async ({
   app.get<{ Querystring: Record<string, string> }>(
     "/onboarding/company/start",
     async (request, reply) => {
-      const accountCountry = parseAccountCountry(request.query.accountCountry);
+      const accountCountry = parseAccountCountryStrict(request.query.accountCountry);
       const projectId = await getProjectId();
 
       return Future.value(Result.allFromDict({ accountCountry, projectId }))
-        .flatMapOk(({ accountCountry, projectId }) =>
-          onboardCompanyAccountHolder({ accountCountry, projectId }),
-        )
+        .flatMapOk(({ accountCountry, projectId }) => {
+          const tgglClient = getTgglClient(projectId);
+          const isOnboardingV2 = tgglClient.get("OnboardingV2NoCode", false);
+          console.log("#isOnboardingV2", isOnboardingV2);
+
+          if (isOnboardingV2) {
+            console.log("#createPublicCompanyAccountHolderOnboarding");
+            return createPublicCompanyAccountHolderOnboarding({ accountCountry, projectId });
+          } else {
+            return onboardCompanyAccountHolder({ accountCountry, projectId });
+          }
+        })
         .tapOk(onboardingId => {
           return reply
             .header("cache-control", "private, max-age=0")

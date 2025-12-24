@@ -464,7 +464,6 @@ export const start = async ({
           console.log("#isOnboardingV2", isOnboardingV2);
 
           if (isOnboardingV2) {
-            console.log("#createPublicCompanyAccountHolderOnboarding");
             return createPublicCompanyAccountHolderOnboarding({ accountCountry, projectId });
           } else {
             return onboardCompanyAccountHolder({ accountCountry, projectId });

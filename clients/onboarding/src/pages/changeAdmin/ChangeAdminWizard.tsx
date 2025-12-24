@@ -8,6 +8,7 @@ import {
 } from "@swan-io/lake/src/components/LakeStepper";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useEffect, useMemo } from "react";
@@ -139,86 +140,95 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
     window.scrollTo(0, 0);
   }, [route?.name]);
 
+  // TODO get project info from backend once query is available
+  const projectInfo = {
+    color: "#76B900",
+    name: "projectName",
+    logoUrl: undefined,
+  };
+
   return (
-    <Box grow={1}>
-      <Box style={styles.sticky}>
-        <OnboardingHeader projectName={"projectName"} projectLogo={undefined} />
+    <WithPartnerAccentColor color={projectInfo.color}>
+      <Box grow={1}>
+        <Box style={styles.sticky}>
+          <OnboardingHeader projectName={projectInfo.name} projectLogo={projectInfo.logoUrl} />
+
+          {isStepperDisplayed ? (
+            <ResponsiveContainer>
+              {({ small }) =>
+                small ? (
+                  <MobileStepTitle activeStepId={route.name} steps={stepperSteps} />
+                ) : (
+                  <Box alignItems="center">
+                    <LakeStepper
+                      activeStepId={route.name}
+                      steps={stepperSteps}
+                      style={styles.stepper}
+                    />
+                  </Box>
+                )
+              }
+            </ResponsiveContainer>
+          ) : null}
+        </Box>
 
         {isStepperDisplayed ? (
           <ResponsiveContainer>
-            {({ small }) =>
-              small ? (
-                <MobileStepTitle activeStepId={route.name} steps={stepperSteps} />
-              ) : (
-                <Box alignItems="center">
-                  <LakeStepper
-                    activeStepId={route.name}
-                    steps={stepperSteps}
-                    style={styles.stepper}
-                  />
-                </Box>
-              )
-            }
+            {({ small }) => <Space height={small ? 24 : 48} />}
           </ResponsiveContainer>
         ) : null}
+
+        {match(route)
+          .with({ name: "ChangeAdminRoot" }, () => (
+            <ChangeAdminFlowPresentation
+              steps={flowSteps}
+              changeAdminRequestId={changeAdminRequestId}
+              nextStep="ChangeAdminContext1"
+            />
+          ))
+          .with({ name: "ChangeAdminContext1" }, () => (
+            <ChangeAdminContext1
+              changeAdminRequestId={changeAdminRequestId}
+              nextStep="ChangeAdminContext2"
+            />
+          ))
+          .with({ name: "ChangeAdminContext2" }, () => (
+            <ChangeAdminContext2
+              changeAdminRequestId={changeAdminRequestId}
+              previousStep="ChangeAdminContext1"
+              nextStep="ChangeAdminRequester"
+            />
+          ))
+          .with({ name: "ChangeAdminRequester" }, () => (
+            <ChangeAdminRequester
+              changeAdminRequestId={changeAdminRequestId}
+              previousStep="ChangeAdminContext2"
+              nextStep="ChangeAdminNewAdmin"
+            />
+          ))
+          .with({ name: "ChangeAdminNewAdmin" }, () => (
+            <ChangeAdminNewAdmin
+              changeAdminRequestId={changeAdminRequestId}
+              previousStep="ChangeAdminRequester"
+              nextStep="ChangeAdminDocuments"
+            />
+          ))
+          .with({ name: "ChangeAdminDocuments" }, () => (
+            <ChangeAdminDocuments
+              changeAdminRequestId={changeAdminRequestId}
+              previousStep="ChangeAdminNewAdmin"
+              nextStep="ChangeAdminConfirm"
+            />
+          ))
+          .with({ name: "ChangeAdminConfirm" }, () => (
+            <ChangeAdminConfirm
+              changeAdminRequestId={changeAdminRequestId}
+              previousStep="ChangeAdminDocuments"
+            />
+          ))
+          .with(P.nullish, () => <NotFoundPage />)
+          .exhaustive()}
       </Box>
-
-      {isStepperDisplayed ? (
-        <ResponsiveContainer>
-          {({ small }) => <Space height={small ? 24 : 48} />}
-        </ResponsiveContainer>
-      ) : null}
-
-      {match(route)
-        .with({ name: "ChangeAdminRoot" }, () => (
-          <ChangeAdminFlowPresentation
-            steps={flowSteps}
-            changeAdminRequestId={changeAdminRequestId}
-            nextStep="ChangeAdminContext1"
-          />
-        ))
-        .with({ name: "ChangeAdminContext1" }, () => (
-          <ChangeAdminContext1
-            changeAdminRequestId={changeAdminRequestId}
-            nextStep="ChangeAdminContext2"
-          />
-        ))
-        .with({ name: "ChangeAdminContext2" }, () => (
-          <ChangeAdminContext2
-            changeAdminRequestId={changeAdminRequestId}
-            previousStep="ChangeAdminContext1"
-            nextStep="ChangeAdminRequester"
-          />
-        ))
-        .with({ name: "ChangeAdminRequester" }, () => (
-          <ChangeAdminRequester
-            changeAdminRequestId={changeAdminRequestId}
-            previousStep="ChangeAdminContext2"
-            nextStep="ChangeAdminNewAdmin"
-          />
-        ))
-        .with({ name: "ChangeAdminNewAdmin" }, () => (
-          <ChangeAdminNewAdmin
-            changeAdminRequestId={changeAdminRequestId}
-            previousStep="ChangeAdminRequester"
-            nextStep="ChangeAdminDocuments"
-          />
-        ))
-        .with({ name: "ChangeAdminDocuments" }, () => (
-          <ChangeAdminDocuments
-            changeAdminRequestId={changeAdminRequestId}
-            previousStep="ChangeAdminNewAdmin"
-            nextStep="ChangeAdminConfirm"
-          />
-        ))
-        .with({ name: "ChangeAdminConfirm" }, () => (
-          <ChangeAdminConfirm
-            changeAdminRequestId={changeAdminRequestId}
-            previousStep="ChangeAdminDocuments"
-          />
-        ))
-        .with(P.nullish, () => <NotFoundPage />)
-        .exhaustive()}
-    </Box>
+    </WithPartnerAccentColor>
   );
 };

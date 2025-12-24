@@ -2387,12 +2387,6 @@ type Onboarding {
   """
   onboardingUrl: String
 
-  """
-  Current computed state of onboarding
-  @deprecated(reason: "use `statusInfo` instead")
-  """
-  onboardingState: OnboardingState! @deprecated(reason: "use `statusInfo` instead")
-
   """Extra parameters provided by partner"""
   oAuthRedirectParameters: OAuthRedirectParameters
 
@@ -2599,12 +2593,6 @@ type OnboardingInfo {
   """
   onboardingUrl: String!
 
-  """
-  Current computed state of onboarding
-  @deprecated(reason: "use `statusInfo` instead")
-  """
-  onboardingState: OnboardingState @deprecated(reason: "use `statusInfo` instead")
-
   """Project infos you set in the dashboard"""
   projectInfo: ProjectInfo
 
@@ -2643,15 +2631,6 @@ enum OnboardingOrderByFieldInput {
 input OnboardingOrderByInput {
   field: OnboardingOrderByFieldInput
   direction: OrderByDirection
-}
-
-"""Onboarding process state"""
-enum OnboardingState {
-  """When the onboarding is in progress"""
-  Ongoing
-
-  """When the onboarding is finalized and the account holder is created"""
-  Completed
 }
 
 """Possible values for onboarding status"""
@@ -2901,6 +2880,9 @@ input RepresentativeInput {
   """Preferred first name of the representative."""
   preferredFirstName: String
 
+  """Email of the representative."""
+  email: String
+
   """
   Birth date of the representative. Must be a valid date in the YYYY/MM/DD format.
   """
@@ -3032,25 +3014,8 @@ type SpendingLimit {
   amount: Amount!
 }
 
-"""Inputs when editing spending limit configuration"""
-input SpendingLimitInput {
-  """period concerned"""
-  period: SpendingLimitPeriodInput!
-
-  """sum of amount of spending authorized during the period"""
-  amount: AmountInput!
-}
-
 """Available period to compute spending limits"""
 enum SpendingLimitPeriod {
-  Monthly
-  Weekly
-  Daily
-  Always
-}
-
-"""Available period to compute spending limits"""
-enum SpendingLimitPeriodInput {
   Monthly
   Weekly
   Daily
@@ -4336,6 +4301,23 @@ type SimulateCardTransactionEnrichmentRejection implements Rejection {
 type SimulateCardTransactionEnrichmentSuccessPayload {
   transactionId: ID!
   enrichedData: EnrichedTransactionInfo!
+}
+
+"""Inputs when editing spending limit configuration"""
+input SpendingLimitInput {
+  """period concerned"""
+  period: SpendingLimitPeriodInput!
+
+  """sum of amount of spending authorized during the period"""
+  amount: AmountInput!
+}
+
+"""Available period to compute spending limits"""
+enum SpendingLimitPeriodInput {
+  Monthly
+  Weekly
+  Daily
+  Always
 }
 
 """Thrown when an related account is not eligible to the feature"""

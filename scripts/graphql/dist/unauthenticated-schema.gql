@@ -1,5 +1,12 @@
 type Query {
   """
+  Returns an account admin change from its id.
+  
+  @comingSoon
+  """
+  accountAdminChange(accountAdminChangeId: ID!): AccountAdminChangePayload!
+
+  """
   Fetch company info (name, beneficiaries...) by Siren number
   @deprecated(reason: "This query is deprecated and will be removed in a future version.")
   """
@@ -25,8 +32,24 @@ type Query {
 }
 
 type Mutation {
+  """
+  Finalizes an Account Admin Change
+  
+  @comingSoon
+  """
+  finalizeAccountAdminChange(
+    """Unique identifier of the account admin change to finalize"""
+    accountAdminChangeId: ID!
+  ): FinalizeAccountAdminChangePayload!
   unauthenticatedOnboardPublicCompanyAccountHolder(input: UnauthenticatedOnboardPublicCompanyAccountHolderInput): UnauthenticatedOnboardPublicCompanyAccountHolderPayload!
   unauthenticatedOnboardPublicIndividualAccountHolder(input: UnauthenticatedOnboardPublicIndividualAccountHolderInput): UnauthenticatedOnboardPublicIndividualAccountHolderPayload!
+
+  """
+  Updates an Account Admin Change
+  
+  @comingSoon
+  """
+  updateAccountAdminChange(input: UpdateAccountAdminChangeInput!): UpdateAccountAdminChangePayload!
   unauthenticatedUpdateCompanyOnboarding(input: UnauthenticatedUpdateCompanyOnboardingInput): UnauthenticatedUpdateCompanyOnboardingPayload!
   unauthenticatedUpdateIndividualOnboarding(input: UnauthenticatedUpdateIndividualOnboardingInput!): UnauthenticatedUpdateIndividualOnboardingPayload!
 
@@ -169,6 +192,126 @@ type Account {
 
   """Settings of the account"""
   settings: AccountSettings!
+}
+
+"""Account administrator change request"""
+type AccountAdminChange {
+  """Unique identifier of the account admin change"""
+  id: ID!
+
+  """Reason for the account administrator change"""
+  reason: AccountAdminChangeReason
+
+  """`true` if the new administrator is a legal representative"""
+  isNewAdminLegalRepresentative: Boolean
+
+  """Information about the new administrator"""
+  admin: AccountAdminChangeAdmin
+
+  """`true` if the requester is the new administrator"""
+  isRequesterNewAdmin: Boolean
+
+  """Information about the requester of the administrator change"""
+  requester: AccountAdminChangeRequester
+
+  """Account holder company information"""
+  accountHolder: AccountHolderCompanyInfo!
+
+  """Supporting document collection for the administrator change"""
+  supportingDocumentCollection: SupportingDocumentCollection!
+}
+
+"""Information about the new administrator"""
+type AccountAdminChangeAdmin {
+  """First name of the new administrator"""
+  firstName: String
+
+  """Last name of the new administrator"""
+  lastName: String
+
+  """Email address of the new administrator"""
+  email: String
+
+  """Phone number of the new administrator"""
+  phoneNumber: String
+
+  """Birth country of the new administrator"""
+  birthCountry: String
+
+  """Birth date of the new administrator"""
+  birthDate: Date
+}
+
+"""Input for the new administrator information"""
+input AccountAdminChangeAdminInput {
+  """First name of the new administrator"""
+  firstName: String
+
+  """Last name of the new administrator"""
+  lastName: String
+
+  """Email address of the new administrator"""
+  email: String
+
+  """Phone number of the new administrator"""
+  phoneNumber: String
+
+  """Birth country of the new administrator"""
+  birthCountry: String
+
+  """Birth date of the new administrator"""
+  birthDate: Date
+}
+
+"""Response payload for the accountAdminChange query"""
+union AccountAdminChangePayload = ForbiddenRejection | AccountAdminChange
+
+"""Reason for the account administrator change"""
+enum AccountAdminChangeReason {
+  """The current administrator has left the company"""
+  CurrentAdministratorLeft
+
+  """The change is due to an internal reorganization"""
+  InternalReorganization
+
+  """The new administrator was appointed by general assembly"""
+  AppointedByGeneralAssembly
+
+  """The new administrator was appointed by board decision"""
+  AppointedByBoardDecision
+
+  """Other reason for the administrator change"""
+  Other
+}
+
+"""Information about the requester of the administrator change"""
+type AccountAdminChangeRequester {
+  """First name of the requester"""
+  firstName: String
+
+  """Last name of the requester"""
+  lastName: String
+
+  """Email address of the requester"""
+  email: String
+
+  """Phone number of the requester"""
+  phoneNumber: String
+}
+
+"""Input for the requester information"""
+input AccountAdminChangeRequesterInput {
+  """First name of the requester"""
+  firstName: String
+
+  """Last name of the requester"""
+  lastName: String
+
+  """Email address of the requester"""
+  email: String
+
+  """Phone number of the requester"""
+  phoneNumber: String
 }
 
 """Account Closed status information"""
@@ -557,6 +700,12 @@ interface AccountHolderOnboardingBase {
   supportingDocumentCollection: SupportingDocumentCollection
   createdAt: DateTime!
   updatedAt: DateTime!
+  projectInfo: ProjectInfo!
+
+  """
+  OAuth parameters provided in order to redirect the user at the end of the flow
+  """
+  oAuthRedirectParameters: OAuthRedirectParameters
 }
 
 """
@@ -1372,6 +1521,12 @@ type CompanyAccountHolderOnboarding implements AccountHolderOnboardingBase {
   accountInfo: CompanyAccountHolderOnboardingAccount
   accountAdmin: CompanyAccountHolderOnboardingAccountAdmin
   company: CompanyInfo
+  projectInfo: ProjectInfo!
+
+  """
+  OAuth parameters provided in order to redirect the user at the end of the flow
+  """
+  oAuthRedirectParameters: OAuthRedirectParameters
 }
 
 """Company account information for onboarding"""
@@ -1667,6 +1822,16 @@ ex: 2021-04-12T16:28:22.867Z
 """
 scalar DateTime
 
+enum DayEnum {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
+}
+
 input DeleteSupportingDocumentInput {
   """Id of the supporting document to delete"""
   id: ID!
@@ -1715,6 +1880,15 @@ enum FieldValidationError {
 
   """When the associated field's value is invalid"""
   Invalid
+}
+
+"""Response payload for the finalizeAccountAdminChange mutation"""
+union FinalizeAccountAdminChangePayload = ForbiddenRejection | FinalizeAccountAdminChangeSuccessPayload
+
+"""Success response when finalizing an account admin change"""
+type FinalizeAccountAdminChangeSuccessPayload {
+  """`true` if the finalization was successful"""
+  success: Boolean!
 }
 
 type ForbiddenRejection implements Rejection {
@@ -1980,6 +2154,12 @@ type IndividualAccountHolderOnboarding implements AccountHolderOnboardingBase {
   updatedAt: DateTime!
   accountInfo: IndividualAccountHolderOnboardingAccount
   accountAdmin: IndividualAccountHolderOnboardingAccountAdmin
+  projectInfo: ProjectInfo!
+
+  """
+  OAuth parameters provided in order to redirect the user at the end of the flow
+  """
+  oAuthRedirectParameters: OAuthRedirectParameters
 }
 
 """Individual account information for onboarding"""
@@ -2436,12 +2616,6 @@ type Onboarding {
   """
   onboardingUrl: String
 
-  """
-  Current computed state of onboarding
-  @deprecated(reason: "use `statusInfo` instead")
-  """
-  onboardingState: OnboardingState! @deprecated(reason: "use `statusInfo` instead")
-
   """Extra parameters provided by partner"""
   oAuthRedirectParameters: OAuthRedirectParameters
 
@@ -2673,12 +2847,6 @@ type OnboardingInfo {
   """
   onboardingUrl: String!
 
-  """
-  Current computed state of onboarding
-  @deprecated(reason: "use `statusInfo` instead")
-  """
-  onboardingState: OnboardingState @deprecated(reason: "use `statusInfo` instead")
-
   """Project infos you set in the dashboard"""
   projectInfo: ProjectInfo
 
@@ -2754,15 +2922,7 @@ input OnboardingRepresentativeInput {
   sex: Sex
   birthInfo: BirthInfoInput
   nationality: CCA3
-}
-
-"""Onboarding process state"""
-enum OnboardingState {
-  """When the onboarding is in progress"""
-  Ongoing
-
-  """When the onboarding is finalized and the account holder is created"""
-  Completed
+  email: String
 }
 
 """Possible values for onboarding status"""
@@ -3047,6 +3207,9 @@ input RepresentativeInput {
   """Preferred first name of the representative."""
   preferredFirstName: String
 
+  """Email of the representative."""
+  email: String
+
   """
   Birth date of the representative. Must be a valid date in the YYYY/MM/DD format.
   """
@@ -3191,6 +3354,38 @@ type SpendingLimit {
   amount: Amount!
 }
 
+input SpendingLimitCalendarDayModeInput {
+  """a starting hour for the spending limit (0 to 23)."""
+  startHour: Int! = 0
+}
+
+input SpendingLimitCalendarModeInput {
+  """a daily based calendar spending limit."""
+  daily: SpendingLimitCalendarDayModeInput
+
+  """a weekly based calendar spending limit."""
+  weekly: SpendingLimitCalendarWeekModeInput
+
+  """a monthly based calendar spending limit."""
+  monthly: SpendingLimitCalendarMonthModeInput
+}
+
+input SpendingLimitCalendarMonthModeInput {
+  """a starting hour for the spending limit (0 to 23)."""
+  startHour: Int! = 0
+
+  """a day in month for the spending limit (1 to 31)."""
+  startDay: Int! = 1
+}
+
+input SpendingLimitCalendarWeekModeInput {
+  """a starting hour for the spending limit (0 to 23)."""
+  startHour: Int! = 0
+
+  """a day of week enum."""
+  startDay: DayEnum! = Monday
+}
+
 """Inputs when editing spending limit configuration"""
 input SpendingLimitInput {
   """period concerned"""
@@ -3198,6 +3393,16 @@ input SpendingLimitInput {
 
   """sum of amount of spending authorized during the period"""
   amount: AmountInput!
+}
+
+input SpendingLimitModeInput {
+  """a rolling period, defining a period of x days/weeks/months."""
+  rolling: SpendingLimitRollingModeInput
+
+  """
+  a fixed calendar period starting either at a given hour of day, a given hour and day in week/month
+  """
+  calendar: SpendingLimitCalendarModeInput
 }
 
 """Available period to compute spending limits"""
@@ -3214,6 +3419,13 @@ enum SpendingLimitPeriodInput {
   Weekly
   Daily
   Always
+}
+
+input SpendingLimitRollingModeInput {
+  """
+  a rolling value for a spending limit. For a monthly period, only 1 is valid.
+  """
+  rollingValue: Int!
 }
 
 """Available type of spending limits"""
@@ -4359,6 +4571,36 @@ input UnitedStatesTaxInfoInput {
   unitedStatesTaxIdentificationNumber: String
 }
 
+"""Inputs to update an Account Admin Change"""
+input UpdateAccountAdminChangeInput {
+  """Id of the Account Admin Change to update"""
+  id: ID!
+
+  """Reason for the account administrator change"""
+  reason: AccountAdminChangeReason
+
+  """`true` if the new administrator is a legal representative"""
+  isNewAdminLegalRepresentative: Boolean
+
+  """Information about the new administrator"""
+  admin: AccountAdminChangeAdminInput
+
+  """`true` if the requester is the new administrator"""
+  isRequesterNewAdmin: Boolean
+
+  """Information about the requester of the administrator change"""
+  requester: AccountAdminChangeRequesterInput
+}
+
+"""Response payload for the updateAccountAdminChange mutation"""
+union UpdateAccountAdminChangePayload = ForbiddenRejection | UpdateAccountAdminChangeSuccessPayload
+
+"""Success response when updating an account admin change"""
+type UpdateAccountAdminChangeSuccessPayload {
+  """The updated account admin change"""
+  accountAdminChange: AccountAdminChange!
+}
+
 scalar Upload
 
 """
@@ -5452,16 +5694,6 @@ interface CompleteDigitalCardStatusInfo {
   status: CompleteDigitalCardStatus!
 }
 
-enum DayEnum {
-  Monday
-  Tuesday
-  Wednesday
-  Thursday
-  Friday
-  Saturday
-  Sunday
-}
-
 """Device"""
 type Device {
   """The type of device. It can be a Phone, Tablet, Watch"""
@@ -6093,55 +6325,6 @@ input SignatureData {
 
   """list of apple generated certificates"""
   certificates: [Certificate!]!
-}
-
-input SpendingLimitCalendarDayModeInput {
-  """a starting hour for the spending limit (0 to 23)."""
-  startHour: Int! = 0
-}
-
-input SpendingLimitCalendarModeInput {
-  """a daily based calendar spending limit."""
-  daily: SpendingLimitCalendarDayModeInput
-
-  """a weekly based calendar spending limit."""
-  weekly: SpendingLimitCalendarWeekModeInput
-
-  """a monthly based calendar spending limit."""
-  monthly: SpendingLimitCalendarMonthModeInput
-}
-
-input SpendingLimitCalendarMonthModeInput {
-  """a starting hour for the spending limit (0 to 23)."""
-  startHour: Int! = 0
-
-  """a day in month for the spending limit (1 to 31)."""
-  startDay: Int! = 1
-}
-
-input SpendingLimitCalendarWeekModeInput {
-  """a starting hour for the spending limit (0 to 23)."""
-  startHour: Int! = 0
-
-  """a day of week enum."""
-  startDay: DayEnum! = Monday
-}
-
-input SpendingLimitModeInput {
-  """a rolling period, defining a period of x days/weeks/months."""
-  rolling: SpendingLimitRollingModeInput
-
-  """
-  a fixed calendar period starting either at a given hour of day, a given hour and day in week/month
-  """
-  calendar: SpendingLimitCalendarModeInput
-}
-
-input SpendingLimitRollingModeInput {
-  """
-  a rolling value for a spending limit. For a monthly period, only 1 is valid.
-  """
-  rollingValue: Int!
 }
 
 """Rejection returned when the User is not the cardholder"""

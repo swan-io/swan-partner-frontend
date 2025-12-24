@@ -25,6 +25,8 @@ import {
 import {
   UnsupportedAccountCountryError,
   bindAccountMembership,
+  createPublicCompanyAccountHolderOnboarding,
+  createPublicIndividualAccountHolderOnboarding,
   finalizeOnboarding,
   getProjectId,
   parseAccountCountry,
@@ -412,9 +414,12 @@ export const start = async ({
         .flatMapOk(({ accountCountry, projectId }) => {
           const tgglClient = getTgglClient(projectId);
           const isOnboardingV2 = tgglClient.get("OnboardingV2NoCode", false);
+          request.log.info("#isOnboardingV2", isOnboardingV2);
           if (isOnboardingV2) {
-            // todo: use CreatePublicIndividualAccountHolderOnboarding
-            return onboardIndividualAccountHolder({ accountCountry, projectId });
+            return createPublicIndividualAccountHolderOnboarding({
+              accountCountry,
+              projectId,
+            });
           } else {
             return onboardIndividualAccountHolder({ accountCountry, projectId });
           }
@@ -453,9 +458,16 @@ export const start = async ({
       const projectId = await getProjectId();
 
       return Future.value(Result.allFromDict({ accountCountry, projectId }))
-        .flatMapOk(({ accountCountry, projectId }) =>
-          onboardCompanyAccountHolder({ accountCountry, projectId }),
-        )
+        .flatMapOk(({ accountCountry, projectId }) => {
+          const tgglClient = getTgglClient(projectId);
+          const isOnboardingV2 = tgglClient.get("OnboardingV2NoCode", false);
+          request.log.info("#isOnboardingV2", isOnboardingV2);
+          if (isOnboardingV2) {
+            return createPublicCompanyAccountHolderOnboarding({ accountCountry, projectId });
+          } else {
+            return onboardCompanyAccountHolder({ accountCountry, projectId });
+          }
+        })
         .tapOk(onboardingId => {
           return reply
             .header("cache-control", "private, max-age=0")

@@ -134,7 +134,8 @@ export const createPublicIndividualAccountHolderOnboarding = ({
   projectId: string;
   accountCountry: AccountCountry;
 }) => {
-  console.log(projectId);
+  console.log(projectId); // todo add projectId to mutation when available
+
   return toFuture(
     sdk.CreatePublicIndividualAccountHolderOnboarding({
       input: { accountInfo: { country: accountCountry }, accountAdmin: {} },

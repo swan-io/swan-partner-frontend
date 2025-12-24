@@ -127,10 +127,12 @@ export const ChangeAdminContext2 = ({ changeAdminRequestId, previousStep, nextSt
               <LakeLabel
                 type="form"
                 label={t("changeAdmin.step.context2.requestReason")}
-                render={() => (
+                render={id => (
                   <Field name="reason">
-                    {({ value, onChange }) => (
+                    {({ value, onChange, ref }) => (
                       <LakeSelect
+                        ref={ref}
+                        id={id}
                         placeholder={t("changeAdmin.step.context2.requestReason.placeholder")}
                         items={reasonItems}
                         value={value}

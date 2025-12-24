@@ -11,6 +11,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
+import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
@@ -146,6 +147,7 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
     name: "projectName",
     logoUrl: undefined,
   };
+  const accountCountry: CountryCCA3 = "FRA";
 
   return (
     <WithPartnerAccentColor color={projectInfo.color}>
@@ -202,6 +204,7 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
           .with({ name: "ChangeAdminRequester" }, () => (
             <ChangeAdminRequester
               changeAdminRequestId={changeAdminRequestId}
+              accountCountry={accountCountry}
               previousStep="ChangeAdminContext2"
               nextStep="ChangeAdminNewAdmin"
             />

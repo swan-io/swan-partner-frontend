@@ -38,13 +38,6 @@ export class UnsupportedAccountCountryError extends Error {
 
 export const parseAccountCountry = (
   accountCountry: unknown,
-): Result<AccountCountry | undefined, UnsupportedAccountCountryError> =>
-  match(accountCountry)
-    .with("FRA", "DEU", "ESP", "NLD", "ITA", "BEL", undefined, value => Result.Ok(value))
-    .otherwise(country => Result.Error(new UnsupportedAccountCountryError(String(country))));
-
-export const parseAccountCountryStrict = (
-  accountCountry: unknown,
 ): Result<AccountCountry, UnsupportedAccountCountryError> =>
   match(accountCountry)
     .with("FRA", "DEU", "ESP", "NLD", "ITA", "BEL", value => Result.Ok(value))

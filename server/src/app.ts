@@ -29,7 +29,7 @@ import {
   createPublicIndividualAccountHolderOnboarding,
   finalizeOnboarding,
   getProjectId,
-  parseAccountCountryStrict,
+  parseAccountCountry,
 } from "./api/partner";
 import { swan__bindAccountMembership, swan__finalizeOnboarding } from "./api/partner.swan";
 import {
@@ -407,14 +407,14 @@ export const start = async ({
   app.get<{ Querystring: Record<string, string> }>(
     "/onboarding/individual/start",
     async (request, reply) => {
-      const accountCountry = parseAccountCountryStrict(request.query.accountCountry);
+      const accountCountry = parseAccountCountry(request.query.accountCountry);
       const projectId = await getProjectId();
 
       return Future.value(Result.allFromDict({ accountCountry, projectId }))
         .flatMapOk(({ accountCountry, projectId }) => {
           const tgglClient = getTgglClient(projectId);
           const isOnboardingV2 = tgglClient.get("OnboardingV2NoCode", false);
-          console.log("#isOnboardingV2", isOnboardingV2);
+          request.log.info("#isOnboardingV2", isOnboardingV2);
           if (isOnboardingV2) {
             return createPublicIndividualAccountHolderOnboarding({
               accountCountry,
@@ -454,15 +454,14 @@ export const start = async ({
   app.get<{ Querystring: Record<string, string> }>(
     "/onboarding/company/start",
     async (request, reply) => {
-      const accountCountry = parseAccountCountryStrict(request.query.accountCountry);
+      const accountCountry = parseAccountCountry(request.query.accountCountry);
       const projectId = await getProjectId();
 
       return Future.value(Result.allFromDict({ accountCountry, projectId }))
         .flatMapOk(({ accountCountry, projectId }) => {
           const tgglClient = getTgglClient(projectId);
           const isOnboardingV2 = tgglClient.get("OnboardingV2NoCode", false);
-          console.log("#isOnboardingV2", isOnboardingV2);
-
+          request.log.info("#isOnboardingV2", isOnboardingV2);
           if (isOnboardingV2) {
             return createPublicCompanyAccountHolderOnboarding({ accountCountry, projectId });
           } else {

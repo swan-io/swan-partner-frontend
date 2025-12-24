@@ -1,4 +1,5 @@
 import { Box } from "@swan-io/lake/src/components/Box";
+import { FlowStep } from "@swan-io/lake/src/components/FlowPresentation";
 import { IconName } from "@swan-io/lake/src/components/Icon";
 import {
   LakeStepper,
@@ -89,20 +90,16 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
     ];
   }, []);
 
-  const stepperSteps = useMemo<(TopLevelStep & { icon: IconName })[]>(
+  const stepperSteps = useMemo<TopLevelStep[]>(
     () =>
       steps
-        // Remove context steps except the first one
-        .filter(
-          step => step.id === "ChangeAdminContext1" || !step.id.startsWith("ChangeAdminContext"),
-        )
+        // Remove ChangeAdminContext2 because it's grouped with ChangeAdminContext1
+        .filter(step => step.id !== "ChangeAdminContext2")
         .map(step => {
           // Organisation steps are grouped
           if (step.id === "ChangeAdminContext1") {
             return {
-              id: step.id,
               label: t("changeAdmin.step.context"),
-              icon: step.icon,
               children: steps
                 .filter(({ id }) => id.startsWith("ChangeAdminContext"))
                 .map(step => ({
@@ -123,6 +120,18 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
           };
         }),
     [changeAdminRequestId, steps],
+  );
+
+  const flowSteps = useMemo<FlowStep[]>(
+    () =>
+      steps
+        .filter(step => step.id !== "ChangeAdminContext2")
+        .map(step => ({
+          id: step.id,
+          label: step.label,
+          icon: step.icon,
+        })),
+    [steps],
   );
 
   // biome-ignore lint/correctness/useExhaustiveDependencies(route?.name):
@@ -163,7 +172,7 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
       {match(route)
         .with({ name: "ChangeAdminRoot" }, () => (
           <ChangeAdminFlowPresentation
-            steps={stepperSteps}
+            steps={flowSteps}
             changeAdminRequestId={changeAdminRequestId}
             nextStep="ChangeAdminContext1"
           />

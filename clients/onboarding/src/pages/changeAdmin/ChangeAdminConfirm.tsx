@@ -11,7 +11,6 @@ import { CountryCCA3, getCCA2forCCA3 } from "@swan-io/shared-business/src/consta
 import dayjs from "dayjs";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
-import { PartnershipFooter } from "../../components/PartnershipFooter";
 import { StepTitle } from "../../components/StepTitle";
 import { t } from "../../utils/i18n";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
@@ -19,15 +18,17 @@ import { ChangeAdminRoute, Router } from "../../utils/routes";
 type Props = {
   changeAdminRequestId: string;
   previousStep: ChangeAdminRoute;
+  onSubmitted: () => void;
 };
 
-export const ChangeAdminConfirm = ({ changeAdminRequestId, previousStep }: Props) => {
+export const ChangeAdminConfirm = ({ changeAdminRequestId, previousStep, onSubmitted }: Props) => {
   const onPressPrevious = () => {
     Router.push(previousStep, { requestId: changeAdminRequestId });
   };
 
   const onSubmit = () => {
-    console.log("Submit change admin request");
+    // TODO submit to backend
+    onSubmitted();
   };
 
   // TODO fetch from backend
@@ -87,7 +88,6 @@ export const ChangeAdminConfirm = ({ changeAdminRequestId, previousStep }: Props
         onNext={onSubmit}
         loading={false}
       />
-      <PartnershipFooter />
     </OnboardingStepContent>
   );
 };

@@ -14,7 +14,6 @@ import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
 import { ReactNode, useCallback, useRef } from "react";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
-import { PartnershipFooter } from "../../components/PartnershipFooter";
 import { StepTitle } from "../../components/StepTitle";
 import {
   DeleteSupportingDocumentDocument,
@@ -134,7 +133,6 @@ export const ChangeAdminDocuments = ({
       </ResponsiveContainer>
 
       <OnboardingFooter onPrevious={onPressPrevious} onNext={onPressNext} loading={false} />
-      <PartnershipFooter />
     </OnboardingStepContent>
   );
 };

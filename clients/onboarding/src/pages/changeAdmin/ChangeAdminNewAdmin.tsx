@@ -23,7 +23,6 @@ import { StyleSheet, View } from "react-native";
 import { InputPhoneNumber } from "../../components/InputPhoneNumber";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
-import { PartnershipFooter } from "../../components/PartnershipFooter";
 import { StepTitle } from "../../components/StepTitle";
 import { t } from "../../utils/i18n";
 import { prefixPhoneNumber } from "../../utils/phone";
@@ -144,17 +143,21 @@ export const ChangeAdminNewAdmin = ({
                 render={() => (
                   <Field name="isLegalRepresentative">
                     {({ value, onChange }) => (
-                      <RadioGroup
-                        direction="row"
-                        items={isNewAdminItems}
-                        value={value}
-                        hideErrors={true}
-                        onValueChange={onChange}
-                      />
+                      <View style={{ width: "100%" }}>
+                        <RadioGroup
+                          direction={small ? "column" : "row"}
+                          items={isNewAdminItems}
+                          value={value}
+                          hideErrors={true}
+                          onValueChange={onChange}
+                        />
+                      </View>
                     )}
                   </Field>
                 )}
               />
+
+              <Space height={12} />
 
               <Box direction={small ? "column" : "row"}>
                 <LakeLabel
@@ -243,6 +246,8 @@ export const ChangeAdminNewAdmin = ({
                 </Field>
               </Box>
 
+              <Space height={12} />
+
               <Box direction={small ? "column" : "row"}>
                 <Field name="birthDate">
                   {({ value, onChange, error }) => (
@@ -282,7 +287,6 @@ export const ChangeAdminNewAdmin = ({
       </ResponsiveContainer>
 
       <OnboardingFooter onPrevious={onPressPrevious} onNext={onPressNext} loading={false} />
-      <PartnershipFooter />
     </OnboardingStepContent>
   );
 };

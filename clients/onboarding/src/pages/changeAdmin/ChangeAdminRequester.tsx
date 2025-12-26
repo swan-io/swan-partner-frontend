@@ -23,7 +23,7 @@ import { ChangeAdminRoute, Router } from "../../utils/routes";
 import { validateEmail, validateName, validateRequired } from "../../utils/validation";
 
 const styles = StyleSheet.create({
-  input: {
+  inputContainer: {
     flex: 1,
   },
 });
@@ -112,7 +112,7 @@ export const ChangeAdminRequester = ({
                 <LakeLabel
                   type="form"
                   label={t("changeAdmin.step.requesterInfo.firstName")}
-                  style={styles.input}
+                  style={styles.inputContainer}
                   render={id => (
                     <Field name="firstName">
                       {({ value, onBlur, onChange, error, ref }) => (
@@ -134,7 +134,7 @@ export const ChangeAdminRequester = ({
                 <LakeLabel
                   type="form"
                   label={t("changeAdmin.step.requesterInfo.lastName")}
-                  style={styles.input}
+                  style={styles.inputContainer}
                   render={id => (
                     <Field name="lastName">
                       {({ value, onBlur, onChange, error, ref }) => (
@@ -158,7 +158,7 @@ export const ChangeAdminRequester = ({
                 <LakeLabel
                   type="form"
                   label={t("changeAdmin.step.requesterInfo.email")}
-                  style={styles.input}
+                  style={styles.inputContainer}
                   render={id => (
                     <Field name="email">
                       {({ value, onBlur, onChange, error, ref }) => (
@@ -180,7 +180,7 @@ export const ChangeAdminRequester = ({
 
                 <Field name="phoneNumber">
                   {({ value, onBlur, onChange, valid, error, ref }) => (
-                    <View style={styles.input}>
+                    <View style={styles.inputContainer}>
                       <InputPhoneNumber
                         label={t("changeAdmin.step.requesterInfo.phoneNumber")}
                         ref={ref}

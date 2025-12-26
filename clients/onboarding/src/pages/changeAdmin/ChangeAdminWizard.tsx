@@ -212,6 +212,7 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
           .with({ name: "ChangeAdminNewAdmin" }, () => (
             <ChangeAdminNewAdmin
               changeAdminRequestId={changeAdminRequestId}
+              accountCountry={accountCountry}
               previousStep="ChangeAdminRequester"
               nextStep="ChangeAdminDocuments"
             />

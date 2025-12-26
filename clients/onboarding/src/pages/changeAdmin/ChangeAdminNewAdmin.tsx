@@ -23,7 +23,6 @@ import { StyleSheet, View } from "react-native";
 import { InputPhoneNumber } from "../../components/InputPhoneNumber";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
-import { PartnershipFooter } from "../../components/PartnershipFooter";
 import { StepTitle } from "../../components/StepTitle";
 import { t } from "../../utils/i18n";
 import { prefixPhoneNumber } from "../../utils/phone";
@@ -282,7 +281,6 @@ export const ChangeAdminNewAdmin = ({
       </ResponsiveContainer>
 
       <OnboardingFooter onPrevious={onPressPrevious} onNext={onPressNext} loading={false} />
-      <PartnershipFooter />
     </OnboardingStepContent>
   );
 };

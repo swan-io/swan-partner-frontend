@@ -8,7 +8,6 @@ import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/desig
 import { StyleSheet, View } from "react-native";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
-import { PartnershipFooter } from "../../components/PartnershipFooter";
 import { StepTitle } from "../../components/StepTitle";
 import { t } from "../../utils/i18n";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
@@ -83,7 +82,6 @@ export const ChangeAdminContext1 = ({ changeAdminRequestId, nextStep }: Props) =
         onNext={onPressNext}
         loading={false}
       />
-      <PartnershipFooter />
     </OnboardingStepContent>
   );
 };

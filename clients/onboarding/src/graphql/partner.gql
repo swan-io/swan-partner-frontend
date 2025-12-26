@@ -43,7 +43,7 @@ fragment SupportingDocumentCollection on SupportingDocumentCollection {
   }
 }
 
-fragment IndividualOrCompanyOnboarding on  AccountHolderOnboardingBase{
+fragment IndividualOrCompanyOnboarding on AccountHolderOnboardingBase {
   id
   oAuthRedirectParameters {
     redirectUrl
@@ -62,7 +62,6 @@ fragment IndividualOrCompanyOnboarding on  AccountHolderOnboardingBase{
   }
 }
 
-
 fragment CompanyOnboarding on CompanyAccountHolderOnboarding {
   ...IndividualOrCompanyOnboarding
   accountInfo {
@@ -79,7 +78,7 @@ fragment CompanyOnboarding on CompanyAccountHolderOnboarding {
     lastName
     nationality
     address {
-    ...Address
+      ...Address
     }
     taxIdentificationNumber
     typeOfRepresentation
@@ -160,7 +159,9 @@ fragment UpdateValidationErrors on ValidationRejection {
   }
 }
 
-mutation UpdatePublicIndividualAccountHolderOnboarding ($input: UpdatePublicIndividualAccountHolderOnboardingInput!) {
+mutation UpdatePublicIndividualAccountHolderOnboarding(
+  $input: UpdatePublicIndividualAccountHolderOnboardingInput!
+) {
   updatePublicIndividualAccountHolderOnboarding(input: $input) {
     ... on UpdatePublicIndividualAccountHolderOnboardingSuccessPayload {
       onboarding {
@@ -173,7 +174,9 @@ mutation UpdatePublicIndividualAccountHolderOnboarding ($input: UpdatePublicIndi
   }
 }
 
-mutation UpdatePublicCompanyAccountHolderOnboarding ($input: UpdatePublicCompanyAccountHolderOnboardingInput!) {
+mutation UpdatePublicCompanyAccountHolderOnboarding(
+  $input: UpdatePublicCompanyAccountHolderOnboardingInput!
+) {
   updatePublicCompanyAccountHolderOnboarding(input: $input) {
     ... on UpdatePublicCompanyAccountHolderOnboardingSuccessPayload {
       onboarding {
@@ -182,6 +185,34 @@ mutation UpdatePublicCompanyAccountHolderOnboarding ($input: UpdatePublicCompany
     }
     ... on ValidationRejection {
       ...UpdateValidationErrors
+    }
+  }
+}
+
+mutation GenerateSupportingDocumentUploadUrl($input: GenerateSupportingDocumentUploadUrlInput!) {
+  generateSupportingDocumentUploadUrl(input: $input) {
+    __typename
+    ... on GenerateSupportingDocumentUploadUrlSuccessPayload {
+      supportingDocumentId
+      upload {
+        fields {
+          key
+          value
+        }
+        url
+      }
+    }
+  }
+}
+
+mutation DeleteSupportingDocument($input: DeleteSupportingDocumentInput!) {
+  deleteSupportingDocument(input: $input) {
+    __typename
+    ... on DeleteSupportingDocumentSuccessPayload {
+      id
+    }
+    ... on Rejection {
+      message
     }
   }
 }

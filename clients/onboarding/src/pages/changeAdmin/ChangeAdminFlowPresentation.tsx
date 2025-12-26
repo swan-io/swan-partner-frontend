@@ -12,7 +12,7 @@ import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { PartnershipFooter } from "../../components/PartnershipFooter";
-import { formatNestedMessage, locale, t } from "../../utils/i18n";
+import { formatNestedMessage, t } from "../../utils/i18n";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
 
 const styles = StyleSheet.create({
@@ -31,12 +31,18 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
+  templateLanguage: string;
   changeAdminRequestId: string;
   steps: FlowStep[];
   nextStep: ChangeAdminRoute;
 };
 
-export const ChangeAdminFlowPresentation = ({ changeAdminRequestId, steps, nextStep }: Props) => {
+export const ChangeAdminFlowPresentation = ({
+  templateLanguage,
+  changeAdminRequestId,
+  steps,
+  nextStep,
+}: Props) => {
   const onPressNext = () => {
     Router.push(nextStep, { requestId: changeAdminRequestId });
   };
@@ -79,7 +85,7 @@ export const ChangeAdminFlowPresentation = ({ changeAdminRequestId, steps, nextS
                   <LakeText variant="semibold" style={styles.underline}>
                     <Link
                       target="blank"
-                      to={`/sworn-statement-template/${match(locale.language)
+                      to={`/sworn-statement-template/${match(templateLanguage)
                         .with("nl", () => "nl")
                         .with("es", () => "es")
                         .with("it", () => "it")

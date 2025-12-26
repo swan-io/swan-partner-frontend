@@ -534,6 +534,7 @@
   "common.form.invalidFileLine": "Zeile {line} enthält ungültige oder fehlende Daten",
   "common.form.invalidLength": "Dieses Feld ist auf {maxLength} Zeichen begrenzt",
   "common.form.invalidMessage": "Die Nachricht darf nicht mehr als {maxLength} Zeichen enthalten",
+  "common.form.invalidMinLength": "Dieses Feld muss mindestens {minLength} Zeichen lang sein.",
   "common.form.invalidName": "Ungültiger Name",
   "common.form.invalidPhoneNumber": "Ungültige Telefonnummer",
   "common.form.invalidRLMC": "Ungültiger RLMC",

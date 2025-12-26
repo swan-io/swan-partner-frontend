@@ -11,7 +11,12 @@ import { Ref, useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import { DateField, RadioField, SelectField, TextField } from "../graphql/partner";
-import { validatePattern, validateRequired } from "../utils/validations";
+import {
+  validateMaxLength,
+  validateMinLength,
+  validatePattern,
+  validateRequired,
+} from "../utils/validations";
 
 export type DynamicFormField = SelectField | TextField | DateField | RadioField;
 
@@ -76,6 +81,12 @@ export const TransferInternationalDynamicForm = ({
           ).getOr(""),
           validate: combineValidators(
             field.required && validateRequired,
+            match(field)
+              .with({ minLength: P.number.gt(0) }, ({ minLength }) => validateMinLength(minLength))
+              .otherwise(() => false),
+            match(field)
+              .with({ maxLength: P.number }, ({ maxLength }) => validateMaxLength(maxLength))
+              .otherwise(() => false),
             match(field)
               .with({ validationRegex: P.string }, ({ validationRegex, example }) =>
                 validatePattern(validationRegex, example ?? undefined),

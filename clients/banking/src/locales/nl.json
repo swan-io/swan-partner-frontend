@@ -534,6 +534,7 @@
   "common.form.invalidFileLine": "Regel {line} bevat ongeldige of ontbrekende gegevens",
   "common.form.invalidLength": "Dit veld is beperkt tot {maxLength} tekens",
   "common.form.invalidMessage": "Bericht mag niet meer dan {maxLength} tekens bevatten",
+  "common.form.invalidMinLength": "Dit veld moet minimaal {minLength} tekens bevatten",
   "common.form.invalidName": "Ongeldige naam",
   "common.form.invalidPhoneNumber": "Dit telefoonnummer is ongeldig",
   "common.form.invalidRLMC": "Ongeldige RLMC",

@@ -322,6 +322,26 @@ export const validateBeforeUpdatedAt = (value: string, filters: unknown) => {
   );
 };
 
+export const validateMinLength: (minLength: number) => Validator<string> = minLength => value => {
+  if (!value) {
+    return;
+  }
+
+  if (value.length < minLength) {
+    return t("common.form.invalidMinLength", { minLength });
+  }
+};
+
+export const validateMaxLength: (maxLength: number) => Validator<string> = maxLength => value => {
+  if (!value) {
+    return;
+  }
+
+  if (value.length > maxLength) {
+    return t("common.form.invalidLength", { maxLength });
+  }
+};
+
 export const validatePattern =
   (regex: string, example?: string): Validator<string> =>
   value => {

@@ -534,6 +534,7 @@
   "common.form.invalidFileLine": "Line {line} has invalid or missing data",
   "common.form.invalidLength": "This field is limited to {maxLength} characters",
   "common.form.invalidMessage": "Message should not exceed {maxLength} characters",
+  "common.form.invalidMinLength": "This field must be at least {minLength} characters",
   "common.form.invalidName": "Invalid name",
   "common.form.invalidPhoneNumber": "Invalid phone number",
   "common.form.invalidRLMC": "Invalid RLMC",

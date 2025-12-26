@@ -534,6 +534,7 @@
   "common.form.invalidFileLine": "La ligne {line} contient des données invalides ou manquantes",
   "common.form.invalidLength": "Ce champ est limité à {maxLength} caractères",
   "common.form.invalidMessage": "Le message ne doit pas dépasser {maxLength} caractères",
+  "common.form.invalidMinLength": "Ce champ doit contenir au moins {minLength} caractères",
   "common.form.invalidName": "Nom non valide",
   "common.form.invalidPhoneNumber": "Numéro de téléphone non valide",
   "common.form.invalidRLMC": "RLMC non valide",

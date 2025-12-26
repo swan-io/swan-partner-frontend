@@ -143,17 +143,21 @@ export const ChangeAdminNewAdmin = ({
                 render={() => (
                   <Field name="isLegalRepresentative">
                     {({ value, onChange }) => (
-                      <RadioGroup
-                        direction="row"
-                        items={isNewAdminItems}
-                        value={value}
-                        hideErrors={true}
-                        onValueChange={onChange}
-                      />
+                      <View style={{ width: "100%" }}>
+                        <RadioGroup
+                          direction={small ? "column" : "row"}
+                          items={isNewAdminItems}
+                          value={value}
+                          hideErrors={true}
+                          onValueChange={onChange}
+                        />
+                      </View>
                     )}
                   </Field>
                 )}
               />
+
+              <Space height={12} />
 
               <Box direction={small ? "column" : "row"}>
                 <LakeLabel
@@ -241,6 +245,8 @@ export const ChangeAdminNewAdmin = ({
                   )}
                 </Field>
               </Box>
+
+              <Space height={12} />
 
               <Box direction={small ? "column" : "row"}>
                 <Field name="birthDate">

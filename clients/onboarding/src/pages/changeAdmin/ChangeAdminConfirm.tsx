@@ -124,7 +124,7 @@ const UserInfoTile = ({
       <LakeHeading level={3} variant="h3">{`${firstName} ${lastName}`}</LakeHeading>
       <Space height={8} />
 
-      <Box direction="row" alignItems="center">
+      <Box direction="row" alignItems="center" wrap="wrap">
         <LakeText variant="smallRegular" color={colors.gray[600]}>
           {email}
         </LakeText>
@@ -145,11 +145,13 @@ const UserInfoTile = ({
         {birthCountry && (
           <>
             <Separator space={12} horizontal={true} />
-            <Flag code={getCCA2forCCA3(birthCountry)} width={16} />
-            <Space width={12} />
-            <LakeText variant="smallRegular" color={colors.gray[600]}>
-              {birthCountry}
-            </LakeText>
+            <Box direction="row" alignItems="center">
+              <Flag code={getCCA2forCCA3(birthCountry)} width={16} />
+              <Space width={12} />
+              <LakeText variant="smallRegular" color={colors.gray[600]}>
+                {birthCountry}
+              </LakeText>
+            </Box>
           </>
         )}
       </Box>

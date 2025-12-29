@@ -56,8 +56,8 @@ fragment IndividualOrCompanyOnboarding on  AccountHolderOnboardingBase{
   }
   projectInfo {
     id
+    # name
     accentColor
-    name
     logoUri
   }
 }

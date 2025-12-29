@@ -11,6 +11,11 @@ import { ErrorView } from "./components/ErrorView";
 import { Redirect } from "./components/Redirect";
 import { SupportingDocumentCollectionFlow } from "./components/SupportingDocumentCollectionFlow";
 import {
+  GetPublicOnboardingDocument,
+  UpdatePublicCompanyAccountHolderOnboardingDocument,
+  UpdatePublicIndividualAccountHolderOnboardingDocument,
+} from "./graphql/partner";
+import {
   AccountCountry,
   GetOnboardingDocument,
   UpdateCompanyOnboardingDocument,
@@ -22,7 +27,7 @@ import { ChangeAdminWizard } from "./pages/changeAdmin/ChangeAdminWizard";
 import { OnboardingCompanyWizard } from "./pages/company/CompanyOnboardingWizard";
 import { OnboardingIndividualWizard } from "./pages/individual/OnboardingIndividualWizard";
 import { env } from "./utils/env";
-import { client } from "./utils/gql";
+import { client, partnerClient } from "./utils/gql";
 import { locale } from "./utils/i18n";
 import { logFrontendError, registerOnboardingInfo } from "./utils/logger";
 import { TrackingProvider, useSessionTracking } from "./utils/matomo";
@@ -182,6 +187,63 @@ const FlowPicker = ({ onboardingId }: Props) => {
     .exhaustive();
 };
 
+const FlowPickerV2 = ({ onboardingId }: Props) => {
+  const [_data, { query }] = useDeferredQuery(GetPublicOnboardingDocument);
+  const [updateIndividualOnboarding, _individualOnboardingUpdate] = useMutation(
+    UpdatePublicIndividualAccountHolderOnboardingDocument,
+  );
+  const [updateCompanyOnboarding, _companyOnboardingUpdate] = useMutation(
+    UpdatePublicCompanyAccountHolderOnboardingDocument,
+  );
+
+  useEffect(() => {
+    const request = query({ id: onboardingId }).tapOk(({ publicAccountHolderOnboarding }) => {
+      match(publicAccountHolderOnboarding)
+        .with({ __typename: "PublicAccountHolderOnboardingSuccessPayload" }, ({ onboarding }) => {
+          if (onboarding.accountAdmin?.preferredLanguage === locale.language) {
+            return;
+          }
+          return match(onboarding.__typename)
+            .with("CompanyAccountHolderOnboarding", () =>
+              updateCompanyOnboarding({
+                input: {
+                  onboardingId,
+                  accountAdmin: { preferredLanguage: locale.language },
+                },
+              }),
+            )
+            .with("IndividualAccountHolderOnboarding", () =>
+              updateIndividualOnboarding({
+                input: {
+                  onboardingId,
+                  accountAdmin: { preferredLanguage: locale.language },
+                },
+              }),
+            )
+            .otherwise(() => {});
+        })
+        .otherwise(() => {});
+
+      return publicAccountHolderOnboarding;
+    });
+
+    return () => request.cancel();
+  }, [onboardingId, query, updateCompanyOnboarding, updateIndividualOnboarding]);
+
+  return <div>FlowPickerV2</div>;
+};
+
+const FlowPickerWizard = ({ onboardingId }: Props) => {
+  const isOnboardingV2 = false; // TODO: Get onboarding version from partner with onboarding id
+  return isOnboardingV2 ? (
+    <ClientContext.Provider value={partnerClient}>
+      <FlowPickerV2 onboardingId={onboardingId} />
+    </ClientContext.Provider>
+  ) : (
+    <FlowPicker onboardingId={onboardingId} />
+  );
+};
+
 export const App = () => {
   const route = Router.useRoute(["Area", "SupportingDocumentCollectionArea", "ChangeAdminArea"]);
   const displayChangeAccountAdmin = useTgglFlag("changeAccountAdmin").getOr(false);
@@ -210,7 +272,7 @@ export const App = () => {
             ),
           )
           .with({ name: "Area" }, ({ params: { onboardingId } }) => (
-            <FlowPicker onboardingId={onboardingId} />
+            <FlowPickerWizard onboardingId={onboardingId} />
           ))
           .with(P.nullish, () => <NotFoundPage />)
           .exhaustive()}

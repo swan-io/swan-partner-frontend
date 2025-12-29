@@ -16,7 +16,7 @@ import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import { OnboardingHeader } from "../../components/OnboardingHeader";
-import { t } from "../../utils/i18n";
+import { locale, t } from "../../utils/i18n";
 import { ChangeAdminRoute, changeAdminRoutes, Router } from "../../utils/routes";
 import { NotFoundPage } from "../NotFoundPage";
 import { ChangeAdminConfirm } from "./ChangeAdminConfirm";
@@ -141,6 +141,8 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
     window.scrollTo(0, 0);
   }, [route?.name]);
 
+  const templateLanguage = locale.language;
+
   // TODO get project info from backend once query is available
   const projectInfo = {
     color: "#76B900",
@@ -183,6 +185,7 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
         {match(route)
           .with({ name: "ChangeAdminRoot" }, () => (
             <ChangeAdminFlowPresentation
+              templateLanguage={templateLanguage}
               steps={flowSteps}
               changeAdminRequestId={changeAdminRequestId}
               nextStep="ChangeAdminContext1"
@@ -219,6 +222,7 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
           ))
           .with({ name: "ChangeAdminDocuments" }, () => (
             <ChangeAdminDocuments
+              templateLanguage={templateLanguage}
               changeAdminRequestId={changeAdminRequestId}
               previousStep="ChangeAdminNewAdmin"
               nextStep="ChangeAdminConfirm"

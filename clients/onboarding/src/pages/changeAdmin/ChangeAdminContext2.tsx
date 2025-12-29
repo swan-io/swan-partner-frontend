@@ -11,7 +11,6 @@ import { noop } from "@swan-io/lake/src/utils/function";
 import { useForm } from "@swan-io/use-form";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
-import { PartnershipFooter } from "../../components/PartnershipFooter";
 import { StepTitle } from "../../components/StepTitle";
 import { t } from "../../utils/i18n";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
@@ -149,7 +148,6 @@ export const ChangeAdminContext2 = ({ changeAdminRequestId, previousStep, nextSt
       </ResponsiveContainer>
 
       <OnboardingFooter onPrevious={onPressPrevious} onNext={onPressNext} loading={false} />
-      <PartnershipFooter />
     </OnboardingStepContent>
   );
 };

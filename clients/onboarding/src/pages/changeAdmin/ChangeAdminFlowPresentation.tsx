@@ -11,7 +11,6 @@ import { StyleSheet } from "react-native";
 import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
-import { PartnershipFooter } from "../../components/PartnershipFooter";
 import { formatNestedMessage, t } from "../../utils/i18n";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
 
@@ -104,7 +103,6 @@ export const ChangeAdminFlowPresentation = ({
       <Space height={24} />
 
       <OnboardingFooter nextLabel="changeAdmin.presentation.start" onNext={onPressNext} />
-      <PartnershipFooter />
     </OnboardingStepContent>
   );
 };

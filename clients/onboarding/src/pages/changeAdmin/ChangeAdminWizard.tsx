@@ -1,4 +1,6 @@
+import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FlowStep } from "@swan-io/lake/src/components/FlowPresentation";
 import { IconName } from "@swan-io/lake/src/components/Icon";
 import {
@@ -6,10 +8,13 @@ import {
   MobileStepTitle,
   TopLevelStep,
 } from "@swan-io/lake/src/components/LakeStepper";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { SwanLogo } from "@swan-io/lake/src/components/SwanLogo";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
-import { backgroundColor } from "@swan-io/lake/src/constants/design";
+import { backgroundColor, colors } from "@swan-io/lake/src/constants/design";
+import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { useEffect, useMemo } from "react";
@@ -28,6 +33,10 @@ import { ChangeAdminNewAdmin } from "./ChangeAdminNewAdmin";
 import { ChangeAdminRequester } from "./ChangeAdminRequester";
 
 const styles = StyleSheet.create({
+  successContainer: {
+    flex: 1,
+    paddingHorizontal: 24,
+  },
   stepper: {
     width: "100%",
     maxWidth: 1280,
@@ -40,6 +49,16 @@ const styles = StyleSheet.create({
     backdropFilter: "blur(4px)",
     zIndex: 10,
   },
+  partnership: {
+    marginHorizontal: "auto",
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "baseline",
+  },
+  swanPartnershipLogo: {
+    marginLeft: 4,
+    height: 9,
+  },
 });
 
 type Props = {
@@ -48,8 +67,9 @@ type Props = {
 
 export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
   const route = Router.useRoute(changeAdminRoutes);
+  const [submitted, setSubmitted] = useBoolean(false);
 
-  const isStepperDisplayed = !isNullish(route) && route.name !== "ChangeAdminRoot";
+  const isStepperDisplayed = !submitted && !isNullish(route) && route.name !== "ChangeAdminRoot";
 
   const steps = useMemo<(WizardStep<ChangeAdminRoute> & { icon: IconName })[]>(() => {
     return [
@@ -136,10 +156,10 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
     [steps],
   );
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies(route?.name):
+  // biome-ignore lint/correctness/useExhaustiveDependencies:
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [route?.name]);
+  }, [route?.name, submitted]);
 
   const templateLanguage = locale.language;
 
@@ -182,8 +202,28 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
           </ResponsiveContainer>
         ) : null}
 
-        {match(route)
-          .with({ name: "ChangeAdminRoot" }, () => (
+        {match({ submitted, routeName: route?.name })
+          .with({ submitted: true }, () => (
+            <Box alignItems="center" justifyContent="center" style={styles.successContainer}>
+              <BorderedIcon name={"lake-check"} color="positive" size={70} padding={16} />
+              <Space height={32} />
+
+              <LakeText variant="semibold" color={colors.gray[900]}>
+                {t("changeAdmin.success.title")}
+              </LakeText>
+
+              <Space height={12} />
+
+              <LakeText align="center" color={colors.gray[500]}>
+                {t("changeAdmin.success.description1")}
+              </LakeText>
+              <Space height={12} />
+              <LakeText align="center" color={colors.gray[500]}>
+                {t("changeAdmin.success.description2")}
+              </LakeText>
+            </Box>
+          ))
+          .with({ routeName: "ChangeAdminRoot" }, () => (
             <ChangeAdminFlowPresentation
               templateLanguage={templateLanguage}
               steps={flowSteps}
@@ -191,20 +231,20 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
               nextStep="ChangeAdminContext1"
             />
           ))
-          .with({ name: "ChangeAdminContext1" }, () => (
+          .with({ routeName: "ChangeAdminContext1" }, () => (
             <ChangeAdminContext1
               changeAdminRequestId={changeAdminRequestId}
               nextStep="ChangeAdminContext2"
             />
           ))
-          .with({ name: "ChangeAdminContext2" }, () => (
+          .with({ routeName: "ChangeAdminContext2" }, () => (
             <ChangeAdminContext2
               changeAdminRequestId={changeAdminRequestId}
               previousStep="ChangeAdminContext1"
               nextStep="ChangeAdminRequester"
             />
           ))
-          .with({ name: "ChangeAdminRequester" }, () => (
+          .with({ routeName: "ChangeAdminRequester" }, () => (
             <ChangeAdminRequester
               changeAdminRequestId={changeAdminRequestId}
               accountCountry={accountCountry}
@@ -212,7 +252,7 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
               nextStep="ChangeAdminNewAdmin"
             />
           ))
-          .with({ name: "ChangeAdminNewAdmin" }, () => (
+          .with({ routeName: "ChangeAdminNewAdmin" }, () => (
             <ChangeAdminNewAdmin
               changeAdminRequestId={changeAdminRequestId}
               accountCountry={accountCountry}
@@ -220,7 +260,7 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
               nextStep="ChangeAdminDocuments"
             />
           ))
-          .with({ name: "ChangeAdminDocuments" }, () => (
+          .with({ routeName: "ChangeAdminDocuments" }, () => (
             <ChangeAdminDocuments
               templateLanguage={templateLanguage}
               changeAdminRequestId={changeAdminRequestId}
@@ -228,14 +268,22 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
               nextStep="ChangeAdminConfirm"
             />
           ))
-          .with({ name: "ChangeAdminConfirm" }, () => (
+          .with({ routeName: "ChangeAdminConfirm" }, () => (
             <ChangeAdminConfirm
               changeAdminRequestId={changeAdminRequestId}
               previousStep="ChangeAdminDocuments"
+              onSubmitted={setSubmitted.on}
             />
           ))
-          .with(P.nullish, () => <NotFoundPage />)
+          .with({ routeName: P.nullish }, () => <NotFoundPage />)
           .exhaustive()}
+
+        {submitted ? <Space height={24} /> : <Fill minHeight={24} />}
+        <LakeText style={styles.partnership}>
+          {t("wizard.partnership")}
+          <SwanLogo style={styles.swanPartnershipLogo} />
+        </LakeText>
+        <Space height={24} />
       </Box>
     </WithPartnerAccentColor>
   );

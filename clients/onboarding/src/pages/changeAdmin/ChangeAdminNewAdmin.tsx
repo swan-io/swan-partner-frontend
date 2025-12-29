@@ -9,6 +9,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { noop } from "@swan-io/lake/src/utils/function";
+import { isEmpty } from "@swan-io/lake/src/utils/nullish";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
@@ -16,14 +17,17 @@ import {
   allCountries,
   CountryCCA3,
   getCountryByCCA3,
+  isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { validateNullableRequired } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { StyleSheet, View } from "react-native";
+import { Except } from "type-fest";
 import { InputPhoneNumber } from "../../components/InputPhoneNumber";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
+import { AccountAdminChangeInfoFragment } from "../../graphql/unauthenticated";
 import { t } from "../../utils/i18n";
 import { prefixPhoneNumber } from "../../utils/phone";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
@@ -36,8 +40,10 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
+  initialValues: Except<NonNullable<AccountAdminChangeInfoFragment["admin"]>, "__typename"> & {
+    isNewAdminLegalRepresentative: boolean | null | undefined;
+  };
   changeAdminRequestId: string;
-  accountCountry: CountryCCA3;
   previousStep: ChangeAdminRoute;
   nextStep: ChangeAdminRoute;
 };
@@ -54,33 +60,33 @@ const isNewAdminItems: RadioGroupItem<boolean>[] = [
 ];
 
 export const ChangeAdminNewAdmin = ({
+  initialValues,
   changeAdminRequestId,
-  accountCountry,
   previousStep,
   nextStep,
 }: Props) => {
   const { Field, submitForm } = useForm({
     isLegalRepresentative: {
-      initialValue: true,
+      initialValue: initialValues.isNewAdminLegalRepresentative ?? true,
     },
     firstName: {
-      initialValue: "",
+      initialValue: initialValues.firstName ?? "",
       sanitize: trim,
       validate: combineValidators(validateRequired, validateName),
     },
     lastName: {
-      initialValue: "",
+      initialValue: initialValues.lastName ?? "",
       sanitize: trim,
       validate: combineValidators(validateRequired, validateName),
     },
     email: {
-      initialValue: "",
+      initialValue: initialValues.email ?? "",
       validate: combineValidators(validateRequired, validateEmail),
     },
     phoneNumber: {
       initialValue: {
-        country: getCountryByCCA3(accountCountry),
-        nationalNumber: "",
+        country: getCountryByCCA3("FRA"),
+        nationalNumber: initialValues.phoneNumber ?? "",
       },
       sanitize: ({ country, nationalNumber }) => ({
         country,
@@ -98,11 +104,13 @@ export const ChangeAdminNewAdmin = ({
       },
     },
     birthDate: {
-      initialValue: "" as string | undefined,
+      initialValue: initialValues.birthDate ?? undefined,
       validate: validateNullableRequired,
     },
     birthCountryCode: {
-      initialValue: accountCountry,
+      initialValue: isCountryCCA3(initialValues.birthCountry)
+        ? initialValues.birthCountry
+        : ("" as CountryCCA3 | ""),
       validate: validateRequired,
     },
   });
@@ -272,7 +280,7 @@ export const ChangeAdminNewAdmin = ({
                         <CountryPicker
                           id={id}
                           error={error}
-                          value={value}
+                          value={isEmpty(value) ? undefined : value}
                           countries={allCountries}
                           onValueChange={onChange}
                         />

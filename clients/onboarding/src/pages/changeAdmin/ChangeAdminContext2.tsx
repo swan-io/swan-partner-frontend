@@ -12,22 +12,19 @@ import { useForm } from "@swan-io/use-form";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
+import { AccountAdminChangeReason } from "../../graphql/unauthenticated";
 import { t } from "../../utils/i18n";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
 
 type Props = {
+  initialValues: {
+    isRequesterNewAdmin: boolean;
+    reason: AccountAdminChangeReason;
+  };
   changeAdminRequestId: string;
   previousStep: ChangeAdminRoute;
   nextStep: ChangeAdminRoute;
 };
-
-// TODO get from graphql schema once available
-type AccountAdminChangeReason =
-  | "CurrentAdministratorLeft"
-  | "InternalReorganization"
-  | "AppointedByGeneralAssembly"
-  | "AppointedByBoardDecision"
-  | "Other";
 
 const isNewAdminItems: RadioGroupItem<boolean>[] = [
   {
@@ -63,13 +60,18 @@ const reasonItems: Item<AccountAdminChangeReason>[] = [
   },
 ];
 
-export const ChangeAdminContext2 = ({ changeAdminRequestId, previousStep, nextStep }: Props) => {
+export const ChangeAdminContext2 = ({
+  initialValues,
+  changeAdminRequestId,
+  previousStep,
+  nextStep,
+}: Props) => {
   const { Field, submitForm } = useForm({
     isNewAdmin: {
-      initialValue: true,
+      initialValue: initialValues.isRequesterNewAdmin,
     },
     reason: {
-      initialValue: "CurrentAdministratorLeft" as AccountAdminChangeReason,
+      initialValue: initialValues.reason,
     },
   });
 

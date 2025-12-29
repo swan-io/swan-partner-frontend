@@ -1,3 +1,4 @@
+import { Array, Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -12,19 +13,21 @@ import {
 } from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
 import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
 import { ReactNode, useCallback, useRef } from "react";
+import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
 import {
   DeleteSupportingDocumentDocument,
   GenerateSupportingDocumentUploadUrlDocument,
-  SupportingDocumentCollectionStatus,
   SupportingDocumentPurposeEnum,
 } from "../../graphql/partner";
+import { AccountAdminChangeInfoFragment } from "../../graphql/unauthenticated";
 import { t } from "../../utils/i18n";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
 
 type Props = {
+  supportingDocumentCollection: AccountAdminChangeInfoFragment["supportingDocumentCollection"];
   templateLanguage: string;
   changeAdminRequestId: string;
   previousStep: ChangeAdminRoute;
@@ -39,6 +42,7 @@ const DocumentsStepTile = ({ small, children }: { small: boolean; children: Reac
 };
 
 export const ChangeAdminDocuments = ({
+  supportingDocumentCollection,
   templateLanguage,
   changeAdminRequestId,
   previousStep,
@@ -78,7 +82,7 @@ export const ChangeAdminDocuments = ({
   }) => {
     return generateSupportingDocumentUploadUrl({
       input: {
-        supportingDocumentCollectionId: "", // TODO get value from backend
+        supportingDocumentCollectionId: supportingDocumentCollection.id,
         supportingDocumentPurpose: purpose,
         filename: fileName,
       },
@@ -97,15 +101,59 @@ export const ChangeAdminDocuments = ({
     [deleteSupportingDocument],
   );
 
-  const docs: Document<SupportingDocumentPurposeEnum>[] = []; // TODO fetch from backend
-  const requiredDocumentsPurposes: SupportingDocumentPurposeEnum[] = [
-    "ProofOfIdentity",
-    "PowerOfAttorney",
-    "LegalRepresentativeProofOfIdentity",
-    "CompanyRegistration",
-  ]; // TODO fetch from backend
-  const supportingDocumentCollectionStatus: SupportingDocumentCollectionStatus =
-    "WaitingForDocument"; // TODO fetch from backend
+  const docs = Array.filterMap(supportingDocumentCollection.supportingDocuments, document =>
+    match(document)
+      .returnType<Option<Document<SupportingDocumentPurposeEnum>>>()
+      .with({ statusInfo: { __typename: "SupportingDocumentNotUploadedStatusInfo" } }, () =>
+        Option.None(),
+      )
+      .with(
+        {
+          statusInfo: {
+            __typename: "SupportingDocumentWaitingForUploadStatusInfo",
+          },
+        },
+        () => Option.None(),
+      )
+      .with({ statusInfo: { __typename: "SupportingDocumentValidatedStatusInfo" } }, document =>
+        Option.Some({
+          purpose: document.supportingDocumentPurpose,
+          file: {
+            id: document.id,
+            name: document.statusInfo.filename,
+            statusInfo: { status: "Validated" },
+          },
+        }),
+      )
+      .with({ statusInfo: { __typename: "SupportingDocumentRefusedStatusInfo" } }, document =>
+        Option.Some({
+          purpose: document.supportingDocumentPurpose,
+          file: {
+            id: document.id,
+            name: document.statusInfo.filename,
+            statusInfo: {
+              status: "Refused",
+              reason: document.statusInfo.reason,
+              reasonCode: document.statusInfo.reasonCode,
+            },
+          },
+        }),
+      )
+      .with({ statusInfo: { __typename: "SupportingDocumentUploadedStatusInfo" } }, document =>
+        Option.Some({
+          purpose: document.supportingDocumentPurpose,
+          file: {
+            id: document.id,
+            name: document.statusInfo.filename,
+            statusInfo: { status: "Uploaded" },
+          },
+        }),
+      )
+      .exhaustive(),
+  );
+  const requiredDocumentsPurposes =
+    supportingDocumentCollection.requiredSupportingDocumentPurposes.map(doc => doc.name);
+  const supportingDocumentCollectionStatus = supportingDocumentCollection.statusInfo.status;
 
   return (
     <OnboardingStepContent>

@@ -9,13 +9,14 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { trim } from "@swan-io/lake/src/utils/string";
-import { CountryCCA3, getCountryByCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { getCountryByCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { StyleSheet, View } from "react-native";
 import { InputPhoneNumber } from "../../components/InputPhoneNumber";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
+import { AccountAdminChangeInfoFragment } from "../../graphql/unauthenticated";
 import { t } from "../../utils/i18n";
 import { prefixPhoneNumber } from "../../utils/phone";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
@@ -28,37 +29,37 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
+  initialValues: AccountAdminChangeInfoFragment["requester"];
   changeAdminRequestId: string;
-  accountCountry: CountryCCA3;
   previousStep: ChangeAdminRoute;
   nextStep: ChangeAdminRoute;
 };
 
 export const ChangeAdminRequester = ({
+  initialValues,
   changeAdminRequestId,
-  accountCountry,
   previousStep,
   nextStep,
 }: Props) => {
   const { Field, submitForm } = useForm({
     firstName: {
-      initialValue: "",
+      initialValue: initialValues?.firstName ?? "",
       sanitize: trim,
       validate: combineValidators(validateRequired, validateName),
     },
     lastName: {
-      initialValue: "",
+      initialValue: initialValues?.lastName ?? "",
       sanitize: trim,
       validate: combineValidators(validateRequired, validateName),
     },
     email: {
-      initialValue: "",
+      initialValue: initialValues?.email ?? "",
       validate: combineValidators(validateRequired, validateEmail),
     },
     phoneNumber: {
       initialValue: {
-        country: getCountryByCCA3(accountCountry),
-        nationalNumber: "",
+        country: getCountryByCCA3("FRA"),
+        nationalNumber: initialValues?.phoneNumber ?? "",
       },
       sanitize: ({ country, nationalNumber }) => ({
         country,

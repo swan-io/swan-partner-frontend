@@ -9,6 +9,7 @@ import { StyleSheet, View } from "react-native";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
+import { AccountAdminChangeInfoFragment } from "../../graphql/unauthenticated";
 import { t } from "../../utils/i18n";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
 
@@ -21,16 +22,16 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
+  accountHolder: AccountAdminChangeInfoFragment["accountHolder"];
   changeAdminRequestId: string;
   nextStep: ChangeAdminRoute;
 };
 
-export const ChangeAdminContext1 = ({ changeAdminRequestId, nextStep }: Props) => {
+export const ChangeAdminContext1 = ({ accountHolder, changeAdminRequestId, nextStep }: Props) => {
   const onPressNext = () => {
     Router.push(nextStep, { requestId: changeAdminRequestId });
   };
 
-  const accountHolderName = "John Doe";
   const accountList = [
     { id: "acc_1", name: "Account 1" },
     { id: "acc_2", name: "Account 2" },
@@ -51,7 +52,7 @@ export const ChangeAdminContext1 = ({ changeAdminRequestId, nextStep }: Props) =
                 <LakeLabel
                   type="view"
                   label={t("changeAdmin.step.context1.accountHolder")}
-                  render={() => <LakeText color={colors.gray[900]}>{accountHolderName}</LakeText>}
+                  render={() => <LakeText color={colors.gray[900]}>{accountHolder.name}</LakeText>}
                 />
                 <LakeLabel
                   type="view"

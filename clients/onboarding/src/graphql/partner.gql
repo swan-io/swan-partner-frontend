@@ -42,6 +42,26 @@ fragment SupportingDocumentCollection on SupportingDocumentCollection {
     }
   }
 }
+fragment CompanyInfo on CompanyInfo {
+  registrationNumber
+  name
+  tradeName
+  registrationDate
+  legalForm
+  vatNumber
+  taxIdentificationNumber
+  businessActivityDescription
+  businessClassificationCode
+  address {
+    ...Address
+  }
+  headcount
+  forecastYearlyIncome
+  monthlyPaymentVolume
+  regulatoryClassification
+  websites
+  companyType
+}
 
 fragment IndividualOrCompanyOnboarding on AccountHolderOnboardingBase {
   id
@@ -84,17 +104,7 @@ fragment CompanyOnboarding on CompanyAccountHolderOnboarding {
     typeOfRepresentation
   }
   company {
-    registrationNumber
-    name
-    tradeName
-    registrationDate
-    legalForm
-    vatNumber
-    taxIdentificationNumber
-    businessActivityDescription
-    address {
-      ...Address
-    }
+    ...CompanyInfo
   }
 }
 
@@ -146,6 +156,19 @@ query GetPublicOnboarding($id: ID!) {
     }
     ... on PublicOnboardingDisabledRejection {
       __typename
+    }
+  }
+}
+
+query GetPublicCompamyInfoRegistryData($input: PublicCompanyInfoRegistryDataInput!) {
+  publicCompanyInfoRegistryData(input: $input) {
+    ... on PublicCompanyInfoRegistryDataSuccessPayload {
+      companyInfo {
+        ...CompanyInfo
+      }
+    }
+    ... on Rejection {
+      message
     }
   }
 }

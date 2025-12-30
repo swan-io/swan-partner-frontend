@@ -1,4 +1,5 @@
 import { Option } from "@swan-io/boxed";
+import { useMutation } from "@swan-io/graphql-client";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -8,11 +9,17 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { noop } from "@swan-io/lake/src/utils/function";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useForm } from "@swan-io/use-form";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
-import { AccountAdminChangeReason } from "../../graphql/unauthenticated";
+import {
+  AccountAdminChangeReason,
+  UpdateAccountAdminChangeDocument,
+} from "../../graphql/unauthenticated";
 import { t } from "../../utils/i18n";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
 
@@ -66,6 +73,8 @@ export const ChangeAdminContext2 = ({
   previousStep,
   nextStep,
 }: Props) => {
+  const [updateChangeAdmin, changeAdminUpdate] = useMutation(UpdateAccountAdminChangeDocument);
+
   const { Field, submitForm } = useForm({
     isNewAdmin: {
       initialValue: initialValues.isRequesterNewAdmin,
@@ -86,8 +95,21 @@ export const ChangeAdminContext2 = ({
 
         option.match({
           Some: values => {
-            console.log("Submit with", values);
-            Router.push(nextStep, { requestId: changeAdminRequestId });
+            updateChangeAdmin({
+              input: {
+                id: changeAdminRequestId,
+                isRequesterNewAdmin: values.isNewAdmin,
+                reason: values.reason,
+              },
+            })
+              .mapOk(data => data.updateAccountAdminChange)
+              .mapOkToResult(filterRejectionsToResult)
+              .tapError(error =>
+                showToast({ variant: "error", title: translateError(error), error }),
+              )
+              .tapOk(() => {
+                Router.push(nextStep, { requestId: changeAdminRequestId });
+              });
           },
           None: noop,
         });
@@ -149,7 +171,11 @@ export const ChangeAdminContext2 = ({
         )}
       </ResponsiveContainer>
 
-      <OnboardingFooter onPrevious={onPressPrevious} onNext={onPressNext} loading={false} />
+      <OnboardingFooter
+        onPrevious={onPressPrevious}
+        onNext={onPressNext}
+        loading={changeAdminUpdate.isLoading()}
+      />
     </OnboardingStepContent>
   );
 };

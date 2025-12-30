@@ -1,3 +1,4 @@
+import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -6,17 +7,23 @@ import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { Flag } from "@swan-io/shared-business/src/components/Flag";
 import {
   CountryCCA3,
   getCCA2forCCA3,
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import dayjs from "dayjs";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
-import { AccountAdminChangeInfoFragment } from "../../graphql/unauthenticated";
+import {
+  AccountAdminChangeInfoFragment,
+  FinalizeAccountAdminChangeDocument,
+} from "../../graphql/unauthenticated";
 import { t } from "../../utils/i18n";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
 
@@ -79,13 +86,22 @@ export const ChangeAdminConfirm = ({
   previousStep,
   onSubmitted,
 }: Props) => {
+  const [finalizeChangeAdmin, finalization] = useMutation(FinalizeAccountAdminChangeDocument);
+
   const onPressPrevious = () => {
     Router.push(previousStep, { requestId: changeAdminRequestId });
   };
 
   const onSubmit = () => {
-    // TODO submit to backend
-    onSubmitted();
+    finalizeChangeAdmin({
+      accountAdminChangeId: changeAdminRequestId,
+    })
+      .mapOk(data => data.finalizeAccountAdminChange)
+      .mapOkToResult(filterRejectionsToResult)
+      .tapError(error => showToast({ variant: "error", title: translateError(error), error }))
+      .tapOk(() => {
+        onSubmitted();
+      });
   };
 
   return (
@@ -127,7 +143,7 @@ export const ChangeAdminConfirm = ({
         nextLabel="changeAdmin.step.confirm.submit"
         onPrevious={onPressPrevious}
         onNext={onSubmit}
-        loading={false}
+        loading={finalization.isLoading()}
       />
     </OnboardingStepContent>
   );

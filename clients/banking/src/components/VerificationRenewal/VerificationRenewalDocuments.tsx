@@ -1,24 +1,30 @@
 import { Array, Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
-import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { SupportingDocumentCollection } from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
+import {
+  SupportingDocumentCollection,
+  SupportingDocumentCollectionRef,
+} from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
 import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
+import { useCallback, useRef } from "react";
 import { match, P } from "ts-pattern";
 import { OnboardingStepContent } from "../../../../onboarding/src/components/OnboardingStepContent";
 import { StepTitle } from "../../../../onboarding/src/components/StepTitle";
 import {
+  DeleteSupportingDocumentDocument,
   GenerateSupportingDocumentUploadUrlDocument,
   SupportingDocumentPurposeEnum,
   SupportingDocumentRenewalFragment,
 } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
+import { RenewalStep } from "./VerificationRenewalCompany";
+import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 
 export type Document<Purpose extends string> = {
   purpose: Purpose;
@@ -28,11 +34,17 @@ export type Document<Purpose extends string> = {
 type Props = {
   verificationRenewalId: string;
   supportingDocumentCollection: SupportingDocumentRenewalFragment;
+  previousStep: RenewalStep | undefined;
+  nextStep: RenewalStep;
+  templateLanguage: string;
 };
 
 export const VerificationRenewalDocuments = ({
   verificationRenewalId,
   supportingDocumentCollection,
+  previousStep,
+  nextStep,
+  templateLanguage,
 }: Props) => {
   const requiredDocumentsPurposes =
     supportingDocumentCollection.requiredSupportingDocumentPurposes.map(purpose => purpose.name) ??
@@ -41,6 +53,9 @@ export const VerificationRenewalDocuments = ({
   const [generateSupportingDocumentUploadUrl] = useMutation(
     GenerateSupportingDocumentUploadUrlDocument,
   );
+  const [deleteSupportingDocument] = useMutation(DeleteSupportingDocumentDocument);
+  const supportingDocumentCollectionRef =
+    useRef<SupportingDocumentCollectionRef<SupportingDocumentPurposeEnum>>(null);
 
   const generateUpload = ({
     fileName,
@@ -59,6 +74,27 @@ export const VerificationRenewalDocuments = ({
       .mapOk(data => data.generateSupportingDocumentUploadUrl)
       .mapOkToResult(filterRejectionsToResult)
       .mapOk(({ upload, supportingDocumentId }) => ({ upload, id: supportingDocumentId }));
+  };
+
+  const onRemoveFile = useCallback(
+    (file: SwanFile) => {
+      return deleteSupportingDocument({ input: { id: file.id } })
+        .mapOk(data => data.deleteSupportingDocument)
+        .mapOkToResult(filterRejectionsToResult);
+    },
+    [deleteSupportingDocument],
+  );
+
+  const onPressNext = () => {
+    const supportingDocumentCollection = supportingDocumentCollectionRef.current;
+    if (supportingDocumentCollection == null) {
+      return;
+    }
+    if (supportingDocumentCollection.areAllRequiredDocumentsFilled()) {
+      Router.push(nextStep.id, {
+        verificationRenewalId: verificationRenewalId,
+      });
+    }
   };
 
   const requiredPurposes = new Set(
@@ -130,38 +166,29 @@ export const VerificationRenewalDocuments = ({
               </Tile>
             ) : (
               <SupportingDocumentCollection
+                ref={supportingDocumentCollectionRef}
                 generateUpload={generateUpload}
                 requiredDocumentPurposes={requiredDocumentsPurposes}
                 status={supportingDocumentCollection.statusInfo.status}
                 documents={docs}
+                templateLanguage={templateLanguage}
+                onRemoveFile={onRemoveFile}
               />
             )}
 
             <Space height={40} />
 
-            <LakeButtonGroup>
-              <LakeButton
-                mode="secondary"
-                onPress={() =>
-                  Router.push("VerificationRenewalRoot", {
-                    verificationRenewalId,
-                  })
-                }
-              >
-                {t("verificationRenewal.cancel")}
-              </LakeButton>
-
-              <LakeButton
-                onPress={() =>
-                  Router.push("VerificationRenewalFinalize", {
-                    verificationRenewalId,
-                  })
-                }
-                color="current"
-              >
-                {t("verificationRenewal.confirm")}
-              </LakeButton>
-            </LakeButtonGroup>
+            <VerificationRenewalFooter
+              onPrevious={
+                previousStep !== undefined
+                  ? () =>
+                      Router.push(previousStep?.id, {
+                        verificationRenewalId: verificationRenewalId,
+                      })
+                  : undefined
+              }
+              onNext={onPressNext}
+            />
           </>
         )}
       </ResponsiveContainer>

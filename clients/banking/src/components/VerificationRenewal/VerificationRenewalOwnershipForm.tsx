@@ -98,6 +98,7 @@ export const VerificationRenewalOwnershipForm = ({
       {match(step)
         .with("Common", () => (
           <VerificationRenewalOwnershipFormCommon
+            ref={commonRef}
             placekitApiKey={placekitApiKey}
             accountCountry={accountCountry}
             companyCountry={companyCountry}

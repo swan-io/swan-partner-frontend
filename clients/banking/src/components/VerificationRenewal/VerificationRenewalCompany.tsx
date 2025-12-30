@@ -21,7 +21,7 @@ import {
   VerificationRenewalRequirement,
 } from "../../graphql/partner";
 import { NotFoundPage } from "../../pages/NotFoundPage";
-import { t } from "../../utils/i18n";
+import { locale, t } from "../../utils/i18n";
 import { Router, VerificationRenewalRoute, verificationRenewalRoutes } from "../../utils/routes";
 import { ErrorView } from "../ErrorView";
 import { VerificationRenewalAccountHolderInformation } from "./VerificationRenewalAccountHolderInformation";
@@ -53,6 +53,12 @@ export type RenewalStep = {
   id: VerificationRenewalRoute;
   label: string;
   icon: IconName;
+};
+
+const finalizeStep: RenewalStep = {
+  id: "VerificationRenewalFinalize",
+  label: t("verificationRenewal.step.finalize"),
+  icon: "checkmark-filled",
 };
 
 const getRenewalSteps = (requirements: VerificationRenewalRequirement[] | null): RenewalStep[] => {
@@ -91,11 +97,7 @@ const getRenewalSteps = (requirements: VerificationRenewalRequirement[] | null):
       )
       .otherwise(() => null),
   );
-  steps.push({
-    id: "VerificationRenewalFinalize",
-    label: t("verificationRenewal.step.finalize"),
-    icon: "checkmark-filled",
-  });
+  steps.push(finalizeStep);
 
   return steps;
 };
@@ -109,6 +111,7 @@ const getCurrentStep = (
 
 const getPreviousStep = (currentStep: RenewalStep, steps: RenewalStep[]) => {
   const index = steps.indexOf(currentStep);
+
   if (index === -1 || index === 0) {
     return undefined;
   }
@@ -117,6 +120,7 @@ const getPreviousStep = (currentStep: RenewalStep, steps: RenewalStep[]) => {
 
 const getNextStep = (currentStep: RenewalStep, steps: RenewalStep[]) => {
   const index = steps.indexOf(currentStep);
+
   if (index === -1) {
     return undefined;
   }
@@ -163,7 +167,8 @@ export const VerificationRenewalCompany = ({
 
   const currentStep = getCurrentStep(route?.name, steps);
   const previousStep = currentStep != null ? getPreviousStep(currentStep, steps) : undefined;
-  const nextStep = currentStep != null ? getNextStep(currentStep, steps) : undefined;
+  const nullableNextStep = currentStep != null ? getNextStep(currentStep, steps) : undefined;
+  const nextStep = nullableNextStep ?? finalizeStep;
 
   const isFinalized = steps.length === 0 || steps.length === 1;
 
@@ -210,6 +215,7 @@ export const VerificationRenewalCompany = ({
         ))
         .with({ route: { name: "VerificationRenewalAccountHolderInformation" } }, () => (
           <VerificationRenewalAccountHolderInformation
+            previousStep={previousStep}
             info={info}
             verificationRenewalId={verificationRenewalId}
             nextStep={nextStep}
@@ -228,6 +234,8 @@ export const VerificationRenewalCompany = ({
           match(companyAddress)
             .with({ value: P.select({ country: P.nonNullable }) }, address => (
               <VerificationRenewalOwnership
+                previousStep={previousStep}
+                nextStep={nextStep}
                 info={info}
                 verificationRenewalId={verificationRenewalId}
                 accountCountry={accountCountry}
@@ -243,8 +251,11 @@ export const VerificationRenewalCompany = ({
           },
           ({ supportingDocumentCollection }) => (
             <VerificationRenewalDocuments
+              previousStep={previousStep}
+              nextStep={nextStep}
               verificationRenewalId={verificationRenewalId}
               supportingDocumentCollection={supportingDocumentCollection}
+              templateLanguage={locale.language}
             />
           ),
         )

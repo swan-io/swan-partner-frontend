@@ -125,7 +125,7 @@ export const VerificationRenewalOwnershipFormCommon = ({
       initialValue: initialValues.direct ?? false,
       validate: (value, { getFieldValue }) => {
         if (value === false && getFieldValue("indirect") === false) {
-          return t("verificationRenewal.ownership.type.direct");
+          return " ";
         }
       },
     },
@@ -133,7 +133,7 @@ export const VerificationRenewalOwnershipFormCommon = ({
       initialValue: initialValues.indirect ?? false,
       validate: (value, { getFieldValue }) => {
         if (value === false && getFieldValue("direct") === false) {
-          return t("verificationRenewal.ownership.type.indirect");
+          return " ";
         }
       },
     },
@@ -191,13 +191,6 @@ export const VerificationRenewalOwnershipFormCommon = ({
                     direct,
                     indirect,
                     totalPercentage: Number(totalPercentage),
-                    // type: match({ direct, indirect })
-                    //   .returnType<UltimateBeneficialOwnerOwnershipType | undefined>()
-                    //   .with({ direct: true, indirect: true }, () => "DirectAndIndirect")
-                    //   .with({ direct: false, indirect: true }, () => "Indirect")
-                    //   .with({ direct: true, indirect: false }, () => "Direct")
-                    //   .with({ direct: false, indirect: false }, () => undefined)
-                    //   .exhaustive(),
                   });
                 },
               )

@@ -36,12 +36,16 @@ import { StepTitle } from "../../../../onboarding/src/components/StepTitle";
 import {
   AccountCountry,
   CompanyRenewalInfoFragment,
+  UltimateBeneficialOwnerOwnershipInput,
   UltimateBeneficialOwnerOwnershipType,
   UpdateCompanyVerificationRenewalDocument,
   VerificationRenewalUboFragment,
+  VerificationRenewalUltimateBeneficialOwnerInput,
 } from "../../graphql/partner";
 import { t, TranslationKey } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
+import { RenewalStep } from "./VerificationRenewalCompany";
+import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 import {
   Input,
   REFERENCE_SYMBOL,
@@ -152,6 +156,68 @@ const convertFetchUboToInput = (
     ...ubo,
     errors,
   };
+};
+
+const convertLocalUboToMutationInput = ({
+  country,
+  addressLine1,
+  city,
+  postalCode,
+  direct,
+  indirect,
+  ...ubo
+}: LocalStateUbo): VerificationRenewalUltimateBeneficialOwnerInput => {
+  const address = match({
+    country,
+    addressLine1,
+    city,
+    postalCode,
+  })
+    .with(
+      {
+        country: P.nonNullable,
+        addressLine1: P.nonNullable,
+        city: P.nonNullable,
+        postalCode: P.nonNullable,
+      },
+      ({ country, addressLine1, city, postalCode }) => ({
+        country: country,
+        addressLine1: addressLine1,
+        city: city,
+        postalCode: postalCode,
+      }),
+    )
+    .otherwise(() => undefined);
+
+  const input: VerificationRenewalUltimateBeneficialOwnerInput = {
+    address,
+    birthInfo: {
+      birthDate: ubo.birthDate,
+      city: ubo.birthCity,
+      country: ubo.birthCountryCode,
+      postalCode: ubo.birthCityPostalCode,
+    },
+    firstName: ubo.firstName,
+    lastName: ubo.lastName,
+    ownership: match({ direct, indirect })
+      .returnType<UltimateBeneficialOwnerOwnershipInput | undefined>()
+      .with({ direct: true, indirect: true }, () => ({
+        totalPercentage: ubo.totalPercentage,
+        type: "DirectAndIndirect",
+      }))
+      .with({ direct: true }, () => ({
+        totalPercentage: ubo.totalPercentage,
+        type: "Direct",
+      }))
+      .with({ indirect: true }, () => ({
+        totalPercentage: ubo.totalPercentage,
+        type: "Indirect",
+      }))
+      .otherwise(() => undefined),
+    qualificationType: ubo.qualificationType,
+    taxIdentificationNumber: ubo.taxIdentificationNumber,
+  };
+  return input;
 };
 
 const isUboInvalid = (ubo: LocalStateUbo) => {
@@ -327,6 +393,8 @@ type Props = {
   accountCountry: AccountCountry;
   verificationRenewalId: string;
   companyCountry: CountryCCA3;
+  previousStep: RenewalStep | undefined;
+  nextStep: RenewalStep;
 };
 
 export const VerificationRenewalOwnership = ({
@@ -334,6 +402,8 @@ export const VerificationRenewalOwnership = ({
   accountCountry,
   verificationRenewalId,
   companyCountry,
+  nextStep,
+  previousStep,
 }: Props) => {
   const [updateCompanyVerificationRenewal, updatingCompanyVerificationRenewal] = useMutation(
     UpdateCompanyVerificationRenewalDocument,
@@ -419,36 +489,7 @@ export const VerificationRenewalOwnership = ({
   info.company.ultimateBeneficialOwners.map(owner => owner);
 
   const updateOnboardingUbos = (nextUbos: LocalStateUbo[]) => {
-    const ultimateBeneficialOwners = nextUbos.map(
-      ({ addressLine1, country, city, postalCode, errors, ...ubo }) => {
-        const residencyAddress = match({
-          country,
-          addressLine1,
-          city,
-          postalCode,
-        })
-          .with(
-            {
-              country: P.nonNullable,
-              addressLine1: P.nonNullable,
-              city: P.nonNullable,
-              postalCode: P.nonNullable,
-            },
-            ({ country, addressLine1, city, postalCode }) => ({
-              country: country,
-              addressLine1: addressLine1,
-              city: city,
-              postalCode: postalCode,
-            }),
-          )
-          .otherwise(() => undefined);
-
-        return {
-          ...ubo,
-          residencyAddress,
-        };
-      },
-    );
+    const ultimateBeneficialOwners = nextUbos.map(convertLocalUboToMutationInput);
 
     return updateCompanyVerificationRenewal({
       input: {
@@ -462,7 +503,7 @@ export const VerificationRenewalOwnership = ({
       .mapOkToResult(data => Option.fromNullable(data).toResult(data))
       .mapOkToResult(filterRejectionsToResult)
       .tapOk(() => {
-        Router.push("VerificationRenewalAdministratorInformation", {
+        Router.push("VerificationRenewalOwnership", {
           verificationRenewalId: verificationRenewalId,
         });
       })
@@ -475,60 +516,84 @@ export const VerificationRenewalOwnership = ({
     <>
       <OnboardingStepContent>
         <ResponsiveContainer breakpoint={breakpoints.medium}>
-          {({ small }) =>
-            currentUbos.length === 0 ? (
-              <Box>
-                <StepTitle isMobile={small}>{t("verificationRenewal.ownership.title")}</StepTitle>
-                <Space height={12} />
-                <LakeText>
-                  {t("verificationRenewal.ownership.subtitle", { companyName: info.company.name })}
-                </LakeText>
-                <Space height={24} />
+          {({ small }) => (
+            <>
+              {currentUbos.length === 0 ? (
+                <Box>
+                  <StepTitle isMobile={small}>{t("verificationRenewal.ownership.title")}</StepTitle>
+                  <Space height={12} />
+                  <LakeText>
+                    {t("verificationRenewal.ownership.subtitle", {
+                      companyName: info.company.name,
+                    })}
+                  </LakeText>
+                  <Space height={24} />
 
-                <Pressable role="button" style={styles.addOwnerButton} onPress={openNewUbo}>
-                  <Icon name="add-circle-regular" size={32} color={colors.gray[500]} />
-                  <Space height={8} />
-                  <LakeText>{t("verificationRenewal.ownership.addTile")}</LakeText>
-                </Pressable>
-              </Box>
-            ) : (
-              <Box>
-                <StepTitle isMobile={small}>{t("verificationRenewal.ownership.title")}</StepTitle>
-                <Space height={12} />
-                <LakeText>
-                  {t("verificationRenewal.ownership.subtitle", { companyName: info.company.name })}
-                </LakeText>
-                <Space height={24} />
-
-                <Grid numColumns={small ? 1 : 2} horizontalSpace={32} verticalSpace={32}>
                   <Pressable role="button" style={styles.addOwnerButton} onPress={openNewUbo}>
                     <Icon name="add-circle-regular" size={32} color={colors.gray[500]} />
                     <Space height={8} />
                     <LakeText>{t("verificationRenewal.ownership.addTile")}</LakeText>
                   </Pressable>
+                </Box>
+              ) : (
+                <Box>
+                  <StepTitle isMobile={small}>{t("verificationRenewal.ownership.title")}</StepTitle>
+                  <Space height={12} />
+                  <LakeText>
+                    {t("verificationRenewal.ownership.subtitle", {
+                      companyName: info.company.name,
+                    })}
+                  </LakeText>
+                  <Space height={24} />
 
-                  {currentUbos.map(ubo => (
-                    <UboTile
-                      key={ubo[REFERENCE_SYMBOL]}
-                      ubo={ubo}
-                      companyName={info.company.name}
-                      country={info.company.residencyAddress.country as CountryCCA3}
-                      shakeError={shakeError}
-                      onEdit={() =>
-                        setPageState({
-                          type: "edit",
-                          step: "Common",
-                          ubo,
-                          withAddressPart,
+                  <Grid numColumns={small ? 1 : 2} horizontalSpace={32} verticalSpace={32}>
+                    <Pressable role="button" style={styles.addOwnerButton} onPress={openNewUbo}>
+                      <Icon name="add-circle-regular" size={32} color={colors.gray[500]} />
+                      <Space height={8} />
+                      <LakeText>{t("verificationRenewal.ownership.addTile")}</LakeText>
+                    </Pressable>
+
+                    {currentUbos.map(ubo => (
+                      <UboTile
+                        key={ubo[REFERENCE_SYMBOL]}
+                        ubo={ubo}
+                        companyName={info.company.name}
+                        country={info.company.residencyAddress.country as CountryCCA3}
+                        shakeError={shakeError}
+                        onEdit={() =>
+                          setPageState({
+                            type: "edit",
+                            step: "Common",
+                            ubo,
+                            withAddressPart,
+                          })
+                        }
+                        onDelete={() => openRemoveUboConfirmation(ubo)}
+                      />
+                    ))}
+                  </Grid>
+                </Box>
+              )}
+
+              <Space height={40} />
+              <VerificationRenewalFooter
+                onPrevious={
+                  previousStep !== undefined
+                    ? () =>
+                        Router.push(previousStep?.id, {
+                          verificationRenewalId: verificationRenewalId,
                         })
-                      }
-                      onDelete={() => openRemoveUboConfirmation(ubo)}
-                    />
-                  ))}
-                </Grid>
-              </Box>
-            )
-          }
+                    : undefined
+                }
+                onNext={() =>
+                  Router.push(nextStep.id, {
+                    verificationRenewalId: verificationRenewalId,
+                  })
+                }
+                loading={updatingCompanyVerificationRenewal.isLoading()}
+              />
+            </>
+          )}
         </ResponsiveContainer>
       </OnboardingStepContent>
 

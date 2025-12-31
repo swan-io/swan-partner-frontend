@@ -13,7 +13,7 @@ import {
 } from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
 import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
 import { ReactNode, useCallback, useRef } from "react";
-import { match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
@@ -104,13 +104,13 @@ export const ChangeAdminDocuments = ({
   const docs = Array.filterMap(supportingDocumentCollection.supportingDocuments, document =>
     match(document)
       .returnType<Option<Document<SupportingDocumentPurposeEnum>>>()
-      .with({ statusInfo: { __typename: "SupportingDocumentNotUploadedStatusInfo" } }, () =>
-        Option.None(),
-      )
       .with(
         {
           statusInfo: {
-            __typename: "SupportingDocumentWaitingForUploadStatusInfo",
+            __typename: P.union(
+              "SupportingDocumentNotUploadedStatusInfo",
+              "SupportingDocumentWaitingForUploadStatusInfo",
+            ),
           },
         },
         () => Option.None(),

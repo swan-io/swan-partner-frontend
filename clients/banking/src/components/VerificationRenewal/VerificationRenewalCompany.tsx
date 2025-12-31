@@ -80,7 +80,6 @@ const getRenewalSteps = (requirements: VerificationRenewalRequirement[] | null):
           icon: "person-regular",
         }),
       )
-      // TODO put it back once UBO step development is done
       .with("UboDetailsRequired", () =>
         steps.push({
           id: "VerificationRenewalOwnership",

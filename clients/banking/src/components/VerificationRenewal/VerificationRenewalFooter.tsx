@@ -24,6 +24,7 @@ type Props = {
   nextLabel?: TranslationKey;
   loading?: boolean;
   justifyContent?: "start" | "center" | "end";
+  nextDisabled?: boolean;
 };
 //TODO: put this footer in lake for rekyc and onboarding
 export const VerificationRenewalFooter = ({
@@ -32,6 +33,7 @@ export const VerificationRenewalFooter = ({
   nextLabel = "verificationRenewal.next",
   loading,
   justifyContent = "start",
+  nextDisabled,
 }: Props) => {
   return (
     <ResponsiveContainer style={styles.root}>
@@ -58,6 +60,7 @@ export const VerificationRenewalFooter = ({
           ) : null}
 
           <LakeButton
+            disabled={nextDisabled}
             loading={loading}
             color="partner"
             size={large ? "large" : "small"}

@@ -1,6 +1,5 @@
 import { Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
-import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -21,9 +20,10 @@ import {
   UpdateCompanyVerificationRenewalDocument,
 } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
-import { Router, VerificationRenewalRoute } from "../../utils/routes";
+import { Router } from "../../utils/routes";
 import { validateRequired } from "../../utils/validations";
 import type { RenewalStep } from "./VerificationRenewalCompany";
+import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 import { EditableField } from "./VerificationRenewalPersonalInfo";
 
 const translateMonthlyPaymentVolume = (monthlyPaymentVolume: MonthlyPaymentVolume) =>
@@ -48,7 +48,6 @@ const monthlyPaymentVolumeItems = deriveUnion<MonthlyPaymentVolume>({
 type Form = {
   companyName: string;
   addressLine1: string;
-  addressLine2: string;
   postalCode: string;
   city: string;
   activityDescription: string;
@@ -58,13 +57,15 @@ type Form = {
 type Props = {
   verificationRenewalId: string;
   info: CompanyRenewalInfoFragment;
-  nextStep: RenewalStep | undefined;
+  nextStep: RenewalStep;
+  previousStep: RenewalStep | undefined;
 };
 
 export const VerificationRenewalAccountHolderInformation = ({
   verificationRenewalId,
   info,
   nextStep,
+  previousStep,
 }: Props) => {
   const [updateCompanyVerificationRenewal, updatingCompanyVerificationRenewal] = useMutation(
     UpdateCompanyVerificationRenewalDocument,
@@ -73,7 +74,6 @@ export const VerificationRenewalAccountHolderInformation = ({
   const [savedValues, setSaveValues] = useState<Form>({
     companyName: info.company.name,
     addressLine1: info.company.residencyAddress.addressLine1 ?? "",
-    addressLine2: info.company.residencyAddress.addressLine2 ?? "",
     postalCode: info.company.residencyAddress.postalCode ?? "",
     city: info.company.residencyAddress.city ?? "",
     activityDescription: info.company.businessActivityDescription,
@@ -84,7 +84,6 @@ export const VerificationRenewalAccountHolderInformation = ({
     const {
       companyName,
       addressLine1,
-      addressLine2,
       city,
       activityDescription,
       monthlyPaymentVolume,
@@ -100,7 +99,6 @@ export const VerificationRenewalAccountHolderInformation = ({
           monthlyPaymentVolume,
           residencyAddress: {
             addressLine1,
-            addressLine2,
             city,
             postalCode,
           },
@@ -111,8 +109,7 @@ export const VerificationRenewalAccountHolderInformation = ({
       .mapOkToResult(data => Option.fromNullable(data).toResult(data))
       .mapOkToResult(filterRejectionsToResult)
       .tapOk(() => {
-        const nextRoute: VerificationRenewalRoute = nextStep?.id ?? "VerificationRenewalFinalize";
-        Router.push(nextRoute, {
+        Router.push(nextStep.id, {
           verificationRenewalId: verificationRenewalId,
         });
       })
@@ -155,22 +152,6 @@ export const VerificationRenewalAccountHolderInformation = ({
                 value={savedValues.addressLine1}
                 validate={validateRequired}
                 onChange={value => setSaveValues({ ...savedValues, addressLine1: value })}
-                renderEditing={({ value, error, onChange, onBlur }) => (
-                  <LakeTextInput
-                    value={value}
-                    error={error}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                  />
-                )}
-              />
-
-              <Space height={12} />
-              <EditableField
-                label={t("verificationRenewal.addressLine2")}
-                value={savedValues.addressLine2}
-                validate={validateRequired}
-                onChange={value => setSaveValues({ ...savedValues, addressLine2: value })}
                 renderEditing={({ value, error, onChange, onBlur }) => (
                   <LakeTextInput
                     value={value}
@@ -250,26 +231,18 @@ export const VerificationRenewalAccountHolderInformation = ({
             </Tile>
 
             <Space height={40} />
-            <LakeButtonGroup>
-              <LakeButton
-                mode="secondary"
-                onPress={() =>
-                  Router.push("VerificationRenewalRoot", {
-                    verificationRenewalId: verificationRenewalId,
-                  })
-                }
-              >
-                {t("verificationRenewal.cancel")}
-              </LakeButton>
-
-              <LakeButton
-                onPress={onPressSubmit}
-                color="current"
-                loading={updatingCompanyVerificationRenewal.isLoading()}
-              >
-                {t("verificationRenewal.confirm")}
-              </LakeButton>
-            </LakeButtonGroup>
+            <VerificationRenewalFooter
+              onPrevious={
+                previousStep !== undefined
+                  ? () =>
+                      Router.push(previousStep?.id, {
+                        verificationRenewalId: verificationRenewalId,
+                      })
+                  : undefined
+              }
+              onNext={onPressSubmit}
+              loading={updatingCompanyVerificationRenewal.isLoading()}
+            />
           </>
         )}
       </ResponsiveContainer>

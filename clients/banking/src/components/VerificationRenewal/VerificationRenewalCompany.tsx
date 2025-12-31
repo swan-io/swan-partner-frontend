@@ -1,3 +1,4 @@
+import { Option } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { IconName } from "@swan-io/lake/src/components/Icon";
 import {
@@ -9,16 +10,18 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
+import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import {
+  AccountCountry,
   CompanyRenewalInfoFragment,
   SupportingDocumentRenewalFragment,
   VerificationRenewalRequirement,
 } from "../../graphql/partner";
 import { NotFoundPage } from "../../pages/NotFoundPage";
-import { t } from "../../utils/i18n";
+import { locale, t } from "../../utils/i18n";
 import { Router, VerificationRenewalRoute, verificationRenewalRoutes } from "../../utils/routes";
 import { ErrorView } from "../ErrorView";
 import { VerificationRenewalAccountHolderInformation } from "./VerificationRenewalAccountHolderInformation";
@@ -52,6 +55,12 @@ export type RenewalStep = {
   icon: IconName;
 };
 
+const finalizeStep: RenewalStep = {
+  id: "VerificationRenewalFinalize",
+  label: t("verificationRenewal.step.finalize"),
+  icon: "checkmark-filled",
+};
+
 const getRenewalSteps = (requirements: VerificationRenewalRequirement[] | null): RenewalStep[] => {
   const steps: RenewalStep[] = [];
 
@@ -71,14 +80,13 @@ const getRenewalSteps = (requirements: VerificationRenewalRequirement[] | null):
           icon: "person-regular",
         }),
       )
-      // TODO put it back once UBO step development is done
-      // .with("UboDetailsRequired", () =>
-      //   steps.push({
-      //     id: "VerificationRenewalOwnership",
-      //     label: t("verificationRenewal.step.ownership"),
-      //     icon: "people-add-regular",
-      //   }),
-      // )
+      .with("UboDetailsRequired", () =>
+        steps.push({
+          id: "VerificationRenewalOwnership",
+          label: t("verificationRenewal.step.ownership"),
+          icon: "people-add-regular",
+        }),
+      )
       .with("SupportingDocumentsRequired", () =>
         steps.push({
           id: "VerificationRenewalDocuments",
@@ -88,11 +96,7 @@ const getRenewalSteps = (requirements: VerificationRenewalRequirement[] | null):
       )
       .otherwise(() => null),
   );
-  steps.push({
-    id: "VerificationRenewalFinalize",
-    label: t("verificationRenewal.step.finalize"),
-    icon: "checkmark-filled",
-  });
+  steps.push(finalizeStep);
 
   return steps;
 };
@@ -106,6 +110,7 @@ const getCurrentStep = (
 
 const getPreviousStep = (currentStep: RenewalStep, steps: RenewalStep[]) => {
   const index = steps.indexOf(currentStep);
+
   if (index === -1 || index === 0) {
     return undefined;
   }
@@ -114,6 +119,7 @@ const getPreviousStep = (currentStep: RenewalStep, steps: RenewalStep[]) => {
 
 const getNextStep = (currentStep: RenewalStep, steps: RenewalStep[]) => {
   const index = steps.indexOf(currentStep);
+
   if (index === -1) {
     return undefined;
   }
@@ -125,6 +131,7 @@ type Props = {
   verificationRequirements: VerificationRenewalRequirement[] | null;
   info: CompanyRenewalInfoFragment;
   supportingDocumentCollection: SupportingDocumentRenewalFragment | null;
+  accountCountry: AccountCountry;
 };
 
 export const VerificationRenewalCompany = ({
@@ -132,6 +139,7 @@ export const VerificationRenewalCompany = ({
   supportingDocumentCollection,
   verificationRenewalId,
   verificationRequirements,
+  accountCountry,
 }: Props) => {
   const route = Router.useRoute(verificationRenewalRoutes);
 
@@ -158,9 +166,17 @@ export const VerificationRenewalCompany = ({
 
   const currentStep = getCurrentStep(route?.name, steps);
   const previousStep = currentStep != null ? getPreviousStep(currentStep, steps) : undefined;
-  const nextStep = currentStep != null ? getNextStep(currentStep, steps) : undefined;
+  const nullableNextStep = currentStep != null ? getNextStep(currentStep, steps) : undefined;
+  const nextStep = nullableNextStep ?? finalizeStep;
 
   const isFinalized = steps.length === 0 || steps.length === 1;
+
+  const companyAddress = Option.allFromDict({
+    addressLine1: Option.fromNullable(info.company.residencyAddress.addressLine1),
+    country: Option.fromNullable(info.company.residencyAddress.country),
+    city: Option.fromNullable(info.company.residencyAddress.city),
+    postalCode: Option.fromNullable(info.company.residencyAddress.postalCode),
+  });
 
   // biome-ignore lint/correctness/useExhaustiveDependencies(route?.name):
   useEffect(() => {
@@ -198,6 +214,7 @@ export const VerificationRenewalCompany = ({
         ))
         .with({ route: { name: "VerificationRenewalAccountHolderInformation" } }, () => (
           <VerificationRenewalAccountHolderInformation
+            previousStep={previousStep}
             info={info}
             verificationRenewalId={verificationRenewalId}
             nextStep={nextStep}
@@ -211,9 +228,21 @@ export const VerificationRenewalCompany = ({
             nextStep={nextStep}
           />
         ))
-        .with({ route: { name: "VerificationRenewalOwnership" } }, () => (
-          <VerificationRenewalOwnership info={info} verificationRenewalId={verificationRenewalId} />
-        ))
+
+        .with({ route: { name: "VerificationRenewalOwnership" } }, () =>
+          match(companyAddress)
+            .with({ value: P.select({ country: P.nonNullable }) }, address => (
+              <VerificationRenewalOwnership
+                previousStep={previousStep}
+                nextStep={nextStep}
+                info={info}
+                verificationRenewalId={verificationRenewalId}
+                accountCountry={accountCountry}
+                companyCountry={address.country as CountryCCA3}
+              />
+            ))
+            .otherwise(() => <ErrorView />),
+        )
         .with(
           {
             route: { name: "VerificationRenewalDocuments" },
@@ -221,8 +250,11 @@ export const VerificationRenewalCompany = ({
           },
           ({ supportingDocumentCollection }) => (
             <VerificationRenewalDocuments
+              previousStep={previousStep}
+              nextStep={nextStep}
               verificationRenewalId={verificationRenewalId}
               supportingDocumentCollection={supportingDocumentCollection}
+              templateLanguage={locale.language}
             />
           ),
         )

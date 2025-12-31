@@ -3669,6 +3669,7 @@ query GetVerificationRenewal($id: ID!) {
   verificationRenewal(id: $id) {
     ... on WaitingForInformationVerificationRenewal {
       id
+      accountCountries
       verificationRequirements
       supportingDocumentCollection {
         ...SupportingDocumentRenewal

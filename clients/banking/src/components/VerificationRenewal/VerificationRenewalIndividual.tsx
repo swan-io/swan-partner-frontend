@@ -17,7 +17,7 @@ import {
   VerificationRenewalRequirement,
 } from "../../graphql/partner";
 import { NotFoundPage } from "../../pages/NotFoundPage";
-import { t } from "../../utils/i18n";
+import { locale, t } from "../../utils/i18n";
 import { Router, VerificationRenewalRoute, verificationRenewalRoutes } from "../../utils/routes";
 import { ErrorView } from "../ErrorView";
 import { RenewalStep } from "./VerificationRenewalCompany";
@@ -44,6 +44,12 @@ const styles = StyleSheet.create({
   },
 });
 
+const finalizeStep: RenewalStep = {
+  id: "VerificationRenewalFinalize",
+  label: t("verificationRenewal.step.finalize"),
+  icon: "checkmark-filled",
+};
+
 const getRenewalSteps = (requirements: VerificationRenewalRequirement[] | null): RenewalStep[] => {
   const steps: RenewalStep[] = [];
 
@@ -66,11 +72,7 @@ const getRenewalSteps = (requirements: VerificationRenewalRequirement[] | null):
       .otherwise(() => null),
   );
 
-  steps.push({
-    id: "VerificationRenewalFinalize",
-    label: t("verificationRenewal.step.finalize"),
-    icon: "checkmark-filled",
-  });
+  steps.push(finalizeStep);
 
   return steps;
 };
@@ -137,7 +139,8 @@ export const VerificationRenewalIndividual = ({
 
   const currentStep = getCurrentStep(route?.name, steps);
   const previousStep = currentStep != null ? getPreviousStep(currentStep, steps) : undefined;
-  const nextStep = currentStep != null ? getNextStep(currentStep, steps) : undefined;
+  const nullableNextStep = currentStep != null ? getNextStep(currentStep, steps) : undefined;
+  const nextStep = nullableNextStep ?? finalizeStep;
 
   const isFinalized = steps.length === 0 || steps.length === 1;
 
@@ -190,6 +193,9 @@ export const VerificationRenewalIndividual = ({
           },
           ({ supportingDocumentCollection }) => (
             <VerificationRenewalDocuments
+              templateLanguage={locale.language}
+              previousStep={previousStep}
+              nextStep={nextStep}
               verificationRenewalId={verificationRenewalId}
               supportingDocumentCollection={supportingDocumentCollection}
             />

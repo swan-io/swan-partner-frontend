@@ -1,7 +1,7 @@
 import { Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
+import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -28,9 +28,10 @@ import {
   UpdateIndividualVerificationRenewalDocument,
 } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
-import { Router, VerificationRenewalRoute } from "../../utils/routes";
+import { Router } from "../../utils/routes";
 import { validateRequired } from "../../utils/validations";
 import { RenewalStep } from "./VerificationRenewalCompany";
+import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 
 const styles = StyleSheet.create({
   label: { flexGrow: 1, paddingBottom: 0 },
@@ -52,7 +53,7 @@ type Props = {
   verificationRenewalId: string;
   info: IndividualRenewalInfoFragment;
   previousStep: RenewalStep | undefined;
-  nextStep: RenewalStep | undefined;
+  nextStep: RenewalStep;
 };
 
 type EditableFieldProps<T> = {
@@ -261,9 +262,7 @@ export const VerificationRenewalPersonalInfo = ({
           .mapOkToResult(data => Option.fromNullable(data).toResult(data))
           .mapOkToResult(filterRejectionsToResult)
           .tapOk(() => {
-            const nextRoute: VerificationRenewalRoute =
-              nextStep?.id ?? "VerificationRenewalFinalize";
-            Router.push(nextRoute, {
+            Router.push(nextStep.id, {
               verificationRenewalId: verificationRenewalId,
             });
           })
@@ -280,7 +279,7 @@ export const VerificationRenewalPersonalInfo = ({
         {({ small }) => (
           <>
             <StepTitle isMobile={small}>
-              {t("verificationRenewal.personalInformation.title")}
+              {t("verificationRenewal.accountHolderInformation.title")}
             </StepTitle>
             <Space height={40} />
 
@@ -425,28 +424,18 @@ export const VerificationRenewalPersonalInfo = ({
             </Tile>
 
             <Space height={40} />
-            <LakeButtonGroup>
-              {previousStep != null && (
-                <LakeButton
-                  mode="secondary"
-                  onPress={() =>
-                    Router.push(previousStep.id, {
-                      verificationRenewalId: verificationRenewalId,
-                    })
-                  }
-                >
-                  {t("verificationRenewal.cancel")}
-                </LakeButton>
-              )}
-
-              <LakeButton
-                onPress={onPressSubmit}
-                color="current"
-                loading={updatingIndividualVerificationRenewal.isLoading()}
-              >
-                {t("verificationRenewal.confirm")}
-              </LakeButton>
-            </LakeButtonGroup>
+            <VerificationRenewalFooter
+              onPrevious={
+                previousStep !== undefined
+                  ? () =>
+                      Router.push(previousStep?.id, {
+                        verificationRenewalId: verificationRenewalId,
+                      })
+                  : undefined
+              }
+              onNext={onPressSubmit}
+              loading={updatingIndividualVerificationRenewal.isLoading()}
+            />
           </>
         )}
       </ResponsiveContainer>

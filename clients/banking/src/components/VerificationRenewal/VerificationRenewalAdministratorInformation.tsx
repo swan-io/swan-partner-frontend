@@ -1,7 +1,6 @@
 import { Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
@@ -22,9 +21,10 @@ import {
   UpdateCompanyVerificationRenewalDocument,
 } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
-import { Router, VerificationRenewalRoute } from "../../utils/routes";
+import { Router } from "../../utils/routes";
 import { validateNullableRequired, validateRequired } from "../../utils/validations";
 import type { RenewalStep } from "./VerificationRenewalCompany";
+import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 import { EditableField } from "./VerificationRenewalPersonalInfo";
 
 type Form = {
@@ -39,7 +39,7 @@ type Props = {
   verificationRenewalId: string;
   info: CompanyRenewalInfoFragment;
   previousStep: RenewalStep | undefined;
-  nextStep: RenewalStep | undefined;
+  nextStep: RenewalStep;
 };
 
 export const VerificationRenewalAdministratorInformation = ({
@@ -95,9 +95,7 @@ export const VerificationRenewalAdministratorInformation = ({
             .mapOkToResult(data => Option.fromNullable(data).toResult(data))
             .mapOkToResult(filterRejectionsToResult)
             .tapOk(() => {
-              const nextRoute: VerificationRenewalRoute =
-                nextStep?.id ?? "VerificationRenewalFinalize";
-              Router.push(nextRoute, {
+              Router.push(nextStep.id, {
                 verificationRenewalId: verificationRenewalId,
               });
             })
@@ -219,28 +217,19 @@ export const VerificationRenewalAdministratorInformation = ({
             </Tile>
 
             <Space height={40} />
-            <LakeButtonGroup>
-              {previousStep != null && (
-                <LakeButton
-                  mode="secondary"
-                  onPress={() =>
-                    Router.push(previousStep.id, {
-                      verificationRenewalId: verificationRenewalId,
-                    })
-                  }
-                >
-                  {t("verificationRenewal.cancel")}
-                </LakeButton>
-              )}
 
-              <LakeButton
-                onPress={onPressSubmit}
-                color="current"
-                loading={updatingCompanyVerificationRenewal.isLoading()}
-              >
-                {t("verificationRenewal.confirm")}
-              </LakeButton>
-            </LakeButtonGroup>
+            <VerificationRenewalFooter
+              onPrevious={
+                previousStep !== undefined
+                  ? () =>
+                      Router.push(previousStep?.id, {
+                        verificationRenewalId: verificationRenewalId,
+                      })
+                  : undefined
+              }
+              onNext={onPressSubmit}
+              loading={updatingCompanyVerificationRenewal.isLoading()}
+            />
           </>
         )}
       </ResponsiveContainer>

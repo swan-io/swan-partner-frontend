@@ -1,4 +1,5 @@
 import { Option } from "@swan-io/boxed";
+import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -8,14 +9,21 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { noop } from "@swan-io/lake/src/utils/function";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { trim } from "@swan-io/lake/src/utils/string";
-import { CountryCCA3, getCountryByCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { getCountryByCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { StyleSheet, View } from "react-native";
 import { InputPhoneNumber } from "../../components/InputPhoneNumber";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
+import {
+  AccountAdminChangeInfoFragment,
+  UpdateAccountAdminChangeDocument,
+} from "../../graphql/unauthenticated";
 import { t } from "../../utils/i18n";
 import { prefixPhoneNumber } from "../../utils/phone";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
@@ -28,37 +36,39 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
+  initialValues: AccountAdminChangeInfoFragment["requester"];
   changeAdminRequestId: string;
-  accountCountry: CountryCCA3;
   previousStep: ChangeAdminRoute;
   nextStep: ChangeAdminRoute;
 };
 
 export const ChangeAdminRequester = ({
+  initialValues,
   changeAdminRequestId,
-  accountCountry,
   previousStep,
   nextStep,
 }: Props) => {
+  const [updateChangeAdmin, changeAdminUpdate] = useMutation(UpdateAccountAdminChangeDocument);
+
   const { Field, submitForm } = useForm({
     firstName: {
-      initialValue: "",
+      initialValue: initialValues?.firstName ?? "",
       sanitize: trim,
       validate: combineValidators(validateRequired, validateName),
     },
     lastName: {
-      initialValue: "",
+      initialValue: initialValues?.lastName ?? "",
       sanitize: trim,
       validate: combineValidators(validateRequired, validateName),
     },
     email: {
-      initialValue: "",
+      initialValue: initialValues?.email ?? "",
       validate: combineValidators(validateRequired, validateEmail),
     },
     phoneNumber: {
       initialValue: {
-        country: getCountryByCCA3(accountCountry),
-        nationalNumber: "",
+        country: getCountryByCCA3("FRA"),
+        nationalNumber: initialValues?.phoneNumber ?? "",
       },
       sanitize: ({ country, nationalNumber }) => ({
         country,
@@ -83,13 +93,36 @@ export const ChangeAdminRequester = ({
 
   const onPressNext = () =>
     submitForm({
-      onSuccess: values => {
-        const option = Option.allFromDict(values);
+      onSuccess: ({ phoneNumber, ...values }) => {
+        const option = Option.allFromDict({
+          ...values,
+          phoneNumber: phoneNumber.flatMap<string>(({ country, nationalNumber }) => {
+            const phoneNumber = prefixPhoneNumber(country, nationalNumber);
+            return phoneNumber.valid ? Option.Some(phoneNumber.e164) : Option.None();
+          }),
+        });
 
         option.match({
           Some: values => {
-            console.log("Submit with", values);
-            Router.push(nextStep, { requestId: changeAdminRequestId });
+            updateChangeAdmin({
+              input: {
+                id: changeAdminRequestId,
+                requester: {
+                  firstName: values.firstName,
+                  lastName: values.lastName,
+                  email: values.email,
+                  phoneNumber: values.phoneNumber,
+                },
+              },
+            })
+              .mapOk(data => data.updateAccountAdminChange)
+              .mapOkToResult(filterRejectionsToResult)
+              .tapError(error =>
+                showToast({ variant: "error", title: translateError(error), error }),
+              )
+              .tapOk(() => {
+                Router.push(nextStep, { requestId: changeAdminRequestId });
+              });
           },
           None: noop,
         });
@@ -198,7 +231,11 @@ export const ChangeAdminRequester = ({
         )}
       </ResponsiveContainer>
 
-      <OnboardingFooter onPrevious={onPressPrevious} onNext={onPressNext} loading={false} />
+      <OnboardingFooter
+        onPrevious={onPressPrevious}
+        onNext={onPressNext}
+        loading={changeAdminUpdate.isLoading()}
+      />
     </OnboardingStepContent>
   );
 };

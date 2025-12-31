@@ -1,3 +1,4 @@
+import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -6,45 +7,101 @@ import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { Flag } from "@swan-io/shared-business/src/components/Flag";
-import { CountryCCA3, getCCA2forCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import {
+  CountryCCA3,
+  getCCA2forCCA3,
+  isCountryCCA3,
+} from "@swan-io/shared-business/src/constants/countries";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import dayjs from "dayjs";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
+import {
+  AccountAdminChangeInfoFragment,
+  FinalizeAccountAdminChangeDocument,
+} from "../../graphql/unauthenticated";
 import { t } from "../../utils/i18n";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
 
+type RequesterFilled = {
+  __typename: "AccountAdminChangeRequester";
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+};
+
+type AdminFilled = {
+  __typename: "AccountAdminChangeAdmin";
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  birthDate: string;
+  birthCountry: CountryCCA3;
+};
+
+export const isRequesterFilled = (
+  requester: AccountAdminChangeInfoFragment["requester"],
+): requester is RequesterFilled => {
+  return (
+    requester != null &&
+    typeof requester.firstName === "string" &&
+    typeof requester.lastName === "string" &&
+    typeof requester.email === "string" &&
+    typeof requester.phoneNumber === "string"
+  );
+};
+
+export const isAdminFilled = (
+  admin: AccountAdminChangeInfoFragment["admin"],
+): admin is AdminFilled => {
+  return (
+    admin != null &&
+    typeof admin.firstName === "string" &&
+    typeof admin.lastName === "string" &&
+    typeof admin.email === "string" &&
+    typeof admin.phoneNumber === "string" &&
+    typeof admin.birthDate === "string" &&
+    isCountryCCA3(admin.birthCountry)
+  );
+};
+
 type Props = {
+  requester: RequesterFilled;
+  admin: AdminFilled;
   changeAdminRequestId: string;
   previousStep: ChangeAdminRoute;
   onSubmitted: () => void;
 };
 
-export const ChangeAdminConfirm = ({ changeAdminRequestId, previousStep, onSubmitted }: Props) => {
+export const ChangeAdminConfirm = ({
+  requester,
+  admin,
+  changeAdminRequestId,
+  previousStep,
+  onSubmitted,
+}: Props) => {
+  const [finalizeChangeAdmin, finalization] = useMutation(FinalizeAccountAdminChangeDocument);
+
   const onPressPrevious = () => {
     Router.push(previousStep, { requestId: changeAdminRequestId });
   };
 
   const onSubmit = () => {
-    // TODO submit to backend
-    onSubmitted();
-  };
-
-  // TODO fetch from backend
-  const requester = {
-    firstName: "Jane",
-    lastName: "Smith",
-    email: "jane.smith@swan.io",
-    phoneNumber: "+33123456789",
-  };
-  const admin = {
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@swan.io",
-    phoneNumber: "+33123456789",
-    birthDate: "1990-01-01",
-    birthCountry: "FRA" as CountryCCA3,
+    finalizeChangeAdmin({
+      accountAdminChangeId: changeAdminRequestId,
+    })
+      .mapOk(data => data.finalizeAccountAdminChange)
+      .mapOkToResult(filterRejectionsToResult)
+      .tapError(error => showToast({ variant: "error", title: translateError(error), error }))
+      .tapOk(() => {
+        onSubmitted();
+      });
   };
 
   return (
@@ -86,7 +143,7 @@ export const ChangeAdminConfirm = ({ changeAdminRequestId, previousStep, onSubmi
         nextLabel="changeAdmin.step.confirm.submit"
         onPrevious={onPressPrevious}
         onNext={onSubmit}
-        loading={false}
+        loading={finalization.isLoading()}
       />
     </OnboardingStepContent>
   );

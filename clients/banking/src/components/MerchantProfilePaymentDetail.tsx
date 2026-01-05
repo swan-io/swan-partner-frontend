@@ -84,8 +84,6 @@ const MerchantProfilePaymentDetailView = ({
   const [activeTab, setActiveTab] = useState<Tab>("details");
   const [isCancelModalVisible, setIsCancelModalVisible] = useBoolean(false);
 
-  console.log(Number(payment.balance.availableToCancel.value));
-
   const cantCancelReason = match({
     availableToCancel: Number(payment.balance.availableToCancel.value),
     status: payment.statusInfo.status,

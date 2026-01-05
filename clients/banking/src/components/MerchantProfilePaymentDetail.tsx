@@ -1,11 +1,13 @@
 import { AsyncData, Option, Result } from "@swan-io/boxed";
-import { useQuery } from "@swan-io/graphql-client";
+import { useMutation, useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeCopyButton } from "@swan-io/lake/src/components/LakeCopyButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
+import { LakeTooltip } from "@swan-io/lake/src/components/LakeTooltip";
 import { ListRightPanelContent } from "@swan-io/lake/src/components/ListRightPanel";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
@@ -16,18 +18,25 @@ import { TabView } from "@swan-io/lake/src/components/TabView";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { spacings } from "@swan-io/lake/src/constants/design";
+import { backgroundColor, colors, spacings } from "@swan-io/lake/src/constants/design";
+import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullishOrEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
+import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import {
+  CancelMerchantPaymentDocument,
   GetFullMerchantPaymentDetailsDocument,
   GetFullMerchantPaymentDetailsQuery,
   GetMainMerchantPaymentDetailsDocument,
 } from "../graphql/partner";
 import { formatCurrency, t } from "../utils/i18n";
+import { Router } from "../utils/routes";
 import { DetailCopiableLine, DetailLine } from "./DetailLine";
 import { ErrorView } from "./ErrorView";
 
@@ -45,19 +54,75 @@ const styles = StyleSheet.create({
   unknownValue: {
     fontStyle: "italic",
   },
+  cancelContainer: {
+    paddingTop: spacings[24],
+    paddingHorizontal: spacings[24],
+    borderTopWidth: 1,
+    borderTopColor: colors.gray[100],
+    backgroundColor: backgroundColor.default,
+  },
+  cancelContainerLarge: {
+    paddingHorizontal: spacings[40],
+  },
 });
 type Tab = "details" | "balances";
 
 const MerchantProfilePaymentDetailView = ({
+  accountMembershipId,
   payment,
   paymentLink,
   large,
 }: {
+  accountMembershipId: string;
   payment: NonNullable<GetFullMerchantPaymentDetailsQuery["merchantPayment"]>;
   paymentLink: NonNullable<GetFullMerchantPaymentDetailsQuery["merchantPaymentLink"]> | undefined;
   large: boolean;
 }) => {
+  const [cancelMerchantPayment, merchantPaymentCancelation] = useMutation(
+    CancelMerchantPaymentDocument,
+  );
   const [activeTab, setActiveTab] = useState<Tab>("details");
+  const [isCancelModalVisible, setIsCancelModalVisible] = useBoolean(false);
+
+  const cantCancelReason = match({
+    availableToCancel: Number(payment.balance.availableToCancel.value),
+    status: payment.statusInfo.status,
+  })
+    .with({ availableToCancel: P.number.positive() }, () => null) // Can cancel if availableToCancel > 0
+    .with({ status: "Initiated" }, () =>
+      t("merchantProfile.payments.details.cancel.disabledReason.initialized"),
+    )
+    .with({ status: "Canceled" }, () =>
+      t("merchantProfile.payments.details.cancel.disabledReason.canceled"),
+    )
+    .with({ status: "Captured" }, () =>
+      t("merchantProfile.payments.details.cancel.disabledReason.captured"),
+    )
+    .with({ status: "Rejected" }, () =>
+      t("merchantProfile.payments.details.cancel.disabledReason.rejected"),
+    )
+    .otherwise(() => t("merchantProfile.payments.details.cancel.disabledReason.other"));
+
+  const cancelPayment = () => {
+    cancelMerchantPayment({ input: { merchantPaymentId: payment.id } })
+      .mapOk(data => data.cancelMerchantPayment)
+      .mapOkToResult(data => Option.fromNullable(data).toResult(data))
+      .mapOkToResult(filterRejectionsToResult)
+      .tapOk(() => {
+        setIsCancelModalVisible.off();
+        Router.push("AccountMerchantsProfilePaymentsList", {
+          accountMembershipId: accountMembershipId,
+          merchantProfileId: payment.merchantProfile.id,
+        });
+        showToast({
+          variant: "success",
+          title: t("merchantProfile.payments.details.cancel.successToastTitle"),
+        });
+      })
+      .tapError(error => {
+        showToast({ variant: "error", error, title: translateError(error) });
+      });
+  };
 
   const tabs: { id: Tab; label: string }[] = [
     { id: "details", label: t("merchantProfile.payments.details.tabs.details") },
@@ -400,14 +465,46 @@ const MerchantProfilePaymentDetailView = ({
           ))
           .exhaustive()}
       </ListRightPanelContent>
+
+      <Box direction="row" style={[styles.cancelContainer, large && styles.cancelContainerLarge]}>
+        <LakeTooltip
+          content={cantCancelReason}
+          disabled={cantCancelReason == null}
+          placement="center"
+        >
+          <LakeButton
+            disabled={cantCancelReason != null}
+            mode="secondary"
+            color="negative"
+            onPress={setIsCancelModalVisible.on}
+          >
+            {t("common.cancel")}
+          </LakeButton>
+        </LakeTooltip>
+      </Box>
+
+      <ConfirmModal
+        visible={isCancelModalVisible}
+        icon="subtract-circle-regular"
+        color="negative"
+        confirmText={t("common.confirm")}
+        cancelText={t("common.closeButton")}
+        title={t("merchantProfile.payments.details.cancel.title")}
+        message={t("merchantProfile.payments.details.cancel.description")}
+        loading={merchantPaymentCancelation.isLoading()}
+        onCancel={setIsCancelModalVisible.off}
+        onConfirm={cancelPayment}
+      />
     </ScrollView>
   );
 };
 
 const MainMerchantProfilePaymentDetail = ({
+  accountMembershipId,
   paymentId,
   large,
 }: {
+  accountMembershipId: string;
   paymentId: string;
   large: boolean;
 }) => {
@@ -422,16 +519,23 @@ const MainMerchantProfilePaymentDetail = ({
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView />)
     .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), payment => (
-      <MerchantProfilePaymentDetailView payment={payment} paymentLink={undefined} large={large} />
+      <MerchantProfilePaymentDetailView
+        accountMembershipId={accountMembershipId}
+        payment={payment}
+        paymentLink={undefined}
+        large={large}
+      />
     ))
     .exhaustive();
 };
 
 const FullMerchantProfilePaymentDetail = ({
+  accountMembershipId,
   paymentId,
   paymentLinkId,
   large,
 }: {
+  accountMembershipId: string;
   paymentId: string;
   paymentLinkId: string;
   large: boolean;
@@ -455,22 +559,38 @@ const FullMerchantProfilePaymentDetail = ({
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView />)
     .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ payment, paymentLink }) => (
-      <MerchantProfilePaymentDetailView payment={payment} paymentLink={paymentLink} large={large} />
+      <MerchantProfilePaymentDetailView
+        accountMembershipId={accountMembershipId}
+        payment={payment}
+        paymentLink={paymentLink}
+        large={large}
+      />
     ))
     .exhaustive();
 };
 
 type Props = {
+  accountMembershipId: string;
   paymentId: string;
   paymentLinkId: string | undefined | null;
   large: boolean;
 };
 
-export const MerchantProfilePaymentDetail = ({ paymentId, paymentLinkId, large }: Props) =>
+export const MerchantProfilePaymentDetail = ({
+  accountMembershipId,
+  paymentId,
+  paymentLinkId,
+  large,
+}: Props) =>
   isNullish(paymentLinkId) ? (
-    <MainMerchantProfilePaymentDetail paymentId={paymentId} large={large} />
+    <MainMerchantProfilePaymentDetail
+      accountMembershipId={accountMembershipId}
+      paymentId={paymentId}
+      large={large}
+    />
   ) : (
     <FullMerchantProfilePaymentDetail
+      accountMembershipId={accountMembershipId}
       paymentId={paymentId}
       paymentLinkId={paymentLinkId}
       large={large}

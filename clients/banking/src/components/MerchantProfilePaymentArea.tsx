@@ -430,6 +430,7 @@ export const MerchantProfilePaymentArea = ({
                       items={payments?.edges.map(item => item.node) ?? []}
                       render={(item, large) => (
                         <MerchantProfilePaymentDetail
+                          accountMembershipId={accountMembershipId}
                           paymentLinkId={match(item)
                             .with(
                               {

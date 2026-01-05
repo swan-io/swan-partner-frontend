@@ -2662,6 +2662,22 @@ query MerchantPaymentLink($paymentLinkId: ID!) {
   }
 }
 
+mutation CancelMerchantPayment($input: CancelMerchantPaymentInput!) {
+  cancelMerchantPayment(input: $input) {
+    ... on CancelMerchantPaymentSuccessPayload {
+      merchantPayment {
+        id
+        statusInfo {
+          status
+        }
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
+
 query AccountClosing($accountId: ID!, $after: String, $first: Int!) {
   projectInfo {
     id

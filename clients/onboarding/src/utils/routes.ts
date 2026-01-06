@@ -29,8 +29,10 @@ export const routes = {
     Root: "/",
     Area: "/*",
     Email: "/email",
+    Address: "/address",
     Location: "/location",
     Details: "/details",
+    Activity: "/Activity",
     Presentation: "/presentation",
     Registration: "/registration",
     Organisation1: "/organisation-1",
@@ -62,6 +64,16 @@ export const individualOnboardingRoutes = [
 ] as const;
 
 export type IndividualOnboardingRoute = (typeof individualOnboardingRoutes)[number];
+
+export const individualOnboardingRoutesV2 = [
+  "Root",
+  "Details",
+  "Address",
+  "Activity",
+  "Finalize",
+] as const;
+
+export type IndividualOnboardingRouteV2 = (typeof individualOnboardingRoutesV2)[number];
 
 export const companyOnboardingRoutes = [
   "Root",

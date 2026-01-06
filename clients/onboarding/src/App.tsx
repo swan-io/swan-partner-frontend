@@ -11,6 +11,7 @@ import { ErrorView } from "./components/ErrorView";
 import { Redirect } from "./components/Redirect";
 import { SupportingDocumentCollectionFlow } from "./components/SupportingDocumentCollectionFlow";
 import {
+  GetPublicCompamyInfoRegistryDataDocument,
   GetPublicOnboardingDocument,
   UpdatePublicCompanyAccountHolderOnboardingDocument,
   UpdatePublicIndividualAccountHolderOnboardingDocument,
@@ -26,6 +27,7 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { ChangeAdminWizard } from "./pages/changeAdmin/ChangeAdminWizard";
 import { OnboardingCompanyWizard } from "./pages/company/CompanyOnboardingWizard";
 import { OnboardingIndividualWizard } from "./pages/individual/OnboardingIndividualWizard";
+import { OnboardingIndividualWizard as OnboardingIndividualWizardV2 } from "./pages/v2/individual/OnboardingIndividualWizard";
 import { env } from "./utils/env";
 import { client, partnerClient } from "./utils/gql";
 import { locale } from "./utils/i18n";
@@ -188,13 +190,62 @@ const FlowPicker = ({ onboardingId }: Props) => {
 };
 
 const FlowPickerV2 = ({ onboardingId }: Props) => {
-  const [_data, { query }] = useDeferredQuery(GetPublicOnboardingDocument);
-  const [updateIndividualOnboarding, _individualOnboardingUpdate] = useMutation(
+  const [data, { query }] = useDeferredQuery(GetPublicOnboardingDocument);
+  const [companyRegistryData, { query: queryCompanyRegistryData }] = useDeferredQuery(
+    GetPublicCompamyInfoRegistryDataDocument,
+  );
+  const [updateIndividualOnboarding, individualOnboardingUpdate] = useMutation(
     UpdatePublicIndividualAccountHolderOnboardingDocument,
   );
-  const [updateCompanyOnboarding, _companyOnboardingUpdate] = useMutation(
+  const [updateCompanyOnboarding, companyOnboardingUpdate] = useMutation(
     UpdatePublicCompanyAccountHolderOnboardingDocument,
   );
+
+  const addAccountAdminData = () => {
+    updateCompanyOnboarding({
+      input: {
+        onboardingId,
+        accountAdmin: {
+          nationality: "FRA",
+          firstName: "John",
+          lastName: "Doe",
+        },
+      },
+    });
+  };
+
+  const addCompanyData = () => {
+    return match(companyRegistryData)
+      .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => null)
+      .with(AsyncData.P.Done(Result.P.Error(P.select())), () => null)
+      .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ publicCompanyInfoRegistryData }) => {
+        match(publicCompanyInfoRegistryData)
+          .with(
+            { __typename: "PublicCompanyInfoRegistryDataSuccessPayload" },
+            ({ companyInfo }) => {
+              const { __typename, legalForm, address, ...company } = companyInfo;
+              updateCompanyOnboarding({
+                input: {
+                  onboardingId,
+                  company,
+                },
+              });
+            },
+          )
+          .otherwise(() => {});
+      })
+      .exhaustive();
+  };
+
+  const fetchCompanyRegistryData = () => {
+    queryCompanyRegistryData({
+      input: { registrationNumber: "853827103", residencyAddressCountry: "FRA" },
+    });
+  };
+
+  const refreshData = () => {
+    query({ id: onboardingId });
+  };
 
   useEffect(() => {
     const request = query({ id: onboardingId }).tapOk(({ publicAccountHolderOnboarding }) => {
@@ -230,7 +281,59 @@ const FlowPickerV2 = ({ onboardingId }: Props) => {
     return () => request.cancel();
   }, [onboardingId, query, updateCompanyOnboarding, updateIndividualOnboarding]);
 
-  return <div>FlowPickerV2</div>;
+  return match({ data, companyOnboardingUpdate, individualOnboardingUpdate })
+    .with(
+      { data: P.union(AsyncData.P.NotAsked, AsyncData.P.Loading) },
+      { companyOnboardingUpdate: AsyncData.P.Loading },
+      { individualOnboardingUpdate: AsyncData.P.Loading },
+      () => <LoadingView color={colors.gray[400]} />,
+    )
+    .with({ data: AsyncData.P.Done(Result.P.Error(P.select())) }, error => (
+      <ErrorView error={error} />
+    ))
+    .with({ data: AsyncData.P.Done(Result.P.Ok(P.select())) }, data => {
+      const onboardingInfo = data.publicAccountHolderOnboarding;
+
+      if (onboardingInfo == null) {
+        return <ErrorView />;
+      }
+
+      return match(onboardingInfo)
+        .with({ __typename: "PublicAccountHolderOnboardingSuccessPayload" }, ({ onboarding }) => {
+          return (
+            <div>
+              <OnboardingIndividualWizardV2 onboarding={onboarding} />
+              <h1>Debug tool:</h1>
+              <ul>
+                <li>Id: {onboarding.id}</li>
+                <li>Type: {onboarding.__typename}</li>
+                <li>Status: {onboarding.statusInfo.__typename}</li>
+                <li>projectInfo id: {onboarding.projectInfo.id}</li>
+                <li>projectInfo accent: {onboarding.projectInfo.accentColor}</li>
+              </ul>
+              {onboarding.__typename === "CompanyAccountHolderOnboarding" && (
+                <>
+                  <button type="button" onClick={() => addCompanyData()}>
+                    Add company data
+                  </button>
+                  <button type="button" onClick={() => fetchCompanyRegistryData()}>
+                    Fetch company registry data
+                  </button>
+                </>
+              )}
+              <button type="button" onClick={() => addAccountAdminData()}>
+                Add Account admin data
+              </button>
+
+              <button type="button" onClick={() => refreshData()}>
+                Refresh data
+              </button>
+            </div>
+          );
+        })
+        .otherwise(() => <div>Error onboarding</div>);
+    })
+    .exhaustive();
 };
 
 const FlowPickerWizard = ({ onboardingId }: Props) => {

@@ -308,8 +308,8 @@ const FlowPickerV2 = ({ onboardingId }: Props) => {
             <>
               <PageMetadata
                 accountCountry={accountCountry}
-                projectId={projectInfo?.id}
-                projectName={"TODO"}
+                projectId={projectInfo.id}
+                projectName={projectInfo.name}
               />
               <WithPartnerAccentColor color={projectColor}>
                 {match(onboarding)

@@ -158,6 +158,9 @@ const PERMISSIONS_MATRIX = {
       canManageBeneficiaries: true,
       statusInfo: { status: ENABLED },
     },
+    settings: {
+      canInitiatePaymentsToNewBeneficiaries: true,
+    },
   },
   canReadCard: P.union(
     // User can read card list if they have at least one

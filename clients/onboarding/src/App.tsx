@@ -300,38 +300,60 @@ const FlowPickerV2 = ({ onboardingId }: Props) => {
 
       return match(onboardingInfo)
         .with({ __typename: "PublicAccountHolderOnboardingSuccessPayload" }, ({ onboarding }) => {
-          const projectColor =
-            onboarding.projectInfo.accentColor ?? invariantColors.defaultAccentColor;
+          const accountCountry = onboarding.accountInfo?.country ?? undefined;
+          const projectInfo = onboarding.projectInfo;
+          const projectColor = projectInfo.accentColor ?? invariantColors.defaultAccentColor;
 
           return (
-            <WithPartnerAccentColor color={projectColor}>
-              <OnboardingIndividualWizardV2 onboarding={onboarding} />
-              <h1>Debug tool:</h1>
-              <ul>
-                <li>Id: {onboarding.id}</li>
-                <li>Type: {onboarding.__typename}</li>
-                <li>Status: {onboarding.statusInfo.__typename}</li>
-                <li>projectInfo id: {onboarding.projectInfo.id}</li>
-                <li>projectInfo accent: {onboarding.projectInfo.accentColor}</li>
-              </ul>
-              {onboarding.__typename === "CompanyAccountHolderOnboarding" && (
-                <>
-                  <button type="button" onClick={() => addCompanyData()}>
-                    Add company data
+            <>
+              <PageMetadata
+                accountCountry={accountCountry}
+                projectId={projectInfo?.id}
+                projectName={"TODO"}
+              />
+              <WithPartnerAccentColor color={projectColor}>
+                {match(onboarding)
+                  .with({ __typename: "CompanyAccountHolderOnboarding" }, companyOnboarding => (
+                    <OnboardingIndividualWizardV2 onboarding={companyOnboarding} /> // todo replace with OnboardingCompanyWizardV2
+                  ))
+                  .with(
+                    { __typename: "IndividualAccountHolderOnboarding" },
+                    individualOnboarding => (
+                      <OnboardingIndividualWizardV2 onboarding={individualOnboarding} />
+                    ),
+                  )
+                  .otherwise(() => (
+                    <ErrorView />
+                  ))}
+                <div>
+                  <h1>Debug tool:</h1>
+                  <ul>
+                    <li>Id: {onboarding.id}</li>
+                    <li>Type: {onboarding.__typename}</li>
+                    <li>Status: {onboarding.statusInfo.__typename}</li>
+                    <li>projectInfo id: {onboarding.projectInfo.id}</li>
+                    <li>projectInfo accent: {onboarding.projectInfo.accentColor}</li>
+                  </ul>
+                  {onboarding.__typename === "CompanyAccountHolderOnboarding" && (
+                    <>
+                      <button type="button" onClick={() => addCompanyData()}>
+                        Add company data
+                      </button>
+                      <button type="button" onClick={() => fetchCompanyRegistryData()}>
+                        Fetch company registry data
+                      </button>
+                    </>
+                  )}
+                  <button type="button" onClick={() => addAccountAdminData()}>
+                    Add Account admin data
                   </button>
-                  <button type="button" onClick={() => fetchCompanyRegistryData()}>
-                    Fetch company registry data
-                  </button>
-                </>
-              )}
-              <button type="button" onClick={() => addAccountAdminData()}>
-                Add Account admin data
-              </button>
 
-              <button type="button" onClick={() => refreshData()}>
-                Refresh data
-              </button>
-            </WithPartnerAccentColor>
+                  <button type="button" onClick={() => refreshData()}>
+                    Refresh data
+                  </button>
+                </div>
+              </WithPartnerAccentColor>
+            </>
           );
         })
         .otherwise(() => <div>Error onboarding</div>);

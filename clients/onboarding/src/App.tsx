@@ -300,8 +300,11 @@ const FlowPickerV2 = ({ onboardingId }: Props) => {
 
       return match(onboardingInfo)
         .with({ __typename: "PublicAccountHolderOnboardingSuccessPayload" }, ({ onboarding }) => {
+          const projectColor =
+            onboarding.projectInfo.accentColor ?? invariantColors.defaultAccentColor;
+
           return (
-            <div>
+            <WithPartnerAccentColor color={projectColor}>
               <OnboardingIndividualWizardV2 onboarding={onboarding} />
               <h1>Debug tool:</h1>
               <ul>
@@ -328,7 +331,7 @@ const FlowPickerV2 = ({ onboardingId }: Props) => {
               <button type="button" onClick={() => refreshData()}>
                 Refresh data
               </button>
-            </div>
+            </WithPartnerAccentColor>
           );
         })
         .otherwise(() => <div>Error onboarding</div>);

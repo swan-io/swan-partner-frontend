@@ -62,43 +62,45 @@ const finalizeStep: RenewalStep = {
 };
 
 const getRenewalSteps = (requirements: VerificationRenewalRequirement[] | null): RenewalStep[] => {
-  const steps: RenewalStep[] = [];
+  const orderedSteps: RenewalStep[] = [];
 
-  requirements?.forEach(requirement =>
-    match(requirement)
-      .with("AccountHolderDetailsRequired", () =>
-        steps.push({
-          id: "VerificationRenewalAccountHolderInformation",
-          label: t("verificationRenewal.step.accountHolderInfo"),
-          icon: "building-regular",
-        }),
-      )
-      .with("LegalRepresentativeDetailsRequired", () =>
-        steps.push({
-          id: "VerificationRenewalAdministratorInformation",
-          label: t("verificationRenewal.step.administratorInfo"),
-          icon: "person-regular",
-        }),
-      )
-      .with("UboDetailsRequired", () =>
-        steps.push({
-          id: "VerificationRenewalOwnership",
-          label: t("verificationRenewal.step.ownership"),
-          icon: "people-add-regular",
-        }),
-      )
-      .with("SupportingDocumentsRequired", () =>
-        steps.push({
-          id: "VerificationRenewalDocuments",
-          label: t("verificationRenewal.step.documents"),
-          icon: "document-regular",
-        }),
-      )
-      .otherwise(() => null),
-  );
-  steps.push(finalizeStep);
+  const steps = new Set(requirements ?? []);
 
-  return steps;
+  if (steps.has("AccountHolderDetailsRequired")) {
+    orderedSteps.push({
+      id: "VerificationRenewalAccountHolderInformation",
+      label: t("verificationRenewal.step.accountHolderInfo"),
+      icon: "building-regular",
+    });
+  }
+
+  if (steps.has("LegalRepresentativeDetailsRequired")) {
+    orderedSteps.push({
+      id: "VerificationRenewalAdministratorInformation",
+      label: t("verificationRenewal.step.administratorInfo"),
+      icon: "person-regular",
+    });
+  }
+
+  if (steps.has("UboDetailsRequired")) {
+    orderedSteps.push({
+      id: "VerificationRenewalOwnership",
+      label: t("verificationRenewal.step.ownership"),
+      icon: "people-add-regular",
+    });
+  }
+
+  if (steps.has("SupportingDocumentsRequired")) {
+    orderedSteps.push({
+      id: "VerificationRenewalDocuments",
+      label: t("verificationRenewal.step.documents"),
+      icon: "document-regular",
+    });
+  }
+
+  orderedSteps.push(finalizeStep);
+
+  return orderedSteps;
 };
 
 const getCurrentStep = (

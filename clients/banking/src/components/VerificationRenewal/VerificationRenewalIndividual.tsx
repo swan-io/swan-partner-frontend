@@ -51,30 +51,29 @@ const finalizeStep: RenewalStep = {
 };
 
 const getRenewalSteps = (requirements: VerificationRenewalRequirement[] | null): RenewalStep[] => {
-  const steps: RenewalStep[] = [];
+  const orderedSteps: RenewalStep[] = [];
 
-  requirements?.forEach(requirement =>
-    match(requirement)
-      .with("AccountHolderDetailsRequired", () =>
-        steps.push({
-          id: "VerificationRenewalPersonalInformation",
-          label: t("verificationRenewal.step.personalInfo"),
-          icon: "person-regular",
-        }),
-      )
-      .with("SupportingDocumentsRequired", () =>
-        steps.push({
-          id: "VerificationRenewalDocuments",
-          label: t("verificationRenewal.step.documents"),
-          icon: "document-regular",
-        }),
-      )
-      .otherwise(() => null),
-  );
+  const steps = new Set(requirements ?? []);
 
-  steps.push(finalizeStep);
+  if (steps.has("AccountHolderDetailsRequired")) {
+    orderedSteps.push({
+      id: "VerificationRenewalPersonalInformation",
+      label: t("verificationRenewal.step.personalInfo"),
+      icon: "person-regular",
+    });
+  }
 
-  return steps;
+  if (steps.has("SupportingDocumentsRequired")) {
+    orderedSteps.push({
+      id: "VerificationRenewalDocuments",
+      label: t("verificationRenewal.step.documents"),
+      icon: "document-regular",
+    });
+  }
+
+  orderedSteps.push(finalizeStep);
+
+  return orderedSteps;
 };
 
 const getCurrentStep = (

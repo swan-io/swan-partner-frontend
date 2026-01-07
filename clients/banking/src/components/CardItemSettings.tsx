@@ -253,41 +253,51 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
             </Box>
           </Box>
 
-          <LakeButtonGroup>
-            {match(card.statusInfo)
-              .with(
-                { __typename: P.not(P.union("CardCanceledStatusInfo", "CardCancelingStatusInfo")) },
-                () => (
-                  <LakeButton
-                    color="negative"
-                    mode="secondary"
-                    icon="subtract-circle-regular"
-                    onPress={() => setIsCancelConfirmationModalVisible(true)}
-                  >
-                    {t("card.cancel.cancelCard")}
-                  </LakeButton>
-                ),
-              )
-              .otherwise(() => (
-                <View />
-              ))}
+          {canUpdateCard && (
+            <>
+              <LakeButtonGroup>
+                {match(card.statusInfo)
+                  .with(
+                    {
+                      __typename: P.not(
+                        P.union("CardCanceledStatusInfo", "CardCancelingStatusInfo"),
+                      ),
+                    },
+                    () => (
+                      <LakeButton
+                        color="negative"
+                        mode="secondary"
+                        icon="subtract-circle-regular"
+                        onPress={() => setIsCancelConfirmationModalVisible(true)}
+                      >
+                        {t("card.cancel.cancelCard")}
+                      </LakeButton>
+                    ),
+                  )
+                  .otherwise(() => (
+                    <View />
+                  ))}
 
-            {canUpdateCard ? (
-              <LakeButton color="current" onPress={onPressSubmit} loading={cardUpdate.isLoading()}>
-                {t("common.save")}
-              </LakeButton>
-            ) : null}
-          </LakeButtonGroup>
+                <LakeButton
+                  color="current"
+                  onPress={onPressSubmit}
+                  loading={cardUpdate.isLoading()}
+                >
+                  {t("common.save")}
+                </LakeButton>
+              </LakeButtonGroup>
 
-          <CardCancelConfirmationModal
-            cardId={cardId}
-            onPressClose={() => setIsCancelConfirmationModalVisible(false)}
-            visible={isCancelConfirmationModalVisible}
-            onSuccess={() => {
-              setIsCancelConfirmationModalVisible(false);
-              Router.push("AccountCardsList", { accountMembershipId });
-            }}
-          />
+              <CardCancelConfirmationModal
+                cardId={cardId}
+                onPressClose={() => setIsCancelConfirmationModalVisible(false)}
+                visible={isCancelConfirmationModalVisible}
+                onSuccess={() => {
+                  setIsCancelConfirmationModalVisible(false);
+                  Router.push("AccountCardsList", { accountMembershipId });
+                }}
+              />
+            </>
+          )}
         </>
       )}
     </ResponsiveContainer>

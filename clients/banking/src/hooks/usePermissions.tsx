@@ -236,6 +236,9 @@ const PERMISSIONS_MATRIX = {
       canManageAccountMembership: true,
       statusInfo: { status: ENABLED },
     },
+    settings: {
+      canUpdateCards: true,
+    },
   },
   canReadAccountMembership: {
     accountMembership: {

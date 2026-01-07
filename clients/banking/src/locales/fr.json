@@ -933,7 +933,7 @@
   "merchantProfile.settings.processingVolume.moreThan100000": "Plus de 100000",
   "merchantProfile.settings.rollingReserve": "Réserve glissante",
   "merchantProfile.settings.rollingReserve.description": "La réserve glissante protège le commerçant et Swan contre les facteurs de risque tels que l’insuffisance de fonds et la fraude.",
-  "merchantProfile.settings.rollingReserve.value": "{percentage}% au cours {rollingDays} des jours ouvrables",
+  "merchantProfile.settings.rollingReserve.value": "{percentage}% sur {rollingDays} jours ouvrables",
   "merchantProfile.settings.update.requestInProgress": "Une mise à jour est déjà en cours, si vous en envoyez une nouvelle, l'ancienne sera remplacée",
   "merchantProfile.settings.update.title": "Mise à jour du profil du commerçant",
   "merchantProfile.settings.waitingForInformation.requirements.additionalInformation": "Informations supplémentaires",

@@ -2,7 +2,7 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeStepper, MobileStepTitle, Step } from "@swan-io/lake/src/components/LakeStepper";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { backgroundColor, colors } from "@swan-io/lake/src/constants/design";
+import { backgroundColor, breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useEffect, useMemo } from "react";
@@ -11,7 +11,7 @@ import { P, match } from "ts-pattern";
 import logoSwan from "../../../assets/imgs/logo-swan.svg";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import { OnboardingHeader } from "../../../components/OnboardingHeader";
-import { CompanyOnboardingFragment, IndividualOnboardingFragment } from "../../../graphql/partner";
+import { IndividualOnboardingFragment } from "../../../graphql/partner";
 import { t } from "../../../utils/i18n";
 import {
   IndividualOnboardingRouteV2,
@@ -29,15 +29,19 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     width: "100%",
-    maxWidth: 1280,
+    maxWidth: 840,
     margin: "auto",
-    paddingHorizontal: 40,
-    paddingTop: 40,
+    paddingHorizontal: 8,
+    paddingTop: 8,
     flex: 1,
     backgroundColor: colors.partner[50],
     borderWidth: 1,
     borderColor: colors.partner[100],
     borderRadius: 16,
+  },
+  wrapperDesktop: {
+    paddingHorizontal: 40,
+    paddingTop: 40,
   },
   sticky: {
     position: "sticky",
@@ -49,7 +53,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  onboarding: NonNullable<CompanyOnboardingFragment | IndividualOnboardingFragment>;
+  onboarding: NonNullable<IndividualOnboardingFragment>;
 };
 
 export const OnboardingIndividualWizard = ({ onboarding }: Props) => {
@@ -105,69 +109,71 @@ export const OnboardingIndividualWizard = ({ onboarding }: Props) => {
   }, [route?.name]);
 
   return (
-    <Box grow={1}>
-      <Box style={styles.sticky}>
-        <OnboardingHeader projectName={projectName} projectLogo={projectLogo} />
-      </Box>
+    <ResponsiveContainer breakpoint={breakpoints.tiny}>
+      {({ large, small }) => (
+        <Box grow={1}>
+          <Box style={styles.sticky}>
+            <OnboardingHeader projectName={projectName} projectLogo={projectLogo} />
+          </Box>
 
-      <Box style={styles.wrapper}>
-        {isStepperDisplayed ? (
-          <ResponsiveContainer>
-            {({ small }) =>
-              small ? (
-                <MobileStepTitle activeStepId={route.name} steps={stepperSteps} />
-              ) : (
-                <>
-                  <Box alignItems="center">
-                    <LakeStepper
-                      activeStepId={route.name}
-                      steps={stepperSteps}
-                      style={styles.stepper}
+          <Box style={{ paddingHorizontal: "8px" }}>
+            <Box style={[styles.wrapper, large && styles.wrapperDesktop]}>
+              {isStepperDisplayed ? (
+                small ? (
+                  <MobileStepTitle activeStepId={route.name} steps={stepperSteps} />
+                ) : (
+                  <>
+                    <Box alignItems="center">
+                      <LakeStepper
+                        activeStepId={route.name}
+                        steps={stepperSteps}
+                        style={styles.stepper}
+                      />
+                    </Box>
+                    <Space height={32} />
+                  </>
+                )
+              ) : null}
+
+              {match(route)
+                .with({ name: "Root" }, () => (
+                  <>
+                    <h2>Presentation</h2>
+                    <OnboardingFooter onNext={() => Router.push("Details", { onboardingId })} />
+                  </>
+                ))
+                .with({ name: "Details" }, () => (
+                  <OnboardingIndividualDetails onboarding={onboarding} />
+                ))
+                .with({ name: "Address" }, () => (
+                  <>
+                    <h2>Address </h2>
+                    <OnboardingFooter
+                      onNext={() => Router.push("Activity", { onboardingId })}
+                      onPrevious={() => Router.push("Details", { onboardingId })}
                     />
-                  </Box>
-                  <Space height={32} />
-                </>
-              )
-            }
-          </ResponsiveContainer>
-        ) : null}
-
-        {match(route)
-          .with({ name: "Root" }, () => (
-            <>
-              <h2>Presentation</h2>
-              <OnboardingFooter onNext={() => Router.push("Details", { onboardingId })} />
-            </>
-          ))
-          .with({ name: "Details" }, () => (
-            <OnboardingIndividualDetails onboardingId={onboardingId} onboarding={onboarding} />
-          ))
-          .with({ name: "Address" }, () => (
-            <>
-              <h2>Address </h2>
-              <OnboardingFooter
-                onNext={() => Router.push("Activity", { onboardingId })}
-                onPrevious={() => Router.push("Details", { onboardingId })}
-              />
-            </>
-          ))
-          .with({ name: "Activity" }, () => (
-            <>
-              <h2>Activity </h2>
-              <OnboardingFooter
-                onNext={() => Router.push("Finalize", { onboardingId })}
-                onPrevious={() => Router.push("Address", { onboardingId })}
-              />
-            </>
-          ))
-          .with({ name: "Finalize" }, () => (
-            <>
-              <h2>Finalize </h2>
-            </>
-          ))
-          .with(P.nullish, () => <NotFoundPage />)
-          .exhaustive()}
-      </Box>
-    </Box>
+                  </>
+                ))
+                .with({ name: "Activity" }, () => (
+                  <>
+                    <h2>Activity </h2>
+                    <OnboardingFooter
+                      onNext={() => Router.push("Finalize", { onboardingId })}
+                      onPrevious={() => Router.push("Address", { onboardingId })}
+                    />
+                  </>
+                ))
+                .with({ name: "Finalize" }, () => (
+                  <>
+                    <h2>Finalize </h2>
+                  </>
+                ))
+                .with(P.nullish, () => <NotFoundPage />)
+                .exhaustive()}
+            </Box>
+          </Box>
+        </Box>
+      )}
+    </ResponsiveContainer>
   );
 };

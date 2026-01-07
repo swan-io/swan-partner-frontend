@@ -127,11 +127,9 @@ export const createPublicIndividualAccountHolderOnboarding = ({
   projectId: string;
   accountCountry: AccountCountry;
 }) => {
-  console.log(projectId); // todo add projectId to mutation when available
-
   return toFuture(
     sdk.CreatePublicIndividualAccountHolderOnboarding({
-      input: { accountInfo: { country: accountCountry }, accountAdmin: {} },
+      input: { projectId, accountInfo: { country: accountCountry }, accountAdmin: {} },
     }),
   ).mapOkToResult(({ createPublicIndividualAccountHolderOnboarding }) =>
     match(createPublicIndividualAccountHolderOnboarding)
@@ -161,7 +159,6 @@ export const createPublicCompanyAccountHolderOnboarding = ({
   projectId: string;
   accountCountry: AccountCountry;
 }) => {
-  console.log(projectId);
   return toFuture(
     sdk.CreatePublicCompanyAccountHolderOnboarding({
       input: { accountInfo: { country: accountCountry }, accountAdmin: {}, company: {}, projectId },

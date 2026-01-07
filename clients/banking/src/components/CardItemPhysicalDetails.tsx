@@ -335,8 +335,11 @@ export const CardItemPhysicalDetails = ({
   onRefreshRequest,
   hasBindingUserError,
 }: Props) => {
-  const { canPrintPhysicalCard: canOrderPhysicalCard, canCancelCardForOtherMembership } =
-    usePermissions();
+  const {
+    canPrintPhysicalCard: canOrderPhysicalCard,
+    canCancelCardForOtherMembership,
+    canCancelCard,
+  } = usePermissions();
   const [orderModal, setOrderModal] = useState<Option<{ initialShippingAddress?: Address }>>(
     Option.None(),
   );
@@ -1188,15 +1191,18 @@ export const CardItemPhysicalDetails = ({
                     )
                     .otherwise(() => null)}
 
-                  {match(physicalCard)
+                  {match({ canCancelCard, physicalCard })
                     .with(
                       {
-                        statusInfo: {
-                          __typename: P.union(
-                            "PhysicalCardActivatedStatusInfo",
-                            "PhysicalCardRenewedStatusInfo",
-                            "PhysicalCardToRenewStatusInfo",
-                          ),
+                        canCancelCard: true,
+                        physicalCard: {
+                          statusInfo: {
+                            __typename: P.union(
+                              "PhysicalCardActivatedStatusInfo",
+                              "PhysicalCardRenewedStatusInfo",
+                              "PhysicalCardToRenewStatusInfo",
+                            ),
+                          },
                         },
                         previousPhysicalCards: [{ isExpired: true }, ...P.array(P._)],
                       },
@@ -1229,12 +1235,15 @@ export const CardItemPhysicalDetails = ({
                     )
                     .with(
                       {
-                        statusInfo: {
-                          __typename: P.union(
-                            "PhysicalCardActivatedStatusInfo",
-                            "PhysicalCardRenewedStatusInfo",
-                            "PhysicalCardToRenewStatusInfo",
-                          ),
+                        canCancelCard: true,
+                        physicalCard: {
+                          statusInfo: {
+                            __typename: P.union(
+                              "PhysicalCardActivatedStatusInfo",
+                              "PhysicalCardRenewedStatusInfo",
+                              "PhysicalCardToRenewStatusInfo",
+                            ),
+                          },
                         },
                       },
                       () => (
@@ -1265,8 +1274,10 @@ export const CardItemPhysicalDetails = ({
                     )
                     .with(
                       {
-                        statusInfo: {
-                          __typename: "PhysicalCardSuspendedStatusInfo",
+                        physicalCard: {
+                          statusInfo: {
+                            __typename: "PhysicalCardSuspendedStatusInfo",
+                          },
                         },
                       },
 
@@ -1298,11 +1309,13 @@ export const CardItemPhysicalDetails = ({
 
                   {match({
                     currentUserHasRights: isCurrentUserCardOwner || canCancelCardForOtherMembership,
+                    canCancelCard,
                     physicalCard,
                   })
                     .with(
                       {
                         currentUserHasRights: true,
+                        canCancelCard: true,
                         physicalCard: {
                           statusInfo: {
                             __typename: P.not(
@@ -1336,6 +1349,7 @@ export const CardItemPhysicalDetails = ({
                     .with(
                       {
                         currentUserHasRights: true,
+                        canCancelCard: true,
                         physicalCard: {
                           statusInfo: {
                             __typename: P.not(

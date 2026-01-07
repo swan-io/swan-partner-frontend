@@ -11,7 +11,7 @@ import pc from "picocolors";
 import { P, match } from "ts-pattern";
 import { string, validate, url as validateUrl } from "valienv";
 import { exchangeToken } from "./api/oauth2.swan";
-import { UnsupportedAccountCountryError, parseAccountCountry } from "./api/partner";
+import { UnsupportedAccountCountryError, parseAccountCountry, sdk, toFuture } from "./api/partner";
 import { getAccountMembershipInvitationData } from "./api/partner.swan";
 import {
   OnboardingRejectionError,
@@ -22,6 +22,11 @@ import { InvitationConfig, start } from "./app";
 import { env } from "./env";
 import { replyWithError } from "./error";
 import { AccountCountry, GetAccountMembershipInvitationDataQuery } from "./graphql/partner";
+import { getCalledMutations } from "./utils/gql";
+import {
+  isMutationAuthorizedInWebBanking,
+  isMutationRestrictedByWebBankingSettings,
+} from "./utils/permissions";
 
 const countryTranslations: Record<AccountCountry, string> = {
   DEU: "German",
@@ -198,6 +203,48 @@ start({
         }).tapError(error => {
           request.log.error(error);
         });
+
+        const calledMutations = match(request.body)
+          .with({ query: P.string }, ({ query }) => getCalledMutations(query))
+          .otherwise(() => []);
+
+        // if at least one mutation is restricted by web banking settings
+        // we need to fetch the settings and check if the mutation is authorized
+        if (calledMutations.some(isMutationRestrictedByWebBankingSettings)) {
+          const webBankingSettings = await toFuture(
+            sdk.WebBankingSettings(
+              {},
+              match(projectUserToken)
+                .with(Result.P.Ok(P.select()), token => ({
+                  "x-swan-token": `Bearer ${token}`,
+                }))
+                .otherwise(() => ({})),
+            ),
+          ).mapOkToResult(({ projectInfo }) =>
+            projectInfo.webBankingSettings != null
+              ? Result.Ok(projectInfo.webBankingSettings)
+              : Result.Error(new Error("Web banking settings not found")),
+          );
+
+          if (webBankingSettings.isError()) {
+            request.log.error("Failed to fetch web banking settings");
+            request.log.error(webBankingSettings.error);
+            return reply.internalServerError();
+          }
+
+          const isAuthorized = calledMutations
+            .filter(isMutationRestrictedByWebBankingSettings)
+            .every(mutationName =>
+              isMutationAuthorizedInWebBanking(mutationName, webBankingSettings.value),
+            );
+
+          if (!isAuthorized) {
+            request.log.warn("Unauthorized mutation attempted");
+            request.log.warn(calledMutations);
+            return reply.forbidden();
+          }
+        }
+
         return reply.from(env.PARTNER_API_URL, {
           rewriteRequestHeaders: (_req, headers) => ({
             ...headers,

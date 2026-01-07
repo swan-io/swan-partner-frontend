@@ -2333,12 +2333,12 @@ type NotFoundRejection implements Rejection {
 """Extra parameters provided by partner"""
 type OAuthRedirectParameters {
   """
-  Custom state provided by partner to prevent XSRF attack, will be filled by onBoardingId in case of nullity.
+  Custom state provided by partner to prevent XSRF attack, will be filled by onboardingId in case of nullity.
   """
   state: String
 
   """
-  URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking.
+  URL used to redirect the user at the end of the onboarding process. If empty or not set, the user is redirected to the white label web banking.
   """
   redirectUrl: String
 }
@@ -2535,6 +2535,7 @@ input OnboardingFiltersInput {
 """StatusInfo when onboarding has been finalized"""
 type OnboardingFinalizedStatusInfo implements OnboardingStatusInfo {
   status: OnboardingStatus!
+  validationVersion: OnboardingValidationVersion!
 }
 
 """Individual Account Holder Information"""
@@ -2615,6 +2616,7 @@ type OnboardingInfo {
 """StatusInfo when onboarding has still at least one incorrect field"""
 type OnboardingInvalidStatusInfo implements OnboardingStatusInfo {
   status: OnboardingStatus!
+  validationVersion: OnboardingValidationVersion!
   errors: [ValidationError!]!
 }
 
@@ -2653,6 +2655,15 @@ interface OnboardingStatusInfo {
   Current onboarding status. Onboarding can only be finalized if status is "valid"
   """
   status: OnboardingStatus!
+
+  """Version of the validation rules used for this onboarding"""
+  validationVersion: OnboardingValidationVersion!
+}
+
+"""Version of the validation rules used for this onboarding"""
+enum OnboardingValidationVersion {
+  V1
+  V2
 }
 
 """
@@ -2660,6 +2671,7 @@ StatusInfo when onboarding has all onboarding fields are correctly filled
 """
 type OnboardingValidStatusInfo implements OnboardingStatusInfo {
   status: OnboardingStatus!
+  validationVersion: OnboardingValidationVersion!
 }
 
 enum OrderByDirection {
@@ -4303,23 +4315,6 @@ type SimulateCardTransactionEnrichmentSuccessPayload {
   enrichedData: EnrichedTransactionInfo!
 }
 
-"""Inputs when editing spending limit configuration"""
-input SpendingLimitInput {
-  """period concerned"""
-  period: SpendingLimitPeriodInput!
-
-  """sum of amount of spending authorized during the period"""
-  amount: AmountInput!
-}
-
-"""Available period to compute spending limits"""
-enum SpendingLimitPeriodInput {
-  Monthly
-  Weekly
-  Daily
-  Always
-}
-
 """Thrown when an related account is not eligible to the feature"""
 type AccountNotEligibleRejection implements Rejection {
   message: String!
@@ -5140,16 +5135,6 @@ enum CardType {
   Virtual
 }
 
-enum DayEnum {
-  Monday
-  Tuesday
-  Wednesday
-  Thursday
-  Friday
-  Saturday
-  Sunday
-}
-
 """Input to decide on digitalization"""
 input DigitalizationInput {
   """The card id to provision"""
@@ -5509,55 +5494,6 @@ Will alway be true and mean that the simulation was successfully executed
 """
 type SimulationSuccessfulResponse {
   noop: Boolean
-}
-
-input SpendingLimitCalendarDayModeInput {
-  """a starting hour for the spending limit (0 to 23)."""
-  startHour: Int! = 0
-}
-
-input SpendingLimitCalendarModeInput {
-  """a daily based calendar spending limit."""
-  daily: SpendingLimitCalendarDayModeInput
-
-  """a weekly based calendar spending limit."""
-  weekly: SpendingLimitCalendarWeekModeInput
-
-  """a monthly based calendar spending limit."""
-  monthly: SpendingLimitCalendarMonthModeInput
-}
-
-input SpendingLimitCalendarMonthModeInput {
-  """a starting hour for the spending limit (0 to 23)."""
-  startHour: Int! = 0
-
-  """a day in month for the spending limit (1 to 31)."""
-  startDay: Int! = 1
-}
-
-input SpendingLimitCalendarWeekModeInput {
-  """a starting hour for the spending limit (0 to 23)."""
-  startHour: Int! = 0
-
-  """a day of week enum."""
-  startDay: DayEnum! = Monday
-}
-
-input SpendingLimitModeInput {
-  """a rolling period, defining a period of x days/weeks/months."""
-  rolling: SpendingLimitRollingModeInput
-
-  """
-  a fixed calendar period starting either at a given hour of day, a given hour and day in week/month
-  """
-  calendar: SpendingLimitCalendarModeInput
-}
-
-input SpendingLimitRollingModeInput {
-  """
-  a rolling value for a spending limit. For a monthly period, only 1 is valid.
-  """
-  rollingValue: Int!
 }
 
 """Wallet Provider"""
@@ -6276,6 +6212,16 @@ type CsvStatement implements StatementInfo {
 
   """date at which the link will not be useable anymore"""
   expiresAt: DateTime
+}
+
+enum DayEnum {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
 }
 
 type MissingAddressItemRejection implements Rejection {
@@ -7801,6 +7747,23 @@ enum SandboxUsersOrderByFieldInput {
 input SandboxUsersOrderByInput {
   field: SandboxUsersOrderByFieldInput
   direction: OrderByDirection
+}
+
+"""Inputs when editing spending limit configuration"""
+input SpendingLimitInput {
+  """period concerned"""
+  period: SpendingLimitPeriodInput!
+
+  """sum of amount of spending authorized during the period"""
+  amount: AmountInput!
+}
+
+"""Available period to compute spending limits"""
+enum SpendingLimitPeriodInput {
+  Monthly
+  Weekly
+  Daily
+  Always
 }
 
 """
@@ -9351,6 +9314,9 @@ type InPersonCardMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """The Merchant Payment Method payment amount limit"""
   paymentAmountLimit: Amount
+
+  """Location ID to use in Stripe's SDK"""
+  mainLocationId: String
 }
 
 """InternalDirectDebitB2BMerchantPaymentMethod"""

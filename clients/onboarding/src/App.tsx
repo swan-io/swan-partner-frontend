@@ -314,7 +314,7 @@ const FlowPickerV2 = ({ onboardingId }: Props) => {
               <WithPartnerAccentColor color={projectColor}>
                 {match(onboarding)
                   .with({ __typename: "CompanyAccountHolderOnboarding" }, companyOnboarding => (
-                    <OnboardingIndividualWizardV2 onboarding={companyOnboarding} /> // todo replace with OnboardingCompanyWizardV2
+                    <h2>todo OnboardingCompanyWizardV2 {companyOnboarding.id}</h2>
                   ))
                   .with(
                     { __typename: "IndividualAccountHolderOnboarding" },

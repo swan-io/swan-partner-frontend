@@ -2550,24 +2550,26 @@ type NotSupportedCountryRejection implements Rejection {
 """Extra parameters provided by partner"""
 type OAuthRedirectParameters {
   """
-  Custom state provided by partner to prevent XSRF attack, will be filled by onBoardingId in case of nullity.
+  Custom state provided by partner to prevent XSRF attack, will be filled by onboardingId in case of nullity.
   """
   state: String
 
   """
-  URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking.
+  URL used to redirect the user at the end of the onboarding process. If empty or not set, the user is redirected to the white label web banking.
   """
   redirectUrl: String
 }
 
 input OAuthRedirectParametersInput {
   """
-  Custom state provided by partner to prevent XSRF attack, will be filled by onBoardingId in case of nullity. Length must be from 0 to 255 characters
+  Custom state provided by partner to prevent XSRF attack, will be filled by onboardingId in case of nullity.
+  - Length must be from 0 to 255 characters
   """
   state: String
 
   """
-  URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking. Length must be from 0 to 255 characters
+  URL used to redirect the user at the end of the onboarding process. If empty or not set, the user is redirected to the white label web banking.
+  - Length must be from 0 to 255 characters
   """
   redirectUrl: String
 }
@@ -2723,6 +2725,7 @@ type OnboardingCompanyRepresentative {
   registrationNumber: String
   legalForm: String
   address: AddressInfo
+  email: String
 }
 
 """
@@ -2778,6 +2781,7 @@ input OnboardingFiltersInput {
 """StatusInfo when onboarding has been finalized"""
 type OnboardingFinalizedStatusInfo implements OnboardingStatusInfo {
   status: OnboardingStatus!
+  validationVersion: OnboardingValidationVersion!
 }
 
 """Individual Account Holder Information"""
@@ -2811,6 +2815,7 @@ type OnboardingIndividualRepresentative {
   birthInfo: BirthInfo
   nationality: CCA3
   address: AddressInfo
+  email: String
 }
 
 type OnboardingInfo {
@@ -2875,6 +2880,7 @@ type OnboardingInfo {
 """StatusInfo when onboarding has still at least one incorrect field"""
 type OnboardingInvalidStatusInfo implements OnboardingStatusInfo {
   status: OnboardingStatus!
+  validationVersion: OnboardingValidationVersion!
   errors: [ValidationError!]!
 }
 
@@ -2945,6 +2951,15 @@ interface OnboardingStatusInfo {
   Current onboarding status. Onboarding can only be finalized if status is "valid"
   """
   status: OnboardingStatus!
+
+  """Version of the validation rules used for this onboarding"""
+  validationVersion: OnboardingValidationVersion!
+}
+
+"""Version of the validation rules used for this onboarding"""
+enum OnboardingValidationVersion {
+  V1
+  V2
 }
 
 """
@@ -2952,6 +2967,7 @@ StatusInfo when onboarding has all onboarding fields are correctly filled
 """
 type OnboardingValidStatusInfo implements OnboardingStatusInfo {
   status: OnboardingStatus!
+  validationVersion: OnboardingValidationVersion!
 }
 
 enum OrderByDirection {
@@ -7109,6 +7125,9 @@ type InPersonCardMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """The Merchant Payment Method payment amount limit"""
   paymentAmountLimit: Amount
+
+  """Location ID to use in Stripe's SDK"""
+  mainLocationId: String
 }
 
 """InternalDirectDebitB2BMerchantPaymentMethod"""

@@ -240,11 +240,6 @@ const PERMISSIONS_MATRIX = {
       canUpdateCards: true,
     },
   },
-  canCancelCard: {
-    settings: {
-      canUpdateCards: true,
-    },
-  },
   canReadAccountMembership: {
     accountMembership: {
       canManageAccountMembership: true,

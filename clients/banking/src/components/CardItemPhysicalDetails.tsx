@@ -338,7 +338,7 @@ export const CardItemPhysicalDetails = ({
   const {
     canPrintPhysicalCard: canOrderPhysicalCard,
     canCancelCardForOtherMembership,
-    canCancelCard,
+    canUpdateCard,
   } = usePermissions();
   const [orderModal, setOrderModal] = useState<Option<{ initialShippingAddress?: Address }>>(
     Option.None(),
@@ -1191,10 +1191,10 @@ export const CardItemPhysicalDetails = ({
                     )
                     .otherwise(() => null)}
 
-                  {match({ canCancelCard, physicalCard })
+                  {match({ canUpdateCard, physicalCard })
                     .with(
                       {
-                        canCancelCard: true,
+                        canUpdateCard: true,
                         physicalCard: {
                           statusInfo: {
                             __typename: P.union(
@@ -1235,7 +1235,7 @@ export const CardItemPhysicalDetails = ({
                     )
                     .with(
                       {
-                        canCancelCard: true,
+                        canUpdateCard: true,
                         physicalCard: {
                           statusInfo: {
                             __typename: P.union(
@@ -1309,13 +1309,13 @@ export const CardItemPhysicalDetails = ({
 
                   {match({
                     currentUserHasRights: isCurrentUserCardOwner || canCancelCardForOtherMembership,
-                    canCancelCard,
+                    canUpdateCard,
                     physicalCard,
                   })
                     .with(
                       {
                         currentUserHasRights: true,
-                        canCancelCard: true,
+                        canUpdateCard: true,
                         physicalCard: {
                           statusInfo: {
                             __typename: P.not(
@@ -1349,7 +1349,7 @@ export const CardItemPhysicalDetails = ({
                     .with(
                       {
                         currentUserHasRights: true,
-                        canCancelCard: true,
+                        canUpdateCard: true,
                         physicalCard: {
                           statusInfo: {
                             __typename: P.not(

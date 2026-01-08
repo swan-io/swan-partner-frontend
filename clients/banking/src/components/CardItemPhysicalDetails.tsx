@@ -28,6 +28,10 @@ import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { getCountryName, isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
+import {
+  validateNullableRequired,
+  validateRequired,
+} from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import dayjs from "dayjs";
 import { useState } from "react";
@@ -55,7 +59,6 @@ import { getMemberName } from "../utils/accountMembership";
 import { partnerClient } from "../utils/gql";
 import { formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { validateNullableRequired, validateRequired } from "../utils/validations";
 import { Address } from "./CardItemPhysicalDeliveryAddressForm";
 import { CardItemPhysicalDeliveryWizard } from "./CardItemPhysicalDeliveryWizard";
 import { CardItemPhysicalRenewalWizard } from "./CardItemPhysicalRenewalWizard";

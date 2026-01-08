@@ -5,6 +5,7 @@ import { CountryCCA3, isCountryCCA3 } from "@swan-io/shared-business/src/constan
 import {
   validateBooleanRequired,
   validateIndividualTaxNumber,
+  validateRequired,
 } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, Validator } from "@swan-io/use-form";
 import { Ref, useImperativeHandle, useRef, useState } from "react";
@@ -12,7 +13,6 @@ import { match, P } from "ts-pattern";
 import { v4 as uuid } from "uuid";
 import { AccountCountry } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
-import { validateRequired } from "../../utils/validations";
 import {
   Input as AddressInput,
   VerificationRenewalOwnershipFormAddress,

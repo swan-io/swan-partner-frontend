@@ -25,6 +25,7 @@ import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
+import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import dayjs from "dayjs";
 import { useMemo, useState } from "react";
@@ -40,7 +41,7 @@ import {
 } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { accountLanguages, languages, locale, rifmDateProps, t } from "../utils/i18n";
-import { validateDate, validateRequired } from "../utils/validations";
+import { validateDate } from "../utils/validations";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 

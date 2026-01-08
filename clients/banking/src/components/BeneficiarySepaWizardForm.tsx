@@ -15,7 +15,11 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
-import { printIbanFormat, validateIban } from "@swan-io/shared-business/src/utils/validation";
+import {
+  printIbanFormat,
+  validateIban,
+  validateRequired,
+} from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { electronicFormat } from "iban";
 import { useEffect, useState } from "react";
@@ -27,7 +31,7 @@ import {
   VerifyBeneficiarySuccessPayloadFragment,
 } from "../graphql/partner";
 import { formatNestedMessage, t } from "../utils/i18n";
-import { validateBeneficiaryName, validateRequired } from "../utils/validations";
+import { validateBeneficiaryName } from "../utils/validations";
 
 export type SepaBeneficiary = (
   | {

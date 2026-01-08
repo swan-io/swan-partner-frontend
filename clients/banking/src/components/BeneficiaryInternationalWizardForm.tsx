@@ -15,6 +15,7 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotEmpty, isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { Flag } from "@swan-io/shared-business/src/components/Flag";
+import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { useForm } from "@swan-io/use-form";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
@@ -26,7 +27,6 @@ import {
 } from "../graphql/partner";
 import { Currency, currencies, currencyFlags, currencyResolver, locale, t } from "../utils/i18n";
 import { getInternationalTransferFormRouteLabel } from "../utils/templateTranslations";
-import { validateRequired } from "../utils/validations";
 import { ErrorView } from "./ErrorView";
 import {
   DynamicFormRef,

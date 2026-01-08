@@ -23,10 +23,13 @@ import { Router } from "../../../utils/routes";
 import {
   extractServerValidationErrors,
   getValidationErrorMessage,
+} from "../../../utils/validation";
+
+import {
   validateEmail,
   validateName,
   validateRequired,
-} from "../../../utils/validation";
+} from "@swan-io/shared-business/src/utils/validation";
 
 type Props = {
   onboarding: NonNullable<IndividualOnboardingFragment>; // todo IndividualOnboardingFragment

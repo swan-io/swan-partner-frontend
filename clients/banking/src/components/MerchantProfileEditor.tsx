@@ -10,18 +10,14 @@ import { breakpoints, radii, spacings } from "@swan-io/lake/src/constants/design
 import { deriveUnion, noop } from "@swan-io/lake/src/utils/function";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { FileInput } from "@swan-io/shared-business/src/components/FileInput";
+import { validateNullableRequired } from "@swan-io/shared-business/src/utils/validation";
 import { toOptionalValidator, useForm } from "@swan-io/use-form";
 import { Ref, useImperativeHandle } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { MerchantProfileFragment, ProductType } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import {
-  validateHexColor,
-  validateNullableRequired,
-  validateNumeric,
-  validateUrl,
-} from "../utils/validations";
+import { validateHexColor, validateNumeric, validateUrl } from "../utils/validations";
 
 const styles = StyleSheet.create({
   accentColorField: {

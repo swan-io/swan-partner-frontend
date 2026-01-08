@@ -14,14 +14,13 @@ import { BirthdatePicker } from "@swan-io/shared-business/src/components/Birthda
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitCityInput } from "@swan-io/shared-business/src/components/PlacekitCityInput";
 import { allCountries, CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { validateName, validateNullableRequired, validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { Ref, useImperativeHandle } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { AccountCountry, UltimateBeneficialOwnerQualificationType } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
-import { validateName, validateNullableRequired, validateRequired } from "../../utils/validations";
-
 const styles = StyleSheet.create({
   inputContainer: {
     flex: 1,

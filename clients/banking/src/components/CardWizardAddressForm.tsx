@@ -6,6 +6,7 @@ import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { allCountries, CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { Ref, useCallback, useImperativeHandle } from "react";
 import { View } from "react-native";
@@ -14,7 +15,6 @@ import {
   validateAddressLine,
   validateCity,
   validatePostalCode,
-  validateRequired,
   validateState,
 } from "../utils/validations";
 

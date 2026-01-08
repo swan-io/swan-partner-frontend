@@ -27,6 +27,7 @@ import { capitalize, trim } from "@swan-io/lake/src/utils/string";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
+import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -35,7 +36,7 @@ import { match, P } from "ts-pattern";
 import { FnciInfoFragment, InitiateCheckMerchantPaymentDocument } from "../graphql/partner";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { RouteParams, Router } from "../utils/routes";
-import { validateCMC7, validateRequired, validateRLMC } from "../utils/validations";
+import { validateCMC7, validateRLMC } from "../utils/validations";
 import { FoldableAlert } from "./FoldableAlert";
 import { WizardLayout } from "./WizardLayout";
 

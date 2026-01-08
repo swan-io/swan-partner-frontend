@@ -17,6 +17,7 @@ import {
   monthlyPaymentVolumes,
 } from "@swan-io/shared-business/src/constants/business";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
+import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
@@ -37,9 +38,7 @@ import {
   extractServerValidationErrors,
   getValidationErrorMessage,
   validateMaxLength,
-  validateRequired,
 } from "../../utils/validation";
-
 const styles = StyleSheet.create({
   textArea: {
     height: 128,

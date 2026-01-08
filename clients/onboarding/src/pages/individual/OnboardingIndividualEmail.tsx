@@ -34,9 +34,9 @@ import {
   ServerInvalidFieldCode,
   extractServerValidationErrors,
   getValidationErrorMessage,
-  validateEmail,
-  validateRequired,
 } from "../../utils/validation";
+
+import { validateEmail, validateRequired } from "@swan-io/shared-business/src/utils/validation";
 
 const styles = StyleSheet.create({
   tcuCheckbox: {

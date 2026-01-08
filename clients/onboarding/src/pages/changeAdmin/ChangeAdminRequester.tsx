@@ -14,6 +14,11 @@ import { trim } from "@swan-io/lake/src/utils/string";
 import { getCountryByCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
+import {
+  validateEmail,
+  validateName,
+  validateRequired,
+} from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { StyleSheet, View } from "react-native";
 import { InputPhoneNumber } from "../../components/InputPhoneNumber";
@@ -27,7 +32,6 @@ import {
 import { t } from "../../utils/i18n";
 import { prefixPhoneNumber } from "../../utils/phone";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
-import { validateEmail, validateName, validateRequired } from "../../utils/validation";
 
 const styles = StyleSheet.create({
   inputContainer: {

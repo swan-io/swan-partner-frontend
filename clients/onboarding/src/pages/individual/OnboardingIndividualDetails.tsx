@@ -20,7 +20,10 @@ import {
   IndividualCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
-import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
+import {
+  validateIndividualTaxNumber,
+  validateRequired,
+} from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useEffect } from "react";
 import { match, P } from "ts-pattern";
@@ -36,11 +39,7 @@ import {
 import { locale, t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
-import {
-  getValidationErrorMessage,
-  ServerInvalidFieldCode,
-  validateRequired,
-} from "../../utils/validation";
+import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../utils/validation";
 
 const employmentStatuses: Item<EmploymentStatus>[] = [
   { name: t("employmentStatus.craftsman"), value: "Craftsman" },

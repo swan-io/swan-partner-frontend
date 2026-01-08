@@ -1,51 +1,11 @@
 import { isNotNullish, isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { DatePickerDate } from "@swan-io/shared-business/src/components/DatePicker";
-import { isValidEmail, isValidVatNumber } from "@swan-io/shared-business/src/utils/validation";
+import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { Validator, combineValidators } from "@swan-io/use-form";
 import dayjs from "dayjs";
 import { P, match } from "ts-pattern";
 import { CompleteAddressWithContactInput } from "../graphql/partner";
 import { locale, t } from "./i18n";
-
-export const validateNullableRequired: Validator<string | undefined> = value => {
-  if (value == null || !value) {
-    return t("common.form.required");
-  }
-};
-
-export const validateArrayRequired: Validator<string[] | undefined> = value => {
-  if (value == null || value.length < 1) {
-    return t("common.form.required");
-  }
-};
-
-export const validateRequired: Validator<string> = value => {
-  if (!value) {
-    return t("common.form.required");
-  }
-};
-
-// This regex was copied from the backend to ensure that the validation is the same
-// Matches all unicode letters, spaces, dashes, apostrophes, commas, and single quotes
-const VALID_NAME_RE =
-  /^(?:[A-Za-zÀ-ÖÙ-öù-ƿǄ-ʯʹ-ʽΈ-ΊΎ-ΡΣ-ҁҊ-Ֆա-ևႠ-Ⴥა-ჺᄀ-፜፩-ᎏᵫ-ᶚḀ-῾ⴀ-ⴥ⺀-⿕ぁ-ゖゝ-ㇿ㋿-鿯鿿-ꒌꙀ-ꙮꚀ-ꚙꜦ-ꞇꞍ-ꞿꥠ-ꥼＡ-Ｚａ-ｚ.]| |'|-|Ά|Ό|,)*$/;
-
-export const validateName: Validator<string> = value => {
-  if (!value) {
-    return t("common.form.required");
-  }
-
-  // Rule copied from the backend
-  if (value.length > 100) {
-    return t("common.form.invalidName");
-  }
-
-  const isValid = VALID_NAME_RE.test(value);
-
-  if (!isValid) {
-    return t("common.form.invalidName");
-  }
-};
 
 const CREDITOR_NAME_RE = /^[\u0020-\u045F]+$/;
 
@@ -115,12 +75,6 @@ export const validateAccountNameLength: Validator<string> = value => {
   const maxLength = 256;
   if (value.length > maxLength) {
     return t("accountDetails.invalidAccountName", { maxLength });
-  }
-};
-
-export const validateEmail: Validator<string> = value => {
-  if (!isValidEmail(value)) {
-    return t("common.form.invalidEmail");
   }
 };
 
@@ -238,17 +192,6 @@ export const validatePostalCode: Validator<string> = value => {
 export const validateState: Validator<string> = value => {
   if (value.length > 30) {
     return t("common.form.invalidLength", { maxLength: 30 });
-  }
-};
-
-export const validateVatNumber: Validator<string> = value => {
-  const cleaned = value.replace(/[^A-Z0-9]/gi, "");
-  if (cleaned.length === 0) {
-    return;
-  }
-
-  if (!isValidVatNumber(cleaned)) {
-    return t("common.form.invalidVatNumber");
   }
 };
 

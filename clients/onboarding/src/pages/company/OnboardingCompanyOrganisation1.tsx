@@ -22,7 +22,12 @@ import {
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CompanyCountryCCA3, CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
-import { validateCompanyTaxNumber } from "@swan-io/shared-business/src/utils/validation";
+import {
+  validateBooleanTypeRequired,
+  validateCompanyTaxNumber,
+  validateRequired,
+  validateVatNumber,
+} from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -49,9 +54,6 @@ import {
   getValidationErrorMessage,
   ServerInvalidFieldCode,
   validateRegistrationNumber,
-  validateRequired,
-  validateRequiredBoolean,
-  validateVatNumber,
 } from "../../utils/validation";
 
 export type Organisation1FieldName =
@@ -150,7 +152,7 @@ export const OnboardingCompanyOrganisation1 = ({
   const { Field, FieldsListener, submitForm, setFieldValue, setFieldError } = useForm({
     isRegistered: {
       initialValue: !isRegisteredRadioButtonsVisible || initialIsRegistered,
-      validate: validateRequiredBoolean,
+      validate: validateBooleanTypeRequired,
     },
     name: {
       initialValue: initialName,

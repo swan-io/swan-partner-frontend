@@ -13,6 +13,7 @@ import { trim } from "@swan-io/lake/src/utils/string";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { CountryCCA3, individualCountries } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
+import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { useForm } from "@swan-io/use-form";
 import { useEffect } from "react";
 import { match } from "ts-pattern";
@@ -28,7 +29,6 @@ import {
   ServerInvalidFieldCode,
   extractServerValidationErrors,
   getValidationErrorMessage,
-  validateRequired,
 } from "../../utils/validation";
 
 export type LocationFieldName = "country" | "city" | "address" | "postalCode";

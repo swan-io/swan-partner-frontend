@@ -6,17 +6,13 @@ import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
+import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { Ref, useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import { DateField, RadioField, SelectField, TextField } from "../graphql/partner";
-import {
-  validateMaxLength,
-  validateMinLength,
-  validatePattern,
-  validateRequired,
-} from "../utils/validations";
+import { validateMaxLength, validateMinLength, validatePattern } from "../utils/validations";
 
 export type DynamicFormField = SelectField | TextField | DateField | RadioField;
 

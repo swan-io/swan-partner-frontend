@@ -11,17 +11,13 @@ import {
   allCountries,
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
+import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { Ref, useImperativeHandle, useState } from "react";
 import { P, match } from "ts-pattern";
 import { CompleteAddressInput } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
-import {
-  validateAddressLine,
-  validateCity,
-  validatePostalCode,
-  validateRequired,
-} from "../utils/validations";
+import { validateAddressLine, validateCity, validatePostalCode } from "../utils/validations";
 
 export type CardItemPhysicalDeliveryAddressFormRef = {
   submit: () => void;

@@ -162,6 +162,21 @@ const PERMISSIONS_MATRIX = {
       canManageVirtualIbans: true,
     },
   },
+  cancelStandingOrder: {
+    settings: {
+      canViewPaymentList: true,
+    },
+  },
+  updateAccount: {
+    settings: {
+      canViewAccountDetails: true,
+    },
+  },
+  closeAccount: {
+    settings: {
+      canViewAccountDetails: true,
+    },
+  },
 } satisfies Record<
   string,
   Pattern.Pattern<{

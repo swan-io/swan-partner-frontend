@@ -224,7 +224,7 @@ const FlowPickerV2 = ({ onboardingId }: Props) => {
           .with(
             { __typename: "PublicCompanyInfoRegistryDataSuccessPayload" },
             ({ companyInfo }) => {
-              const { __typename, legalForm, address, ...company } = companyInfo;
+              const { __typename, legalFormCode, address, ...company } = companyInfo;
               updateCompanyOnboarding({
                 input: {
                   onboardingId,

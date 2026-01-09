@@ -23,7 +23,11 @@ import {
   spacings,
 } from "@swan-io/lake/src/constants/design";
 import { Request } from "@swan-io/request";
-import { validateIban } from "@swan-io/shared-business/src/utils/validation";
+import {
+  validateIban,
+  validateNullableRequired,
+  validateRequired,
+} from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { isValidElement, useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -36,12 +40,7 @@ import {
   SepaReceivedDirectDebitMandateSequence,
 } from "../graphql/partner";
 import { formatNestedMessage, languages, locale, setPreferredLanguage, t } from "../utils/i18n";
-import {
-  validateMandateCreditorName,
-  validateNullableRequired,
-  validateReference,
-  validateRequired,
-} from "../utils/validations";
+import { validateMandateCreditorName, validateReference } from "../utils/validations";
 import { ErrorView } from "./ErrorView";
 
 const styles = StyleSheet.create({

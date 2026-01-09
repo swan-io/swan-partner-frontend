@@ -4,14 +4,16 @@ import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { deriveUnion } from "@swan-io/lake/src/utils/function";
 import { InlineDatePicker } from "@swan-io/shared-business/src/components/InlineDatePicker";
-import { validateNullableRequired } from "@swan-io/shared-business/src/utils/validation";
+import {
+  validateNullableRequired,
+  validateRequired,
+} from "@swan-io/shared-business/src/utils/validation";
 import { useForm } from "@swan-io/use-form";
 import { Ref, useImperativeHandle } from "react";
 import { View } from "react-native";
 import { match, P } from "ts-pattern";
 import { UboIdentityDocumentType } from "../../../graphql/unauthenticated";
 import { t } from "../../../utils/i18n";
-import { validateRequired } from "../../../utils/validation";
 
 export type FormValues = {
   identityDocumentType: UboIdentityDocumentType | undefined;

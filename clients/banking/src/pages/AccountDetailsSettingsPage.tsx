@@ -34,6 +34,8 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import {
   validateCompanyTaxNumber,
   validateIndividualTaxNumber,
+  validateRequired,
+  validateVatNumber,
 } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, toOptionalValidator, useForm } from "@swan-io/use-form";
 import { ReactNode, useMemo } from "react";
@@ -48,11 +50,8 @@ import {
 } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
-import {
-  validateAccountNameLength,
-  validateRequired,
-  validateVatNumber,
-} from "../utils/validations";
+import { validateAccountNameLength } from "../utils/validations";
+
 import { NotFoundPage } from "./NotFoundPage";
 
 const styles = StyleSheet.create({

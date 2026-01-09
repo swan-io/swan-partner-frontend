@@ -21,6 +21,10 @@ import { trim } from "@swan-io/lake/src/utils/string";
 import { Request } from "@swan-io/request";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
+import {
+  validateNullableRequired,
+  validateRequired,
+} from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -31,11 +35,7 @@ import { NotFoundPage } from "../pages/NotFoundPage";
 import { env } from "../utils/env";
 import { formatNestedMessage, languages, locale, setPreferredLanguage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import {
-  validateAccountReasonClose,
-  validateNullableRequired,
-  validateRequired,
-} from "../utils/validations";
+import { validateAccountReasonClose } from "../utils/validations";
 import { ErrorView } from "./ErrorView";
 import { TransferRegularWizard } from "./TransferRegularWizard";
 import { WizardLayout } from "./WizardLayout";

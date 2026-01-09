@@ -35,7 +35,11 @@ import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
-import { sanitizeDecimal, validateIban } from "@swan-io/shared-business/src/utils/validation";
+import {
+  sanitizeDecimal,
+  validateIban,
+  validateRequired,
+} from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import dayjs from "dayjs";
 import { useCallback, useMemo } from "react";
@@ -60,8 +64,7 @@ import {
 } from "../utils/creditLimit";
 import { formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { validateNumeric, validateRequired } from "../utils/validations";
-
+import { validateNumeric } from "../utils/validations";
 const styles = StyleSheet.create({
   container: {
     flexShrink: 1,

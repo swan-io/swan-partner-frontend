@@ -43,9 +43,9 @@ import {
   ServerInvalidFieldCode,
   extractServerValidationErrors,
   getValidationErrorMessage,
-  validateEmail,
-  validateRequired,
 } from "../../utils/validation";
+
+import { validateEmail, validateRequired } from "@swan-io/shared-business/src/utils/validation";
 
 // exclude USA from country list because we can't open account for American citizens
 // https://support.swan.io/hc/en-150/articles/5767279299741

@@ -15,6 +15,7 @@ import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPi
 import { PlacekitCityInput } from "@swan-io/shared-business/src/components/PlacekitCityInput";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
 import {
+  validateName,
   validateNullableRequired,
   validateRequired,
 } from "@swan-io/shared-business/src/utils/validation";
@@ -24,7 +25,6 @@ import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { AccountCountry } from "../../../graphql/unauthenticated";
 import { t } from "../../../utils/i18n";
-import { validateName } from "../../../utils/validation";
 
 const styles = StyleSheet.create({
   inputContainer: {

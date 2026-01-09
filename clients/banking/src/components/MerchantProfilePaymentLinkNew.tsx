@@ -37,6 +37,7 @@ import {
 import { trim } from "@swan-io/lake/src/utils/string";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
+import { validateArrayRequired, validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { toOptionalValidator, useForm } from "@swan-io/use-form";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -50,14 +51,7 @@ import {
 import { env } from "../utils/env";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import {
-  validateArrayRequired,
-  validateNumeric,
-  validateReference,
-  validateRequired,
-  validateUrl,
-} from "../utils/validations";
-
+import { validateNumeric, validateReference, validateUrl } from "../utils/validations";
 const PREVIEW_CONTAINER_VERTICAL_SPACING = 16;
 const PREVIEW_TOP_BAR_HEIGHT = 16;
 const IFRAME_ORIGINAL_HEIGHT = 1000;

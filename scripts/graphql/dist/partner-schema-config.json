@@ -643,6 +643,7 @@
       "StandingOrderEnabledStatusInfo"
     ],
     "SupportingDocumentCollectionRelatedInfo": [
+      "SupportingDocumentCollectionAccountAdminChangeRelatedInfo",
       "SupportingDocumentCollectionAccountHolderVerificationRenewalRelatedInfo",
       "SupportingDocumentCollectionMerchantProfileRelatedInfo",
       "SupportingDocumentCollectionOnboardingRelatedInfo",

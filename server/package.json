@@ -1,7 +1,7 @@
 {
   "name": "@swan-io/frontend-server",
   "description": "Swan frontend server",
-  "version": "1.26.23",
+  "version": "1.27.0",
   "private": true,
   "packageManager": "pnpm@10.26.1",
   "engines": {

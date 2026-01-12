@@ -1277,6 +1277,7 @@ export const CardItemPhysicalDetails = ({
                     )
                     .with(
                       {
+                        canUpdateCard: true,
                         physicalCard: {
                           statusInfo: {
                             __typename: "PhysicalCardSuspendedStatusInfo",

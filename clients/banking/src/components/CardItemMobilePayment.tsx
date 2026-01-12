@@ -21,6 +21,7 @@ import { P, match } from "ts-pattern";
 import applePayLogo from "../assets/images/apple-pay.svg";
 import googlePayLogo from "../assets/images/google-pay.svg";
 import { CancelDigitalCardDocument, CardPageQuery, DigitalCardFragment } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
@@ -43,11 +44,11 @@ type CompleteDigitalCard = DigitalCardFragment & { __typename: "CompleteDigitalC
 
 const DigitalCardTile = ({
   digitalCard,
-  isCurrentUserCardOwner,
+  canCancel,
   onPressCancel,
 }: {
   digitalCard: CompleteDigitalCard;
-  isCurrentUserCardOwner: boolean;
+  canCancel: boolean;
   onPressCancel: () => void;
 }) => {
   const deviceName = digitalCard.device.name ?? t("card.mobilePayment.unnamed");
@@ -86,7 +87,7 @@ const DigitalCardTile = ({
           </LakeText>
         </View>
 
-        {isCurrentUserCardOwner && (
+        {canCancel && (
           <LakeTooltip placement="left" content={t("card.mobilePayment.disconnect")}>
             <LakeButton
               mode="tertiary"
@@ -116,6 +117,7 @@ export const CardItemMobilePayment = ({
     Option<CompleteDigitalCard>
   >(Option.None());
   const [cancelDigitalCard, digitalCardCancelation] = useMutation(CancelDigitalCardDocument);
+  const { canUpdateCard } = usePermissions();
 
   const onPressCancel = ({ digitalCardId }: { digitalCardId: string }) => {
     cancelDigitalCard({ digitalCardId })
@@ -161,7 +163,7 @@ export const CardItemMobilePayment = ({
           digitalCards.map(digitalCard => (
             <Fragment key={digitalCard.id}>
               <DigitalCardTile
-                isCurrentUserCardOwner={isCurrentUserCardOwner}
+                canCancel={isCurrentUserCardOwner && canUpdateCard}
                 digitalCard={digitalCard}
                 onPressCancel={() => setCancelConfirmationModalModal(Option.Some(digitalCard))}
               />

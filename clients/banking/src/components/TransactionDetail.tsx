@@ -155,7 +155,8 @@ export const TransactionDetail = ({ accountMembershipId, transactionId, large }:
       .tapError(error => showToast({ variant: "error", title: translateError(error), error }));
   };
 
-  const { canReadOtherMembersCards: canQueryCardOnTransaction } = usePermissions();
+  const { canReadOtherMembersCards: canQueryCardOnTransaction, canGenerateAccountStatement } =
+    usePermissions();
   const [data] = useQuery(
     TransactionDocument,
     {
@@ -928,7 +929,7 @@ export const TransactionDetail = ({ accountMembershipId, transactionId, large }:
                 />
               </ReadOnlyFieldList>
 
-              {transaction.statementCanBeGenerated === true ? (
+              {transaction.statementCanBeGenerated === true && canGenerateAccountStatement ? (
                 <View style={styles.buttonGroup}>
                   <LakeButtonGroup paddingBottom={0}>
                     <LakeButton

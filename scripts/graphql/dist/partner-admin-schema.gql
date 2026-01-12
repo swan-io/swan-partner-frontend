@@ -6008,7 +6008,7 @@ enum ConsentStatus {
   OperationCommitting
 
   """when the user credentials were refused"""
-  CredentialRefused @deprecated
+  CredentialRefused @deprecated(reason: "this status has never been used and will be removed in the following months")
 
   """when the consent is created"""
   Created
@@ -7749,23 +7749,6 @@ input SandboxUsersOrderByInput {
   direction: OrderByDirection
 }
 
-"""Inputs when editing spending limit configuration"""
-input SpendingLimitInput {
-  """period concerned"""
-  period: SpendingLimitPeriodInput!
-
-  """sum of amount of spending authorized during the period"""
-  amount: AmountInput!
-}
-
-"""Available period to compute spending limits"""
-enum SpendingLimitPeriodInput {
-  Monthly
-  Weekly
-  Daily
-  Always
-}
-
 """
 Describes an identification level that has started for the process of the current identification
 """
@@ -8887,6 +8870,23 @@ enum SEPAReceivedDirectDebitMandateSequence {
   When the authorisation by the Debtor can be used for regular SEPA direct debits initiated by the Creditor
   """
   Recurrent
+}
+
+"""Inputs when editing spending limit configuration"""
+input SpendingLimitInput {
+  """period concerned"""
+  period: SpendingLimitPeriodInput!
+
+  """sum of amount of spending authorized during the period"""
+  amount: AmountInput!
+}
+
+"""Available period to compute spending limits"""
+enum SpendingLimitPeriodInput {
+  Monthly
+  Weekly
+  Daily
+  Always
 }
 
 """Inputs to update the account verification status"""

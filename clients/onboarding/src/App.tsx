@@ -1,5 +1,5 @@
 import { AsyncData, Result } from "@swan-io/boxed";
-import { ClientContext, useDeferredQuery, useMutation } from "@swan-io/graphql-client";
+import { ClientContext, useDeferredQuery, useMutation, useQuery } from "@swan-io/graphql-client";
 import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
@@ -13,6 +13,7 @@ import { SupportingDocumentCollectionFlow } from "./components/SupportingDocumen
 import {
   GetPublicCompamyInfoRegistryDataDocument,
   GetPublicOnboardingDocument,
+  GetPublicOnboardingVersionDocument,
   UpdatePublicCompanyAccountHolderOnboardingDocument,
   UpdatePublicIndividualAccountHolderOnboardingDocument,
 } from "./graphql/partner";
@@ -223,7 +224,7 @@ const FlowPickerV2 = ({ onboardingId }: Props) => {
           .with(
             { __typename: "PublicCompanyInfoRegistryDataSuccessPayload" },
             ({ companyInfo }) => {
-              const { __typename, legalForm, address, ...company } = companyInfo;
+              const { __typename, legalFormCode, address, ...company } = companyInfo;
               updateCompanyOnboarding({
                 input: {
                   onboardingId,
@@ -322,9 +323,7 @@ const FlowPickerV2 = ({ onboardingId }: Props) => {
                       <OnboardingIndividualWizardV2 onboarding={individualOnboarding} />
                     ),
                   )
-                  .otherwise(() => (
-                    <ErrorView />
-                  ))}
+                  .exhaustive()}
                 <div>
                   <h1>Debug tool:</h1>
                   <ul>
@@ -356,20 +355,38 @@ const FlowPickerV2 = ({ onboardingId }: Props) => {
             </>
           );
         })
-        .otherwise(() => <div>Error onboarding</div>);
+        .otherwise(() => <ErrorView />);
     })
     .exhaustive();
 };
 
 const FlowPickerWizard = ({ onboardingId }: Props) => {
-  const isOnboardingV2 = false; // TODO: Get onboarding version from partner with onboarding id
-  return isOnboardingV2 ? (
-    <ClientContext.Provider value={partnerClient}>
-      <FlowPickerV2 onboardingId={onboardingId} />
+  const [data] = useQuery(GetPublicOnboardingVersionDocument, { id: onboardingId });
+
+  const FlowPickerV1 = () => (
+    <ClientContext.Provider value={client}>
+      <FlowPicker onboardingId={onboardingId} />
     </ClientContext.Provider>
-  ) : (
-    <FlowPicker onboardingId={onboardingId} />
   );
+
+  return match(data)
+    .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView color={colors.gray[400]} />)
+    .with(AsyncData.P.Done(Result.P.Error(P.select())), () => {
+      // Temporary fallback while the Onboarding V2 is still in development
+      return <FlowPickerV1 />;
+    })
+    .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ publicAccountHolderOnboarding }) => {
+      return match(publicAccountHolderOnboarding)
+        .with({ __typename: "PublicAccountHolderOnboardingSuccessPayload" }, ({ onboarding }) => {
+          return onboarding.statusInfo.validationVersion === "V2" ? (
+            <FlowPickerV2 onboardingId={onboardingId} />
+          ) : (
+            <FlowPickerV1 />
+          );
+        })
+        .otherwise(() => <ErrorView />);
+    })
+    .exhaustive();
 };
 
 export const App = () => {
@@ -382,29 +399,33 @@ export const App = () => {
       onError={error => logFrontendError(error)}
       fallback={() => <ErrorView />}
     >
-      <ClientContext.Provider value={client}>
-        {match(route)
-          .with(
-            { name: "SupportingDocumentCollectionArea" },
-            ({ params: { supportingDocumentCollectionId } }) => (
+      {match(route)
+        .with(
+          { name: "SupportingDocumentCollectionArea" },
+          ({ params: { supportingDocumentCollectionId } }) => (
+            <ClientContext.Provider value={client}>
               <SupportingDocumentCollectionFlow
                 supportingDocumentCollectionId={supportingDocumentCollectionId}
               />
-            ),
-          )
-          .with({ name: "ChangeAdminArea" }, ({ params: { requestId } }) =>
-            displayChangeAccountAdmin ? (
+            </ClientContext.Provider>
+          ),
+        )
+        .with({ name: "ChangeAdminArea" }, ({ params: { requestId } }) =>
+          displayChangeAccountAdmin ? (
+            <ClientContext.Provider value={client}>
               <ChangeAdminWizard changeAdminRequestId={requestId} />
-            ) : (
-              <NotFoundPage />
-            ),
-          )
-          .with({ name: "Area" }, ({ params: { onboardingId } }) => (
+            </ClientContext.Provider>
+          ) : (
+            <NotFoundPage />
+          ),
+        )
+        .with({ name: "Area" }, ({ params: { onboardingId } }) => (
+          <ClientContext.Provider value={partnerClient}>
             <FlowPickerWizard onboardingId={onboardingId} />
-          ))
-          .with(P.nullish, () => <NotFoundPage />)
-          .exhaustive()}
-      </ClientContext.Provider>
+          </ClientContext.Provider>
+        ))
+        .with(P.nullish, () => <NotFoundPage />)
+        .exhaustive()}
 
       <ToastStack />
     </ErrorBoundary>

@@ -955,17 +955,33 @@ union AccountHolderOnboarding = IndividualAccountHolderOnboarding | CompanyAccou
 
 """Base interface for account holder onboarding"""
 interface AccountHolderOnboardingBase {
+  """Unique identifier of an onboarding"""
   id: ID!
+
+  """Status (valid/invalid/finalized) and details of errors on fields"""
   statusInfo: OnboardingStatusInfo!
+
+  """Supporting document collection related to onboarding"""
   supportingDocumentCollection: SupportingDocumentCollection
+
+  """Creation timestamp of the onboarding"""
   createdAt: DateTime!
+
+  """Last update timestamp of the onboarding"""
   updatedAt: DateTime!
+
+  """Project information set in the dashboard"""
   projectInfo: ProjectInfo!
 
   """
   OAuth parameters provided in order to redirect the user at the end of the flow
   """
   oAuthRedirectParameters: OAuthRedirectParameters
+
+  """
+  Redirect the legal representative of a new account holder to this URL to start the onboarding process
+  """
+  onboardingUrl: String
 }
 
 """Connection type for paginated AccountHolderOnboarding results"""
@@ -2847,16 +2863,54 @@ type BindAccountMembershipSuccessPayload {
 }
 
 type BirthInfo {
+  """
+  Birth city
+  
+  - Maximum 100 characters
+  """
   city: String
+
+  """Birth country (ISO 3166-1 alpha-3)"""
   country: CCA3
+
+  """
+  Birth date, in ISO 8601 format (YYYY-MM-DD)
+  
+  - Must correspond to an age between 4 and 100 years old
+  """
   birthDate: Date
+
+  """
+  Birth postal code
+  
+  - Maximum 50 characters
+  """
   postalCode: String
 }
 
 input BirthInfoInput {
+  """
+  Birth city
+  
+  - Maximum 100 characters
+  """
   city: String
+
+  """Birth country (ISO 3166-1 alpha-3)"""
   country: CCA3
+
+  """
+  Birth date, in ISO 8601 format (YYYY-MM-DD)
+  
+  - Must correspond to an age between 4 and 100 years old
+  """
   birthDate: Date
+
+  """
+  Birth postal code
+  
+  - Maximum 50 characters
+  """
   postalCode: String
 }
 
@@ -5162,82 +5216,260 @@ type ClosedAccountNotUpgradableRejection implements Rejection {
 
 """Company account holder onboarding"""
 type CompanyAccountHolderOnboarding implements AccountHolderOnboardingBase {
+  """Unique identifier of an onboarding"""
   id: ID!
+
+  """Status (valid/invalid/finalized) and details of errors on fields"""
   statusInfo: OnboardingStatusInfo!
+
+  """Supporting document collection related to onboarding"""
   supportingDocumentCollection: SupportingDocumentCollection
+
+  """Creation timestamp of the onboarding"""
   createdAt: DateTime!
+
+  """Last update timestamp of the onboarding"""
   updatedAt: DateTime!
+
+  """Represents the account being opened through the onboarding"""
   accountInfo: CompanyAccountHolderOnboardingAccount
+
+  """Represents the natural person who opens the account"""
   accountAdmin: CompanyAccountHolderOnboardingAccountAdmin
+
+  """Company information for the onboarding"""
   company: CompanyInfo
+
+  """Project information set in the dashboard"""
   projectInfo: ProjectInfo!
 
   """
   OAuth parameters provided in order to redirect the user at the end of the flow
   """
   oAuthRedirectParameters: OAuthRedirectParameters
+
+  """
+  Redirect the legal representative of a new account holder to this URL to start the onboarding process
+  """
+  onboardingUrl: String
 }
 
 """Company account information for onboarding"""
 type CompanyAccountHolderOnboardingAccount {
+  """
+  Name for the account
+  
+  - Maximum 100 characters
+  - No special characters like HTML tags
+  """
   name: String
+
+  """
+  Country of the account that will be created at the end of the onboarding process
+  """
   country: AccountCountry
+
+  """Intended usages for the account"""
   intendedUsages: [CompanyAccountIntendedUsage!]
 }
 
 """Company account admin information for onboarding"""
 type CompanyAccountHolderOnboardingAccountAdmin {
+  """Birth information of the account administrator"""
   birthInfo: BirthInfo
+
+  """
+  Email of the account administrator
+  
+  - Must be a valid email format
+  - Maximum 255 characters
+  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Disposable email domains are not allowed
+  """
   email: String
+
+  """
+  First name of the account administrator
+  
+  - Maximum 100 characters
+  """
   firstName: String
+
+  """
+  Preferred language of the account admin. Will be used to localize the onboarding process and interface
+  """
   preferredLanguage: AccountLanguage
+
+  """
+  Last name of the account administrator
+  
+  - Maximum 100 characters
+  """
   lastName: String
+
+  """Nationality of the account administrator"""
   nationality: CCA3
+
+  """Residency address of the account administrator"""
   address: AddressInfo
+
+  """
+  Tax identification number of the account administrator
+  
+  - Maximum 16 characters
+  """
   taxIdentificationNumber: String
+
+  """Type of representation for the account administrator"""
   typeOfRepresentation: TypeOfRepresentation
+
+  """
+  Tax information related to US persons as defined by FATCA, if applicable
+  """
   unitedStatesTaxInfo: UnitedStatesTaxInfo
 }
 
 """Input for company account admin information during onboarding"""
 input CompanyAccountHolderOnboardingAccountAdminInput {
+  """Birth information of the account administrator"""
   birthInfo: BirthInfoInput
+
+  """
+  Email of the account administrator
+  
+  - Must be a valid email format
+  - Maximum 255 characters
+  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Disposable email domains are not allowed
+  """
   email: String
+
+  """
+  First name of the account administrator
+  
+  - Maximum 100 characters
+  """
   firstName: String
+
+  """
+  Preferred language of the account admin. Will be used to localize the onboarding process and interface
+  """
   preferredLanguage: AccountLanguage
+
+  """
+  Last name of the account administrator
+  
+  - Maximum 100 characters
+  """
   lastName: String
+
+  """Nationality of the account administrator"""
   nationality: CCA3
+
+  """Residency address of the account administrator"""
   address: ResidencyAddressInput
+
+  """
+  Tax identification number of the account administrator
+  
+  - Maximum 16 characters
+  """
   taxIdentificationNumber: String
+
+  """Type of representation for the account administrator"""
   typeOfRepresentation: TypeOfRepresentation
+
+  """Tax information related to US persons as defined by FATCA"""
   unitedStatesTaxInfo: UnitedStatesTaxInfoInput
+
+  """User device information for security and fraud detection"""
   userDeviceInfo: UserDeviceInfoInput
 }
 
 """Input for company account admin information during onboarding update"""
 input CompanyAccountHolderOnboardingAccountAdminUpdateInput {
+  """Birth information of the account administrator"""
   birthInfo: BirthInfoInput
+
+  """
+  Email of the account administrator
+  
+  - Must be a valid email format
+  - Maximum 255 characters
+  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Disposable email domains are not allowed
+  """
   email: String
+
+  """
+  First name of the account administrator
+  
+  - Maximum 100 characters
+  """
   firstName: String
+
+  """
+  Preferred language of the account admin. Will be used to localize the onboarding process and interface
+  """
   preferredLanguage: AccountLanguage
+
+  """
+  Last name of the account administrator
+  
+  - Maximum 100 characters
+  """
   lastName: String
+
+  """Nationality of the account administrator"""
   nationality: CCA3
+
+  """Residency address of the account administrator"""
   address: ResidencyAddressInput
+
+  """
+  Tax identification number of the account administrator
+  
+  - Maximum 16 characters
+  """
   taxIdentificationNumber: String
+
+  """Type of representation for the account administrator"""
   typeOfRepresentation: TypeOfRepresentation
+
+  """Tax information related to US persons as defined by FATCA"""
   unitedStatesTaxInfo: UnitedStatesTaxInfoInput
 }
 
 """Input for company account information during onboarding"""
 input CompanyAccountHolderOnboardingAccountInput {
+  """
+  Name for the account
+  
+  - Maximum 100 characters
+  - No special characters like HTML tags
+  """
   name: String
+
+  """
+  Country of the account that will be created at the end of the onboarding process
+  """
   country: AccountCountry!
+
+  """Intended usages for the account"""
   intendedUsages: [CompanyAccountIntendedUsage!]
 }
 
 """Input for company account information during onboarding update"""
 input CompanyAccountHolderOnboardingAccountUpdateInput {
+  """
+  Name for the account
+  
+  - Maximum 100 characters
+  - No special characters like HTML tags
+  """
   name: String
+
+  """Intended usages for the account"""
   intendedUsages: [CompanyAccountIntendedUsage!]
 }
 
@@ -5255,37 +5487,70 @@ enum CompanyHeadcount {
 
 """Company registry information"""
 type CompanyInfo {
-  """Registration number (e.g., SIREN for France)"""
+  """
+  Registration number (e.g., SIREN for France)
+  - Maximum 50 characters
+  """
   registrationNumber: String!
 
-  """Company legal name"""
+  """
+  Company legal name
+  
+  - Maximum 100 characters
+  - Allowed characters: letters (including international characters), numbers, punctuation, and special symbols (¿, ¡, @, [, ], |, ', ', ?, =)
+  """
   name: String
 
-  """Trade name (if different from legal name)"""
+  """
+  Trade name (if different from legal name)
+  
+  - Maximum 100 characters
+  - Same character restrictions as company name (no URLs or HTML special characters)
+  """
   tradeName: String
 
-  """Company registration date"""
+  """
+  Company registration date
+  
+  - Format: YYYY-MM-DD (e.g., 2020-01-15)
+  - Must be a date in the past or today (not in the future)
+  """
   registrationDate: Date
 
   """Legal form of the company"""
-  legalForm: String
+  legalFormCode: String
 
-  """VAT identification number"""
+  """
+  VAT identification number
+  
+  - Must follow EU VAT number format
+  - Country-specific patterns (e.g., FR: 2 alphanumeric + 9 digits, DE: 9 digits, IT: 11 digits)
+  - Supported countries: AT, BE, BG, CY, CZ, DE, DK, EE, EL/GR, ES, FI, FR, GB, HU, IE, IT, LT, LU, LV, MT, NL, PL, PT, RO, SE, SI, SK
+  - Country prefix is optional (e.g., both "FR12345678901" and "12345678901" are accepted for France)
+  """
   vatNumber: String
 
-  """Tax identification number"""
+  """
+  Tax identification number
+  
+  - Maximum 16 characters
+  """
   taxIdentificationNumber: String
 
-  """Business activity description"""
+  """
+  Business activity description
+  
+  - Maximum 1024 characters
+  """
   businessActivityDescription: String
 
-  """Business classification code (NAF code for France)"""
+  """Business classification code (example: NAF code for France)"""
   businessClassificationCode: String
 
   """Company headquarters address"""
   address: AddressInfo
 
-  """The current company headcount"""
+  """Current company headcount"""
   headcount: CompanyHeadcount
 
   """Forecast yearly income range"""
@@ -5297,13 +5562,15 @@ type CompanyInfo {
   """Regulatory classification of the company"""
   regulatoryClassification: RegulatoryClassification
 
-  """Company websites"""
+  """
+  Company websites, online presence URLs, social media profiles or handles
+  """
   websites: [String!]
 
   """Ultimate beneficial owners"""
   ultimateBeneficialOwners: [UltimateBeneficialOwner]
 
-  """The list of representatives of the company"""
+  """List of representatives of the company"""
   representatives: [OnboardingRepresentative]
 
   """Company type"""
@@ -5312,25 +5579,102 @@ type CompanyInfo {
 
 """Input for company information during onboarding"""
 input CompanyInfoInput {
+  """Acquisition Channel to specify how the user joined"""
   acquisitionChannel: AcquisitionChannel
+
+  """The date at which the user joined"""
   signupDate: Date
+
+  """
+  Business activity description
+  
+  - Maximum 1024 characters
+  """
   businessActivityDescription: String
+
+  """Business classification code (example: NAF code for France)"""
   businessClassificationCode: String
+
+  """Forecast yearly income range"""
   forecastYearlyIncome: ForecastYearlyIncome
-  legalForm: LegalForm
+
+  """Legal form of the company"""
+  legalFormCode: String
+
+  """Expected monthly payment volume range"""
   monthlyPaymentVolume: MonthlyPaymentVolume
+
+  """
+  Company legal name
+  
+  - Maximum 100 characters
+  - Allowed characters: letters (including international characters), numbers, punctuation, and special symbols (¿, ¡, @, [, ], |, ', ', ?, =)
+  """
   name: String
+
+  """
+  Trade name (if different from legal name)
+  
+  - Maximum 100 characters
+  - Same character restrictions as company name (no URLs or HTML special characters)
+  """
   tradeName: String
+
+  """Company type"""
   companyType: CompanyType
+
+  """Current company headcount"""
   headcount: CompanyHeadcount
+
+  """
+  Company registration date
+  
+  - Format: YYYY-MM-DD (e.g., 2020-01-15)
+  - Must be a date in the past or today (not in the future)
+  """
   registrationDate: Date
+
+  """
+  Registration number (e.g., SIREN for France)
+  
+  - Maximum 50 characters
+  """
   registrationNumber: String
+
+  """Regulatory classification of the company"""
   regulatoryClassification: RegulatoryClassification
+
+  """List of representatives of the company"""
   representatives: [OnboardingRepresentativeInput!]
+
+  """Company headquarters address"""
   address: ResidencyAddressInput
+
+  """
+  Tax identification number of the company
+  
+  - Maximum 16 characters
+  """
   taxIdentificationNumber: String
+
+  """List of ultimate beneficial owners of the company"""
   ultimateBeneficialOwners: [UltimateBeneficialOwnerInput!]
+
+  """
+  VAT identification number
+  
+  - Must follow EU VAT number format
+  - Country-specific patterns (e.g., FR: 2 alphanumeric + 9 digits, DE: 9 digits, IT: 11 digits)
+  - Supported countries: AT, BE, BG, CY, CZ, DE, DK, EE, EL/GR, ES, FI, FR, GB, HU, IE, IT, LT, LU, LV, MT, NL, PL, PT, RO, SE, SI, SK
+  - Country prefix is optional (e.g., both "FR12345678901" and "12345678901" are accepted for France)
+  """
   vatNumber: String
+
+  """
+  Company website(s), online presence URLs, social media profiles or handles
+  
+  - Between 1 and 5000 characters each
+  """
   websites: [String!]
 }
 
@@ -5346,30 +5690,106 @@ input CompanyInfoRegistryDataInput {
 """Result payload for company info registry data query"""
 union CompanyInfoRegistryDataPayload = CompanyInfoRegistryDataSuccessPayload | ValidationRejection | CompanyRegistryNotFoundRejection | CompanyRegistryUnavailableRejection | InternalErrorRejection | ForbiddenRejection
 
-"""Success response with comprehensive company information"""
+"""
+Success response with comprehensive company information
+The companyInfo shape is compatible with company field of the createCompanyAccountHolderOnboarding mutation.
+"""
 type CompanyInfoRegistryDataSuccessPayload {
   companyInfo: CompanyInfo!
 }
 
 """Input for company information during onboarding update"""
 input CompanyInfoUpdateInput {
+  """
+  Business activity description
+  
+  - Maximum 1024 characters
+  """
   businessActivityDescription: String
+
+  """Business classification code (example: NAF code for France)"""
   businessClassificationCode: String
+
+  """Forecast yearly income range"""
   forecastYearlyIncome: ForecastYearlyIncome
-  legalForm: LegalForm
+
+  """Legal form of the company"""
+  legalFormCode: String
+
+  """Expected monthly payment volume range"""
   monthlyPaymentVolume: MonthlyPaymentVolume
+
+  """
+  Company legal name
+  
+  - Maximum 100 characters
+  - Allowed characters: letters (including international characters), numbers, punctuation, and special symbols (¿, ¡, @, [, ], |, ', ', ?, =)
+  """
   name: String
+
+  """
+  Trade name (if different from legal name)
+  
+  - Maximum 100 characters
+  - Same character restrictions as company name (no URLs or HTML special characters)
+  """
   tradeName: String
+
+  """Company type"""
   companyType: CompanyType
+
+  """Current company headcount"""
   headcount: CompanyHeadcount
+
+  """
+  Company registration date
+  
+  - Format: YYYY-MM-DD (e.g., 2020-01-15)
+  - Must be a date in the past or today (not in the future)
+  """
   registrationDate: Date
+
+  """
+  Registration number (e.g., SIREN for France)
+  
+  - Maximum 50 characters
+  """
   registrationNumber: String
+
+  """Regulatory classification of the company"""
   regulatoryClassification: RegulatoryClassification
+
+  """List of representatives of the company"""
   representatives: [OnboardingRepresentativeInput!]
+
+  """Company headquarters address"""
   address: ResidencyAddressInput
+
+  """
+  Tax identification number of the company
+  
+  - Maximum 16 characters
+  """
   taxIdentificationNumber: String
+
+  """List of ultimate beneficial owners of the company"""
   ultimateBeneficialOwners: [UltimateBeneficialOwnerInput!]
+
+  """
+  VAT identification number
+  
+  - Must follow EU VAT number format
+  - Country-specific patterns (e.g., FR: 2 alphanumeric + 9 digits, DE: 9 digits, IT: 11 digits)
+  - Supported countries: AT, BE, BG, CY, CZ, DE, DK, EE, EL/GR, ES, FI, FR, GB, HU, IE, IT, LT, LU, LV, MT, NL, PL, PT, RO, SE, SI, SK
+  - Country prefix is optional (e.g., both "FR12345678901" and "12345678901" are accepted for France)
+  """
   vatNumber: String
+
+  """
+  Company website(s), online presence URLs, social media profiles or handles
+  
+  - Between 1 and 5000 characters each
+  """
   websites: [String!]
 }
 
@@ -5898,7 +6318,7 @@ enum ConsentStatus {
   OperationCommitting
 
   """when the user credentials were refused"""
-  CredentialRefused @deprecated
+  CredentialRefused @deprecated(reason: "this status has never been used and will be removed in the following months")
 
   """when the consent is created"""
   Created
@@ -8832,7 +9252,18 @@ type GenerationNotAllowedRejection implements Rejection {
 }
 
 input GeolocInput {
+  """
+  Latitude, in decimal degrees
+  
+  - Must be between -90 and 90
+  """
   lat: Float!
+
+  """
+  Longitude, in decimal degrees
+  
+  - Must be between -180 and 180
+  """
   lng: Float!
 }
 
@@ -9299,67 +9730,205 @@ enum IncomingThreeDsStatus {
 
 """Individual account holder onboarding"""
 type IndividualAccountHolderOnboarding implements AccountHolderOnboardingBase {
+  """Unique identifier of an onboarding"""
   id: ID!
+
+  """Status (valid/invalid/finalized) and details of errors on fields"""
   statusInfo: OnboardingStatusInfo!
+
+  """Supporting document collection related to onboarding"""
   supportingDocumentCollection: SupportingDocumentCollection
+
+  """Creation timestamp of the onboarding"""
   createdAt: DateTime!
+
+  """Last update timestamp of the onboarding"""
   updatedAt: DateTime!
+
+  """Represents the account being opened through the onboarding"""
   accountInfo: IndividualAccountHolderOnboardingAccount
+
+  """Represents the natural person who opens the account"""
   accountAdmin: IndividualAccountHolderOnboardingAccountAdmin
+
+  """Project information set in the dashboard"""
   projectInfo: ProjectInfo!
 
   """
   OAuth parameters provided in order to redirect the user at the end of the flow
   """
   oAuthRedirectParameters: OAuthRedirectParameters
+
+  """
+  Redirect the legal representative of a new account holder to this URL to start the onboarding process
+  """
+  onboardingUrl: String
 }
 
 """Individual account information for onboarding"""
 type IndividualAccountHolderOnboardingAccount {
+  """
+  Name for the account
+  
+  - Maximum 100 characters
+  - No special characters like HTML tags
+  """
   name: String
+
+  """
+  Country of the account that will be created at the end of the onboarding process
+  """
   country: AccountCountry
+
+  """Intended usages for the account"""
   intendedUsages: [IndividualAccountIntendedUsage!]
 }
 
 """Individual account admin information for onboarding"""
 type IndividualAccountHolderOnboardingAccountAdmin {
+  """Birth information of the account administrator"""
   birthInfo: BirthInfo
+
+  """
+  Email of the account administrator
+  
+  - Must be a valid email format
+  - Maximum 255 characters
+  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Disposable email domains are not allowed
+  """
   email: String
+
+  """Employment status of the account administrator"""
   employmentStatus: EmploymentStatus
+
+  """
+  First name of the account administrator
+  
+  - Maximum 100 characters
+  """
   firstName: String
+
+  """
+  Preferred language of the account admin. Will be used to localize the onboarding process and interface
+  """
   preferredLanguage: AccountLanguage
+
+  """
+  Last name of the account administrator
+  
+  - Maximum 100 characters
+  """
   lastName: String
+
+  """Expected monthly income"""
   monthlyIncome: MonthlyIncome
+
+  """Nationality of the account administrator"""
   nationality: CCA3
+
+  """Residency address of the account administrator"""
   address: AddressInfo
+
+  """
+  Tax identification number of the account administrator
+  
+  - Maximum 16 characters
+  """
   taxIdentificationNumber: String
+
+  """Expected sources of funds for the account"""
   sourcesOfFunds: [IndividualAccountSourceOfFunds!]
+
+  """Tax information related to US persons as defined by FATCA"""
   unitedStatesTaxInfo: UnitedStatesTaxInfo
 }
 
 """Input for individual account admin information during onboarding"""
 input IndividualAccountHolderOnboardingAccountAdminInput {
+  """Acquisition Channel to specify how the user joined"""
   acquisitionChannel: AcquisitionChannel
+
+  """Birth information of the account administrator"""
   birthInfo: BirthInfoInput
+
+  """
+  Email of the account administrator
+  
+  - Must be a valid email format
+  - Maximum 255 characters
+  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Disposable email domains are not allowed
+  """
   email: String
+
+  """Employment status of the account administrator"""
   employmentStatus: EmploymentStatus
+
+  """
+  First name of the account administrator
+  
+  - Maximum 100 characters
+  """
   firstName: String
+
+  """
+  Preferred language of the account admin. Will be used to localize the onboarding process and interface
+  """
   preferredLanguage: AccountLanguage
+
+  """
+  Last name of the account administrator
+  
+  - Maximum 100 characters
+  """
   lastName: String
+
+  """Expected monthly income"""
   monthlyIncome: MonthlyIncome
+
+  """Nationality of the account administrator"""
   nationality: CCA3
+
+  """Residency address of the account administrator"""
   address: ResidencyAddressInput
+
+  """The date at which the user joined"""
   signupDate: Date
+
+  """Expected sources of funds for the account"""
   sourcesOfFunds: [IndividualAccountSourceOfFunds!]
+
+  """
+  Tax identification number of the account administrator
+  
+  - Maximum 16 characters
+  """
   taxIdentificationNumber: String
+
+  """Tax information related to US persons as defined by FATCA"""
   unitedStatesTaxInfo: UnitedStatesTaxInfoInput
+
+  """User device information for security and fraud detection"""
   userDeviceInfo: UserDeviceInfoInput
 }
 
 """Input for individual account information during onboarding"""
 input IndividualAccountHolderOnboardingAccountInput {
+  """
+  Name for the account
+  
+  - Maximum 100 characters
+  - No special characters like HTML tags
+  """
   name: String
+
+  """
+  Country of the account that will be created at the end of the onboarding process
+  """
   country: AccountCountry!
+
+  """Intended usages for the account"""
   intendedUsages: [IndividualAccountIntendedUsage!]
 }
 
@@ -11515,9 +12084,18 @@ type LegalDocumentUpcomingStatusInfo implements LegalDocumentStatusInfo {
   effectiveDate: DateTime
 }
 
-"""Legal form of the company"""
-enum LegalForm {
-  Placeholder
+"""Legal form of a company with localized name"""
+type LegalForm {
+  """
+  Legal form code (e.g., "6CHY" for SAS Société par actions simplifiée in France)
+  """
+  code: String!
+
+  """Country code in CCA3 format (e.g., "FRA" for France)"""
+  country: CCA3!
+
+  """Localized name of the legal form"""
+  localName: String!
 }
 
 type LegalRepresentativeAccountMembershipCannotBeDisabledRejection implements Rejection {
@@ -14323,7 +14901,7 @@ type OnboardingCompanyRepresentative {
   roles: [String!]
   entityName: String
   registrationNumber: String
-  legalForm: String
+  legalFormCode: String
   address: AddressInfo
   email: String
 }
@@ -14518,18 +15096,79 @@ union OnboardingRepresentative = OnboardingCompanyRepresentative | OnboardingInd
 
 """Input for onboarding representative (company or individual)"""
 input OnboardingRepresentativeInput {
+  """Type of the representative (Company or Individual)"""
   type: RepresentativeType!
+
+  """
+  Roles of the representative within the company
+  
+  - Each role: Maximum 100 characters
+  """
   roles: [String!]
+
+  """
+  Legal name of the representative entity (when type is Company)
+  
+  - Maximum 100 characters
+  - Allowed characters: letters (including international characters), numbers, punctuation, and special symbols (¿, ¡, @, [, ], |, ', ', ?, =)
+  """
   entityName: String
+
+  """
+  Registration number of the representative entity
+  
+  - Maximum 50 characters
+  """
   registrationNumber: String
+
+  """
+  Legal form of the representative entity
+  
+  - Maximum 100 characters
+  """
   legalForm: String
+
+  """Address of the representative"""
   address: ResidencyAddressInput
+
+  """
+  First name of the representative
+  
+  - Maximum 100 characters
+  """
   firstName: String
+
+  """
+  Last name of the representative
+  
+  - Maximum 100 characters
+  """
   lastName: String
+
+  """
+  Preferred first name of the representative
+  
+  - Maximum 100 characters
+  """
   preferredFirstName: String
+
+  """Sex of the representative"""
   sex: Sex
+
+  """Birth information of the representative"""
   birthInfo: BirthInfoInput
+
+  """Nationality of the representative"""
   nationality: CCA3
+
+  """
+  Email of the representative
+  
+  - Must be a valid email format
+  - Maximum 255 characters
+  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Disposable email domains are not allowed
+  """
   email: String
 }
 
@@ -15964,31 +16603,90 @@ input PublicCompanyInfoRegistryDataInput {
 """Result payload for company info registry data query"""
 union PublicCompanyInfoRegistryDataPayload = PublicCompanyInfoRegistryDataSuccessPayload | ValidationRejection | CompanyRegistryNotFoundRejection | CompanyRegistryUnavailableRejection | InternalErrorRejection | ForbiddenRejection
 
-"""Success response with comprehensive company information"""
+"""
+Success response with comprehensive company information.
+The companyInfo shape is compatible with company field of the createPublicCompanyAccountHolderOnboarding mutation.
+"""
 type PublicCompanyInfoRegistryDataSuccessPayload {
   companyInfo: CompanyInfo!
 }
 
 """Input for public individual account holder onboarding"""
 input PublicIndividualAccountHolderOnboardingAccountAdminInput {
+  """Birth information of the account administrator"""
   birthInfo: BirthInfoInput
+
+  """
+  Email of the account administrator
+  
+  - Must be a valid email format
+  - Maximum 255 characters
+  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Disposable email domains are not allowed
+  """
   email: String
+
+  """Employment status of the account administrator"""
   employmentStatus: EmploymentStatus
+
+  """
+  First name of the account administrator
+  
+  - Maximum 100 characters
+  """
   firstName: String
+
+  """
+  Preferred language of the account admin. Will be used to localize the onboarding process and interface
+  """
   preferredLanguage: AccountLanguage
+
+  """
+  Last name of the account administrator
+  
+  - Maximum 100 characters
+  """
   lastName: String
+
+  """Expected monthly income"""
   monthlyIncome: MonthlyIncome
+
+  """Nationality of the account administrator"""
   nationality: CCA3
+
+  """Residency address of the account administrator"""
   address: ResidencyAddressInput
+
+  """Expected sources of funds for the account"""
   sourcesOfFunds: [IndividualAccountSourceOfFunds!]
+
+  """
+  Tax identification number of the account administrator
+  
+  - Maximum 16 characters
+  """
   taxIdentificationNumber: String
+
+  """Tax information related to US persons as defined by FATCA"""
   unitedStatesTaxInfo: UnitedStatesTaxInfoInput
 }
 
 """Input for public individual account holder onboarding"""
 input PublicIndividualAccountHolderOnboardingAccountInput {
+  """
+  Name for the account
+  
+  - Maximum 100 characters
+  - No special characters like HTML tags
+  """
   name: String
+
+  """
+  Country of the account that will be created at the end of the onboarding process
+  """
   country: AccountCountry!
+
+  """Intended usages for the account"""
   intendedUsages: [IndividualAccountIntendedUsage!]
 }
 
@@ -19900,6 +20598,11 @@ type SupportingDocumentCollection {
   relatedInfo: SupportingDocumentCollectionRelatedInfo!
 }
 
+"""Account Admin Change supporting document collection"""
+type SupportingDocumentCollectionAccountAdminChangeRelatedInfo implements SupportingDocumentCollectionRelatedInfo {
+  type: SupportingDocumentCollectionType!
+}
+
 """Onboarding supporting document collection"""
 type SupportingDocumentCollectionAccountHolderVerificationRenewalRelatedInfo implements SupportingDocumentCollectionRelatedInfo {
   type: SupportingDocumentCollectionType!
@@ -20075,6 +20778,7 @@ type SupportingDocumentCollectionTransactionRelatedInfo implements SupportingDoc
 
 enum SupportingDocumentCollectionType {
   Onboarding
+  AccountAdminChange
   AccountHolderVerificationRenewal
   Transaction
   Merchant
@@ -21886,41 +22590,136 @@ enum UBOIdentityDocumentType {
 }
 
 type UltimateBeneficialOwner {
+  """Ultimate beneficial owner birth information"""
   birthInfo: BirthInfo
+
+  """
+  Ultimate beneficial owner qualification type. If a ultimate beneficial owner has multiple qualification types, then priority is Ownership, then Control, then Legal Representative
+  """
   qualificationType: UltimateBeneficialOwnerQualificationType
+
+  """
+  Ultimate beneficial owner control types. Only applicable if qualificationType is Control
+  """
   controlTypes: [UltimateBeneficialOwnerControlType!]
+
+  """
+  Ultimate beneficial owner first name
+  
+  - Must be between 1 and 100 characters
+  """
   firstName: String
+
+  """Ultimate beneficial owner sex"""
   sex: Sex
+
+  """
+  Ultimate beneficial owner last name
+  
+  - Must be between 1 and 100 characters
+  """
   lastName: String
+
+  """
+  Ultimate beneficial owner ownership information. Only applicable if qualificationType is Ownership
+  """
   ownership: UltimateBeneficialOwnerOwnership
+
+  """Ultimate beneficial owner residency address information"""
   address: AddressInfo
+
+  """
+  Ultimate beneficial owner tax identification number, if applicable
+  
+  - Maximum 16 characters
+  """
   taxIdentificationNumber: String
+
+  """
+  Tax information related to US persons as defined by FATCA, if applicable
+  """
   unitedStatesTaxInfo: UnitedStatesTaxInfo
+
+  """Ultimate beneficial owner identity document information"""
   identityDocumentInfo: UltimateBeneficialOwnerIdentityDocumentInfo
 }
 
 enum UltimateBeneficialOwnerControlType {
+  """The ultimate beneficial owner exerts control via voting rights"""
   VotingRights
+
+  """
+  The ultimate beneficial owner exerts control via trust or similar arrangements
+  """
   ControlViaTrustOrSimilar
+
+  """
+  The ultimate beneficial owner exerts control via appointment or removal of board members
+  """
   RightToAppointOrRemoveBoard
+
+  """
+  The ultimate beneficial owner exerts control via shareholder agreements or contracts
+  """
   ShareholderAgreementOrContract
+
+  """The ultimate beneficial owner exerts strategic or managerial influence"""
   StrategicOrManagerialInfluence
 }
 
 type UltimateBeneficialOwnerIdentityDocumentInfo {
-  type: UBOIdentityDocumentType
+  """Type of identity document"""
+  type: UltimateBeneficialOwnerIdentityDocumentType
+
+  """
+  Identity document number
+  
+  - Maximum 50 characters
+  """
   number: String
+
+  """Identity document expiry date"""
   expiryDate: Date
+
+  """Identity document issue date"""
   issueDate: Date
+
+  """
+  Issuing authority of the identity document
+  
+  - Maximum 100 characters
+  """
   issuingAuthority: String
 }
 
 input UltimateBeneficialOwnerIdentityDocumentInfoInput {
-  type: UBOIdentityDocumentType
+  """Type of identity document"""
+  type: UltimateBeneficialOwnerIdentityDocumentType
+
+  """
+  Identity document number
+  
+  - Maximum 50 characters
+  """
   number: String
+
+  """Identity document expiry date"""
   expiryDate: Date
+
+  """Identity document issue date"""
   issueDate: Date
+
+  """
+  Issuing authority of the identity document
+  
+  - Maximum 100 characters
+  """
   issuingAuthority: String
+}
+
+enum UltimateBeneficialOwnerIdentityDocumentType {
+  Passport
+  IdCard
 }
 
 """
@@ -21940,38 +22739,101 @@ interface UltimateBeneficialOwnerInfo {
 }
 
 input UltimateBeneficialOwnerInput {
+  """Ultimate beneficial owner birth information"""
   birthInfo: BirthInfoInput
+
+  """
+  Ultimate beneficial owner qualification type. If a ultimate beneficial owner has multiple qualification types, then priority is Ownership, then Control, then Legal Representative
+  """
   qualificationType: UltimateBeneficialOwnerQualificationType
+
+  """
+  Ultimate beneficial owner control types. Only applicable if qualificationType is Control
+  """
   controlTypes: [UltimateBeneficialOwnerControlType!]
+
+  """
+  Ultimate beneficial owner first name
+  
+  - Must be between 1 and 100 characters
+  """
   firstName: String
+
+  """Ultimate beneficial owner sex"""
   sex: Sex
+
+  """Ultimate beneficial owner identity document information"""
   identityDocumentInfo: UltimateBeneficialOwnerIdentityDocumentInfoInput
+
+  """
+  Ultimate beneficial owner last name
+  
+  - Must be between 1 and 100 characters
+  """
   lastName: String
+
+  """
+  Ultimate beneficial owner ownership information. Only applicable if qualificationType is Ownership
+  """
   ownership: UltimateBeneficialOwnerOwnershipInput
+
+  """Ultimate beneficial owner residency address information"""
   address: ResidencyAddressInput
+
+  """
+  Ultimate beneficial owner tax identification number, if applicable
+  
+  - Maximum 16 characters
+  """
   taxIdentificationNumber: String
+
+  """
+  Tax information related to US persons as defined by FATCA, if applicable
+  """
   unitedStatesTaxInfo: UnitedStatesTaxInfoInput
 }
 
 type UltimateBeneficialOwnerOwnership {
+  """Total ownership percentage held by the ultimate beneficial owner"""
   totalPercentage: Float
+
+  """Ownership type held by the ultimate beneficial owner"""
   type: UltimateBeneficialOwnerOwnershipType!
 }
 
 input UltimateBeneficialOwnerOwnershipInput {
+  """Total ownership percentage held by the ultimate beneficial owner"""
   totalPercentage: Float
+
+  """Ownership type held by the ultimate beneficial owner"""
   type: UltimateBeneficialOwnerOwnershipType!
 }
 
 enum UltimateBeneficialOwnerOwnershipType {
+  """The ultimate beneficial owner holds direct ownership/shares"""
   Direct
+
+  """
+  The ultimate beneficial owner holds indirect ownership, for example through another company
+  """
   Indirect
+
+  """The ultimate beneficial owner holds both direct and indirect ownership"""
   DirectAndIndirect
 }
 
 enum UltimateBeneficialOwnerQualificationType {
+  """Ownership: the ultimate beneficial owner holds ownership rights"""
   Ownership
+
+  """
+  Control: the ultimate beneficial owner exerts some form of control over the company (management, strategic decisions, etc)
+  """
   Control
+
+  """
+  Legal Representative: the ultimate beneficial owner is the company's legal representative
+  """
   LegalRepresentative
 }
 
@@ -21992,17 +22854,27 @@ enum UltimateBeneficialOwnerType {
 
 type UnitedStatesTaxInfo {
   """
-  is the ultimate benefial owner a US person as defined by the Foreign Account Tax Compliance Act (FATCA)
+  Is the ultimate beneficial owner a US person as defined by the Foreign Account Tax Compliance Act (FATCA)
   """
   isUnitedStatesPerson: Boolean
+
+  """
+  United States Tax Identification Number of the ultimate beneficial owner, if applicable
+  """
   unitedStatesTaxIdentificationNumber: String
 }
 
 input UnitedStatesTaxInfoInput {
   """
-  is the ultimate benefial owner a US person as defined by the Foreign Account Tax Compliance Act (FATCA)
+  Is the ultimate beneficial owner a US person as defined by the Foreign Account Tax Compliance Act (FATCA)
   """
   isUnitedStatesPerson: Boolean!
+
+  """
+  United States Tax Identification Number of the ultimate beneficial owner, if applicable
+  
+  - Maximum 20 characters
+  """
   unitedStatesTaxIdentificationNumber: String
 }
 
@@ -22438,23 +23310,75 @@ input UpdatedRestrictedToInput {
 Updatable account administrator information for an individual onboarding
 """
 input UpdateIndividualAccountHolderOnboardingAccountAdminInput {
+  """Birth information of the account administrator"""
   birthInfo: BirthInfoInput
+
+  """
+  Email of the account administrator
+  
+  - Must be a valid email format
+  - Maximum 255 characters
+  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Disposable email domains are not allowed
+  """
   email: String
+
+  """Employment status of the account administrator"""
   employmentStatus: EmploymentStatus
+
+  """
+  First name of the account administrator
+  
+  - Maximum 100 characters
+  """
   firstName: String
+
+  """
+  Preferred language of the account admin. Will be used to localize the onboarding process and interface
+  """
   preferredLanguage: AccountLanguage
+
+  """
+  Last name of the account administrator
+  
+  - Maximum 100 characters
+  """
   lastName: String
+
+  """Expected monthly income"""
   monthlyIncome: MonthlyIncome
+
+  """Nationality of the account administrator"""
   nationality: CCA3
+
+  """Residency address of the account administrator"""
   address: ResidencyAddressInput
+
+  """Expected sources of funds for the account"""
   sourcesOfFunds: [IndividualAccountSourceOfFunds!]
+
+  """
+  Tax identification number of the account administrator
+  
+  - Maximum 16 characters
+  """
   taxIdentificationNumber: String
+
+  """Tax information related to US persons as defined by FATCA"""
   unitedStatesTaxInfo: UnitedStatesTaxInfoInput
 }
 
 """Updatable account information for an individual onboarding"""
 input UpdateIndividualAccountHolderOnboardingAccountInput {
+  """
+  Name for the account
+  
+  - Maximum 100 characters
+  - No special characters like HTML tags
+  """
   name: String
+
+  """Intended usages for the account"""
   intendedUsages: [IndividualAccountIntendedUsage!]
 }
 
@@ -22577,30 +23501,6 @@ Success response for updating a public company account holder onboarding
 type UpdatePublicCompanyAccountHolderOnboardingSuccessPayload {
   """The updated company account holder onboarding"""
   onboarding: CompanyAccountHolderOnboarding!
-}
-
-"""
-Updatable account administrator information for an individual onboarding
-"""
-input UpdatePublicIndividualAccountHolderOnboardingAccountAdminInput {
-  birthInfo: BirthInfoInput
-  email: String
-  employmentStatus: EmploymentStatus
-  firstName: String
-  preferredLanguage: AccountLanguage
-  lastName: String
-  monthlyIncome: MonthlyIncome
-  nationality: CCA3
-  address: ResidencyAddressInput
-  sourceOfFunds: IndividualAccountSourceOfFunds
-  taxIdentificationNumber: String
-  unitedStatesTaxInfo: UnitedStatesTaxInfoInput
-}
-
-"""Updatable account information for an individual onboarding"""
-input UpdatePublicIndividualAccountHolderOnboardingAccountInput {
-  name: String
-  intendedUsages: [IndividualAccountIntendedUsage!]
 }
 
 """Input for updating an individual account holder onboarding"""
@@ -22904,8 +23804,17 @@ type UserConsentSettings {
 }
 
 input UserDeviceInfoInput {
+  """Device coordinates, if available"""
   geoloc: GeolocInput
+
+  """
+  Device IP address, if available
+  
+  - Must be a valid IPv4 or IPv6 address
+  """
   ip: String
+
+  """Device user agent string, if available"""
   userAgent: String
 }
 
@@ -23201,24 +24110,86 @@ enum VerificationRenewalStatus {
 }
 
 type VerificationRenewalUltimateBeneficialOwner {
+  """Ultimate beneficial owner birth information"""
   birthInfo: BirthInfo
+
+  """
+  Ultimate beneficial owner qualification type. If a ultimate beneficial owner has multiple qualification types, then priority is Ownership, then Control, then Legal Representative
+  """
   qualificationType: UltimateBeneficialOwnerQualificationType
+
+  """
+  Ultimate beneficial owner first name
+  
+  - Must be between 1 and 100 characters
+  """
   firstName: String
+
+  """Ultimate beneficial owner sex"""
   sex: Sex
+
+  """
+  Ultimate beneficial owner last name
+  
+  - Must be between 1 and 100 characters
+  """
   lastName: String
+
+  """
+  Ultimate beneficial owner ownership information. Only applicable if qualificationType is Ownership
+  """
   ownership: UltimateBeneficialOwnerOwnership
+
+  """Ultimate beneficial owner residency address information"""
   address: AddressInfo
+
+  """
+  Ultimate beneficial owner tax identification number, if applicable
+  
+  - Maximum 16 characters
+  """
   taxIdentificationNumber: String
 }
 
 input VerificationRenewalUltimateBeneficialOwnerInput {
+  """Ultimate beneficial owner birth information"""
   birthInfo: BirthInfoInput
+
+  """
+  Ultimate beneficial owner qualification type. If a ultimate beneficial owner has multiple qualification types, then priority is Ownership, then Control, then Legal Representative
+  """
   qualificationType: UltimateBeneficialOwnerQualificationType
+
+  """
+  Ultimate beneficial owner first name
+  
+  - Must be between 1 and 100 characters
+  """
   firstName: String
+
+  """Ultimate beneficial owner sex"""
   sex: Sex
+
+  """
+  Ultimate beneficial owner last name
+  
+  - Must be between 1 and 100 characters
+  """
   lastName: String
+
+  """
+  Ultimate beneficial owner ownership information. Only applicable if qualificationType is Ownership
+  """
   ownership: UltimateBeneficialOwnerOwnershipInput
+
+  """Ultimate beneficial owner residency address information"""
   address: ResidencyAddressInput
+
+  """
+  Ultimate beneficial owner tax identification number, if applicable
+  
+  - Maximum 16 characters
+  """
   taxIdentificationNumber: String
 }
 

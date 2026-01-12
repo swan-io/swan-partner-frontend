@@ -17,6 +17,7 @@ fragment BirthInfo on BirthInfo {
 fragment OnboardingStatus on OnboardingStatusInfo {
   __typename
   status
+  validationVersion
   ... on OnboardingInvalidStatusInfo {
     errors {
       field
@@ -47,7 +48,7 @@ fragment CompanyInfo on CompanyInfo {
   name
   tradeName
   registrationDate
-  legalForm
+  legalFormCode
   vatNumber
   taxIdentificationNumber
   businessActivityDescription
@@ -132,6 +133,7 @@ fragment IndividualOnboarding on IndividualAccountHolderOnboarding {
   }
 }
 
+# @todo clean rejection
 query GetPublicOnboarding($id: ID!) {
   publicAccountHolderOnboarding(id: $id) {
     __typename
@@ -169,6 +171,27 @@ query GetPublicCompamyInfoRegistryData($input: PublicCompanyInfoRegistryDataInpu
     }
     ... on Rejection {
       message
+    }
+  }
+}
+
+query GetPublicOnboardingVersion($id: ID!) {
+  publicAccountHolderOnboarding(id: $id) {
+    ... on PublicAccountHolderOnboardingSuccessPayload {
+      onboarding {
+        ... on CompanyAccountHolderOnboarding {
+          id
+          statusInfo {
+            validationVersion
+          }
+        }
+        ... on IndividualAccountHolderOnboarding {
+          id
+          statusInfo {
+            validationVersion
+          }
+        }
+      }
     }
   }
 }

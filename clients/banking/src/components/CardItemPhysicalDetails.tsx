@@ -897,9 +897,10 @@ export const CardItemPhysicalDetails = ({
                     )
                     .otherwise(() => null)}
 
-                  {match({ physicalCard, isCurrentUserCardOwner })
+                  {match({ canOrderPhysicalCard, physicalCard, isCurrentUserCardOwner })
                     .with(
                       {
+                        canOrderPhysicalCard: true,
                         isCurrentUserCardOwner: true,
                         physicalCard: {
                           statusInfo: {
@@ -930,6 +931,7 @@ export const CardItemPhysicalDetails = ({
                     )
                     .with(
                       {
+                        canOrderPhysicalCard: true,
                         isCurrentUserCardOwner: true,
                         physicalCard: {
                           statusInfo: {

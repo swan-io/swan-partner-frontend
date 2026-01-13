@@ -473,7 +473,11 @@ export const MembershipDetailRights = ({
             )
             .otherwise(() => null)}
 
-          {match({ isEditingCurrentUserAccountMembership, editingAccountMembership })
+          {match({
+            isEditingCurrentUserAccountMembership,
+            editingAccountMembership,
+            canUpdateAccountMembership,
+          })
             .with(
               // Can't remove yourself
               { isEditingCurrentUserAccountMembership: true },
@@ -481,6 +485,8 @@ export const MembershipDetailRights = ({
               {
                 editingAccountMembership: { legalRepresentative: true },
               },
+              // No permission in project web-banking settings
+              { canUpdateAccountMembership: false },
               () => null,
             )
             .otherwise(() => (

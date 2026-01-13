@@ -36,8 +36,8 @@ import { EditableField } from "./VerificationRenewalPersonalInfo";
 const styles = StyleSheet.create({
   inputContainer: {
     flex: 1,
-    padding: "0px",
-    margin: "0px",
+    padding: 0,
+    margin: 0,
   },
 });
 

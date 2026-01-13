@@ -19,7 +19,7 @@ import { validateNullableRequired } from "@swan-io/shared-business/src/utils/val
 import { useForm, Validator } from "@swan-io/use-form";
 import { ReactElement, useCallback, useState } from "react";
 import { StyleSheet } from "react-native";
-import { match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { OnboardingStepContent } from "../../../../onboarding/src/components/OnboardingStepContent";
 import { StepTitle } from "../../../../onboarding/src/components/StepTitle";
 import {
@@ -171,7 +171,8 @@ const translateMonthlyIncome = (monthlyIncome: MonthlyIncome | undefined) =>
     .with("Between500And1500", () => t("verificationRenewal.monthlyIncome.Between500And1500"))
     .with("LessThan500", () => t("verificationRenewal.monthlyIncome.LessThan500"))
     .with("MoreThan4500", () => t("verificationRenewal.monthlyIncome.MoreThan4500"))
-    .otherwise(() => "");
+    .with(P.nullish, () => "")
+    .exhaustive();
 
 const monthlyIncomeItems = deriveUnion<MonthlyIncome>({
   Between1500And3000: true,
@@ -193,7 +194,8 @@ const translateEmploymentStatus = (employmentStatus: EmploymentStatus | undefine
     .with("ShopOwner", () => t("verificationRenewal.monthlyIncome.ShopOwner"))
     .with("Student", () => t("verificationRenewal.monthlyIncome.Student"))
     .with("Unemployed", () => t("verificationRenewal.monthlyIncome.Unemployed"))
-    .otherwise(() => "");
+    .with(P.nullish, () => "")
+    .exhaustive();
 
 const employmentStatusItems = deriveUnion<EmploymentStatus>({
   Craftsman: true,
@@ -293,7 +295,7 @@ export const VerificationRenewalPersonalInfo = ({
                 label={t("verificationRenewal.firstName")}
                 value={savedValues.firstName}
                 formatValue={identity}
-                validate={() => validateNullableRequired(savedValues.firstName)}
+                validate={validateNullableRequired}
                 onChange={value => setSaveValues({ ...savedValues, firstName: value })}
                 renderEditing={({ value, error, onChange, onBlur }) => (
                   <LakeTextInput

@@ -28,7 +28,7 @@ import { StepTitle } from "../../components/StepTitle";
 import {
   AccountAdminChangeInfoFragment,
   UpdateAccountAdminChangeDocument,
-} from "../../graphql/unauthenticated";
+} from "../../graphql/partner";
 import { t } from "../../utils/i18n";
 import { prefixPhoneNumber } from "../../utils/phone";
 import { ChangeAdminRoute, Router } from "../../utils/routes";

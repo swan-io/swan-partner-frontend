@@ -23,7 +23,7 @@ import { StepTitle } from "../../components/StepTitle";
 import {
   AccountAdminChangeInfoFragment,
   FinalizeAccountAdminChangeDocument,
-} from "../../graphql/unauthenticated";
+} from "../../graphql/partner";
 import { t } from "../../utils/i18n";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
 

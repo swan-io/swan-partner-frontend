@@ -1,12 +1,5 @@
 type Query {
   """
-  Returns an account admin change from its id.
-  
-  @comingSoon
-  """
-  accountAdminChange(accountAdminChangeId: ID!): AccountAdminChangePayload!
-
-  """
   Fetch company info (name, beneficiaries...) by Siren number
   @deprecated(reason: "This query is deprecated and will be removed in a future version.")
   """
@@ -32,24 +25,8 @@ type Query {
 }
 
 type Mutation {
-  """
-  Finalizes an Account Admin Change
-  
-  @comingSoon
-  """
-  finalizeAccountAdminChange(
-    """Unique identifier of the account admin change to finalize"""
-    accountAdminChangeId: ID!
-  ): FinalizeAccountAdminChangePayload!
   unauthenticatedOnboardPublicCompanyAccountHolder(input: UnauthenticatedOnboardPublicCompanyAccountHolderInput): UnauthenticatedOnboardPublicCompanyAccountHolderPayload!
   unauthenticatedOnboardPublicIndividualAccountHolder(input: UnauthenticatedOnboardPublicIndividualAccountHolderInput): UnauthenticatedOnboardPublicIndividualAccountHolderPayload!
-
-  """
-  Updates an Account Admin Change
-  
-  @comingSoon
-  """
-  updateAccountAdminChange(input: UpdateAccountAdminChangeInput!): UpdateAccountAdminChangePayload!
   unauthenticatedUpdateCompanyOnboarding(input: UnauthenticatedUpdateCompanyOnboardingInput): UnauthenticatedUpdateCompanyOnboardingPayload!
   unauthenticatedUpdateIndividualOnboarding(input: UnauthenticatedUpdateIndividualOnboardingInput!): UnauthenticatedUpdateIndividualOnboardingPayload!
 
@@ -242,30 +219,6 @@ type AccountAdminChangeAdmin {
   birthDate: Date
 }
 
-"""Input for the new administrator information"""
-input AccountAdminChangeAdminInput {
-  """First name of the new administrator"""
-  firstName: String
-
-  """Last name of the new administrator"""
-  lastName: String
-
-  """Email address of the new administrator"""
-  email: String
-
-  """Phone number of the new administrator"""
-  phoneNumber: String
-
-  """Birth country of the new administrator"""
-  birthCountry: String
-
-  """Birth date of the new administrator"""
-  birthDate: Date
-}
-
-"""Response payload for the accountAdminChange query"""
-union AccountAdminChangePayload = ForbiddenRejection | AccountAdminChange
-
 """Reason for the account administrator change"""
 enum AccountAdminChangeReason {
   """The current administrator has left the company"""
@@ -286,21 +239,6 @@ enum AccountAdminChangeReason {
 
 """Information about the requester of the administrator change"""
 type AccountAdminChangeRequester {
-  """First name of the requester"""
-  firstName: String
-
-  """Last name of the requester"""
-  lastName: String
-
-  """Email address of the requester"""
-  email: String
-
-  """Phone number of the requester"""
-  phoneNumber: String
-}
-
-"""Input for the requester information"""
-input AccountAdminChangeRequesterInput {
   """First name of the requester"""
   firstName: String
 
@@ -1619,9 +1557,6 @@ type CompanyAccountHolderOnboardingAccount {
   Country of the account that will be created at the end of the onboarding process
   """
   country: AccountCountry
-
-  """Intended usages for the account"""
-  intendedUsages: [CompanyAccountIntendedUsage!]
 }
 
 """Company account admin information for onboarding"""
@@ -1751,14 +1686,6 @@ input CompanyAccountHolderOnboardingAccountInput {
   Country of the account that will be created at the end of the onboarding process
   """
   country: AccountCountry!
-
-  """Intended usages for the account"""
-  intendedUsages: [CompanyAccountIntendedUsage!]
-}
-
-"""Company account intended usage"""
-enum CompanyAccountIntendedUsage {
-  Placeholder
 }
 
 enum CompanyHeadcount {
@@ -2143,15 +2070,6 @@ enum FieldValidationError {
   Invalid
 }
 
-"""Response payload for the finalizeAccountAdminChange mutation"""
-union FinalizeAccountAdminChangePayload = ForbiddenRejection | FinalizeAccountAdminChangeSuccessPayload
-
-"""Success response when finalizing an account admin change"""
-type FinalizeAccountAdminChangeSuccessPayload {
-  """`true` if the finalization was successful"""
-  success: Boolean!
-}
-
 type ForbiddenRejection implements Rejection {
   message: String!
 }
@@ -2468,9 +2386,6 @@ type IndividualAccountHolderOnboardingAccount {
   Country of the account that will be created at the end of the onboarding process
   """
   country: AccountCountry
-
-  """Intended usages for the account"""
-  intendedUsages: [IndividualAccountIntendedUsage!]
 }
 
 """Individual account admin information for onboarding"""
@@ -2531,14 +2446,6 @@ type IndividualAccountHolderOnboardingAccountAdmin {
 
   """Tax information related to US persons as defined by FATCA"""
   unitedStatesTaxInfo: UnitedStatesTaxInfo
-}
-
-enum IndividualAccountIntendedUsage {
-  FamilySupport
-  Investment
-  PersonalUse
-  Salary
-  SelfEmployment
 }
 
 enum IndividualAccountSourceOfFunds {
@@ -5177,36 +5084,6 @@ input UnitedStatesTaxInfoInput {
   - Maximum 20 characters
   """
   unitedStatesTaxIdentificationNumber: String
-}
-
-"""Inputs to update an Account Admin Change"""
-input UpdateAccountAdminChangeInput {
-  """Id of the Account Admin Change to update"""
-  id: ID!
-
-  """Reason for the account administrator change"""
-  reason: AccountAdminChangeReason
-
-  """`true` if the new administrator is a legal representative"""
-  isNewAdminLegalRepresentative: Boolean
-
-  """Information about the new administrator"""
-  admin: AccountAdminChangeAdminInput
-
-  """`true` if the requester is the new administrator"""
-  isRequesterNewAdmin: Boolean
-
-  """Information about the requester of the administrator change"""
-  requester: AccountAdminChangeRequesterInput
-}
-
-"""Response payload for the updateAccountAdminChange mutation"""
-union UpdateAccountAdminChangePayload = ForbiddenRejection | UpdateAccountAdminChangeSuccessPayload
-
-"""Success response when updating an account admin change"""
-type UpdateAccountAdminChangeSuccessPayload {
-  """The updated account admin change"""
-  accountAdminChange: AccountAdminChange!
 }
 
 scalar Upload

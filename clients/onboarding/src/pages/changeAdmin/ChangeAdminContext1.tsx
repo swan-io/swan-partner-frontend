@@ -9,7 +9,7 @@ import { StyleSheet, View } from "react-native";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
-import { AccountAdminChangeInfoFragment } from "../../graphql/unauthenticated";
+import { AccountAdminChangeInfoFragment } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
 

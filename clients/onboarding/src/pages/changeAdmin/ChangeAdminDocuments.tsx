@@ -18,11 +18,11 @@ import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
 import {
+  AccountAdminChangeInfoFragment,
   DeleteSupportingDocumentDocument,
   GenerateSupportingDocumentUploadUrlDocument,
   SupportingDocumentPurposeEnum,
 } from "../../graphql/partner";
-import { AccountAdminChangeInfoFragment } from "../../graphql/unauthenticated";
 import { t } from "../../utils/i18n";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
 

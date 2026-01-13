@@ -412,7 +412,7 @@ export const App = () => {
         )
         .with({ name: "ChangeAdminArea" }, ({ params: { requestId } }) =>
           displayChangeAccountAdmin ? (
-            <ClientContext.Provider value={client}>
+            <ClientContext.Provider value={partnerClient}>
               <ChangeAdminWizard changeAdminRequestId={requestId} />
             </ClientContext.Provider>
           ) : (

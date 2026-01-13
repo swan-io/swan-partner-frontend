@@ -16,10 +16,7 @@ import { useForm } from "@swan-io/use-form";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
-import {
-  AccountAdminChangeReason,
-  UpdateAccountAdminChangeDocument,
-} from "../../graphql/unauthenticated";
+import { AccountAdminChangeReason, UpdateAccountAdminChangeDocument } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
 

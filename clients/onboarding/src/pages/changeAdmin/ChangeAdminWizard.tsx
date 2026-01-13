@@ -25,7 +25,7 @@ import { match, P } from "ts-pattern";
 import { ErrorView } from "../../components/ErrorView";
 import { OnboardingHeader } from "../../components/OnboardingHeader";
 import { Redirect } from "../../components/Redirect";
-import { AccountAdminChangeDocument } from "../../graphql/unauthenticated";
+import { AccountAdminChangeDocument } from "../../graphql/partner";
 import { locale, t } from "../../utils/i18n";
 import { ChangeAdminRoute, changeAdminRoutes, Router } from "../../utils/routes";
 import { NotFoundPage } from "../NotFoundPage";
@@ -179,7 +179,7 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
   };
 
   return data
-    .mapOk(data => data.accountAdminChange)
+    .mapOk(data => data.publicAccountAdminChange)
     .mapOkToResult(filterRejectionsToResult)
     .match({
       NotAsked: () => null,

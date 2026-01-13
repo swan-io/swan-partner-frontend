@@ -1811,6 +1811,16 @@ ex: 2021-04-12T16:28:22.867Z
 """
 scalar DateTime
 
+enum DayEnum {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
+}
+
 """
 Edge type containing the node and cursor. The node is not defined in the interface because generic is not supported by GraphQL
 but all implementation contains its own node property according to the paginated type.
@@ -3026,12 +3036,78 @@ type SpendingLimit {
   amount: Amount!
 }
 
+input SpendingLimitCalendarDayModeInput {
+  """a starting hour for the spending limit (0 to 23)."""
+  startHour: Int! = 0
+}
+
+input SpendingLimitCalendarModeInput {
+  """a daily based calendar spending limit."""
+  daily: SpendingLimitCalendarDayModeInput
+
+  """a weekly based calendar spending limit."""
+  weekly: SpendingLimitCalendarWeekModeInput
+
+  """a monthly based calendar spending limit."""
+  monthly: SpendingLimitCalendarMonthModeInput
+}
+
+input SpendingLimitCalendarMonthModeInput {
+  """a starting hour for the spending limit (0 to 23)."""
+  startHour: Int! = 0
+
+  """a day in month for the spending limit (1 to 31)."""
+  startDay: Int! = 1
+}
+
+input SpendingLimitCalendarWeekModeInput {
+  """a starting hour for the spending limit (0 to 23)."""
+  startHour: Int! = 0
+
+  """a day of week enum."""
+  startDay: DayEnum! = Monday
+}
+
+"""Inputs when editing spending limit configuration"""
+input SpendingLimitInput {
+  """period concerned"""
+  period: SpendingLimitPeriodInput!
+
+  """sum of amount of spending authorized during the period"""
+  amount: AmountInput!
+}
+
+input SpendingLimitModeInput {
+  """a rolling period, defining a period of x days/weeks/months."""
+  rolling: SpendingLimitRollingModeInput
+
+  """
+  a fixed calendar period starting either at a given hour of day, a given hour and day in week/month
+  """
+  calendar: SpendingLimitCalendarModeInput
+}
+
 """Available period to compute spending limits"""
 enum SpendingLimitPeriod {
   Monthly
   Weekly
   Daily
   Always
+}
+
+"""Available period to compute spending limits"""
+enum SpendingLimitPeriodInput {
+  Monthly
+  Weekly
+  Daily
+  Always
+}
+
+input SpendingLimitRollingModeInput {
+  """
+  a rolling value for a spending limit. For a monthly period, only 1 is valid.
+  """
+  rollingValue: Int!
 }
 
 """Available type of spending limits"""
@@ -3236,6 +3312,7 @@ type SupportingDocumentCollectionStatusNotAllowedRejection implements Rejection 
 
 enum SupportingDocumentCollectionType {
   Onboarding
+  AccountAdminChange
   AccountHolderVerificationRenewal
   Transaction
   Merchant
@@ -6214,16 +6291,6 @@ type CsvStatement implements StatementInfo {
   expiresAt: DateTime
 }
 
-enum DayEnum {
-  Monday
-  Tuesday
-  Wednesday
-  Thursday
-  Friday
-  Saturday
-  Sunday
-}
-
 type MissingAddressItemRejection implements Rejection {
   addressLine1: String
   postalCode: String
@@ -8870,23 +8937,6 @@ enum SEPAReceivedDirectDebitMandateSequence {
   When the authorisation by the Debtor can be used for regular SEPA direct debits initiated by the Creditor
   """
   Recurrent
-}
-
-"""Inputs when editing spending limit configuration"""
-input SpendingLimitInput {
-  """period concerned"""
-  period: SpendingLimitPeriodInput!
-
-  """sum of amount of spending authorized during the period"""
-  amount: AmountInput!
-}
-
-"""Available period to compute spending limits"""
-enum SpendingLimitPeriodInput {
-  Monthly
-  Weekly
-  Daily
-  Always
 }
 
 """Inputs to update the account verification status"""

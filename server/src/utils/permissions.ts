@@ -82,6 +82,11 @@ const PERMISSIONS_MATRIX = {
       canUpdateCards: true,
     },
   },
+  cancelPhysicalCard: {
+    settings: {
+      canUpdateCards: true,
+    },
+  },
   cancelCard: {
     settings: {
       canUpdateCards: true,

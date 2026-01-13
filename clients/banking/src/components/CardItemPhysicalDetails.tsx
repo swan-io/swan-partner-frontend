@@ -600,26 +600,30 @@ export const CardItemPhysicalDetails = ({
                           })}
                         </LakeText>
 
-                        <Space height={12} />
+                        {canOrderPhysicalCard && (
+                          <>
+                            <Space height={12} />
 
-                        <Box>
-                          <LakeButton
-                            ariaLabel={t("card.physical.toRenewAlert.cta")}
-                            size="small"
-                            icon="edit-regular"
-                            mode="secondary"
-                            style={styles.renewAlertCta}
-                            onPress={() => {
-                              setRenewalModal(
-                                Option.Some({
-                                  initialShippingAddress: address,
-                                }),
-                              );
-                            }}
-                          >
-                            {t("card.physical.toRenewAlert.cta")}
-                          </LakeButton>
-                        </Box>
+                            <Box>
+                              <LakeButton
+                                ariaLabel={t("card.physical.toRenewAlert.cta")}
+                                size="small"
+                                icon="edit-regular"
+                                mode="secondary"
+                                style={styles.renewAlertCta}
+                                onPress={() => {
+                                  setRenewalModal(
+                                    Option.Some({
+                                      initialShippingAddress: address,
+                                    }),
+                                  );
+                                }}
+                              >
+                                {t("card.physical.toRenewAlert.cta")}
+                              </LakeButton>
+                            </Box>
+                          </>
+                        )}
                       </>
                     </LakeAlert>
                   </>
@@ -893,9 +897,10 @@ export const CardItemPhysicalDetails = ({
                     )
                     .otherwise(() => null)}
 
-                  {match({ physicalCard, isCurrentUserCardOwner })
+                  {match({ canOrderPhysicalCard, physicalCard, isCurrentUserCardOwner })
                     .with(
                       {
+                        canOrderPhysicalCard: true,
                         isCurrentUserCardOwner: true,
                         physicalCard: {
                           statusInfo: {
@@ -926,6 +931,7 @@ export const CardItemPhysicalDetails = ({
                     )
                     .with(
                       {
+                        canOrderPhysicalCard: true,
                         isCurrentUserCardOwner: true,
                         physicalCard: {
                           statusInfo: {
@@ -1277,6 +1283,7 @@ export const CardItemPhysicalDetails = ({
                     )
                     .with(
                       {
+                        canUpdateCard: true,
                         physicalCard: {
                           statusInfo: {
                             __typename: "PhysicalCardSuspendedStatusInfo",

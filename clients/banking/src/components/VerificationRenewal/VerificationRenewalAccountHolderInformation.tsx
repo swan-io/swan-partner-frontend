@@ -6,7 +6,7 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
-import { deriveUnion } from "@swan-io/lake/src/utils/function";
+import { deriveUnion, identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
@@ -50,6 +50,7 @@ type Form = {
   addressLine1: string;
   postalCode: string;
   city: string;
+  country: string;
   activityDescription: string;
   monthlyPaymentVolume: MonthlyPaymentVolume;
 };
@@ -76,6 +77,7 @@ export const VerificationRenewalAccountHolderInformation = ({
     addressLine1: info.company.residencyAddress.addressLine1 ?? "",
     postalCode: info.company.residencyAddress.postalCode ?? "",
     city: info.company.residencyAddress.city ?? "",
+    country: info.company.residencyAddress.country ?? "",
     activityDescription: info.company.businessActivityDescription,
     monthlyPaymentVolume: info.company.monthlyPaymentVolume,
   });
@@ -85,6 +87,7 @@ export const VerificationRenewalAccountHolderInformation = ({
       companyName,
       addressLine1,
       city,
+      country,
       activityDescription,
       monthlyPaymentVolume,
       postalCode,
@@ -101,6 +104,7 @@ export const VerificationRenewalAccountHolderInformation = ({
             addressLine1,
             city,
             postalCode,
+            country,
           },
         },
       },
@@ -134,6 +138,7 @@ export const VerificationRenewalAccountHolderInformation = ({
                 label={t("verificationRenewal.companyName")}
                 value={savedValues.companyName}
                 validate={validateRequired}
+                formatValue={identity}
                 onChange={value => setSaveValues({ ...savedValues, companyName: value })}
                 renderEditing={({ value, error, onChange, onBlur }) => (
                   <LakeTextInput
@@ -151,6 +156,7 @@ export const VerificationRenewalAccountHolderInformation = ({
                 label={t("verificationRenewal.addressLine1")}
                 value={savedValues.addressLine1}
                 validate={validateRequired}
+                formatValue={identity}
                 onChange={value => setSaveValues({ ...savedValues, addressLine1: value })}
                 renderEditing={({ value, error, onChange, onBlur }) => (
                   <LakeTextInput
@@ -167,6 +173,7 @@ export const VerificationRenewalAccountHolderInformation = ({
                 label={t("verificationRenewal.postalCode")}
                 value={savedValues.postalCode}
                 validate={validateRequired}
+                formatValue={identity}
                 onChange={value => setSaveValues({ ...savedValues, postalCode: value })}
                 renderEditing={({ value, error, onChange, onBlur }) => (
                   <LakeTextInput
@@ -184,6 +191,24 @@ export const VerificationRenewalAccountHolderInformation = ({
                 label={t("verificationRenewal.city")}
                 value={savedValues.city}
                 validate={validateRequired}
+                formatValue={identity}
+                onChange={value => setSaveValues({ ...savedValues, city: value })}
+                renderEditing={({ value, error, onChange, onBlur }) => (
+                  <LakeTextInput
+                    value={value}
+                    error={error}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                  />
+                )}
+              />
+
+              <Space height={12} />
+              <EditableField
+                label={t("verificationRenewal.country")}
+                value={savedValues.country}
+                validate={validateRequired}
+                formatValue={identity}
                 onChange={value => setSaveValues({ ...savedValues, city: value })}
                 renderEditing={({ value, error, onChange, onBlur }) => (
                   <LakeTextInput
@@ -201,6 +226,7 @@ export const VerificationRenewalAccountHolderInformation = ({
                 label={t("verificationRenewal.activityDescription")}
                 value={savedValues.activityDescription}
                 validate={validateRequired}
+                formatValue={identity}
                 onChange={value => setSaveValues({ ...savedValues, activityDescription: value })}
                 renderEditing={({ value, error, onChange, onBlur }) => (
                   <LakeTextInput

@@ -213,6 +213,14 @@ query GetPublicOnboardingVersion($id: ID!) {
   }
 }
 
+query GetLegalForms($country: CCA3!) {
+  legalForms(country: $country) {
+    country
+    localName
+    code
+  }
+}
+
 fragment UpdateValidationErrors on ValidationRejection {
   __typename
   fields {

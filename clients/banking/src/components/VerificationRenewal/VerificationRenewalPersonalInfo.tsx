@@ -11,15 +11,15 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
-import { deriveUnion, noop } from "@swan-io/lake/src/utils/function";
+import { deriveUnion, identity, noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
-import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
+import { validateNullableRequired } from "@swan-io/shared-business/src/utils/validation";
 import { useForm, Validator } from "@swan-io/use-form";
 import { ReactElement, useCallback, useState } from "react";
 import { StyleSheet } from "react-native";
-import { match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { OnboardingStepContent } from "../../../../onboarding/src/components/OnboardingStepContent";
 import { StepTitle } from "../../../../onboarding/src/components/StepTitle";
 import {
@@ -60,7 +60,7 @@ type EditableFieldProps<T> = {
   label: string;
   value: T;
   onChange: (value: T) => void;
-  formatValue?: (value: T) => string;
+  formatValue: (value: T) => string;
   validate?: Validator<T>;
   renderEditing: (props: {
     value: T;
@@ -71,7 +71,7 @@ type EditableFieldProps<T> = {
   }) => ReactElement;
 };
 
-export const EditableField = <T extends string>({
+export const EditableField = <T,>({
   label,
   value,
   onChange,
@@ -84,7 +84,12 @@ export const EditableField = <T extends string>({
     fieldName: {
       initialValue: value,
       validate,
-      sanitize: value => value.trim() as T,
+      sanitize: value => {
+        if (typeof value === "string") {
+          return value.trim() as T;
+        }
+        return value;
+      },
     },
   });
 
@@ -112,11 +117,11 @@ export const EditableField = <T extends string>({
             <Field name="fieldName">{fieldState => renderEditing(fieldState)}</Field>
           ) : (
             <LakeText color={colors.gray[900]} style={{ height: spacings[40] }}>
-              {formatValue ? formatValue(value) : value}
+              {formatValue(value)}
             </LakeText>
           )
         }
-        style={styles.label}
+        style={[styles.label]}
       />
       <Space width={8} />
 
@@ -159,13 +164,14 @@ export const EditableField = <T extends string>({
   );
 };
 
-const translateMonthlyIncome = (monthlyIncome: MonthlyIncome) =>
+const translateMonthlyIncome = (monthlyIncome: MonthlyIncome | undefined) =>
   match(monthlyIncome)
     .with("Between1500And3000", () => t("verificationRenewal.monthlyIncome.Between1500And3000"))
     .with("Between3000And4500", () => t("verificationRenewal.monthlyIncome.Between3000And4500"))
     .with("Between500And1500", () => t("verificationRenewal.monthlyIncome.Between500And1500"))
     .with("LessThan500", () => t("verificationRenewal.monthlyIncome.LessThan500"))
     .with("MoreThan4500", () => t("verificationRenewal.monthlyIncome.MoreThan4500"))
+    .with(P.nullish, () => "")
     .exhaustive();
 
 const monthlyIncomeItems = deriveUnion<MonthlyIncome>({
@@ -176,7 +182,7 @@ const monthlyIncomeItems = deriveUnion<MonthlyIncome>({
   MoreThan4500: true,
 }).array.map(value => ({ name: translateMonthlyIncome(value), value }));
 
-const translateEmploymentStatus = (employmentStatus: EmploymentStatus) =>
+const translateEmploymentStatus = (employmentStatus: EmploymentStatus | undefined) =>
   match(employmentStatus)
     .with("Craftsman", () => t("verificationRenewal.monthlyIncome.Craftsman"))
     .with("Employee", () => t("verificationRenewal.monthlyIncome.Employee"))
@@ -188,6 +194,7 @@ const translateEmploymentStatus = (employmentStatus: EmploymentStatus) =>
     .with("ShopOwner", () => t("verificationRenewal.monthlyIncome.ShopOwner"))
     .with("Student", () => t("verificationRenewal.monthlyIncome.Student"))
     .with("Unemployed", () => t("verificationRenewal.monthlyIncome.Unemployed"))
+    .with(P.nullish, () => "")
     .exhaustive();
 
 const employmentStatusItems = deriveUnion<EmploymentStatus>({
@@ -287,7 +294,8 @@ export const VerificationRenewalPersonalInfo = ({
               <EditableField
                 label={t("verificationRenewal.firstName")}
                 value={savedValues.firstName}
-                validate={validateRequired}
+                formatValue={identity}
+                validate={validateNullableRequired}
                 onChange={value => setSaveValues({ ...savedValues, firstName: value })}
                 renderEditing={({ value, error, onChange, onBlur }) => (
                   <LakeTextInput
@@ -303,7 +311,8 @@ export const VerificationRenewalPersonalInfo = ({
               <EditableField
                 label={t("verificationRenewal.lastName")}
                 value={savedValues.lastName}
-                validate={validateRequired}
+                validate={validateNullableRequired}
+                formatValue={identity}
                 onChange={value => setSaveValues({ ...savedValues, lastName: value })}
                 renderEditing={({ value, error, onChange, onBlur }) => (
                   <LakeTextInput
@@ -319,7 +328,8 @@ export const VerificationRenewalPersonalInfo = ({
               <EditableField
                 label={t("verificationRenewal.addressLine1")}
                 value={savedValues.addressLine1}
-                validate={validateRequired}
+                validate={validateNullableRequired}
+                formatValue={identity}
                 onChange={value => setSaveValues({ ...savedValues, addressLine1: value })}
                 renderEditing={({ value, error, onChange, onBlur }) => (
                   <LakeTextInput
@@ -335,7 +345,8 @@ export const VerificationRenewalPersonalInfo = ({
               <EditableField
                 label={t("verificationRenewal.addressLine2")}
                 value={savedValues.addressLine2}
-                validate={validateRequired}
+                formatValue={identity}
+                validate={validateNullableRequired}
                 onChange={value => setSaveValues({ ...savedValues, addressLine2: value })}
                 renderEditing={({ value, error, onChange, onBlur }) => (
                   <LakeTextInput
@@ -351,7 +362,8 @@ export const VerificationRenewalPersonalInfo = ({
               <EditableField
                 label={t("verificationRenewal.postalCode")}
                 value={savedValues.postalCode}
-                validate={validateRequired}
+                formatValue={identity}
+                validate={validateNullableRequired}
                 onChange={value => setSaveValues({ ...savedValues, postalCode: value })}
                 renderEditing={({ value, error, onChange, onBlur }) => (
                   <LakeTextInput
@@ -367,7 +379,8 @@ export const VerificationRenewalPersonalInfo = ({
               <EditableField
                 label={t("verificationRenewal.city")}
                 value={savedValues.city}
-                validate={validateRequired}
+                validate={validateNullableRequired}
+                formatValue={identity}
                 onChange={value => setSaveValues({ ...savedValues, city: value })}
                 renderEditing={({ value, error, onChange, onBlur }) => (
                   <LakeTextInput
@@ -383,8 +396,9 @@ export const VerificationRenewalPersonalInfo = ({
               <EditableField
                 label={t("verificationRenewal.country")}
                 value={savedValues.country}
-                validate={validateRequired}
-                onChange={value => setSaveValues({ ...savedValues, city: value })}
+                validate={validateNullableRequired}
+                formatValue={identity}
+                onChange={value => setSaveValues({ ...savedValues, country: value })}
                 renderEditing={({ value, error, onChange, onBlur }) => (
                   <LakeTextInput
                     value={value}
@@ -400,7 +414,7 @@ export const VerificationRenewalPersonalInfo = ({
                 label={t("verificationRenewal.personalInformation.monthlyIncome")}
                 value={savedValues.monthlyIncome}
                 formatValue={translateMonthlyIncome}
-                validate={validateRequired}
+                validate={validateNullableRequired}
                 onChange={value => setSaveValues({ ...savedValues, monthlyIncome: value })}
                 renderEditing={({ value, onChange }) => (
                   <LakeSelect value={value} items={monthlyIncomeItems} onValueChange={onChange} />

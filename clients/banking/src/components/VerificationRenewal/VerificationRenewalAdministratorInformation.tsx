@@ -1,22 +1,25 @@
 import { Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { breakpoints } from "@swan-io/lake/src/constants/design";
+import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
+import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
+import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
-import {
-  validateNullableRequired,
-  validateRequired,
-} from "@swan-io/shared-business/src/utils/validation";
+import { validateNullableRequired } from "@swan-io/shared-business/src/utils/validation";
 import { useForm } from "@swan-io/use-form";
 import { useState } from "react";
+import { StyleSheet } from "react-native";
 import { OnboardingStepContent } from "../../../../onboarding/src/components/OnboardingStepContent";
 import { StepTitle } from "../../../../onboarding/src/components/StepTitle";
 import {
@@ -30,11 +33,19 @@ import type { RenewalStep } from "./VerificationRenewalCompany";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 import { EditableField } from "./VerificationRenewalPersonalInfo";
 
+const styles = StyleSheet.create({
+  inputContainer: {
+    flex: 1,
+    padding: 0,
+    margin: 0,
+  },
+});
+
 type Form = {
   firstName: string;
   lastName: string;
   email: string;
-  birthDate: string;
+  birthDate: string | undefined;
   typeOfRepresentation: TypeOfRepresentation;
 };
 
@@ -59,13 +70,18 @@ export const VerificationRenewalAdministratorInformation = ({
     firstName: info.accountAdmin.firstName,
     lastName: info.accountAdmin.lastName,
     email: info.accountAdmin.email,
-    birthDate: info.accountAdmin.birthInfo.birthDate ?? "",
+    birthDate: info.accountAdmin.birthInfo.birthDate ?? undefined,
     typeOfRepresentation: info.accountAdmin.typeOfRepresentation ?? "LegalRepresentative",
   });
 
-  const { Field, submitForm } = useForm<{
+  const { Field, submitForm, setFieldValue } = useForm<{
+    birthDate: string | undefined;
     typeOfRepresentation: TypeOfRepresentation | undefined;
   }>({
+    birthDate: {
+      initialValue: info.accountAdmin.birthInfo.birthDate ?? undefined,
+      validate: validateNullableRequired,
+    },
     typeOfRepresentation: {
       initialValue: info.accountAdmin.typeOfRepresentation ?? undefined,
       validate: validateNullableRequired,
@@ -77,8 +93,8 @@ export const VerificationRenewalAdministratorInformation = ({
       onSuccess: values => {
         const option = Option.allFromDict(values);
         if (option.isSome()) {
-          const { firstName, lastName, email, birthDate } = savedValues;
-          const { typeOfRepresentation } = option.value;
+          const { firstName, lastName, email } = savedValues;
+          const { typeOfRepresentation, birthDate } = option.value;
 
           return updateCompanyVerificationRenewal({
             input: {
@@ -109,6 +125,7 @@ export const VerificationRenewalAdministratorInformation = ({
       },
     });
   };
+  const [editingBirthdate, setEditingBirthdate] = useBoolean(false);
 
   return (
     <OnboardingStepContent>
@@ -125,7 +142,8 @@ export const VerificationRenewalAdministratorInformation = ({
               <EditableField
                 label={t("verificationRenewal.firstName")}
                 value={savedValues.firstName}
-                validate={validateRequired}
+                validate={validateNullableRequired}
+                formatValue={identity}
                 onChange={value => setSaveValues({ ...savedValues, firstName: value })}
                 renderEditing={({ value, error, onChange, onBlur }) => (
                   <LakeTextInput
@@ -141,7 +159,8 @@ export const VerificationRenewalAdministratorInformation = ({
               <EditableField
                 label={t("verificationRenewal.lastName")}
                 value={savedValues.lastName}
-                validate={validateRequired}
+                validate={validateNullableRequired}
+                formatValue={identity}
                 onChange={value => setSaveValues({ ...savedValues, lastName: value })}
                 renderEditing={({ value, error, onChange, onBlur }) => (
                   <LakeTextInput
@@ -157,7 +176,8 @@ export const VerificationRenewalAdministratorInformation = ({
               <EditableField
                 label={t("verificationRenewal.administratorInformation.email")}
                 value={savedValues.email}
-                validate={validateRequired}
+                validate={validateNullableRequired}
+                formatValue={identity}
                 onChange={value => setSaveValues({ ...savedValues, email: value })}
                 renderEditing={({ value, error, onChange, onBlur }) => (
                   <LakeTextInput
@@ -170,20 +190,98 @@ export const VerificationRenewalAdministratorInformation = ({
               />
 
               <Space height={12} />
-              <EditableField
-                label={t("verificationRenewal.administratorInformation.birthDate")}
-                value={savedValues.birthDate}
-                validate={validateRequired}
-                onChange={value => setSaveValues({ ...savedValues, birthDate: value })}
-                renderEditing={({ value, error, onChange, onBlur }) => (
-                  <LakeTextInput
-                    value={value}
-                    error={error}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                  />
-                )}
-              />
+
+              <Box direction="row">
+                <LakeLabel
+                  type="view"
+                  label={t("verificationRenewal.administratorInformation.birthDate")}
+                  style={{ width: "100%" }}
+                  render={() => (
+                    <Field name="birthDate">
+                      {({ value, error, onChange }) =>
+                        editingBirthdate ? (
+                          <Box direction="row">
+                            <BirthdatePicker
+                              style={[
+                                styles.inputContainer,
+                                {
+                                  padding: 0,
+                                  margin: 0,
+                                },
+                              ]}
+                              label=""
+                              value={value}
+                              onValueChange={onChange}
+                              error={error}
+                            />
+
+                            <Space width={8} />
+                            <Box
+                              direction="row"
+                              style={{
+                                paddingTop: spacings[8],
+                              }}
+                            >
+                              <LakeButton
+                                ariaLabel={t("verificationRenewal.ariaLabel.validate")}
+                                size="small"
+                                color="partner"
+                                icon="checkmark-filled"
+                                onPress={() => {
+                                  setEditingBirthdate.off();
+                                  setFieldValue("birthDate", value);
+                                }}
+                              />
+
+                              <Space width={8} />
+                              <LakeButton
+                                mode="secondary"
+                                ariaLabel={t("verificationRenewal.ariaLabel.cancel")}
+                                size="small"
+                                color="partner"
+                                icon="dismiss-filled"
+                                onPress={() => {
+                                  setEditingBirthdate.off();
+                                  setFieldValue(
+                                    "birthDate",
+                                    info.accountAdmin.birthInfo.birthDate ?? undefined,
+                                  );
+                                }}
+                              />
+                            </Box>
+                          </Box>
+                        ) : (
+                          <Box direction="row">
+                            <Box grow={1}>
+                              <LakeText
+                                color={colors.gray[900]}
+                                style={{
+                                  height: spacings[40],
+                                  width: "100%",
+                                }}
+                              >
+                                {value}
+                              </LakeText>
+                            </Box>
+
+                            <Box alignItems="center">
+                              <Space height={8} />
+                              <LakeButton
+                                mode="tertiary"
+                                ariaLabel={t("verificationRenewal.ariaLabel.edit")}
+                                size="small"
+                                color="partner"
+                                icon="edit-regular"
+                                onPress={setEditingBirthdate.on}
+                              />
+                            </Box>
+                          </Box>
+                        )
+                      }
+                    </Field>
+                  )}
+                />
+              </Box>
 
               <Space height={12} />
 

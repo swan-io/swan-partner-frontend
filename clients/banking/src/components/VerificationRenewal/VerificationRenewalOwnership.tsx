@@ -574,6 +574,7 @@ export const VerificationRenewalOwnership = ({
 
               <Space height={40} />
               <VerificationRenewalFooter
+                nextDisabled={shakeError}
                 onPrevious={
                   previousStep !== undefined
                     ? () =>

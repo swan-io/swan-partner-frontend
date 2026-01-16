@@ -271,19 +271,23 @@ export const MerchantProfilePaymentArea = ({
       {(hasSearchOrFilters || hasAtLeastOneItem) && (
         <Box style={[styles.filters, large && styles.filtersLarge]}>
           <Box direction="row" alignItems="center">
-            <LakeButton
-              color="partner"
-              mode="primary"
-              icon="add-circle-filled"
-              size="small"
-              onPress={() => {
-                Router.push("AccountMerchantsProfilePaymentsPicker", params);
-              }}
-            >
-              {large ? t("common.new") : null}
-            </LakeButton>
+            {canCreateMerchantPaymentLinks && (
+              <>
+                <LakeButton
+                  color="partner"
+                  mode="primary"
+                  icon="add-circle-filled"
+                  size="small"
+                  onPress={() => {
+                    Router.push("AccountMerchantsProfilePaymentsPicker", params);
+                  }}
+                >
+                  {large ? t("common.new") : null}
+                </LakeButton>
 
-            <Separator horizontal={true} space={12} />
+                <Separator horizontal={true} space={12} />
+              </>
+            )}
 
             <FiltersContainer large={large}>
               <Filters

@@ -6,6 +6,7 @@ import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { StyleSheet, View } from "react-native";
 import { MerchantPaymentsQuery } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
+import { NotFoundPage } from "../pages/NotFoundPage";
 import { t } from "../utils/i18n";
 import { RouteParams, Router } from "../utils/routes";
 import { CheckDeclarationWizard } from "./CheckDeclarationWizard";
@@ -48,6 +49,10 @@ export const MerchantProfilePaymentPicker = ({
   const { merchantProfileId, accountMembershipId } = params;
 
   const permissions = usePermissions();
+
+  if (!permissions.canCreateMerchantPaymentLinks) {
+    return <NotFoundPage />;
+  }
 
   return (
     <>

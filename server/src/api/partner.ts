@@ -19,16 +19,24 @@ export const toFuture = <T>(promise: Promise<T>): Future<Result<T, ServerError>>
 let projectId: Future<
   Result<string, OAuth2NetworkError | SyntaxError | OAuth2ClientCredentialsError>
 >;
+let projectIdFailed = false;
 
 export const getProjectId = () => {
-  if (projectId != null) {
+  if (projectId != null && !projectIdFailed) {
     return projectId;
   }
+  projectIdFailed = false;
+
   projectId = getClientAccessToken()
     .flatMapOk(accessToken =>
       toFuture(sdk.ProjectId({}, { Authorization: `Bearer ${accessToken}` })),
     )
-    .mapOk(({ projectInfo: { id } }) => id);
+    .mapOk(({ projectInfo: { id } }) => id)
+    .tapError(error => {
+      console.error("Failed to get project ID", error);
+      projectIdFailed = true;
+    });
+
   return projectId;
 };
 

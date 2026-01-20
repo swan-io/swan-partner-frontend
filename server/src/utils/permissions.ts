@@ -177,11 +177,6 @@ const PERMISSIONS_MATRIX = {
       canViewAccountDetails: true,
     },
   },
-  closeAccount: {
-    settings: {
-      canViewAccountDetails: true,
-    },
-  },
 } satisfies Record<
   string,
   Pattern.Pattern<{

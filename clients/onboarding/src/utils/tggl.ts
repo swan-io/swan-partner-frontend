@@ -1,5 +1,4 @@
 import { lowerCase } from "@swan-io/lake/src/utils/string";
-// import { TgglFlags as RawFlags, TgglClient, TgglContext } from "tggl-client";
 import { TgglClient, TgglContext } from "react-tggl-client";
 import { P, match } from "ts-pattern";
 import { env } from "./env";

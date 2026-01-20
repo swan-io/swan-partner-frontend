@@ -6,6 +6,7 @@ import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartner
 import { colors, invariantColors } from "@swan-io/lake/src/constants/design";
 import { ToastStack } from "@swan-io/shared-business/src/components/ToastStack";
 import { useEffect } from "react";
+import { TgglProvider, useFlag, useTggl } from "react-tggl-client";
 import { P, match } from "ts-pattern";
 import { ErrorView } from "./components/ErrorView";
 import { Redirect } from "./components/Redirect";
@@ -35,7 +36,7 @@ import { locale } from "./utils/i18n";
 import { logFrontendError, registerOnboardingInfo } from "./utils/logger";
 import { TrackingProvider, useSessionTracking } from "./utils/matomo";
 import { Router } from "./utils/routes";
-import { updateTgglContext, useTgglFlag } from "./utils/tggl";
+import { tgglClient } from "./utils/tggl";
 
 type Props = {
   onboardingId: string;
@@ -50,9 +51,11 @@ const PageMetadata = ({
   projectName?: string;
   projectId?: string;
 }) => {
+  const { updateContext } = useTggl()
+
   useEffect(() => {
-    updateTgglContext({ accountCountry });
-  }, [accountCountry]);
+    updateContext({ accountCountry });
+  }, [updateContext, accountCountry]);
 
   useTitle((projectName ?? "Swan") + " onboarding");
   useSessionTracking(projectId);
@@ -389,9 +392,9 @@ const FlowPickerWizard = ({ onboardingId }: Props) => {
     .exhaustive();
 };
 
-export const App = () => {
+export const Routing = () => {
   const route = Router.useRoute(["Area", "SupportingDocumentCollectionArea", "ChangeAdminArea"]);
-  const displayChangeAccountAdmin = useTgglFlag("changeAccountAdmin").getOr(false);
+  const displayChangeAccountAdmin = useFlag("changeAccountAdmin", false);
 
   return (
     <ErrorBoundary
@@ -399,35 +402,43 @@ export const App = () => {
       onError={error => logFrontendError(error)}
       fallback={() => <ErrorView />}
     >
-      {match(route)
-        .with(
-          { name: "SupportingDocumentCollectionArea" },
-          ({ params: { supportingDocumentCollectionId } }) => (
-            <ClientContext.Provider value={client}>
-              <SupportingDocumentCollectionFlow
-                supportingDocumentCollectionId={supportingDocumentCollectionId}
-              />
-            </ClientContext.Provider>
-          ),
-        )
-        .with({ name: "ChangeAdminArea" }, ({ params: { requestId } }) =>
-          displayChangeAccountAdmin ? (
+        {match(route)
+          .with(
+            { name: "SupportingDocumentCollectionArea" },
+            ({ params: { supportingDocumentCollectionId } }) => (
+              <ClientContext.Provider value={client}>
+                <SupportingDocumentCollectionFlow
+                  supportingDocumentCollectionId={supportingDocumentCollectionId}
+                />
+              </ClientContext.Provider>
+            ),
+          )
+          .with({ name: "ChangeAdminArea" }, ({ params: { requestId } }) => displayChangeAccountAdmin ? (
+              <ClientContext.Provider value={partnerClient}>
+                <ChangeAdminWizard changeAdminRequestId={requestId} />
+              </ClientContext.Provider>
+            ) : (
+              <NotFoundPage />
+            )
+          )
+          .with({ name: "Area" }, ({ params: { onboardingId } }) => (
             <ClientContext.Provider value={partnerClient}>
-              <ChangeAdminWizard changeAdminRequestId={requestId} />
+              <FlowPickerWizard onboardingId={onboardingId} />
             </ClientContext.Provider>
-          ) : (
-            <NotFoundPage />
-          ),
-        )
-        .with({ name: "Area" }, ({ params: { onboardingId } }) => (
-          <ClientContext.Provider value={partnerClient}>
-            <FlowPickerWizard onboardingId={onboardingId} />
-          </ClientContext.Provider>
-        ))
-        .with(P.nullish, () => <NotFoundPage />)
-        .exhaustive()}
-
-      <ToastStack />
+          ))
+          .with(P.nullish, () => <NotFoundPage />)
+          .exhaustive()}
     </ErrorBoundary>
+  );
+};
+
+
+
+export const App = () => {
+  return (
+      <TgglProvider client={tgglClient}>
+        <Routing />
+        <ToastStack />
+      </TgglProvider>
   );
 };

@@ -50,7 +50,10 @@
     "match-e2e-translations": "tsx scripts/tests/matchTranslations.ts",
     "configure-hooks": "git config --local core.hooksPath .hooks",
     "ci-get-changelog": "tsx scripts/changelog/getChangelog.ts",
-    "tggl-gen-type": "tggl typing -o types/tggl/index.d.ts -k $TGGL_SERVER_KEY && prettier 'types/tggl/*' --write"
+    "tggl-gen-type-server": "tggl typing -o server/types/tggl/index.d.ts -k $TGGL_SERVER_KEY && prettier 'server/types/tggl/*' --write",
+    "tggl-gen-type-client": "tggl typing -o types/tggl/index.d.ts -k $TGGL_SERVER_KEY && prettier 'types/tggl/*' --write",
+    "tggl-gen-type-react": "tggl typing -o types/tggl/tggl.d.ts -k $TGGL_SERVER_KEY  -p react-tggl-client && prettier 'types/tggl/*' --write",
+    "tggl-gen-type": "pnpm tggl-gen-type-server && pnpm tggl-gen-type-client && pnpm tggl-gen-type-react"
   },
   "lint-staged": {
     "*": "prettier --ignore-unknown --write",

@@ -87,6 +87,7 @@ type Props = {
   }[];
   tcuDocumentUri?: string;
   tcuUrl: string;
+  forcedUpdateInputs: Partial<UnauthenticatedUpdateCompanyOnboardingInput>;
 };
 
 export const OnboardingCompanyRegistration = ({
@@ -103,6 +104,7 @@ export const OnboardingCompanyRegistration = ({
   serverValidationErrors,
   tcuDocumentUri,
   tcuUrl,
+  forcedUpdateInputs,
 }: Props) => {
   const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
   const isFirstMount = useFirstMountState();
@@ -196,7 +198,7 @@ export const OnboardingCompanyRegistration = ({
             };
 
         updateOnboarding({
-          input: updateInput,
+          input: { ...forcedUpdateInputs, ...updateInput },
           language: locale.language,
         })
           .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)

@@ -31,6 +31,7 @@ import {
   SupportingDocumentCollectionStatus,
   SupportingDocumentFragment,
   SupportingDocumentPurposeEnum,
+  UnauthenticatedUpdateCompanyOnboardingInput,
   UpdateCompanyOnboardingDocument,
 } from "../../graphql/unauthenticated";
 import { locale, t } from "../../utils/i18n";
@@ -53,6 +54,7 @@ type Props = {
   templateLanguage: string;
   accountCountry: AccountCountry;
   companyType: CompanyType;
+  forcedUpdateInputs: Partial<UnauthenticatedUpdateCompanyOnboardingInput>;
 };
 
 const DocumentsStepTile = ({ small, children }: { small: boolean; children: ReactNode }) => {
@@ -73,6 +75,7 @@ export const OnboardingCompanyDocuments = ({
   templateLanguage,
   accountCountry,
   companyType,
+  forcedUpdateInputs,
 }: Props) => {
   const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
   const [generateSupportingDocumentUploadUrl] = useMutation(
@@ -101,6 +104,7 @@ export const OnboardingCompanyDocuments = ({
       updateOnboarding({
         input: {
           onboardingId,
+          ...forcedUpdateInputs,
         },
         language: locale.language,
       })

@@ -50,7 +50,6 @@ type Form = {
   firstName: string;
   lastName: string;
   email: string;
-  birthDate: string | undefined;
   typeOfRepresentation: TypeOfRepresentation;
 };
 
@@ -73,7 +72,6 @@ export const VerificationRenewalAdministratorInformation = ({
     firstName: info.accountAdmin.firstName,
     lastName: info.accountAdmin.lastName,
     email: info.accountAdmin.email,
-    birthDate: info.accountAdmin.birthInfo.birthDate ?? undefined,
     typeOfRepresentation: info.accountAdmin.typeOfRepresentation ?? "LegalRepresentative",
   });
 

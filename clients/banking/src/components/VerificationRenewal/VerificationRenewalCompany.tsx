@@ -67,6 +67,11 @@ export const renewalSteps = {
     label: t("verificationRenewal.step.administratorInfo"),
     icon: "person-regular",
   },
+  personalInformation: {
+    id: "VerificationRenewalPersonalInformation",
+    label: t("verificationRenewal.step.personalInfo"),
+    icon: "person-regular",
+  },
   renewalOwnership: {
     id: "VerificationRenewalOwnership",
     label: t("verificationRenewal.step.ownership"),
@@ -102,8 +107,12 @@ export const getRenewalSteps = (
 
   const steps = new Set(requirements);
 
-  if (steps.has("AccountHolderDetailsRequired")) {
+  if (steps.has("AccountHolderDetailsRequired") && accountHolderType === "Company") {
     orderedSteps.push(renewalSteps.accountHolderInformation);
+  }
+
+  if (steps.has("AccountHolderDetailsRequired") && accountHolderType === "Individual") {
+    orderedSteps.push(renewalSteps.personalInformation);
   }
 
   if (steps.has("LegalRepresentativeDetailsRequired") && accountHolderType === "Company") {

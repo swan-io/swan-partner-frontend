@@ -19,7 +19,11 @@ import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import logoSwan from "../../assets/imgs/logo-swan.svg";
 import { OnboardingHeader } from "../../components/OnboardingHeader";
-import { CompanyAccountHolderFragment, GetOnboardingQuery } from "../../graphql/unauthenticated";
+import {
+  CompanyAccountHolderFragment,
+  GetOnboardingQuery,
+  UnauthenticatedUpdateCompanyOnboardingInput,
+} from "../../graphql/unauthenticated";
 import { t } from "../../utils/i18n";
 import { TrackingProvider } from "../../utils/matomo";
 import { CompanyOnboardingRoute, Router, companyOnboardingRoutes } from "../../utils/routes";
@@ -125,6 +129,15 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
   const requiredDocumentsPurposes =
     onboarding?.supportingDocumentCollection.requiredSupportingDocumentPurposes.map(d => d.name) ??
     [];
+
+  // If company type is "Other", we always update with this value to prevent backend to overwrite it
+  // We do it in front-end instead of backend to avoid apply this logic to partners using the partner API
+  const forcedUpdateInputs: Partial<UnauthenticatedUpdateCompanyOnboardingInput> =
+    companyType === "Other"
+      ? {
+          companyType: "Other",
+        }
+      : {};
 
   const hasOwnershipStep =
     ["Company", "Other"].includes(companyType) ||
@@ -353,6 +366,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
               serverValidationErrors={finalized ? registrationStepErrors : []}
               tcuUrl={onboarding.tcuUrl}
               tcuDocumentUri={onboarding.projectInfo?.tcuDocumentUri}
+              forcedUpdateInputs={forcedUpdateInputs}
             />
           </TrackingProvider>
         ))
@@ -374,6 +388,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
               country={companyCountry}
               accountCountry={accountCountry}
               serverValidationErrors={finalized ? organisation1StepErrors : []}
+              forcedUpdateInputs={forcedUpdateInputs}
             />
           </TrackingProvider>
         ))
@@ -387,6 +402,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
               initialBusinessActivityDescription={holder.businessActivityDescription ?? ""}
               initialMonthlyPaymentVolume={holder.monthlyPaymentVolume ?? "LessThan10000"}
               serverValidationErrors={finalized ? organisation2StepErrors : []}
+              forcedUpdateInputs={forcedUpdateInputs}
             />
           </TrackingProvider>
         ))
@@ -400,6 +416,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
               country={companyCountry}
               companyName={holder.name ?? ""}
               ubos={ubos}
+              forcedUpdateInputs={forcedUpdateInputs}
             />
           </TrackingProvider>
         ))
@@ -421,6 +438,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
               templateLanguage={onboarding.language ?? "en"}
               accountCountry={accountCountry}
               companyType={companyType}
+              forcedUpdateInputs={forcedUpdateInputs}
             />
           </TrackingProvider>
         ))

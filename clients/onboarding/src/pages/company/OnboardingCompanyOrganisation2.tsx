@@ -28,6 +28,7 @@ import { StepTitle } from "../../components/StepTitle";
 import {
   BusinessActivity,
   MonthlyPaymentVolume,
+  UnauthenticatedUpdateCompanyOnboardingInput,
   UpdateCompanyOnboardingDocument,
 } from "../../graphql/unauthenticated";
 import { locale, t } from "../../utils/i18n";
@@ -61,6 +62,7 @@ type Props = {
     fieldName: Organisation2FieldName;
     code: ServerInvalidFieldCode;
   }[];
+  forcedUpdateInputs: Partial<UnauthenticatedUpdateCompanyOnboardingInput>;
 };
 
 const businessActivitiesItems: Item<BusinessActivity>[] = businessActivities.map(
@@ -86,6 +88,7 @@ export const OnboardingCompanyOrganisation2 = ({
   initialBusinessActivity,
   initialBusinessActivityDescription,
   initialMonthlyPaymentVolume,
+  forcedUpdateInputs,
   serverValidationErrors,
 }: Props) => {
   const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
@@ -140,6 +143,7 @@ export const OnboardingCompanyOrganisation2 = ({
         updateOnboarding({
           input: {
             onboardingId,
+            ...forcedUpdateInputs,
             businessActivity,
             businessActivityDescription,
             monthlyPaymentVolume,

@@ -38,6 +38,7 @@ import {
   AccountCountry,
   IndividualUltimateBeneficialOwnerInput,
   UboFragment,
+  UnauthenticatedUpdateCompanyOnboardingInput,
   UpdateCompanyOnboardingDocument,
 } from "../../graphql/unauthenticated";
 import { TranslationKey, locale, t } from "../../utils/i18n";
@@ -106,6 +107,7 @@ type Props = {
   country: CountryCCA3;
   companyName: string;
   ubos: UboFragment[];
+  forcedUpdateInputs: Partial<UnauthenticatedUpdateCompanyOnboardingInput>;
 };
 
 type LocalStateUbo = SaveValue & {
@@ -340,6 +342,7 @@ export const OnboardingCompanyOwnership = ({
   country,
   companyName,
   ubos,
+  forcedUpdateInputs,
 }: Props) => {
   const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
 
@@ -513,6 +516,7 @@ export const OnboardingCompanyOwnership = ({
     return updateOnboarding({
       input: {
         onboardingId,
+        ...forcedUpdateInputs,
         individualUltimateBeneficialOwners,
       },
       language: locale.language,

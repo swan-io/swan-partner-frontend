@@ -39,6 +39,7 @@ import { StepTitle } from "../../components/StepTitle";
 import {
   AccountCountry,
   CompanyType,
+  UnauthenticatedUpdateCompanyOnboardingInput,
   UpdateCompanyOnboardingDocument,
 } from "../../graphql/unauthenticated";
 import { CompanySuggestion } from "../../utils/Pappers";
@@ -90,6 +91,7 @@ type Props = {
     fieldName: Organisation1FieldName;
     code: ServerInvalidFieldCode;
   }[];
+  forcedUpdateInputs: Partial<UnauthenticatedUpdateCompanyOnboardingInput>;
 };
 
 const associationRegisterNamePerCountry: Partial<Record<CountryCCA3, string>> = {
@@ -125,6 +127,7 @@ export const OnboardingCompanyOrganisation1 = ({
   accountCountry,
   onboardingId,
   serverValidationErrors,
+  forcedUpdateInputs,
 }: Props) => {
   const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
   const [autofillInfo, autofillResult] = useMutation(UpdateCompanyOnboardingDocument);
@@ -255,6 +258,7 @@ export const OnboardingCompanyOrganisation1 = ({
         updateOnboarding({
           input: {
             onboardingId,
+            ...forcedUpdateInputs,
             isRegistered,
             name,
             registrationNumber,

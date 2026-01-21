@@ -511,8 +511,7 @@ export const VerificationRenewalOwnership = ({
       .tapOk(data => {
         const steps = getRenewalSteps(data.verificationRenewal, accountHolderType);
 
-        const nextStep =
-          getNextStep(renewalSteps.accountHolderInformation, steps) ?? renewalSteps.finalize;
+        const nextStep = getNextStep(renewalSteps.renewalOwnership, steps) ?? renewalSteps.finalize;
         setNextStep(nextStep);
 
         Router.push("VerificationRenewalOwnership", {

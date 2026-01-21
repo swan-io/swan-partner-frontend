@@ -119,7 +119,7 @@ export const VerificationRenewalAdministratorInformation = ({
               const steps = getRenewalSteps(data.verificationRenewal, accountHolderType);
 
               const nextStep =
-                getNextStep(renewalSteps.accountHolderInformation, steps) ?? renewalSteps.finalize;
+                getNextStep(renewalSteps.administratorInformation, steps) ?? renewalSteps.finalize;
 
               Router.push(nextStep.id, {
                 verificationRenewalId: verificationRenewalId,

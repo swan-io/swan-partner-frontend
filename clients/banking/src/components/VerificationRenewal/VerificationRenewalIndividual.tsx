@@ -12,15 +12,20 @@ import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import {
+  GetVerificationRenewalQuery,
   IndividualRenewalInfoFragment,
   SupportingDocumentRenewalFragment,
-  VerificationRenewalRequirement,
 } from "../../graphql/partner";
 import { NotFoundPage } from "../../pages/NotFoundPage";
-import { locale, t } from "../../utils/i18n";
+import { locale } from "../../utils/i18n";
 import { Router, VerificationRenewalRoute, verificationRenewalRoutes } from "../../utils/routes";
 import { ErrorView } from "../ErrorView";
-import { RenewalStep } from "./VerificationRenewalCompany";
+import {
+  getNextStep,
+  getRenewalSteps,
+  RenewalStep,
+  renewalSteps,
+} from "./VerificationRenewalCompany";
 import { VerificationRenewalDocuments } from "./VerificationRenewalDocuments";
 import {
   VerificationRenewalFinalize,
@@ -44,38 +49,6 @@ const styles = StyleSheet.create({
   },
 });
 
-const finalizeStep: RenewalStep = {
-  id: "VerificationRenewalFinalize",
-  label: t("verificationRenewal.step.finalize"),
-  icon: "checkmark-filled",
-};
-
-const getRenewalSteps = (requirements: VerificationRenewalRequirement[] | null): RenewalStep[] => {
-  const orderedSteps: RenewalStep[] = [];
-
-  const steps = new Set(requirements ?? []);
-
-  if (steps.has("AccountHolderDetailsRequired")) {
-    orderedSteps.push({
-      id: "VerificationRenewalPersonalInformation",
-      label: t("verificationRenewal.step.personalInfo"),
-      icon: "person-regular",
-    });
-  }
-
-  if (steps.has("SupportingDocumentsRequired")) {
-    orderedSteps.push({
-      id: "VerificationRenewalDocuments",
-      label: t("verificationRenewal.step.documents"),
-      icon: "document-regular",
-    });
-  }
-
-  orderedSteps.push(finalizeStep);
-
-  return orderedSteps;
-};
-
 const getCurrentStep = (
   routeName: VerificationRenewalRoute | undefined,
   steps: RenewalStep[],
@@ -91,37 +64,26 @@ const getPreviousStep = (currentStep: RenewalStep, steps: RenewalStep[]) => {
   return steps[index - 1];
 };
 
-const getNextStep = (currentStep: RenewalStep, steps: RenewalStep[]) => {
-  const index = steps.indexOf(currentStep);
-  if (index === -1) {
-    return undefined;
-  }
-  return steps[index + 1];
-};
-
 type Props = {
   verificationRenewalId: string;
   info: IndividualRenewalInfoFragment;
-  verificationRequirements: VerificationRenewalRequirement[] | null;
   supportingDocumentCollection: SupportingDocumentRenewalFragment | null;
+  verificationRenewal: GetVerificationRenewalQuery["verificationRenewal"];
 };
 
 export const VerificationRenewalIndividual = ({
   verificationRenewalId,
   info,
-  verificationRequirements,
   supportingDocumentCollection,
+  verificationRenewal,
 }: Props) => {
   const route = Router.useRoute(verificationRenewalRoutes);
 
-  const isStepperDisplayed =
-    !isNullish(route) &&
-    route.name !== "VerificationRenewalRoot" &&
-    route.name !== "VerificationRenewalFinalize";
-
+  const isStepperDisplayed = !isNullish(route) && route.name !== "VerificationRenewalRoot";
+  const accountHolderType = "Individual";
   const steps = useMemo(
-    () => getRenewalSteps(verificationRequirements),
-    [verificationRequirements],
+    () => getRenewalSteps(verificationRenewal, accountHolderType),
+    [verificationRenewal],
   );
 
   const stepperSteps = useMemo<TopLevelStep[]>(
@@ -138,8 +100,6 @@ export const VerificationRenewalIndividual = ({
 
   const currentStep = getCurrentStep(route?.name, steps);
   const previousStep = currentStep != null ? getPreviousStep(currentStep, steps) : undefined;
-  const nullableNextStep = currentStep != null ? getNextStep(currentStep, steps) : undefined;
-  const nextStep = nullableNextStep ?? finalizeStep;
 
   const isFinalized = steps.length === 0 || steps.length === 1;
 
@@ -182,7 +142,7 @@ export const VerificationRenewalIndividual = ({
             info={info}
             verificationRenewalId={verificationRenewalId}
             previousStep={previousStep}
-            nextStep={nextStep}
+            accountHolderType={accountHolderType}
           />
         ))
         .with(
@@ -190,18 +150,25 @@ export const VerificationRenewalIndividual = ({
             route: { name: "VerificationRenewalDocuments" },
             supportingDocumentCollection: P.nonNullable,
           },
-          ({ supportingDocumentCollection }) => (
-            <VerificationRenewalDocuments
-              templateLanguage={locale.language}
-              previousStep={previousStep}
-              nextStep={nextStep}
-              verificationRenewalId={verificationRenewalId}
-              supportingDocumentCollection={supportingDocumentCollection}
-            />
-          ),
+          ({ supportingDocumentCollection }) => {
+            const nextStep =
+              getNextStep(renewalSteps.renewalDocuments, steps) ?? renewalSteps.finalize;
+            return (
+              <VerificationRenewalDocuments
+                templateLanguage={locale.language}
+                previousStep={previousStep}
+                nextStep={nextStep}
+                verificationRenewalId={verificationRenewalId}
+                supportingDocumentCollection={supportingDocumentCollection}
+              />
+            );
+          },
         )
         .with({ route: { name: "VerificationRenewalFinalize" } }, () => (
-          <VerificationRenewalFinalize verificationRenewalId={verificationRenewalId} />
+          <VerificationRenewalFinalize
+            verificationRenewalId={verificationRenewalId}
+            previousStep={previousStep}
+          />
         ))
         .with(P.nullish, () => <NotFoundPage />)
 

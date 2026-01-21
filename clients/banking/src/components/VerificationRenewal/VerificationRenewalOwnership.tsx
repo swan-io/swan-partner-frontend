@@ -35,6 +35,7 @@ import { OnboardingStepContent } from "../../../../onboarding/src/components/Onb
 import { StepTitle } from "../../../../onboarding/src/components/StepTitle";
 import {
   AccountCountry,
+  AccountHolderType,
   CompanyRenewalInfoFragment,
   UltimateBeneficialOwnerOwnershipInput,
   UltimateBeneficialOwnerOwnershipType,
@@ -44,7 +45,12 @@ import {
 } from "../../graphql/partner";
 import { t, TranslationKey } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
-import { RenewalStep } from "./VerificationRenewalCompany";
+import {
+  getNextStep,
+  getRenewalSteps,
+  RenewalStep,
+  renewalSteps,
+} from "./VerificationRenewalCompany";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 import {
   Input,
@@ -386,27 +392,30 @@ const UboTile = ({ ubo, companyName, country, shakeError, onEdit, onDelete }: Ub
 };
 
 type Props = {
+  accountHolderType: AccountHolderType;
   info: CompanyRenewalInfoFragment;
   accountCountry: AccountCountry;
   verificationRenewalId: string;
   companyCountry: CountryCCA3;
   previousStep: RenewalStep | undefined;
-  nextStep: RenewalStep;
+  initialNextStep: RenewalStep;
 };
 
 export const VerificationRenewalOwnership = ({
+  accountHolderType,
   info,
   accountCountry,
   verificationRenewalId,
   companyCountry,
-  nextStep,
   previousStep,
+  initialNextStep, // could be updated by updating ubos
 }: Props) => {
   const [updateCompanyVerificationRenewal, updatingCompanyVerificationRenewal] = useMutation(
     UpdateCompanyVerificationRenewalDocument,
   );
   const [pageState, setPageState] = useState<PageState>({ type: "list" });
   const [shakeError, setShakeError] = useBoolean(false);
+  const [nextStep, setNextStep] = useState(initialNextStep);
 
   const currentUbos = useMemo(
     () =>
@@ -499,7 +508,13 @@ export const VerificationRenewalOwnership = ({
       .mapOk(data => data.updateCompanyVerificationRenewal)
       .mapOkToResult(data => Option.fromNullable(data).toResult(data))
       .mapOkToResult(filterRejectionsToResult)
-      .tapOk(() => {
+      .tapOk(data => {
+        const steps = getRenewalSteps(data.verificationRenewal, accountHolderType);
+
+        const nextStep =
+          getNextStep(renewalSteps.accountHolderInformation, steps) ?? renewalSteps.finalize;
+        setNextStep(nextStep);
+
         Router.push("VerificationRenewalOwnership", {
           verificationRenewalId: verificationRenewalId,
         });

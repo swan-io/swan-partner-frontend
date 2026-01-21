@@ -23,6 +23,7 @@ import { match, P } from "ts-pattern";
 import { OnboardingStepContent } from "../../../../onboarding/src/components/OnboardingStepContent";
 import { StepTitle } from "../../../../onboarding/src/components/StepTitle";
 import {
+  AccountHolderType,
   EmploymentStatus,
   IndividualRenewalInfoFragment,
   MonthlyIncome,
@@ -30,7 +31,12 @@ import {
 } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
-import { RenewalStep } from "./VerificationRenewalCompany";
+import {
+  getNextStep,
+  getRenewalSteps,
+  RenewalStep,
+  renewalSteps,
+} from "./VerificationRenewalCompany";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 
 const styles = StyleSheet.create({
@@ -53,7 +59,7 @@ type Props = {
   verificationRenewalId: string;
   info: IndividualRenewalInfoFragment;
   previousStep: RenewalStep | undefined;
-  nextStep: RenewalStep;
+  accountHolderType: AccountHolderType;
 };
 
 type EditableFieldProps<T> = {
@@ -214,7 +220,7 @@ export const VerificationRenewalPersonalInfo = ({
   verificationRenewalId,
   info,
   previousStep,
-  nextStep,
+  accountHolderType,
 }: Props) => {
   const [updateIndividualVerificationRenewal, updatingIndividualVerificationRenewal] = useMutation(
     UpdateIndividualVerificationRenewalDocument,
@@ -268,7 +274,12 @@ export const VerificationRenewalPersonalInfo = ({
           .mapOk(data => data.updateIndividualVerificationRenewal)
           .mapOkToResult(data => Option.fromNullable(data).toResult(data))
           .mapOkToResult(filterRejectionsToResult)
-          .tapOk(() => {
+          .tapOk(data => {
+            const steps = getRenewalSteps(data.verificationRenewal, accountHolderType);
+
+            const nextStep =
+              getNextStep(renewalSteps.accountHolderInformation, steps) ?? renewalSteps.finalize;
+
             Router.push(nextStep.id, {
               verificationRenewalId: verificationRenewalId,
             });

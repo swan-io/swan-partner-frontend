@@ -29,7 +29,12 @@ import {
 } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
-import type { RenewalStep } from "./VerificationRenewalCompany";
+import {
+  getNextStep,
+  getRenewalSteps,
+  renewalSteps,
+  type RenewalStep,
+} from "./VerificationRenewalCompany";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 import { EditableField } from "./VerificationRenewalPersonalInfo";
 
@@ -53,14 +58,12 @@ type Props = {
   verificationRenewalId: string;
   info: CompanyRenewalInfoFragment;
   previousStep: RenewalStep | undefined;
-  nextStep: RenewalStep;
 };
 
 export const VerificationRenewalAdministratorInformation = ({
   info,
   verificationRenewalId,
   previousStep,
-  nextStep,
 }: Props) => {
   const [updateCompanyVerificationRenewal, updatingCompanyVerificationRenewal] = useMutation(
     UpdateCompanyVerificationRenewalDocument,
@@ -113,7 +116,13 @@ export const VerificationRenewalAdministratorInformation = ({
             .mapOk(data => data.updateCompanyVerificationRenewal)
             .mapOkToResult(data => Option.fromNullable(data).toResult(data))
             .mapOkToResult(filterRejectionsToResult)
-            .tapOk(() => {
+            .tapOk(data => {
+              const accountHolderType = "Company";
+              const steps = getRenewalSteps(data.verificationRenewal, accountHolderType);
+
+              const nextStep =
+                getNextStep(renewalSteps.accountHolderInformation, steps) ?? renewalSteps.finalize;
+
               Router.push(nextStep.id, {
                 verificationRenewalId: verificationRenewalId,
               });

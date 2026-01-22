@@ -1805,7 +1805,7 @@
   "verificationRenewal.ownership.type.ownership": "Ownership",
   "verificationRenewal.personalInformation.employmentStatus": "Occupation",
   "verificationRenewal.personalInformation.monthlyIncome": "Monthly income",
-  "verificationRenewal.personalInformation.title": "Who has ownership your organization?",
+  "verificationRenewal.personalInformation.title": "Who has ownership at your organization?",
   "verificationRenewal.postalCode": "Postal code",
   "verificationRenewal.step.accountHolderInfo": "Account holder information",
   "verificationRenewal.step.administratorInfo": "Administrator information",

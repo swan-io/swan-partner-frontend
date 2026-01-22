@@ -263,9 +263,6 @@ const PERMISSIONS_MATRIX = {
       canManageAccountMembership: true,
       statusInfo: { status: ENABLED },
     },
-    settings: {
-      canAddNewMembers: true,
-    },
   },
   canReadMerchantProfile: P.union(
     // either you already have one

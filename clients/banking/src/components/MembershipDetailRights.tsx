@@ -485,7 +485,7 @@ export const MembershipDetailRights = ({
               {
                 editingAccountMembership: { legalRepresentative: true },
               },
-              // No permission in project web-banking settings
+              // Membership doesn't have the permission
               { canUpdateAccountMembership: false },
               () => null,
             )

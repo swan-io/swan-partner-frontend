@@ -4,32 +4,34 @@ import { WebBankingSettingsFragment } from "../graphql/partner";
 const PERMISSIONS_MATRIX = {
   addAccountMembership: {
     settings: {
+      canViewMembers: true,
       canAddNewMembers: true,
     },
   },
   sendAccountMembershipInviteNotification: {
     settings: {
+      canViewMembers: true,
       canAddNewMembers: true,
     },
   },
   updateAccountMembership: {
     settings: {
-      canAddNewMembers: true,
+      canViewMembers: true,
     },
   },
   suspendAccountMembership: {
     settings: {
-      canAddNewMembers: true,
+      canViewMembers: true,
     },
   },
   resumeAccountMembership: {
     settings: {
-      canAddNewMembers: true,
+      canViewMembers: true,
     },
   },
   disableAccountMembership: {
     settings: {
-      canAddNewMembers: true,
+      canViewMembers: true,
     },
   },
   addTrustedSepaBeneficiary: {

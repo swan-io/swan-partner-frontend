@@ -29,12 +29,8 @@ import {
 } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
-import {
-  getNextStep,
-  getRenewalSteps,
-  renewalSteps,
-  type RenewalStep,
-} from "./VerificationRenewalCompany";
+import { getRenewalSteps, RenewalStep, renewalSteps } from "../../utils/verificationRenewal";
+import { getNextStep } from "./VerificationRenewalCompany";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 import { EditableField } from "./VerificationRenewalPersonalInfo";
 

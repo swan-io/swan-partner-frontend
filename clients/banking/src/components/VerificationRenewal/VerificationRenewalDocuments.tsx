@@ -23,7 +23,7 @@ import {
 } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
-import { RenewalStep } from "./VerificationRenewalCompany";
+import { RenewalStep } from "../../utils/verificationRenewal";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 
 export type Document<Purpose extends string> = {

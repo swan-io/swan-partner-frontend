@@ -24,6 +24,7 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { useForm } from "@swan-io/use-form";
 import { useState } from "react";
+import { StyleSheet } from "react-native";
 import { match } from "ts-pattern";
 import { OnboardingStepContent } from "../../../../onboarding/src/components/OnboardingStepContent";
 import { StepTitle } from "../../../../onboarding/src/components/StepTitle";
@@ -35,14 +36,14 @@ import {
 } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
-import {
-  getNextStep,
-  getRenewalSteps,
-  renewalSteps,
-  type RenewalStep,
-} from "./VerificationRenewalCompany";
+import { getRenewalSteps, RenewalStep, renewalSteps } from "../../utils/verificationRenewal";
+import { getNextStep } from "./VerificationRenewalCompany";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 import { EditableField } from "./VerificationRenewalPersonalInfo";
+
+const styles = StyleSheet.create({
+  field: { width: "100%" },
+});
 
 const translateMonthlyPaymentVolume = (monthlyPaymentVolume: MonthlyPaymentVolume) =>
   match(monthlyPaymentVolume)
@@ -245,7 +246,7 @@ export const VerificationRenewalAccountHolderInformation = ({
                 <LakeLabel
                   type="view"
                   label={t("verificationRenewal.country")}
-                  style={{ width: "100%" }}
+                  style={styles.field}
                   render={() => (
                     <Field name="country">
                       {({ value, onChange }) =>

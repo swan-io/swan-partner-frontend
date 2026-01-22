@@ -9,7 +9,7 @@ import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { StyleSheet, View } from "react-native";
 import { t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
-import { RenewalStep } from "./VerificationRenewalCompany";
+import { RenewalStep } from "../../utils/verificationRenewal";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 
 const desktopIconSize = 100;

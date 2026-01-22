@@ -19,13 +19,9 @@ import {
 import { NotFoundPage } from "../../pages/NotFoundPage";
 import { locale } from "../../utils/i18n";
 import { Router, VerificationRenewalRoute, verificationRenewalRoutes } from "../../utils/routes";
+import { getRenewalSteps, RenewalStep, renewalSteps } from "../../utils/verificationRenewal";
 import { ErrorView } from "../ErrorView";
-import {
-  getNextStep,
-  getRenewalSteps,
-  RenewalStep,
-  renewalSteps,
-} from "./VerificationRenewalCompany";
+import { getNextStep } from "./VerificationRenewalCompany";
 import { VerificationRenewalDocuments } from "./VerificationRenewalDocuments";
 import {
   VerificationRenewalFinalize,

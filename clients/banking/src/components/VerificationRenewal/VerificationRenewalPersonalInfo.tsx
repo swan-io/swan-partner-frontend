@@ -37,16 +37,13 @@ import {
 } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
-import {
-  getNextStep,
-  getRenewalSteps,
-  RenewalStep,
-  renewalSteps,
-} from "./VerificationRenewalCompany";
+import { getRenewalSteps, RenewalStep, renewalSteps } from "../../utils/verificationRenewal";
+import { getNextStep } from "./VerificationRenewalCompany";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 
 const styles = StyleSheet.create({
   label: { flexGrow: 1, paddingBottom: 0 },
+  field: { width: "100%" },
 });
 
 type Form = {
@@ -428,7 +425,7 @@ export const VerificationRenewalPersonalInfo = ({
                 <LakeLabel
                   type="view"
                   label={t("verificationRenewal.country")}
-                  style={{ width: "100%" }}
+                  style={styles.field}
                   render={() => (
                     <Field name="country">
                       {({ value, onChange }) =>

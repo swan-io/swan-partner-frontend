@@ -1,6 +1,5 @@
 import { Option } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { IconName } from "@swan-io/lake/src/components/Icon";
 import {
   LakeStepper,
   MobileStepTitle,
@@ -16,14 +15,14 @@ import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import {
   AccountCountry,
-  AccountHolderType,
   CompanyRenewalInfoFragment,
   GetVerificationRenewalQuery,
   SupportingDocumentRenewalFragment,
 } from "../../graphql/partner";
 import { NotFoundPage } from "../../pages/NotFoundPage";
-import { locale, t } from "../../utils/i18n";
+import { locale } from "../../utils/i18n";
 import { Router, VerificationRenewalRoute, verificationRenewalRoutes } from "../../utils/routes";
+import { getRenewalSteps, RenewalStep, renewalSteps } from "../../utils/verificationRenewal";
 import { ErrorView } from "../ErrorView";
 import { VerificationRenewalAccountHolderInformation } from "./VerificationRenewalAccountHolderInformation";
 import { VerificationRenewalAdministratorInformation } from "./VerificationRenewalAdministratorInformation";
@@ -49,88 +48,6 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
 });
-
-export type RenewalStep = {
-  id: VerificationRenewalRoute;
-  label: string;
-  icon: IconName;
-};
-
-export const renewalSteps = {
-  accountHolderInformation: {
-    id: "VerificationRenewalAccountHolderInformation",
-    label: t("verificationRenewal.step.accountHolderInfo"),
-    icon: "building-regular",
-  },
-  administratorInformation: {
-    id: "VerificationRenewalAdministratorInformation",
-    label: t("verificationRenewal.step.administratorInfo"),
-    icon: "person-regular",
-  },
-  personalInformation: {
-    id: "VerificationRenewalPersonalInformation",
-    label: t("verificationRenewal.step.personalInfo"),
-    icon: "person-regular",
-  },
-  renewalOwnership: {
-    id: "VerificationRenewalOwnership",
-    label: t("verificationRenewal.step.ownership"),
-    icon: "people-add-regular",
-  },
-  renewalDocuments: {
-    id: "VerificationRenewalDocuments",
-    label: t("verificationRenewal.step.documents"),
-    icon: "document-regular",
-  },
-  finalize: {
-    id: "VerificationRenewalFinalize",
-    label: t("verificationRenewal.step.finalize"),
-    icon: "checkmark-filled",
-  },
-} satisfies Record<string, RenewalStep>;
-
-export const getRenewalSteps = (
-  data: GetVerificationRenewalQuery["verificationRenewal"],
-  accountHolderType: AccountHolderType,
-): RenewalStep[] => {
-  const requirements = match(data)
-    .with(
-      {
-        __typename: "WaitingForInformationVerificationRenewal",
-        verificationRequirements: P.nonNullable,
-      },
-      ({ verificationRequirements }) => verificationRequirements,
-    )
-    .otherwise(() => []);
-
-  const orderedSteps: RenewalStep[] = [];
-
-  const steps = new Set(requirements);
-
-  if (steps.has("AccountHolderDetailsRequired") && accountHolderType === "Company") {
-    orderedSteps.push(renewalSteps.accountHolderInformation);
-  }
-
-  if (steps.has("AccountHolderDetailsRequired") && accountHolderType === "Individual") {
-    orderedSteps.push(renewalSteps.personalInformation);
-  }
-
-  if (steps.has("LegalRepresentativeDetailsRequired") && accountHolderType === "Company") {
-    orderedSteps.push(renewalSteps.administratorInformation);
-  }
-
-  if (steps.has("UboDetailsRequired") && accountHolderType === "Company") {
-    orderedSteps.push(renewalSteps.renewalOwnership);
-  }
-
-  if (steps.has("SupportingDocumentsRequired")) {
-    orderedSteps.push(renewalSteps.renewalDocuments);
-  }
-
-  orderedSteps.push(renewalSteps.finalize);
-
-  return orderedSteps;
-};
 
 const getCurrentStep = (
   routeName: VerificationRenewalRoute | undefined,

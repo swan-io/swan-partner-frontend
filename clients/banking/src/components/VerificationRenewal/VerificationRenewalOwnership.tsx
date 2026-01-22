@@ -45,12 +45,8 @@ import {
 } from "../../graphql/partner";
 import { t, TranslationKey } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
-import {
-  getNextStep,
-  getRenewalSteps,
-  RenewalStep,
-  renewalSteps,
-} from "./VerificationRenewalCompany";
+import { getRenewalSteps, RenewalStep, renewalSteps } from "../../utils/verificationRenewal";
+import { getNextStep } from "./VerificationRenewalCompany";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 import {
   Input,

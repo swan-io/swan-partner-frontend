@@ -8,11 +8,7 @@ import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartner
 import { backgroundColor, colors, invariantColors } from "@swan-io/lake/src/constants/design";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
-import {
-  AccountCountry,
-  GetVerificationRenewalDocument,
-  VerificationRenewalRequirement,
-} from "../../graphql/partner";
+import { AccountCountry, GetVerificationRenewalDocument } from "../../graphql/partner";
 import { ErrorView } from "../ErrorView";
 import { VerificationRenewalCompany } from "./VerificationRenewalCompany";
 import { VerificationRenewalHeader } from "./VerificationRenewalHeader";
@@ -72,26 +68,12 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
           )
           .otherwise(() => null);
 
-        const { verificationRequirements, accountCountry } = match(verificationRenewal)
-          .returnType<{
-            verificationRequirements: VerificationRenewalRequirement[];
-            accountCountry: Option<AccountCountry>;
-          }>()
-          .with(
-            {
-              __typename: "WaitingForInformationVerificationRenewal",
-              verificationRequirements: P.nonNullable,
-            },
-            ({ verificationRequirements, accountCountries }) => ({
-              verificationRequirements,
-              // only individuals could have several account countries. As we need it only for company UBOs, we could get only the first one
-              accountCountry: Option.fromNullable((accountCountries ?? [])[0]),
-            }),
+        const accountCountry = match(verificationRenewal)
+          .returnType<Option<AccountCountry>>()
+          .with({ accountCountries: P.nonNullable }, ({ accountCountries }) =>
+            Option.fromNullable(accountCountries[0]),
           )
-          .otherwise(() => ({
-            verificationRequirements: [],
-            accountCountry: Option.None(),
-          }));
+          .otherwise(() => Option.None());
 
         return (
           <LakeScrollView style={styles.main}>
@@ -121,7 +103,7 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
                               verificationRenewalId={verificationRenewalId}
                               info={verificationRenewal.info}
                               supportingDocumentCollection={renewalSupportingDoc}
-                              verificationRequirements={verificationRequirements}
+                              verificationRenewal={verificationRenewal}
                             />
                           ),
                         )
@@ -136,7 +118,7 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
                               verificationRenewalId={verificationRenewalId}
                               info={verificationRenewal.info}
                               supportingDocumentCollection={renewalSupportingDoc}
-                              verificationRequirements={verificationRequirements}
+                              verificationRenewal={verificationRenewal}
                             />
                           ),
                         )

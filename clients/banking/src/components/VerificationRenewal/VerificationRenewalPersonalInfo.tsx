@@ -13,6 +13,12 @@ import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/desig
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { deriveUnion, identity, noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
+import {
+  companyCountries,
+  CountryCCA3,
+  getCountryName,
+} from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateNullableRequired } from "@swan-io/shared-business/src/utils/validation";
@@ -23,6 +29,7 @@ import { match, P } from "ts-pattern";
 import { OnboardingStepContent } from "../../../../onboarding/src/components/OnboardingStepContent";
 import { StepTitle } from "../../../../onboarding/src/components/StepTitle";
 import {
+  AccountHolderType,
   EmploymentStatus,
   IndividualRenewalInfoFragment,
   MonthlyIncome,
@@ -30,11 +37,13 @@ import {
 } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
-import { RenewalStep } from "./VerificationRenewalCompany";
+import { getRenewalSteps, RenewalStep, renewalSteps } from "../../utils/verificationRenewal";
+import { getNextStep } from "./VerificationRenewalCompany";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 
 const styles = StyleSheet.create({
   label: { flexGrow: 1, paddingBottom: 0 },
+  field: { width: "100%" },
 });
 
 type Form = {
@@ -44,7 +53,6 @@ type Form = {
   addressLine2: string;
   postalCode: string;
   city: string;
-  country: string;
   monthlyIncome: MonthlyIncome;
   employmentStatus: EmploymentStatus;
 };
@@ -53,7 +61,7 @@ type Props = {
   verificationRenewalId: string;
   info: IndividualRenewalInfoFragment;
   previousStep: RenewalStep | undefined;
-  nextStep: RenewalStep;
+  accountHolderType: AccountHolderType;
 };
 
 type EditableFieldProps<T> = {
@@ -214,7 +222,7 @@ export const VerificationRenewalPersonalInfo = ({
   verificationRenewalId,
   info,
   previousStep,
-  nextStep,
+  accountHolderType,
 }: Props) => {
   const [updateIndividualVerificationRenewal, updatingIndividualVerificationRenewal] = useMutation(
     UpdateIndividualVerificationRenewalDocument,
@@ -227,57 +235,77 @@ export const VerificationRenewalPersonalInfo = ({
     addressLine2: info.accountAdmin.residencyAddress.addressLine2 ?? "",
     postalCode: info.accountAdmin.residencyAddress.postalCode ?? "",
     city: info.accountAdmin.residencyAddress.city ?? "",
-    country: info.accountAdmin.residencyAddress.country ?? "",
     monthlyIncome: info.accountAdmin.monthlyIncome ?? "",
     employmentStatus: info.accountAdmin.employmentStatus,
   });
 
-  const onPressSubmit = () => {
-    const {
-      firstName,
-      lastName,
-      addressLine1,
-      addressLine2,
-      city,
-      monthlyIncome,
-      employmentStatus,
-      postalCode,
-      country,
-    } = savedValues;
+  const { Field, setFieldValue, submitForm } = useForm({
+    country: {
+      initialValue: info.accountAdmin.residencyAddress.country as CountryCCA3,
+    },
+  });
 
-    return match(info)
-      .with({ __typename: "IndividualVerificationRenewalInfo" }, () =>
-        updateIndividualVerificationRenewal({
-          input: {
-            verificationRenewalId: verificationRenewalId,
-            accountAdmin: {
-              firstName,
-              lastName,
-              employmentStatus,
-              residencyAddress: {
-                addressLine1,
-                addressLine2,
-                postalCode,
-                city,
-                country,
-              },
-              monthlyIncome,
-            },
-          },
-        })
-          .mapOk(data => data.updateIndividualVerificationRenewal)
-          .mapOkToResult(data => Option.fromNullable(data).toResult(data))
-          .mapOkToResult(filterRejectionsToResult)
-          .tapOk(() => {
-            Router.push(nextStep.id, {
-              verificationRenewalId: verificationRenewalId,
-            });
-          })
-          .tapError(error => {
-            showToast({ variant: "error", error, title: translateError(error) });
-          }),
-      )
-      .exhaustive();
+  const [editingCountry, setEditingCountry] = useBoolean(false);
+
+  const onPressSubmit = () => {
+    submitForm({
+      onSuccess: values => {
+        const option = Option.allFromDict(values);
+        if (option.isSome()) {
+          const {
+            firstName,
+            lastName,
+            addressLine1,
+            addressLine2,
+            city,
+            monthlyIncome,
+            employmentStatus,
+            postalCode,
+          } = savedValues;
+
+          const { country } = option.value;
+
+          return match(info)
+            .with({ __typename: "IndividualVerificationRenewalInfo" }, () =>
+              updateIndividualVerificationRenewal({
+                input: {
+                  verificationRenewalId: verificationRenewalId,
+                  accountAdmin: {
+                    firstName,
+                    lastName,
+                    employmentStatus,
+                    residencyAddress: {
+                      addressLine1,
+                      addressLine2,
+                      postalCode,
+                      city,
+                      country,
+                    },
+                    monthlyIncome,
+                  },
+                },
+              })
+                .mapOk(data => data.updateIndividualVerificationRenewal)
+                .mapOkToResult(data => Option.fromNullable(data).toResult(data))
+                .mapOkToResult(filterRejectionsToResult)
+                .tapOk(data => {
+                  const steps = getRenewalSteps(data.verificationRenewal, accountHolderType);
+
+                  const nextStep =
+                    getNextStep(renewalSteps.personalInformation, steps) ?? renewalSteps.finalize;
+
+                  Router.push(nextStep.id, {
+                    verificationRenewalId: verificationRenewalId,
+                  });
+                })
+                .tapError(error => {
+                  showToast({ variant: "error", error, title: translateError(error) });
+                }),
+            )
+            .exhaustive();
+        }
+      },
+    });
   };
 
   return (
@@ -393,21 +421,92 @@ export const VerificationRenewalPersonalInfo = ({
               />
 
               <Space height={12} />
-              <EditableField
-                label={t("verificationRenewal.country")}
-                value={savedValues.country}
-                validate={validateNullableRequired}
-                formatValue={identity}
-                onChange={value => setSaveValues({ ...savedValues, country: value })}
-                renderEditing={({ value, error, onChange, onBlur }) => (
-                  <LakeTextInput
-                    value={value}
-                    error={error}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                  />
-                )}
-              />
+              <Box direction="row">
+                <LakeLabel
+                  type="view"
+                  label={t("verificationRenewal.country")}
+                  style={styles.field}
+                  render={() => (
+                    <Field name="country">
+                      {({ value, onChange }) =>
+                        editingCountry ? (
+                          <Box direction="row">
+                            <Box grow={1}>
+                              <Space height={8} />
+                              <CountryPicker
+                                countries={companyCountries}
+                                value={value}
+                                onValueChange={onChange}
+                              />
+                            </Box>
+
+                            <Space width={8} />
+                            <Box
+                              direction="row"
+                              style={{
+                                paddingTop: spacings[8],
+                              }}
+                            >
+                              <LakeButton
+                                ariaLabel={t("verificationRenewal.ariaLabel.validate")}
+                                size="small"
+                                color="partner"
+                                icon="checkmark-filled"
+                                onPress={() => {
+                                  setEditingCountry.off();
+                                  setFieldValue("country", value);
+                                }}
+                              />
+
+                              <Space width={8} />
+                              <LakeButton
+                                mode="secondary"
+                                ariaLabel={t("verificationRenewal.ariaLabel.cancel")}
+                                size="small"
+                                color="partner"
+                                icon="dismiss-filled"
+                                onPress={() => {
+                                  setEditingCountry.off();
+                                  setFieldValue(
+                                    "country",
+                                    info.accountAdmin.residencyAddress.country as CountryCCA3,
+                                  );
+                                }}
+                              />
+                            </Box>
+                          </Box>
+                        ) : (
+                          <Box direction="row">
+                            <Box grow={1}>
+                              <LakeText
+                                color={colors.gray[900]}
+                                style={{
+                                  height: spacings[40],
+                                  width: "100%",
+                                }}
+                              >
+                                {getCountryName(value)}
+                              </LakeText>
+                            </Box>
+
+                            <Box alignItems="center">
+                              <Space height={8} />
+                              <LakeButton
+                                mode="tertiary"
+                                ariaLabel={t("verificationRenewal.ariaLabel.edit")}
+                                size="small"
+                                color="partner"
+                                icon="edit-regular"
+                                onPress={setEditingCountry.on}
+                              />
+                            </Box>
+                          </Box>
+                        )
+                      }
+                    </Field>
+                  )}
+                />
+              </Box>
 
               <Space height={12} />
               <EditableField

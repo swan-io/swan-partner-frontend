@@ -11,7 +11,6 @@ const PERMISSIONS_MATRIX = {
   sendAccountMembershipInviteNotification: {
     settings: {
       canViewMembers: true,
-      canAddNewMembers: true,
     },
   },
   updateAccountMembership: {

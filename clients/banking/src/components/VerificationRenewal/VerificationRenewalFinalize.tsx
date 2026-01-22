@@ -1,4 +1,4 @@
-import { Option } from "@swan-io/boxed";
+import { AsyncData, Option, Result } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -12,11 +12,8 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { showToast } from "@swan-io/shared-business/src/state/toasts";
-import { translateError } from "@swan-io/shared-business/src/utils/i18n";
-import { useState } from "react";
 import { Pressable, StyleSheet } from "react-native";
-import { match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { OnboardingStepContent } from "../../../../onboarding/src/components/OnboardingStepContent";
 import { StepTitle } from "../../../../onboarding/src/components/StepTitle";
 import { FinalizeVerificationRenewalDocument } from "../../graphql/partner";
@@ -50,31 +47,11 @@ export const VerificationRenewalFinalizeSuccess = () => {
 };
 
 type ErrorProps = {
-  verificationRenewalId: string;
+  retry: () => void;
+  loading: boolean;
 };
 
-const VerificationRenewalFinalizeError = ({ verificationRenewalId }: ErrorProps) => {
-  const [finalizeVerificationRenewal, finalization] = useMutation(
-    FinalizeVerificationRenewalDocument,
-  );
-
-  const retry = () => {
-    finalizeVerificationRenewal({
-      input: {
-        verificationRenewalId,
-      },
-    })
-      .mapOk(data => data.finalizeVerificationRenewal)
-      .mapOkToResult(data => Option.fromNullable(data).toResult(data))
-      .mapOkToResult(filterRejectionsToResult)
-      .tapError(error => {
-        showToast({
-          variant: "error",
-          title: translateError(error),
-        });
-      });
-  };
-
+const VerificationRenewalFinalizeError = ({ retry, loading }: ErrorProps) => {
   return (
     <Box direction="column" alignItems="center" justifyContent="center" style={styles.container}>
       <BorderedIcon padding={24} name="lake-error" size={100} />
@@ -88,7 +65,7 @@ const VerificationRenewalFinalizeError = ({ verificationRenewalId }: ErrorProps)
       <LakeText align="center">{t("verificationRenewal.finalize.error.subtitle")}</LakeText>
 
       <Space height={16} />
-      <LakeButton color="partner" loading={finalization.isLoading()} onPress={retry}>
+      <LakeButton color="partner" loading={loading} onPress={retry}>
         {t("verificationRenewal.finalize.error.button")}
       </LakeButton>
     </Box>
@@ -106,7 +83,6 @@ export const VerificationRenewalFinalize = ({ verificationRenewalId, previousSte
   );
 
   const [checked, setChecked] = useBoolean(false);
-  const [success, setSuccess] = useState<boolean | undefined>(undefined);
 
   const handleFinalize = () =>
     finalizeVerificationRenewal({
@@ -116,12 +92,10 @@ export const VerificationRenewalFinalize = ({ verificationRenewalId, previousSte
     })
       .mapOk(data => data.finalizeVerificationRenewal)
       .mapOkToResult(data => Option.fromNullable(data).toResult(data))
-      .mapOkToResult(filterRejectionsToResult)
-      .tapOk(() => setSuccess(true))
-      .tapError(() => setSuccess(false));
+      .mapOkToResult(filterRejectionsToResult);
 
-  return match(success)
-    .with(undefined, () => (
+  return match(finalization)
+    .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => (
       <OnboardingStepContent>
         <ResponsiveContainer breakpoint={breakpoints.medium}>
           {({ small }) => (
@@ -162,9 +136,9 @@ export const VerificationRenewalFinalize = ({ verificationRenewalId, previousSte
         </ResponsiveContainer>
       </OnboardingStepContent>
     ))
-    .with(false, () => (
-      <VerificationRenewalFinalizeError verificationRenewalId={verificationRenewalId} />
+    .with(AsyncData.P.Done(Result.P.Error(P._)), () => (
+      <VerificationRenewalFinalizeError retry={handleFinalize} loading={finalization.isLoading()} />
     ))
-    .with(true, () => <VerificationRenewalFinalizeSuccess />)
+    .with(AsyncData.P.Done(Result.P.Ok(P._)), () => <VerificationRenewalFinalizeSuccess />)
     .exhaustive();
 };

@@ -307,7 +307,7 @@ export const OnboardingCompanyOrganisation1 = ({
   useEffect(() => {
     if (siren != null) {
       autofillInfo({
-        input: { onboardingId, registrationNumber: siren },
+        input: { onboardingId, ...forcedUpdateInputs, registrationNumber: siren },
         language: locale.language,
       })
         .mapOk(
@@ -340,7 +340,7 @@ export const OnboardingCompanyOrganisation1 = ({
           );
         });
     }
-  }, [siren, autofillInfo, onboardingId, setFieldValue]);
+  }, [siren, autofillInfo, onboardingId, forcedUpdateInputs, setFieldValue]);
 
   const onSelectCompany = useCallback(({ siren }: CompanySuggestion) => {
     setSiren(siren);

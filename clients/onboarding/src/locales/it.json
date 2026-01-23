@@ -188,7 +188,7 @@
   "employmentStatus.manager": "Dirigente",
   "employmentStatus.practitioner": "Libero professionista",
   "employmentStatus.retiree": "Pensionato",
-  "employmentStatus.shopOwner": "Commerciante o proprietario di un negozio",
+  "employmentStatus.shopOwner": "Esercente o proprietario di un negozio",
   "employmentStatus.student": "Studente",
   "employmentStatus.unemployed": "Disoccupato",
   "error.birthdate.incomplete": "Si prega di inserire la data di nascita completa e valida: mese, giorno e anno.",

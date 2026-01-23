@@ -4,8 +4,7 @@ import { P, match } from "ts-pattern";
 import { env } from "./env";
 import { projectConfiguration } from "./projectId";
 
-// biome-ignore lint/style/useNodejsImportProtocol: <explanation>
-import { Buffer } from "buffer";
+import { Buffer } from "node:buffer";
 globalThis.Buffer = Buffer;
 
 export const tgglClient = new TgglClient({

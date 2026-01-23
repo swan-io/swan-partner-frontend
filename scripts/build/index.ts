@@ -33,7 +33,10 @@ void (async () => {
         mode: "production",
         define: { "process.env.NODE_ENV": JSON.stringify("production") },
         resolve: {
-          alias: { "react-native": "react-native-web" },
+          alias: {
+            "react-native": "react-native-web",
+            "node:buffer": "buffer",
+          },
         },
         build: {
           outDir: path.join(cwd, "server", "dist", "static", appName),

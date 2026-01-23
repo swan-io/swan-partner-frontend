@@ -35,7 +35,6 @@ void (async () => {
         resolve: {
           alias: {
             "react-native": "react-native-web",
-            "node:buffer": "buffer",
           },
         },
         build: {

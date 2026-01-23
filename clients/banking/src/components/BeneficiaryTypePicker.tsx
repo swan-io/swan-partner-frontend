@@ -6,9 +6,9 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useCallback, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
+import { useFlag } from "react-tggl-client";
 import { t } from "../utils/i18n";
 import { RouteParams, Router } from "../utils/routes";
-import { useTgglFlag } from "../utils/tggl";
 import { BeneficiaryInternationalWizard } from "./BeneficiaryInternationalWizard";
 import { BeneficiarySepaWizard } from "./BeneficiarySepaWizard";
 import { TypePickerLink } from "./TypePickerLink";
@@ -43,7 +43,7 @@ type Props = {
 };
 
 export const BeneficiaryTypePicker = ({ accountMembershipId, accountId, params }: Props) => {
-  const ictEnabled = useTgglFlag("initiate_international_credit_transfer_outgoing");
+  const ictEnabled = useFlag("initiate_international_credit_transfer_outgoing", false);
 
   useCrumb(
     useMemo(
@@ -63,7 +63,7 @@ export const BeneficiaryTypePicker = ({ accountMembershipId, accountId, params }
         title: t("beneficiaries.wizards.picker.sepa.title"),
         subtitle: t("beneficiaries.wizards.picker.sepa.subtitle"),
       },
-      ...(ictEnabled.getOr(false)
+      ...(ictEnabled
         ? [
             {
               url: Router.AccountPaymentsBeneficiariesNew({

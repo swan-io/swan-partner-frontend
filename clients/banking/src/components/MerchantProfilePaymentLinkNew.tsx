@@ -37,7 +37,10 @@ import {
 import { trim } from "@swan-io/lake/src/utils/string";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
-import { validateArrayRequired, validateRequired } from "@swan-io/shared-business/src/utils/validation";
+import {
+  validateArrayRequired,
+  validateRequired,
+} from "@swan-io/shared-business/src/utils/validation";
 import { toOptionalValidator, useForm } from "@swan-io/use-form";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";

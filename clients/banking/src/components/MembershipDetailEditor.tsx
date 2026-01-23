@@ -32,6 +32,7 @@ import {
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
+import { useFlag } from "react-tggl-client";
 import { P, match } from "ts-pattern";
 import {
   AccountLanguage,
@@ -46,7 +47,6 @@ import { accountLanguages, locale, t } from "../utils/i18n";
 import { parsePhoneNumber, prefixPhoneNumber } from "../utils/phone";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
-import { useTgglFlag } from "../utils/tggl";
 import { validateAddressLine } from "../utils/validations";
 import { InputPhoneNumber } from "./InputPhoneNumber";
 import { MembershipCancelConfirmationModal } from "./MembershipCancelConfirmationModal";
@@ -89,9 +89,7 @@ export const MembershipDetailEditor = ({
 }: Props) => {
   const { canUpdateAccountMembership } = usePermissions();
   const [isCancelConfirmationModalOpen, setIsCancelConfirmationModalOpen] = useState(false);
-  const canUseNotificationStack = useTgglFlag("useNotificationStackToSendNewMembershipEmail").getOr(
-    false,
-  );
+  const canUseNotificationStack = useFlag("useNotificationStackToSendNewMembershipEmail", false);
 
   const [updateMembership, membershipUpdate] = useMutation(UpdateAccountMembershipDocument);
   const [suspendMembership, membershipSuspension] = useMutation(SuspendAccountMembershipDocument);

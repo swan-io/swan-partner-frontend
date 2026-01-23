@@ -6,6 +6,7 @@ import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { ToastStack } from "@swan-io/shared-business/src/components/ToastStack";
 import { StyleSheet } from "react-native";
+import { TgglProvider, useFlag } from "react-tggl-client";
 import { P, match } from "ts-pattern";
 import { AccountClose } from "./components/AccountClose";
 import { AccountMembershipArea } from "./components/AccountMembershipArea";
@@ -22,7 +23,7 @@ import { partnerClient, unauthenticatedClient } from "./utils/gql";
 import { logFrontendError } from "./utils/logger";
 import { projectConfiguration } from "./utils/projectId";
 import { Router } from "./utils/routes";
-import { useTgglFlag } from "./utils/tggl";
+import { tgglClient } from "./utils/tggl";
 
 const styles = StyleSheet.create({
   base: {
@@ -45,8 +46,8 @@ const AppContainer = () => {
 
   // Feature flag used only during deferred debit card development
   // Should be removed once the feature is fully developed
-  const showDeferredDebitCard = useTgglFlag("deferredDebitCard").getOr(false);
-  const showReKYC = useTgglFlag("reKYCFrontend").getOr(false);
+  const showDeferredDebitCard = useFlag("deferredDebitCard", false);
+  const showReKYC = useFlag("reKYCFrontend", false);
 
   const loginInfo = authStatus
     .mapOk(data => data.user?.id != null)
@@ -143,11 +144,13 @@ export const App = () => {
       onError={error => logFrontendError(error)}
       fallback={() => <ErrorView style={styles.base} />}
     >
-      <ClientContext.Provider value={partnerClient}>
-        <AppContainer />
+      <TgglProvider client={tgglClient}>
+        <ClientContext.Provider value={partnerClient}>
+          <AppContainer />
+          <ToastStack />
+        </ClientContext.Provider>
         <ToastStack />
-      </ClientContext.Provider>
-      <ToastStack />
+      </TgglProvider>
     </ErrorBoundary>
   );
 };

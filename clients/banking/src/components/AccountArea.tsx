@@ -32,6 +32,7 @@ import { CONTENT_ID, SkipToContent } from "@swan-io/shared-business/src/componen
 import { AdditionalInfo } from "@swan-io/shared-business/src/components/SupportChat";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NativeScrollEvent, NativeSyntheticEvent, Pressable, StyleSheet, View } from "react-native";
+import { useFlag, useTggl } from "react-tggl-client";
 import { match, P } from "ts-pattern";
 import logoSwan from "../assets/images/logo-swan.svg";
 import { AccountAreaQuery, AccountLanguage, IdentificationFragment } from "../graphql/partner";
@@ -47,7 +48,6 @@ import { logFrontendError, setPostHogUser } from "../utils/logger";
 import { projectConfiguration } from "../utils/projectId";
 import { accountRoutes, Router } from "../utils/routes";
 import { signout } from "../utils/signout";
-import { updateTgglContext, useTgglFlag } from "../utils/tggl";
 import { AccountDetailsArea } from "./AccountDetailsArea";
 import { AccountNavigation, Menu } from "./AccountNavigation";
 import { AccountActivationTag, AccountPicker, AccountPickerButton } from "./AccountPicker";
@@ -223,7 +223,7 @@ export const AccountArea = ({
   const projectLogo = projectInfo.logoUri ?? undefined;
 
   const permissions = usePermissions();
-  const isMerchantFlagActive = useTgglFlag("merchantWebBanking").getOr(false);
+  const isMerchantFlagActive = useFlag("merchantWebBanking", false);
 
   const menu: Menu =
     holder?.verificationStatus === "Refused"
@@ -290,13 +290,14 @@ export const AccountArea = ({
         ];
 
   const route = Router.useRoute(accountRoutes);
+  const { updateContext } = useTggl();
 
   const email = accountMembership.email;
   const hasRequiredIdentificationLevel = accountMembership.hasRequiredIdentificationLevel ?? false;
 
   useEffect(() => {
-    updateTgglContext({ accountCountry, userId, email });
-  }, [accountCountry, userId, email]);
+    updateContext({ accountCountry, userId, email });
+  }, [updateContext, accountCountry, userId, email]);
 
   const additionalInfo = useMemo<AdditionalInfo>(
     () => ({

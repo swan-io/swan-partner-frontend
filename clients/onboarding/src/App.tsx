@@ -51,7 +51,7 @@ const PageMetadata = ({
   projectName?: string;
   projectId?: string;
 }) => {
-  const { updateContext } = useTggl()
+  const { updateContext } = useTggl();
 
   useEffect(() => {
     updateContext({ accountCountry });
@@ -402,43 +402,42 @@ export const Routing = () => {
       onError={error => logFrontendError(error)}
       fallback={() => <ErrorView />}
     >
-        {match(route)
-          .with(
-            { name: "SupportingDocumentCollectionArea" },
-            ({ params: { supportingDocumentCollectionId } }) => (
-              <ClientContext.Provider value={client}>
-                <SupportingDocumentCollectionFlow
-                  supportingDocumentCollectionId={supportingDocumentCollectionId}
-                />
-              </ClientContext.Provider>
-            ),
-          )
-          .with({ name: "ChangeAdminArea" }, ({ params: { requestId } }) => displayChangeAccountAdmin ? (
-              <ClientContext.Provider value={partnerClient}>
-                <ChangeAdminWizard changeAdminRequestId={requestId} />
-              </ClientContext.Provider>
-            ) : (
-              <NotFoundPage />
-            )
-          )
-          .with({ name: "Area" }, ({ params: { onboardingId } }) => (
-            <ClientContext.Provider value={partnerClient}>
-              <FlowPickerWizard onboardingId={onboardingId} />
+      {match(route)
+        .with(
+          { name: "SupportingDocumentCollectionArea" },
+          ({ params: { supportingDocumentCollectionId } }) => (
+            <ClientContext.Provider value={client}>
+              <SupportingDocumentCollectionFlow
+                supportingDocumentCollectionId={supportingDocumentCollectionId}
+              />
             </ClientContext.Provider>
-          ))
-          .with(P.nullish, () => <NotFoundPage />)
-          .exhaustive()}
+          ),
+        )
+        .with({ name: "ChangeAdminArea" }, ({ params: { requestId } }) =>
+          displayChangeAccountAdmin ? (
+            <ClientContext.Provider value={partnerClient}>
+              <ChangeAdminWizard changeAdminRequestId={requestId} />
+            </ClientContext.Provider>
+          ) : (
+            <NotFoundPage />
+          ),
+        )
+        .with({ name: "Area" }, ({ params: { onboardingId } }) => (
+          <ClientContext.Provider value={partnerClient}>
+            <FlowPickerWizard onboardingId={onboardingId} />
+          </ClientContext.Provider>
+        ))
+        .with(P.nullish, () => <NotFoundPage />)
+        .exhaustive()}
     </ErrorBoundary>
   );
 };
 
-
-
 export const App = () => {
   return (
-      <TgglProvider client={tgglClient}>
-        <Routing />
-        <ToastStack />
-      </TgglProvider>
+    <TgglProvider client={tgglClient}>
+      <Routing />
+      <ToastStack />
+    </TgglProvider>
   );
 };

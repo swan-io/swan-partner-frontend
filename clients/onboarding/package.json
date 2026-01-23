@@ -29,7 +29,6 @@
     "nanoid": "5.1.5",
     "posthog-js": "1.266.2",
     "react": "19.1.1",
-    "react-atomic-state": "2.1.0",
     "react-dom": "19.1.1",
     "react-native-web": "0.20.0",
     "react-tggl-client": "4.0.1",

@@ -35,6 +35,7 @@ import {
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
+import { useFlag } from "react-tggl-client";
 import { P, match } from "ts-pattern";
 import {
   AccountCountry,
@@ -47,7 +48,6 @@ import { accountLanguages, locale, t } from "../utils/i18n";
 import { prefixPhoneNumber } from "../utils/phone";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
-import { useTgglFlag } from "../utils/tggl";
 import { validateAddressLine } from "../utils/validations";
 import { InputPhoneNumber } from "./InputPhoneNumber";
 
@@ -123,7 +123,7 @@ export const NewMembershipWizard = ({
   onSuccess,
   onPressCancel,
 }: Props) => {
-  const canUseNotificationStack = useTgglFlag("useNotificationStackToSendNewMembershipEmail");
+  const canUseNotificationStack = useFlag("useNotificationStackToSendNewMembershipEmail", false);
 
   const [sendAccountMembershipInviteNotification] = useMutation(
     SendAccountMembershipInviteNotificationDocument,

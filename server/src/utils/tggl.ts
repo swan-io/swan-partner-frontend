@@ -6,7 +6,6 @@ const tgglClient = new TgglLocalClient({
   apiKey: env.TGGL_SERVER_KEY,
 });
 
-
 export const getTgglClient = (projectId: string) => {
   return tgglClient.createClientForContext({
     environment: match({
@@ -21,4 +20,3 @@ export const getTgglClient = (projectId: string) => {
     environmentType: env.OAUTH_CLIENT_ID.startsWith("LIVE_") ? "live" : "sandbox",
   } as TgglContext);
 };
-

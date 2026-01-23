@@ -5,6 +5,7 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useMemo } from "react";
 import { StyleSheet } from "react-native";
+import { useFlag } from "react-tggl-client";
 import { P, match } from "ts-pattern";
 import { AccountLanguage } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
@@ -15,7 +16,6 @@ import { AccountDetailsSettingsPage } from "../pages/AccountDetailsSettingsPage"
 import { AccountDetailsVirtualIbansPage } from "../pages/AccountDetailsVirtualIbansPage";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { useTgglFlag } from "../utils/tggl";
 import { Redirect } from "./Redirect";
 
 const styles = StyleSheet.create({
@@ -49,7 +49,7 @@ export const AccountDetailsArea = ({
 
   // Feature flag used only during deferred debit card development
   // Should be removed once the feature is fully developed
-  const showDeferredDebitCard = useTgglFlag("deferredDebitCard").getOr(false);
+  const showDeferredDebitCard = useFlag("deferredDebitCard", false);
 
   const tabs = useMemo(
     () => [

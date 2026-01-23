@@ -6,11 +6,11 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useCallback, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
+import { useFlag } from "react-tggl-client";
 import { AccountCountry } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 import { RouteParams, Router } from "../utils/routes";
-import { useTgglFlag } from "../utils/tggl";
 import { TransferBulkWizard } from "./TransferBulkWizard";
 import { TransferInternationalWizard } from "./TransferInternationalWizard";
 import { TransferRecurringWizard } from "./TransferRecurringWizard";
@@ -51,7 +51,7 @@ export const TransferTypePicker = ({
   accountCountry,
   params,
 }: Props) => {
-  const ictEnabled = useTgglFlag("initiate_international_credit_transfer_outgoing");
+  const ictEnabled = useFlag("initiate_international_credit_transfer_outgoing", false);
   const permissions = usePermissions();
 
   useCrumb(
@@ -86,7 +86,7 @@ export const TransferTypePicker = ({
             },
           ]
         : []),
-      ...(permissions.canInitiateCreditTransfer && ictEnabled.getOr(false)
+      ...(permissions.canInitiateCreditTransfer && ictEnabled
         ? [
             {
               url: Router.AccountPaymentsNew({ accountMembershipId, type: "international" }),

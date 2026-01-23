@@ -16,6 +16,7 @@ import { Request } from "@swan-io/request";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { StyleSheet, View } from "react-native";
+import { useFlag } from "react-tggl-client";
 import { P, isMatching, match } from "ts-pattern";
 import { Except } from "type-fest";
 import {
@@ -29,7 +30,6 @@ import { usePermissions } from "../hooks/usePermissions";
 import { locale, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
 import { RouteParams, Router, membershipsRoutes } from "../utils/routes";
-import { useTgglFlag } from "../utils/tggl";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { MembershipDetailArea } from "./MembershipDetailArea";
@@ -82,9 +82,7 @@ export const MembershipsArea = ({
   const [, { query: queryLastCreatedMembership }] = useDeferredQuery(MembershipDetailDocument);
   const route = Router.useRoute(membershipsRoutes);
 
-  const canUseNotificationStack = useTgglFlag("useNotificationStackToSendNewMembershipEmail").getOr(
-    false,
-  );
+  const canUseNotificationStack = useFlag("useNotificationStackToSendNewMembershipEmail", false);
 
   const [sendAccountMembershipInviteNotification] = useMutation(
     SendAccountMembershipInviteNotificationDocument,

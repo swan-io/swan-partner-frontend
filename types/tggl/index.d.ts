@@ -40,6 +40,7 @@ declare module "tggl-client" {
     accountContractActivateRPCAgent: boolean;
     accountContractFetchAccountMembershipsByUserDataLoaded: boolean;
     accountContractPartnersCanOpenAdditionalAccounts: boolean;
+    activate_calendar_spending_limits: boolean;
     activate_card_package_on_card_product: boolean;
     activate_digital_card_use_case: boolean;
     activate_satd_manual_seizure_in_payment: boolean;
@@ -51,6 +52,7 @@ declare module "tggl-client" {
     aria_enabled: boolean;
     aria_redirect_to_swan_project: boolean;
     asset_freeze_approve_list_enabled: true;
+    automaticallyMergeThirdParties: boolean;
     back_office_bank_verlag_event_generation_improvements: true;
     bailiff_account_matching_mode:
       | "AccountContractAndPayment"
@@ -65,9 +67,6 @@ declare module "tggl-client" {
     block_reupload_register_extract: boolean;
     blockOtpRequestIfAntibotTokenIsInvalid: true;
     can_manage_beneficiary_for_untrusted_beneficiary: boolean;
-    cancel_card_and_cancel_physical_card_async: true;
-    cancel_cards_for_close_account: true;
-    cancel_cards_for_disable_account_membership: true;
     canHandleBulkPayment: boolean;
     cardExpirationNotificationEnabledGlobally: boolean;
     cardInsufficientFundsNotificationEnabledGlobally: boolean;
@@ -87,6 +86,7 @@ declare module "tggl-client" {
     create_verification_renewal_cron: boolean;
     createFraudPreventionCampaign: boolean;
     createVerificationRenewalFlowChart: boolean;
+    createVerificationRenewalInWaitingForInformationStatus: boolean;
     dashboardAccountClosingLink: true;
     dashboardBanner: null | {
       text: "Please advise your users to be careful with unsolicited calls, texts or emails and to always protect their login and payment info.";
@@ -111,8 +111,6 @@ declare module "tggl-client" {
     dont_change_default_expiration_for_suvc_one_off_at_update: boolean;
     enable_automatic_identity_documents_upload: boolean;
     enable_card_risk_assessment: boolean;
-    enable_card_token_proxy: boolean;
-    enable_cgw_v2: boolean;
     enable_credit_zero_amount_author_public_api: boolean;
     enable_document_convertor_from_csv_generation: boolean;
     enable_document_convertor_generation: boolean;
@@ -122,6 +120,7 @@ declare module "tggl-client" {
     enable_new_account_statement_file_name: boolean;
     enable_transaction_enrichment_from_origin_transaction: boolean;
     enableBouyguesFraudPreventionPage: boolean;
+    enableEmailConfirmationAtProjectCreation: boolean;
     enableFraudPreventionPage: boolean;
     enableIdentityTheftPreventionPage: true;
     end_customer_billing_enabled: boolean;
@@ -130,6 +129,7 @@ declare module "tggl-client" {
     forceAllowDesktopAuth: boolean;
     free_units_enabled: boolean;
     generate_mastercard_emi_banking: true;
+    handle_third_party_events: boolean;
     ict_validation_rejection_enabled: boolean;
     identificationUserInfoCollectionAndReview: boolean;
     identityBirthDataCollection: true;
@@ -143,6 +143,7 @@ declare module "tggl-client" {
     initiate_seizures_in_payment: boolean;
     initiate_seizures_in_payment_for_bailiff: boolean;
     inPersonCardPaymentMethodEnabled: boolean;
+    isAccountAdminChangeEnabled: boolean;
     isConsentFailedEventEnabled: true;
     isCustomerPasswordResetAvailable: true;
     isDashboardSignupForNewSuspiciousUserCheckEnabled: boolean;
@@ -150,7 +151,7 @@ declare module "tggl-client" {
     isPhoneNumberSuspicious: boolean;
     isScaDelegationEnabled: boolean;
     isThreeDsPaymentAllowToBeQueried: boolean;
-    "kafka-consumers-enabled": boolean;
+    kafkaConsumersEnabled: boolean;
     kycAccountHoldersVerificationsView: true;
     la_poste_tracked_international_active: boolean;
     lago_partner_event_use_billing_periods: boolean;
@@ -161,6 +162,7 @@ declare module "tggl-client" {
         | "31a685e6-184b-4483-862b-7fb85c42b190"
         | "517b28e1-35a1-4e4d-8763-c243d2286286"
         | "813e29c3-bc66-4eda-a2b4-8c1c300271cf"
+        | "9eece781-14c3-4891-bb00-b3f715f4876b"
         | "fb8baa30-a989-4d30-942f-26749eb24449"
         | "fc4f1e61-31c9-4a5a-87ae-af871854c3c7"
       >;
@@ -170,6 +172,7 @@ declare module "tggl-client" {
     merchantWebBanking: boolean;
     name_matching_use_valid_names_enabled: boolean;
     newGqlGateway: boolean;
+    OnboardingV2NoCode: boolean;
     outboundFundsTransferRejectedNotificationEnabledGlobally: boolean;
     outboundFundsTransferSuccessfulNotificationEnabledGlobally: boolean;
     partner_billing_v1_5_enabled: boolean;
@@ -205,6 +208,7 @@ declare module "tggl-client" {
     scale_merchant_onboarding_bo: boolean;
     scaleMerchantOnboarding: boolean;
     scaShouldIncludeCustomSubdomainInConsentUrl: boolean;
+    scaShouldPassSessionIdToConsentable: boolean;
     scaV1ToV2IdsConversionBatchSize: 0 | 10 | 100 | 20 | 200 | 3 | 5 | 50 | 75;
     scoreThresholdHCaptcha: 0.75 | 0.8 | 0.9 | 1.5;
     scoring_mode: "risk_assessment_first" | "scoring_and_risk_assessment_dry_run" | "scoring_only";
@@ -212,7 +216,7 @@ declare module "tggl-client" {
     sctInstEnabled: boolean;
     send_account_invoice_generated_event: boolean;
     send_activate_physical_card_notification: boolean;
-    send_back_new_response_type: boolean;
+    sendBusinessAndCustomerDataToSardine: boolean;
     sendCreditAndZeroAmountAuthorization: boolean;
     sendValidationInsteadOfForbiddenRejection: boolean;
     sendVerificationRenewalEmails: boolean;

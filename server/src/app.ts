@@ -414,7 +414,7 @@ export const start = async ({
         .flatMapOk(({ accountCountry, projectId }) => {
           const tgglClient = getTgglClient(projectId);
           const isOnboardingV2 = tgglClient.get("OnboardingV2NoCode", false);
-          request.log.info("#isOnboardingV2", isOnboardingV2);
+          request.log.info(`#isOnboardingV2 ${isOnboardingV2}`);
           if (isOnboardingV2) {
             return createPublicIndividualAccountHolderOnboarding({
               accountCountry,
@@ -461,7 +461,7 @@ export const start = async ({
         .flatMapOk(({ accountCountry, projectId }) => {
           const tgglClient = getTgglClient(projectId);
           const isOnboardingV2 = tgglClient.get("OnboardingV2NoCode", false);
-          request.log.info("#isOnboardingV2", isOnboardingV2);
+          request.log.info(`#isOnboardingV2 ${isOnboardingV2}`);
           if (isOnboardingV2) {
             return createPublicCompanyAccountHolderOnboarding({ accountCountry, projectId });
           } else {

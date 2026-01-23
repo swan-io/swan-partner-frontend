@@ -264,9 +264,6 @@ importers:
       react-tggl-client:
         specifier: 4.0.1
         version: 4.0.1
-      tggl-client:
-        specifier: 2.1.2
-        version: 2.1.2
       ts-pattern:
         specifier: 5.8.0
         version: 5.8.0
@@ -4550,9 +4547,6 @@ packages:
   tggl-cli@1.4.0:
     resolution: {integrity: sha512-KqgE5DaRztGSrmpASqvII3BGF+0BWOPB92pleDVgl50gT3LH6THmQHmCNKhuxfLDgzhg14vAhPOu45Meti5TZA==, tarball: https://registry.npmjs.org/tggl-cli/-/tggl-cli-1.4.0.tgz}
     hasBin: true
-
-  tggl-client@2.1.2:
-    resolution: {integrity: sha512-v1eUZ49HcoSLz7KOWpmmEpago76k0vHfR8sv4MBYB5XNNVNPE6gcdMWu8iyTNmGmgjfqcRqBWhL/2YdlX/7i/Q==, tarball: https://registry.npmjs.org/tggl-client/-/tggl-client-2.1.2.tgz}
 
   tggl-client@3.2.1:
     resolution: {integrity: sha512-V3tSOVv6ykxpHKIYvDPOXotlMCx6mnadBjrg5PjBTQU7mwwt5Aun5RKvBiMm8pLrBgzGS2Qz2xX5fmSe1ffZAA==, tarball: https://registry.npmjs.org/tggl-client/-/tggl-client-3.2.1.tgz}
@@ -9735,11 +9729,6 @@ snapshots:
       commander: 10.0.1
     transitivePeerDependencies:
       - debug
-
-  tggl-client@2.1.2:
-    dependencies:
-      dataloader: 2.2.3
-      tggl-core: 1.4.0
 
   tggl-client@3.2.1:
     dependencies:

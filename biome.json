@@ -48,7 +48,8 @@
         "noUselessElse": "off",
         "useBlockStatements": "warn",
         "useImportType": "off",
-        "useTemplate": "off"
+        "useTemplate": "off",
+        "useNodejsImportProtocol": "off"
       },
       "suspicious": {
         "noArrayIndexKey": "off",

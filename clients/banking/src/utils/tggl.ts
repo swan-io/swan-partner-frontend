@@ -4,7 +4,7 @@ import { P, match } from "ts-pattern";
 import { env } from "./env";
 import { projectConfiguration } from "./projectId";
 
-import { Buffer } from "node:buffer";
+import { Buffer } from "buffer";
 globalThis.Buffer = Buffer;
 
 export const tgglClient = new TgglClient({

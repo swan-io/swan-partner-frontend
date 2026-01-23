@@ -4,7 +4,6 @@ export default defineConfig({
   resolve: {
     alias: {
       "react-native": "react-native-web",
-      "node:buffer": "buffer",
     },
   },
   test: {

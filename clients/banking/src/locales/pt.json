@@ -1730,6 +1730,7 @@
   "verificationRenewal.documents.noDocuments": "Boas notícias - nenhum documento é necessário para esta verificação.",
   "verificationRenewal.documents.subtitle": "Por favor, providencie ficheiros de alta qualidade, em cores completas, que capturem todo o documento.",
   "verificationRenewal.documents.title": "Documentos de apoio",
+  "verificationRenewal.editModal.title": "Editar informações",
   "verificationRenewal.finalize.error.button": "Tentar novamente",
   "verificationRenewal.finalize.error.subtitle": "Não foi possível processar as suas informações. Por favor, tente novamente. Se o problema persistir, a nossa equipa poderá entrar em contato para obter mais detalhes.",
   "verificationRenewal.finalize.error.title": "Algo correu mal",

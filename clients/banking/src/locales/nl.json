@@ -1730,6 +1730,7 @@
   "verificationRenewal.documents.noDocuments": "Goed nieuws - er zijn geen documenten nodig voor deze verificatie.",
   "verificationRenewal.documents.subtitle": "Stuur ons hoogwaardige bestanden in kleur die het hele document laten zien.\n",
   "verificationRenewal.documents.title": "Ondersteunende documenten",
+  "verificationRenewal.editModal.title": "Gegevens bewerken",
   "verificationRenewal.finalize.error.button": "Probeer het opnieuw",
   "verificationRenewal.finalize.error.subtitle": "We kunnen je gegevens niet verwerken. Probeer het nog eens.\nAls het probleem blijft bestaan, neemt ons team mogelijk contact met je op voor meer details.",
   "verificationRenewal.finalize.error.title": "Er is iets misgegaan",

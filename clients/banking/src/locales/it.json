@@ -1730,6 +1730,7 @@
   "verificationRenewal.documents.noDocuments": "Buone notizie, non sono necessari documenti per questa verifica.",
   "verificationRenewal.documents.subtitle": "Si prega di fornire file a colori di alta qualità che mostrino l'intero documento, bordi inclusi.",
   "verificationRenewal.documents.title": "Documenti di supporto",
+  "verificationRenewal.editModal.title": "Modifica informazioni",
   "verificationRenewal.finalize.error.button": "Riprova",
   "verificationRenewal.finalize.error.subtitle": "Non siamo riusciti a elaborare le sue informazioni. Si prega di riprovare.\nSe il problema persiste, il nostro team potrebbe contattarla per ulteriori dettagli.",
   "verificationRenewal.finalize.error.title": "Qualcosa è andato storto",

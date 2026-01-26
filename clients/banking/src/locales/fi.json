@@ -1730,6 +1730,7 @@
   "verificationRenewal.documents.noDocuments": "Hyvä uutinen – tätä vahvistusta varten ei tarvita asiakirjoja.",
   "verificationRenewal.documents.subtitle": "Toimita laadukkaita, täysvärisiä tiedostoja, joihin on tallennettu koko asiakirja.",
   "verificationRenewal.documents.title": "Lisäasiakirjat",
+  "verificationRenewal.editModal.title": "Muokkaa tietoja",
   "verificationRenewal.finalize.error.button": "Yritä uudestaan",
   "verificationRenewal.finalize.error.subtitle": "Emme pystyneet käsittelemään tietojasi. Yritä uudelleen.\nJos ongelma jatkuu, tiimimme saattaa ottaa sinuun yhteyttä saadakseen lisätietoja.",
   "verificationRenewal.finalize.error.title": "Jokin meni vikaan",

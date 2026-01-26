@@ -159,6 +159,7 @@ export const VerificationRenewalCompany = ({
         ))
         .with({ route: { name: "VerificationRenewalAccountHolderInformation" } }, () => (
           <VerificationRenewalAccountHolderInformation
+            verificationRenewal={verificationRenewal}
             accountHolderType={accountHolderType}
             previousStep={previousStep}
             info={info}

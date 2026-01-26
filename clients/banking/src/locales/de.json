@@ -1730,6 +1730,7 @@
   "verificationRenewal.documents.noDocuments": "Gute Nachricht – für diese Überprüfung sind keine Dokumente erforderlich.",
   "verificationRenewal.documents.subtitle": "Bitte stellen Sie qualitativ hochwertige, farbige Dateien bereit, die das gesamte Dokument erfassen.",
   "verificationRenewal.documents.title": "Unterstützende Dokumente",
+  "verificationRenewal.editModal.title": "Informationen bearbeiten",
   "verificationRenewal.finalize.error.button": "Versuchen Sie es erneut",
   "verificationRenewal.finalize.error.subtitle": "Wir konnten Ihre Angaben nicht verarbeiten. Bitte versuchen Sie es erneut.\nWenn das Problem weiterhin besteht, wird Sie unser Team möglicherweise für weitere Details kontaktieren.",
   "verificationRenewal.finalize.error.title": "Es ist etwas schiefgelaufen",

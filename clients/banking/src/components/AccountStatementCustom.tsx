@@ -34,10 +34,10 @@ import { Rifm } from "rifm";
 import { P, isMatching } from "ts-pattern";
 import {
   AccountLanguage,
+  AccountStatementFormat,
   AccountStatementsPageDocument,
   AccountStatementsPageQuery,
   GenerateAccountStatementDocument,
-  StatementType,
 } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { accountLanguages, languages, locale, rifmDateProps, t } from "../utils/i18n";
@@ -204,7 +204,7 @@ const smallColumns: ColumnConfig<Statement, ExtraInfo>[] = [
 
 const PER_PAGE = 20;
 
-const statementTypeList: StatementType[] = ["PDF", "CSV"];
+const statementTypeList: AccountStatementFormat[] = ["PDF", "CSV"];
 
 const NewStatementForm = ({
   large,
@@ -215,7 +215,7 @@ const NewStatementForm = ({
   const { Field, submitForm } = useForm<{
     startDate: string;
     closingDate: string;
-    format: StatementType;
+    format: AccountStatementFormat;
     language: AccountLanguage;
   }>({
     startDate: {
@@ -301,7 +301,7 @@ const NewStatementForm = ({
               closingDate: dayjs
                 .utc(closingDate, locale.dateFormat)
                 .format("YYYY-MM-DDT23:59:59.999+01:00"),
-              statementType: format,
+              format,
               language,
             },
           })

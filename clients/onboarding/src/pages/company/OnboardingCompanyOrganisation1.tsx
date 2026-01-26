@@ -25,6 +25,7 @@ import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import {
   validateBooleanTypeRequired,
   validateCompanyTaxNumber,
+  validateIndividualTaxNumber,
   validateRequired,
   validateVatNumber,
 } from "@swan-io/shared-business/src/utils/validation";
@@ -150,6 +151,15 @@ export const OnboardingCompanyOrganisation1 = ({
     .with({ accountCountry: P.not("BEL"), country: P.not("BEL") }, () => true)
     .otherwise(() => false);
 
+  //Italian company with a status self employed use the same tax validation rules as individual
+  const hasCompanyTaxRules = match({ companyType, country })
+    .with({ companyType: "SelfEmployed", country: "ITA" }, () => false)
+    .otherwise(() => true);
+
+  const validateTaxNumber = hasCompanyTaxRules
+    ? validateCompanyTaxNumber
+    : validateIndividualTaxNumber;
+
   const isRegisteredRadioButtonsVisible = country === "DEU";
 
   const { Field, FieldsListener, submitForm, setFieldValue, setFieldError } = useForm({
@@ -190,7 +200,7 @@ export const OnboardingCompanyOrganisation1 = ({
       validate: canSetTaxIdentification
         ? combineValidators(
             isTaxIdentificationRequired && validateRequired,
-            validateCompanyTaxNumber(country as CompanyCountryCCA3),
+            validateTaxNumber(country as CompanyCountryCCA3),
           )
         : undefined,
     },
@@ -543,7 +553,7 @@ export const OnboardingCompanyOrganisation1 = ({
                           onChange={onChange}
                           onBlur={onBlur}
                           country={country as CompanyCountryCCA3}
-                          isCompany={true}
+                          isCompany={hasCompanyTaxRules}
                           required={isTaxIdentificationRequired}
                           disabled={autofillResult.isLoading()}
                           label={

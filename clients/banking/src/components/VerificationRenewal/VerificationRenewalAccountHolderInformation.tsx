@@ -18,27 +18,33 @@ import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import {
+  AddressDetail,
+  PlacekitAddressSearchInput,
+} from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
+import {
   companyCountries,
   CountryCCA3,
   getCountryName,
+  isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { useForm } from "@swan-io/use-form";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { OnboardingStepContent } from "../../../../onboarding/src/components/OnboardingStepContent";
 import { StepTitle } from "../../../../onboarding/src/components/StepTitle";
 import {
+  AccountCountry,
   AccountHolderType,
   CompanyRenewalInfoFragment,
   GetVerificationRenewalQuery,
   MonthlyPaymentVolume,
   UpdateCompanyVerificationRenewalDocument,
 } from "../../graphql/partner";
-import { t } from "../../utils/i18n";
+import { locale, t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
 import { getRenewalSteps, RenewalStep, renewalSteps } from "../../utils/verificationRenewal";
 import { getNextStep } from "./VerificationRenewalCompany";
@@ -48,9 +54,6 @@ const styles = StyleSheet.create({
   field: { width: "100%" },
   tileContainer: {
     flex: 1,
-  },
-  label: {
-    minHeight: 65,
   },
   unknownValue: {
     fontStyle: "italic",
@@ -99,6 +102,7 @@ type Props = {
   info: CompanyRenewalInfoFragment;
   previousStep: RenewalStep | undefined;
   verificationRenewal: GetVerificationRenewalQuery["verificationRenewal"];
+  accountCountry: AccountCountry;
 };
 
 export const VerificationRenewalAccountHolderInformation = ({
@@ -107,12 +111,13 @@ export const VerificationRenewalAccountHolderInformation = ({
   verificationRenewal,
   info,
   previousStep,
+  accountCountry,
 }: Props) => {
   const [updateCompanyVerificationRenewal, updatingCompanyVerificationRenewal] = useMutation(
     UpdateCompanyVerificationRenewalDocument,
   );
 
-  const { Field, submitForm } = useForm<Form>({
+  const { Field, submitForm, FieldsListener, setFieldValue } = useForm<Form>({
     companyName: {
       initialValue: info.company.name,
       validate: validateRequired,
@@ -138,7 +143,9 @@ export const VerificationRenewalAccountHolderInformation = ({
       sanitize: value => value.trim(),
     },
     country: {
-      initialValue: info.company.residencyAddress.country as CountryCCA3,
+      initialValue: isCountryCCA3(info.company.residencyAddress.country)
+        ? info.company.residencyAddress.country
+        : accountCountry,
     },
     activityDescription: {
       initialValue: info.company.businessActivityDescription,
@@ -157,6 +164,17 @@ export const VerificationRenewalAccountHolderInformation = ({
 
   const [nextStep, setNextStep] = useState<RenewalStep>(
     getNextStep(renewalSteps.accountHolderInformation, steps) ?? renewalSteps.finalize,
+  );
+
+  const onSuggestion = useCallback(
+    (place: AddressDetail) => {
+      setFieldValue("addressLine1", place.completeAddress);
+      setFieldValue("city", place.city);
+      if (place.postalCode != null) {
+        setFieldValue("postalCode", place.postalCode);
+      }
+    },
+    [setFieldValue],
   );
 
   const onPressSubmit = () => {
@@ -237,7 +255,6 @@ export const VerificationRenewalAccountHolderInformation = ({
                 <View style={styles.tileContainer}>
                   <ReadOnlyFieldList>
                     <LakeLabel
-                      style={styles.label}
                       label={t("verificationRenewal.companyName")}
                       type="view"
                       render={() => (
@@ -245,7 +262,6 @@ export const VerificationRenewalAccountHolderInformation = ({
                       )}
                     />
                     <LakeLabel
-                      style={styles.label}
                       label={t("verificationRenewal.addressLine1")}
                       type="view"
                       render={() => (
@@ -257,7 +273,6 @@ export const VerificationRenewalAccountHolderInformation = ({
 
                     <Grid numColumns={2} horizontalSpace={40} style={styles.grid}>
                       <LakeLabel
-                        style={styles.label}
                         label={t("verificationRenewal.addressLine2")}
                         type="view"
                         render={() =>
@@ -272,7 +287,6 @@ export const VerificationRenewalAccountHolderInformation = ({
                       />
 
                       <LakeLabel
-                        style={styles.label}
                         label={t("verificationRenewal.postalCode")}
                         type="view"
                         render={() => (
@@ -285,7 +299,6 @@ export const VerificationRenewalAccountHolderInformation = ({
 
                     <Grid horizontalSpace={40} style={styles.grid} numColumns={2}>
                       <LakeLabel
-                        style={styles.label}
                         label={t("verificationRenewal.city")}
                         type="view"
                         render={() => (
@@ -321,7 +334,6 @@ export const VerificationRenewalAccountHolderInformation = ({
 
                     <Grid horizontalSpace={40} style={styles.grid} numColumns={2}>
                       <LakeLabel
-                        style={styles.label}
                         label={t("verificationRenewal.activityDescription")}
                         type="view"
                         render={() => (
@@ -332,7 +344,6 @@ export const VerificationRenewalAccountHolderInformation = ({
                       />
 
                       <LakeLabel
-                        style={styles.label}
                         label={t("verificationRenewal.monthlyPaymentVolume")}
                         type="view"
                         render={() => (
@@ -393,89 +404,110 @@ export const VerificationRenewalAccountHolderInformation = ({
 
               <LakeLabel
                 type="view"
-                label={t("verificationRenewal.addressLine1")}
+                label={t("verificationRenewal.country")}
                 render={() => (
-                  <Field name="addressLine1">
-                    {({ value, error, onChange, onBlur }) => (
-                      <LakeTextInput
+                  <Field name="country">
+                    {({ value, onChange }) => (
+                      <CountryPicker
+                        countries={companyCountries}
                         value={value}
-                        error={error}
-                        onChangeText={onChange}
-                        onBlur={onBlur}
+                        onValueChange={onChange}
                       />
                     )}
                   </Field>
                 )}
               />
-              <Grid numColumns={2} horizontalSpace={40} style={styles.grid}>
-                <LakeLabel
-                  type="view"
-                  label={t("verificationRenewal.addressLine2")}
-                  render={() => (
-                    <Field name="addressLine2">
-                      {({ value, error, onChange, onBlur }) => (
-                        <LakeTextInput
-                          value={value}
-                          error={error}
-                          onChangeText={onChange}
-                          onBlur={onBlur}
-                        />
-                      )}
-                    </Field>
-                  )}
-                />
 
-                <LakeLabel
-                  type="view"
-                  label={t("verificationRenewal.postalCode")}
-                  render={() => (
-                    <Field name="postalCode">
-                      {({ value, error, onChange, onBlur }) => (
-                        <LakeTextInput
-                          value={value}
-                          error={error}
-                          onChangeText={onChange}
-                          onBlur={onBlur}
-                        />
-                      )}
-                    </Field>
-                  )}
-                />
-              </Grid>
-              <Grid numColumns={2} horizontalSpace={40} style={styles.grid}>
-                <LakeLabel
-                  type="view"
-                  label={t("verificationRenewal.city")}
-                  render={() => (
-                    <Field name="city">
-                      {({ value, error, onChange, onBlur }) => (
-                        <LakeTextInput
-                          value={value}
-                          error={error}
-                          onChangeText={onChange}
-                          onBlur={onBlur}
-                        />
-                      )}
-                    </Field>
-                  )}
-                />
+              <FieldsListener names={["country"]}>
+                {({ country }) => (
+                  <>
+                    <Grid horizontalSpace={40} style={styles.grid} numColumns={2}>
+                      <LakeLabel
+                        type="view"
+                        label={t("verificationRenewal.addressLine1")}
+                        render={id => (
+                          <Field name="addressLine1">
+                            {({ ref, value, onChange, error }) => (
+                              <PlacekitAddressSearchInput
+                                inputRef={ref}
+                                apiKey={__env.CLIENT_PLACEKIT_API_KEY}
+                                emptyResultText={t("common.noResults")}
+                                placeholder={t(
+                                  "verificationRenewal.ownership.residencyAddressPlaceholder",
+                                )}
+                                language={locale.language}
+                                id={id}
+                                country={country.value ?? accountCountry}
+                                value={value}
+                                error={error}
+                                onValueChange={onChange}
+                                onSuggestion={onSuggestion}
+                              />
+                            )}
+                          </Field>
+                        )}
+                      />
 
-                <LakeLabel
-                  type="view"
-                  label={t("verificationRenewal.country")}
-                  render={() => (
-                    <Field name="country">
-                      {({ value, onChange }) => (
-                        <CountryPicker
-                          countries={companyCountries}
-                          value={value}
-                          onValueChange={onChange}
-                        />
-                      )}
-                    </Field>
-                  )}
-                />
-              </Grid>
+                      <LakeLabel
+                        type="view"
+                        label={t("verificationRenewal.addressLine2")}
+                        render={() => (
+                          <Field name="addressLine2">
+                            {({ value, error, onChange, onBlur }) => (
+                              <LakeTextInput
+                                value={value}
+                                error={error}
+                                onChangeText={onChange}
+                                onBlur={onBlur}
+                              />
+                            )}
+                          </Field>
+                        )}
+                      />
+                    </Grid>
+
+                    <Grid horizontalSpace={40} style={styles.grid} numColumns={2}>
+                      <LakeLabel
+                        type="view"
+                        label={t("verificationRenewal.postalCode")}
+                        render={id => (
+                          <Field name="postalCode">
+                            {({ ref, value, valid, error, onChange }) => (
+                              <LakeTextInput
+                                ref={ref}
+                                id={id}
+                                value={value}
+                                valid={valid}
+                                error={error}
+                                onChangeText={onChange}
+                              />
+                            )}
+                          </Field>
+                        )}
+                      />
+
+                      <LakeLabel
+                        type="view"
+                        label={t("verificationRenewal.city")}
+                        render={id => (
+                          <Field name="city">
+                            {({ ref, value, valid, error, onChange }) => (
+                              <LakeTextInput
+                                ref={ref}
+                                id={id}
+                                value={value}
+                                valid={valid}
+                                error={error}
+                                onChangeText={onChange}
+                              />
+                            )}
+                          </Field>
+                        )}
+                      />
+                    </Grid>
+                  </>
+                )}
+              </FieldsListener>
 
               <Grid numColumns={2} horizontalSpace={40} style={styles.grid}>
                 <LakeLabel

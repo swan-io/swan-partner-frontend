@@ -172,6 +172,8 @@ export const VerificationRenewalCompany = ({
             info={info}
             verificationRenewalId={verificationRenewalId}
             previousStep={previousStep}
+            accountHolderType={accountHolderType}
+            verificationRenewal={verificationRenewal}
           />
         ))
 

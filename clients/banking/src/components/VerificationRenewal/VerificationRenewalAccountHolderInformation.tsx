@@ -62,6 +62,10 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     flexGrow: 1,
   },
+  countryField: {
+    height: spacings[40],
+    width: "100%",
+  },
 });
 
 const UNKNOWN_VALUE = <LakeText style={styles.unknownValue}>{t("common.unknown")}</LakeText>;
@@ -242,7 +246,7 @@ export const VerificationRenewalAccountHolderInformation = ({
                 {t("common.edit")}
               </LakeButton>
             </Box>
-            <Space height={40} />
+            <Space height={24} />
 
             <Tile>
               <Box direction="column" alignItems="stretch">
@@ -309,13 +313,7 @@ export const VerificationRenewalAccountHolderInformation = ({
                         render={() => (
                           <Box direction="row">
                             <Box grow={1}>
-                              <LakeText
-                                color={colors.gray[900]}
-                                style={{
-                                  height: spacings[40],
-                                  width: "100%",
-                                }}
-                              >
+                              <LakeText color={colors.gray[900]} style={styles.countryField}>
                                 {getCountryName(
                                   info.company.residencyAddress.country as CountryCCA3,
                                 )}
@@ -326,33 +324,30 @@ export const VerificationRenewalAccountHolderInformation = ({
                       />
                     </Grid>
 
-                    <Grid horizontalSpace={40} style={styles.grid} numColumns={2}>
-                      <LakeLabel
-                        label={t("verificationRenewal.activityDescription")}
-                        type="view"
-                        render={() => (
-                          <LakeText color={colors.gray[900]}>
-                            {info.company.businessActivityDescription}
-                          </LakeText>
-                        )}
-                      />
+                    <LakeLabel
+                      label={t("verificationRenewal.activityDescription")}
+                      type="view"
+                      render={() => (
+                        <LakeText color={colors.gray[900]}>
+                          {info.company.businessActivityDescription}
+                        </LakeText>
+                      )}
+                    />
 
-                      <LakeLabel
-                        label={t("verificationRenewal.monthlyPaymentVolume")}
-                        type="view"
-                        render={() => (
-                          <LakeText color={colors.gray[900]}>
-                            {info.company.monthlyPaymentVolume}
-                          </LakeText>
-                        )}
-                      />
-                    </Grid>
+                    <LakeLabel
+                      label={t("verificationRenewal.monthlyPaymentVolume")}
+                      type="view"
+                      render={() => (
+                        <LakeText color={colors.gray[900]}>
+                          {info.company.monthlyPaymentVolume}
+                        </LakeText>
+                      )}
+                    />
                   </ReadOnlyFieldList>
                 </View>
               </Box>
             </Tile>
 
-            <Space height={40} />
             <VerificationRenewalFooter
               onPrevious={
                 previousStep !== undefined
@@ -503,40 +498,40 @@ export const VerificationRenewalAccountHolderInformation = ({
                 )}
               </FieldsListener>
 
-              <Grid numColumns={2} horizontalSpace={40} style={styles.grid}>
-                <LakeLabel
-                  type="view"
-                  label={t("verificationRenewal.activityDescription")}
-                  render={() => (
-                    <Field name="activityDescription">
-                      {({ value, error, onChange, onBlur }) => (
-                        <LakeTextInput
-                          value={value}
-                          error={error}
-                          onChangeText={onChange}
-                          onBlur={onBlur}
-                        />
-                      )}
-                    </Field>
-                  )}
-                />
+              <LakeLabel
+                type="view"
+                label={t("verificationRenewal.activityDescription")}
+                render={() => (
+                  <Field name="activityDescription">
+                    {({ value, error, onChange, onBlur }) => (
+                      <LakeTextInput
+                        multiline={true}
+                        numberOfLines={4}
+                        value={value}
+                        error={error}
+                        onChangeText={onChange}
+                        onBlur={onBlur}
+                      />
+                    )}
+                  </Field>
+                )}
+              />
 
-                <LakeLabel
-                  type="view"
-                  label={t("verificationRenewal.monthlyPaymentVolume")}
-                  render={() => (
-                    <Field name="monthlyPaymentVolume">
-                      {({ value, onChange }) => (
-                        <LakeSelect
-                          value={value}
-                          items={monthlyPaymentVolumeItems}
-                          onValueChange={onChange}
-                        />
-                      )}
-                    </Field>
-                  )}
-                />
-              </Grid>
+              <LakeLabel
+                type="view"
+                label={t("verificationRenewal.monthlyPaymentVolume")}
+                render={() => (
+                  <Field name="monthlyPaymentVolume">
+                    {({ value, onChange }) => (
+                      <LakeSelect
+                        value={value}
+                        items={monthlyPaymentVolumeItems}
+                        onValueChange={onChange}
+                      />
+                    )}
+                  </Field>
+                )}
+              />
               <LakeButtonGroup paddingBottom={0}>
                 <LakeButton grow={true} mode="secondary" onPress={() => setEditModalOpen(false)}>
                   {t("common.cancel")}

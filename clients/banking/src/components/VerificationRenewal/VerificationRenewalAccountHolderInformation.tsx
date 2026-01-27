@@ -31,7 +31,7 @@ import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { useForm } from "@swan-io/use-form";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { OnboardingStepContent } from "../../../../onboarding/src/components/OnboardingStepContent";
@@ -162,8 +162,9 @@ export const VerificationRenewalAccountHolderInformation = ({
 
   const steps = getRenewalSteps(verificationRenewal, accountHolderType);
 
-  const [nextStep, setNextStep] = useState<RenewalStep>(
-    getNextStep(renewalSteps.accountHolderInformation, steps) ?? renewalSteps.finalize,
+  const nextStep = useMemo(
+    () => getNextStep(renewalSteps.accountHolderInformation, steps) ?? renewalSteps.finalize,
+    [steps],
   );
 
   const onSuggestion = useCallback(
@@ -213,14 +214,7 @@ export const VerificationRenewalAccountHolderInformation = ({
             .mapOk(data => data.updateCompanyVerificationRenewal)
             .mapOkToResult(data => Option.fromNullable(data).toResult(data))
             .mapOkToResult(filterRejectionsToResult)
-            .tapOk(data => {
-              const steps = getRenewalSteps(data.verificationRenewal, accountHolderType);
-
-              const nextStep =
-                getNextStep(renewalSteps.accountHolderInformation, steps) ?? renewalSteps.finalize;
-              setNextStep(nextStep);
-              setEditModalOpen(false);
-            })
+            .tapOk(() => setEditModalOpen(false))
             .tapError(error => {
               showToast({ variant: "error", error, title: translateError(error) });
             });

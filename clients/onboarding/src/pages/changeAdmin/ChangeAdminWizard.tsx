@@ -171,15 +171,8 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
 
   const templateLanguage = locale.language;
 
-  // TODO get project info from backend once query is available
-  const projectInfo = {
-    color: "#76B900",
-    name: "projectName",
-    logoUrl: undefined,
-  };
-
   return data
-    .mapOk(data => data.publicAccountAdminChange)
+    .mapOk(data => data.accountAdminChange)
     .mapOkToResult(filterRejectionsToResult)
     .match({
       NotAsked: () => null,
@@ -191,12 +184,12 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
               .with({ __typename: "ForbiddenRejection" }, () => <NotFoundPage />)
               .otherwise(error => <ErrorView error={error} />),
           Ok: data => (
-            <WithPartnerAccentColor color={projectInfo.color}>
+            <WithPartnerAccentColor color={data.accountHolder.projectInfo.accentColor}>
               <Box grow={1}>
                 <Box style={styles.sticky}>
                   <OnboardingHeader
-                    projectName={projectInfo.name}
-                    projectLogo={projectInfo.logoUrl}
+                    projectName={data.accountHolder.projectInfo.name}
+                    projectLogo={data.accountHolder.projectInfo.logoUri}
                   />
 
                   {isStepperDisplayed ? (

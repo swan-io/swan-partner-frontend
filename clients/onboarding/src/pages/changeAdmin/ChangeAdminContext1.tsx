@@ -32,11 +32,6 @@ export const ChangeAdminContext1 = ({ accountHolder, changeAdminRequestId, nextS
     Router.push(nextStep, { requestId: changeAdminRequestId });
   };
 
-  const accountList = [
-    { id: "acc_1", name: "Account 1" },
-    { id: "acc_2", name: "Account 2" },
-  ];
-
   return (
     <OnboardingStepContent>
       <ResponsiveContainer breakpoint={breakpoints.medium}>
@@ -52,14 +47,14 @@ export const ChangeAdminContext1 = ({ accountHolder, changeAdminRequestId, nextS
                 <LakeLabel
                   type="view"
                   label={t("changeAdmin.step.context1.accountHolder")}
-                  render={() => <LakeText color={colors.gray[900]}>{accountHolder.name}</LakeText>}
+                  render={() => <LakeText color={colors.gray[900]}>{accountHolder?.name}</LakeText>}
                 />
                 <LakeLabel
                   type="view"
                   label={t("changeAdmin.step.context1.accounts")}
                   render={() => (
                     <View role="list" style={{ padding: 0, margin: 0 }}>
-                      {accountList.map(account => (
+                      {accountHolder?.accounts?.map(account => (
                         <LakeText
                           key={account.id}
                           role="listitem"

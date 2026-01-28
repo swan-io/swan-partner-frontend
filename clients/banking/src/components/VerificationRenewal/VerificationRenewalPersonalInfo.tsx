@@ -365,7 +365,7 @@ export const VerificationRenewalPersonalInfo = ({
                         type="view"
                         render={() => (
                           <LakeText color={colors.gray[900]}>
-                            {info.accountAdmin.monthlyIncome}
+                            {translateMonthlyIncome(info.accountAdmin.monthlyIncome)}
                           </LakeText>
                         )}
                       />

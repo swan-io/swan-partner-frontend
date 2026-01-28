@@ -6,12 +6,9 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import {
-  SupportingDocumentCollection,
-  SupportingDocumentCollectionRef,
-} from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
+import { SupportingDocumentCollection } from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
 import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
-import { useCallback, useRef } from "react";
+import { useCallback, useState } from "react";
 import { match, P } from "ts-pattern";
 import { OnboardingStepContent } from "../../../../onboarding/src/components/OnboardingStepContent";
 import { StepTitle } from "../../../../onboarding/src/components/StepTitle";
@@ -54,8 +51,6 @@ export const VerificationRenewalDocuments = ({
     GenerateSupportingDocumentUploadUrlDocument,
   );
   const [deleteSupportingDocument] = useMutation(DeleteSupportingDocumentDocument);
-  const supportingDocumentCollectionRef =
-    useRef<SupportingDocumentCollectionRef<SupportingDocumentPurposeEnum>>(null);
 
   const generateUpload = ({
     fileName,
@@ -86,69 +81,69 @@ export const VerificationRenewalDocuments = ({
   );
 
   const onPressNext = () => {
-    const supportingDocumentCollection = supportingDocumentCollectionRef.current;
-    if (supportingDocumentCollection == null) {
-      return;
-    }
-    if (supportingDocumentCollection.areAllRequiredDocumentsFilled()) {
-      Router.push(nextStep.id, {
-        verificationRenewalId: verificationRenewalId,
-      });
-    }
+    Router.push(nextStep.id, {
+      verificationRenewalId: verificationRenewalId,
+    });
   };
 
   const requiredPurposes = new Set(
     supportingDocumentCollection.requiredSupportingDocumentPurposes.map(item => item.name),
   );
 
-  const docs = Array.filterMap(supportingDocumentCollection.supportingDocuments, document =>
-    match(document)
-      .returnType<Option<Document<SupportingDocumentPurposeEnum>>>()
-      .with(P.nullish, () => Option.None())
-      .with({ statusInfo: { __typename: "SupportingDocumentNotUploadedStatusInfo" } }, () =>
-        Option.None(),
-      )
-      .with(
-        {
-          statusInfo: {
-            __typename: "SupportingDocumentWaitingForUploadStatusInfo",
+  const [docs, setDocs] = useState(() =>
+    Array.filterMap(supportingDocumentCollection.supportingDocuments, document =>
+      match(document)
+        .returnType<Option<Document<SupportingDocumentPurposeEnum>>>()
+        .with(P.nullish, () => Option.None())
+        .with({ statusInfo: { __typename: "SupportingDocumentNotUploadedStatusInfo" } }, () =>
+          Option.None(),
+        )
+        .with(
+          {
+            statusInfo: {
+              __typename: "SupportingDocumentWaitingForUploadStatusInfo",
+            },
           },
-        },
-        () => Option.None(),
-      )
-      // Hide `Validated` docs as they're results from internal upload
-      .with({ statusInfo: { __typename: "SupportingDocumentValidatedStatusInfo" } }, () =>
-        Option.None(),
-      )
-      .with({ statusInfo: { __typename: "SupportingDocumentRefusedStatusInfo" } }, document =>
-        requiredPurposes.has(document.supportingDocumentPurpose)
-          ? Option.Some({
-              purpose: document.supportingDocumentPurpose,
-              file: {
-                id: document.id,
-                name: document.statusInfo.filename,
-                statusInfo: {
-                  status: "Refused",
-                  reason: document.statusInfo.reason,
-                  reasonCode: document.statusInfo.reasonCode,
+          () => Option.None(),
+        )
+        // Hide `Validated` docs as they're results from internal upload
+        .with({ statusInfo: { __typename: "SupportingDocumentValidatedStatusInfo" } }, () =>
+          Option.None(),
+        )
+        .with({ statusInfo: { __typename: "SupportingDocumentRefusedStatusInfo" } }, document =>
+          requiredPurposes.has(document.supportingDocumentPurpose)
+            ? Option.Some({
+                purpose: document.supportingDocumentPurpose,
+                file: {
+                  id: document.id,
+                  name: document.statusInfo.filename,
+                  statusInfo: {
+                    status: "Refused",
+                    reason: document.statusInfo.reason,
+                    reasonCode: document.statusInfo.reasonCode,
+                  },
                 },
-              },
-            })
-          : Option.None(),
-      )
-      .with({ statusInfo: { __typename: "SupportingDocumentUploadedStatusInfo" } }, document =>
-        requiredPurposes.has(document.supportingDocumentPurpose)
-          ? Option.Some({
-              purpose: document.supportingDocumentPurpose,
-              file: {
-                id: document.id,
-                name: document.statusInfo.filename,
-                statusInfo: { status: "Uploaded" },
-              },
-            })
-          : Option.None(),
-      )
-      .exhaustive(),
+              })
+            : Option.None(),
+        )
+        .with({ statusInfo: { __typename: "SupportingDocumentUploadedStatusInfo" } }, document =>
+          requiredPurposes.has(document.supportingDocumentPurpose)
+            ? Option.Some({
+                purpose: document.supportingDocumentPurpose,
+                file: {
+                  id: document.id,
+                  name: document.statusInfo.filename,
+                  statusInfo: { status: "Uploaded" },
+                },
+              })
+            : Option.None(),
+        )
+        .exhaustive(),
+    ),
+  );
+
+  const areAllRequiredDocumentsFilled = requiredDocumentsPurposes.every(purpose =>
+    docs.some(doc => doc.purpose === purpose),
   );
 
   return (
@@ -166,13 +161,13 @@ export const VerificationRenewalDocuments = ({
               </Tile>
             ) : (
               <SupportingDocumentCollection
-                ref={supportingDocumentCollectionRef}
                 generateUpload={generateUpload}
                 requiredDocumentPurposes={requiredDocumentsPurposes}
                 status={supportingDocumentCollection.statusInfo.status}
                 documents={docs}
                 templateLanguage={templateLanguage}
                 onRemoveFile={onRemoveFile}
+                onChange={setDocs}
               />
             )}
 
@@ -188,6 +183,7 @@ export const VerificationRenewalDocuments = ({
                   : undefined
               }
               onNext={onPressNext}
+              nextDisabled={!areAllRequiredDocumentsFilled}
             />
           </>
         )}

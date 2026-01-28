@@ -9,10 +9,9 @@ import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import {
   Document,
   SupportingDocumentCollection,
-  SupportingDocumentCollectionRef,
 } from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
 import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
-import { ReactNode, useCallback, useRef } from "react";
+import { ReactNode, useCallback, useState } from "react";
 import { match, P } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
@@ -53,23 +52,11 @@ export const ChangeAdminDocuments = ({
   );
   const [deleteSupportingDocument] = useMutation(DeleteSupportingDocumentDocument);
 
-  const supportingDocumentCollectionRef =
-    useRef<SupportingDocumentCollectionRef<SupportingDocumentPurposeEnum>>(null);
-
   const onPressPrevious = () => {
     Router.push(previousStep, { requestId: changeAdminRequestId });
   };
 
   const onPressNext = () => {
-    const supportingDocumentCollection = supportingDocumentCollectionRef.current;
-    if (supportingDocumentCollection == null) {
-      return;
-    }
-    // Show some validation errors
-    // if (!supportingDocumentCollection.areAllRequiredDocumentsFilled()) {
-    //   return;
-    // }
-
     Router.push(nextStep, { requestId: changeAdminRequestId });
   };
 
@@ -101,59 +88,66 @@ export const ChangeAdminDocuments = ({
     [deleteSupportingDocument],
   );
 
-  const docs = Array.filterMap(supportingDocumentCollection.supportingDocuments, document =>
-    match(document)
-      .returnType<Option<Document<SupportingDocumentPurposeEnum>>>()
-      .with(
-        {
-          statusInfo: {
-            __typename: P.union(
-              "SupportingDocumentNotUploadedStatusInfo",
-              "SupportingDocumentWaitingForUploadStatusInfo",
-            ),
-          },
-        },
-        () => Option.None(),
-      )
-      .with({ statusInfo: { __typename: "SupportingDocumentValidatedStatusInfo" } }, document =>
-        Option.Some({
-          purpose: document.supportingDocumentPurpose,
-          file: {
-            id: document.id,
-            name: document.statusInfo.filename,
-            statusInfo: { status: "Validated" },
-          },
-        }),
-      )
-      .with({ statusInfo: { __typename: "SupportingDocumentRefusedStatusInfo" } }, document =>
-        Option.Some({
-          purpose: document.supportingDocumentPurpose,
-          file: {
-            id: document.id,
-            name: document.statusInfo.filename,
+  const [docs, setDocs] = useState(() =>
+    Array.filterMap(supportingDocumentCollection.supportingDocuments, document =>
+      match(document)
+        .returnType<Option<Document<SupportingDocumentPurposeEnum>>>()
+        .with(
+          {
             statusInfo: {
-              status: "Refused",
-              reason: document.statusInfo.reason,
-              reasonCode: document.statusInfo.reasonCode,
+              __typename: P.union(
+                "SupportingDocumentNotUploadedStatusInfo",
+                "SupportingDocumentWaitingForUploadStatusInfo",
+              ),
             },
           },
-        }),
-      )
-      .with({ statusInfo: { __typename: "SupportingDocumentUploadedStatusInfo" } }, document =>
-        Option.Some({
-          purpose: document.supportingDocumentPurpose,
-          file: {
-            id: document.id,
-            name: document.statusInfo.filename,
-            statusInfo: { status: "Uploaded" },
-          },
-        }),
-      )
-      .exhaustive(),
+          () => Option.None(),
+        )
+        .with({ statusInfo: { __typename: "SupportingDocumentValidatedStatusInfo" } }, document =>
+          Option.Some({
+            purpose: document.supportingDocumentPurpose,
+            file: {
+              id: document.id,
+              name: document.statusInfo.filename,
+              statusInfo: { status: "Validated" },
+            },
+          }),
+        )
+        .with({ statusInfo: { __typename: "SupportingDocumentRefusedStatusInfo" } }, document =>
+          Option.Some({
+            purpose: document.supportingDocumentPurpose,
+            file: {
+              id: document.id,
+              name: document.statusInfo.filename,
+              statusInfo: {
+                status: "Refused",
+                reason: document.statusInfo.reason,
+                reasonCode: document.statusInfo.reasonCode,
+              },
+            },
+          }),
+        )
+        .with({ statusInfo: { __typename: "SupportingDocumentUploadedStatusInfo" } }, document =>
+          Option.Some({
+            purpose: document.supportingDocumentPurpose,
+            file: {
+              id: document.id,
+              name: document.statusInfo.filename,
+              statusInfo: { status: "Uploaded" },
+            },
+          }),
+        )
+        .exhaustive(),
+    ),
   );
+
   const requiredDocumentsPurposes =
     supportingDocumentCollection.requiredSupportingDocumentPurposes.map(doc => doc.name);
   const supportingDocumentCollectionStatus = supportingDocumentCollection.statusInfo.status;
+
+  const areAllRequiredDocumentsFilled = requiredDocumentsPurposes.every(purpose =>
+    docs.some(doc => doc.purpose === purpose),
+  );
 
   return (
     <OnboardingStepContent>
@@ -167,20 +161,24 @@ export const ChangeAdminDocuments = ({
 
             <DocumentsStepTile small={small}>
               <SupportingDocumentCollection
-                ref={supportingDocumentCollectionRef}
                 documents={docs}
                 requiredDocumentPurposes={requiredDocumentsPurposes}
                 generateUpload={generateUpload}
                 status={supportingDocumentCollectionStatus}
                 templateLanguage={templateLanguage}
                 onRemoveFile={onRemoveFile}
+                onChange={setDocs}
               />
             </DocumentsStepTile>
           </>
         )}
       </ResponsiveContainer>
 
-      <OnboardingFooter onPrevious={onPressPrevious} onNext={onPressNext} loading={false} />
+      <OnboardingFooter
+        onPrevious={onPressPrevious}
+        onNext={areAllRequiredDocumentsFilled ? onPressNext : undefined}
+        loading={false}
+      />
     </OnboardingStepContent>
   );
 };

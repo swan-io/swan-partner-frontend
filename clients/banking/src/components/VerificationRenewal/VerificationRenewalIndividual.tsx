@@ -12,6 +12,7 @@ import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import {
+  AccountCountry,
   GetVerificationRenewalQuery,
   IndividualRenewalInfoFragment,
   SupportingDocumentRenewalFragment,
@@ -65,6 +66,7 @@ type Props = {
   info: IndividualRenewalInfoFragment;
   supportingDocumentCollection: SupportingDocumentRenewalFragment | null;
   verificationRenewal: GetVerificationRenewalQuery["verificationRenewal"];
+  accountCountry: AccountCountry;
 };
 
 export const VerificationRenewalIndividual = ({
@@ -72,6 +74,7 @@ export const VerificationRenewalIndividual = ({
   info,
   supportingDocumentCollection,
   verificationRenewal,
+  accountCountry,
 }: Props) => {
   const route = Router.useRoute(verificationRenewalRoutes);
 
@@ -135,10 +138,12 @@ export const VerificationRenewalIndividual = ({
         ))
         .with({ route: { name: "VerificationRenewalPersonalInformation" } }, () => (
           <VerificationRenewalPersonalInfo
+            verificationRenewal={verificationRenewal}
             info={info}
             verificationRenewalId={verificationRenewalId}
             previousStep={previousStep}
             accountHolderType={accountHolderType}
+            accountCountry={accountCountry}
           />
         ))
         .with(

@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
 
 type Props = {
   onPrevious?: () => void;
-  onNext: () => void;
+  onNext?: () => void;
   nextLabel?: TranslationKey;
   loading?: boolean;
   justifyContent?: "start" | "center" | "end";
@@ -65,6 +65,7 @@ export const OnboardingFooter = ({
               loading={loading}
               color="partner"
               size={large ? "large" : "small"}
+              disabled={onNext == null}
               onPress={onNext}
               grow={small}
             >

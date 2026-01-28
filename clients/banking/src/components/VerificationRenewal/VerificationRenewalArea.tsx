@@ -37,7 +37,6 @@ const styles = StyleSheet.create({
     backdropFilter: "blur(4px)",
     zIndex: 10,
   },
-  errorContainer: { minHeight: "100vh" },
 });
 
 type Props = {
@@ -126,9 +125,7 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
                           ),
                         )
                         .otherwise(() => (
-                          <Box style={styles.errorContainer}>
-                            <ErrorView />
-                          </Box>
+                          <ErrorView />
                         ))}
                     </View>
                   </>

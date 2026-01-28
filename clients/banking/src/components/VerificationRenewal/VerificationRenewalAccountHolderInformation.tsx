@@ -142,7 +142,7 @@ export const VerificationRenewalAccountHolderInformation = ({
       sanitize: value => value.trim(),
     },
     city: {
-      initialValue: info.company.residencyAddress.postalCode ?? "",
+      initialValue: info.company.residencyAddress.city ?? "",
       validate: validateRequired,
       sanitize: value => value.trim(),
     },

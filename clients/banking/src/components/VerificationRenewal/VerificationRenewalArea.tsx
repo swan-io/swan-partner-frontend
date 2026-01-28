@@ -112,9 +112,11 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
                             verificationRenewal: {
                               info: { __typename: "IndividualVerificationRenewalInfo" },
                             },
+                            accountCountry: Option.P.Some(P.string),
                           },
-                          ({ verificationRenewal }) => (
+                          ({ verificationRenewal, accountCountry }) => (
                             <VerificationRenewalIndividual
+                              accountCountry={accountCountry.get()}
                               verificationRenewalId={verificationRenewalId}
                               info={verificationRenewal.info}
                               supportingDocumentCollection={renewalSupportingDoc}

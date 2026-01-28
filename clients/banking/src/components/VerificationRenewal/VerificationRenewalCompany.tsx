@@ -159,10 +159,12 @@ export const VerificationRenewalCompany = ({
         ))
         .with({ route: { name: "VerificationRenewalAccountHolderInformation" } }, () => (
           <VerificationRenewalAccountHolderInformation
+            verificationRenewal={verificationRenewal}
             accountHolderType={accountHolderType}
             previousStep={previousStep}
             info={info}
             verificationRenewalId={verificationRenewalId}
+            accountCountry={accountCountry}
           />
         ))
         .with({ route: { name: "VerificationRenewalAdministratorInformation" } }, () => (
@@ -170,6 +172,8 @@ export const VerificationRenewalCompany = ({
             info={info}
             verificationRenewalId={verificationRenewalId}
             previousStep={previousStep}
+            accountHolderType={accountHolderType}
+            verificationRenewal={verificationRenewal}
           />
         ))
 
@@ -177,10 +181,11 @@ export const VerificationRenewalCompany = ({
           match(companyAddress)
             .with({ value: P.select({ country: P.nonNullable }) }, address => {
               const nextStep =
-                getNextStep(renewalSteps.renewalDocuments, steps) ?? renewalSteps.finalize;
+                getNextStep(renewalSteps.renewalOwnership, steps) ?? renewalSteps.finalize;
 
               return (
                 <VerificationRenewalOwnership
+                  verificationRenewal={verificationRenewal}
                   accountHolderType="Company"
                   previousStep={previousStep}
                   initialNextStep={nextStep}

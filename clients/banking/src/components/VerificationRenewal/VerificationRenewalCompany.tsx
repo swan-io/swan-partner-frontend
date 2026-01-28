@@ -181,10 +181,11 @@ export const VerificationRenewalCompany = ({
           match(companyAddress)
             .with({ value: P.select({ country: P.nonNullable }) }, address => {
               const nextStep =
-                getNextStep(renewalSteps.renewalDocuments, steps) ?? renewalSteps.finalize;
+                getNextStep(renewalSteps.renewalOwnership, steps) ?? renewalSteps.finalize;
 
               return (
                 <VerificationRenewalOwnership
+                  verificationRenewal={verificationRenewal}
                   accountHolderType="Company"
                   previousStep={previousStep}
                   initialNextStep={nextStep}

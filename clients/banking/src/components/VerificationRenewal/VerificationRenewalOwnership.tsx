@@ -37,6 +37,7 @@ import {
   AccountCountry,
   AccountHolderType,
   CompanyRenewalInfoFragment,
+  GetVerificationRenewalQuery,
   UltimateBeneficialOwnerOwnershipInput,
   UltimateBeneficialOwnerOwnershipType,
   UpdateCompanyVerificationRenewalDocument,
@@ -395,6 +396,7 @@ type Props = {
   companyCountry: CountryCCA3;
   previousStep: RenewalStep | undefined;
   initialNextStep: RenewalStep;
+  verificationRenewal: GetVerificationRenewalQuery["verificationRenewal"];
 };
 
 export const VerificationRenewalOwnership = ({
@@ -404,14 +406,20 @@ export const VerificationRenewalOwnership = ({
   verificationRenewalId,
   companyCountry,
   previousStep,
-  initialNextStep, // could be updated by updating ubos
+  verificationRenewal,
 }: Props) => {
   const [updateCompanyVerificationRenewal, updatingCompanyVerificationRenewal] = useMutation(
     UpdateCompanyVerificationRenewalDocument,
   );
   const [pageState, setPageState] = useState<PageState>({ type: "list" });
   const [shakeError, setShakeError] = useBoolean(false);
-  const [nextStep, setNextStep] = useState(initialNextStep);
+
+  const steps = getRenewalSteps(verificationRenewal, accountHolderType);
+
+  const nextStep = useMemo(
+    () => getNextStep(renewalSteps.renewalOwnership, steps) ?? renewalSteps.finalize,
+    [steps],
+  );
 
   const currentUbos = useMemo(
     () =>
@@ -504,15 +512,8 @@ export const VerificationRenewalOwnership = ({
       .mapOk(data => data.updateCompanyVerificationRenewal)
       .mapOkToResult(data => Option.fromNullable(data).toResult(data))
       .mapOkToResult(filterRejectionsToResult)
-      .tapOk(data => {
-        const steps = getRenewalSteps(data.verificationRenewal, accountHolderType);
-
-        const nextStep = getNextStep(renewalSteps.renewalOwnership, steps) ?? renewalSteps.finalize;
-        setNextStep(nextStep);
-
-        Router.push("VerificationRenewalOwnership", {
-          verificationRenewalId: verificationRenewalId,
-        });
+      .tapOk(() => {
+        setPageState({ type: "list" });
       })
       .tapError(error => {
         showToast({ variant: "error", error, title: translateError(error) });

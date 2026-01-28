@@ -188,7 +188,7 @@ export const VerificationRenewalPersonalInfo = ({
   const steps = getRenewalSteps(verificationRenewal, accountHolderType);
 
   const nextStep = useMemo(
-    () => getNextStep(renewalSteps.accountHolderInformation, steps) ?? renewalSteps.finalize,
+    () => getNextStep(renewalSteps.personalInformation, steps) ?? renewalSteps.finalize,
     [steps],
   );
 

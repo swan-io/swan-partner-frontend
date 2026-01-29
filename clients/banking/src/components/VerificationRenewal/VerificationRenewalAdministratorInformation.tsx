@@ -1,6 +1,7 @@
 import { Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { Grid } from "@swan-io/lake/src/components/Grid";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -8,6 +9,7 @@ import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
@@ -23,8 +25,6 @@ import {
 } from "@swan-io/shared-business/src/utils/validation";
 import { useForm } from "@swan-io/use-form";
 import { useMemo, useState } from "react";
-import { StyleSheet, View } from "react-native";
-import { OnboardingStepContent } from "../../../../onboarding/src/components/OnboardingStepContent";
 import { StepTitle } from "../../../../onboarding/src/components/StepTitle";
 import {
   AccountHolderType,
@@ -38,17 +38,7 @@ import { Router } from "../../utils/routes";
 import { getRenewalSteps, RenewalStep, renewalSteps } from "../../utils/verificationRenewal";
 import { getNextStep } from "./VerificationRenewalCompany";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
-
-const styles = StyleSheet.create({
-  field: { width: "100%" },
-  tileContainer: {
-    flex: 1,
-  },
-  birthdateField: {
-    padding: 0,
-    margin: 0,
-  },
-});
+import { VerificationRenewalStepContent } from "./VerificationRenewalStepContent";
 
 type Form = {
   firstName: string;
@@ -143,17 +133,18 @@ export const VerificationRenewalAdministratorInformation = ({
   );
 
   return (
-    <OnboardingStepContent>
+    <VerificationRenewalStepContent>
       <ResponsiveContainer breakpoint={breakpoints.medium}>
-        {({ small }) => (
+        {({ small, large }) => (
           <>
             <Box direction="row" justifyContent="spaceBetween">
-              <Box grow={1}>
+              <Box grow={1} justifyContent="center">
                 <StepTitle isMobile={small}>
                   {t("verificationRenewal.administratorInformation.title")}
                 </StepTitle>
               </Box>
               <LakeButton
+                size={large ? "large" : "small"}
                 mode="tertiary"
                 onPress={() => setEditModalOpen(true)}
                 icon="edit-regular"
@@ -162,71 +153,75 @@ export const VerificationRenewalAdministratorInformation = ({
               </LakeButton>
             </Box>
 
-            <Space height={40} />
+            <Space height={large ? 24 : 12} />
 
             <Tile>
-              <Box direction="column" alignItems="stretch">
-                <View style={styles.tileContainer}>
-                  <ReadOnlyFieldList>
-                    <LakeLabel
-                      label={t("verificationRenewal.firstName")}
-                      type="view"
-                      render={() => (
-                        <LakeText color={colors.gray[900]}>{info.accountAdmin.firstName}</LakeText>
-                      )}
-                    />
+              <Grid numColumns={large ? 2 : 1} horizontalSpace={40}>
+                <Box>
+                  <LakeLabel
+                    label={t("verificationRenewal.firstName")}
+                    type="view"
+                    render={() => (
+                      <LakeText color={colors.gray[900]}>{info.accountAdmin.firstName}</LakeText>
+                    )}
+                  />
+                  <Separator horizontal={false} space={8} />
+                </Box>
 
-                    <LakeLabel
-                      label={t("verificationRenewal.lastName")}
-                      type="view"
-                      render={() => (
-                        <LakeText color={colors.gray[900]}>{info.accountAdmin.lastName}</LakeText>
-                      )}
-                    />
+                <Box>
+                  <LakeLabel
+                    label={t("verificationRenewal.lastName")}
+                    type="view"
+                    render={() => (
+                      <LakeText color={colors.gray[900]}>{info.accountAdmin.lastName}</LakeText>
+                    )}
+                  />
+                  <Separator horizontal={false} space={8} />
+                </Box>
+              </Grid>
 
-                    <LakeLabel
-                      label={t("verificationRenewal.administratorInformation.email")}
-                      type="view"
-                      render={() => (
-                        <LakeText color={colors.gray[900]}>{info.accountAdmin.email}</LakeText>
-                      )}
-                    />
+              <ReadOnlyFieldList>
+                <LakeLabel
+                  label={t("verificationRenewal.administratorInformation.email")}
+                  type="view"
+                  render={() => (
+                    <LakeText color={colors.gray[900]}>{info.accountAdmin.email}</LakeText>
+                  )}
+                />
 
-                    <LakeLabel
-                      label={t("verificationRenewal.administratorInformation.birthDate")}
-                      type="view"
-                      render={() => (
-                        <LakeText color={colors.gray[900]}>
-                          {info.accountAdmin.birthInfo.birthDate}
-                        </LakeText>
-                      )}
-                    />
+                <LakeLabel
+                  label={t("verificationRenewal.administratorInformation.birthDate")}
+                  type="view"
+                  render={() => (
+                    <LakeText color={colors.gray[900]}>
+                      {info.accountAdmin.birthInfo.birthDate}
+                    </LakeText>
+                  )}
+                />
 
-                    <LakeLabel
-                      label={t("verificationRenewal.administratorInformation.typeOfRepresentation")}
-                      type="view"
-                      render={() => (
-                        <RadioGroup
-                          onValueChange={() => {}}
-                          disabled={true}
-                          direction="row"
-                          value={info.accountAdmin.typeOfRepresentation}
-                          items={[
-                            {
-                              name: t("verificationRenewal.typeOfRepresentation.yes"),
-                              value: "LegalRepresentative",
-                            },
-                            {
-                              name: t("verificationRenewal.typeOfRepresentation.no"),
-                              value: "PowerOfAttorney",
-                            },
-                          ]}
-                        />
-                      )}
+                <LakeLabel
+                  label={t("verificationRenewal.administratorInformation.typeOfRepresentation")}
+                  type="view"
+                  render={() => (
+                    <RadioGroup
+                      onValueChange={() => {}}
+                      disabled={true}
+                      direction={large ? "row" : "column"}
+                      value={info.accountAdmin.typeOfRepresentation}
+                      items={[
+                        {
+                          name: t("verificationRenewal.typeOfRepresentation.yes"),
+                          value: "LegalRepresentative",
+                        },
+                        {
+                          name: t("verificationRenewal.typeOfRepresentation.no"),
+                          value: "PowerOfAttorney",
+                        },
+                      ]}
                     />
-                  </ReadOnlyFieldList>
-                </View>
-              </Box>
+                  )}
+                />
+              </ReadOnlyFieldList>
             </Tile>
 
             <VerificationRenewalFooter
@@ -255,39 +250,41 @@ export const VerificationRenewalAdministratorInformation = ({
             >
               <Space height={16} />
 
-              <LakeLabel
-                type="view"
-                label={t("verificationRenewal.firstName")}
-                render={() => (
-                  <Field name="firstName">
-                    {({ value, error, onChange, onBlur }) => (
-                      <LakeTextInput
-                        value={value}
-                        error={error}
-                        onChangeText={onChange}
-                        onBlur={onBlur}
-                      />
-                    )}
-                  </Field>
-                )}
-              />
+              <Grid numColumns={large ? 2 : 1} horizontalSpace={40}>
+                <LakeLabel
+                  type="view"
+                  label={t("verificationRenewal.firstName")}
+                  render={() => (
+                    <Field name="firstName">
+                      {({ value, error, onChange, onBlur }) => (
+                        <LakeTextInput
+                          value={value}
+                          error={error}
+                          onChangeText={onChange}
+                          onBlur={onBlur}
+                        />
+                      )}
+                    </Field>
+                  )}
+                />
 
-              <LakeLabel
-                type="view"
-                label={t("verificationRenewal.lastName")}
-                render={() => (
-                  <Field name="lastName">
-                    {({ value, error, onChange, onBlur }) => (
-                      <LakeTextInput
-                        value={value}
-                        error={error}
-                        onChangeText={onChange}
-                        onBlur={onBlur}
-                      />
-                    )}
-                  </Field>
-                )}
-              />
+                <LakeLabel
+                  type="view"
+                  label={t("verificationRenewal.lastName")}
+                  render={() => (
+                    <Field name="lastName">
+                      {({ value, error, onChange, onBlur }) => (
+                        <LakeTextInput
+                          value={value}
+                          error={error}
+                          onChangeText={onChange}
+                          onBlur={onBlur}
+                        />
+                      )}
+                    </Field>
+                  )}
+                />
+              </Grid>
 
               <LakeLabel
                 type="view"
@@ -313,7 +310,6 @@ export const VerificationRenewalAdministratorInformation = ({
                   <Field name="birthDate">
                     {({ value, error, onChange }) => (
                       <BirthdatePicker
-                        style={styles.birthdateField}
                         label=""
                         value={value}
                         onValueChange={onChange}
@@ -369,6 +365,6 @@ export const VerificationRenewalAdministratorInformation = ({
           </>
         )}
       </ResponsiveContainer>
-    </OnboardingStepContent>
+    </VerificationRenewalStepContent>
   );
 };

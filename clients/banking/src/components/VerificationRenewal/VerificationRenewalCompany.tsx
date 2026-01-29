@@ -80,6 +80,7 @@ type Props = {
   supportingDocumentCollection: SupportingDocumentRenewalFragment | null;
   accountCountry: AccountCountry;
   verificationRenewal: GetVerificationRenewalQuery["verificationRenewal"];
+  projectName: string;
 };
 
 export const VerificationRenewalCompany = ({
@@ -88,6 +89,7 @@ export const VerificationRenewalCompany = ({
   verificationRenewalId,
   accountCountry,
   verificationRenewal,
+  projectName,
 }: Props) => {
   const route = Router.useRoute(verificationRenewalRoutes);
 
@@ -155,7 +157,11 @@ export const VerificationRenewalCompany = ({
       {match({ route, isFinalized, supportingDocumentCollection })
         .with({ isFinalized: true }, () => <VerificationRenewalFinalizeSuccess />)
         .with({ route: { name: "VerificationRenewalRoot" } }, () => (
-          <VerificationRenewalIntro verificationRenewalId={verificationRenewalId} steps={steps} />
+          <VerificationRenewalIntro
+            verificationRenewalId={verificationRenewalId}
+            steps={steps}
+            projectName={projectName}
+          />
         ))
         .with({ route: { name: "VerificationRenewalAccountHolderInformation" } }, () => (
           <VerificationRenewalAccountHolderInformation

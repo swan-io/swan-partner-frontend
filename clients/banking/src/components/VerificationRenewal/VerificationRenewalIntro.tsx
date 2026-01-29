@@ -92,9 +92,10 @@ const styles = StyleSheet.create({
 type Props = {
   verificationRenewalId: string;
   steps: RenewalStep[];
+  projectName: string;
 };
 
-export const VerificationRenewalIntro = ({ verificationRenewalId, steps }: Props) => {
+export const VerificationRenewalIntro = ({ verificationRenewalId, steps, projectName }: Props) => {
   return (
     <ResponsiveContainer style={commonStyles.fill}>
       {({ large }) => (
@@ -114,7 +115,9 @@ export const VerificationRenewalIntro = ({ verificationRenewalId, steps }: Props
                 </LakeHeading>
                 <Space height={small ? 8 : 12} />
                 <LakeText align={small ? "center" : "left"}>
-                  {t("verificationRenewal.subtitle")}
+                  {t("verificationRenewal.subtitle", {
+                    projectName: projectName,
+                  })}
                 </LakeText>
                 <Box style={styles.stepsContainer}>
                   <Space height={small ? 16 : 24} />

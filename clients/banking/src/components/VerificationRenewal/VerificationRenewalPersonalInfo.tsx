@@ -7,8 +7,8 @@ import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
-import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
@@ -31,9 +31,7 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { useForm } from "@swan-io/use-form";
 import { useCallback, useMemo, useState } from "react";
-import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
-import { OnboardingStepContent } from "../../../../onboarding/src/components/OnboardingStepContent";
 import { StepTitle } from "../../../../onboarding/src/components/StepTitle";
 import {
   AccountCountry,
@@ -49,14 +47,7 @@ import { Router } from "../../utils/routes";
 import { getRenewalSteps, RenewalStep, renewalSteps } from "../../utils/verificationRenewal";
 import { getNextStep } from "./VerificationRenewalCompany";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
-
-const styles = StyleSheet.create({
-  label: { flexGrow: 1, paddingBottom: 0 },
-  field: { width: "100%" },
-  tileContainer: {
-    flex: 1,
-  },
-});
+import { VerificationRenewalStepContent } from "./VerificationRenewalStepContent";
 
 type Form = {
   firstName: string;
@@ -255,17 +246,18 @@ export const VerificationRenewalPersonalInfo = ({
   };
 
   return (
-    <OnboardingStepContent>
+    <VerificationRenewalStepContent>
       <ResponsiveContainer breakpoint={breakpoints.medium}>
-        {({ small }) => (
+        {({ small, large }) => (
           <>
             <Box direction="row" justifyContent="spaceBetween">
-              <Box grow={1}>
+              <Box grow={1} justifyContent="center">
                 <StepTitle isMobile={small}>
-                  {t("verificationRenewal.accountHolderInformation.title")}
+                  {t("verificationRenewal.personalInformation.title")}
                 </StepTitle>
               </Box>
               <LakeButton
+                size={large ? "large" : "small"}
                 mode="tertiary"
                 onPress={() => setEditModalOpen(true)}
                 icon="edit-regular"
@@ -273,116 +265,127 @@ export const VerificationRenewalPersonalInfo = ({
                 {t("common.edit")}
               </LakeButton>
             </Box>
-            <Space height={24} />
+            <Space height={large ? 24 : 12} />
 
             <Tile>
-              <Box direction="column" alignItems="stretch">
-                <View style={styles.tileContainer}>
-                  <ReadOnlyFieldList>
-                    <Grid numColumns={2} horizontalSpace={40}>
-                      <LakeLabel
-                        label={t("verificationRenewal.firstName")}
-                        type="view"
-                        render={() => (
-                          <LakeText color={colors.gray[900]}>
-                            {info.accountAdmin.firstName}
-                          </LakeText>
-                        )}
-                      />
+              <Grid numColumns={large ? 2 : 1} horizontalSpace={40}>
+                <Box>
+                  <LakeLabel
+                    label={t("verificationRenewal.firstName")}
+                    type="view"
+                    render={() => (
+                      <LakeText color={colors.gray[900]}>{info.accountAdmin.firstName}</LakeText>
+                    )}
+                  />
+                  <Separator horizontal={false} space={8} />
+                </Box>
 
-                      <LakeLabel
-                        label={t("verificationRenewal.lastName")}
-                        type="view"
-                        render={() => (
-                          <LakeText color={colors.gray[900]}>{info.accountAdmin.lastName}</LakeText>
-                        )}
-                      />
-                    </Grid>
-                    <LakeLabel
-                      label={t("verificationRenewal.addressLine1")}
-                      type="view"
-                      render={() => (
-                        <LakeText color={colors.gray[900]}>
-                          {info.accountAdmin.residencyAddress.addressLine1}
-                        </LakeText>
-                      )}
-                    />
+                <Box>
+                  <LakeLabel
+                    label={t("verificationRenewal.lastName")}
+                    type="view"
+                    render={() => (
+                      <LakeText color={colors.gray[900]}>{info.accountAdmin.lastName}</LakeText>
+                    )}
+                  />
+                  <Separator horizontal={false} space={8} />
+                </Box>
+              </Grid>
 
-                    <Grid numColumns={2} horizontalSpace={40}>
-                      <LakeLabel
-                        label={t("verificationRenewal.addressLine2")}
-                        type="view"
-                        render={() => (
-                          <LakeText color={colors.gray[900]}>
-                            {info.accountAdmin.residencyAddress.addressLine2}
-                          </LakeText>
-                        )}
-                      />
-
-                      <LakeLabel
-                        label={t("verificationRenewal.postalCode")}
-                        type="view"
-                        render={() => (
-                          <LakeText color={colors.gray[900]}>
-                            {info.accountAdmin.residencyAddress.postalCode}
-                          </LakeText>
-                        )}
-                      />
-                    </Grid>
-
-                    <Grid numColumns={2} horizontalSpace={40}>
-                      <LakeLabel
-                        label={t("verificationRenewal.city")}
-                        type="view"
-                        render={() => (
-                          <LakeText color={colors.gray[900]}>
-                            {info.accountAdmin.residencyAddress.city}
-                          </LakeText>
-                        )}
-                      />
-
-                      <LakeLabel
-                        type="view"
-                        label={t("verificationRenewal.country")}
-                        style={styles.field}
-                        render={() => (
-                          <Box direction="row">
-                            <Box grow={1}>
-                              <LakeText color={colors.gray[900]}>
-                                {getCountryName(
-                                  info.accountAdmin.residencyAddress.country as CountryCCA3,
-                                )}
-                              </LakeText>
-                            </Box>
-                          </Box>
-                        )}
-                      />
-                    </Grid>
-
-                    <Grid numColumns={2} horizontalSpace={40}>
-                      <LakeLabel
-                        label={t("verificationRenewal.personalInformation.monthlyIncome")}
-                        type="view"
-                        render={() => (
-                          <LakeText color={colors.gray[900]}>
-                            {translateMonthlyIncome(info.accountAdmin.monthlyIncome)}
-                          </LakeText>
-                        )}
-                      />
-
-                      <LakeLabel
-                        label={t("verificationRenewal.personalInformation.employmentStatus")}
-                        type="view"
-                        render={() => (
-                          <LakeText color={colors.gray[900]}>
-                            {info.accountAdmin.employmentStatus}
-                          </LakeText>
-                        )}
-                      />
-                    </Grid>
-                  </ReadOnlyFieldList>
-                </View>
+              <Box>
+                <LakeLabel
+                  label={t("verificationRenewal.addressLine1")}
+                  type="view"
+                  render={() => (
+                    <LakeText color={colors.gray[900]}>
+                      {info.accountAdmin.residencyAddress.addressLine1}
+                    </LakeText>
+                  )}
+                />
+                <Separator horizontal={false} space={8} />
               </Box>
+
+              <Grid numColumns={large ? 2 : 1} horizontalSpace={40}>
+                <Box>
+                  <LakeLabel
+                    label={t("verificationRenewal.addressLine2")}
+                    type="view"
+                    render={() => (
+                      <LakeText color={colors.gray[900]}>
+                        {info.accountAdmin.residencyAddress.addressLine2}
+                      </LakeText>
+                    )}
+                  />
+                  <Separator horizontal={false} space={8} />
+                </Box>
+                <Box>
+                  <LakeLabel
+                    label={t("verificationRenewal.postalCode")}
+                    type="view"
+                    render={() => (
+                      <LakeText color={colors.gray[900]}>
+                        {info.accountAdmin.residencyAddress.postalCode}
+                      </LakeText>
+                    )}
+                  />
+                  <Separator horizontal={false} space={8} />
+                </Box>
+                <Box>
+                  <LakeLabel
+                    label={t("verificationRenewal.city")}
+                    type="view"
+                    render={() => (
+                      <LakeText color={colors.gray[900]}>
+                        {info.accountAdmin.residencyAddress.city}
+                      </LakeText>
+                    )}
+                  />
+                  <Separator horizontal={false} space={8} />
+                </Box>
+                <Box>
+                  <LakeLabel
+                    type="view"
+                    label={t("verificationRenewal.country")}
+                    render={() => (
+                      <Box direction="row">
+                        <Box grow={1}>
+                          <LakeText color={colors.gray[900]}>
+                            {getCountryName(
+                              info.accountAdmin.residencyAddress.country as CountryCCA3,
+                            )}
+                          </LakeText>
+                        </Box>
+                      </Box>
+                    )}
+                  />
+                  <Separator horizontal={false} space={8} />
+                </Box>
+
+                <Box>
+                  <LakeLabel
+                    label={t("verificationRenewal.personalInformation.monthlyIncome")}
+                    type="view"
+                    render={() => (
+                      <LakeText color={colors.gray[900]}>
+                        {translateMonthlyIncome(info.accountAdmin.monthlyIncome)}
+                      </LakeText>
+                    )}
+                  />
+                  {small && <Separator horizontal={false} space={8} />}
+                </Box>
+
+                <Box>
+                  <LakeLabel
+                    label={t("verificationRenewal.personalInformation.employmentStatus")}
+                    type="view"
+                    render={() => (
+                      <LakeText color={colors.gray[900]}>
+                        {info.accountAdmin.employmentStatus}
+                      </LakeText>
+                    )}
+                  />
+                </Box>
+              </Grid>
             </Tile>
 
             <VerificationRenewalFooter
@@ -411,7 +414,7 @@ export const VerificationRenewalPersonalInfo = ({
             >
               <Space height={16} />
 
-              <Grid horizontalSpace={40} numColumns={2}>
+              <Grid numColumns={large ? 2 : 1} horizontalSpace={40}>
                 <LakeLabel
                   type="view"
                   label={t("verificationRenewal.firstName")}
@@ -466,7 +469,7 @@ export const VerificationRenewalPersonalInfo = ({
               <FieldsListener names={["country"]}>
                 {({ country }) => (
                   <>
-                    <Grid horizontalSpace={40} numColumns={2}>
+                    <Grid numColumns={large ? 2 : 1} horizontalSpace={40}>
                       <LakeLabel
                         type="view"
                         label={t("verificationRenewal.addressLine1")}
@@ -511,7 +514,7 @@ export const VerificationRenewalPersonalInfo = ({
                       />
                     </Grid>
 
-                    <Grid horizontalSpace={40} numColumns={2}>
+                    <Grid numColumns={large ? 2 : 1} horizontalSpace={40}>
                       <LakeLabel
                         type="view"
                         label={t("verificationRenewal.postalCode")}
@@ -554,7 +557,7 @@ export const VerificationRenewalPersonalInfo = ({
                 )}
               </FieldsListener>
 
-              <Grid horizontalSpace={40} numColumns={2}>
+              <Grid numColumns={large ? 2 : 1} horizontalSpace={40}>
                 <LakeLabel
                   type="view"
                   label={t("verificationRenewal.personalInformation.monthlyIncome")}
@@ -607,6 +610,6 @@ export const VerificationRenewalPersonalInfo = ({
           </>
         )}
       </ResponsiveContainer>
-    </OnboardingStepContent>
+    </VerificationRenewalStepContent>
   );
 };

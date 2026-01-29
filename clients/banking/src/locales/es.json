@@ -1737,6 +1737,8 @@
   "verificationRenewal.finalize.subtitle": "Hemos recibido tus datos actualizados y los revisaremos pronto. Si necesitamos más información, nos pondremos en contacto contigo.\n\nYa puedes cerrar esta página.",
   "verificationRenewal.finalize.title": "¡Gracias!",
   "verificationRenewal.firstName": "Nombre",
+  "verificationRenewal.forbidden.subtitle": "Solo los administradores de la cuenta pueden actualizar la información de la cuenta.\nContacta con tu administrador para hacerlo.",
+  "verificationRenewal.forbidden.title": "Se requiere acceso de administrador",
   "verificationRenewal.intro.company.step1": "Información del titular de la cuenta",
   "verificationRenewal.intro.company.step2": "Información del administrador",
   "verificationRenewal.intro.company.step3": "Propiedad",

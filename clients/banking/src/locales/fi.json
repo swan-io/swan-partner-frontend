@@ -1737,6 +1737,8 @@
   "verificationRenewal.finalize.subtitle": "Olemme vastaanottaneet päivitetyt tietosi ja käymme ne läpi pian. Mikäli tarvitsemme lisätietoja, otamme sinuun yhteyttä.\n\nNyt voit sulkea tämän sivun.",
   "verificationRenewal.finalize.title": "Kiitos!",
   "verificationRenewal.firstName": "Etunimi",
+  "verificationRenewal.forbidden.subtitle": "Vain tilin ylläpitäjät voivat päivittää tilin tietoja.\nOta yhteyttä ylläpitäjääsi tämän tekemiseksi.",
+  "verificationRenewal.forbidden.title": "Järjestelmänvalvojan käyttöoikeudet vaaditaan",
   "verificationRenewal.intro.company.step1": "Tilinhaltijan tiedot",
   "verificationRenewal.intro.company.step2": "Ylläpitäjän tiedot",
   "verificationRenewal.intro.company.step3": "Omistus",

@@ -2,7 +2,7 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { spacings } from "@swan-io/lake/src/constants/design";
+import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { StyleSheet } from "react-native";
 import { TranslationKey, t } from "../utils/i18n";
 import { TrackPressable } from "./TrackPressable";
@@ -35,7 +35,7 @@ export const OnboardingFooter = ({
   justifyContent = "start",
 }: Props) => {
   return (
-    <ResponsiveContainer style={styles.root}>
+    <ResponsiveContainer style={styles.root} breakpoint={breakpoints.medium}>
       {({ large, small }) => (
         <Box
           direction="row"

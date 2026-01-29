@@ -171,85 +171,8 @@ type Account {
   settings: AccountSettings!
 }
 
-"""Account administrator change request"""
-type AccountAdminChange {
-  """Unique identifier of the account admin change"""
-  id: ID!
-
-  """Reason for the account administrator change"""
-  reason: AccountAdminChangeReason
-
-  """`true` if the new administrator is a legal representative"""
-  isNewAdminLegalRepresentative: Boolean
-
-  """Information about the new administrator"""
-  admin: AccountAdminChangeAdmin
-
-  """`true` if the requester is the new administrator"""
-  isRequesterNewAdmin: Boolean
-
-  """Information about the requester of the administrator change"""
-  requester: AccountAdminChangeRequester
-
-  """Account holder company information"""
-  accountHolder: AccountHolderCompanyInfo!
-
-  """Supporting document collection for the administrator change"""
-  supportingDocumentCollection: SupportingDocumentCollection!
-}
-
-"""Information about the new administrator"""
-type AccountAdminChangeAdmin {
-  """First name of the new administrator"""
-  firstName: String
-
-  """Last name of the new administrator"""
-  lastName: String
-
-  """Email address of the new administrator"""
-  email: String
-
-  """Phone number of the new administrator"""
-  phoneNumber: String
-
-  """Birth country of the new administrator"""
-  birthCountry: String
-
-  """Birth date of the new administrator"""
-  birthDate: Date
-}
-
-"""Reason for the account administrator change"""
-enum AccountAdminChangeReason {
-  """The current administrator has left the company"""
-  CurrentAdministratorLeft
-
-  """The change is due to an internal reorganization"""
-  InternalReorganization
-
-  """The new administrator was appointed by general assembly"""
-  AppointedByGeneralAssembly
-
-  """The new administrator was appointed by board decision"""
-  AppointedByBoardDecision
-
-  """Other reason for the administrator change"""
-  Other
-}
-
-"""Information about the requester of the administrator change"""
-type AccountAdminChangeRequester {
-  """First name of the requester"""
-  firstName: String
-
-  """Last name of the requester"""
-  lastName: String
-
-  """Email address of the requester"""
-  email: String
-
-  """Phone number of the requester"""
-  phoneNumber: String
+type AccountAdminChangeStatusNotEligibleRejection implements Rejection {
+  message: String!
 }
 
 """Account Closed status information"""
@@ -953,6 +876,14 @@ type AccountMembershipConsentPendingStatusInfo implements AccountMembershipStatu
   restrictedTo: RestrictedTo!
 }
 
+"""
+Rejection returned if the account membership invitation link cannot be created.
+"""
+type AccountMembershipCustomInvitationCannotBeCreatedRejection implements Rejection {
+  projectId: ID!
+  message: String!
+}
+
 """when the account membership is disabled"""
 type AccountMembershipDisabledStatusInfo implements AccountMembershipStatusInfo {
   """
@@ -1430,6 +1361,53 @@ enum BusinessActivity {
   RealEstate
   ScientificActivities
   Transportation
+}
+
+"""
+Business activity class, this is the NACE code to be submitted in onboarding
+"""
+type BusinessActivityClass {
+  """NACE code"""
+  code: String!
+
+  """Localized class name"""
+  localName: String!
+}
+
+"""Business activity division"""
+type BusinessActivityDivision {
+  """Division code"""
+  division: String!
+
+  """Localized division name"""
+  localName: String!
+
+  """Groups within this division"""
+  groups: [BusinessActivityGroup!]!
+}
+
+"""Business activity group"""
+type BusinessActivityGroup {
+  """Group code"""
+  group: String!
+
+  """Localized group name"""
+  localName: String!
+
+  """Classes within this group"""
+  classes: [BusinessActivityClass!]!
+}
+
+"""Business activity section"""
+type BusinessActivitySection {
+  """Section code"""
+  section: String!
+
+  """Localized section name"""
+  localName: String!
+
+  """Divisions within this section"""
+  divisions: [BusinessActivityDivision!]!
 }
 
 """
@@ -2681,6 +2659,11 @@ type LegalForm {
 
   """Localized name of the legal form"""
   localName: String!
+
+  """
+  Localized abbreviation of the legal form (e.g., "SAS" for Société par actions simplifiée in French)
+  """
+  localAbbreviation: String
 }
 
 type LegalRepresentativeAccountMembershipCannotBeDisabledRejection implements Rejection {
@@ -3693,11 +3676,32 @@ type SpendingLimit {
 
   """sum of amount of spending authorized during the period"""
   amount: Amount!
+
+  """
+  spending limit mode : either rolling or calendar. null if the period is Always.
+  """
+  mode: SpendingLimitMode
+}
+
+type SpendingLimitCalendarDayMode {
+  """a starting hour for the spending limit (0 to 23)."""
+  startHour: Int!
 }
 
 input SpendingLimitCalendarDayModeInput {
   """a starting hour for the spending limit (0 to 23)."""
   startHour: Int! = 0
+}
+
+type SpendingLimitCalendarMode {
+  """a daily based calendar spending limit."""
+  daily: SpendingLimitCalendarDayMode
+
+  """a weekly based calendar spending limit."""
+  weekly: SpendingLimitCalendarWeekMode
+
+  """a monthly based calendar spending limit."""
+  monthly: SpendingLimitCalendarMonthMode
 }
 
 input SpendingLimitCalendarModeInput {
@@ -3711,12 +3715,28 @@ input SpendingLimitCalendarModeInput {
   monthly: SpendingLimitCalendarMonthModeInput
 }
 
+type SpendingLimitCalendarMonthMode {
+  """a starting hour for the spending limit (0 to 23)."""
+  startHour: Int!
+
+  """a day in month for the spending limit (1 to 31)."""
+  startDay: Int!
+}
+
 input SpendingLimitCalendarMonthModeInput {
   """a starting hour for the spending limit (0 to 23)."""
   startHour: Int! = 0
 
   """a day in month for the spending limit (1 to 31)."""
   startDay: Int! = 1
+}
+
+type SpendingLimitCalendarWeekMode {
+  """a starting hour for the spending limit (0 to 23)."""
+  startHour: Int!
+
+  """a day of week enum."""
+  startDay: DayEnum!
 }
 
 input SpendingLimitCalendarWeekModeInput {
@@ -3739,6 +3759,16 @@ input SpendingLimitInput {
   spending limit mode : either rolling or calendar. Default is a rolling period with a rolling value of 1.
   """
   mode: SpendingLimitModeInput
+}
+
+type SpendingLimitMode {
+  """a rolling period, defining a period of x days/weeks/months."""
+  rolling: SpendingLimitRollingMode
+
+  """
+  a fixed calendar period starting either at a given hour of day, a given hour and day in week/month
+  """
+  calendar: SpendingLimitCalendarMode
 }
 
 input SpendingLimitModeInput {
@@ -3765,6 +3795,13 @@ enum SpendingLimitPeriodInput {
   Weekly
   Daily
   Always
+}
+
+type SpendingLimitRollingMode {
+  """
+  a rolling value for a spending limit. For a monthly period, only 1 is valid.
+  """
+  rollingValue: Int!
 }
 
 input SpendingLimitRollingModeInput {

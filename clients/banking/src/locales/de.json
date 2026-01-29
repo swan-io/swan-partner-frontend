@@ -1737,6 +1737,8 @@
   "verificationRenewal.finalize.subtitle": "Wir haben Ihre aktualisierten Angaben erhalten und werden sie in Kürze prüfen. Sollten wir weitere Informationen benötigen, werden wir Sie kontaktieren.\n\nSie können diese Seite nun schließen.",
   "verificationRenewal.finalize.title": "Vielen Dank!",
   "verificationRenewal.firstName": "Vorname",
+  "verificationRenewal.forbidden.subtitle": "Nur Kontoadministratoren können Kontoinformationen aktualisieren.\nWenden Sie sich an Ihren Administrator, um dies zu tun.",
+  "verificationRenewal.forbidden.title": "Administratorzugriff erforderlich",
   "verificationRenewal.intro.company.step1": "Informationen zum Kontoinhaber",
   "verificationRenewal.intro.company.step2": "Administrator-Informationen",
   "verificationRenewal.intro.company.step3": "Eigentum",

@@ -1737,6 +1737,8 @@
   "verificationRenewal.finalize.subtitle": "We hebben je bijgewerkte gegevens ontvangen en zullen ze binnenkort bekijken. Als we nog meer informatie nodig hebben, nemen we contact met je op.\n\nJe kunt deze pagina nu sluiten.",
   "verificationRenewal.finalize.title": "Hartelijk bedankt.",
   "verificationRenewal.firstName": "Voornaam",
+  "verificationRenewal.forbidden.subtitle": "Alleen accountbeheerders kunnen accountinformatie bijwerken.\nNeem contact op met je beheerder om dit te doen.",
+  "verificationRenewal.forbidden.title": "Beheerderstoegang vereist",
   "verificationRenewal.intro.company.step1": "Informatie rekeninghouder",
   "verificationRenewal.intro.company.step2": "Beheerdersinformatie",
   "verificationRenewal.intro.company.step3": "Eigenaarschap",

@@ -31,7 +31,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import { v4 as uuid } from "uuid";
-import { OnboardingStepContent } from "../../../../onboarding/src/components/OnboardingStepContent";
 import { StepTitle } from "../../../../onboarding/src/components/StepTitle";
 import {
   AccountCountry,
@@ -56,6 +55,7 @@ import {
   validateUbo,
   VerificationRenewalOwnershipForm,
 } from "./VerificationRenewalOwnershipForm";
+import { VerificationRenewalStepContent } from "./VerificationRenewalStepContent";
 
 const styles = StyleSheet.create({
   fill: {
@@ -75,8 +75,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
-  additionalDescription: { fontStyle: "italic" },
 });
 
 export type RenewalVerificationOwnershipFormStep = "Common" | "Address";
@@ -522,7 +520,7 @@ export const VerificationRenewalOwnership = ({
 
   return (
     <>
-      <OnboardingStepContent>
+      <VerificationRenewalStepContent>
         <ResponsiveContainer breakpoint={breakpoints.medium}>
           {({ small }) => (
             <>
@@ -583,7 +581,6 @@ export const VerificationRenewalOwnership = ({
                 </Box>
               )}
 
-              <Space height={40} />
               <VerificationRenewalFooter
                 nextDisabled={shakeError}
                 onPrevious={
@@ -604,7 +601,7 @@ export const VerificationRenewalOwnership = ({
             </>
           )}
         </ResponsiveContainer>
-      </OnboardingStepContent>
+      </VerificationRenewalStepContent>
 
       <ConfirmModal
         visible={pageState.type === "deleting"}

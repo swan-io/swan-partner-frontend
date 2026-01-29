@@ -10,7 +10,6 @@ import { SupportingDocumentCollection } from "@swan-io/shared-business/src/compo
 import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
 import { useCallback, useState } from "react";
 import { match, P } from "ts-pattern";
-import { OnboardingStepContent } from "../../../../onboarding/src/components/OnboardingStepContent";
 import { StepTitle } from "../../../../onboarding/src/components/StepTitle";
 import {
   DeleteSupportingDocumentDocument,
@@ -22,6 +21,7 @@ import { t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
 import { RenewalStep } from "../../utils/verificationRenewal";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
+import { VerificationRenewalStepContent } from "./VerificationRenewalStepContent";
 
 export type Document<Purpose extends string> = {
   purpose: Purpose;
@@ -147,14 +147,14 @@ export const VerificationRenewalDocuments = ({
   );
 
   return (
-    <OnboardingStepContent>
+    <VerificationRenewalStepContent>
       <ResponsiveContainer breakpoint={breakpoints.medium}>
         {({ small }) => (
           <>
             <StepTitle isMobile={small}>{t("verificationRenewal.documents.title")}</StepTitle>
             <Space height={4} />
             <LakeText>{t("verificationRenewal.documents.subtitle")}</LakeText>
-            <Space height={40} />
+            <Space height={24} />
             {requiredDocumentsPurposes.length === 0 ? (
               <Tile>
                 <LakeText>{t("verificationRenewal.documents.noDocuments")}</LakeText>
@@ -171,8 +171,6 @@ export const VerificationRenewalDocuments = ({
               />
             )}
 
-            <Space height={40} />
-
             <VerificationRenewalFooter
               onPrevious={
                 previousStep !== undefined
@@ -188,6 +186,6 @@ export const VerificationRenewalDocuments = ({
           </>
         )}
       </ResponsiveContainer>
-    </OnboardingStepContent>
+    </VerificationRenewalStepContent>
   );
 };

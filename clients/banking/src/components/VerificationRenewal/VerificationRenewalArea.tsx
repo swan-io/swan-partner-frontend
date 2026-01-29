@@ -1,5 +1,5 @@
 import { AsyncData, Option, Result } from "@swan-io/boxed";
-import { useQuery } from "@swan-io/graphql-client";
+import { ClientError, parseGraphQLError, useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeScrollView } from "@swan-io/lake/src/components/LakeScrollView";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
@@ -9,7 +9,9 @@ import { backgroundColor, colors, invariantColors } from "@swan-io/lake/src/cons
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { AccountCountry, GetVerificationRenewalDocument } from "../../graphql/partner";
+import { t } from "../../utils/i18n";
 import { ErrorView } from "../ErrorView";
+import { ForbiddenView } from "../ForbiddenView";
 import { VerificationRenewalCompany } from "./VerificationRenewalCompany";
 import { VerificationRenewalHeader } from "./VerificationRenewalHeader";
 import { VerificationRenewalIndividual } from "./VerificationRenewalIndividual";
@@ -17,9 +19,11 @@ import { VerificationRenewalIndividual } from "./VerificationRenewalIndividual";
 const styles = StyleSheet.create({
   main: {
     backgroundColor: backgroundColor.default90Transparency,
-    flex: 1,
+    minHeight: "100vh",
   },
+  fill: { flex: 1 },
   content: {
+    flex: 1,
     paddingHorizontal: 24,
     paddingVertical: 16,
     width: "100%",
@@ -50,9 +54,24 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
     .with({ data: P.union(AsyncData.P.NotAsked, AsyncData.P.Loading) }, () => (
       <LoadingView color={colors.gray[400]} />
     ))
-    .with({ data: AsyncData.P.Done(Result.P.Error(P.select())) }, error => (
-      <ErrorView error={error} />
-    ))
+    .with({ data: AsyncData.P.Done(Result.P.Error(P.select())) }, error => {
+      const isForbidden = ClientError.toArray(error)
+        .map(parseGraphQLError)
+        .map(error => error.extensions)
+        .some(ext => ext?.code === "Forbidden");
+
+      if (isForbidden) {
+        return (
+          <ForbiddenView
+            title={t("verificationRenewal.forbidden.title")}
+            subtitle={t("verificationRenewal.forbidden.subtitle")}
+          />
+        );
+      } else {
+        return <ErrorView error={error} />;
+      }
+    })
+
     .with(
       { data: AsyncData.P.Done(Result.P.Ok(P.select())) },
       ({ projectInfo, verificationRenewal }) => {
@@ -76,9 +95,9 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
           .otherwise(() => Option.None());
 
         return (
-          <LakeScrollView style={styles.main}>
+          <LakeScrollView contentContainerStyle={styles.main}>
             <WithPartnerAccentColor color={projectColor}>
-              <ResponsiveContainer>
+              <ResponsiveContainer style={styles.fill}>
                 {({ large }) => (
                   <>
                     <Box style={styles.sticky}>
@@ -104,6 +123,7 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
                               info={verificationRenewal.info}
                               supportingDocumentCollection={renewalSupportingDoc}
                               verificationRenewal={verificationRenewal}
+                              projectName={projectInfo.name}
                             />
                           ),
                         )
@@ -121,11 +141,17 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
                               info={verificationRenewal.info}
                               supportingDocumentCollection={renewalSupportingDoc}
                               verificationRenewal={verificationRenewal}
+                              projectName={projectInfo.name}
                             />
                           ),
                         )
                         .otherwise(() => (
-                          <ErrorView />
+                          <ErrorView
+                            style={{
+                              flex: 1,
+                              justifyContent: "center",
+                            }}
+                          />
                         ))}
                     </View>
                   </>

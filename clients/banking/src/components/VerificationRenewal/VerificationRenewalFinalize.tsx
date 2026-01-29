@@ -14,13 +14,13 @@ import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { Pressable, StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
-import { OnboardingStepContent } from "../../../../onboarding/src/components/OnboardingStepContent";
 import { StepTitle } from "../../../../onboarding/src/components/StepTitle";
 import { FinalizeVerificationRenewalDocument } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
 import { RenewalStep } from "../../utils/verificationRenewal";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
+import { VerificationRenewalStepContent } from "./VerificationRenewalStepContent";
 
 const styles = StyleSheet.create({
   container: {
@@ -96,7 +96,7 @@ export const VerificationRenewalFinalize = ({ verificationRenewalId, previousSte
 
   return match(finalization)
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => (
-      <OnboardingStepContent>
+      <VerificationRenewalStepContent>
         <ResponsiveContainer breakpoint={breakpoints.medium}>
           {({ small }) => (
             <>
@@ -104,7 +104,7 @@ export const VerificationRenewalFinalize = ({ verificationRenewalId, previousSte
               <Space height={8} />
               <LakeText>{t("verificationRenewal.consent.subtitle")}</LakeText>
 
-              <Space height={40} />
+              <Space height={24} />
               <Tile>
                 <Pressable onPress={setChecked.toggle} role="checkbox" aria-checked={checked}>
                   <Box direction="row" alignItems="center">
@@ -134,7 +134,7 @@ export const VerificationRenewalFinalize = ({ verificationRenewalId, previousSte
             </>
           )}
         </ResponsiveContainer>
-      </OnboardingStepContent>
+      </VerificationRenewalStepContent>
     ))
     .with(AsyncData.P.Done(Result.P.Error(P._)), () => (
       <VerificationRenewalFinalizeError retry={handleFinalize} loading={finalization.isLoading()} />

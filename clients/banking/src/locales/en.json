@@ -1730,6 +1730,7 @@
   "verificationRenewal.documents.noDocuments": "Good news - no documents are required for this verification.",
   "verificationRenewal.documents.subtitle": "Please provide high-quality, full-color files that capture the entire document.",
   "verificationRenewal.documents.title": "Supporting documents",
+  "verificationRenewal.editModal.title": "Edit information",
   "verificationRenewal.finalize.error.button": "Try again",
   "verificationRenewal.finalize.error.subtitle": "We couldn't process your information. Please try again.\nIf the issue persists, our team may contact you for further details.",
   "verificationRenewal.finalize.error.title": "Something went wrong",
@@ -1819,6 +1820,5 @@
   "verificationRenewal.subtitle": "To keep your account active, please update your information. It shouldn't take more than 5 minutes.",
   "verificationRenewal.title": "Your account needs an update",
   "verificationRenewal.typeOfRepresentation.no": "No, but I have a power of attorney",
-  "verificationRenewal.typeOfRepresentation.yes": "Yes",
-  "verificationRenewal.editModal.title": "Edit information"
+  "verificationRenewal.typeOfRepresentation.yes": "Yes"
 }

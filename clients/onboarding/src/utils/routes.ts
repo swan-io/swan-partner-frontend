@@ -65,13 +65,7 @@ export const individualOnboardingRoutes = [
 
 export type IndividualOnboardingRoute = (typeof individualOnboardingRoutes)[number];
 
-export const individualOnboardingRoutesV2 = [
-  "Root",
-  "Details",
-  "Address",
-  "Activity",
-  "Finalize",
-] as const;
+export const individualOnboardingRoutesV2 = ["Root", "Activity", "Finalize"] as const;
 
 export type IndividualOnboardingRouteV2 = (typeof individualOnboardingRoutesV2)[number];
 

@@ -4,7 +4,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { colors, texts } from "@swan-io/lake/src/constants/design";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
-import { StyleSheet } from "react-native";
+import { StyleProp, StyleSheet, ViewStyle } from "react-native";
 import { DocumentationLink } from "../components/DocumentationLink";
 import { t } from "../utils/i18n";
 
@@ -27,6 +27,7 @@ type CountrySelectProps<T extends CountryCCA3> = {
   holderType: "individual" | "company";
   onlyIconHelp: boolean;
   hideError?: boolean;
+  style?: StyleProp<ViewStyle>;
 };
 
 export function OnboardingCountryPicker<T extends CountryCCA3>({
@@ -37,10 +38,12 @@ export function OnboardingCountryPicker<T extends CountryCCA3>({
   holderType,
   onlyIconHelp,
   hideError,
+  style,
 }: CountrySelectProps<T>) {
   return (
     <LakeLabel
       label={label}
+      style={style}
       render={id => (
         <CountryPicker
           id={id}

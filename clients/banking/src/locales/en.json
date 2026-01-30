@@ -1737,6 +1737,8 @@
   "verificationRenewal.finalize.subtitle": "We've received your updated details and will review them shortly. If we need any additional information, we'll contact you.\n\nYou can now close this page.",
   "verificationRenewal.finalize.title": "Thank you!",
   "verificationRenewal.firstName": "First name",
+  "verificationRenewal.forbidden.subtitle": "Only account administrators can update account information.\nContact your administrator to do this.",
+  "verificationRenewal.forbidden.title": "Administrator access required",
   "verificationRenewal.intro.company.step1": "Account holder information",
   "verificationRenewal.intro.company.step2": "Administrator information",
   "verificationRenewal.intro.company.step3": "Ownership",
@@ -1820,7 +1822,5 @@
   "verificationRenewal.subtitle": "Please review your {projectName} account information to ensure it is up to date. You can confirm your current details or refresh any information that has changed. It shouldn’t take more than 5 minutes.",
   "verificationRenewal.title": "Your account needs an update",
   "verificationRenewal.typeOfRepresentation.no": "No, but I have a power of attorney",
-  "verificationRenewal.typeOfRepresentation.yes": "Yes",
-  "verificationRenewal.forbidden.title": "Administrator access required",
-  "verificationRenewal.forbidden.subtitle": "Only account administrators can update account information.\nContact your administrator to do this."
+  "verificationRenewal.typeOfRepresentation.yes": "Yes"
 }

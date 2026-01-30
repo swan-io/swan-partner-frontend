@@ -212,7 +212,6 @@ export const OnboardingIndividualDetails = ({ onboarding }: Props) => {
             match(error)
               .with({ __typename: "ValidationRejection" }, error => {
                 const invalidFields = extractServerValidationErrors(error, path => {
-                  // todo:  improve error handling
                   return match(path)
                     .with(["accountAdmin", "email"], () => "email" as const)
                     .with(["accountAdmin", "firstName"], () => "firstName" as const)

@@ -1,6 +1,5 @@
 import { Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
-import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -40,6 +39,7 @@ import {
   validateNullableRequired,
   validateRequired,
 } from "@swan-io/shared-business/src/utils/validation";
+import { View } from "react-native";
 import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { InputPhoneNumber } from "../../../components/InputPhoneNumber";
 import { prefixPhoneNumber } from "../../../utils/phone";
@@ -237,7 +237,7 @@ export const OnboardingIndividualDetails = ({ onboarding }: Props) => {
           <>
             <Tile style={styles.gap}>
               <StepTitle isMobile={small}>{t("individual.step.about.title1")}</StepTitle>
-              <Box style={[styles.grid, large && styles.gridDesktop]}>
+              <View style={[styles.grid, large && styles.gridDesktop]}>
                 <LakeLabel
                   label={t("individual.step.about.fistname")}
                   render={id => (
@@ -334,12 +334,12 @@ export const OnboardingIndividualDetails = ({ onboarding }: Props) => {
                     />
                   )}
                 </Field>
-              </Box>
+              </View>
             </Tile>
 
             <Tile style={styles.gap}>
               <StepTitle isMobile={small}>{t("individual.step.about.title2")}</StepTitle>
-              <Box style={[styles.grid, large && styles.gridDesktop]}>
+              <View style={[styles.grid, large && styles.gridDesktop]}>
                 <LakeLabel
                   label={t("individual.step.about.birthCountry")}
                   style={styles.inputFull}
@@ -394,12 +394,12 @@ export const OnboardingIndividualDetails = ({ onboarding }: Props) => {
                     />
                   )}
                 </Field>
-              </Box>
+              </View>
             </Tile>
 
             <Tile style={styles.gap}>
               <StepTitle isMobile={small}>{t("individual.step.about.title3")}</StepTitle>
-              <Box style={[styles.grid, large && styles.gridDesktop]}>
+              <View style={[styles.grid, large && styles.gridDesktop]}>
                 <Field name="residenceCountry">
                   {({ value, onChange }) => (
                     <OnboardingCountryPicker
@@ -480,7 +480,7 @@ export const OnboardingIndividualDetails = ({ onboarding }: Props) => {
                     />
                   )}
                 </Field>
-              </Box>
+              </View>
             </Tile>
           </>
         )}

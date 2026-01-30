@@ -205,6 +205,7 @@
   "error.requiredField": "This field is required",
   "error.tryAgain": "Please try again. If the error persists, contact us.",
   "error.unrecognizedKeys": "Unrecognized keys",
+  "error.onboarding.alreadyFinalized": "This onboarding has already been completed",
   "individual.step.details.description": "The law requires us to know our users well. This helps us prevent fraud and financial crime.",
   "individual.step.details.title": "What's your occupation?",
   "individual.step.email.description": "Please use the email of the person doing the onboarding. The one that will be contacted during the account opening process.",

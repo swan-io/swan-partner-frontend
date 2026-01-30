@@ -15,7 +15,10 @@ type UpdateOnboardingError =
   | ClientError
   | { __typename: "ForbiddenRejection" }
   | { __typename: "InternalErrorRejection" }
-  | { __typename: "ValidationRejection" };
+  | { __typename: "ValidationRejection" }
+  | { __typename: "OnboardingAlreadyFinalizedRejection" }
+  | { __typename: "OnboardingNotFoundRejection" }
+  | { __typename: "PublicOnboardingDisabledRejection" };
 
 export const getUpdateOnboardingError = (
   error: UpdateOnboardingError,
@@ -31,6 +34,12 @@ export const getUpdateOnboardingError = (
       return {
         title: translateError(error),
         description: t("error.tryAgain"),
+      };
+    })
+    .with({ __typename: "OnboardingAlreadyFinalizedRejection" }, error => {
+      return {
+        title: translateError(error),
+        description: t("error.onboarding.alreadyFinalized"),
       };
     })
     .with({ __typename: "ForbiddenRejection" }, error => {

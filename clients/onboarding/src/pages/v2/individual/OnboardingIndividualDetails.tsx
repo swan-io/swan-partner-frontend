@@ -33,6 +33,7 @@ import {
   individualCountries,
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import {
   validateEmail,
   validateName,
@@ -44,6 +45,7 @@ import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { InputPhoneNumber } from "../../../components/InputPhoneNumber";
 import { prefixPhoneNumber } from "../../../utils/phone";
 import { Router } from "../../../utils/routes";
+import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 
 type Props = {
   onboarding: NonNullable<IndividualOnboardingFragment>; // todo IndividualOnboardingFragment
@@ -210,11 +212,25 @@ export const OnboardingIndividualDetails = ({ onboarding }: Props) => {
             match(error)
               .with({ __typename: "ValidationRejection" }, error => {
                 const invalidFields = extractServerValidationErrors(error, path => {
-                  // todo:  improve error handling
                   return match(path)
                     .with(["accountAdmin", "email"], () => "email" as const)
                     .with(["accountAdmin", "firstName"], () => "firstName" as const)
                     .with(["accountAdmin", "lastName"], () => "lastName" as const)
+                    .with(["accountAdmin", "nationality"], () => "nationality" as const)
+                    .with(["accountAdmin", "birthInfo", "birthDate"], () => "birthDate" as const)
+                    .with(["accountAdmin", "birthInfo", "country"], () => "birthCountry" as const)
+                    .with(["accountAdmin", "birthInfo", "city"], () => "birthCity" as const)
+                    .with(["accountAdmin", "birthInfo", "postalCode"], () => "birthPostal" as const)
+                    .with(
+                      ["accountAdmin", "address", "addressLine1"],
+                      () => "residenceAddress" as const,
+                    )
+                    .with(["accountAdmin", "address", "country"], () => "residenceCountry" as const)
+                    .with(["accountAdmin", "address", "city"], () => "residenceCity" as const)
+                    .with(
+                      ["accountAdmin", "address", "postalCode"],
+                      () => "residencePostal" as const,
+                    )
                     .otherwise(() => null);
                 });
                 invalidFields.forEach(({ fieldName, code }) => {
@@ -224,7 +240,7 @@ export const OnboardingIndividualDetails = ({ onboarding }: Props) => {
               })
               .otherwise(noop);
 
-            // todo: showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
+            showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
           });
       },
     });

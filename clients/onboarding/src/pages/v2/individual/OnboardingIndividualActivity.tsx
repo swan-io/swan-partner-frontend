@@ -4,12 +4,10 @@ import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
-import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { useForm } from "@swan-io/use-form";
 import { StyleSheet } from "react-native";
-import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import { StepTitle } from "../../../components/StepTitle";
 import {
@@ -20,17 +18,24 @@ import {
   UpdatePublicIndividualAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { t } from "../../../utils/i18n";
+
+import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
+import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
+import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
+import { noop } from "@swan-io/lake/src/utils/function";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
+import {
+  validateNullableRequired,
+  validateRequired,
+} from "@swan-io/shared-business/src/utils/validation";
+import { View } from "react-native";
+import { match } from "ts-pattern";
+import { Router } from "../../../utils/routes";
+import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 import {
   extractServerValidationErrors,
   getValidationErrorMessage,
 } from "../../../utils/validation";
-
-import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
-import { showToast } from "@swan-io/shared-business/src/state/toasts";
-import { validateName } from "@swan-io/shared-business/src/utils/validation";
-import { View } from "react-native";
-import { Router } from "../../../utils/routes";
-import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 
 type Props = {
   onboarding: NonNullable<IndividualOnboardingFragment>;
@@ -45,12 +50,8 @@ const styles = StyleSheet.create({
     gap: "8px",
   },
   gridDesktop: {
-    // gridTemplateColumns: "1fr 1fr",
     gap: "16px 32px",
   },
-  // inputFull: {
-  //   gridColumnEnd: "span 2",
-  // },
 });
 
 const employmentStatuses: Item<EmploymentStatus>[] = [
@@ -94,25 +95,30 @@ export const OnboardingIndividualActivity = ({ onboarding }: Props) => {
   const onboardingId = onboarding.id;
 
   const { accountAdmin } = onboarding;
-  const { Field, FieldsListener, setFieldValue, setFieldError, submitForm } = useForm({
+  const { Field, FieldsListener, setFieldError, submitForm } = useForm({
     employmentStatus: {
-      initialValue: accountAdmin?.employmentStatus ?? "",
+      initialValue: accountAdmin?.employmentStatus ?? undefined,
+      validate: validateNullableRequired,
     },
     monthlyIncome: {
-      initialValue: accountAdmin?.monthlyIncome ?? "",
-      sanitize: trim,
-      validate: validateName,
+      initialValue: accountAdmin?.monthlyIncome ?? undefined,
+      validate: validateNullableRequired,
     },
     sourcesOfFunds: {
-      initialValue: accountAdmin?.sourcesOfFunds ?? "",
+      initialValue: accountAdmin?.sourcesOfFunds?.[0] ?? undefined,
     },
     isUnitedStatesPerson: {
       initialValue: accountAdmin?.unitedStatesTaxInfo?.isUnitedStatesPerson ?? false,
     },
-    unitedStatesTaxInfo: {
+    unitedStatesTaxIdentificationNumber: {
       initialValue: accountAdmin?.unitedStatesTaxInfo?.unitedStatesTaxIdentificationNumber ?? "",
       sanitize: trim,
-      validate: validateName,
+      validate: (value, { getFieldValue }) => {
+        const isRequired = getFieldValue("isUnitedStatesPerson");
+        if (isRequired) {
+          return validateRequired(value); // todo add custom format validator for tax number usa
+        }
+      },
     },
   });
 
@@ -128,14 +134,25 @@ export const OnboardingIndividualActivity = ({ onboarding }: Props) => {
           return;
         }
         const currentValues = option.get();
-
-        const { ...input } = currentValues;
+        const {
+          isUnitedStatesPerson,
+          unitedStatesTaxIdentificationNumber,
+          sourcesOfFunds,
+          ...input
+        } = currentValues;
 
         updateIndividualOnboarding({
           input: {
             onboardingId,
             accountAdmin: {
               ...input,
+              sourcesOfFunds: sourcesOfFunds != null ? [sourcesOfFunds] : undefined,
+              unitedStatesTaxInfo: {
+                isUnitedStatesPerson,
+                unitedStatesTaxIdentificationNumber: isUnitedStatesPerson
+                  ? unitedStatesTaxIdentificationNumber
+                  : "",
+              },
             },
           },
         })
@@ -147,8 +164,14 @@ export const OnboardingIndividualActivity = ({ onboarding }: Props) => {
               .with({ __typename: "ValidationRejection" }, error => {
                 const invalidFields = extractServerValidationErrors(error, path => {
                   return match(path)
-                    .with(["accountAdmin", "email"], () => "email" as const)
-                    .with(["accountAdmin", "firstName"], () => "firstName" as const)
+                    .with(
+                      [
+                        "accountAdmin",
+                        "unitedStatesTaxInfo",
+                        "unitedStatesTaxIdentificationNumber",
+                      ],
+                      () => "unitedStatesTaxIdentificationNumber" as const,
+                    )
                     .otherwise(() => null);
                 });
                 invalidFields.forEach(({ fieldName, code }) => {
@@ -183,6 +206,7 @@ export const OnboardingIndividualActivity = ({ onboarding }: Props) => {
                           items={employmentStatuses}
                           value={value}
                           onValueChange={onChange}
+                          placeholder={t("individual.step.activity.status.placeholder")}
                         />
                       )}
                     </Field>
@@ -200,6 +224,7 @@ export const OnboardingIndividualActivity = ({ onboarding }: Props) => {
                           items={monthlyIncomes}
                           value={value}
                           onValueChange={onChange}
+                          placeholder={t("individual.step.activity.monthly.placeholder")}
                         />
                       )}
                     </Field>
@@ -217,6 +242,7 @@ export const OnboardingIndividualActivity = ({ onboarding }: Props) => {
                           items={sourcesOfFunds}
                           value={value}
                           onValueChange={onChange}
+                          placeholder={t("individual.step.activity.source.placeholder")}
                         />
                       )}
                     </Field>
@@ -228,7 +254,55 @@ export const OnboardingIndividualActivity = ({ onboarding }: Props) => {
             <Tile style={styles.gap}>
               <StepTitle isMobile={small}>{t("individual.step.activity.title2")}</StepTitle>
               <View style={[styles.grid, large && styles.gridDesktop]}>
-                <p>test</p>
+                <LakeLabel
+                  label={t("individual.step.activity.usaCitizen")}
+                  render={() => (
+                    <Field name="isUnitedStatesPerson">
+                      {({ value, onChange }) => (
+                        <RadioGroup
+                          direction="row"
+                          items={[
+                            {
+                              name: t("common.yes"),
+                              value: true,
+                            },
+                            {
+                              name: t("common.no"),
+                              value: false,
+                            },
+                          ]}
+                          value={value}
+                          onValueChange={onChange}
+                        />
+                      )}
+                    </Field>
+                  )}
+                />
+
+                <FieldsListener names={["isUnitedStatesPerson"]}>
+                  {({ isUnitedStatesPerson }) => (
+                    <Field name="unitedStatesTaxIdentificationNumber">
+                      {({ value, onBlur, onChange, error, ref }) =>
+                        isUnitedStatesPerson.value ? (
+                          <LakeLabel
+                            label={t("individual.step.activity.usaTax")}
+                            render={id => (
+                              <LakeTextInput
+                                id={id}
+                                ref={ref}
+                                value={value}
+                                error={error}
+                                onBlur={onBlur}
+                                onChangeText={onChange}
+                                placeholder={t("individual.step.activity.usaTax.placeholder")}
+                              />
+                            )}
+                          />
+                        ) : null
+                      }
+                    </Field>
+                  )}
+                </FieldsListener>
               </View>
             </Tile>
           </>

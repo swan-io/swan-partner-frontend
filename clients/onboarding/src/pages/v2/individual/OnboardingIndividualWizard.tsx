@@ -9,7 +9,6 @@ import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import logoSwan from "../../../assets/imgs/logo-swan.svg";
-import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import { OnboardingHeader } from "../../../components/OnboardingHeader";
 import { IndividualOnboardingFragment } from "../../../graphql/partner";
 import { t } from "../../../utils/i18n";
@@ -19,8 +18,8 @@ import {
   individualOnboardingRoutesV2,
 } from "../../../utils/routes";
 import { NotFoundPage } from "../../NotFoundPage";
-import { OnboardingIndividualDetails } from "./OnboardingIndividualDetails";
 import { OnboardingIndividualActivity } from "./OnboardingIndividualActivity";
+import { OnboardingIndividualDetails } from "./OnboardingIndividualDetails";
 
 const styles = StyleSheet.create({
   stepper: {
@@ -127,10 +126,15 @@ export const OnboardingIndividualWizard = ({ onboarding }: Props) => {
 
             {match(route)
               .with({ name: "Root" }, () => <OnboardingIndividualDetails onboarding={onboarding} />)
-              .with({ name: "Activity" }, () => <OnboardingIndividualActivity onboarding={onboarding} />)
+              .with({ name: "Activity" }, () => (
+                <OnboardingIndividualActivity onboarding={onboarding} />
+              ))
               .with({ name: "Finalize" }, () => (
                 <>
                   <h2>Finalize </h2>
+                  <button type="button" onClick={() => Router.push("Activity", { onboardingId })}>
+                    prev
+                  </button>
                 </>
               ))
               .with(P.nullish, () => <NotFoundPage />)

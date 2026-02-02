@@ -116,6 +116,7 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
 
           <CardWizardSettings
             ref={settingsRef}
+            disabled={!canUpdateCard}
             cardProduct={card.cardProduct}
             cardFormat={card.type}
             maxSpendingLimit={card.spendingLimits?.find(

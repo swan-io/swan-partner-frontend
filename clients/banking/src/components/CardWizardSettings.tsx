@@ -31,7 +31,6 @@ import {
   SpendingLimitInput,
   SpendingLimitPeriodInput,
 } from "../graphql/partner";
-import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 import { CardFormat } from "./CardWizardFormat";
 
@@ -145,6 +144,7 @@ type Props = {
   onSubmit: (cardSettings: CardSettings) => void;
   accountHolder?: AccountHolderForCardSettingsFragment;
   maxSpendingLimit?: { amount: Amount };
+  disabled?: boolean;
 };
 
 type ValidationError = "InvalidAmount";
@@ -237,8 +237,8 @@ export const CardWizardSettings = ({
   cardProduct,
   onSubmit,
   maxSpendingLimit,
+  disabled = false,
 }: Props) => {
-  const { canUpdateCard } = usePermissions();
   const spendingLimitMaxValue = match({
     accountHolderType: accountHolder?.info.__typename,
     maxSpendingLimit,
@@ -344,7 +344,7 @@ export const CardWizardSettings = ({
               render={id => (
                 <LakeTextInput
                   id={id}
-                  disabled={!canUpdateCard}
+                  disabled={disabled}
                   value={currentSettings.cardName ?? ""}
                   onChangeText={cardName =>
                     setCurrentSettings(settings => ({
@@ -390,7 +390,7 @@ export const CardWizardSettings = ({
                                       onChangeText={setDirtyValue}
                                       onBlur={sanitizeInput}
                                       inputMode="decimal"
-                                      disabled={!canUpdateCard}
+                                      disabled={disabled}
                                     />
                                   </View>
                                 </Box>
@@ -400,7 +400,7 @@ export const CardWizardSettings = ({
                                   min={0}
                                   max={spendingLimitMaxValue}
                                   step={1}
-                                  disabled={!canUpdateCard}
+                                  disabled={disabled}
                                   onChange={value =>
                                     setCurrentSettings(settings => ({
                                       ...settings,
@@ -423,7 +423,7 @@ export const CardWizardSettings = ({
                                 onChangeText={setDirtyValue}
                                 onBlur={sanitizeInput}
                                 inputMode="decimal"
-                                disabled={!canUpdateCard}
+                                disabled={disabled}
                               />
                             )
                           }
@@ -441,7 +441,7 @@ export const CardWizardSettings = ({
                         id={id}
                         items={PERIODS}
                         value={currentSettings.spendingLimit.period}
-                        disabled={!canUpdateCard}
+                        disabled={disabled}
                         onValueChange={period =>
                           setCurrentSettings({
                             ...currentSettings,
@@ -467,7 +467,7 @@ export const CardWizardSettings = ({
                         onChangeText={setDirtyValue}
                         onBlur={sanitizeInput}
                         inputMode="decimal"
-                        disabled={!canUpdateCard}
+                        disabled={disabled}
                         error={
                           (validation?.includes("InvalidAmount") ?? false)
                             ? t("common.form.invalidAmount")
@@ -494,7 +494,7 @@ export const CardWizardSettings = ({
                   onChange={eCommerce =>
                     setCurrentSettings(settings => ({ ...settings, eCommerce }))
                   }
-                  disabled={!canUpdateCard}
+                  disabled={disabled}
                   desktop={large}
                 />
               </View>
@@ -508,7 +508,7 @@ export const CardWizardSettings = ({
                   onChange={withdrawal =>
                     setCurrentSettings(settings => ({ ...settings, withdrawal }))
                   }
-                  disabled={!canUpdateCard}
+                  disabled={disabled}
                   desktop={large}
                 />
               </View>
@@ -522,7 +522,7 @@ export const CardWizardSettings = ({
                   onChange={nonMainCurrencyTransactions =>
                     setCurrentSettings(settings => ({ ...settings, nonMainCurrencyTransactions }))
                   }
-                  disabled={!canUpdateCard}
+                  disabled={disabled}
                   desktop={large}
                 />
               </View>
@@ -536,7 +536,7 @@ export const CardWizardSettings = ({
                   onChange={international =>
                     setCurrentSettings(settings => ({ ...settings, international }))
                   }
-                  disabled={!canUpdateCard}
+                  disabled={disabled}
                   desktop={large}
                 />
               </View>
@@ -555,7 +555,7 @@ export const CardWizardSettings = ({
                   },
                 })
               }
-              disabled={!canUpdateCard}
+              disabled={disabled}
               renderItem={period => {
                 return (
                   <View style={styles.item}>

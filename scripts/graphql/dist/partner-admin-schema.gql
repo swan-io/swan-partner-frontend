@@ -1390,11 +1390,20 @@ type AccountSuspendedStatus implements AccountStatusInfo {
   reasonInfo: SuspendAccountStatusReason!
 }
 
-"""Acquisition channel."""
+"""The acquisition channel indicates how the account holder was acquired."""
 enum AcquisitionChannel {
+  """Account holders who signed up directly, such as through your website."""
   InboundOrganic
+
+  """
+  Account holders acquired through referrals from existing users or partners.
+  """
   InboundReferral
+
+  """Account holders acquired through direct sales efforts."""
   OutboundSales
+
+  """Account holders acquired through accounting firm partnerships."""
   OutboundAccountingFirm
 }
 
@@ -7341,7 +7350,7 @@ QES => use the `startFourthlineQesIdentification` mutation
 
 Expert => use the `startUbbleExpertIdVerificationIdentification` mutation
 
-PVID => use the `startUbblePvidIdVerificationIdentification` mutation
+PVID => use the `startCheckoutPvidIdentification` mutation
 
 Auto => use query `recommendedIdentificationFlow` to let Swan recommend the best flow and level for a user
 """
@@ -10209,7 +10218,7 @@ type MerchantProfile {
   productType: ProductType!
 
   """Updates Requested associated"""
-  requestedMerchantProfileUpdates: [RequestMerchantProfileUpdate!] @deprecated
+  requestedMerchantProfileUpdates: [RequestMerchantProfileUpdate!] @deprecated(reason: "use requestMerchantProfileUpdate instead")
 
   """Update Requested associated"""
   requestMerchantProfileUpdate: RequestMerchantProfileUpdate

@@ -1,6 +1,8 @@
 {
   "interfaceToTypes": {
     "Rejection": [
+      "AccountAdminChangeExpiredRejection",
+      "AccountAdminChangeNotFoundRejection",
       "AccountAdminChangeStatusNotEligibleRejection",
       "AccountHolderNotFoundRejection",
       "AccountMembershipCannotBeDisabledRejection",

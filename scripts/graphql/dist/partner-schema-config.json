@@ -2,10 +2,13 @@
   "interfaceToTypes": {
     "Rejection": [
       "AccountAdminChangeExpiredRejection",
+      "AccountAdminChangeMissingDocumentsRejection",
+      "AccountAdminChangeMissingInformationRejection",
       "AccountAdminChangeNotFoundRejection",
       "AccountAdminChangeStatusNotEligibleRejection",
       "AccountHolderAccountsCreationLimitRejection",
       "AccountHolderAccountsStatusNotEligibleRejection",
+      "AccountHolderAccountsSuspendedStatusNotEligibleRejection",
       "AccountHolderAccountsTypeNotEligibleRejection",
       "AccountHolderNotFoundRejection",
       "AccountHolderProjectSettingsNotEligibleRejection",

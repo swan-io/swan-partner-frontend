@@ -15,7 +15,7 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { SwanLogo } from "@swan-io/lake/src/components/SwanLogo";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
-import { backgroundColor, colors } from "@swan-io/lake/src/constants/design";
+import { backgroundColor, colors, invariantColors } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
@@ -181,10 +181,24 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
         result.match({
           Error: error =>
             match(error)
-              .with({ __typename: "ForbiddenRejection" }, () => <NotFoundPage />)
+              .with(
+                {
+                  __typename: P.union(
+                    "ForbiddenRejection",
+                    "AccountAdminChangeExpiredRejection",
+                    "AccountAdminChangeNotFoundRejection",
+                    "AccountAdminChangeStatusNotEligibleRejection",
+                  ),
+                },
+                () => <NotFoundPage />,
+              )
               .otherwise(error => <ErrorView error={error} />),
           Ok: data => (
-            <WithPartnerAccentColor color={data.accountHolder.projectInfo.accentColor}>
+            <WithPartnerAccentColor
+              color={
+                data.accountHolder.projectInfo.accentColor ?? invariantColors.defaultAccentColor
+              }
+            >
               <Box grow={1}>
                 <Box style={styles.sticky}>
                   <OnboardingHeader

@@ -54,9 +54,9 @@ export const ChangeAdminContext1 = ({ accountHolder, changeAdminRequestId, nextS
                   label={t("changeAdmin.step.context1.accounts")}
                   render={() => (
                     <View role="list" style={{ padding: 0, margin: 0 }}>
-                      {accountHolder?.accounts?.map(account => (
+                      {accountHolder.accounts?.map((account, index) => (
                         <LakeText
-                          key={account.id}
+                          key={index}
                           role="listitem"
                           style={styles.listItem}
                           color={colors.gray[900]}

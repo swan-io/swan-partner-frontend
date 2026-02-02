@@ -171,6 +171,127 @@ type Account {
   settings: AccountSettings!
 }
 
+"""Account administrator change request"""
+type AccountAdminChange {
+  """Unique identifier of the account admin change"""
+  id: ID!
+
+  """Reason for the account administrator change"""
+  reason: AccountAdminChangeReason
+
+  """`true` if the new administrator is a legal representative"""
+  isNewAdminLegalRepresentative: Boolean
+
+  """Information about the new administrator"""
+  admin: AccountAdminChangeAdmin
+
+  """`true` if the requester is the new administrator"""
+  isRequesterNewAdmin: Boolean
+
+  """Information about the requester of the administrator change"""
+  requester: AccountAdminChangeRequester
+
+  """Account holder company information"""
+  accountHolder: AccountAdminChangeAccountHolderCompany!
+
+  """Supporting document collection for the administrator change"""
+  supportingDocumentCollection: SupportingDocumentCollection!
+}
+
+"""Account information for account admin change"""
+type AccountAdminChangeAccount {
+  """Account name"""
+  name: String!
+}
+
+"""Account holder information for account admin change"""
+type AccountAdminChangeAccountHolderCompany {
+  """Name of the company"""
+  name: String!
+
+  """List of accounts owned by the account holder"""
+  accounts: [AccountAdminChangeAccount!]!
+
+  """Project information"""
+  projectInfo: AccountAdminChangeProjectInfo!
+}
+
+"""Information about the new administrator"""
+type AccountAdminChangeAdmin {
+  """First name of the new administrator"""
+  firstName: String
+
+  """Last name of the new administrator"""
+  lastName: String
+
+  """Email address of the new administrator"""
+  email: String
+
+  """Phone number of the new administrator"""
+  phoneNumber: String
+
+  """Birth country of the new administrator"""
+  birthCountry: String
+
+  """Birth date of the new administrator"""
+  birthDate: Date
+}
+
+"""Rejection returned if the account admin change has expired"""
+type AccountAdminChangeExpiredRejection implements Rejection {
+  message: String!
+}
+
+"""Rejection returned if the account admin change was not found"""
+type AccountAdminChangeNotFoundRejection implements Rejection {
+  message: String!
+}
+
+"""Project information for account admin change"""
+type AccountAdminChangeProjectInfo {
+  """Project accent color"""
+  accentColor: String
+
+  """Project logo URI"""
+  logoUri: String
+
+  """Project name"""
+  name: String!
+}
+
+"""Reason for the account administrator change"""
+enum AccountAdminChangeReason {
+  """The current administrator has left the company"""
+  CurrentAdministratorLeft
+
+  """The change is due to an internal reorganization"""
+  InternalReorganization
+
+  """The new administrator was appointed by general assembly"""
+  AppointedByGeneralAssembly
+
+  """The new administrator was appointed by board decision"""
+  AppointedByBoardDecision
+
+  """Other reason for the administrator change"""
+  Other
+}
+
+"""Information about the requester of the administrator change"""
+type AccountAdminChangeRequester {
+  """First name of the requester"""
+  firstName: String
+
+  """Last name of the requester"""
+  lastName: String
+
+  """Email address of the requester"""
+  email: String
+
+  """Phone number of the requester"""
+  phoneNumber: String
+}
+
 type AccountAdminChangeStatusNotEligibleRejection implements Rejection {
   message: String!
 }
@@ -1113,11 +1234,20 @@ type AccountSuspendedStatus implements AccountStatusInfo {
   reasonInfo: SuspendAccountStatusReason!
 }
 
-"""Acquisition channel."""
+"""The acquisition channel indicates how the account holder was acquired."""
 enum AcquisitionChannel {
+  """Account holders who signed up directly, such as through your website."""
   InboundOrganic
+
+  """
+  Account holders acquired through referrals from existing users or partners.
+  """
   InboundReferral
+
+  """Account holders acquired through direct sales efforts."""
   OutboundSales
+
+  """Account holders acquired through accounting firm partnerships."""
   OutboundAccountingFirm
 }
 
@@ -1361,53 +1491,6 @@ enum BusinessActivity {
   RealEstate
   ScientificActivities
   Transportation
-}
-
-"""
-Business activity class, this is the NACE code to be submitted in onboarding
-"""
-type BusinessActivityClass {
-  """NACE code"""
-  code: String!
-
-  """Localized class name"""
-  localName: String!
-}
-
-"""Business activity division"""
-type BusinessActivityDivision {
-  """Division code"""
-  division: String!
-
-  """Localized division name"""
-  localName: String!
-
-  """Groups within this division"""
-  groups: [BusinessActivityGroup!]!
-}
-
-"""Business activity group"""
-type BusinessActivityGroup {
-  """Group code"""
-  group: String!
-
-  """Localized group name"""
-  localName: String!
-
-  """Classes within this group"""
-  classes: [BusinessActivityClass!]!
-}
-
-"""Business activity section"""
-type BusinessActivitySection {
-  """Section code"""
-  section: String!
-
-  """Localized section name"""
-  localName: String!
-
-  """Divisions within this section"""
-  divisions: [BusinessActivityDivision!]!
 }
 
 """
@@ -1717,7 +1800,7 @@ input CompanyInfoInput {
   businessActivityDescription: String
 
   """Business classification code (example: NAF code for France)"""
-  businessClassificationCode: String
+  businessActivityCode: String
 
   """Forecast yearly income range"""
   forecastYearlyIncome: ForecastYearlyIncome
@@ -8498,7 +8581,7 @@ type MerchantProfile {
   productType: ProductType!
 
   """Updates Requested associated"""
-  requestedMerchantProfileUpdates: [RequestMerchantProfileUpdate!] @deprecated
+  requestedMerchantProfileUpdates: [RequestMerchantProfileUpdate!] @deprecated(reason: "use requestMerchantProfileUpdate instead")
 
   """Update Requested associated"""
   requestMerchantProfileUpdate: RequestMerchantProfileUpdate

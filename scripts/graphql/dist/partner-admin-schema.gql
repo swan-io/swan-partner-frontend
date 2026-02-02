@@ -1390,11 +1390,20 @@ type AccountSuspendedStatus implements AccountStatusInfo {
   reasonInfo: SuspendAccountStatusReason!
 }
 
-"""Acquisition channel."""
+"""The acquisition channel indicates how the account holder was acquired."""
 enum AcquisitionChannel {
+  """Account holders who signed up directly, such as through your website."""
   InboundOrganic
+
+  """
+  Account holders acquired through referrals from existing users or partners.
+  """
   InboundReferral
+
+  """Account holders acquired through direct sales efforts."""
   OutboundSales
+
+  """Account holders acquired through accounting firm partnerships."""
   OutboundAccountingFirm
 }
 
@@ -3034,11 +3043,32 @@ type SpendingLimit {
 
   """sum of amount of spending authorized during the period"""
   amount: Amount!
+
+  """
+  spending limit mode : either rolling or calendar. null if the period is Always.
+  """
+  mode: SpendingLimitMode
+}
+
+type SpendingLimitCalendarDayMode {
+  """a starting hour for the spending limit (0 to 23)."""
+  startHour: Int!
 }
 
 input SpendingLimitCalendarDayModeInput {
   """a starting hour for the spending limit (0 to 23)."""
   startHour: Int! = 0
+}
+
+type SpendingLimitCalendarMode {
+  """a daily based calendar spending limit."""
+  daily: SpendingLimitCalendarDayMode
+
+  """a weekly based calendar spending limit."""
+  weekly: SpendingLimitCalendarWeekMode
+
+  """a monthly based calendar spending limit."""
+  monthly: SpendingLimitCalendarMonthMode
 }
 
 input SpendingLimitCalendarModeInput {
@@ -3052,12 +3082,28 @@ input SpendingLimitCalendarModeInput {
   monthly: SpendingLimitCalendarMonthModeInput
 }
 
+type SpendingLimitCalendarMonthMode {
+  """a starting hour for the spending limit (0 to 23)."""
+  startHour: Int!
+
+  """a day in month for the spending limit (1 to 31)."""
+  startDay: Int!
+}
+
 input SpendingLimitCalendarMonthModeInput {
   """a starting hour for the spending limit (0 to 23)."""
   startHour: Int! = 0
 
   """a day in month for the spending limit (1 to 31)."""
   startDay: Int! = 1
+}
+
+type SpendingLimitCalendarWeekMode {
+  """a starting hour for the spending limit (0 to 23)."""
+  startHour: Int!
+
+  """a day of week enum."""
+  startDay: DayEnum!
 }
 
 input SpendingLimitCalendarWeekModeInput {
@@ -3075,6 +3121,16 @@ input SpendingLimitInput {
 
   """sum of amount of spending authorized during the period"""
   amount: AmountInput!
+}
+
+type SpendingLimitMode {
+  """a rolling period, defining a period of x days/weeks/months."""
+  rolling: SpendingLimitRollingMode
+
+  """
+  a fixed calendar period starting either at a given hour of day, a given hour and day in week/month
+  """
+  calendar: SpendingLimitCalendarMode
 }
 
 input SpendingLimitModeInput {
@@ -3101,6 +3157,13 @@ enum SpendingLimitPeriodInput {
   Weekly
   Daily
   Always
+}
+
+type SpendingLimitRollingMode {
+  """
+  a rolling value for a spending limit. For a monthly period, only 1 is valid.
+  """
+  rollingValue: Int!
 }
 
 input SpendingLimitRollingModeInput {
@@ -7287,7 +7350,7 @@ QES => use the `startFourthlineQesIdentification` mutation
 
 Expert => use the `startUbbleExpertIdVerificationIdentification` mutation
 
-PVID => use the `startUbblePvidIdVerificationIdentification` mutation
+PVID => use the `startCheckoutPvidIdentification` mutation
 
 Auto => use query `recommendedIdentificationFlow` to let Swan recommend the best flow and level for a user
 """
@@ -10155,7 +10218,7 @@ type MerchantProfile {
   productType: ProductType!
 
   """Updates Requested associated"""
-  requestedMerchantProfileUpdates: [RequestMerchantProfileUpdate!] @deprecated
+  requestedMerchantProfileUpdates: [RequestMerchantProfileUpdate!] @deprecated(reason: "use requestMerchantProfileUpdate instead")
 
   """Update Requested associated"""
   requestMerchantProfileUpdate: RequestMerchantProfileUpdate

@@ -294,7 +294,15 @@ fragment AccountAdminChangeInfo on AccountAdminChange {
   isNewAdminLegalRepresentative
   isRequesterNewAdmin
   accountHolder {
+    accounts {
+      name
+    }
     name
+    projectInfo {
+      accentColor
+      logoUri
+      name
+    }
   }
   admin {
     firstName
@@ -325,7 +333,7 @@ fragment AccountAdminChangeInfo on AccountAdminChange {
 }
 
 query AccountAdminChange($accountAdminChangeId: ID!) {
-  publicAccountAdminChange(accountAdminChangeId: $accountAdminChangeId) {
+  accountAdminChange(accountAdminChangeId: $accountAdminChangeId) {
     ... on AccountAdminChange {
       ...AccountAdminChangeInfo
     }

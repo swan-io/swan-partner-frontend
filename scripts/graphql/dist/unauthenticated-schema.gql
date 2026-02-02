@@ -192,10 +192,28 @@ type AccountAdminChange {
   requester: AccountAdminChangeRequester
 
   """Account holder company information"""
-  accountHolder: AccountHolderCompanyInfo!
+  accountHolder: AccountAdminChangeAccountHolderCompany!
 
   """Supporting document collection for the administrator change"""
   supportingDocumentCollection: SupportingDocumentCollection!
+}
+
+"""Account information for account admin change"""
+type AccountAdminChangeAccount {
+  """Account name"""
+  name: String!
+}
+
+"""Account holder information for account admin change"""
+type AccountAdminChangeAccountHolderCompany {
+  """Name of the company"""
+  name: String!
+
+  """List of accounts owned by the account holder"""
+  accounts: [AccountAdminChangeAccount!]!
+
+  """Project information"""
+  projectInfo: AccountAdminChangeProjectInfo!
 }
 
 """Information about the new administrator"""
@@ -217,6 +235,28 @@ type AccountAdminChangeAdmin {
 
   """Birth date of the new administrator"""
   birthDate: Date
+}
+
+"""Rejection returned if the account admin change has expired"""
+type AccountAdminChangeExpiredRejection implements Rejection {
+  message: String!
+}
+
+"""Rejection returned if the account admin change was not found"""
+type AccountAdminChangeNotFoundRejection implements Rejection {
+  message: String!
+}
+
+"""Project information for account admin change"""
+type AccountAdminChangeProjectInfo {
+  """Project accent color"""
+  accentColor: String
+
+  """Project logo URI"""
+  logoUri: String
+
+  """Project name"""
+  name: String!
 }
 
 """Reason for the account administrator change"""
@@ -250,6 +290,10 @@ type AccountAdminChangeRequester {
 
   """Phone number of the requester"""
   phoneNumber: String
+}
+
+type AccountAdminChangeStatusNotEligibleRejection implements Rejection {
+  message: String!
 }
 
 """Account Closed status information"""
@@ -953,6 +997,14 @@ type AccountMembershipConsentPendingStatusInfo implements AccountMembershipStatu
   restrictedTo: RestrictedTo!
 }
 
+"""
+Rejection returned if the account membership invitation link cannot be created.
+"""
+type AccountMembershipCustomInvitationCannotBeCreatedRejection implements Rejection {
+  projectId: ID!
+  message: String!
+}
+
 """when the account membership is disabled"""
 type AccountMembershipDisabledStatusInfo implements AccountMembershipStatusInfo {
   """
@@ -1182,11 +1234,20 @@ type AccountSuspendedStatus implements AccountStatusInfo {
   reasonInfo: SuspendAccountStatusReason!
 }
 
-"""Acquisition channel."""
+"""The acquisition channel indicates how the account holder was acquired."""
 enum AcquisitionChannel {
+  """Account holders who signed up directly, such as through your website."""
   InboundOrganic
+
+  """
+  Account holders acquired through referrals from existing users or partners.
+  """
   InboundReferral
+
+  """Account holders acquired through direct sales efforts."""
   OutboundSales
+
+  """Account holders acquired through accounting firm partnerships."""
   OutboundAccountingFirm
 }
 
@@ -1739,7 +1800,7 @@ input CompanyInfoInput {
   businessActivityDescription: String
 
   """Business classification code (example: NAF code for France)"""
-  businessClassificationCode: String
+  businessActivityCode: String
 
   """Forecast yearly income range"""
   forecastYearlyIncome: ForecastYearlyIncome
@@ -2681,6 +2742,11 @@ type LegalForm {
 
   """Localized name of the legal form"""
   localName: String!
+
+  """
+  Localized abbreviation of the legal form (e.g., "SAS" for Société par actions simplifiée in French)
+  """
+  localAbbreviation: String
 }
 
 type LegalRepresentativeAccountMembershipCannotBeDisabledRejection implements Rejection {
@@ -3693,11 +3759,32 @@ type SpendingLimit {
 
   """sum of amount of spending authorized during the period"""
   amount: Amount!
+
+  """
+  spending limit mode : either rolling or calendar. null if the period is Always.
+  """
+  mode: SpendingLimitMode
+}
+
+type SpendingLimitCalendarDayMode {
+  """a starting hour for the spending limit (0 to 23)."""
+  startHour: Int!
 }
 
 input SpendingLimitCalendarDayModeInput {
   """a starting hour for the spending limit (0 to 23)."""
   startHour: Int! = 0
+}
+
+type SpendingLimitCalendarMode {
+  """a daily based calendar spending limit."""
+  daily: SpendingLimitCalendarDayMode
+
+  """a weekly based calendar spending limit."""
+  weekly: SpendingLimitCalendarWeekMode
+
+  """a monthly based calendar spending limit."""
+  monthly: SpendingLimitCalendarMonthMode
 }
 
 input SpendingLimitCalendarModeInput {
@@ -3711,12 +3798,28 @@ input SpendingLimitCalendarModeInput {
   monthly: SpendingLimitCalendarMonthModeInput
 }
 
+type SpendingLimitCalendarMonthMode {
+  """a starting hour for the spending limit (0 to 23)."""
+  startHour: Int!
+
+  """a day in month for the spending limit (1 to 31)."""
+  startDay: Int!
+}
+
 input SpendingLimitCalendarMonthModeInput {
   """a starting hour for the spending limit (0 to 23)."""
   startHour: Int! = 0
 
   """a day in month for the spending limit (1 to 31)."""
   startDay: Int! = 1
+}
+
+type SpendingLimitCalendarWeekMode {
+  """a starting hour for the spending limit (0 to 23)."""
+  startHour: Int!
+
+  """a day of week enum."""
+  startDay: DayEnum!
 }
 
 input SpendingLimitCalendarWeekModeInput {
@@ -3739,6 +3842,16 @@ input SpendingLimitInput {
   spending limit mode : either rolling or calendar. Default is a rolling period with a rolling value of 1.
   """
   mode: SpendingLimitModeInput
+}
+
+type SpendingLimitMode {
+  """a rolling period, defining a period of x days/weeks/months."""
+  rolling: SpendingLimitRollingMode
+
+  """
+  a fixed calendar period starting either at a given hour of day, a given hour and day in week/month
+  """
+  calendar: SpendingLimitCalendarMode
 }
 
 input SpendingLimitModeInput {
@@ -3765,6 +3878,13 @@ enum SpendingLimitPeriodInput {
   Weekly
   Daily
   Always
+}
+
+type SpendingLimitRollingMode {
+  """
+  a rolling value for a spending limit. For a monthly period, only 1 is valid.
+  """
+  rollingValue: Int!
 }
 
 input SpendingLimitRollingModeInput {
@@ -8461,7 +8581,7 @@ type MerchantProfile {
   productType: ProductType!
 
   """Updates Requested associated"""
-  requestedMerchantProfileUpdates: [RequestMerchantProfileUpdate!] @deprecated
+  requestedMerchantProfileUpdates: [RequestMerchantProfileUpdate!] @deprecated(reason: "use requestMerchantProfileUpdate instead")
 
   """Update Requested associated"""
   requestMerchantProfileUpdate: RequestMerchantProfileUpdate

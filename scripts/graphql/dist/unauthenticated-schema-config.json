@@ -1,54 +1,13 @@
 {
   "interfaceToTypes": {
-    "AccountStatusInfo": [
-      "AccountClosedStatus",
-      "AccountClosingStatus",
-      "AccountOpenedStatus",
-      "AccountSuspendedStatus"
-    ],
-    "Connection": [
-      "AccountConnection",
-      "AccountHolderConnection",
-      "AccountMembershipConnection",
-      "FundingLimitSettingsChangeRequestConnection",
-      "OnboardingConnection",
-      "SupportingDocumentCollectionConnection",
-      "VirtualIBANEntryConnection",
-      "CardConnection",
-      "DigitalCardConnection",
-      "ConsentConnection",
-      "UserConnection",
-      "MerchantPaymentConnection",
-      "MerchantPaymentLinkConnection"
-    ],
-    "Edge": [
-      "AccountEdge",
-      "AccountHolderEdge",
-      "AccountMembershipEdge",
-      "FundingLimitSettingsChangeRequestEdge",
-      "OnboardingEdge",
-      "SupportingDocumentCollectionEdge",
-      "VirtualIBANEntryEdge",
-      "CardEdge",
-      "DigitalCardEdge",
-      "ConsentEdge",
-      "UserEdge",
-      "MerchantPaymentEdge",
-      "MerchantPaymentLinkEdge"
-    ],
-    "AccountHolderStatusInfo": [
-      "AccountHolderCanceledStatusInfo",
-      "AccountHolderEnabledStatusInfo",
-      "AccountHolderSuspendedStatusInfo"
-    ],
-    "AccountHolderInfo": [
-      "AccountHolderCompanyInfo",
-      "AccountHolderIndividualInfo"
-    ],
     "Rejection": [
+      "AccountAdminChangeExpiredRejection",
+      "AccountAdminChangeNotFoundRejection",
+      "AccountAdminChangeStatusNotEligibleRejection",
       "AccountHolderNotFoundRejection",
       "AccountMembershipCannotBeDisabledRejection",
       "AccountMembershipCannotBeUpdatedRejection",
+      "AccountMembershipCustomInvitationCannotBeCreatedRejection",
       "AccountMembershipNotFoundRejection",
       "AccountMembershipNotReadyToBeBoundRejection",
       "AccountNotFoundRejection",
@@ -143,6 +102,51 @@
       "PaymentMethodNotCompatibleRejection",
       "SchemeWrongRejection",
       "UpdateRequestNotPendingReviewRejection"
+    ],
+    "AccountStatusInfo": [
+      "AccountClosedStatus",
+      "AccountClosingStatus",
+      "AccountOpenedStatus",
+      "AccountSuspendedStatus"
+    ],
+    "Connection": [
+      "AccountConnection",
+      "AccountHolderConnection",
+      "AccountMembershipConnection",
+      "FundingLimitSettingsChangeRequestConnection",
+      "OnboardingConnection",
+      "SupportingDocumentCollectionConnection",
+      "VirtualIBANEntryConnection",
+      "CardConnection",
+      "DigitalCardConnection",
+      "ConsentConnection",
+      "UserConnection",
+      "MerchantPaymentConnection",
+      "MerchantPaymentLinkConnection"
+    ],
+    "Edge": [
+      "AccountEdge",
+      "AccountHolderEdge",
+      "AccountMembershipEdge",
+      "FundingLimitSettingsChangeRequestEdge",
+      "OnboardingEdge",
+      "SupportingDocumentCollectionEdge",
+      "VirtualIBANEntryEdge",
+      "CardEdge",
+      "DigitalCardEdge",
+      "ConsentEdge",
+      "UserEdge",
+      "MerchantPaymentEdge",
+      "MerchantPaymentLinkEdge"
+    ],
+    "AccountHolderStatusInfo": [
+      "AccountHolderCanceledStatusInfo",
+      "AccountHolderEnabledStatusInfo",
+      "AccountHolderSuspendedStatusInfo"
+    ],
+    "AccountHolderInfo": [
+      "AccountHolderCompanyInfo",
+      "AccountHolderIndividualInfo"
     ],
     "AccountHolderVerificationStatusInfo": [
       "AccountHolderNotStartedVerificationStatusInfo",

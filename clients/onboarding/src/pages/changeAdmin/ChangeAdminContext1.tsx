@@ -47,14 +47,14 @@ export const ChangeAdminContext1 = ({ accountHolder, changeAdminRequestId, nextS
                 <LakeLabel
                   type="view"
                   label={t("changeAdmin.step.context1.accountHolder")}
-                  render={() => <LakeText color={colors.gray[900]}>{accountHolder?.name}</LakeText>}
+                  render={() => <LakeText color={colors.gray[900]}>{accountHolder.name}</LakeText>}
                 />
                 <LakeLabel
                   type="view"
                   label={t("changeAdmin.step.context1.accounts")}
                   render={() => (
                     <View role="list" style={{ padding: 0, margin: 0 }}>
-                      {accountHolder.accounts?.map((account, index) => (
+                      {accountHolder.accounts.map((account, index) => (
                         <LakeText
                           key={index}
                           role="listitem"

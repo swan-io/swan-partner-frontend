@@ -20,6 +20,7 @@ import {
 } from "../../../utils/routes";
 import { NotFoundPage } from "../../NotFoundPage";
 import { OnboardingIndividualDetails } from "./OnboardingIndividualDetails";
+import { OnboardingIndividualActivity } from "./OnboardingIndividualActivity";
 
 const styles = StyleSheet.create({
   stepper: {
@@ -126,15 +127,7 @@ export const OnboardingIndividualWizard = ({ onboarding }: Props) => {
 
             {match(route)
               .with({ name: "Root" }, () => <OnboardingIndividualDetails onboarding={onboarding} />)
-              .with({ name: "Activity" }, () => (
-                <>
-                  <h2>Activity </h2>
-                  <OnboardingFooter
-                    onNext={() => Router.push("Finalize", { onboardingId })}
-                    onPrevious={() => Router.push("Root", { onboardingId })}
-                  />
-                </>
-              ))
+              .with({ name: "Activity" }, () => <OnboardingIndividualActivity onboarding={onboarding} />)
               .with({ name: "Finalize" }, () => (
                 <>
                   <h2>Finalize </h2>

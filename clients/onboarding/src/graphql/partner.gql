@@ -146,6 +146,11 @@ fragment IndividualOnboarding on IndividualAccountHolderOnboarding {
     address {
       ...Address
     }
+    sourcesOfFunds
+    unitedStatesTaxInfo {
+      isUnitedStatesPerson
+      unitedStatesTaxIdentificationNumber
+    }
     taxIdentificationNumber
   }
 }

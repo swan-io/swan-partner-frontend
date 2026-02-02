@@ -32,7 +32,7 @@ export const routes = {
     Address: "/address",
     Location: "/location",
     Details: "/details",
-    Activity: "/Activity",
+    Activity: "/activity",
     Presentation: "/presentation",
     Registration: "/registration",
     Organisation1: "/organisation-1",

@@ -14,6 +14,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
@@ -204,6 +205,11 @@ export const VerificationRenewalAdministratorInformation = ({
                   type="view"
                   render={() => (
                     <RadioGroup
+                      error={
+                        isNullishOrEmpty(info.accountAdmin.typeOfRepresentation)
+                          ? t("common.form.required")
+                          : undefined
+                      }
                       onValueChange={() => {}}
                       disabled={true}
                       direction={large ? "row" : "column"}
@@ -225,6 +231,7 @@ export const VerificationRenewalAdministratorInformation = ({
             </Tile>
 
             <VerificationRenewalFooter
+              nextDisabled={isNullishOrEmpty(info.accountAdmin.typeOfRepresentation)}
               onPrevious={
                 previousStep !== undefined
                   ? () =>

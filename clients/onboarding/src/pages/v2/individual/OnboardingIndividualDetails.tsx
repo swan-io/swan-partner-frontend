@@ -48,7 +48,7 @@ import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 
 type Props = {
-  onboarding: NonNullable<IndividualOnboardingFragment>; // todo IndividualOnboardingFragment
+  onboarding: NonNullable<IndividualOnboardingFragment>;
 };
 
 const styles = StyleSheet.create({

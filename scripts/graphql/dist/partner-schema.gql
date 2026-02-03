@@ -11137,6 +11137,18 @@ enum FeesTypeEnum {
   """Incoming B2B SEPA Direct Debit (Merchant)"""
   SddInB2bMerchant
 
+  """Fee for a Dispute of an incoming SEPA Direct Debit Core"""
+  SddInCoreDispute
+
+  """Fee for a Failure of an incoming SEPA Direct Debit Core"""
+  SddInCoreFailure
+
+  """Fee for a Dispute of an incoming SEPA Direct Debit B2B"""
+  SddInB2bDispute
+
+  """Fee for a Failure of an incoming SEPA Direct Debit B2B"""
+  SddInB2bFailure
+
   """Fee for an incoming B2B SEPA Direct Debit up to 200€"""
   SepaDirectDebitInB2bLevel1
 

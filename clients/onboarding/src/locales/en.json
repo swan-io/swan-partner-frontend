@@ -259,6 +259,7 @@
   "individual.step.activity.usaCitizen": "Are you a U.S. person for tax purposes?",
   "individual.step.activity.usaTax": "U.S. Tax ID (SSN or ITIN)",
   "individual.step.activity.usaTax.placeholder": "123-45-6789",
+  "individual.step.activity.usaTax.help": "9 digits required",
   "inputPhoneNumber.country": "Country",
   "monthlyIncome.between1500And3000": "Between €1500 and €3000",
   "monthlyIncome.between3000And4500": "Between €3000 and €4500",

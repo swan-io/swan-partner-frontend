@@ -5,7 +5,7 @@
  * including specifics such as the slightly different token logic &
  * invitation emails.
  */
-import { Future, Result } from "@swan-io/boxed";
+import { Future, Option, Result } from "@swan-io/boxed";
 import Mailjet from "node-mailjet";
 import pc from "picocolors";
 import { P, match } from "ts-pattern";
@@ -194,15 +194,17 @@ start({
     app.post<{ Params: { projectId: string } }>(
       "/api/projects/:projectId/partner",
       async (request, reply) => {
-        if (request.accessToken == null) {
-          return reply.status(401).send("Unauthorized");
-        }
-        const projectUserToken = await exchangeToken(request.accessToken, {
-          type: "AccountMemberToken",
-          projectId: request.params.projectId,
-        }).tapError(error => {
-          request.log.error(error);
-        });
+        const projectUserToken =
+          request.accessToken == null
+            ? Result.Ok(Option.None())
+            : await exchangeToken(request.accessToken, {
+                type: "AccountMemberToken",
+                projectId: request.params.projectId,
+              })
+                .mapOk(token => Option.Some(token))
+                .tapError(error => {
+                  request.log.error(error);
+                });
 
         const calledMutations = match(request.body)
           .with({ query: P.string }, ({ query }) => getCalledMutations(query))
@@ -249,7 +251,7 @@ start({
           rewriteRequestHeaders: (_req, headers) => ({
             ...headers,
             ...match(projectUserToken)
-              .with(Result.P.Ok(P.select()), token => ({
+              .with(Result.P.Ok(Option.P.Some(P.select())), token => ({
                 "x-swan-token": `Bearer ${token}`,
               }))
               .otherwise(() => null),

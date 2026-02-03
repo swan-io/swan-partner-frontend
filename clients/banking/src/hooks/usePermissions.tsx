@@ -231,6 +231,16 @@ const PERMISSIONS_MATRIX = {
       canUpdateCards: true,
     },
   },
+  canResumePhysicalCard: {
+    accountMembership: {
+      // no need to be able to manage cards to resume physical card
+      // can be resumed by the cardholder themself
+      statusInfo: { status: ENABLED },
+    },
+    settings: {
+      canUpdateCards: true,
+    },
+  },
   canCancelCardForOtherMembership: {
     accountMembership: {
       canManageAccountMembership: true,

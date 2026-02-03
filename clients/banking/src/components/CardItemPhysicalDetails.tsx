@@ -342,6 +342,7 @@ export const CardItemPhysicalDetails = ({
     canPrintPhysicalCard: canOrderPhysicalCard,
     canCancelCardForOtherMembership,
     canUpdateCard,
+    canResumePhysicalCard,
   } = usePermissions();
   const [orderModal, setOrderModal] = useState<Option<{ initialShippingAddress?: Address }>>(
     Option.None(),
@@ -1200,7 +1201,7 @@ export const CardItemPhysicalDetails = ({
                     )
                     .otherwise(() => null)}
 
-                  {match({ canUpdateCard, physicalCard })
+                  {match({ canUpdateCard, canResumePhysicalCard, physicalCard })
                     .with(
                       {
                         canUpdateCard: true,
@@ -1283,7 +1284,7 @@ export const CardItemPhysicalDetails = ({
                     )
                     .with(
                       {
-                        canUpdateCard: true,
+                        canResumePhysicalCard: true,
                         physicalCard: {
                           statusInfo: {
                             __typename: "PhysicalCardSuspendedStatusInfo",

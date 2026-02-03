@@ -6,7 +6,7 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { trim } from "@swan-io/lake/src/utils/string";
-import { useForm } from "@swan-io/use-form";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import { StyleSheet } from "react-native";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import { StepTitle } from "../../../components/StepTitle";
@@ -27,6 +27,7 @@ import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import {
   validateNullableRequired,
   validateRequired,
+  validateUsaTaxNumber,
 } from "@swan-io/shared-business/src/utils/validation";
 import { View } from "react-native";
 import { match } from "ts-pattern";
@@ -116,7 +117,7 @@ export const OnboardingIndividualActivity = ({ onboarding }: Props) => {
       validate: (value, { getFieldValue }) => {
         const isRequired = getFieldValue("isUnitedStatesPerson");
         if (isRequired) {
-          return validateRequired(value); // todo add custom format validator for tax number usa
+          return combineValidators(validateRequired, validateUsaTaxNumber)(value);
         }
       },
     },
@@ -295,6 +296,7 @@ export const OnboardingIndividualActivity = ({ onboarding }: Props) => {
                                 onBlur={onBlur}
                                 onChangeText={onChange}
                                 placeholder={t("individual.step.activity.usaTax.placeholder")}
+                                help={t("individual.step.activity.usaTax.help")}
                               />
                             )}
                           />

@@ -874,17 +874,16 @@ query AccountStatementsPage(
           closingDate
           openingDate
           createdAt
-          status
-          period
-          type {
-            __typename
-            ... on PdfStatement {
+          statusInfo {
+            status
+            ... on GeneratedStatusInfo {
               url
             }
-            ... on CsvStatement {
+            ... on VoidedStatusInfo {
               url
             }
           }
+          period
         }
       }
     }

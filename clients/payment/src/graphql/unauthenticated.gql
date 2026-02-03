@@ -16,7 +16,6 @@ query GetMerchantPaymentLink($paymentLinkId: ID!) {
         id
         type
       }
-      merchantWebsite
     }
     amount {
       currency

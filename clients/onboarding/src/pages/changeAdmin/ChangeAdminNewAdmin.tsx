@@ -148,6 +148,7 @@ export const ChangeAdminNewAdmin = ({
             updateChangeAdmin({
               input: {
                 id: changeAdminRequestId,
+                isNewAdminLegalRepresentative: values.isLegalRepresentative,
                 admin: {
                   firstName: values.firstName,
                   lastName: values.lastName,

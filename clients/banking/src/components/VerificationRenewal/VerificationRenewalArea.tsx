@@ -13,6 +13,7 @@ import { t } from "../../utils/i18n";
 import { ErrorView } from "../ErrorView";
 import { ForbiddenView } from "../ForbiddenView";
 import { VerificationRenewalCompany } from "./VerificationRenewalCompany";
+import { VerificationRenewalFinalizeSuccess } from "./VerificationRenewalFinalize";
 import { VerificationRenewalHeader } from "./VerificationRenewalHeader";
 import { VerificationRenewalIndividual } from "./VerificationRenewalIndividual";
 
@@ -144,6 +145,14 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
                               projectName={projectInfo.name}
                             />
                           ),
+                        )
+                        .with(
+                          {
+                            verificationRenewal: {
+                              __typename: "PendingVerificationRenewal",
+                            },
+                          },
+                          () => <VerificationRenewalFinalizeSuccess />,
                         )
                         .otherwise(() => (
                           <ErrorView

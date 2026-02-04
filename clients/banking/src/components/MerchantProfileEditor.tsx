@@ -15,7 +15,11 @@ import { toOptionalValidator, useForm } from "@swan-io/use-form";
 import { Ref, useImperativeHandle } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
-import { MerchantProfileFragment, ProductType } from "../graphql/partner";
+import {
+  ExpectedMonthlyMerchantProcessingVolume,
+  MerchantProfileFragment,
+  ProductType,
+} from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { validateHexColor, validateNumeric, validateUrl } from "../utils/validations";
 
@@ -46,11 +50,19 @@ const productTypes = deriveUnion<ProductType>({
   VirtualGoods: true,
 });
 
+const expectedMonthlyMerchantProcessingVolume =
+  deriveUnion<ExpectedMonthlyMerchantProcessingVolume>({
+    Between10000And100000: true,
+    Between5000And10000: true,
+    LessThan5000: true,
+    MoreThan100000: true,
+  });
+
 export type MerchantProfileEditorState = {
   merchantName: string;
   productType: ProductType;
   expectedAverageBasket: { value: string; currency: string };
-  expectedMonthlyPaymentVolume: { value: string; currency: string };
+  expectedMonthlyMerchantProcessingVolume: ExpectedMonthlyMerchantProcessingVolume;
   merchantWebsite?: string;
   accentColor?: string;
   merchantLogo?: string;
@@ -70,7 +82,7 @@ export const MerchantProfileEditor = ({ ref, merchantProfile, onSubmit }: Props)
   const { Field, submitForm } = useForm<{
     merchantName: string;
     productType: ProductType | undefined;
-    expectedMonthlyPaymentVolume: string;
+    expectedMonthlyMerchantProcessingVolume: ExpectedMonthlyMerchantProcessingVolume;
     expectedAverageBasket: string;
     merchantWebsite: string;
     merchantLogoUrl: File | undefined;
@@ -90,12 +102,11 @@ export const MerchantProfileEditor = ({ ref, merchantProfile, onSubmit }: Props)
         undefined,
       validate: validateNullableRequired,
     },
-    expectedMonthlyPaymentVolume: {
+    expectedMonthlyMerchantProcessingVolume: {
       initialValue:
         merchantProfile?.requestMerchantProfileUpdate?.expectedMonthlyMerchantProcessingVolume ??
         merchantProfile?.expectedMonthlyMerchantProcessingVolume ??
-        "",
-      validate: validateNumeric({ min: 0 }),
+        "Between10000And100000",
     },
     expectedAverageBasket: {
       initialValue:
@@ -131,7 +142,7 @@ export const MerchantProfileEditor = ({ ref, merchantProfile, onSubmit }: Props)
               ({
                 merchantName,
                 productType,
-                expectedMonthlyPaymentVolume,
+                expectedMonthlyMerchantProcessingVolume,
                 expectedAverageBasket,
                 merchantWebsite,
                 merchantLogoUrl,
@@ -165,10 +176,7 @@ export const MerchantProfileEditor = ({ ref, merchantProfile, onSubmit }: Props)
                     merchantName,
                     productType: productType as ProductType,
                     expectedAverageBasket: { value: expectedAverageBasket, currency: "EUR" },
-                    expectedMonthlyPaymentVolume: {
-                      value: expectedMonthlyPaymentVolume,
-                      currency: "EUR",
-                    },
+                    expectedMonthlyMerchantProcessingVolume,
                     merchantWebsite: emptyToUndefined(merchantWebsite),
                     accentColor: Option.fromNullable(emptyToUndefined(accentColor))
                       .map(value => `#${value}`)
@@ -239,20 +247,34 @@ export const MerchantProfileEditor = ({ ref, merchantProfile, onSubmit }: Props)
               )}
             </Field>
 
-            <Field name="expectedMonthlyPaymentVolume">
-              {({ ref, onChange, onBlur, valid, value, error }) => (
+            <Field name="expectedMonthlyMerchantProcessingVolume">
+              {({ ref, onChange, value, error }) => (
                 <LakeLabel
                   label={t("merchantProfile.request.expectedMonthlyPaymentVolume.label")}
                   render={id => (
-                    <LakeTextInput
-                      ref={ref}
+                    <LakeSelect
                       id={id}
+                      ref={ref}
                       value={value}
-                      onChangeText={onChange}
-                      onBlur={onBlur}
+                      items={expectedMonthlyMerchantProcessingVolume.array.map(item => ({
+                        name: match(item)
+                          .with("Between10000And100000", () =>
+                            t("merchantProfile.settings.processingVolume.between10000And100000"),
+                          )
+                          .with("Between5000And10000", () =>
+                            t("merchantProfile.settings.processingVolume.between5000And10000"),
+                          )
+                          .with("LessThan5000", () =>
+                            t("merchantProfile.settings.processingVolume.lessThan5000"),
+                          )
+                          .with("MoreThan100000", () =>
+                            t("merchantProfile.settings.processingVolume.moreThan100000"),
+                          )
+                          .exhaustive(),
+                        value: item,
+                      }))}
+                      onValueChange={onChange}
                       error={error}
-                      valid={valid}
-                      unit="EUR"
                     />
                   )}
                 />

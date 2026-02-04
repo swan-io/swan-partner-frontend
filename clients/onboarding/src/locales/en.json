@@ -260,6 +260,8 @@
   "individual.step.activity.usaTax": "U.S. Tax ID (SSN or ITIN)",
   "individual.step.activity.usaTax.placeholder": "123-45-6789",
   "individual.step.activity.usaTax.help": "9 digits required",
+  "individual.step.finalize.title": "Verify your phone number",
+  "individual.step.finalize.content": "We'll send a verification code to your phone to confirm your identity.",
   "inputPhoneNumber.country": "Country",
   "monthlyIncome.between1500And3000": "Between €1500 and €3000",
   "monthlyIncome.between3000And4500": "Between €3000 and €4500",
@@ -325,5 +327,6 @@
   "wizard.back": "Previous",
   "wizard.finalize": "Finalize",
   "wizard.next": "Next",
-  "wizard.partnership": "in partnership with"
+  "wizard.partnership": "in partnership with",
+  "wizard.sendCode": "Send verification code"
 }

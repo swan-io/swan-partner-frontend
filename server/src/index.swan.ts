@@ -217,7 +217,7 @@ start({
             sdk.WebBankingSettings(
               {},
               match(projectUserToken)
-                .with(Result.P.Ok(P.select()), token => ({
+                .with(Result.P.Ok(Option.P.Some(P.select())), token => ({
                   "x-swan-token": `Bearer ${token}`,
                 }))
                 .otherwise(() => ({})),

@@ -63,11 +63,6 @@ const PERMISSIONS_MATRIX = {
       canOrderPhysicalCards: true,
     },
   },
-  activatePhysicalCard: {
-    settings: {
-      canOrderPhysicalCards: true,
-    },
-  },
   cancelDigitalCard: {
     settings: {
       canUpdateCards: true,

@@ -1,6 +1,6 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
-import slackifyMarkdown from "slackify-markdown";
+import { slackifyMarkdown } from "slackify-markdown";
 
 if (process.env.NOTIFY_GH_TOKEN == null) {
   process.exit(0);

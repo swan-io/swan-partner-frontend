@@ -91,6 +91,45 @@ export const finalizeOnboarding = ({
     });
 };
 
+export const finalizeOnboardingV2 = ({
+  onboardingId,
+  accessToken,
+}: {
+  onboardingId: string;
+  accessToken: string;
+}) => {
+  return toFuture(
+    sdk.FinalizeAccountHolderOnboarding(
+      { input: { onboardingId } },
+      { Authorization: `Bearer ${accessToken}` },
+    ),
+  )
+    .mapOkToResult(({ finalizeAccountHolderOnboarding }) =>
+      match(finalizeAccountHolderOnboarding)
+        .with({ __typename: "FinalizeAccountHolderOnboardingSuccessPayload" }, ({ onboarding }) =>
+          Result.Ok(onboarding),
+        )
+        .otherwise(({ __typename, message }) =>
+          Result.Error(
+            new FinalizeOnboardingRejectionError(
+              JSON.stringify({ onboardingId, __typename, message }),
+            ),
+          ),
+        ),
+    )
+    .mapOk(onboarding => {
+      const oauthRedirectUrl = onboarding.oAuthRedirectParameters?.redirectUrl?.trim();
+      const redirectUrl =
+        oauthRedirectUrl != null && oauthRedirectUrl !== "" ? oauthRedirectUrl : undefined;
+
+      return {
+        accountMembershipId: "0b37b63a-2c5a-47b4-9d07-836e81068e66", // @Todo waiting for schema update
+        redirectUrl,
+        state: onboarding.oAuthRedirectParameters?.state ?? undefined,
+      };
+    });
+};
+
 export class BindAccountMembershipRejectionError extends Error {
   tag = "BindAccountMembershipRejectionError";
 }

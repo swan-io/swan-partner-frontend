@@ -20,6 +20,7 @@ import {
 import { NotFoundPage } from "../../NotFoundPage";
 import { OnboardingIndividualActivity } from "./OnboardingIndividualActivity";
 import { OnboardingIndividualDetails } from "./OnboardingIndividualDetails";
+import { OnboardingIndividualFinalize } from "./OnboardingIndividualFinalize";
 
 const styles = StyleSheet.create({
   stepper: {
@@ -130,12 +131,7 @@ export const OnboardingIndividualWizard = ({ onboarding }: Props) => {
                 <OnboardingIndividualActivity onboarding={onboarding} />
               ))
               .with({ name: "Finalize" }, () => (
-                <>
-                  <h2>Finalize </h2>
-                  <button type="button" onClick={() => Router.push("Activity", { onboardingId })}>
-                    prev
-                  </button>
-                </>
+                <OnboardingIndividualFinalize onboarding={onboarding} />
               ))
               .with(P.nullish, () => <NotFoundPage />)
               .exhaustive()}

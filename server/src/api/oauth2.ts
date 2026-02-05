@@ -5,8 +5,10 @@ import { env } from "../env";
 export type OAuth2State =
   | { id: string; type: "Redirect"; redirectTo?: string }
   | { id: string; type: "FinalizeOnboarding"; onboardingId: string }
+  | { id: string; type: "FinalizeOnboardingV2"; onboardingId: string }
   | { id: string; type: "BindAccountMembership"; accountMembershipId: string }
   | { id: string; type: "Swan__FinalizeOnboarding"; onboardingId: string; projectId: string }
+  | { id: string; type: "Swan__FinalizeOnboardingV2"; onboardingId: string; projectId: string }
   | {
       id: string;
       type: "Swan__BindAccountMembership";
@@ -19,6 +21,13 @@ export const getOAuth2StatePattern = (id: string) =>
     { id, type: "Redirect" as const, redirectTo: P.optional(P.string) },
     { id, type: "FinalizeOnboarding" as const, onboardingId: P.string },
     { id, type: "Swan__FinalizeOnboarding" as const, onboardingId: P.string, projectId: P.string },
+    { id, type: "FinalizeOnboardingV2" as const, onboardingId: P.string },
+    {
+      id,
+      type: "Swan__FinalizeOnboardingV2" as const,
+      onboardingId: P.string,
+      projectId: P.string,
+    },
     { id, type: "BindAccountMembership" as const, accountMembershipId: P.string },
     {
       id,

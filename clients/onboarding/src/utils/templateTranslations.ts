@@ -18,7 +18,8 @@ type UpdateOnboardingError =
   | { __typename: "ValidationRejection" }
   | { __typename: "OnboardingAlreadyFinalizedRejection" }
   | { __typename: "OnboardingNotFoundRejection" }
-  | { __typename: "PublicOnboardingDisabledRejection" };
+  | { __typename: "PublicOnboardingDisabledRejection" }
+  | { __typename: "OnboardingNotCompletedRejection" };
 
 export const getUpdateOnboardingError = (
   error: UpdateOnboardingError,

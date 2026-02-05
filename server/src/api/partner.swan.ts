@@ -74,6 +74,53 @@ export const swan__finalizeOnboarding = ({
     });
 };
 
+export const swan__finalizeOnboardingV2 = ({
+  onboardingId,
+  accessToken,
+  projectId,
+}: {
+  onboardingId: string;
+  accessToken: string;
+  projectId: string;
+}) => {
+  return exchangeToken(accessToken, {
+    type: "AccountMemberToken",
+    projectId,
+  })
+    .flatMapOk(accessToken =>
+      toFuture(
+        sdk.FinalizeAccountHolderOnboarding(
+          { input: { onboardingId } },
+          { "x-swan-token": `Bearer ${accessToken}` },
+        ),
+      ),
+    )
+    .mapOkToResult(({ finalizeAccountHolderOnboarding }) =>
+      match(finalizeAccountHolderOnboarding)
+        .with({ __typename: "FinalizeAccountHolderOnboardingSuccessPayload" }, ({ onboarding }) =>
+          Result.Ok(onboarding),
+        )
+        .otherwise(({ __typename, message }) =>
+          Result.Error(
+            new FinalizeOnboardingRejectionError(
+              JSON.stringify({ onboardingId, __typename, message }),
+            ),
+          ),
+        ),
+    )
+    .mapOk(onboarding => {
+      const oauthRedirectUrl = onboarding.oAuthRedirectParameters?.redirectUrl?.trim();
+      const redirectUrl =
+        oauthRedirectUrl != null && oauthRedirectUrl !== "" ? oauthRedirectUrl : undefined;
+
+      return {
+        accountMembershipId: "0b37b63a-2c5a-47b4-9d07-836e81068e66", // @Todo waiting for schema update
+        redirectUrl,
+        state: onboarding.oAuthRedirectParameters?.state ?? undefined,
+      };
+    });
+};
+
 export const swan__bindAccountMembership = ({
   accountMembershipId,
   accessToken,

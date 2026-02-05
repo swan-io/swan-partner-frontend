@@ -28,10 +28,15 @@ import {
   createPublicCompanyAccountHolderOnboarding,
   createPublicIndividualAccountHolderOnboarding,
   finalizeOnboarding,
+  finalizeOnboardingV2,
   getProjectId,
   parseAccountCountry,
 } from "./api/partner";
-import { swan__bindAccountMembership, swan__finalizeOnboarding } from "./api/partner.swan";
+import {
+  swan__bindAccountMembership,
+  swan__finalizeOnboarding,
+  swan__finalizeOnboardingV2,
+} from "./api/partner.swan";
 import {
   OnboardingRejectionError,
   getOnboardingOAuthClientId,
@@ -553,10 +558,12 @@ export const start = async ({
       redirectTo,
       scope = "",
       onboardingId,
+      onboardingV2,
       accountMembershipId,
       identificationLevel,
       projectId,
       email,
+      phoneNumber,
     } = request.query;
     if (typeof redirectTo === "string") {
       const hostUrl = new URL(env.BANKING_URL);
@@ -570,8 +577,22 @@ export const start = async ({
 
     // If provided with an `onboardingId`, it means that the callback should end up
     // finalizing the onboarding, otherwise do a simple redirection
-    const state: OAuth2State = match({ onboardingId, accountMembershipId, projectId })
+    const state: OAuth2State = match({ onboardingId, onboardingV2, accountMembershipId, projectId })
       // Internal usage only
+      .with(
+        { onboardingV2: "true", onboardingId: P.string, projectId: P.string },
+        ({ onboardingId, projectId }) => ({
+          id,
+          type: "Swan__FinalizeOnboardingV2" as const,
+          onboardingId,
+          projectId,
+        }),
+      )
+      .with({ onboardingV2: "true", onboardingId: P.string }, ({ onboardingId }) => ({
+        id,
+        type: "FinalizeOnboardingV2" as const,
+        onboardingId,
+      }))
       .with({ onboardingId: P.string, projectId: P.string }, ({ onboardingId, projectId }) => ({
         id,
         type: "Swan__FinalizeOnboarding" as const,
@@ -612,6 +633,7 @@ export const start = async ({
         scope: scope.split(" ").filter(item => item != null && item !== ""),
         params: {
           ...(email != null ? { email } : null),
+          ...(phoneNumber != null ? { phoneNumber } : null),
           ...(onboardingId != null ? { onboardingId } : null),
           ...(identificationLevel != null ? { identificationLevel } : null),
           ...(projectId != null ? { projectId } : null),
@@ -665,6 +687,94 @@ export const start = async ({
                   .returnType<Reply>()
                   .with({ type: "Redirect" }, ({ redirectTo = "/" }) => {
                     return reply.redirect(redirectTo);
+                  })
+                  .with({ type: "Swan__FinalizeOnboardingV2" }, ({ onboardingId, projectId }) => {
+                    const onboardingOAuthClientId = getOnboardingOAuthClientId({ onboardingId });
+
+                    // Finalize the onboarding with the received user token
+                    return onboardingOAuthClientId
+                      .flatMapOk(({ onboardingInfo }) =>
+                        swan__finalizeOnboardingV2({ onboardingId, accessToken, projectId }).mapOk(
+                          payload => ({
+                            ...payload,
+                            oAuthClientId: onboardingInfo?.projectInfo?.oAuthClientId ?? undefined,
+                          }),
+                        ),
+                      )
+                      .toPromise()
+                      .then(result => {
+                        return result.match<Reply>({
+                          Ok: ({ redirectUrl, state, accountMembershipId, oAuthClientId }) => {
+                            if (redirectUrl != null) {
+                              const redirectHost = new URL(redirectUrl).hostname;
+
+                              // When onboarding from the dashboard, we don't yet have a OAuth2 client,
+                              // so we bypass the second OAuth2 link.
+                              if (
+                                redirectHost ===
+                                URLS.BANKING.hostname.replace("banking.", "dashboard.")
+                              ) {
+                                return reply.redirect(redirectUrl);
+                              } else {
+                                const authUri = createAuthUrl({
+                                  oAuthClientId,
+                                  scope: [],
+                                  redirectUri: redirectUrl,
+                                  state: state ?? onboardingId,
+                                  params: {},
+                                });
+
+                                return reply.redirect(authUri);
+                              }
+                            }
+
+                            return reply.redirect(
+                              `${env.BANKING_URL}/projects/${projectId}/${accountMembershipId}/activation`,
+                            );
+                          },
+                          Error: error => {
+                            request.log.error(error);
+
+                            return replyWithError(app, request, reply, {
+                              status: 400,
+                              requestId: String(request.id),
+                            });
+                          },
+                        });
+                      });
+                  })
+                  .with({ type: "FinalizeOnboardingV2" }, ({ onboardingId }) => {
+                    // Finalize the onboarding with the received user token
+                    return finalizeOnboardingV2({ onboardingId, accessToken })
+                      .toPromise()
+                      .then(result => {
+                        return result.match<Reply>({
+                          Ok: ({ redirectUrl, state, accountMembershipId }) => {
+                            if (redirectUrl != null) {
+                              const authUri = createAuthUrl({
+                                scope: [],
+                                redirectUri: redirectUrl,
+                                state: state ?? onboardingId,
+                                params: {},
+                              });
+
+                              return reply.redirect(authUri);
+                            }
+
+                            return reply.redirect(
+                              `${env.BANKING_URL}/${accountMembershipId}/activation`,
+                            );
+                          },
+                          Error: error => {
+                            request.log.error(error);
+
+                            return replyWithError(app, request, reply, {
+                              status: 400,
+                              requestId: String(request.id),
+                            });
+                          },
+                        });
+                      });
                   })
                   .with({ type: "Swan__FinalizeOnboarding" }, ({ onboardingId, projectId }) => {
                     const onboardingOAuthClientId = getOnboardingOAuthClientId({ onboardingId });

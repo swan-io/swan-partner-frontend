@@ -84,6 +84,33 @@ mutation FinalizeOnboarding($input: FinalizeOnboardingInput!) {
   }
 }
 
+# used for onboarding v2
+mutation FinalizeAccountHolderOnboarding($input: FinalizeAccountHolderOnboardingInput!) {
+  finalizeAccountHolderOnboarding(input: $input) {
+    ... on FinalizeAccountHolderOnboardingSuccessPayload {
+      onboarding {
+        ... on CompanyAccountHolderOnboarding {
+          id
+          oAuthRedirectParameters {
+            redirectUrl
+            state
+          }
+        }
+        ... on IndividualAccountHolderOnboarding {
+          id
+          oAuthRedirectParameters {
+            redirectUrl
+            state
+          }
+        }
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
+
 mutation BindAccountMembership($input: BindAccountMembershipInput!) {
   bindAccountMembership(input: $input) {
     __typename

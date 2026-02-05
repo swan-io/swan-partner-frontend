@@ -845,22 +845,18 @@ export const AccountArea = ({
                                   <NotFoundPage />
                                 ),
                               )
-                              .with({ name: "AccountActivationArea" }, () =>
-                                permissions.canReadAccountDetails ? (
-                                  <AccountActivationPage
-                                    largeViewport={largeViewport}
-                                    hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
-                                    lastIdentification={lastIdentification}
-                                    accentColor={accentColor}
-                                    accountMembershipId={accountMembershipId}
-                                    additionalInfo={additionalInfo}
-                                    projectName={projectName}
-                                    refetchAccountAreaQuery={reload}
-                                  />
-                                ) : (
-                                  <NotFoundPage />
-                                ),
-                              )
+                              .with({ name: "AccountActivationArea" }, () => (
+                                <AccountActivationPage
+                                  largeViewport={largeViewport}
+                                  hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
+                                  lastIdentification={lastIdentification}
+                                  accentColor={accentColor}
+                                  accountMembershipId={accountMembershipId}
+                                  additionalInfo={additionalInfo}
+                                  projectName={projectName}
+                                  refetchAccountAreaQuery={reload}
+                                />
+                              ))
                               .otherwise(() => (
                                 <NotFoundPage
                                   title={

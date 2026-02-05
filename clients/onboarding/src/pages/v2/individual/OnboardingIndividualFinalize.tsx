@@ -64,7 +64,6 @@ export const OnboardingIndividualFinalize = ({ onboarding }: Props) => {
         onPrevious={onPressPrevious}
         justifyContent="start"
         nextLabel="wizard.sendCode"
-        // loading={updateResult.isLoading()}
       />
     </>
   );

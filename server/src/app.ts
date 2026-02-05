@@ -32,7 +32,11 @@ import {
   getProjectId,
   parseAccountCountry,
 } from "./api/partner";
-import { swan__bindAccountMembership, swan__finalizeOnboarding, swan__finalizeOnboardingV2 } from "./api/partner.swan";
+import {
+  swan__bindAccountMembership,
+  swan__finalizeOnboarding,
+  swan__finalizeOnboardingV2,
+} from "./api/partner.swan";
 import {
   OnboardingRejectionError,
   getOnboardingOAuthClientId,
@@ -559,6 +563,7 @@ export const start = async ({
       identificationLevel,
       projectId,
       email,
+      phoneNumber,
     } = request.query;
     if (typeof redirectTo === "string") {
       const hostUrl = new URL(env.BANKING_URL);
@@ -628,6 +633,7 @@ export const start = async ({
         scope: scope.split(" ").filter(item => item != null && item !== ""),
         params: {
           ...(email != null ? { email } : null),
+          ...(phoneNumber != null ? { phoneNumber } : null),
           ...(onboardingId != null ? { onboardingId } : null),
           ...(identificationLevel != null ? { identificationLevel } : null),
           ...(projectId != null ? { projectId } : null),

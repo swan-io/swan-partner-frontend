@@ -114,7 +114,7 @@ export const swan__finalizeOnboardingV2 = ({
         oauthRedirectUrl != null && oauthRedirectUrl !== "" ? oauthRedirectUrl : undefined;
 
       return {
-        accountMembershipId: "0b37b63a-2c5a-47b4-9d07-836e81068e66", // Todo waiting for schema update
+        accountMembershipId: "0b37b63a-2c5a-47b4-9d07-836e81068e66", // @Todo waiting for schema update
         redirectUrl,
         state: onboarding.oAuthRedirectParameters?.state ?? undefined,
       };

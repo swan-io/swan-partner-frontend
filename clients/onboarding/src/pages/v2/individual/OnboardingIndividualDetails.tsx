@@ -181,7 +181,7 @@ export const OnboardingIndividualDetails = ({ onboarding }: Props) => {
           residenceAddress,
           residenceCity,
           residencePostal,
-          phoneNumber, // todo: store phoneNumber somewhere to prefil the sca at finalize
+          phoneNumber, // @todo: store phoneNumber somewhere to prefil the sca at finalize
           ...input
         } = currentValues;
 

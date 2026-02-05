@@ -139,7 +139,6 @@ export const createAuthUrl = ({
   queryString.set("state", state);
   // we always add `openid` (login through Swan) and `offline` (to get a refresh_token)
   queryString.set("scope", ["openid", "offline", ...requestedScope].join(" "));
-  console.log(`${env.OAUTH_SERVER_URL}/oauth2/auth?${queryString.toString()}`);
   return `${env.OAUTH_SERVER_URL}/oauth2/auth?${queryString.toString()}`;
 };
 

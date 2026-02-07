@@ -1794,7 +1794,7 @@
   "verificationRenewal.ownership.fillBirthCountry": "Vous devez d'abord indiquer le pays de naissance du bénéficiaire",
   "verificationRenewal.ownership.firstName": "Prénom",
   "verificationRenewal.ownership.firstName.placeholder": "Saisir le prénom du bénéficiaire",
-  "verificationRenewal.ownership.hasCapitalDirectOnly": "Détient directement{percentage} % du capital de{name}",
+  "verificationRenewal.ownership.hasCapitalDirectOnly": "Détient directement {percentage} % du capital de {name}",
   "verificationRenewal.ownership.hasCapitalIndirectOnly": "Détient indirectement {percentage}% du capital de {name}",
   "verificationRenewal.ownership.hasCapitalUnfilled": "Détient {percentage} % du capital de {name}",
   "verificationRenewal.ownership.indirectly": "Indirectement",

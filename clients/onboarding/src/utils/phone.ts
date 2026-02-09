@@ -41,14 +41,6 @@ export const prefixPhoneNumber = (country: Country, nationalNumber: string) => {
   }).getOr({ valid: false });
 };
 
-export const isPhoneNumberValid = (value?: string) => {
-  if (isNullish(value) || value.trim() === "") {
-    return false;
-  }
-  const phoneNumber = parsePhoneNumberWithError(value);
-  return phoneNumber.isValid();
-};
-
 export const maskPhoneNumber = (value: string) =>
   value.replace(
     /(\d{3})(\d+)(\d{3})/,

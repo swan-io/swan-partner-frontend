@@ -12,7 +12,6 @@ import { ErrorView } from "./components/ErrorView";
 import { Redirect } from "./components/Redirect";
 import { SupportingDocumentCollectionFlow } from "./components/SupportingDocumentCollectionFlow";
 import {
-  GetPublicCompamyInfoRegistryDataDocument,
   GetPublicOnboardingDocument,
   GetPublicOnboardingVersionDocument,
   UpdatePublicCompanyAccountHolderOnboardingDocument,
@@ -195,61 +194,12 @@ const FlowPicker = ({ onboardingId }: Props) => {
 
 const FlowPickerV2 = ({ onboardingId }: Props) => {
   const [data, { query }] = useDeferredQuery(GetPublicOnboardingDocument);
-  const [companyRegistryData, { query: queryCompanyRegistryData }] = useDeferredQuery(
-    GetPublicCompamyInfoRegistryDataDocument,
-  );
   const [updateIndividualOnboarding, individualOnboardingUpdate] = useMutation(
     UpdatePublicIndividualAccountHolderOnboardingDocument,
   );
   const [updateCompanyOnboarding, companyOnboardingUpdate] = useMutation(
     UpdatePublicCompanyAccountHolderOnboardingDocument,
   );
-
-  const addAccountAdminData = () => {
-    updateCompanyOnboarding({
-      input: {
-        onboardingId,
-        accountAdmin: {
-          nationality: "FRA",
-          firstName: "John",
-          lastName: "Doe",
-        },
-      },
-    });
-  };
-
-  const addCompanyData = () => {
-    return match(companyRegistryData)
-      .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => null)
-      .with(AsyncData.P.Done(Result.P.Error(P.select())), () => null)
-      .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ publicCompanyInfoRegistryData }) => {
-        match(publicCompanyInfoRegistryData)
-          .with(
-            { __typename: "PublicCompanyInfoRegistryDataSuccessPayload" },
-            ({ companyInfo }) => {
-              const { __typename, legalFormCode, address, ...company } = companyInfo;
-              updateCompanyOnboarding({
-                input: {
-                  onboardingId,
-                  company,
-                },
-              });
-            },
-          )
-          .otherwise(() => {});
-      })
-      .exhaustive();
-  };
-
-  const fetchCompanyRegistryData = () => {
-    queryCompanyRegistryData({
-      input: { registrationNumber: "853827103", residencyAddressCountry: "FRA" },
-    });
-  };
-
-  const refreshData = () => {
-    query({ id: onboardingId });
-  };
 
   useEffect(() => {
     const request = query({ id: onboardingId }).tapOk(({ publicAccountHolderOnboarding }) => {
@@ -327,33 +277,6 @@ const FlowPickerV2 = ({ onboardingId }: Props) => {
                     ),
                   )
                   .exhaustive()}
-                <div>
-                  <h1>Debug tool:</h1>
-                  <ul>
-                    <li>Id: {onboarding.id}</li>
-                    <li>Type: {onboarding.__typename}</li>
-                    <li>Status: {onboarding.statusInfo.__typename}</li>
-                    <li>projectInfo id: {onboarding.projectInfo.id}</li>
-                    <li>projectInfo accent: {onboarding.projectInfo.accentColor}</li>
-                  </ul>
-                  {onboarding.__typename === "CompanyAccountHolderOnboarding" && (
-                    <>
-                      <button type="button" onClick={() => addCompanyData()}>
-                        Add company data
-                      </button>
-                      <button type="button" onClick={() => fetchCompanyRegistryData()}>
-                        Fetch company registry data
-                      </button>
-                    </>
-                  )}
-                  <button type="button" onClick={() => addAccountAdminData()}>
-                    Add Account admin data
-                  </button>
-
-                  <button type="button" onClick={() => refreshData()}>
-                    Refresh data
-                  </button>
-                </div>
               </WithPartnerAccentColor>
             </>
           );

@@ -23,14 +23,19 @@ import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { noop } from "@swan-io/lake/src/utils/function";
+import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { omit } from "@swan-io/lake/src/utils/object";
+import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
+import { IndividualCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import {
+  validateIndividualTaxNumber,
   validateNullableRequired,
   validateRequired,
   validateUsaTaxNumber,
 } from "@swan-io/shared-business/src/utils/validation";
 import { View } from "react-native";
-import { match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 import {
@@ -94,8 +99,19 @@ export const OnboardingIndividualActivity = ({ onboarding }: Props) => {
     UpdatePublicIndividualAccountHolderOnboardingDocument,
   );
   const onboardingId = onboarding.id;
+  const { accountAdmin, accountInfo } = onboarding;
 
-  const { accountAdmin } = onboarding;
+  const addressCountry = accountAdmin?.address?.country;
+  const accountCountry = accountInfo?.country;
+
+  const isTaxIdentificationRequired = match({ addressCountry, accountCountry })
+    .with({ accountCountry: P.nullish }, () => true)
+    .with({ addressCountry: P.not(accountCountry) }, () => true)
+    .with({ addressCountry: "DEU" }, () => true)
+    .with({ addressCountry: "BEL" }, () => true)
+    .with({ addressCountry: "ITA" }, () => true)
+    .otherwise(() => false);
+
   const { Field, FieldsListener, setFieldError, submitForm } = useForm({
     employmentStatus: {
       initialValue: accountAdmin?.employmentStatus ?? undefined,
@@ -110,6 +126,16 @@ export const OnboardingIndividualActivity = ({ onboarding }: Props) => {
     },
     isUnitedStatesPerson: {
       initialValue: accountAdmin?.unitedStatesTaxInfo?.isUnitedStatesPerson ?? false,
+    },
+    taxIdentificationNumber: {
+      initialValue: accountAdmin?.taxIdentificationNumber ?? "",
+      sanitize: trim,
+      validate: isTaxIdentificationRequired
+        ? combineValidators(
+            validateRequired,
+            validateIndividualTaxNumber(addressCountry as IndividualCountryCCA3),
+          )
+        : undefined,
     },
     unitedStatesTaxIdentificationNumber: {
       initialValue: accountAdmin?.unitedStatesTaxInfo?.unitedStatesTaxIdentificationNumber ?? "",
@@ -130,7 +156,7 @@ export const OnboardingIndividualActivity = ({ onboarding }: Props) => {
   const onPressNext = () => {
     submitForm({
       onSuccess: values => {
-        const option = Option.allFromDict(values);
+        const option = Option.allFromDict(omit(values, ["taxIdentificationNumber"]));
         if (option.isNone()) {
           return;
         }
@@ -142,12 +168,17 @@ export const OnboardingIndividualActivity = ({ onboarding }: Props) => {
           ...input
         } = currentValues;
 
+        const taxIdentificationNumber = values.taxIdentificationNumber
+          .flatMap(value => Option.fromNullable(emptyToUndefined(value)))
+          .toNull();
+
         updateIndividualOnboarding({
           input: {
             onboardingId,
             accountAdmin: {
               ...input,
               sourcesOfFunds: sourcesOfFunds != null ? [sourcesOfFunds] : undefined,
+              taxIdentificationNumber,
               unitedStatesTaxInfo: {
                 isUnitedStatesPerson,
                 unitedStatesTaxIdentificationNumber: isUnitedStatesPerson
@@ -255,6 +286,24 @@ export const OnboardingIndividualActivity = ({ onboarding }: Props) => {
             <Tile style={styles.gap}>
               <StepTitle isMobile={small}>{t("individual.step.activity.title2")}</StepTitle>
               <View style={[styles.grid, large && styles.gridDesktop]}>
+                {isTaxIdentificationRequired && (
+                  <Field name="taxIdentificationNumber">
+                    {({ value, valid, error, onChange, onBlur, ref }) => (
+                      <TaxIdentificationNumberInput
+                        ref={ref}
+                        value={value}
+                        error={error}
+                        valid={valid}
+                        onChange={onChange}
+                        onBlur={onBlur}
+                        country={addressCountry as IndividualCountryCCA3}
+                        isCompany={false}
+                        required={true}
+                      />
+                    )}
+                  </Field>
+                )}
+
                 <LakeLabel
                   label={t("individual.step.activity.usaCitizen")}
                   render={() => (

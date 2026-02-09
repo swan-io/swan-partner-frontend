@@ -5,7 +5,7 @@ import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
-import { identity, noop } from "@swan-io/lake/src/utils/function";
+import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { combineValidators, useForm } from "@swan-io/use-form";
@@ -74,7 +74,7 @@ export const OnboardingIndividualDetails = ({ onboarding }: Props) => {
   );
   const onboardingId = onboarding.id;
 
-  const { accountAdmin } = onboarding;
+  const { accountAdmin, accountInfo } = onboarding;
   const { Field, FieldsListener, setFieldValue, setFieldError, submitForm } = useForm({
     email: {
       initialValue: accountAdmin?.email ?? "",
@@ -93,7 +93,7 @@ export const OnboardingIndividualDetails = ({ onboarding }: Props) => {
     },
     phoneNumber: {
       initialValue: {
-        country: getCountryByCCA3("FRA"),
+        country: getCountryByCCA3(accountInfo?.country ?? "FRA"),
         nationalNumber: "",
       },
       sanitize: ({ country, nationalNumber }) => ({
@@ -112,9 +112,10 @@ export const OnboardingIndividualDetails = ({ onboarding }: Props) => {
       },
     },
     nationality: {
-      initialValue: match(accountAdmin?.nationality)
+      initialValue: match([accountAdmin?.nationality, accountInfo?.country] as const)
         .returnType<CountryCCA3>()
-        .with(P.when(isCountryCCA3), identity)
+        .with([P.when(isCountryCCA3), P._], ([nationality]) => nationality)
+        .with([P._, P.when(isCountryCCA3)], ([_, country]) => country)
         .otherwise(() => "FRA"),
       validate: validateRequired,
     },
@@ -123,9 +124,10 @@ export const OnboardingIndividualDetails = ({ onboarding }: Props) => {
       validate: validateNullableRequired,
     },
     birthCountry: {
-      initialValue: match(accountAdmin?.birthInfo?.country)
+      initialValue: match([accountAdmin?.birthInfo?.country, accountInfo?.country])
         .returnType<CountryCCA3>()
-        .with(P.when(isCountryCCA3), identity)
+        .with([P.when(isCountryCCA3), P._], ([nationality]) => nationality)
+        .with([P._, P.when(isCountryCCA3)], ([_, country]) => country)
         .otherwise(() => "FRA"),
       validate: validateRequired,
     },
@@ -140,9 +142,10 @@ export const OnboardingIndividualDetails = ({ onboarding }: Props) => {
       validate: validateRequired,
     },
     residenceCountry: {
-      initialValue: match(accountAdmin?.address?.country)
+      initialValue: match([accountAdmin?.address?.country, accountInfo?.country])
         .returnType<CountryCCA3>()
-        .with(P.when(isCountryCCA3), identity)
+        .with([P.when(isCountryCCA3), P._], ([nationality]) => nationality)
+        .with([P._, P.when(isCountryCCA3)], ([_, country]) => country)
         .otherwise(() => "FRA"),
       validate: validateRequired,
     },

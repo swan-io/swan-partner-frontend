@@ -183,7 +183,7 @@ export const OnboardingIndividualActivity = ({ onboarding }: Props) => {
                 isUnitedStatesPerson,
                 unitedStatesTaxIdentificationNumber: isUnitedStatesPerson
                   ? unitedStatesTaxIdentificationNumber
-                  : "",
+                  : undefined,
               },
             },
           },

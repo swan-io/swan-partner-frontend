@@ -43,8 +43,9 @@ import {
 import { View } from "react-native";
 import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { InputPhoneNumber } from "../../../components/InputPhoneNumber";
-import { prefixPhoneNumber } from "../../../utils/phone";
+import { parsePhoneNumber, prefixPhoneNumber } from "../../../utils/phone";
 import { Router } from "../../../utils/routes";
+import { usePhoneNumber } from "../../../utils/storage";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 
 type Props = {
@@ -69,12 +70,18 @@ const styles = StyleSheet.create({
 });
 
 export const OnboardingIndividualDetails = ({ onboarding }: Props) => {
+  const onboardingId = onboarding.id;
+  const { accountAdmin, accountInfo } = onboarding;
+
   const [updateIndividualOnboarding, updateResult] = useMutation(
     UpdatePublicIndividualAccountHolderOnboardingDocument,
   );
-  const onboardingId = onboarding.id;
+  const { setPhoneNumber, getPhoneNumber } = usePhoneNumber();
+  const maybePhoneNumber = getPhoneNumber();
+  const phoneNumber = maybePhoneNumber
+    ? parsePhoneNumber(maybePhoneNumber)
+    : { country: getCountryByCCA3(accountInfo?.country ?? "FRA"), nationalNumber: "" };
 
-  const { accountAdmin, accountInfo } = onboarding;
   const { Field, FieldsListener, setFieldValue, setFieldError, submitForm } = useForm({
     email: {
       initialValue: accountAdmin?.email ?? "",
@@ -93,8 +100,8 @@ export const OnboardingIndividualDetails = ({ onboarding }: Props) => {
     },
     phoneNumber: {
       initialValue: {
-        country: getCountryByCCA3(accountInfo?.country ?? "FRA"),
-        nationalNumber: "",
+        country: phoneNumber.country,
+        nationalNumber: phoneNumber.nationalNumber,
       },
       sanitize: ({ country, nationalNumber }) => ({
         country,
@@ -184,9 +191,14 @@ export const OnboardingIndividualDetails = ({ onboarding }: Props) => {
           residenceAddress,
           residenceCity,
           residencePostal,
-          phoneNumber, // @todo: store phoneNumber somewhere to prefil the sca at finalize
+          phoneNumber,
           ...input
         } = currentValues;
+
+        const maybePhoneNumber = prefixPhoneNumber(phoneNumber.country, phoneNumber.nationalNumber);
+        if (maybePhoneNumber.valid) {
+          setPhoneNumber(maybePhoneNumber.e164);
+        }
 
         updateIndividualOnboarding({
           input: {

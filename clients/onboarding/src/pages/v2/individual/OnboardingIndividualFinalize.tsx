@@ -13,8 +13,10 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { match, P } from "ts-pattern";
 import { env } from "../../../utils/env";
+import { isPhoneNumberValid } from "../../../utils/phone";
 import { projectConfiguration } from "../../../utils/projectId";
 import { Router } from "../../../utils/routes";
+import { usePhoneNumber } from "../../../utils/storage";
 
 type Props = {
   onboarding: NonNullable<IndividualOnboardingFragment>;
@@ -22,6 +24,9 @@ type Props = {
 
 export const OnboardingIndividualFinalize = ({ onboarding }: Props) => {
   const onboardingId = onboarding.id;
+
+  const { getPhoneNumber } = usePhoneNumber();
+  const maybePhoneNumber = getPhoneNumber();
 
   const onPressPrevious = () => {
     Router.push("Activity", { onboardingId });
@@ -32,7 +37,10 @@ export const OnboardingIndividualFinalize = ({ onboarding }: Props) => {
     queryString.append("identificationLevel", "Auto");
     queryString.append("onboardingId", onboardingId);
     queryString.append("onboardingV2", "true");
-    queryString.append("phoneNumber", "+33651000000"); // @Todo get from local storage
+
+    if (maybePhoneNumber && isPhoneNumberValid(maybePhoneNumber)) {
+      queryString.append("phoneNumber", maybePhoneNumber);
+    }
 
     match(projectConfiguration)
       .with(Option.P.Some({ projectId: P.select(), mode: "MultiProject" }), projectId =>

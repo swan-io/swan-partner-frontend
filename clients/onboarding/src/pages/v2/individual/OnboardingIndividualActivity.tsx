@@ -22,6 +22,7 @@ import { t } from "../../../utils/i18n";
 import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
+import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { omit } from "@swan-io/lake/src/utils/object";
@@ -34,6 +35,7 @@ import {
   validateRequired,
   validateUsaTaxNumber,
 } from "@swan-io/shared-business/src/utils/validation";
+import { useEffect } from "react";
 import { View } from "react-native";
 import { match, P } from "ts-pattern";
 import { Router } from "../../../utils/routes";
@@ -41,10 +43,21 @@ import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 import {
   extractServerValidationErrors,
   getValidationErrorMessage,
+  ServerInvalidFieldCode,
 } from "../../../utils/validation";
+
+export type ActivityFieldName =
+  | "employmentStatus"
+  | "monthlyIncome"
+  | "taxIdentificationNumber"
+  | "isUnitedStatesPerson";
 
 type Props = {
   onboarding: NonNullable<IndividualOnboardingFragment>;
+  serverValidationErrors: {
+    fieldName: ActivityFieldName;
+    code: ServerInvalidFieldCode;
+  }[];
 };
 
 const styles = StyleSheet.create({
@@ -94,10 +107,12 @@ const sourcesOfFunds: Item<IndividualAccountSourceOfFunds>[] = [
   { name: t("sourcesOfFunds.selfEmployment"), value: "SelfEmployment" },
 ];
 
-export const OnboardingIndividualActivity = ({ onboarding }: Props) => {
+export const OnboardingIndividualActivity = ({ onboarding, serverValidationErrors }: Props) => {
   const [updateIndividualOnboarding, updateResult] = useMutation(
     UpdatePublicIndividualAccountHolderOnboardingDocument,
   );
+  const isFirstMount = useFirstMountState();
+
   const onboardingId = onboarding.id;
   const { accountAdmin, accountInfo } = onboarding;
 
@@ -148,6 +163,15 @@ export const OnboardingIndividualActivity = ({ onboarding }: Props) => {
       },
     },
   });
+
+  useEffect(() => {
+    if (isFirstMount) {
+      serverValidationErrors.forEach(({ fieldName, code }) => {
+        const message = getValidationErrorMessage(code);
+        setFieldError(fieldName, message);
+      });
+    }
+  }, [serverValidationErrors, isFirstMount, setFieldError]);
 
   const onPressPrevious = () => {
     Router.push("Root", { onboardingId });
@@ -231,13 +255,14 @@ export const OnboardingIndividualActivity = ({ onboarding }: Props) => {
                   label={t("individual.step.activity.status")}
                   render={id => (
                     <Field name="employmentStatus">
-                      {({ value, onChange, ref }) => (
+                      {({ value, onChange, ref, error }) => (
                         <LakeSelect
                           id={id}
                           ref={ref}
                           items={employmentStatuses}
                           value={value}
                           onValueChange={onChange}
+                          error={error}
                           placeholder={t("individual.step.activity.status.placeholder")}
                         />
                       )}
@@ -249,13 +274,14 @@ export const OnboardingIndividualActivity = ({ onboarding }: Props) => {
                   label={t("individual.step.activity.monthly")}
                   render={id => (
                     <Field name="monthlyIncome">
-                      {({ value, onChange, ref }) => (
+                      {({ value, onChange, ref, error }) => (
                         <LakeSelect
                           id={id}
                           ref={ref}
                           items={monthlyIncomes}
                           value={value}
                           onValueChange={onChange}
+                          error={error}
                           placeholder={t("individual.step.activity.monthly.placeholder")}
                         />
                       )}

@@ -32,7 +32,6 @@ export const OnboardingIndividualFinalize = ({ onboarding }: Props) => {
     queryString.append("identificationLevel", "Auto");
     queryString.append("onboardingId", onboardingId);
     queryString.append("onboardingV2", "true");
-    queryString.append("phoneNumber", "+33651000000"); // @Todo get from local storage
 
     match(projectConfiguration)
       .with(Option.P.Some({ projectId: P.select(), mode: "MultiProject" }), projectId =>

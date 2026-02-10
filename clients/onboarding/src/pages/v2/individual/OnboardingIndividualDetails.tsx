@@ -29,7 +29,6 @@ import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/compone
 import {
   allCountries,
   CountryCCA3,
-  getCountryByCCA3,
   individualCountries,
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
@@ -42,8 +41,6 @@ import {
 } from "@swan-io/shared-business/src/utils/validation";
 import { View } from "react-native";
 import { OnboardingCountryPicker } from "../../../components/CountryPicker";
-import { InputPhoneNumber } from "../../../components/InputPhoneNumber";
-import { prefixPhoneNumber } from "../../../utils/phone";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 
@@ -69,12 +66,13 @@ const styles = StyleSheet.create({
 });
 
 export const OnboardingIndividualDetails = ({ onboarding }: Props) => {
+  const onboardingId = onboarding.id;
+  const { accountAdmin, accountInfo } = onboarding;
+
   const [updateIndividualOnboarding, updateResult] = useMutation(
     UpdatePublicIndividualAccountHolderOnboardingDocument,
   );
-  const onboardingId = onboarding.id;
 
-  const { accountAdmin, accountInfo } = onboarding;
   const { Field, FieldsListener, setFieldValue, setFieldError, submitForm } = useForm({
     email: {
       initialValue: accountAdmin?.email ?? "",
@@ -90,26 +88,6 @@ export const OnboardingIndividualDetails = ({ onboarding }: Props) => {
       initialValue: accountAdmin?.lastName ?? "",
       sanitize: trim,
       validate: validateName,
-    },
-    phoneNumber: {
-      initialValue: {
-        country: getCountryByCCA3(accountInfo?.country ?? "FRA"),
-        nationalNumber: "",
-      },
-      sanitize: ({ country, nationalNumber }) => ({
-        country,
-        nationalNumber: nationalNumber.trim(),
-      }),
-      validate: ({ country, nationalNumber }) => {
-        if (nationalNumber.trim() === "") {
-          return t("error.requiredField");
-        }
-        const phoneNumber = prefixPhoneNumber(country, nationalNumber);
-
-        if (!phoneNumber.valid) {
-          return t("error.invalidPhoneNumber");
-        }
-      },
     },
     nationality: {
       initialValue: match([accountAdmin?.nationality, accountInfo?.country] as const)
@@ -184,7 +162,6 @@ export const OnboardingIndividualDetails = ({ onboarding }: Props) => {
           residenceAddress,
           residenceCity,
           residencePostal,
-          phoneNumber, // @todo: store phoneNumber somewhere to prefil the sca at finalize
           ...input
         } = currentValues;
 
@@ -339,20 +316,6 @@ export const OnboardingIndividualDetails = ({ onboarding }: Props) => {
                     </Field>
                   )}
                 />
-
-                <Field name="phoneNumber">
-                  {({ value, onBlur, onChange, valid, error, ref }) => (
-                    <InputPhoneNumber
-                      label={t("changeAdmin.step.requesterInfo.phoneNumber")}
-                      ref={ref}
-                      error={error}
-                      value={value}
-                      valid={valid}
-                      onBlur={onBlur}
-                      onValueChange={onChange}
-                    />
-                  )}
-                </Field>
               </View>
             </Tile>
 

@@ -56,7 +56,7 @@ export const OnboardingIndividualWizard = ({ onboarding }: Props) => {
   const isStepperDisplayed = !isNullish(route);
 
   const onboardingId = onboarding.id;
-  const projectName = "TODO";
+  const projectName = onboarding.projectInfo?.name ?? "";
   const projectLogo = onboarding.projectInfo?.logoUri ?? logoSwan;
 
   const [finalized] = useBoolean(false);

@@ -28,6 +28,7 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { ChangeAdminWizard } from "./pages/changeAdmin/ChangeAdminWizard";
 import { OnboardingCompanyWizard } from "./pages/company/CompanyOnboardingWizard";
 import { OnboardingIndividualWizard } from "./pages/individual/OnboardingIndividualWizard";
+import { OnboardingCompanyWizard as OnboardingCompanyWizardV2 } from "./pages/v2/company/OnboardingCompanyWizard";
 import { OnboardingIndividualWizard as OnboardingIndividualWizardV2 } from "./pages/v2/individual/OnboardingIndividualWizard";
 import { env } from "./utils/env";
 import { client, partnerClient } from "./utils/gql";
@@ -268,7 +269,7 @@ const FlowPickerV2 = ({ onboardingId }: Props) => {
               <WithPartnerAccentColor color={projectColor}>
                 {match(onboarding)
                   .with({ __typename: "CompanyAccountHolderOnboarding" }, companyOnboarding => (
-                    <h2>todo OnboardingCompanyWizardV2 {companyOnboarding.id}</h2>
+                    <OnboardingCompanyWizardV2 onboarding={companyOnboarding} />
                   ))
                   .with(
                     { __typename: "IndividualAccountHolderOnboarding" },

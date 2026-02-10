@@ -303,6 +303,9 @@ const FlowPickerWizard = ({ onboardingId }: Props) => {
     })
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ publicAccountHolderOnboarding }) => {
       return match(publicAccountHolderOnboarding)
+        .with({ __typename: "OnboardingAlreadyFinalizedRejection" }, () => {
+          return <Redirect to={`${env.BANKING_URL}?source=onboarding`} />;
+        })
         .with({ __typename: "PublicAccountHolderOnboardingSuccessPayload" }, ({ onboarding }) => {
           return onboarding.statusInfo.validationVersion === "V2" ? (
             <FlowPickerV2 onboardingId={onboardingId} />

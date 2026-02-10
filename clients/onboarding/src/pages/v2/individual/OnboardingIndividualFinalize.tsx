@@ -12,22 +12,37 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { match, P } from "ts-pattern";
+import { FinalizeInvalidSteps } from "../../../components/FinalizeStepBlocks";
 import { env } from "../../../utils/env";
 import { projectConfiguration } from "../../../utils/projectId";
-import { Router } from "../../../utils/routes";
+import { IndividualOnboardingRouteV2, Router } from "../../../utils/routes";
 
 type Props = {
   onboarding: NonNullable<IndividualOnboardingFragment>;
+  steps: WizardStep<IndividualOnboardingRouteV2>[];
+  alreadySubmitted: boolean;
+  onSubmitWithErrors: () => void;
 };
 
-export const OnboardingIndividualFinalize = ({ onboarding }: Props) => {
+export const OnboardingIndividualFinalize = ({
+  onboarding,
+  steps,
+  alreadySubmitted,
+  onSubmitWithErrors,
+}: Props) => {
   const onboardingId = onboarding.id;
+  const containsErrors = steps.some(({ errors }) => errors != null && errors.length > 0);
 
   const onPressPrevious = () => {
     Router.push("Activity", { onboardingId });
   };
 
   const onPressNext = () => {
+    if (containsErrors) {
+      onSubmitWithErrors();
+      return;
+    }
+
     const queryString = new URLSearchParams();
     queryString.append("identificationLevel", "Auto");
     queryString.append("onboardingId", onboardingId);
@@ -47,14 +62,23 @@ export const OnboardingIndividualFinalize = ({ onboarding }: Props) => {
       <ResponsiveContainer breakpoint={breakpoints.medium}>
         {({ small }) => (
           <>
-            <Tile paddingVertical={48}>
-              <Box alignItems="center">
-                <BorderedIcon name="lake-phone" size={100} padding={16} color="partner" />
-                <Space height={24} />
-                <StepTitle isMobile={small}>{t("individual.step.finalize.title")}</StepTitle>
-                <LakeText>{t("individual.step.finalize.content")}</LakeText>
-              </Box>
-            </Tile>
+            {containsErrors && alreadySubmitted ? (
+              <FinalizeInvalidSteps
+                onboardingId={onboardingId}
+                steps={steps}
+                isShaking={true}
+                isMobile={small}
+              />
+            ) : (
+              <Tile paddingVertical={48}>
+                <Box alignItems="center">
+                  <BorderedIcon name="lake-phone" size={100} padding={16} color="partner" />
+                  <Space height={24} />
+                  <StepTitle isMobile={small}>{t("individual.step.finalize.title")}</StepTitle>
+                  <LakeText>{t("individual.step.finalize.content")}</LakeText>
+                </Box>
+              </Tile>
+            )}
           </>
         )}
       </ResponsiveContainer>

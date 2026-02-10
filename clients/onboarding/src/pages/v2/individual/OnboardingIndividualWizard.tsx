@@ -17,8 +17,9 @@ import {
   Router,
   individualOnboardingRoutesV2,
 } from "../../../utils/routes";
+import { extractServerInvalidFields } from "../../../utils/validation";
 import { NotFoundPage } from "../../NotFoundPage";
-import { OnboardingIndividualActivity } from "./OnboardingIndividualActivity";
+import { ActivityFieldName, OnboardingIndividualActivity } from "./OnboardingIndividualActivity";
 import { OnboardingIndividualDetails } from "./OnboardingIndividualDetails";
 import { OnboardingIndividualFinalize } from "./OnboardingIndividualFinalize";
 
@@ -30,7 +31,7 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 992,
     margin: "auto",
-    paddingHorizontal: 8,
+    paddingHorizontal: 24,
     paddingTop: 8,
     flex: 1,
   },
@@ -59,19 +60,40 @@ export const OnboardingIndividualWizard = ({ onboarding }: Props) => {
   const projectName = onboarding.projectInfo?.name ?? "";
   const projectLogo = onboarding.projectInfo?.logoUri ?? logoSwan;
 
-  const [finalized] = useBoolean(false);
+  const [finalized, setFinalized] = useBoolean(false);
+
+  const emailStepErrors = useMemo(() => {
+    return extractServerInvalidFields(onboarding.statusInfo, field =>
+      match(field)
+        .returnType<"email" | null>()
+        .with("accountAdmin.email", () => "email")
+        .otherwise(() => null),
+    );
+  }, [onboarding.statusInfo]);
+
+  const activityStepErrors = useMemo(() => {
+    return extractServerInvalidFields(onboarding.statusInfo, field =>
+      match(field)
+        .returnType<ActivityFieldName | null>()
+        .with("accountAdmin.employmentStatus", () => "employmentStatus")
+        .with("accountAdmin.monthlyIncome", () => "monthlyIncome")
+        .with("accountAdmin.unitedStatesTaxInfo.isUnitedStatesPerson", () => "isUnitedStatesPerson")
+        .with("accountAdmin.taxIdentificationNumber", () => "taxIdentificationNumber")
+        .otherwise(() => null),
+    );
+  }, [onboarding.statusInfo]);
 
   const steps = useMemo<WizardStep<IndividualOnboardingRouteV2>[]>(
     () => [
       {
         id: "Root",
         label: t("step.title.about"),
-        errors: [],
+        errors: emailStepErrors,
       },
       {
         id: "Activity",
         label: t("step.title.employment"),
-        errors: [],
+        errors: activityStepErrors,
       },
       {
         id: "Finalize",
@@ -79,7 +101,7 @@ export const OnboardingIndividualWizard = ({ onboarding }: Props) => {
         errors: [],
       },
     ],
-    [],
+    [emailStepErrors, activityStepErrors],
   );
 
   const stepperSteps = useMemo<Step[]>(
@@ -126,12 +148,25 @@ export const OnboardingIndividualWizard = ({ onboarding }: Props) => {
             <Space height={32} />
 
             {match(route)
-              .with({ name: "Root" }, () => <OnboardingIndividualDetails onboarding={onboarding} />)
+              .with({ name: "Root" }, () => (
+                <OnboardingIndividualDetails
+                  onboarding={onboarding}
+                  serverValidationErrors={finalized ? emailStepErrors : []}
+                />
+              ))
               .with({ name: "Activity" }, () => (
-                <OnboardingIndividualActivity onboarding={onboarding} />
+                <OnboardingIndividualActivity
+                  onboarding={onboarding}
+                  serverValidationErrors={finalized ? activityStepErrors : []}
+                />
               ))
               .with({ name: "Finalize" }, () => (
-                <OnboardingIndividualFinalize onboarding={onboarding} />
+                <OnboardingIndividualFinalize
+                  onboarding={onboarding}
+                  steps={steps}
+                  alreadySubmitted={finalized}
+                  onSubmitWithErrors={setFinalized.on}
+                />
               ))
               .with(P.nullish, () => <NotFoundPage />)
               .exhaustive()}

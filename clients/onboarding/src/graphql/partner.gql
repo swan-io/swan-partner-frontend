@@ -155,7 +155,6 @@ fragment IndividualOnboarding on IndividualAccountHolderOnboarding {
   }
 }
 
-# @todo clean rejection
 query GetPublicOnboarding($id: ID!) {
   publicAccountHolderOnboarding(id: $id) {
     __typename
@@ -164,22 +163,6 @@ query GetPublicOnboarding($id: ID!) {
         ...CompanyOnboarding
         ...IndividualOnboarding
       }
-    }
-    ... on OnboardingNotFoundRejection {
-      id
-    }
-    ... on OnboardingAlreadyFinalizedRejection {
-      __typename
-    }
-    ... on InternalErrorRejection {
-      __typename
-    }
-    ... on ForbiddenRejection {
-      __typename
-      message
-    }
-    ... on PublicOnboardingDisabledRejection {
-      __typename
     }
   }
 }

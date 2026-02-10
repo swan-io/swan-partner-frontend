@@ -21,8 +21,10 @@ import { locale, t } from "../../../utils/i18n";
 import {
   extractServerValidationErrors,
   getValidationErrorMessage,
+  ServerInvalidFieldCode,
 } from "../../../utils/validation";
 
+import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
@@ -39,6 +41,7 @@ import {
   validateNullableRequired,
   validateRequired,
 } from "@swan-io/shared-business/src/utils/validation";
+import { useEffect } from "react";
 import { View } from "react-native";
 import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { Router } from "../../../utils/routes";
@@ -46,6 +49,10 @@ import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 
 type Props = {
   onboarding: NonNullable<IndividualOnboardingFragment>;
+  serverValidationErrors: {
+    fieldName: "email";
+    code: ServerInvalidFieldCode;
+  }[];
 };
 
 const styles = StyleSheet.create({
@@ -65,9 +72,10 @@ const styles = StyleSheet.create({
   },
 });
 
-export const OnboardingIndividualDetails = ({ onboarding }: Props) => {
+export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors }: Props) => {
   const onboardingId = onboarding.id;
   const { accountAdmin, accountInfo } = onboarding;
+  const isFirstMount = useFirstMountState();
 
   const [updateIndividualOnboarding, updateResult] = useMutation(
     UpdatePublicIndividualAccountHolderOnboardingDocument,
@@ -143,6 +151,15 @@ export const OnboardingIndividualDetails = ({ onboarding }: Props) => {
       validate: validateRequired,
     },
   });
+
+  useEffect(() => {
+    if (isFirstMount) {
+      serverValidationErrors.forEach(({ fieldName, code }) => {
+        const message = getValidationErrorMessage(code);
+        setFieldError(fieldName, message);
+      });
+    }
+  }, [serverValidationErrors, isFirstMount, setFieldError]);
 
   const onPressNext = () => {
     submitForm({

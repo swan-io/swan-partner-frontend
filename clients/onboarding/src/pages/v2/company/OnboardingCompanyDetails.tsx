@@ -144,6 +144,10 @@ export const OnboardingCompanyDetails = ({ onboarding }: Props) => {
     },
   });
 
+  const onPressPrevious = () => {
+    Router.push("Root", { onboardingId });
+  };
+
   const onPressNext = () => {
     submitForm({
       onSuccess: values => {
@@ -469,6 +473,7 @@ export const OnboardingCompanyDetails = ({ onboarding }: Props) => {
       </ResponsiveContainer>
       <OnboardingFooter
         onNext={onPressNext}
+        onPrevious={onPressPrevious}
         justifyContent="start"
         loading={updateResult.isLoading()}
       />

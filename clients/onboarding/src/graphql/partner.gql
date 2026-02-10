@@ -79,6 +79,10 @@ fragment CompanyInfo on CompanyInfo {
   regulatoryClassification
   websites
   companyType
+  ultimateBeneficialOwners {
+    firstName
+    lastName
+  }
 }
 
 fragment IndividualOrCompanyOnboarding on AccountHolderOnboardingBase {

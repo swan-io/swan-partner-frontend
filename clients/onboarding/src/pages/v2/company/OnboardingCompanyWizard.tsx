@@ -12,13 +12,10 @@ import logoSwan from "../../../assets/imgs/logo-swan.svg";
 import { OnboardingHeader } from "../../../components/OnboardingHeader";
 import { CompanyOnboardingFragment } from "../../../graphql/partner";
 import { t } from "../../../utils/i18n";
-import {
-  CompanyOnboardingRouteV2,
-  Router,
-  individualOnboardingRoutesV2,
-} from "../../../utils/routes";
+import { CompanyOnboardingRouteV2, Router, companyOnboardingRoutesV2 } from "../../../utils/routes";
 import { NotFoundPage } from "../../NotFoundPage";
 import { OnboardingCompanyDetails } from "./OnboardingCompanyDetails";
+import { OnboardingCompanyRoot } from "./OnboardingCompanyRoot";
 
 const styles = StyleSheet.create({
   stepper: {
@@ -50,7 +47,7 @@ type Props = {
 };
 
 export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
-  const route = Router.useRoute(individualOnboardingRoutesV2);
+  const route = Router.useRoute(companyOnboardingRoutesV2);
   const isStepperDisplayed = !isNullish(route);
 
   const onboardingId = onboarding.id;
@@ -139,8 +136,18 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
             <Space height={32} />
 
             {match(route)
-              .with({ name: "Root" }, () => <></>)
+              .with({ name: "Root" }, () => <OnboardingCompanyRoot onboarding={onboarding} />)
+              .with({ name: "Details" }, () => <OnboardingCompanyDetails onboarding={onboarding} />)
+              .with({ name: "Organisation1" }, () => (
+                <OnboardingCompanyDetails onboarding={onboarding} />
+              ))
               .with({ name: "Activity" }, () => (
+                <OnboardingCompanyDetails onboarding={onboarding} />
+              ))
+              .with({ name: "Ownership" }, () => (
+                <OnboardingCompanyDetails onboarding={onboarding} />
+              ))
+              .with({ name: "Documents" }, () => (
                 <OnboardingCompanyDetails onboarding={onboarding} />
               ))
               .with({ name: "Finalize" }, () => (

@@ -1145,6 +1145,21 @@ query CardPage($cardId: ID!) {
       }
     }
     spendingLimits {
+      mode {
+        calendar {
+          daily {
+            startHour
+          }
+          weekly {
+            startHour
+            startDay
+          }
+          monthly {
+            startHour
+            startDay
+          }
+        }
+      }
       amount {
         currency
         value

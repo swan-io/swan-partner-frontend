@@ -3,6 +3,7 @@ import { useQuery } from "@swan-io/graphql-client";
 import { LakeCombobox } from "@swan-io/lake/src/components/LakeCombobox";
 import { texts } from "@swan-io/lake/src/constants/design";
 import { noop } from "@swan-io/lake/src/utils/function";
+import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { Ref, RefObject, useEffect, useMemo } from "react";
 import { StyleSheet, Text, TextInput } from "react-native";
 import { P, match } from "ts-pattern";
@@ -24,6 +25,7 @@ type Props = {
   disabled?: boolean;
   error?: string;
   placeholder?: string;
+  country?: CountryCCA3;
   onValueChange: (value: string) => void;
   onSuggestion?: (suggestion: LegalForm) => void;
   onLoadError: (error: unknown) => void;
@@ -33,6 +35,7 @@ export const LegalFormsInput = ({
   ref,
   id,
   value,
+  country = "FRA",
   placeholder,
   disabled,
   error,
@@ -40,7 +43,7 @@ export const LegalFormsInput = ({
   onSuggestion,
   onLoadError,
 }: Props) => {
-  const [queryData] = useQuery(GetLegalFormsDocument, { country: "FRA" });
+  const [queryData] = useQuery(GetLegalFormsDocument, { country });
 
   useEffect(() => {
     match(queryData)

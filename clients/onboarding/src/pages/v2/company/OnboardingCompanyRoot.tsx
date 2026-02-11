@@ -6,20 +6,22 @@ import { useForm } from "@swan-io/use-form";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
-import { StepTitle } from "../../../components/StepTitle";
 import {
   CompanyOnboardingFragment,
   GetPublicCompamyInfoRegistryDataDocument,
+  LegalForm,
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { t } from "../../../utils/i18n";
 
 import { Option } from "@swan-io/boxed";
+import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
+import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { pick } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
 import {
   CountryCCA3,
@@ -28,10 +30,11 @@ import {
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { View } from "react-native";
 import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { LakeCompanyInput } from "../../../components/LakeCompanyInput";
+import { LegalFormsInput } from "../../../components/LegalFormsInput";
 import { CompanySuggestion } from "../../../utils/Pappers";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
@@ -49,44 +52,41 @@ const styles = StyleSheet.create({
     gap: "8px",
   },
   gridDesktop: {
-    gridTemplateColumns: "1fr 1fr",
     gap: "16px 32px",
-  },
-  inputFull: {
-    gridColumnEnd: "span 2",
   },
 });
 
-const cleanRegistryData = (value: unknown) => {
-  if (value == null) {
-    return undefined;
-  }
+// WIP
+// const cleanRegistryData = (value: unknown) => {
+//   if (value == null) {
+//     return undefined;
+//   }
 
-  if (Array.isArray(value)) {
-    return value.map(cleanRegistryData).filter(item => item !== undefined);
-  }
+//   if (Array.isArray(value)) {
+//     return value.map(cleanRegistryData).filter(item => item !== undefined);
+//   }
 
-  if (typeof value === "object") {
-    const record = value as Record<string, unknown>;
-    const cleaned: Record<string, unknown> = {};
+//   if (typeof value === "object") {
+//     const record = value as Record<string, unknown>;
+//     const cleaned: Record<string, unknown> = {};
 
-    for (const [key, item] of Object.entries(record)) {
-      if (key === "__typename") {
-        continue;
-      }
+//     for (const [key, item] of Object.entries(record)) {
+//       if (key === "__typename") {
+//         continue;
+//       }
 
-      const next = cleanRegistryData(item);
+//       const next = cleanRegistryData(item);
 
-      if (next !== undefined) {
-        cleaned[key] = next;
-      }
-    }
+//       if (next !== undefined) {
+//         cleaned[key] = next;
+//       }
+//     }
 
-    return cleaned;
-  }
+//     return cleaned;
+//   }
 
-  return value;
-};
+//   return value;
+// };
 
 export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
   const onboardingId = onboarding.id;
@@ -100,7 +100,7 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
 
   const [siren, setSiren] = useState<string | null>(null);
 
-  const { Field, FieldsListener, submitForm } = useForm({
+  const { Field, FieldsListener, setFieldValue, submitForm } = useForm({
     name: {
       initialValue: company?.name ?? "",
       sanitize: trim,
@@ -115,7 +115,7 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
       validate: validateRequired,
     },
     legalFormCode: {
-      initialValue: company?.legalFormCode,
+      initialValue: company?.legalFormCode ?? "",
     },
     typeOfRepresentation: {
       initialValue: accountAdmin?.typeOfRepresentation,
@@ -123,59 +123,27 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
   });
 
   const onPressNext = () => {
-    // Router.push("Details", { onboardingId });
     submitForm({
       onSuccess: values => {
-        const option = Option.allFromDict(pick(values, ["name", "country"]));
-        console.log("values", values);
+        const option = Option.allFromDict(values);
+
         if (option.isNone()) {
           return;
         }
         const currentValues = option.get();
-        const { name, ...input } = currentValues;
-
-        if (siren) {
-          query({
-            input: { registrationNumber: siren, residencyAddressCountry: "FRA" },
-          }).tapOk(({ publicCompanyInfoRegistryData }) => {
-            match(publicCompanyInfoRegistryData)
-              .with(
-                { __typename: "PublicCompanyInfoRegistryDataSuccessPayload" },
-                ({ companyInfo }) => {
-                  console.log("companyInfo", companyInfo);
-                  const data = cleanRegistryData(companyInfo);
-                  const { legalFormCode, address, ...company } = data;
-
-                  updateCompanyOnboarding({
-                    input: {
-                      onboardingId,
-                      company: {
-                        ...company,
-                      },
-                    },
-                  })
-                    .mapOk(data => data.updatePublicCompanyAccountHolderOnboarding)
-                    .mapOkToResult(filterRejectionsToResult)
-                    // .tapOk(() => Router.push("Details", { onboardingId }))
-                    .tapError(error => {
-                      showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
-                    });
-                },
-              )
-              .otherwise(noop);
-          });
-        }
-
-        console.log("#updateCompanyOnboarding");
+        const { country, typeOfRepresentation, ...input } = currentValues;
 
         updateCompanyOnboarding({
           input: {
             onboardingId,
             company: {
-              name,
+              ...input,
               address: {
-                ...input,
+                country,
               },
+            },
+            accountAdmin: {
+              typeOfRepresentation,
             },
           },
         })
@@ -185,26 +153,11 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
           .tapError(error => {
             match(error)
               .with({ __typename: "ValidationRejection" }, _error => {
+                // @TODO: handle validation errors@
                 // const invalidFields = extractServerValidationErrors(error, path => {
                 //   return match(path)
                 //     .with(["accountAdmin", "email"], () => "email" as const)
                 //     .with(["accountAdmin", "firstName"], () => "firstName" as const)
-                //     .with(["accountAdmin", "lastName"], () => "lastName" as const)
-                //     .with(["accountAdmin", "nationality"], () => "nationality" as const)
-                //     .with(["accountAdmin", "birthInfo", "birthDate"], () => "birthDate" as const)
-                //     .with(["accountAdmin", "birthInfo", "country"], () => "birthCountry" as const)
-                //     .with(["accountAdmin", "birthInfo", "city"], () => "birthCity" as const)
-                //     .with(["accountAdmin", "birthInfo", "postalCode"], () => "birthPostal" as const)
-                //     .with(
-                //       ["accountAdmin", "address", "addressLine1"],
-                //       () => "residenceAddress" as const,
-                //     )
-                //     .with(["accountAdmin", "address", "country"], () => "residenceCountry" as const)
-                //     .with(["accountAdmin", "address", "city"], () => "residenceCity" as const)
-                //     .with(
-                //       ["accountAdmin", "address", "postalCode"],
-                //       () => "residencePostal" as const,
-                //     )
                 //     .otherwise(() => null);
                 // });
                 // invalidFields.forEach(({ fieldName, code }) => {
@@ -219,67 +172,146 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
     });
   };
 
-  const onSelectCompany = useCallback(({ siren }: CompanySuggestion) => {
-    setSiren(siren);
-  }, []);
+  useEffect(() => {
+    if (siren != null) {
+      query({
+        input: { registrationNumber: siren, residencyAddressCountry: "FRA" },
+      }).tapOk(({ publicCompanyInfoRegistryData }) => {
+        match(publicCompanyInfoRegistryData)
+          .with(
+            { __typename: "PublicCompanyInfoRegistryDataSuccessPayload" },
+            ({ companyInfo }) => {
+              console.log("companyInfo", companyInfo);
+            },
+          )
+          .otherwise(noop);
+      });
+    }
+  }, [siren, query]);
 
-  const country = "FRA";
+  const onSelectCompany = useCallback(
+    ({ siren, name }: CompanySuggestion) => {
+      setSiren(siren);
+      setFieldValue("name", name);
+    },
+    [setFieldValue],
+  );
+
+  const onSelectLegalFormCode = useCallback(
+    ({ code }: LegalForm) => {
+      setFieldValue("legalFormCode", code);
+    },
+    [setFieldValue],
+  );
 
   return (
     <>
       <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.gap}>
         {({ large, small }) => (
           <>
+            <LakeHeading level={1}>{t("company.step.organisation.title")}</LakeHeading>
+            <LakeText>{t("company.step.organisation.subtitle")}</LakeText>
             <Tile style={styles.gap}>
-              <StepTitle isMobile={small}>{t("individual.step.about.title1")}</StepTitle>
               <View style={[styles.grid, large && styles.gridDesktop]}>
                 <Field name="country">
                   {({ value, onChange }) => (
                     <OnboardingCountryPicker
-                      label={t("individual.step.about.residenceCountry")}
+                      label={t("company.step.organisation.countryLabel")}
                       value={value}
                       countries={individualCountries}
                       holderType="individual"
                       onlyIconHelp={small}
                       onValueChange={onChange}
-                      style={styles.inputFull}
                     />
                   )}
                 </Field>
 
-                <Field name="name">
-                  {({ value, valid, error, onChange, ref }) => (
-                    <LakeLabel
-                      label={t("company.step.organisation1.organisationLabel")}
-                      render={id =>
-                        country === "FRA" ? (
-                          <LakeCompanyInput
-                            id={id}
-                            ref={ref}
-                            value={value}
-                            placeholder={t("company.step.organisation1.organisationPlaceholder")}
-                            error={error}
-                            onValueChange={onChange}
-                            onSuggestion={onSelectCompany}
-                            onLoadError={noop}
-                            // disabled={autofillResult.isLoading()}
+                <FieldsListener names={["country", "name", "legalFormCode"]}>
+                  {({ country }) => (
+                    <>
+                      <Field name="name">
+                        {({ value, valid, error, onChange, ref }) => (
+                          <LakeLabel
+                            label={t("company.step.organisation.nameLabel")}
+                            render={id =>
+                              country.value === "FRA" ? (
+                                <LakeCompanyInput
+                                  id={id}
+                                  ref={ref}
+                                  value={value}
+                                  error={error}
+                                  onValueChange={onChange}
+                                  onSuggestion={onSelectCompany}
+                                  onLoadError={noop}
+                                  // disabled={autofillResult.isLoading()}
+                                />
+                              ) : (
+                                <LakeTextInput
+                                  id={id}
+                                  ref={ref}
+                                  value={value}
+                                  valid={valid}
+                                  error={error}
+                                  onChangeText={onChange}
+                                  // disabled={autofillResult.isLoading()}
+                                />
+                              )
+                            }
                           />
-                        ) : (
-                          <LakeTextInput
-                            id={id}
-                            ref={ref}
-                            value={value}
-                            placeholder={t("company.step.organisation1.organisationPlaceholder")}
-                            valid={valid}
-                            error={error}
-                            onChangeText={onChange}
-                            // disabled={autofillResult.isLoading()}
-                          />
-                        )
-                      }
-                    />
+                        )}
+                      </Field>
+
+                      {country.value !== "FRA" && (
+                        <Field name="legalFormCode">
+                          {({ value, onChange, ref }) => (
+                            <LakeLabel
+                              label={t("company.step.organisation.legalFormLabel")}
+                              render={id => (
+                                <LegalFormsInput
+                                  id={id}
+                                  ref={ref}
+                                  value={value}
+                                  country={country.value}
+                                  placeholder={t("company.step.organisation.legalFormPlaceholder")}
+                                  onSuggestion={onSelectLegalFormCode}
+                                  onValueChange={onChange}
+                                  onLoadError={noop}
+                                />
+                              )}
+                            />
+                          )}
+                        </Field>
+                      )}
+
+                      {country.value !== "FRA" && (
+                        <LakeLabel
+                          label={t("company.step.organisation.relationLabel")}
+                          render={() => (
+                            <Field name="typeOfRepresentation">
+                              {({ value, onChange }) => (
+                                <RadioGroup
+                                  direction="row"
+                                  items={[
+                                    {
+                                      name: t("company.step.organisation.relation.legal"),
+                                      value: "LegalRepresentative",
+                                    },
+                                    {
+                                      name: t("company.step.organisation.relation.attorney"),
+                                      value: "PowerOfAttorney",
+                                    },
+                                  ]}
+                                  value={value}
+                                  onValueChange={onChange}
+                                />
+                              )}
+                            </Field>
+                          )}
+                        />
+                      )}
+                    </>
                   )}
-                </Field>
+                </FieldsListener>
               </View>
             </Tile>
           </>

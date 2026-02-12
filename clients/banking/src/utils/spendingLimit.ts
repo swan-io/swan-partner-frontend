@@ -16,7 +16,7 @@ export const getMonthlySpendingDate = (spendingDay: number, hour: number) => {
       // the spendingDay should occurs the last day of the month
       return dayjs()
         .startOf("month")
-        .set("day", daysInMonth - 1)
+        .date(daysInMonth)
         .format("LLL");
     } else {
       // which means the spendingDate exists

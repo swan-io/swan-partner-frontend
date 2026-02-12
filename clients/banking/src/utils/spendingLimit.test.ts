@@ -15,7 +15,7 @@ describe("getMonthlySpendingDate", () => {
     const result = getMonthlySpendingDate(15, 12);
 
     // Should return January 15, 2024 at 12:00
-    const expected = dayjs().startOf("month").add(14, "day").add(12, "hour").format("LLL");
+    const expected = dayjs("2024-01-15 12:00").format("LLL");
 
     expect(result).toBe(expected);
   });
@@ -28,12 +28,7 @@ describe("getMonthlySpendingDate", () => {
     const result = getMonthlySpendingDate(15, 12);
 
     // Should return February 15, 2024 at 12:00
-    const expected = dayjs()
-      .startOf("month")
-      .add(14, "day")
-      .add(12, "hour")
-      .add(1, "M")
-      .format("LLL");
+    const expected = dayjs("2024-02-15 12:00").format("LLL");
 
     expect(result).toBe(expected);
   });
@@ -45,12 +40,8 @@ describe("getMonthlySpendingDate", () => {
     // Spending day is 31st (doesn't exist in February)
     const result = getMonthlySpendingDate(31, 12);
 
-    // Should return the last day of February (29th) at the specified hour
-    const daysInMonth = dayjs().daysInMonth();
-    const expected = dayjs()
-      .startOf("month")
-      .set("day", daysInMonth - 1)
-      .format("LLL");
+    // Should return the last day of February (29th for leap year 2024)
+    const expected = dayjs("2024-02-29").format("LLL");
 
     expect(result).toBe(expected);
   });
@@ -62,13 +53,8 @@ describe("getMonthlySpendingDate", () => {
     // Spending day is 1st at 0:00 (already passed)
     const result = getMonthlySpendingDate(1, 0);
 
-    // Should return February 1st
-    const expected = dayjs()
-      .startOf("month")
-      .add(0, "day")
-      .add(0, "hour")
-      .add(1, "M")
-      .format("LLL");
+    // Should return February 1st at 00:00
+    const expected = dayjs("2024-02-01 00:00").format("LLL");
 
     expect(result).toBe(expected);
   });
@@ -81,7 +67,7 @@ describe("getMonthlySpendingDate", () => {
     const result = getMonthlySpendingDate(15, 18);
 
     // Should return today at 18:00
-    const expected = dayjs().startOf("month").add(14, "day").add(18, "hour").format("LLL");
+    const expected = dayjs("2024-01-15 18:00").format("LLL");
 
     expect(result).toBe(expected);
   });
@@ -93,13 +79,8 @@ describe("getMonthlySpendingDate", () => {
     // Spending day is 15th at 10:00 (earlier today)
     const result = getMonthlySpendingDate(15, 10);
 
-    // Should return next month (February 15th)
-    const expected = dayjs()
-      .startOf("month")
-      .add(14, "day")
-      .add(10, "hour")
-      .add(1, "M")
-      .format("LLL");
+    // Should return next month (February 15th at 10:00)
+    const expected = dayjs("2024-02-15 10:00").format("LLL");
 
     expect(result).toBe(expected);
   });
@@ -112,11 +93,7 @@ describe("getMonthlySpendingDate", () => {
     const result = getMonthlySpendingDate(30, 12);
 
     // Should return the last day of February (28th)
-    const daysInMonth = dayjs().daysInMonth();
-    const expected = dayjs()
-      .startOf("month")
-      .set("day", daysInMonth - 1)
-      .format("LLL");
+    const expected = dayjs("2023-02-28").format("LLL");
 
     expect(result).toBe(expected);
   });
@@ -129,11 +106,7 @@ describe("getMonthlySpendingDate", () => {
     const result = getMonthlySpendingDate(31, 12);
 
     // Should return the last day of April (30th)
-    const daysInMonth = dayjs().daysInMonth();
-    const expected = dayjs()
-      .startOf("month")
-      .set("day", daysInMonth - 1)
-      .format("LLL");
+    const expected = dayjs("2024-04-30").format("LLL");
 
     expect(result).toBe(expected);
   });

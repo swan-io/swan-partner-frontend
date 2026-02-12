@@ -82,6 +82,18 @@ export const companyOnboardingRoutes = [
 
 export type CompanyOnboardingRoute = (typeof companyOnboardingRoutes)[number];
 
+export const companyOnboardingRoutesV2 = [
+  "Root",
+  "Details",
+  "Organisation1",
+  "Activity",
+  "Ownership",
+  "Documents",
+  "Finalize",
+] as const;
+
+export type CompanyOnboardingRouteV2 = (typeof companyOnboardingRoutesV2)[number];
+
 export const Router = createRouter(routes, {
   basePath: match(projectConfiguration)
     .with(

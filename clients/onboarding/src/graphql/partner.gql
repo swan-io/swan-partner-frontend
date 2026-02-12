@@ -14,6 +14,20 @@ fragment BirthInfo on BirthInfo {
   birthDate
 }
 
+fragment IndividualRepresentative on OnboardingIndividualRepresentative {
+  firstName
+  lastName
+  roles
+  nationality
+  email
+  birthInfo {
+    ...BirthInfo
+  }
+  address {
+    ...Address
+  }
+}
+
 fragment OnboardingStatus on OnboardingStatusInfo {
   __typename
   status
@@ -69,7 +83,7 @@ fragment CompanyInfo on CompanyInfo {
   vatNumber
   taxIdentificationNumber
   businessActivityDescription
-  # businessActivityCode
+  businessActivityCode
   address {
     ...Address
   }
@@ -79,6 +93,26 @@ fragment CompanyInfo on CompanyInfo {
   regulatoryClassification
   websites
   companyType
+  ultimateBeneficialOwners {
+    firstName
+    lastName
+    qualificationType
+    controlTypes
+    ownership {
+      totalPercentage
+      type
+    }
+  }
+  representatives {
+    ... on OnboardingCompanyRepresentative {
+      entityName
+      registrationNumber
+      roles
+    }
+    ... on OnboardingIndividualRepresentative {
+      ...IndividualRepresentative
+    }
+  }
 }
 
 fragment IndividualOrCompanyOnboarding on AccountHolderOnboardingBase {

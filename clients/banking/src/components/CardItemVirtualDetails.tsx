@@ -8,14 +8,20 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
-import { CardPageQuery, ViewCardNumbersDocument } from "../graphql/partner";
+import {
+  CardPageQuery,
+  SpendingLimitCalendarMode,
+  ViewCardNumbersDocument,
+} from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
-import { formatCurrency, t } from "../utils/i18n";
+import { formatCurrency, locale, t, translateDay } from "../utils/i18n";
 import { Router } from "../utils/routes";
+import { getMonthlySpendingDate } from "../utils/spendingLimit";
 import { MaskedCard } from "./MaskedCard";
 
 const styles = StyleSheet.create({
@@ -180,6 +186,55 @@ export const CardItemVirtualDetails = ({
                 0,
                 Number(spendingLimit.amount.value) - Number(spending.amount.value),
               );
+
+              const getSpendingLimitCalendar = (calendar: SpendingLimitCalendarMode) =>
+                match(calendar)
+                  .with({ daily: P.nonNullable }, mode => (
+                    <LakeText color={textColor} variant="smallRegular">
+                      {t("card.spendingLimit.calendar.daily", {
+                        amount: formatCurrency(
+                          Number(spendingLimit.amount.value),
+                          spendingLimit.amount.currency,
+                        ),
+                        period: spendingLimit.period,
+                        hour: mode.daily.startHour,
+                      })}
+                    </LakeText>
+                  ))
+                  .with({ monthly: P.nonNullable }, mode => (
+                    <LakeText color={textColor} variant="smallRegular">
+                      {t("card.spendingLimit.calendar.monthly", {
+                        amount: formatCurrency(
+                          Number(spendingLimit.amount.value),
+                          spendingLimit.amount.currency,
+                        ),
+                        period: spendingLimit.period,
+                        day: getMonthlySpendingDate(mode.monthly.startDay, mode.monthly.startHour),
+                      })}
+                    </LakeText>
+                  ))
+                  .with({ weekly: P.nonNullable }, mode => (
+                    <View style={styles.spendingLimitText}>
+                      <LakeText color={textColor} variant="smallRegular">
+                        {t("card.spendingLimit.calendar.weekly", {
+                          amount: formatCurrency(
+                            Number(spendingLimit.amount.value),
+                            spendingLimit.amount.currency,
+                          ),
+                          period: spendingLimit.period,
+                          day: translateDay(mode.weekly.startDay, locale.language),
+                          hour: mode.weekly.startHour,
+                        })}
+                      </LakeText>
+                      <Fill minWidth={24} />
+
+                      <LakeText color={colors.gray[500]} variant="smallRegular">
+                        {formatCurrency(remainderToSpend, spending.amount.currency)}
+                      </LakeText>
+                    </View>
+                  ))
+                  .otherwise(() => null);
+
               return (
                 <>
                   <Space height={24} />
@@ -238,22 +293,42 @@ export const CardItemVirtualDetails = ({
 
                     <Space height={8} />
 
-                    <View style={styles.spendingLimitText}>
-                      <LakeText color={textColor} variant="smallRegular">
-                        {match(spendingLimit.period)
-                          .with("Daily", () => t("card.spendingLimit.remaining.daily"))
-                          .with("Weekly", () => t("card.spendingLimit.remaining.weekly"))
-                          .with("Monthly", () => t("card.spendingLimit.remaining.monthly"))
-                          .with("Always", () => t("card.spendingLimit.remaining.always"))
-                          .exhaustive()}
-                      </LakeText>
+                    {isNotNullish(spendingLimit.mode?.calendar) ? (
+                      <View style={styles.spendingLimitText}>
+                        {getSpendingLimitCalendar(spendingLimit.mode.calendar)}
+                        <Fill minWidth={24} />
 
-                      <Fill minWidth={24} />
+                        <LakeText
+                          color={
+                            hasBindingUserError
+                              ? colors.gray[300]
+                              : Number(spending.amount.value) >= Number(spendingLimit.amount.value)
+                                ? colors.negative[500]
+                                : colors.gray[800]
+                          }
+                          variant="smallSemibold"
+                        >
+                          {formatCurrency(remainderToSpend, spending.amount.currency)}
+                        </LakeText>
+                      </View>
+                    ) : (
+                      <View style={styles.spendingLimitText}>
+                        <LakeText color={textColor} variant="smallRegular">
+                          {match(spendingLimit.period)
+                            .with("Daily", () => t("card.spendingLimit.remaining.daily"))
+                            .with("Weekly", () => t("card.spendingLimit.remaining.weekly"))
+                            .with("Monthly", () => t("card.spendingLimit.remaining.monthly"))
+                            .with("Always", () => t("card.spendingLimit.remaining.always"))
+                            .exhaustive()}
+                        </LakeText>
 
-                      <LakeText color={textColor} variant="smallRegular">
-                        {formatCurrency(remainderToSpend, spending.amount.currency)}
-                      </LakeText>
-                    </View>
+                        <Fill minWidth={24} />
+
+                        <LakeText color={textColor} variant="smallRegular">
+                          {formatCurrency(remainderToSpend, spending.amount.currency)}
+                        </LakeText>
+                      </View>
+                    )}
                   </View>
                 </>
               );

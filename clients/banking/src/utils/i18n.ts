@@ -18,11 +18,12 @@ import dayjsLocaleIT from "dayjs/locale/it";
 import dayjsLocaleNL from "dayjs/locale/nl";
 import dayjsLocalePT from "dayjs/locale/pt";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import localeData from "dayjs/plugin/localeData";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
 import { ReactElement, ReactNode, cloneElement, isValidElement } from "react";
-import { AccountLanguage } from "../graphql/partner";
+import { AccountLanguage, DayEnum } from "../graphql/partner";
 import translationDE from "../locales/de.json";
 import translationEN from "../locales/en.json";
 import translationES from "../locales/es.json";
@@ -37,6 +38,7 @@ dayjs.extend(utc);
 dayjs.extend(customParseFormat);
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
+dayjs.extend(localeData);
 
 const supportedLanguages = ["en", "es", "de", "fr", "it", "nl", "pt", "fi"] as const;
 type SupportedLanguage = (typeof supportedLanguages)[number];
@@ -361,4 +363,22 @@ export const currencyFlags: Record<Currency, FlagCode> = {
   USD: "US",
   UYU: "UY",
   VND: "VN",
+};
+
+export const translateDay = (day: DayEnum, targetLocale: SupportedLanguage): string => {
+  const englishDays = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+
+  const index = englishDays.indexOf(day);
+  if (index < 0 || index > 6) {
+    return "Invalid Day";
+  }
+  return dayjs().locale(targetLocale).localeData().weekdays()[index] as string;
 };

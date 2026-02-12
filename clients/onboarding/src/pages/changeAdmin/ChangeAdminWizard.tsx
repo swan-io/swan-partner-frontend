@@ -17,7 +17,6 @@ import { SwanLogo } from "@swan-io/lake/src/components/SwanLogo";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
 import { backgroundColor, colors, invariantColors } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
-import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
@@ -172,169 +171,160 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
   const templateLanguage = locale.language;
 
   return data
-    .mapOk(data => data.accountAdminChange)
-    .mapOkToResult(filterRejectionsToResult)
+    .mapOk(data => data.publicAccountAdminChange)
     .match({
       NotAsked: () => null,
       Loading: () => <LoadingView />,
       Done: result =>
         result.match({
-          Error: error =>
-            match(error)
-              .with(
-                {
-                  __typename: P.union(
-                    "ForbiddenRejection",
-                    "AccountAdminChangeExpiredRejection",
-                    "AccountAdminChangeNotFoundRejection",
-                    "AccountAdminChangeStatusNotEligibleRejection",
-                  ),
-                },
-                () => <NotFoundPage />,
-              )
-              .otherwise(error => <ErrorView error={error} />),
-          Ok: data => (
-            <WithPartnerAccentColor
-              color={
-                data.accountHolder.projectInfo.accentColor ?? invariantColors.defaultAccentColor
-              }
-            >
-              <Box grow={1}>
-                <Box style={styles.sticky}>
-                  <OnboardingHeader
-                    projectName={data.accountHolder.projectInfo.name}
-                    projectLogo={data.accountHolder.projectInfo.logoUri}
-                  />
+          Error: error => <ErrorView error={error} />,
+          Ok: data =>
+            data != null ? (
+              <WithPartnerAccentColor
+                color={
+                  data.accountHolder.projectInfo.accentColor ?? invariantColors.defaultAccentColor
+                }
+              >
+                <Box grow={1}>
+                  <Box style={styles.sticky}>
+                    <OnboardingHeader
+                      projectName={data.accountHolder.projectInfo.name}
+                      projectLogo={data.accountHolder.projectInfo.logoUri}
+                    />
+
+                    {isStepperDisplayed ? (
+                      <ResponsiveContainer>
+                        {({ small }) =>
+                          small ? (
+                            <MobileStepTitle activeStepId={route.name} steps={stepperSteps} />
+                          ) : (
+                            <Box alignItems="center">
+                              <LakeStepper
+                                activeStepId={route.name}
+                                steps={stepperSteps}
+                                style={styles.stepper}
+                              />
+                            </Box>
+                          )
+                        }
+                      </ResponsiveContainer>
+                    ) : null}
+                  </Box>
 
                   {isStepperDisplayed ? (
                     <ResponsiveContainer>
-                      {({ small }) =>
-                        small ? (
-                          <MobileStepTitle activeStepId={route.name} steps={stepperSteps} />
-                        ) : (
-                          <Box alignItems="center">
-                            <LakeStepper
-                              activeStepId={route.name}
-                              steps={stepperSteps}
-                              style={styles.stepper}
-                            />
-                          </Box>
-                        )
-                      }
+                      {({ small }) => <Space height={small ? 24 : 48} />}
                     </ResponsiveContainer>
                   ) : null}
-                </Box>
 
-                {isStepperDisplayed ? (
-                  <ResponsiveContainer>
-                    {({ small }) => <Space height={small ? 24 : 48} />}
-                  </ResponsiveContainer>
-                ) : null}
+                  {match({ submitted, routeName: route?.name })
+                    .with({ submitted: true }, () => (
+                      <Box
+                        alignItems="center"
+                        justifyContent="center"
+                        style={styles.successContainer}
+                      >
+                        <BorderedIcon name={"lake-check"} color="positive" size={70} padding={16} />
+                        <Space height={32} />
 
-                {match({ submitted, routeName: route?.name })
-                  .with({ submitted: true }, () => (
-                    <Box
-                      alignItems="center"
-                      justifyContent="center"
-                      style={styles.successContainer}
-                    >
-                      <BorderedIcon name={"lake-check"} color="positive" size={70} padding={16} />
-                      <Space height={32} />
+                        <LakeText variant="semibold" color={colors.gray[900]}>
+                          {t("changeAdmin.success.title")}
+                        </LakeText>
 
-                      <LakeText variant="semibold" color={colors.gray[900]}>
-                        {t("changeAdmin.success.title")}
-                      </LakeText>
+                        <Space height={12} />
 
-                      <Space height={12} />
-
-                      <LakeText align="center" color={colors.gray[500]}>
-                        {t("changeAdmin.success.description1")}
-                      </LakeText>
-                      <Space height={12} />
-                      <LakeText align="center" color={colors.gray[500]}>
-                        {t("changeAdmin.success.description2")}
-                      </LakeText>
-                    </Box>
-                  ))
-                  .with({ routeName: "ChangeAdminRoot" }, () => (
-                    <ChangeAdminFlowPresentation
-                      templateLanguage={templateLanguage}
-                      steps={flowSteps}
-                      changeAdminRequestId={changeAdminRequestId}
-                      nextStep="ChangeAdminContext1"
-                    />
-                  ))
-                  .with({ routeName: "ChangeAdminContext1" }, () => (
-                    <ChangeAdminContext1
-                      accountHolder={data.accountHolder}
-                      changeAdminRequestId={changeAdminRequestId}
-                      nextStep="ChangeAdminContext2"
-                    />
-                  ))
-                  .with({ routeName: "ChangeAdminContext2" }, () => (
-                    <ChangeAdminContext2
-                      initialValues={{
-                        isRequesterNewAdmin: data.isRequesterNewAdmin ?? true,
-                        reason: data.reason ?? "CurrentAdministratorLeft",
-                      }}
-                      changeAdminRequestId={changeAdminRequestId}
-                      previousStep="ChangeAdminContext1"
-                      nextStep="ChangeAdminRequester"
-                    />
-                  ))
-                  .with({ routeName: "ChangeAdminRequester" }, () => (
-                    <ChangeAdminRequester
-                      initialValues={data.requester}
-                      changeAdminRequestId={changeAdminRequestId}
-                      previousStep="ChangeAdminContext2"
-                      nextStep="ChangeAdminNewAdmin"
-                    />
-                  ))
-                  .with({ routeName: "ChangeAdminNewAdmin" }, () => (
-                    <ChangeAdminNewAdmin
-                      initialValues={{
-                        ...data.admin,
-                        isNewAdminLegalRepresentative: data.isNewAdminLegalRepresentative,
-                      }}
-                      changeAdminRequestId={changeAdminRequestId}
-                      previousStep="ChangeAdminRequester"
-                      nextStep="ChangeAdminDocuments"
-                    />
-                  ))
-                  .with({ routeName: "ChangeAdminDocuments" }, () => (
-                    <ChangeAdminDocuments
-                      supportingDocumentCollection={data.supportingDocumentCollection}
-                      templateLanguage={templateLanguage}
-                      changeAdminRequestId={changeAdminRequestId}
-                      previousStep="ChangeAdminNewAdmin"
-                      nextStep="ChangeAdminConfirm"
-                    />
-                  ))
-                  .with({ routeName: "ChangeAdminConfirm" }, () =>
-                    isRequesterFilled(data.requester) && isAdminFilled(data.admin) ? (
-                      <ChangeAdminConfirm
-                        requester={data.requester}
-                        admin={data.admin}
+                        <LakeText align="center" color={colors.gray[500]}>
+                          {t("changeAdmin.success.description1")}
+                        </LakeText>
+                        <Space height={12} />
+                        <LakeText align="center" color={colors.gray[500]}>
+                          {t("changeAdmin.success.description2")}
+                        </LakeText>
+                      </Box>
+                    ))
+                    .with({ routeName: "ChangeAdminRoot" }, () => (
+                      <ChangeAdminFlowPresentation
+                        templateLanguage={templateLanguage}
+                        steps={flowSteps}
                         changeAdminRequestId={changeAdminRequestId}
-                        previousStep="ChangeAdminDocuments"
-                        onSubmitted={setSubmitted.on}
+                        nextStep="ChangeAdminContext1"
                       />
-                    ) : (
-                      <Redirect to={Router.ChangeAdminRoot({ requestId: changeAdminRequestId })} />
-                    ),
-                  )
-                  .with({ routeName: P.nullish }, () => <NotFoundPage />)
-                  .exhaustive()}
+                    ))
+                    .with({ routeName: "ChangeAdminContext1" }, () => (
+                      <ChangeAdminContext1
+                        accountHolder={data.accountHolder}
+                        changeAdminRequestId={changeAdminRequestId}
+                        nextStep="ChangeAdminContext2"
+                      />
+                    ))
+                    .with({ routeName: "ChangeAdminContext2" }, () => (
+                      <ChangeAdminContext2
+                        initialValues={{
+                          isRequesterNewAdmin: data.isRequesterNewAdmin ?? true,
+                          reason: data.reason ?? "CurrentAdministratorLeft",
+                        }}
+                        changeAdminRequestId={changeAdminRequestId}
+                        previousStep="ChangeAdminContext1"
+                        nextStep="ChangeAdminRequester"
+                      />
+                    ))
+                    .with({ routeName: "ChangeAdminRequester" }, () => (
+                      <ChangeAdminRequester
+                        initialValues={data.requester}
+                        changeAdminRequestId={changeAdminRequestId}
+                        previousStep="ChangeAdminContext2"
+                        nextStep="ChangeAdminNewAdmin"
+                      />
+                    ))
+                    .with({ routeName: "ChangeAdminNewAdmin" }, () => (
+                      <ChangeAdminNewAdmin
+                        initialValues={{
+                          ...data.admin,
+                          isNewAdminLegalRepresentative: data.isNewAdminLegalRepresentative,
+                        }}
+                        changeAdminRequestId={changeAdminRequestId}
+                        previousStep="ChangeAdminRequester"
+                        nextStep="ChangeAdminDocuments"
+                      />
+                    ))
+                    .with({ routeName: "ChangeAdminDocuments" }, () => (
+                      <ChangeAdminDocuments
+                        supportingDocumentCollection={data.supportingDocumentCollection}
+                        templateLanguage={templateLanguage}
+                        changeAdminRequestId={changeAdminRequestId}
+                        previousStep="ChangeAdminNewAdmin"
+                        nextStep="ChangeAdminConfirm"
+                      />
+                    ))
+                    .with({ routeName: "ChangeAdminConfirm" }, () =>
+                      isRequesterFilled(data.requester) && isAdminFilled(data.admin) ? (
+                        <ChangeAdminConfirm
+                          requester={data.requester}
+                          admin={data.admin}
+                          changeAdminRequestId={changeAdminRequestId}
+                          previousStep="ChangeAdminDocuments"
+                          onSubmitted={setSubmitted.on}
+                        />
+                      ) : (
+                        <Redirect
+                          to={Router.ChangeAdminRoot({ requestId: changeAdminRequestId })}
+                        />
+                      ),
+                    )
+                    .with({ routeName: P.nullish }, () => <NotFoundPage />)
+                    .exhaustive()}
 
-                {submitted ? <Space height={24} /> : <Fill minHeight={24} />}
-                <LakeText style={styles.partnership}>
-                  {t("wizard.partnership")}
-                  <SwanLogo style={styles.swanPartnershipLogo} />
-                </LakeText>
-                <Space height={24} />
-              </Box>
-            </WithPartnerAccentColor>
-          ),
+                  {submitted ? <Space height={24} /> : <Fill minHeight={24} />}
+                  <LakeText style={styles.partnership}>
+                    {t("wizard.partnership")}
+                    <SwanLogo style={styles.swanPartnershipLogo} />
+                  </LakeText>
+                  <Space height={24} />
+                </Box>
+              </WithPartnerAccentColor>
+            ) : (
+              <NotFoundPage />
+            ),
         }),
     });
 };

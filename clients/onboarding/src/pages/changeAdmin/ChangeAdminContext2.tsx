@@ -99,7 +99,7 @@ export const ChangeAdminContext2 = ({
                 reason: values.reason,
               },
             })
-              .mapOk(data => data.updateAccountAdminChange)
+              .mapOk(data => data.publicUpdateAccountAdminChange)
               .mapOkToResult(filterRejectionsToResult)
               .tapError(error =>
                 showToast({ variant: "error", title: translateError(error), error }),

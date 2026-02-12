@@ -704,6 +704,7 @@ interface AccountHolderOnboardingBase {
   Redirect the legal representative of a new account holder to this URL to start the onboarding process
   """
   onboardingUrl: String
+  account: Account
 }
 
 """
@@ -1493,6 +1494,32 @@ enum BusinessActivity {
   Transportation
 }
 
+"""Business activity category"""
+enum BusinessActivityCategory {
+  AccommodationAndFoodService
+  AdministrativeAndSupportServiceActivities
+  AgricultureForestryAndFishing
+  ArtsSportsAndRecreation
+  Construction
+  Education
+  ElectricityGasSteamAndAirConditioningSupply
+  ExtraterritorialOrganisationsAndBodies
+  FinancialAndInsuranceActivities
+  HouseholdEmployerAndOwnUseActivities
+  HumanHealthAndSocialWork
+  Manufacturing
+  MiningAndQuarrying
+  OtherServiceActivities
+  ProfessionalScientificAndTechnicalActivities
+  PublicAdministrationAndDefenceSocialSecurity
+  PublishingBroadcastingAndContentProductionAndDistribution
+  RealEstateActivities
+  TelecommunicationItAndInformationServices
+  TransportationAndStorage
+  WaterSupplySewerageWasteManagementAndRemediation
+  WholesaleAndRetailTrade
+}
+
 """
 Rejection returned if the card was not found or if the user does not have the rights to know that the account exists
 """
@@ -1602,6 +1629,7 @@ type CompanyAccountHolderOnboarding implements AccountHolderOnboardingBase {
   Redirect the legal representative of a new account holder to this URL to start the onboarding process
   """
   onboardingUrl: String
+  account: Account
 }
 
 """Company account information for onboarding"""
@@ -1791,6 +1819,9 @@ input CompanyInfoInput {
 
   """The date at which the user joined"""
   signupDate: Date
+
+  """Business activity category"""
+  businessActivity: BusinessActivityCategory
 
   """
   Business activity description
@@ -2431,6 +2462,7 @@ type IndividualAccountHolderOnboarding implements AccountHolderOnboardingBase {
   Redirect the legal representative of a new account holder to this URL to start the onboarding process
   """
   onboardingUrl: String
+  account: Account
 }
 
 """Individual account information for onboarding"""
@@ -3003,6 +3035,9 @@ type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
 
   """business activity"""
   businessActivity: BusinessActivity
+
+  """business activity category"""
+  businessActivityCategory: BusinessActivityCategory
 
   """
   business activity description
@@ -4282,7 +4317,7 @@ enum SupportingDocumentReasonCode {
   """The company name in document doesn’t match our records."""
   CompanyNameMismatch
 
-  """The document must be dated less than 3 months ago."""
+  """The document is too old, please provide the latest version available."""
   ExpiredDocument
 
   """The address in document doesn’t match our records."""
@@ -6013,6 +6048,12 @@ enum CardPackageLevel {
   Premium
 }
 
+"""Rejection returned if card package is not allowed"""
+type CardPackageNotAllowedRejection implements Rejection {
+  message: String!
+  cardType: String
+}
+
 type CardPINInfos {
   urlToCall: String!
   requestRef: String!
@@ -7732,6 +7773,15 @@ type FailedThreeDsStatusInfo implements ThreeDsStatusInfo {
   reasonCode: FailedThreeDsReason!
 }
 
+"""
+In the chance that a request is made while still concurrently processing the
+first request under the same idempotencyKey, or if the same idempotencyKey is used with different parameters.
+the APIs will return this rejection.
+"""
+type IdempotencyConflictRejection implements Rejection {
+  message: String!
+}
+
 enum IncomingThreeDsStatus {
   NotRequested
   Requested
@@ -9203,10 +9253,17 @@ input UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkInput {
 
   """Payment Link related to the SEPA Direct Debit Payment Mandate"""
   paymentLinkId: ID!
+
+  """
+  A unique key used to ensure this operation executes only once, regardless of how many times it’s submitted.
+  If you provide the same idempotencyKey within a 24-hour period, the API will return the result of the original request rather than executing the operation again.
+  Use UUID v4 format recommended.
+  """
+  idempotencyKey: String
 }
 
 """Union type return by the addSepaDirectDebitPaymentMandate mutation"""
-union UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkPayload = UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkSuccessPayload | BadRequestRejection | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection
+union UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkPayload = UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkSuccessPayload | BadRequestRejection | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection | IdempotencyConflictRejection
 
 """
 Return type in case of a successful response of the initiateMerchantSddPaymentCollectionFromPaymentLink mutation

@@ -355,17 +355,17 @@ fragment AccountAdminChangeInfo on AccountAdminChange {
 }
 
 query AccountAdminChange($accountAdminChangeId: ID!) {
-  accountAdminChange(accountAdminChangeId: $accountAdminChangeId) {
+  publicAccountAdminChange(accountAdminChangeId: $accountAdminChangeId) {
     ... on AccountAdminChange {
       ...AccountAdminChangeInfo
     }
   }
 }
 
-mutation UpdateAccountAdminChange($input: UpdateAccountAdminChangeInput!) {
-  updateAccountAdminChange(input: $input) {
+mutation UpdateAccountAdminChange($input: PublicUpdateAccountAdminChangeInput!) {
+  publicUpdateAccountAdminChange(input: $input) {
     __typename
-    ... on UpdateAccountAdminChangeSuccessPayload {
+    ... on PublicUpdateAccountAdminChangeSuccessPayload {
       accountAdminChange {
         ...AccountAdminChangeInfo
       }
@@ -377,8 +377,8 @@ mutation UpdateAccountAdminChange($input: UpdateAccountAdminChangeInput!) {
 }
 
 mutation FinalizeAccountAdminChange($accountAdminChangeId: ID!) {
-  finalizeAccountAdminChange(accountAdminChangeId: $accountAdminChangeId) {
-    ... on FinalizeAccountAdminChangeSuccessPayload {
+  publicFinalizeAccountAdminChange(accountAdminChangeId: $accountAdminChangeId) {
+    ... on PublicFinalizeAccountAdminChangeSuccessPayload {
       success
     }
   }

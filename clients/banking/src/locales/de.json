@@ -1785,7 +1785,7 @@
   "verificationRenewal.ownership.birthCityPlaceholder": "Geburtsort des Empfängers suchen",
   "verificationRenewal.ownership.birthCountry": "Geburtsland",
   "verificationRenewal.ownership.birthCountry.placeholder": "Geburtsland des Empfängers auswählen",
-  "verificationRenewal.ownership.birthDate": "Geburtstag",
+  "verificationRenewal.ownership.birthDate": "Geburtsdatum",
   "verificationRenewal.ownership.birthPostalCode": "Postleitzahl des Geburtsortes",
   "verificationRenewal.ownership.birthPostalCode.placeholder": "Postleitzahl des Geburtsorts des Empfängers eingeben",
   "verificationRenewal.ownership.country": "Land",

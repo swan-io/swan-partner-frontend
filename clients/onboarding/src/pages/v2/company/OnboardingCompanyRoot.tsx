@@ -7,9 +7,11 @@ import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import {
+  CompanyInfo,
   CompanyOnboardingFragment,
   GetPublicCompamyInfoRegistryDataDocument,
   LegalForm,
+  OnboardingRepresentative,
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { t } from "../../../utils/i18n";
@@ -22,6 +24,7 @@ import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { omit } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
 import {
   CountryCCA3,
@@ -29,12 +32,17 @@ import {
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
-import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
+import {
+  validateNullableRequired,
+  validateRequired,
+} from "@swan-io/shared-business/src/utils/validation";
 import { useCallback, useEffect, useState } from "react";
 import { View } from "react-native";
 import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { LakeCompanyInput } from "../../../components/LakeCompanyInput";
 import { LegalFormsInput } from "../../../components/LegalFormsInput";
+import { RepresentativeFormsInput } from "../../../components/RepresentativeFormInput";
+import { cleanData, transformRepresentativesToInput } from "../../../utils/onboarding";
 import { CompanySuggestion } from "../../../utils/Pappers";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
@@ -99,6 +107,9 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
   const [_publicCompany, { query }] = useDeferredQuery(GetPublicCompamyInfoRegistryDataDocument);
 
   const [siren, setSiren] = useState<string | null>(null);
+  const [publicData, setPublicData] = useState<CompanyInfo>();
+
+  const [representatives, setRepresentatives] = useState<OnboardingRepresentative[]>();
 
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm({
     name: {
@@ -115,17 +126,31 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
       validate: validateRequired,
     },
     legalFormCode: {
-      initialValue: company?.legalFormCode ?? "",
+      initialValue: company?.legalFormCode ?? undefined,
+      validate: (value, { getFieldValue }) => {
+        if (getFieldValue("country") !== "FRA") {
+          return validateNullableRequired(value);
+        }
+      },
     },
     typeOfRepresentation: {
       initialValue: accountAdmin?.typeOfRepresentation,
+    },
+    currentRepresentative: {
+      initialValue: accountAdmin?.lastName ?? undefined,
+      validate: (value, { getFieldValue }) => {
+        if (getFieldValue("country") === "FRA" && representatives && value == null) {
+          return t("error.requiredField");
+        }
+      },
     },
   });
 
   const onPressNext = () => {
     submitForm({
       onSuccess: values => {
-        const option = Option.allFromDict(values);
+        const option = Option.allFromDict(omit(values, ["currentRepresentative"]));
+        const representativesInput = transformRepresentativesToInput(representatives);
 
         if (option.isNone()) {
           return;
@@ -133,16 +158,32 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
         const currentValues = option.get();
         const { country, typeOfRepresentation, ...input } = currentValues;
 
+        // @TODO: improve matching logic
+        const selectedRepresentative = values.currentRepresentative
+          .flatMap(value => Option.fromNullable(value))
+          .map(value => representativesInput?.find(item => item.lastName === value))
+          .toUndefined();
+
+        const companyInfo = cleanData(publicData);
+
         updateCompanyOnboarding({
           input: {
             onboardingId,
             company: {
               ...input,
+              representatives: representativesInput,
               address: {
                 country,
+                ...companyInfo?.address,
               },
             },
             accountAdmin: {
+              firstName: selectedRepresentative?.firstName,
+              lastName: selectedRepresentative?.lastName,
+              address: selectedRepresentative?.address,
+              birthInfo: selectedRepresentative?.birthInfo,
+              nationality: selectedRepresentative?.nationality,
+              email: selectedRepresentative?.email,
               typeOfRepresentation,
             },
           },
@@ -181,7 +222,14 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
           .with(
             { __typename: "PublicCompanyInfoRegistryDataSuccessPayload" },
             ({ companyInfo }) => {
-              console.log("companyInfo", companyInfo);
+              const { representatives, ...info } = companyInfo;
+              setPublicData(info);
+
+              if (representatives) {
+                setRepresentatives(representatives.filter(Boolean) as OnboardingRepresentative[]);
+              } else {
+                setRepresentatives(undefined);
+              }
             },
           )
           .otherwise(noop);
@@ -226,8 +274,8 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
                   )}
                 </Field>
 
-                <FieldsListener names={["country", "name", "legalFormCode"]}>
-                  {({ country }) => (
+                <FieldsListener names={["country", "name", "currentRepresentative"]}>
+                  {({ country, currentRepresentative }) => (
                     <>
                       <Field name="name">
                         {({ value, valid, error, onChange, ref }) => (
@@ -243,7 +291,6 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
                                   onValueChange={onChange}
                                   onSuggestion={onSelectCompany}
                                   onLoadError={noop}
-                                  // disabled={autofillResult.isLoading()}
                                 />
                               ) : (
                                 <LakeTextInput
@@ -253,7 +300,6 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
                                   valid={valid}
                                   error={error}
                                   onChangeText={onChange}
-                                  // disabled={autofillResult.isLoading()}
                                 />
                               )
                             }
@@ -261,9 +307,9 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
                         )}
                       </Field>
 
-                      {country.value !== "FRA" && (
-                        <Field name="legalFormCode">
-                          {({ value, onChange, ref }) => (
+                      <Field name="legalFormCode">
+                        {({ value, onChange, ref, error }) =>
+                          country.value !== "FRA" ? (
                             <LakeLabel
                               label={t("company.step.organisation.legalFormLabel")}
                               render={id => (
@@ -274,21 +320,35 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
                                   country={country.value}
                                   placeholder={t("company.step.organisation.legalFormPlaceholder")}
                                   onSuggestion={onSelectLegalFormCode}
+                                  error={error}
                                   onValueChange={onChange}
                                   onLoadError={noop}
                                 />
                               )}
                             />
+                          ) : null
+                        }
+                      </Field>
+
+                      {representatives && (
+                        <Field name="currentRepresentative">
+                          {({ value, onChange, error }) => (
+                            <RepresentativeFormsInput
+                              representatives={representatives}
+                              value={value}
+                              onChange={onChange}
+                              error={error}
+                            />
                           )}
                         </Field>
                       )}
 
-                      {country.value !== "FRA" && (
-                        <LakeLabel
-                          label={t("company.step.organisation.relationLabel")}
-                          render={() => (
-                            <Field name="typeOfRepresentation">
-                              {({ value, onChange }) => (
+                      <Field name="typeOfRepresentation">
+                        {({ value, onChange }) =>
+                          country.value !== "FRA" || currentRepresentative.value === "" ? (
+                            <LakeLabel
+                              label={t("company.step.organisation.relationLabel")}
+                              render={() => (
                                 <RadioGroup
                                   direction="row"
                                   items={[
@@ -305,10 +365,10 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
                                   onValueChange={onChange}
                                 />
                               )}
-                            </Field>
-                          )}
-                        />
-                      )}
+                            />
+                          ) : null
+                        }
+                      </Field>
                     </>
                   )}
                 </FieldsListener>

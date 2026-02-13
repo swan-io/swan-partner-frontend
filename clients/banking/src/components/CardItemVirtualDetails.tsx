@@ -214,24 +214,17 @@ export const CardItemVirtualDetails = ({
                     </LakeText>
                   ))
                   .with({ weekly: P.nonNullable }, mode => (
-                    <View style={styles.spendingLimitText}>
-                      <LakeText color={textColor} variant="smallRegular">
-                        {t("card.spendingLimit.calendar.weekly", {
-                          amount: formatCurrency(
-                            Number(spendingLimit.amount.value),
-                            spendingLimit.amount.currency,
-                          ),
-                          period: spendingLimit.period,
-                          day: translateDay(mode.weekly.startDay, locale.language),
-                          hour: mode.weekly.startHour,
-                        })}
-                      </LakeText>
-                      <Fill minWidth={24} />
-
-                      <LakeText color={colors.gray[500]} variant="smallRegular">
-                        {formatCurrency(remainderToSpend, spending.amount.currency)}
-                      </LakeText>
-                    </View>
+                    <LakeText color={textColor} variant="smallRegular">
+                      {t("card.spendingLimit.calendar.weekly", {
+                        amount: formatCurrency(
+                          Number(spendingLimit.amount.value),
+                          spendingLimit.amount.currency,
+                        ),
+                        period: spendingLimit.period,
+                        day: translateDay(mode.weekly.startDay, locale.language),
+                        hour: mode.weekly.startHour,
+                      })}
+                    </LakeText>
                   ))
                   .otherwise(() => null);
 

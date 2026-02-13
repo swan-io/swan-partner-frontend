@@ -180,6 +180,9 @@ type Mutation {
   """Simulate the authorization of a card merchant payment"""
   simulateIncomingCardAuthorization(input: SimulateIncomingCardAuthorizationInput!): SimulateIncomingCardAuthorizationPayload!
 
+  """Simulate the outcome of an incoming in-person payment intent"""
+  simulateIncomingInPersonPaymentIntentOutcome(input: SimulateIncomingInPersonPaymentIntentOutcomeInput!): SimulateIncomingInPersonPaymentIntentOutcomePayload!
+
   """Simulate the update of a Merchant Payment Method"""
   simulateMerchantPaymentMethodRequestOutcome(input: SimulateMerchantPaymentMethodRequestOutcomeInput!): SimulateMerchantPaymentMethodRequestOutcomePayload!
 
@@ -1594,6 +1597,32 @@ enum BusinessActivity {
   Transportation
 }
 
+"""Business activity category"""
+enum BusinessActivityCategory {
+  AccommodationAndFoodService
+  AdministrativeAndSupportServiceActivities
+  AgricultureForestryAndFishing
+  ArtsSportsAndRecreation
+  Construction
+  Education
+  ElectricityGasSteamAndAirConditioningSupply
+  ExtraterritorialOrganisationsAndBodies
+  FinancialAndInsuranceActivities
+  HouseholdEmployerAndOwnUseActivities
+  HumanHealthAndSocialWork
+  Manufacturing
+  MiningAndQuarrying
+  OtherServiceActivities
+  ProfessionalScientificAndTechnicalActivities
+  PublicAdministrationAndDefenceSocialSecurity
+  PublishingBroadcastingAndContentProductionAndDistribution
+  RealEstateActivities
+  TelecommunicationItAndInformationServices
+  TransportationAndStorage
+  WaterSupplySewerageWasteManagementAndRemediation
+  WholesaleAndRetailTrade
+}
+
 """
 Rejection returned if the card was not found or if the user does not have the rights to know that the account exists
 """
@@ -2455,6 +2484,9 @@ type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
 
   """business activity"""
   businessActivity: BusinessActivity
+
+  """business activity category"""
+  businessActivityCategory: BusinessActivityCategory
 
   """
   business activity description
@@ -3549,7 +3581,7 @@ enum SupportingDocumentReasonCode {
   """The company name in document doesn’t match our records."""
   CompanyNameMismatch
 
-  """The document must be dated less than 3 months ago."""
+  """The document is too old, please provide the latest version available."""
   ExpiredDocument
 
   """The address in document doesn’t match our records."""
@@ -5007,6 +5039,11 @@ type CompanyShareholder {
   name: String!
 }
 
+type CouldNotAccessCapitalDepositDocumentParentRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
 type CouldNotFindCapitalDepositCaseRejection implements Rejection {
   id: String!
   message: String!
@@ -5242,7 +5279,7 @@ input SimulateCapitalDepositDocumentStatusInput {
   documentRefusalReasonCode: DocumentReasonCode
 }
 
-union SimulateCapitalDepositDocumentStatusPayload = SimulateCapitalDepositDocumentStatusSuccessPayload | CouldNotFindCapitalDepositCaseRejection | CouldNotUpdateCapitalDepositDocumentStatusRejection | CouldNotUploadCapitalDepositDocumentRejection | CouldNotFindCapitalDepositDocumentRejection | CouldNotRejectCapitalDepositDocumentRejection
+union SimulateCapitalDepositDocumentStatusPayload = SimulateCapitalDepositDocumentStatusSuccessPayload | CouldNotFindCapitalDepositCaseRejection | CouldNotUpdateCapitalDepositDocumentStatusRejection | CouldNotUploadCapitalDepositDocumentRejection | CouldNotFindCapitalDepositDocumentRejection | CouldNotRejectCapitalDepositDocumentRejection | CouldNotAccessCapitalDepositDocumentParentRejection
 
 type SimulateCapitalDepositDocumentStatusSuccessPayload {
   id: String!
@@ -9385,6 +9422,15 @@ type GenerateCheckSuccessPayload {
   rlmcKey: String!
 }
 
+"""
+In the chance that a request is made while still concurrently processing the
+first request under the same idempotencyKey, or if the same idempotencyKey is used with different parameters.
+the APIs will return this rejection.
+"""
+type IdempotencyConflictRejection implements Rejection {
+  message: String!
+}
+
 enum IncomingThreeDsStatus {
   NotRequested
   Requested
@@ -9430,6 +9476,107 @@ type InPersonCardMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """Location ID to use in Stripe's SDK"""
   mainLocationId: String
+}
+
+"""
+Test scenarios available for in person card payments
+The payment will succeed or fail based on the selected scenario.
+"""
+enum InPersonCardTestScenario {
+  """Visa"""
+  Visa
+
+  """Visa (debit)"""
+  VisaDebit
+
+  """Mastercard"""
+  Mastercard
+
+  """Mastercard (debit)"""
+  MastercardDebit
+
+  """Mastercard (prepaid)"""
+  MastercardPrepaid
+
+  """American Express"""
+  Amex
+
+  """American Express"""
+  Amex2
+
+  """Discover"""
+  Discover
+
+  """Discover"""
+  Discover2
+
+  """Diners Club"""
+  Diners
+
+  """Diners Club (14 digit card)"""
+  Diners14Digits
+
+  """JCB"""
+  Jcb
+
+  """UnionPay"""
+  UnionPay
+
+  """Interac"""
+  Interac
+
+  """Eftpos Australia"""
+  EftposAuDebit
+
+  """Charge is declined with a `card_declined` code."""
+  ChargeDeclined
+
+  """
+  Charge is declined with a `card_declined` code. The `decline_code` attribute is `insufficient_funds`.
+  """
+  ChargeDeclinedInsufficientFunds
+
+  """
+  Charge is declined with a `card_declined` code. The `decline_code` attribute is `lost_card`.
+  """
+  ChargeDeclinedLostCard
+
+  """
+  Charge is declined with a `card_declined` code. The `decline_code` attribute is `stolen_card`.
+  """
+  ChargeDeclinedStolenCard
+
+  """Charge is declined with an `expired_card` code."""
+  ChargeDeclinedExpiredCard
+
+  """Charge is declined with a `processing_error` code."""
+  ChargeDeclinedProcessingError
+
+  """Eftpos debit card with visa network branding."""
+  EftposAuVisaDebit
+
+  """Eftpos debit card with mastercard branding."""
+  EftposAuDebitMastercard
+
+  """
+  Simulates the cardholder being prompted for and entering an offline PIN. The resulting charge has `cardholder_verification_method` set to `offline_pin`.
+  """
+  OfflinePinCvm
+
+  """
+  Simulates an SCA-triggered retry flow where a cardholder's initial contactless charge fails and the reader then prompts the user to insert their card and enter their offline PIN. The resulting charge has `cardholder_verification_method` set to `offline_pin`.
+  """
+  OfflinePinScaRetry
+
+  """
+  Simulates the cardholder being prompted for and entering an online PIN. The resulting charge has `cardholder_verification_method` set to `online_pin`.
+  """
+  OnlinePinCvm
+
+  """
+  Simulates an SCA-triggered retry flow where a cardholder's initial contactless charge fails and the reader then prompts the user to insert their card and enter their online PIN. The resulting charge has `cardholder_verification_method` set to `online_pin`.
+  """
+  OnlinePinScaRetry
 }
 
 """InternalDirectDebitB2BMerchantPaymentMethod"""
@@ -10809,6 +10956,17 @@ enum SimulateIncomingCardAuthorizationThreeDSStatus {
   Failed
 }
 
+input SimulateIncomingInPersonPaymentIntentOutcomeInput {
+  paymentIntentSecret: String!
+  testCardScenario: InPersonCardTestScenario!
+}
+
+union SimulateIncomingInPersonPaymentIntentOutcomePayload = SimulateIncomingInPersonPaymentIntentOutcomeSuccessPayload | ForbiddenRejection | ValidationRejection | NotFoundRejection | InternalErrorRejection
+
+type SimulateIncomingInPersonPaymentIntentOutcomeSuccessPayload {
+  paymentIntentId: String!
+}
+
 input SimulateMerchantPaymentMethodRequestOutcomeInput {
   merchantPaymentMethodId: ID!
   merchantPaymentMethodStatus: MerchantPaymentMethodStatus!
@@ -10965,144 +11123,6 @@ type WaitingForInformationMerchantPaymentMethodStatusInfo implements MerchantPay
   verificationRequirements: [MerchantVerificationRequirements!]!
 }
 
-"""Enum CategoryPurpose - Purpose of the payment transaction"""
-enum CategoryPurpose {
-  """Account Sweep"""
-  AccountSweep
-
-  """Account Top-Up"""
-  AccountTopUp
-
-  """Bonus Payment"""
-  BonusPayment
-
-  """Card Bulk Settlement"""
-  CardBulkSettlement
-
-  """Card Fee Collection"""
-  CardFeeCollection
-
-  """Cash in Transit Payment"""
-  CashInTransitPayment
-
-  """Cash Management"""
-  CashManagement
-
-  """Cash Order Direct Debit"""
-  CashOrderDirectDebit
-
-  """Commercial Reimbursement"""
-  CommercialReimbursement
-
-  """Credit Card Payment"""
-  CreditCardPayment
-
-  """Credit Card Reimbursement"""
-  CreditCardReimbursement
-
-  """Debit Card Payment"""
-  DebitCardPayment
-
-  """Debit Card Reimbursement"""
-  DebitCardReimbursement
-
-  """Deliver Against Payment"""
-  DeliverAgainstPayment
-
-  """Direct Debit Representment"""
-  DirectDebitRepresentment
-
-  """Dividend Payment"""
-  DividendPayment
-
-  """Dodd Frank Cross Border"""
-  DoddFrankCrossBorder
-
-  """E-Payment"""
-  EPayment
-
-  """Fee Interest Payment"""
-  FeeInterestPayment
-
-  """Foreign Currency Domestic"""
-  ForeignCurrencyDomestic
-
-  """General P2P Payment"""
-  GeneralP2PPayment
-
-  """Government Payment"""
-  GovernmentPayment
-
-  """Hedging Payment"""
-  HedgingPayment
-
-  """Interest Payment"""
-  InterestPayment
-
-  """Intra-Company Payment"""
-  IntraCompanyPayment
-
-  """Loan Transfer"""
-  LoanTransfer
-
-  """Lockbox Cash Handling"""
-  LockboxCashHandling
-
-  """Mobile P2B Payment"""
-  MobileP2BPayment
-
-  """Mobile P2P Payment"""
-  MobileP2PPayment
-
-  """Other"""
-  Other
-
-  """Pension Payment"""
-  PensionPayment
-
-  """Receive Against Payment"""
-  ReceiveAgainstPayment
-
-  """Salary Payment"""
-  SalaryPayment
-
-  """Savings Transfer"""
-  SavingsTransfer
-
-  """Securities Payment"""
-  SecuritiesPayment
-
-  """Social Security Benefit"""
-  SocialSecurityBenefit
-
-  """Supplier Payment"""
-  SupplierPayment
-
-  """Tax Payment"""
-  TaxPayment
-
-  """Trade Finance Payment"""
-  TradeFinancePayment
-
-  """Trade Settlement"""
-  TradeSettlement
-
-  """Treasury Payment"""
-  TreasuryPayment
-
-  """VAT Payment"""
-  VATPayment
-
-  """Vostro Payment"""
-  VostroPayment
-
-  """Withholding Tax Payment"""
-  WithholdingTaxPayment
-
-  """Zero Balance Account"""
-  ZeroBalanceAccount
-}
-
 """List of Check return reasons"""
 enum CheckReturnReasonCodeEnum {
   AccountClosed
@@ -11117,12 +11137,6 @@ enum CheckReturnReasonCodeEnum {
   SignatureInvalid
   SwanTechnicalErrorOccurred
   TransactionDuplicated
-}
-
-enum CreditTransferMode {
-  InstantWithoutFallback
-  InstantWithFallback
-  Regular
 }
 
 enum IncomingCheckRejectionReasonCodeEnum {
@@ -11218,13 +11232,6 @@ enum IncomingSepaDirectDebitReturnReasonCodeEnum {
 """Rejection returned if the transaction was of incorrect type"""
 type IncorrectTransactionTypeRejection implements Rejection {
   message: String!
-}
-
-enum LabelType {
-  Unstructured
-  Structured
-  OgmVcs
-  Iso
 }
 
 """Mandate amendment input"""

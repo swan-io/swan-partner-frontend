@@ -159,7 +159,7 @@ export const ChangeAdminNewAdmin = ({
                 },
               },
             })
-              .mapOk(data => data.updateAccountAdminChange)
+              .mapOk(data => data.publicUpdateAccountAdminChange)
               .mapOkToResult(filterRejectionsToResult)
               .tapError(error =>
                 showToast({ variant: "error", title: translateError(error), error }),

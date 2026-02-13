@@ -8,13 +8,6 @@ type Query {
   ibanValidation(input: IbanValidationInput): IbanValidationResult
 
   """
-  Returns an account admin change from its id.
-  
-  @comingSoon
-  """
-  accountAdminChange(accountAdminChangeId: ID!): AccountAdminChangePayload!
-
-  """
   Returns an account holder onboarding from its id.
   
   *This query is restricted to a Project access token ([Learn More](https://docs.swan.io/developers/using-api/authentication))*
@@ -190,6 +183,13 @@ type Query {
     """an order you can apply to your list of connections"""
     orderBy: OnboardingOrderByInput
   ): OnboardingConnection!
+
+  """
+  Returns an account admin change from its id.
+  
+  @comingSoon
+  """
+  publicAccountAdminChange(accountAdminChangeId: ID!): AccountAdminChange
 
   """
   Returns an account holder onboarding from its id without authentication.
@@ -694,16 +694,6 @@ type Mutation {
   disableAccountMembership(input: DisableAccountMembershipInput): DisableAccountMembershipPayload!
 
   """
-  Finalizes an Account Admin Change
-  
-  @comingSoon
-  """
-  finalizeAccountAdminChange(
-    """Unique identifier of the account admin change to finalize"""
-    accountAdminChangeId: ID!
-  ): FinalizeAccountAdminChangePayload!
-
-  """
   Finalize an account holder onboarding, leading to the opening of a new account for your client, who thus becomes the account holder.
   
   *This mutation is restricted to a User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)).*
@@ -747,6 +737,23 @@ type Mutation {
   openAccount(input: OpenAccountInput!): OpenAccountPayload!
 
   """
+  Finalizes an Account Admin Change
+  
+  @comingSoon
+  """
+  publicFinalizeAccountAdminChange(
+    """Unique identifier of the account admin change to finalize"""
+    accountAdminChangeId: ID!
+  ): PublicFinalizeAccountAdminChangePayload!
+
+  """
+  Updates an Account Admin Change
+  
+  @comingSoon
+  """
+  publicUpdateAccountAdminChange(input: PublicUpdateAccountAdminChangeInput!): PublicUpdateAccountAdminChangePayload!
+
+  """
   Resumes an account membership already suspended.
   
   *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.*
@@ -772,13 +779,6 @@ type Mutation {
   This mutation requires either a [Project or User access token](https://docs.swan.io/developers/using-api/authentication/) with the `canManageAccountMembership` permission.
   """
   suspendAccountMembership(input: SuspendAccountMembershipInput!): SuspendAccountMembershipPayload!
-
-  """
-  Updates an Account Admin Change
-  
-  @comingSoon
-  """
-  updateAccountAdminChange(input: UpdateAccountAdminChangeInput!): UpdateAccountAdminChangePayload!
   updateAccountHolderRiskInfo(input: UpdateAccountHolderRiskInfoInput!): UpdateAccountHolderRiskInfoPayload!
   updateAccountHolder(input: UpdateAccountHolderInput!): UpdateAccountHolderPayload!
 
@@ -1270,15 +1270,6 @@ type Mutation {
   refund(input: RefundInput!): RefundPayload!
 
   """
-  Initiates a credit transfer to an other Swan account or to an IBAN
-  
-  *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and if necessary ask the user to consent to this request.*
-  
-  *The user must have an account membership for this account with the attribute `canInitiatePayments=true`.*
-  """
-  initiateCreditTransfers(input: InitiateCreditTransfersInput!): InitiateCreditTransfersPayload!
-
-  """
   Add a funding source to an account
   
   This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
@@ -1317,6 +1308,15 @@ type Mutation {
   The user must have an account membership to the account and the permission to initiate credit transfer
   """
   cancelStandingOrder(input: CancelStandingOrderInput!): CancelStandingOrderPayload!
+
+  """
+  Initiates a credit transfer to an other Swan account or to an IBAN
+  
+  *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and if necessary ask the user to consent to this request.*
+  
+  *The user must have an account membership for this account with the attribute `canInitiatePayments=true`.*
+  """
+  initiateCreditTransfers(input: InitiateCreditTransfersInput!): InitiateCreditTransfersPayload!
 
   """
   Initiate a funding request.
@@ -1767,27 +1767,6 @@ type AccountAdminChangeAdmin {
   birthDate: Date
 }
 
-"""Input for the new administrator information"""
-input AccountAdminChangeAdminInput {
-  """First name of the new administrator"""
-  firstName: String
-
-  """Last name of the new administrator"""
-  lastName: String
-
-  """Email address of the new administrator"""
-  email: String
-
-  """Phone number of the new administrator"""
-  phoneNumber: String
-
-  """Birth country of the new administrator"""
-  birthCountry: String
-
-  """Birth date of the new administrator"""
-  birthDate: Date
-}
-
 """Rejection returned if the account admin change has expired"""
 type AccountAdminChangeExpiredRejection implements Rejection {
   message: String!
@@ -1811,9 +1790,6 @@ type AccountAdminChangeMissingInformationRejection implements Rejection {
 type AccountAdminChangeNotFoundRejection implements Rejection {
   message: String!
 }
-
-"""Response payload for the accountAdminChange query"""
-union AccountAdminChangePayload = AccountAdminChange | ForbiddenRejection | AccountAdminChangeNotFoundRejection | AccountAdminChangeStatusNotEligibleRejection | AccountAdminChangeExpiredRejection
 
 """Project information for account admin change"""
 type AccountAdminChangeProjectInfo {
@@ -1847,21 +1823,6 @@ enum AccountAdminChangeReason {
 
 """Information about the requester of the administrator change"""
 type AccountAdminChangeRequester {
-  """First name of the requester"""
-  firstName: String
-
-  """Last name of the requester"""
-  lastName: String
-
-  """Email address of the requester"""
-  email: String
-
-  """Phone number of the requester"""
-  phoneNumber: String
-}
-
-"""Input for the requester information"""
-input AccountAdminChangeRequesterInput {
   """First name of the requester"""
   firstName: String
 
@@ -2394,6 +2355,7 @@ interface AccountHolderOnboardingBase {
   Redirect the legal representative of a new account holder to this URL to start the onboarding process
   """
   onboardingUrl: String
+  account: Account
 }
 
 """Connection type for paginated AccountHolderOnboarding results"""
@@ -3508,6 +3470,32 @@ enum BusinessActivity {
   Transportation
 }
 
+"""Business activity category"""
+enum BusinessActivityCategory {
+  AccommodationAndFoodService
+  AdministrativeAndSupportServiceActivities
+  AgricultureForestryAndFishing
+  ArtsSportsAndRecreation
+  Construction
+  Education
+  ElectricityGasSteamAndAirConditioningSupply
+  ExtraterritorialOrganisationsAndBodies
+  FinancialAndInsuranceActivities
+  HouseholdEmployerAndOwnUseActivities
+  HumanHealthAndSocialWork
+  Manufacturing
+  MiningAndQuarrying
+  OtherServiceActivities
+  ProfessionalScientificAndTechnicalActivities
+  PublicAdministrationAndDefenceSocialSecurity
+  PublishingBroadcastingAndContentProductionAndDistribution
+  RealEstateActivities
+  TelecommunicationItAndInformationServices
+  TransportationAndStorage
+  WaterSupplySewerageWasteManagementAndRemediation
+  WholesaleAndRetailTrade
+}
+
 input CancelVirtualIbanEntryInput {
   virtualIbanEntryId: ID!
 }
@@ -3641,6 +3629,7 @@ type CompanyAccountHolderOnboarding implements AccountHolderOnboardingBase {
   Redirect the legal representative of a new account holder to this URL to start the onboarding process
   """
   onboardingUrl: String
+  account: Account
 }
 
 """Company account information for onboarding"""
@@ -3912,6 +3901,9 @@ type CompanyInfo {
   """
   taxIdentificationNumber: String
 
+  """Business activity category"""
+  businessActivity: BusinessActivityCategory
+
   """
   Business activity description
   
@@ -3959,6 +3951,9 @@ input CompanyInfoInput {
 
   """The date at which the user joined"""
   signupDate: Date
+
+  """Business activity category"""
+  businessActivity: BusinessActivityCategory
 
   """
   Business activity description
@@ -4075,6 +4070,9 @@ type CompanyInfoRegistryDataSuccessPayload {
 
 """Input for company information during onboarding update"""
 input CompanyInfoUpdateInput {
+  """Business activity category"""
+  businessActivity: BusinessActivityCategory
+
   """
   Business activity description
   
@@ -4773,15 +4771,6 @@ enum FieldValidationError {
   Invalid
 }
 
-"""Response payload for the finalizeAccountAdminChange mutation"""
-union FinalizeAccountAdminChangePayload = AccountAdminChangeNotFoundRejection | AccountAdminChangeStatusNotEligibleRejection | AccountAdminChangeMissingInformationRejection | AccountAdminChangeMissingDocumentsRejection | ForbiddenRejection | InternalErrorRejection | ValidationRejection | FinalizeAccountAdminChangeSuccessPayload
-
-"""Success response when finalizing an account admin change"""
-type FinalizeAccountAdminChangeSuccessPayload {
-  """`true` if the finalization was successful"""
-  success: Boolean!
-}
-
 input FinalizeAccountHolderOnboardingInput {
   onboardingId: String!
 }
@@ -5157,6 +5146,7 @@ type IndividualAccountHolderOnboarding implements AccountHolderOnboardingBase {
   Redirect the legal representative of a new account holder to this URL to start the onboarding process
   """
   onboardingUrl: String
+  account: Account
 }
 
 """Individual account information for onboarding"""
@@ -6381,6 +6371,9 @@ type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
   """business activity"""
   businessActivity: BusinessActivity
 
+  """business activity category"""
+  businessActivityCategory: BusinessActivityCategory
+
   """
   business activity description
   This must be 1024 characters long maximum.
@@ -6977,6 +6970,42 @@ type ProjectSettingsNotFoundRejection implements Rejection {
   message: String!
 }
 
+"""Input for the new administrator information"""
+input PublicAccountAdminChangeAdminInput {
+  """First name of the new administrator"""
+  firstName: String
+
+  """Last name of the new administrator"""
+  lastName: String
+
+  """Email address of the new administrator"""
+  email: String
+
+  """Phone number of the new administrator"""
+  phoneNumber: String
+
+  """Birth country of the new administrator"""
+  birthCountry: String
+
+  """Birth date of the new administrator"""
+  birthDate: String
+}
+
+"""Input for the requester information"""
+input PublicAccountAdminChangeRequesterInput {
+  """First name of the requester"""
+  firstName: String
+
+  """Last name of the requester"""
+  lastName: String
+
+  """Email address of the requester"""
+  email: String
+
+  """Phone number of the requester"""
+  phoneNumber: String
+}
+
 """Result payload for public account holder onboarding query"""
 union PublicAccountHolderOnboardingPayload = PublicAccountHolderOnboardingSuccessPayload | OnboardingNotFoundRejection | OnboardingAlreadyFinalizedRejection | InternalErrorRejection | ForbiddenRejection | PublicOnboardingDisabledRejection
 
@@ -7003,6 +7032,15 @@ The companyInfo shape is compatible with company field of the createPublicCompan
 """
 type PublicCompanyInfoRegistryDataSuccessPayload {
   companyInfo: CompanyInfo!
+}
+
+"""Response payload for the publicFinalizeAccountAdminChange mutation"""
+union PublicFinalizeAccountAdminChangePayload = PublicFinalizeAccountAdminChangeSuccessPayload | AccountAdminChangeNotFoundRejection | AccountAdminChangeStatusNotEligibleRejection | AccountAdminChangeMissingInformationRejection | AccountAdminChangeMissingDocumentsRejection | ForbiddenRejection | InternalErrorRejection | ValidationRejection
+
+"""Success response when finalizing an account admin change"""
+type PublicFinalizeAccountAdminChangeSuccessPayload {
+  """`true` if the finalization was successful"""
+  success: Boolean!
 }
 
 """Input for public individual account holder onboarding"""
@@ -7084,6 +7122,36 @@ input PublicIndividualAccountHolderOnboardingAccountInput {
 """Rejection returned when the public onboarding is disabled"""
 type PublicOnboardingDisabledRejection implements Rejection {
   message: String!
+}
+
+"""Inputs to update an Account Admin Change"""
+input PublicUpdateAccountAdminChangeInput {
+  """Id of the Account Admin Change to update"""
+  id: ID!
+
+  """Reason for the account administrator change"""
+  reason: AccountAdminChangeReason
+
+  """`true` if the new administrator is a legal representative"""
+  isNewAdminLegalRepresentative: Boolean
+
+  """Information about the new administrator"""
+  admin: PublicAccountAdminChangeAdminInput
+
+  """`true` if the requester is the new administrator"""
+  isRequesterNewAdmin: Boolean
+
+  """Information about the requester of the administrator change"""
+  requester: PublicAccountAdminChangeRequesterInput
+}
+
+"""Response payload for the publicUpdateAccountAdminChange mutation"""
+union PublicUpdateAccountAdminChangePayload = PublicUpdateAccountAdminChangeSuccessPayload | AccountAdminChangeNotFoundRejection | AccountAdminChangeStatusNotEligibleRejection | ValidationRejection | ForbiddenRejection | InternalErrorRejection
+
+"""Success response when updating an account admin change"""
+type PublicUpdateAccountAdminChangeSuccessPayload {
+  """The updated account admin change"""
+  accountAdminChange: AccountAdminChange!
 }
 
 """Information that can be used to determine where the iban can be used"""
@@ -7942,7 +8010,7 @@ enum SupportingDocumentReasonCode {
   """The company name in document doesn’t match our records."""
   CompanyNameMismatch
 
-  """The document must be dated less than 3 months ago."""
+  """The document is too old, please provide the latest version available."""
   ExpiredDocument
 
   """The address in document doesn’t match our records."""
@@ -8765,36 +8833,6 @@ input UnitedStatesTaxInfoInput {
   - Maximum 20 characters
   """
   unitedStatesTaxIdentificationNumber: String
-}
-
-"""Inputs to update an Account Admin Change"""
-input UpdateAccountAdminChangeInput {
-  """Id of the Account Admin Change to update"""
-  id: ID!
-
-  """Reason for the account administrator change"""
-  reason: AccountAdminChangeReason
-
-  """`true` if the new administrator is a legal representative"""
-  isNewAdminLegalRepresentative: Boolean
-
-  """Information about the new administrator"""
-  admin: AccountAdminChangeAdminInput
-
-  """`true` if the requester is the new administrator"""
-  isRequesterNewAdmin: Boolean
-
-  """Information about the requester of the administrator change"""
-  requester: AccountAdminChangeRequesterInput
-}
-
-"""Response payload for the updateAccountAdminChange mutation"""
-union UpdateAccountAdminChangePayload = AccountAdminChangeNotFoundRejection | AccountAdminChangeStatusNotEligibleRejection | ValidationRejection | ForbiddenRejection | UpdateAccountAdminChangeSuccessPayload | InternalErrorRejection
-
-"""Success response when updating an account admin change"""
-type UpdateAccountAdminChangeSuccessPayload {
-  """The updated account admin change"""
-  accountAdminChange: AccountAdminChange!
 }
 
 input UpdateAccountHolderInput {
@@ -16180,7 +16218,7 @@ input AddCardInput {
   spendingLimit: SpendingLimitInput
 }
 
-union AddCardPayload = AddCardSuccessPayload | AccountMembershipNotAllowedRejection | BadAccountStatusRejection | CardProductDisabledRejection | CardProductInvalidFundingTypeRejection | CardProductSuspendedRejection | EnabledCardDesignNotFoundRejection | ForbiddenRejection | MissingMandatoryFieldRejection | ValidationRejection
+union AddCardPayload = AddCardSuccessPayload | AccountMembershipNotAllowedRejection | BadAccountStatusRejection | CardPackageNotAllowedRejection | CardProductDisabledRejection | CardProductInvalidFundingTypeRejection | CardProductSuspendedRejection | EnabledCardDesignNotFoundRejection | ForbiddenRejection | MissingMandatoryFieldRejection | ValidationRejection
 
 """Input to add a new cards"""
 input AddCardsInput {
@@ -16194,7 +16232,7 @@ input AddCardsInput {
   cardProductId: ID
 }
 
-union AddCardsPayload = AddCardsSuccessPayload | AddingCardsToDifferentAccountsRejection | BadAccountStatusRejection | TooManyItemsRejection | AccountMembershipNotAllowedRejection | CardProductInvalidFundingTypeRejection | CardProductSuspendedRejection | CardProductNotApplicableToPhysicalCardsRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection | InvalidShippingProviderRejection
+union AddCardsPayload = AddCardsSuccessPayload | AddingCardsToDifferentAccountsRejection | BadAccountStatusRejection | TooManyItemsRejection | AccountMembershipNotAllowedRejection | CardPackageNotAllowedRejection | CardProductInvalidFundingTypeRejection | CardProductSuspendedRejection | CardProductNotApplicableToPhysicalCardsRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection | InvalidShippingProviderRejection
 
 type AddCardsSuccessPayload {
   """The newly created cards"""
@@ -16221,7 +16259,7 @@ input AddCardsWithGroupDeliveryInput {
   cardProductId: ID
 }
 
-union AddCardsWithGroupDeliveryPayload = AddCardsWithGroupDeliverySuccessPayload | AddingCardsToDifferentAccountsRejection | BadAccountStatusRejection | TooManyItemsRejection | AccountMembershipNotAllowedRejection | CardProductInvalidFundingTypeRejection | CardProductSuspendedRejection | CardProductNotApplicableToPhysicalCardsRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection
+union AddCardsWithGroupDeliveryPayload = AddCardsWithGroupDeliverySuccessPayload | AddingCardsToDifferentAccountsRejection | BadAccountStatusRejection | TooManyItemsRejection | AccountMembershipNotAllowedRejection | CardPackageNotAllowedRejection | CardProductInvalidFundingTypeRejection | CardProductSuspendedRejection | CardProductNotApplicableToPhysicalCardsRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection
 
 type AddCardsWithGroupDeliverySuccessPayload {
   """The newly created cards"""
@@ -16285,7 +16323,7 @@ input AddSingleUseVirtualCardInput {
   cardContractExpiryDate: DateTime
 }
 
-union AddSingleUseVirtualCardPayload = AddSingleUseVirtualCardSuccessForUserPayload | AddSingleUseVirtualCardSuccessForProjectOwnerPayload | BadAccountStatusRejection | AccountMembershipNotAllowedRejection | CardProductInvalidFundingTypeRejection | CardProductSuspendedRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection
+union AddSingleUseVirtualCardPayload = AddSingleUseVirtualCardSuccessForUserPayload | AddSingleUseVirtualCardSuccessForProjectOwnerPayload | BadAccountStatusRejection | AccountMembershipNotAllowedRejection | CardPackageNotAllowedRejection | CardProductInvalidFundingTypeRejection | CardProductSuspendedRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection
 
 """Input to add a new single-use virtual cards"""
 input AddSingleUseVirtualCardsInput {
@@ -16299,7 +16337,7 @@ input AddSingleUseVirtualCardsInput {
   cardProductId: ID
 }
 
-union AddSingleUseVirtualCardsPayload = AddSingleUseVirtualCardsSuccessPayload | AddingCardsToDifferentAccountsRejection | TooManyItemsRejection | BadAccountStatusRejection | AccountMembershipNotAllowedRejection | CardProductInvalidFundingTypeRejection | CardProductSuspendedRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection
+union AddSingleUseVirtualCardsPayload = AddSingleUseVirtualCardsSuccessPayload | AddingCardsToDifferentAccountsRejection | TooManyItemsRejection | BadAccountStatusRejection | AccountMembershipNotAllowedRejection | CardPackageNotAllowedRejection | CardProductInvalidFundingTypeRejection | CardProductSuspendedRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection
 
 type AddSingleUseVirtualCardsSuccessPayload {
   """The newly created single use virtual cards"""
@@ -16734,6 +16772,12 @@ enum CardPackageLevel {
   Standard
   Essential
   Premium
+}
+
+"""Rejection returned if card package is not allowed"""
+type CardPackageNotAllowedRejection implements Rejection {
+  message: String!
+  cardType: String
 }
 
 """Location where the card should be printed from"""
@@ -21574,6 +21618,15 @@ type FnciInfo {
   responseCode: Int!
 }
 
+"""
+In the chance that a request is made while still concurrently processing the
+first request under the same idempotencyKey, or if the same idempotencyKey is used with different parameters.
+the APIs will return this rejection.
+"""
+type IdempotencyConflictRejection implements Rejection {
+  message: String!
+}
+
 enum IncomingThreeDsStatus {
   NotRequested
   Requested
@@ -21652,9 +21705,16 @@ input InitiateMerchantPaymentCollectionInput {
 
   """Internal direct debit type of payment collection"""
   internalDirectDebit: InternalDirectDebitPaymentCollectionInput
+
+  """
+  A unique key used to ensure this operation executes only once, regardless of how many times it’s submitted.
+  If you provide the same idempotencyKey within a 24-hour period, the API will return the result of the original request rather than executing the operation again.
+  Use UUID v4 format recommended.
+  """
+  idempotencyKey: String
 }
 
-union InitiateMerchantPaymentCollectionPayload = InitiateMerchantPaymentCollectionSuccessPayload | BadRequestRejection | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection
+union InitiateMerchantPaymentCollectionPayload = InitiateMerchantPaymentCollectionSuccessPayload | BadRequestRejection | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection | IdempotencyConflictRejection
 
 type InitiateMerchantPaymentCollectionSuccessPayload {
   merchantPaymentCollection: Payment!
@@ -21683,9 +21743,16 @@ input InitiateSepaDirectDebitMerchantPaymentInput {
 
   """Date at which the Swan merchant wishes the payment to be executed"""
   requestedExecutionAt: DateTime
+
+  """
+  A unique key used to ensure this operation executes only once, regardless of how many times it’s submitted.
+  If you provide the same idempotencyKey within a 24-hour period, the API will return the result of the original request rather than executing the operation again.
+  Use UUID v4 format recommended.
+  """
+  idempotencyKey: String
 }
 
-union InitiateSepaDirectDebitMerchantPaymentPayload = InitiateSepaDirectDebitMerchantPaymentSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection
+union InitiateSepaDirectDebitMerchantPaymentPayload = InitiateSepaDirectDebitMerchantPaymentSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection | IdempotencyConflictRejection
 
 type InitiateSepaDirectDebitMerchantPaymentSuccessPayload {
   paymentId: ID! @deprecated(reason: "use merchantPayment instead")
@@ -23230,102 +23297,6 @@ enum CardTransactionCategory {
   Other
 }
 
-"""Credit transfer"""
-input CreditTransferInput {
-  """
-  * COMING SOON *
-  if the transfer will credit a new SEPA beneficiary and beneficiary verification was prepared with the 'verifyBeneficiary' mutation
-  Mandatory for batch transfer initiations unless the user opts-out from VoP.
-  """
-  beneficiaryVerificationToken: String
-
-  """if the transfer will credit a new swan account beneficiary"""
-  swanAccountBeneficiary: SwanAccountBeneficiaryInput
-
-  """if the transfer will credit a new SEPA beneficiary"""
-  sepaBeneficiary: SepaBeneficiaryInput
-
-  """amount of the transfer"""
-  amount: AmountInput!
-
-  """
-  reference assigned by the initiating party, to unambiguously identify the transaction. This reference is passed on, unchanged, throughout the entire end-to-end chain (regex [a-zA-Z0-9-?.+,/':() ]{1,35} and cannot begin nor end with /. Also, // is not allowed)
-  """
-  reference: String
-
-  """label (max 140 characters)"""
-  label: String
-
-  """
-  ** COMING SOON**
-  labelType (default: unstructured)
-  """
-  labelType: LabelType
-
-  """
-  ** COMING SOON**
-  categoryPurpose - Purpose of the payment transaction
-  """
-  categoryPurpose: CategoryPurpose
-
-  """
-  requested date at which the credit transfer will try to be executed, if `null` the credit transfer is executed right away
-  """
-  requestedExecutionAt: DateTime
-
-  """
-  an arbitrary identifier that you can define to easily identify this transaction later
-  """
-  externalReference: String
-
-  """
-  if the transfer will execute as instant and fallbacked to a regular one if an error happend during the instant transfer
-  """
-  mode: CreditTransferMode
-
-  """if the transfer will credit an existing beneficiary"""
-  trustedBeneficiaryId: ID
-}
-
-enum CreditTransferMode {
-  InstantWithoutFallback
-  InstantWithFallback
-  Regular
-}
-
-"""Initiate credit transfers"""
-input InitiateCreditTransfersInput {
-  """account to be debited identified by number"""
-  accountNumber: AccountNumber
-
-  """account id to be debited identified by id"""
-  accountId: ID
-
-  """credit transfers (max 2500 records)"""
-  creditTransfers: [CreditTransferInput!]!
-
-  """URL the user is redirected to after consent has been given"""
-  consentRedirectUrl: String!
-
-  """
-  A unique key used to ensure this operation executes only once, regardless of how many times it’s submitted.
-  If you provide the same idempotencyKey within a 24-hour period, the API will return the result of the original request
-  rather than executing the operation again. Use UUID v4 format recommended.
-  """
-  idempotencyKey: String
-}
-
-union InitiateCreditTransfersPayload = InitiateCreditTransfersSuccessPayload | AccountNotFoundRejection | ForbiddenRejection | InternalErrorRejection | BeneficiaryVerificationTokenAlreadyConsumedRejection | ValidationRejection | IdempotencyConflictRejection
-
-type InitiateCreditTransfersSuccessPayload {
-  payment: Payment!
-
-  """
-  Results of the beneficiary verifications in the same order as the beneficiary inputs
-  """
-  beneficiaryVerificationResults: [VerifyBeneficiaryResult]
-}
-
 """Input to select the beneficiary and the originator to perform a refund"""
 input RefundInput {
   """transactions to refund"""
@@ -23393,42 +23364,9 @@ input RefundTransaction {
   executionDate: DateTime
 }
 
-"""Sepa beneficiary account"""
-input SepaBeneficiaryInput {
-  """International Bank Account Number"""
-  iban: IBAN!
-
-  """
-  Full name of the beneficiary (min 2 characters, max 70 characters). The name should not include any special characters.
-  """
-  name: String!
-
-  """beneficiary address"""
-  address: AddressInput
-
-  """
-  `true` if this new beneficiary will be saved to the beneficiary list of the debited account.
-  """
-  save: Boolean
-}
-
 enum SimulationCardType {
   Physical
   Virtual
-}
-
-"""Swan account beneficiary"""
-input SwanAccountBeneficiaryInput {
-  """account number to be credited"""
-  accountNumber: AccountNumber!
-
-  """full name of the beneficiary  (max 70 characters)"""
-  name: String!
-
-  """
-  `true` if this new beneficiary will be saved to the beneficiary list of the debited account.
-  """
-  save: Boolean!
 }
 
 scalar TokenRequestorId
@@ -23771,6 +23709,65 @@ type CancelStandingOrderSuccessPayload {
   standingOrder: StandingOrder!
 }
 
+"""Credit transfer"""
+input CreditTransferInput {
+  """amount of the transfer"""
+  amount: AmountInput!
+
+  """
+  an arbitrary identifier that you can define to easily identify this transaction later
+  """
+  externalReference: String
+
+  """label (max 140 characters)"""
+  label: String
+
+  """labelType (default: unstructured)"""
+  labelType: LabelType
+
+  """
+  ** COMING SOON**
+  categoryPurpose - Purpose of the payment transaction
+  """
+  categoryPurpose: CategoryPurpose
+
+  """
+  if the transfer will execute as instant and fallbacked to a regular one if an error happend during the instant transfer
+  """
+  mode: CreditTransferMode
+
+  """
+  reference assigned by the initiating party, to unambiguously identify the transaction. This reference is passed on, unchanged, throughout the entire end-to-end chain (regex [a-zA-Z0-9-?.+,/':() ]{1,35} and cannot begin nor end with /. Also, // is not allowed)
+  """
+  reference: String
+
+  """
+  requested date at which the credit transfer will try to be executed, if `null` the credit transfer is executed right away
+  """
+  requestedExecutionAt: DateTime
+
+  """if the transfer will credit a new SEPA beneficiary"""
+  sepaBeneficiary: SepaBeneficiaryInput
+
+  """
+  If the transfer will credit a SEPA beneficiary, Swan account, or a trusted beneficiary and where beneficiary verification was prepared using the 'verifyBeneficiary' mutation.
+  Mandatory for bulk SEPA credit transfers, unless the account opts out of Verification of Payee.
+  """
+  beneficiaryVerificationToken: String
+
+  """if the transfer will credit a new swan account beneficiary"""
+  swanAccountBeneficiary: SwanAccountBeneficiaryInput
+
+  """if the transfer will credit an existing beneficiary"""
+  trustedBeneficiaryId: ID
+}
+
+enum CreditTransferMode {
+  Regular
+  InstantWithoutFallback
+  InstantWithFallback
+}
+
 type DateField implements Field {
   example: String
   key: String!
@@ -23926,13 +23923,36 @@ type GlobalInstantFundingLimitExceededRejection implements Rejection {
   message: String!
 }
 
-"""
-In the chance that a request is made while still concurrently processing the
-first request under the same idempotencyKey,
-the APIs will return this rejection.
-"""
-type IdempotencyConflictRejection implements Rejection {
-  message: String!
+"""Initiate credit transfers"""
+input InitiateCreditTransfersInput {
+  """account id to be debited identified by id"""
+  accountId: ID
+
+  """account to be debited identified by number"""
+  accountNumber: AccountNumber
+
+  """URL the user is redirected to after consent has been given"""
+  consentRedirectUrl: String!
+
+  """credit transfers (max 2500 records)"""
+  creditTransfers: [CreditTransferInput!]!
+
+  """
+  A unique key used to ensure this operation executes only once, regardless of how many times it’s submitted.
+  If you provide the same idempotencyKey within a 24-hour period, the API will return the result of the original request
+  rather than executing the operation again. Use UUID v4 format recommended.
+  """
+  idempotencyKey: String
+}
+
+union InitiateCreditTransfersPayload = InitiateCreditTransfersSuccessPayload | AccountNotFoundRejection | BeneficiaryVerificationTokenAlreadyConsumedRejection | ForbiddenRejection | InternalErrorRejection | ValidationRejection | IdempotencyConflictRejection
+
+type InitiateCreditTransfersSuccessPayload {
+  """
+  Results of the beneficiary verifications in the same order as the beneficiary inputs
+  """
+  beneficiaryVerificationResults: [VerifyBeneficiaryResult]
+  payment: Payment!
 }
 
 """Input to initiate a funding request"""
@@ -24402,7 +24422,7 @@ input ScheduleStandingOrderInput {
   consentRedirectUrl: String!
 
   """
-  reference assigned by the initiating party, to unambiguously identify the transaction. This reference is passed on, unchanged, throughout the entire end-to-end chain. (regex [A-Za-z0-9(\\-)(\\_)(\\?)(\\.)(\\+),' ]{1,35})
+  reference assigned by the initiating party, to unambiguously identify the transaction. This reference is passed on, unchanged, throughout the entire end-to-end chain. Must match the regex ^[A-Za-z0-9-?.+\/:,'() ]{1,35}$ and cannot begin nor end with /. Also, // is not allowed
   """
   reference: String
 
@@ -24435,6 +24455,22 @@ type SelectField implements Field {
   refreshDynamicFieldsOnChange: Boolean!
   required: Boolean!
   allowedValues: [AllowedValue!]!
+}
+
+input SepaBeneficiaryInput {
+  """International Bank Account Number"""
+  iban: IBAN!
+
+  """full name of the beneficiary (max 70 characters)"""
+  name: String!
+
+  """beneficiary address"""
+  address: AddressInput
+
+  """
+  `true` if this new beneficiary will be saved to the beneficiary list of the debited account.
+  """
+  save: Boolean
 }
 
 """
@@ -24503,6 +24539,20 @@ type SuspendedFundingSourceStatusInfo implements FundingSourceStatusInfo {
 
   """Date at which the funding source was suspended"""
   suspendedAt: Date!
+}
+
+"""Swan account beneficiary"""
+input SwanAccountBeneficiaryInput {
+  """account number to be credited"""
+  accountNumber: AccountNumber!
+
+  """full name of the beneficiary  (max 70 characters)"""
+  name: String!
+
+  """
+  `true` if this new beneficiary will be saved to the beneficiary list of the debited account.
+  """
+  save: Boolean!
 }
 
 type TextField implements Field {

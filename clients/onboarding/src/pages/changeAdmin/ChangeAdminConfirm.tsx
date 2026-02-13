@@ -96,7 +96,7 @@ export const ChangeAdminConfirm = ({
     finalizeChangeAdmin({
       accountAdminChangeId: changeAdminRequestId,
     })
-      .mapOk(data => data.finalizeAccountAdminChange)
+      .mapOk(data => data.publicFinalizeAccountAdminChange)
       .mapOkToResult(filterRejectionsToResult)
       .tapError(error => showToast({ variant: "error", title: translateError(error), error }))
       .tapOk(() => {

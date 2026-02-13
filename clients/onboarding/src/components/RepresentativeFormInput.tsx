@@ -40,11 +40,12 @@ type RepresentativeItem = Item<string> & {
 
 type props = {
   representatives: OnboardingRepresentative[];
-  value: string;
+  value?: string;
+  error?: string;
   onChange: (value: string) => void;
 };
 
-export const RepresentativeFormsInput = ({ representatives, value, onChange }: props) => {
+export const RepresentativeFormsInput = ({ representatives, value, onChange, error }: props) => {
   const items: RepresentativeItem[] = useMemo(() => {
     return representatives
       .map(representative => {
@@ -91,6 +92,7 @@ export const RepresentativeFormsInput = ({ representatives, value, onChange }: p
           value={value}
           onValueChange={onChange}
           items={items}
+          error={error}
           renderItem={item => (
             <Box direction="column">
               <LakeText color={colors.gray[900]}>{item.fullName}</LakeText>

@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
 type Props = {
   ref?: Ref<TextInput>;
   id?: string;
-  value: string;
+  value?: string;
   disabled?: boolean;
   error?: string;
   placeholder?: string;
@@ -56,7 +56,7 @@ export const LegalFormsInput = ({
   const filteredData = useMemo(() => {
     return queryData.mapOk(data => {
       const legalForms = data.legalForms;
-      const searchValue = value.toLowerCase().trim();
+      const searchValue = (value ?? "").toLowerCase().trim();
 
       if (searchValue.length === 0) {
         return legalForms;
@@ -79,7 +79,7 @@ export const LegalFormsInput = ({
       id={id}
       inputRef={ref as RefObject<unknown>}
       placeholder={placeholder ?? t("companyInput.placeholder")}
-      value={value}
+      value={value ?? ""}
       items={filteredData}
       keyExtractor={item => item.code}
       icon="search-filled"

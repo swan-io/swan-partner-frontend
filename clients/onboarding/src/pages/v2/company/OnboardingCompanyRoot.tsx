@@ -7,6 +7,7 @@ import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import {
+  CompanyInfo,
   CompanyOnboardingFragment,
   GetPublicCompamyInfoRegistryDataDocument,
   LegalForm,
@@ -23,6 +24,7 @@ import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { omit } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
 import {
   CountryCCA3,
@@ -30,14 +32,17 @@ import {
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
-import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
+import {
+  validateNullableRequired,
+  validateRequired,
+} from "@swan-io/shared-business/src/utils/validation";
 import { useCallback, useEffect, useState } from "react";
 import { View } from "react-native";
 import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { LakeCompanyInput } from "../../../components/LakeCompanyInput";
 import { LegalFormsInput } from "../../../components/LegalFormsInput";
 import { RepresentativeFormsInput } from "../../../components/RepresentativeFormInput";
-import { transformRepresentativesToInput } from "../../../utils/onboarding";
+import { cleanData, transformRepresentativesToInput } from "../../../utils/onboarding";
 import { CompanySuggestion } from "../../../utils/Pappers";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
@@ -102,6 +107,8 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
   const [_publicCompany, { query }] = useDeferredQuery(GetPublicCompamyInfoRegistryDataDocument);
 
   const [siren, setSiren] = useState<string | null>(null);
+  const [publicData, setPublicData] = useState<CompanyInfo>();
+
   const [representatives, setRepresentatives] = useState<OnboardingRepresentative[]>();
 
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm({
@@ -119,32 +126,45 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
       validate: validateRequired,
     },
     legalFormCode: {
-      initialValue: company?.legalFormCode ?? "",
+      initialValue: company?.legalFormCode ?? undefined,
+      validate: (value, { getFieldValue }) => {
+        if (getFieldValue("country") !== "FRA") {
+          return validateNullableRequired(value);
+        }
+      },
     },
     typeOfRepresentation: {
       initialValue: accountAdmin?.typeOfRepresentation,
     },
     currentRepresentative: {
-      initialValue: "",
+      initialValue: accountAdmin?.lastName ?? undefined,
+      validate: (value, { getFieldValue }) => {
+        if (getFieldValue("country") === "FRA" && representatives && value == null) {
+          return t("error.requiredField");
+        }
+      },
     },
   });
 
   const onPressNext = () => {
     submitForm({
       onSuccess: values => {
-        const option = Option.allFromDict(values);
+        const option = Option.allFromDict(omit(values, ["currentRepresentative"]));
         const representativesInput = transformRepresentativesToInput(representatives);
 
         if (option.isNone()) {
           return;
         }
         const currentValues = option.get();
-        const { country, typeOfRepresentation, currentRepresentative, ...input } = currentValues;
+        const { country, typeOfRepresentation, ...input } = currentValues;
 
         // @TODO: improve matching logic
-        const selectedRepresentative = representativesInput?.find(
-          item => item.lastName === currentRepresentative,
-        );
+        const selectedRepresentative = values.currentRepresentative
+          .flatMap(value => Option.fromNullable(value))
+          .map(value => representativesInput?.find(item => item.lastName === value))
+          .toUndefined();
+
+        const companyInfo = cleanData(publicData);
 
         updateCompanyOnboarding({
           input: {
@@ -154,6 +174,7 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
               representatives: representativesInput,
               address: {
                 country,
+                ...companyInfo?.address,
               },
             },
             accountAdmin: {
@@ -201,10 +222,11 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
           .with(
             { __typename: "PublicCompanyInfoRegistryDataSuccessPayload" },
             ({ companyInfo }) => {
-              if (companyInfo?.representatives) {
-                setRepresentatives(
-                  companyInfo.representatives.filter(Boolean) as OnboardingRepresentative[],
-                );
+              const { representatives, ...info } = companyInfo;
+              setPublicData(info);
+
+              if (representatives) {
+                setRepresentatives(representatives.filter(Boolean) as OnboardingRepresentative[]);
               } else {
                 setRepresentatives(undefined);
               }
@@ -252,8 +274,8 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
                   )}
                 </Field>
 
-                <FieldsListener names={["country", "name", "legalFormCode"]}>
-                  {({ country }) => (
+                <FieldsListener names={["country", "name", "currentRepresentative"]}>
+                  {({ country, currentRepresentative }) => (
                     <>
                       <Field name="name">
                         {({ value, valid, error, onChange, ref }) => (
@@ -285,69 +307,71 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
                         )}
                       </Field>
 
-                      {/* {country.value !== "FRA" && ( */}
                       <Field name="legalFormCode">
-                        {({ value, onChange, ref }) => (
-                          <LakeLabel
-                            label={t("company.step.organisation.legalFormLabel")}
-                            render={id => (
-                              <LegalFormsInput
-                                id={id}
-                                ref={ref}
-                                value={value}
-                                country={country.value}
-                                placeholder={t("company.step.organisation.legalFormPlaceholder")}
-                                onSuggestion={onSelectLegalFormCode}
-                                onValueChange={onChange}
-                                onLoadError={noop}
-                              />
-                            )}
-                          />
-                        )}
+                        {({ value, onChange, ref, error }) =>
+                          country.value !== "FRA" ? (
+                            <LakeLabel
+                              label={t("company.step.organisation.legalFormLabel")}
+                              render={id => (
+                                <LegalFormsInput
+                                  id={id}
+                                  ref={ref}
+                                  value={value}
+                                  country={country.value}
+                                  placeholder={t("company.step.organisation.legalFormPlaceholder")}
+                                  onSuggestion={onSelectLegalFormCode}
+                                  error={error}
+                                  onValueChange={onChange}
+                                  onLoadError={noop}
+                                />
+                              )}
+                            />
+                          ) : null
+                        }
                       </Field>
-                      {/* )} */}
 
-                      {/* {country.value === "FRA" && ( */}
-                      <LakeLabel
-                        label={t("company.step.organisation.relationLabel")}
-                        render={() => (
-                          <Field name="typeOfRepresentation">
-                            {({ value, onChange }) => (
-                              <RadioGroup
-                                direction="row"
-                                items={[
-                                  {
-                                    name: t("company.step.organisation.relation.legal"),
-                                    value: "LegalRepresentative",
-                                  },
-                                  {
-                                    name: t("company.step.organisation.relation.attorney"),
-                                    value: "PowerOfAttorney",
-                                  },
-                                ]}
-                                value={value}
-                                onValueChange={onChange}
-                              />
-                            )}
-                          </Field>
-                        )}
-                      />
-                      {/* )} */}
+                      {representatives && (
+                        <Field name="currentRepresentative">
+                          {({ value, onChange, error }) => (
+                            <RepresentativeFormsInput
+                              representatives={representatives}
+                              value={value}
+                              onChange={onChange}
+                              error={error}
+                            />
+                          )}
+                        </Field>
+                      )}
+
+                      <Field name="typeOfRepresentation">
+                        {({ value, onChange }) =>
+                          country.value !== "FRA" || currentRepresentative.value === "" ? (
+                            <LakeLabel
+                              label={t("company.step.organisation.relationLabel")}
+                              render={() => (
+                                <RadioGroup
+                                  direction="row"
+                                  items={[
+                                    {
+                                      name: t("company.step.organisation.relation.legal"),
+                                      value: "LegalRepresentative",
+                                    },
+                                    {
+                                      name: t("company.step.organisation.relation.attorney"),
+                                      value: "PowerOfAttorney",
+                                    },
+                                  ]}
+                                  value={value}
+                                  onValueChange={onChange}
+                                />
+                              )}
+                            />
+                          ) : null
+                        }
+                      </Field>
                     </>
                   )}
                 </FieldsListener>
-
-                {representatives && (
-                  <Field name="currentRepresentative">
-                    {({ value, onChange }) => (
-                      <RepresentativeFormsInput
-                        representatives={representatives}
-                        value={value}
-                        onChange={onChange}
-                      />
-                    )}
-                  </Field>
-                )}
               </View>
             </Tile>
           </>

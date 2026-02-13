@@ -10,6 +10,7 @@ import {
   CompanyOnboardingFragment,
   GetPublicCompamyInfoRegistryDataDocument,
   LegalForm,
+  OnboardingRepresentative,
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { t } from "../../../utils/i18n";
@@ -35,6 +36,8 @@ import { View } from "react-native";
 import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { LakeCompanyInput } from "../../../components/LakeCompanyInput";
 import { LegalFormsInput } from "../../../components/LegalFormsInput";
+import { RepresentativeFormsInput } from "../../../components/RepresentativeFormInput";
+import { transformRepresentativesToInput } from "../../../utils/onboarding";
 import { CompanySuggestion } from "../../../utils/Pappers";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
@@ -99,6 +102,7 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
   const [_publicCompany, { query }] = useDeferredQuery(GetPublicCompamyInfoRegistryDataDocument);
 
   const [siren, setSiren] = useState<string | null>(null);
+  const [representatives, setRepresentatives] = useState<OnboardingRepresentative[]>();
 
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm({
     name: {
@@ -120,29 +124,45 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
     typeOfRepresentation: {
       initialValue: accountAdmin?.typeOfRepresentation,
     },
+    currentRepresentative: {
+      initialValue: "",
+    },
   });
 
   const onPressNext = () => {
     submitForm({
       onSuccess: values => {
         const option = Option.allFromDict(values);
+        const representativesInput = transformRepresentativesToInput(representatives);
 
         if (option.isNone()) {
           return;
         }
         const currentValues = option.get();
-        const { country, typeOfRepresentation, ...input } = currentValues;
+        const { country, typeOfRepresentation, currentRepresentative, ...input } = currentValues;
+
+        // @TODO: improve matching logic
+        const selectedRepresentative = representativesInput?.find(
+          item => item.lastName === currentRepresentative,
+        );
 
         updateCompanyOnboarding({
           input: {
             onboardingId,
             company: {
               ...input,
+              representatives: representativesInput,
               address: {
                 country,
               },
             },
             accountAdmin: {
+              firstName: selectedRepresentative?.firstName,
+              lastName: selectedRepresentative?.lastName,
+              address: selectedRepresentative?.address,
+              birthInfo: selectedRepresentative?.birthInfo,
+              nationality: selectedRepresentative?.nationality,
+              email: selectedRepresentative?.email,
               typeOfRepresentation,
             },
           },
@@ -181,7 +201,13 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
           .with(
             { __typename: "PublicCompanyInfoRegistryDataSuccessPayload" },
             ({ companyInfo }) => {
-              console.log("companyInfo", companyInfo);
+              if (companyInfo?.representatives) {
+                setRepresentatives(
+                  companyInfo.representatives.filter(Boolean) as OnboardingRepresentative[],
+                );
+              } else {
+                setRepresentatives(undefined);
+              }
             },
           )
           .otherwise(noop);
@@ -243,7 +269,6 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
                                   onValueChange={onChange}
                                   onSuggestion={onSelectCompany}
                                   onLoadError={noop}
-                                  // disabled={autofillResult.isLoading()}
                                 />
                               ) : (
                                 <LakeTextInput
@@ -253,7 +278,6 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
                                   valid={valid}
                                   error={error}
                                   onChangeText={onChange}
-                                  // disabled={autofillResult.isLoading()}
                                 />
                               )
                             }
@@ -261,57 +285,69 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
                         )}
                       </Field>
 
-                      {country.value !== "FRA" && (
-                        <Field name="legalFormCode">
-                          {({ value, onChange, ref }) => (
-                            <LakeLabel
-                              label={t("company.step.organisation.legalFormLabel")}
-                              render={id => (
-                                <LegalFormsInput
-                                  id={id}
-                                  ref={ref}
-                                  value={value}
-                                  country={country.value}
-                                  placeholder={t("company.step.organisation.legalFormPlaceholder")}
-                                  onSuggestion={onSelectLegalFormCode}
-                                  onValueChange={onChange}
-                                  onLoadError={noop}
-                                />
-                              )}
-                            />
-                          )}
-                        </Field>
-                      )}
+                      {/* {country.value !== "FRA" && ( */}
+                      <Field name="legalFormCode">
+                        {({ value, onChange, ref }) => (
+                          <LakeLabel
+                            label={t("company.step.organisation.legalFormLabel")}
+                            render={id => (
+                              <LegalFormsInput
+                                id={id}
+                                ref={ref}
+                                value={value}
+                                country={country.value}
+                                placeholder={t("company.step.organisation.legalFormPlaceholder")}
+                                onSuggestion={onSelectLegalFormCode}
+                                onValueChange={onChange}
+                                onLoadError={noop}
+                              />
+                            )}
+                          />
+                        )}
+                      </Field>
+                      {/* )} */}
 
-                      {country.value !== "FRA" && (
-                        <LakeLabel
-                          label={t("company.step.organisation.relationLabel")}
-                          render={() => (
-                            <Field name="typeOfRepresentation">
-                              {({ value, onChange }) => (
-                                <RadioGroup
-                                  direction="row"
-                                  items={[
-                                    {
-                                      name: t("company.step.organisation.relation.legal"),
-                                      value: "LegalRepresentative",
-                                    },
-                                    {
-                                      name: t("company.step.organisation.relation.attorney"),
-                                      value: "PowerOfAttorney",
-                                    },
-                                  ]}
-                                  value={value}
-                                  onValueChange={onChange}
-                                />
-                              )}
-                            </Field>
-                          )}
-                        />
-                      )}
+                      {/* {country.value === "FRA" && ( */}
+                      <LakeLabel
+                        label={t("company.step.organisation.relationLabel")}
+                        render={() => (
+                          <Field name="typeOfRepresentation">
+                            {({ value, onChange }) => (
+                              <RadioGroup
+                                direction="row"
+                                items={[
+                                  {
+                                    name: t("company.step.organisation.relation.legal"),
+                                    value: "LegalRepresentative",
+                                  },
+                                  {
+                                    name: t("company.step.organisation.relation.attorney"),
+                                    value: "PowerOfAttorney",
+                                  },
+                                ]}
+                                value={value}
+                                onValueChange={onChange}
+                              />
+                            )}
+                          </Field>
+                        )}
+                      />
+                      {/* )} */}
                     </>
                   )}
                 </FieldsListener>
+
+                {representatives && (
+                  <Field name="currentRepresentative">
+                    {({ value, onChange }) => (
+                      <RepresentativeFormsInput
+                        representatives={representatives}
+                        value={value}
+                        onChange={onChange}
+                      />
+                    )}
+                  </Field>
+                )}
               </View>
             </Tile>
           </>

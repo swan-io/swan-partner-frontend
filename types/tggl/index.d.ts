@@ -5,6 +5,7 @@ import "react-tggl-client";
 declare module "react-tggl-client" {
   export interface TgglContext {
     accountCountry: "BEL" | "DEU" | "ESP" | "FRA" | "ITA" | "NLD";
+    accountId: string;
     capitalDepositCaseId: string;
     cardToken: string;
     carrierCountryCCA3: string;
@@ -27,6 +28,7 @@ declare module "react-tggl-client" {
     projectId: string;
     reference: string;
     referer?: string;
+    serviceDomain: string;
     serviceName: string;
     smsOtpInitiator: string;
     timestamp: string | number;
@@ -52,7 +54,6 @@ declare module "react-tggl-client" {
     aria_enabled: boolean;
     aria_redirect_to_swan_project: boolean;
     asset_freeze_approve_list_enabled: true;
-    automaticallyMergeThirdParties: boolean;
     back_office_bank_verlag_event_generation_improvements: true;
     bailiff_account_matching_mode:
       | "AccountContractAndPayment"
@@ -64,6 +65,7 @@ declare module "react-tggl-client" {
     billing_check_return_enabled: boolean;
     billing_kafka_consumers_enabled: boolean;
     billing_sms_notification: boolean;
+    billing_tap_to_pay_configuration_enabled: boolean;
     block_reupload_register_extract: boolean;
     blockOtpRequestIfAntibotTokenIsInvalid: true;
     can_manage_beneficiary_for_untrusted_beneficiary: boolean;
@@ -73,6 +75,7 @@ declare module "react-tggl-client" {
     cardInsuranceActivation: boolean;
     cardInsuranceProjectCreation: boolean;
     cardInvalidExpirationDateNotificationEnabledGlobally: boolean;
+    cardPackage: boolean;
     cardPermanentlyBlockedNotificationEnabledGlobally: boolean;
     cardPinInvalidNotificationEnabledGlobally: boolean;
     cardSpendingLimitReachedNotificationEnabledGlobally: boolean;
@@ -125,9 +128,11 @@ declare module "react-tggl-client" {
     enableIdentityTheftPreventionPage: true;
     end_customer_billing_enabled: boolean;
     end_customer_ict_billing_enabled: boolean;
+    fctInRejectOnLimitedAccountsEnabled: boolean;
     FeatureFlagCreditEnabled: 1 | 2;
     forceAllowDesktopAuth: boolean;
     free_units_enabled: boolean;
+    frontendProjectConfirmation: boolean;
     generate_mastercard_emi_banking: true;
     handle_third_party_events: boolean;
     ict_validation_rejection_enabled: boolean;
@@ -140,21 +145,26 @@ declare module "react-tggl-client" {
     incomingTransferScreeningEnabled: boolean;
     incomingTransferScreeningLimit: 50;
     initiate_international_credit_transfer_outgoing: boolean;
-    initiate_seizures_in_payment: boolean;
-    initiate_seizures_in_payment_for_bailiff: boolean;
+    initiateRefundsWorkflowV2Enabled: boolean;
     inPersonCardPaymentMethodEnabled: boolean;
+    is_onboarding_v2_enabled_for_capital_deposit: boolean;
+    is_onboarding_v2_enabled_for_iam: boolean;
     isAccountAdminChangeEnabled: boolean;
     isConsentFailedEventEnabled: true;
     isCustomerPasswordResetAvailable: true;
     isDashboardSignupForNewSuspiciousUserCheckEnabled: boolean;
     isForceDesktopAuthenticationEnabled: boolean;
+    isFrenchIndividualFlowAutomationEnabled: boolean;
     isPhoneNumberSuspicious: boolean;
     isScaDelegationEnabled: boolean;
     isThreeDsPaymentAllowToBeQueried: boolean;
-    kafkaConsumersEnabled: boolean;
+    "kafka-consumers-enabled": boolean;
     kycAccountHoldersVerificationsView: true;
+    kycActivateRPCAgent: boolean;
     la_poste_tracked_international_active: boolean;
     lago_partner_event_use_billing_periods: boolean;
+    ledgerSpendingMigrationDoubleRun: boolean;
+    ledgerSpendingMigrationDryRun: boolean;
     ledgerSpendingMigrationEnabled: boolean;
     ledgerSpendingMigrationInconsistentAccounts: {
       accounts: Array<
@@ -183,9 +193,7 @@ declare module "react-tggl-client" {
     pexTcuEventKillSwitch: boolean;
     recurring_suvc_fee_enabled: boolean;
     refundFeesActivateFixOnInvertedAccountIds: boolean;
-    reKYCFrontend: boolean;
     reKYCRequestIdentityProof: boolean;
-    resolve_iban_mode: "normal" | "passive" | "view";
     return_ict_in_enabled: boolean;
     return_transaction_mutation_ict_in: boolean;
     riskScoringStrategy:
@@ -195,7 +203,6 @@ declare module "react-tggl-client" {
       | "in_house_only"
       | "marble_only";
     satd_account_matching_check_for_risk_suspicion: boolean;
-    satd_account_matching_mode: "AccountContractAndPayment" | "AccountContractOnly" | "PaymentOnly";
     scaAnonymizeUserInfo: boolean;
     scaIAMDailyMaximumNumberOfSignInPerIp: 10 | 100 | 1000 | 100000 | 20 | 3 | 5;
     scaIAMDailyMaximumNumberOfSignInPerPhoneNumber: 10 | 100 | 1000 | 100000 | 5;
@@ -212,6 +219,14 @@ declare module "react-tggl-client" {
     scaV1ToV2IdsConversionBatchSize: 0 | 10 | 100 | 20 | 200 | 3 | 5 | 50 | 75;
     scoreThresholdHCaptcha: 0.75 | 0.8 | 0.9 | 1.5;
     scoring_mode: "risk_assessment_first" | "scoring_and_risk_assessment_dry_run" | "scoring_only";
+    scoring_mode_sct_in:
+      | "risk_assessment_first"
+      | "scoring_and_risk_assessment_dry_run"
+      | "scoring_only";
+    scoring_mode_sct_out:
+      | "risk_assessment_first"
+      | "scoring_and_risk_assessment_dry_run"
+      | "scoring_only";
     screeningSctInAndFctInWithNats: boolean;
     sctInstEnabled: boolean;
     send_account_invoice_generated_event: boolean;
@@ -225,12 +240,23 @@ declare module "react-tggl-client" {
     setIssuingProcessorCardProductOnRenewFeature: boolean;
     setUpAdminRole: boolean;
     shouldHistorizeIncomingVOPRequest: boolean;
+    shouldIncludeAllAccountStatusesForMultiAccountLimit: boolean;
+    shouldRestrictMultiAccountCreationWhenSuspensionExists: boolean;
     storeMonextAuthenticationRequest: boolean;
     supportingDocumentsUseBucketV2: boolean;
     swan_generate_missing_bank_details: true;
     swan_supports_local_belgian_iban: boolean;
     swan_supports_local_belgian_iban_dashboard: boolean;
     swan_supports_local_italian_iban_dashboard: true;
+    swan8n_ignore_account_events: boolean;
+    swan8n_ignore_account_holder_events: boolean;
+    swan8n_ignore_comply_advantage_webhooks: boolean;
+    swan8n_ignore_external_account_events: boolean;
+    swan8n_ignore_funding_limit_settings_events: boolean;
+    swan8n_ignore_onboarding_events: boolean;
+    swan8n_ignore_supporting_document_collection_events: boolean;
+    swan8n_ignore_supporting_document_events: boolean;
+    swan8n_ignore_workflows_events: boolean;
     tapToPay: boolean;
     testABTesting: "A" | "B";
     testE: "A" | "B";
@@ -238,7 +264,7 @@ declare module "react-tggl-client" {
     transfer_suvc_to_legal_rep_on_closed_account_membership: boolean;
     trusted_beneficiary_transfers_consent_free_enabled: boolean;
     twilioRatio: 0 | 0.2 | 0.5 | 0.6 | 0.8 | 0.95 | 1;
-    use_account_statement_kms_bucket: boolean;
+    updateBusinessAndCustomerDataToSardine: boolean;
     use_card_package_on_card_product_creation: boolean;
     use_mailjet_subaccount_for_mass_emailing: true;
     use_notification_manager: boolean;

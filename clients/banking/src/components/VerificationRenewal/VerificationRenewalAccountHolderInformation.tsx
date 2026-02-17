@@ -409,7 +409,7 @@ export const VerificationRenewalAccountHolderInformation = ({
                               <PlacekitAddressSearchInput
                                 inputRef={ref}
                                 apiKey={__env.CLIENT_PLACEKIT_API_KEY}
-                                emptyResultText={t("common.noResults")}
+                                emptyResult={t("common.noResults")}
                                 placeholder={t(
                                   "verificationRenewal.ownership.residencyAddressPlaceholder",
                                 )}

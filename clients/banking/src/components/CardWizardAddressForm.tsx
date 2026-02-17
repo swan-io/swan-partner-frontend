@@ -142,7 +142,7 @@ export const CardWizardAddressForm = ({
                         }}
                         language={locale.language}
                         placeholder={t("addressInput.placeholder")}
-                        emptyResultText={t("common.noResults")}
+                        emptyResult={t("common.noResults")}
                         error={error}
                         id={id}
                       />

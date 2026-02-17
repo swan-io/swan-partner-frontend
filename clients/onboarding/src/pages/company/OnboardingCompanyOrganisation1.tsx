@@ -587,7 +587,7 @@ export const OnboardingCompanyOrganisation1 = ({
                         <PlacekitAddressSearchInput
                           inputRef={ref}
                           apiKey={env.PLACEKIT_API_KEY}
-                          emptyResultText={t("common.noResult")}
+                          emptyResult={t("common.noResult")}
                           placeholder={t("company.step.organisation1.addressPlaceholder")}
                           language={locale.language}
                           id={id}

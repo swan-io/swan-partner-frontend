@@ -80,7 +80,7 @@ export const LakeCompanyInput = ({
       items={state}
       keyExtractor={item => item.siren}
       icon="search-filled"
-      emptyResultText={t("common.noResult")}
+      emptyResult={t("common.noResult")}
       disabled={disabled}
       error={error}
       onValueChange={onValueChange}

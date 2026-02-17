@@ -222,8 +222,9 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
           .with(
             { __typename: "PublicCompanyInfoRegistryDataSuccessPayload" },
             ({ companyInfo }) => {
-              const { representatives, ...info } = companyInfo;
+              const { representatives, legalFormCode, ...info } = companyInfo;
               setPublicData(info);
+              setFieldValue("legalFormCode", legalFormCode ?? undefined);
 
               if (representatives) {
                 setRepresentatives(representatives.filter(Boolean) as OnboardingRepresentative[]);

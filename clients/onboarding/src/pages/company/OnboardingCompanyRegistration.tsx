@@ -320,7 +320,7 @@ export const OnboardingCompanyRegistration = ({
                                   <PlacekitAddressSearchInput
                                     inputRef={ref}
                                     apiKey={__env.CLIENT_PLACEKIT_API_KEY}
-                                    emptyResultText={t("common.noResult")}
+                                    emptyResult={t("common.noResult")}
                                     placeholder={t(
                                       "company.step.registration.searchAddressPlaceholder",
                                     )}

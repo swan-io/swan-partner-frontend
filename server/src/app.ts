@@ -343,6 +343,7 @@ export const start = async ({
     await app.register(fastifyStatic, {
       root: path.join(__dirname, "./static"),
       wildcard: false,
+      cacheControl: false,
     });
   } else {
     const root = path.resolve(__dirname, "../..");

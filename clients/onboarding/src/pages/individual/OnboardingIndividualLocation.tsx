@@ -188,7 +188,7 @@ export const OnboardingIndividualLocation = ({
                               }}
                               language={locale.language}
                               placeholder={t("addressInput.placeholder")}
-                              emptyResultText={t("common.noResult")}
+                              emptyResult={t("common.noResult")}
                               error={error}
                             />
                           )}

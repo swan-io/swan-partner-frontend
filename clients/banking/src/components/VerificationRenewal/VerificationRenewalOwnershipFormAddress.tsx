@@ -186,7 +186,7 @@ export const VerificationRenewalOwnershipFormAddress = ({
                     <PlacekitAddressSearchInput
                       inputRef={ref}
                       apiKey={placekitApiKey}
-                      emptyResultText={t("common.noResults")}
+                      emptyResult={t("common.noResults")}
                       placeholder={t("verificationRenewal.ownership.residencyAddressPlaceholder")}
                       language={locale.language}
                       id={id}

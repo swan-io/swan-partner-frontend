@@ -2,36 +2,11 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { useMemo } from "react";
-import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { OnboardingRepresentative } from "../graphql/partner";
 import { t } from "../utils/i18n";
-
-const styles = StyleSheet.create({
-  footer: {
-    paddingBottom: 12,
-  },
-  footerItem: {
-    paddingHorizontal: 24,
-    paddingVertical: 8,
-  },
-  footerItemHover: {
-    backgroundColor: colors.gray[0],
-  },
-  separator: {
-    height: 1,
-    width: "100%",
-    flexShrink: 1,
-    backgroundColor: colors.gray[100],
-  },
-  separatorContainer: {
-    gap: "24px",
-    paddingHorizontal: 24,
-  },
-});
 
 type RepresentativeItem = Item<string> & {
   roles: string;
@@ -47,7 +22,7 @@ type props = {
 
 export const RepresentativeFormsInput = ({ representatives, value, onChange, error }: props) => {
   const items: RepresentativeItem[] = useMemo(() => {
-    return representatives
+    const representativesItems = representatives
       .map(representative => {
         return match(representative)
           .with(
@@ -80,6 +55,15 @@ export const RepresentativeFormsInput = ({ representatives, value, onChange, err
           .otherwise(() => null);
       })
       .filter(item => item !== null);
+
+    const unlisted = {
+      name: t("company.step.organisation.representative.unlisted"),
+      fullName: "",
+      value: "",
+      roles: "",
+    };
+
+    return [...representativesItems, unlisted];
   }, [representatives]);
 
   return (
@@ -93,39 +77,20 @@ export const RepresentativeFormsInput = ({ representatives, value, onChange, err
           onValueChange={onChange}
           items={items}
           error={error}
-          renderItem={item => (
-            <Box direction="column">
-              <LakeText color={colors.gray[900]}>{item.fullName}</LakeText>
-              <LakeText variant="smallRegular" color={colors.gray[600]}>
-                {item.roles}
-              </LakeText>
-            </Box>
-          )}
-          PopoverFooter={({ close }) => (
-            <View style={styles.footer}>
-              <Box
-                direction="row"
-                alignItems="center"
-                justifyContent="center"
-                style={styles.separatorContainer}
-              >
-                <View style={styles.separator} />
-                <LakeText variant="smallRegular">
-                  {t("company.step.organisation.representative.or")}
-                </LakeText>
-                <View style={styles.separator} />
-              </Box>
-              <Pressable
-                style={({ hovered }) => [styles.footerItem, hovered && styles.footerItemHover]}
-                onPress={() => {
-                  onChange("");
-                  close();
-                }}
-              >
+          renderItem={item =>
+            item.value === "" ? (
+              <Box direction="column">
                 <LakeText>{t("company.step.organisation.representative.unlisted")}</LakeText>
-              </Pressable>
-            </View>
-          )}
+              </Box>
+            ) : (
+              <Box direction="column">
+                <LakeText color={colors.gray[900]}>{item.fullName}</LakeText>
+                <LakeText variant="smallRegular" color={colors.gray[600]}>
+                  {item.roles}
+                </LakeText>
+              </Box>
+            )
+          }
         />
       )}
     />

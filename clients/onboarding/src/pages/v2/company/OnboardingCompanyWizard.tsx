@@ -48,7 +48,7 @@ type Props = {
 
 export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
   const route = Router.useRoute(companyOnboardingRoutesV2);
-  const isStepperDisplayed = !isNullish(route);
+  const isStepperDisplayed = !isNullish(route) && route.name !== "Root";
 
   const onboardingId = onboarding.id;
   const projectName = onboarding.projectInfo?.name ?? "";

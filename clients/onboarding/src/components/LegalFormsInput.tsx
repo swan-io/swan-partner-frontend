@@ -83,7 +83,7 @@ export const LegalFormsInput = ({
       items={filteredData}
       keyExtractor={item => item.code}
       icon="search-filled"
-      emptyResultText={t("common.noResult")}
+      emptyResult={t("common.noResult")}
       disabled={disabled}
       error={error}
       onValueChange={onValueChange}

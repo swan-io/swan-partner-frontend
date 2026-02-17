@@ -194,7 +194,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = ({
                     <PlacekitAddressSearchInput
                       inputRef={ref}
                       apiKey={placekitApiKey}
-                      emptyResultText={t("common.noResult")}
+                      emptyResult={t("common.noResult")}
                       placeholder={t("company.step.owners.beneficiary.residencyAddressPlaceholder")}
                       language={locale.language}
                       id={id}

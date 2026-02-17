@@ -64,7 +64,7 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
         errors: [],
       },
       {
-        id: "Organisation1",
+        id: "Organisation",
         label: t("step.title.organisation"),
         errors: [],
       },
@@ -138,7 +138,7 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
             {match(route)
               .with({ name: "Root" }, () => <OnboardingCompanyRoot onboarding={onboarding} />)
               .with({ name: "Details" }, () => <OnboardingCompanyDetails onboarding={onboarding} />)
-              .with({ name: "Organisation1" }, () => (
+              .with({ name: "Organisation" }, () => (
                 <OnboardingCompanyDetails onboarding={onboarding} />
               ))
               .with({ name: "Activity" }, () => (

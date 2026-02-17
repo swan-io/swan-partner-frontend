@@ -35,6 +35,7 @@ export const routes = {
     Activity: "/activity",
     Presentation: "/presentation",
     Registration: "/registration",
+    Organisation: "/organisation",
     Organisation1: "/organisation-1",
     Organisation2: "/organisation-2",
     Ownership: "/ownership",
@@ -85,7 +86,7 @@ export type CompanyOnboardingRoute = (typeof companyOnboardingRoutes)[number];
 export const companyOnboardingRoutesV2 = [
   "Root",
   "Details",
-  "Organisation1",
+  "Organisation",
   "Activity",
   "Ownership",
   "Documents",

@@ -154,6 +154,10 @@ fragment CompanyOnboarding on CompanyAccountHolderOnboarding {
     }
     taxIdentificationNumber
     typeOfRepresentation
+    unitedStatesTaxInfo {
+      isUnitedStatesPerson
+      unitedStatesTaxIdentificationNumber
+    }
   }
   company {
     ...CompanyInfo

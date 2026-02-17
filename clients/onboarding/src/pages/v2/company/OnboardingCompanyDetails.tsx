@@ -23,6 +23,7 @@ import {
   getValidationErrorMessage,
 } from "../../../utils/validation";
 
+import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
@@ -38,6 +39,7 @@ import {
   validateName,
   validateNullableRequired,
   validateRequired,
+  validateUsaTaxNumber,
 } from "@swan-io/shared-business/src/utils/validation";
 import { View } from "react-native";
 import { OnboardingCountryPicker } from "../../../components/CountryPicker";
@@ -142,6 +144,19 @@ export const OnboardingCompanyDetails = ({ onboarding }: Props) => {
       sanitize: trim,
       validate: validateRequired,
     },
+    isUnitedStatesPerson: {
+      initialValue: accountAdmin?.unitedStatesTaxInfo?.isUnitedStatesPerson ?? false,
+    },
+    unitedStatesTaxIdentificationNumber: {
+      initialValue: accountAdmin?.unitedStatesTaxInfo?.unitedStatesTaxIdentificationNumber ?? "",
+      sanitize: trim,
+      validate: (value, { getFieldValue }) => {
+        const isRequired = getFieldValue("isUnitedStatesPerson");
+        if (isRequired) {
+          return combineValidators(validateRequired, validateUsaTaxNumber)(value);
+        }
+      },
+    },
   });
 
   const onPressPrevious = () => {
@@ -166,6 +181,8 @@ export const OnboardingCompanyDetails = ({ onboarding }: Props) => {
           residenceAddress,
           residenceCity,
           residencePostal,
+          isUnitedStatesPerson,
+          unitedStatesTaxIdentificationNumber,
           ...input
         } = currentValues;
 
@@ -186,12 +203,18 @@ export const OnboardingCompanyDetails = ({ onboarding }: Props) => {
                 country: residenceCountry,
                 postalCode: residencePostal,
               },
+              unitedStatesTaxInfo: {
+                isUnitedStatesPerson,
+                unitedStatesTaxIdentificationNumber: isUnitedStatesPerson
+                  ? unitedStatesTaxIdentificationNumber
+                  : undefined,
+              },
             },
           },
         })
           .mapOk(data => data.updatePublicCompanyAccountHolderOnboarding)
           .mapOkToResult(filterRejectionsToResult)
-          .tapOk(() => Router.push("Activity", { onboardingId }))
+          .tapOk(() => Router.push("Organisation", { onboardingId }))
           .tapError(error => {
             match(error)
               .with({ __typename: "ValidationRejection" }, error => {
@@ -214,6 +237,14 @@ export const OnboardingCompanyDetails = ({ onboarding }: Props) => {
                     .with(
                       ["accountAdmin", "address", "postalCode"],
                       () => "residencePostal" as const,
+                    )
+                    .with(
+                      [
+                        "accountAdmin",
+                        "unitedStatesTaxInfo",
+                        "unitedStatesTaxIdentificationNumber",
+                      ],
+                      () => "unitedStatesTaxIdentificationNumber" as const,
                     )
                     .otherwise(() => null);
                 });
@@ -273,6 +304,26 @@ export const OnboardingCompanyDetails = ({ onboarding }: Props) => {
                   )}
                 />
 
+                <LakeLabel
+                  label={t("individual.step.about.email")}
+                  style={styles.inputFull}
+                  render={id => (
+                    <Field name="email">
+                      {({ value, onBlur, onChange, error, ref }) => (
+                        <LakeTextInput
+                          id={id}
+                          ref={ref}
+                          value={value}
+                          error={error}
+                          onBlur={onBlur}
+                          onChangeText={onChange}
+                          icon="mail-regular"
+                        />
+                      )}
+                    </Field>
+                  )}
+                />
+
                 <Field name="birthDate">
                   {({ value, onChange, error }) => (
                     <BirthdatePicker
@@ -303,23 +354,55 @@ export const OnboardingCompanyDetails = ({ onboarding }: Props) => {
                 />
 
                 <LakeLabel
-                  label={t("individual.step.about.email")}
-                  render={id => (
-                    <Field name="email">
-                      {({ value, onBlur, onChange, error, ref }) => (
-                        <LakeTextInput
-                          id={id}
-                          ref={ref}
+                  label={t("individual.step.activity.usaCitizen")}
+                  render={() => (
+                    <Field name="isUnitedStatesPerson">
+                      {({ value, onChange }) => (
+                        <RadioGroup
+                          direction="row"
+                          items={[
+                            {
+                              name: t("common.yes"),
+                              value: true,
+                            },
+                            {
+                              name: t("common.no"),
+                              value: false,
+                            },
+                          ]}
                           value={value}
-                          error={error}
-                          onBlur={onBlur}
-                          onChangeText={onChange}
-                          icon="mail-regular"
+                          onValueChange={onChange}
                         />
                       )}
                     </Field>
                   )}
                 />
+
+                <FieldsListener names={["isUnitedStatesPerson"]}>
+                  {({ isUnitedStatesPerson }) => (
+                    <Field name="unitedStatesTaxIdentificationNumber">
+                      {({ value, onBlur, onChange, error, ref }) =>
+                        isUnitedStatesPerson.value ? (
+                          <LakeLabel
+                            label={t("individual.step.activity.usaTax")}
+                            render={id => (
+                              <LakeTextInput
+                                id={id}
+                                ref={ref}
+                                value={value}
+                                error={error}
+                                onBlur={onBlur}
+                                onChangeText={onChange}
+                                placeholder={t("individual.step.activity.usaTax.placeholder")}
+                                help={t("individual.step.activity.usaTax.help")}
+                              />
+                            )}
+                          />
+                        ) : null
+                      }
+                    </Field>
+                  )}
+                </FieldsListener>
               </View>
             </Tile>
 

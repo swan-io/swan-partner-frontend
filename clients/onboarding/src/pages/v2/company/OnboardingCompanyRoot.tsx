@@ -88,13 +88,11 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
   const [updateCompanyOnboarding, updateResult] = useMutation(
     UpdatePublicCompanyAccountHolderOnboardingDocument,
   );
-
   const [_publicCompany, { query }] = useDeferredQuery(GetPublicCompamyInfoRegistryDataDocument);
 
   const [siren, setSiren] = useState<string | null>(null);
   const [publicData, setPublicData] = useState<CompanyInfo>();
   const [manualMode, setManualMode] = useState<boolean>(initialCountry !== "FRA");
-
   const [representatives, setRepresentatives] = useState<OnboardingRepresentative[]>();
 
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm({
@@ -262,7 +260,7 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
                   )}
                 </Field>
 
-                <FieldsListener names={["country", "name", "currentRepresentative"]}>
+                <FieldsListener names={["country", "currentRepresentative"]}>
                   {({ country, currentRepresentative }) => (
                     <>
                       <Field name="name">
@@ -283,7 +281,10 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
                                     <LakeText style={styles.emptyResult}>
                                       {t("company.step.organisation.notListed")}{" "}
                                       <Pressable
-                                        onPress={() => setManualMode(true)}
+                                        onPress={() => {
+                                          setManualMode(true);
+                                          setRepresentatives(undefined);
+                                        }}
                                         style={({ hovered }) => hovered && styles.linkHover}
                                       >
                                         <LakeText style={styles.link}>

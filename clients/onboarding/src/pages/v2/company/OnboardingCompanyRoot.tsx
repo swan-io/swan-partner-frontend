@@ -1,7 +1,7 @@
 import { useDeferredQuery, useMutation } from "@swan-io/graphql-client";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { breakpoints } from "@swan-io/lake/src/constants/design";
+import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { useForm } from "@swan-io/use-form";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
@@ -37,7 +37,7 @@ import {
   validateRequired,
 } from "@swan-io/shared-business/src/utils/validation";
 import { useCallback, useEffect, useState } from "react";
-import { View } from "react-native";
+import { Pressable, View } from "react-native";
 import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { LakeCompanyInput } from "../../../components/LakeCompanyInput";
 import { LegalFormsInput } from "../../../components/LegalFormsInput";
@@ -62,43 +62,28 @@ const styles = StyleSheet.create({
   gridDesktop: {
     gap: "16px 32px",
   },
+  emptyResult: {
+    paddingHorizontal: 24,
+    paddingVertical: 4,
+  },
+  link: {
+    color: colors.partner[500],
+    textDecorationLine: "underline",
+  },
+  linkHover: {
+    opacity: 0.8,
+  },
 });
-
-// WIP
-// const cleanRegistryData = (value: unknown) => {
-//   if (value == null) {
-//     return undefined;
-//   }
-
-//   if (Array.isArray(value)) {
-//     return value.map(cleanRegistryData).filter(item => item !== undefined);
-//   }
-
-//   if (typeof value === "object") {
-//     const record = value as Record<string, unknown>;
-//     const cleaned: Record<string, unknown> = {};
-
-//     for (const [key, item] of Object.entries(record)) {
-//       if (key === "__typename") {
-//         continue;
-//       }
-
-//       const next = cleanRegistryData(item);
-
-//       if (next !== undefined) {
-//         cleaned[key] = next;
-//       }
-//     }
-
-//     return cleaned;
-//   }
-
-//   return value;
-// };
 
 export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
   const onboardingId = onboarding.id;
   const { accountAdmin, accountInfo, company } = onboarding;
+
+  const initialCountry = match([company?.address?.country, accountInfo?.country])
+    .returnType<CountryCCA3>()
+    .with([P.when(isCountryCCA3), P._], ([country]) => country)
+    .with([P._, P.when(isCountryCCA3)], ([_, country]) => country)
+    .otherwise(() => "FRA");
 
   const [updateCompanyOnboarding, updateResult] = useMutation(
     UpdatePublicCompanyAccountHolderOnboardingDocument,
@@ -108,6 +93,7 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
 
   const [siren, setSiren] = useState<string | null>(null);
   const [publicData, setPublicData] = useState<CompanyInfo>();
+  const [manualMode, setManualMode] = useState<boolean>(initialCountry !== "FRA");
 
   const [representatives, setRepresentatives] = useState<OnboardingRepresentative[]>();
 
@@ -118,11 +104,7 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
       validate: validateRequired,
     },
     country: {
-      initialValue: match([company?.address?.country, accountInfo?.country])
-        .returnType<CountryCCA3>()
-        .with([P.when(isCountryCCA3), P._], ([country]) => country)
-        .with([P._, P.when(isCountryCCA3)], ([_, country]) => country)
-        .otherwise(() => "FRA"),
+      initialValue: initialCountry,
       validate: validateRequired,
     },
     legalFormCode: {
@@ -236,7 +218,7 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
           .otherwise(noop);
       });
     }
-  }, [siren, query]);
+  }, [siren, query, setFieldValue]);
 
   const onSelectCompany = useCallback(
     ({ siren, name }: CompanySuggestion) => {
@@ -259,7 +241,9 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
         {({ large, small }) => (
           <>
             <LakeHeading level={1}>{t("company.step.organisation.title")}</LakeHeading>
-            <LakeText>{t("company.step.organisation.subtitle")}</LakeText>
+            <LakeText>
+              {t("company.step.organisation.subtitle")} {manualMode ? "true" : "false"}
+            </LakeText>
             <Tile style={styles.gap}>
               <View style={[styles.grid, large && styles.gridDesktop]}>
                 <Field name="country">
@@ -270,7 +254,10 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
                       countries={individualCountries}
                       holderType="individual"
                       onlyIconHelp={small}
-                      onValueChange={onChange}
+                      onValueChange={country => {
+                        setManualMode(country !== "FRA");
+                        onChange(country);
+                      }}
                     />
                   )}
                 </Field>
@@ -283,7 +270,7 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
                           <LakeLabel
                             label={t("company.step.organisation.nameLabel")}
                             render={id =>
-                              country.value === "FRA" ? (
+                              manualMode === false ? (
                                 <LakeCompanyInput
                                   id={id}
                                   ref={ref}
@@ -292,6 +279,19 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
                                   onValueChange={onChange}
                                   onSuggestion={onSelectCompany}
                                   onLoadError={noop}
+                                  emptyResult={
+                                    <LakeText style={styles.emptyResult}>
+                                      {t("company.step.organisation.notListed")}{" "}
+                                      <Pressable
+                                        onPress={() => setManualMode(true)}
+                                        style={({ hovered }) => hovered && styles.linkHover}
+                                      >
+                                        <LakeText style={styles.link}>
+                                          {t("company.step.organisation.addDetails")}
+                                        </LakeText>
+                                      </Pressable>
+                                    </LakeText>
+                                  }
                                 />
                               ) : (
                                 <LakeTextInput
@@ -310,7 +310,7 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
 
                       <Field name="legalFormCode">
                         {({ value, onChange, ref, error }) =>
-                          country.value !== "FRA" ? (
+                          manualMode ? (
                             <LakeLabel
                               label={t("company.step.organisation.legalFormLabel")}
                               render={id => (
@@ -346,7 +346,7 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
 
                       <Field name="typeOfRepresentation">
                         {({ value, onChange }) =>
-                          country.value !== "FRA" || currentRepresentative.value === "" ? (
+                          manualMode || currentRepresentative.value === "" ? (
                             <LakeLabel
                               label={t("company.step.organisation.relationLabel")}
                               render={() => (

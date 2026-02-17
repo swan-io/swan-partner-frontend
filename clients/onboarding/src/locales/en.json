@@ -86,6 +86,8 @@
   "company.step.organisation.legalFormLabel": "Legal form",
   "company.step.organisation.legalFormPlaceholder": "Select legal form",
   "company.step.organisation.nameLabel": "Organization name",
+  "company.step.organisation.notListed": "Company not listed?",
+  "company.step.organisation.addDetails": "Add your organization details",
   "company.step.organisation.relation.attorney": "I have power of attorney",
   "company.step.organisation.relation.legal": "I'm a legal representative",
   "company.step.organisation.relationLabel": "What's your relationship to this organization?",

@@ -2,7 +2,7 @@ import { AsyncData, Result } from "@swan-io/boxed";
 import { LakeCombobox } from "@swan-io/lake/src/components/LakeCombobox";
 import { colors, texts } from "@swan-io/lake/src/constants/design";
 import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
-import { Ref, RefObject, useCallback, useEffect, useState } from "react";
+import { ReactElement, Ref, RefObject, useCallback, useEffect, useState } from "react";
 import { StyleSheet, Text, TextInput } from "react-native";
 import { CompanySuggestion, queryCompanies } from "../utils/Pappers";
 import { t } from "../utils/i18n";
@@ -27,6 +27,7 @@ type Props = {
   disabled?: boolean;
   error?: string;
   placeholder?: string;
+  emptyResult?: ReactElement;
   onValueChange: (value: string) => void;
   onSuggestion?: (suggestion: CompanySuggestion) => void;
   onLoadError: (error: unknown) => void;
@@ -41,6 +42,7 @@ export const LakeCompanyInput = ({
   placeholder,
   disabled,
   error,
+  emptyResult,
   onValueChange,
   onSuggestion,
   onLoadError,
@@ -80,7 +82,7 @@ export const LakeCompanyInput = ({
       items={state}
       keyExtractor={item => item.siren}
       icon="search-filled"
-      emptyResult={t("common.noResult")}
+      emptyResult={emptyResult ?? t("common.noResult")}
       disabled={disabled}
       error={error}
       onValueChange={onValueChange}

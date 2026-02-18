@@ -80,7 +80,7 @@ export const RepresentativeFormsInput = ({ representatives, value, onChange, err
           renderItem={item =>
             item.value === "" ? (
               <Box direction="column">
-                <LakeText>{t("company.step.organisation.representative.unlisted")}</LakeText>
+                <LakeText>{item.name}</LakeText>
               </Box>
             ) : (
               <Box direction="column">

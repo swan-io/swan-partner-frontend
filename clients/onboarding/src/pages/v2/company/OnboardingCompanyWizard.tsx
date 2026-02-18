@@ -15,6 +15,7 @@ import { t } from "../../../utils/i18n";
 import { CompanyOnboardingRouteV2, Router, companyOnboardingRoutesV2 } from "../../../utils/routes";
 import { NotFoundPage } from "../../NotFoundPage";
 import { OnboardingCompanyDetails } from "./OnboardingCompanyDetails";
+import { OnboardingCompanyOrganisation } from "./OnboardingCompanyOrganisation";
 import { OnboardingCompanyRoot } from "./OnboardingCompanyRoot";
 
 const styles = StyleSheet.create({
@@ -139,7 +140,7 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
               .with({ name: "Root" }, () => <OnboardingCompanyRoot onboarding={onboarding} />)
               .with({ name: "Details" }, () => <OnboardingCompanyDetails onboarding={onboarding} />)
               .with({ name: "Organisation" }, () => (
-                <OnboardingCompanyDetails onboarding={onboarding} />
+                <OnboardingCompanyOrganisation onboarding={onboarding} />
               ))
               .with({ name: "Activity" }, () => (
                 <OnboardingCompanyDetails onboarding={onboarding} />

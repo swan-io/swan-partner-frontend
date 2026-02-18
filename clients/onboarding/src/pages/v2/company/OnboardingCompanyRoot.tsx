@@ -27,8 +27,8 @@ import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { omit } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
 import {
+  companyCountries,
   CountryCCA3,
-  individualCountries,
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
@@ -263,8 +263,8 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
                     <OnboardingCountryPicker
                       label={t("company.step.organisation.countryLabel")}
                       value={value}
-                      countries={individualCountries}
-                      holderType="individual"
+                      countries={companyCountries}
+                      holderType="company"
                       onlyIconHelp={small}
                       onValueChange={country => {
                         setManualMode(country !== "FRA");

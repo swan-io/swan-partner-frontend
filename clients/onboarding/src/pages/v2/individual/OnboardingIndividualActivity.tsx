@@ -331,7 +331,7 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
                 )}
 
                 <LakeLabel
-                  label={t("individual.step.activity.usaCitizen")}
+                  label={t("form.label.usaCitizen")}
                   render={() => (
                     <Field name="isUnitedStatesPerson">
                       {({ value, onChange }) => (
@@ -361,7 +361,7 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
                       {({ value, onBlur, onChange, error, ref }) =>
                         isUnitedStatesPerson.value ? (
                           <LakeLabel
-                            label={t("individual.step.activity.usaTax")}
+                            label={t("form.label.usaTax")}
                             render={id => (
                               <LakeTextInput
                                 id={id}
@@ -370,8 +370,8 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
                                 error={error}
                                 onBlur={onBlur}
                                 onChangeText={onChange}
-                                placeholder={t("individual.step.activity.usaTax.placeholder")}
-                                help={t("individual.step.activity.usaTax.help")}
+                                placeholder={t("form.label.usaTax.placeholder")}
+                                help={t("form.label.usaTax.help")}
                               />
                             )}
                           />

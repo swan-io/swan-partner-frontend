@@ -249,10 +249,10 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
         {({ large, small }) => (
           <>
             <Tile style={styles.gap}>
-              <StepTitle isMobile={small}>{t("individual.step.about.title1")}</StepTitle>
+              <StepTitle isMobile={small}>{t("form.personalInformation.title")}</StepTitle>
               <View style={[styles.grid, large && styles.gridDesktop]}>
                 <LakeLabel
-                  label={t("individual.step.about.fistname")}
+                  label={t("common.fistname")}
                   render={id => (
                     <Field name="firstName">
                       {({ value, onBlur, onChange, error, ref }) => (
@@ -269,7 +269,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                   )}
                 />
                 <LakeLabel
-                  label={t("individual.step.about.lastname")}
+                  label={t("common.lastname")}
                   render={id => (
                     <Field name="lastName">
                       {({ value, onBlur, onChange, error, ref }) => (
@@ -289,7 +289,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                 <Field name="birthDate">
                   {({ value, onChange, error }) => (
                     <BirthdatePicker
-                      label={t("individual.step.about.birthdate")}
+                      label={t("common.birthdate")}
                       value={value}
                       onValueChange={onChange}
                       error={error}
@@ -298,7 +298,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                 </Field>
 
                 <LakeLabel
-                  label={t("individual.step.about.nationality")}
+                  label={t("common.nationality")}
                   render={id => (
                     <Field name="nationality">
                       {({ value, onChange, error, ref }) => (
@@ -316,7 +316,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                 />
 
                 <LakeLabel
-                  label={t("individual.step.about.email")}
+                  label={t("common.email")}
                   render={id => (
                     <Field name="email">
                       {({ value, onBlur, onChange, error, ref }) => (
@@ -337,10 +337,10 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
             </Tile>
 
             <Tile style={styles.gap}>
-              <StepTitle isMobile={small}>{t("individual.step.about.title2")}</StepTitle>
+              <StepTitle isMobile={small}>{t("form.placeOfBirth.title")}</StepTitle>
               <View style={[styles.grid, large && styles.gridDesktop]}>
                 <LakeLabel
-                  label={t("individual.step.about.birthCountry")}
+                  label={t("form.label.birthCountry")}
                   style={styles.inputFull}
                   render={id => (
                     <Field name="birthCountry">
@@ -361,7 +361,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                 <Field name="birthCity">
                   {({ value, valid, error, onChange, ref }) => (
                     <LakeLabel
-                      label={t("individual.step.about.birthCity")}
+                      label={t("form.label.birthCity")}
                       render={id => (
                         <LakeTextInput
                           id={id}
@@ -379,7 +379,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                 <Field name="birthPostal">
                   {({ value, valid, error, onChange, ref }) => (
                     <LakeLabel
-                      label={t("individual.step.about.birthPostal")}
+                      label={t("form.label.birthPostal")}
                       render={id => (
                         <LakeTextInput
                           id={id}
@@ -397,12 +397,12 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
             </Tile>
 
             <Tile style={styles.gap}>
-              <StepTitle isMobile={small}>{t("individual.step.about.title3")}</StepTitle>
+              <StepTitle isMobile={small}>{t("form.residence.title")}</StepTitle>
               <View style={[styles.grid, large && styles.gridDesktop]}>
                 <Field name="residenceCountry">
                   {({ value, onChange }) => (
                     <OnboardingCountryPicker
-                      label={t("individual.step.about.residenceCountry")}
+                      label={t("form.label.residenceCountry")}
                       value={value}
                       countries={individualCountries}
                       holderType="individual"
@@ -419,7 +419,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                       {({ value, onChange, error }) => (
                         <LakeLabel
                           style={styles.inputFull}
-                          label={t("individual.step.about.residenceAddress")}
+                          label={t("common.address")}
                           render={id => (
                             <PlacekitAddressSearchInput
                               id={id}
@@ -447,7 +447,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                 <Field name="residenceCity">
                   {({ value, valid, error, onChange, ref }) => (
                     <LakeLabel
-                      label={t("individual.step.about.residenceCity")}
+                      label={t("common.city")}
                       render={id => (
                         <LakeTextInput
                           id={id}
@@ -465,7 +465,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                 <Field name="residencePostal">
                   {({ value, valid, error, onChange, ref }) => (
                     <LakeLabel
-                      label={t("individual.step.about.residencePostal")}
+                      label={t("common.postalCode")}
                       render={id => (
                         <LakeTextInput
                           id={id}

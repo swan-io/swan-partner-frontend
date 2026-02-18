@@ -24,7 +24,7 @@ import {
   validateRegistrationNumber,
 } from "../../../utils/validation";
 
-import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
+import { InlineDatePicker } from "@swan-io/shared-business/src/components/InlineDatePicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CompanyCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
@@ -42,7 +42,6 @@ import {
   getRegistrationNumberName,
   getUpdateOnboardingError,
 } from "../../../utils/templateTranslations";
-import { InlineDatePicker } from "@swan-io/shared-business/src/components/InlineDatePicker";
 
 type Props = {
   onboarding: NonNullable<CompanyOnboardingFragment>;
@@ -76,6 +75,10 @@ export const OnboardingCompanyOrganisation = ({ onboarding }: Props) => {
   const accountCountry = accountInfo?.country;
   const companyCountry = company?.address?.country;
 
+  const isVatRequired = match({ accountCountry })
+    .with({ accountCountry: "ITA" }, () => true)
+    .otherwise(() => false);
+
   const isTaxIdentificationRequired = match({ companyCountry, accountCountry })
     .with({ companyCountry: P.not(accountCountry) }, () => true)
     .with({ accountCountry: "DEU" }, () => true)
@@ -102,7 +105,9 @@ export const OnboardingCompanyOrganisation = ({ onboarding }: Props) => {
     vatNumber: {
       initialValue: company?.vatNumber ?? "",
       sanitize: trim,
-      validate: validateVatNumber,
+      validate: isVatRequired
+        ? combineValidators(validateRequired, validateVatNumber)
+        : validateVatNumber,
     },
     taxIdentificationNumber: {
       initialValue: company?.taxIdentificationNumber ?? "",
@@ -129,7 +134,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding }: Props) => {
   });
 
   const onPressPrevious = () => {
-    Router.push("Root", { onboardingId });
+    Router.push("Details", { onboardingId });
   };
 
   const onPressNext = () => {
@@ -201,7 +206,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding }: Props) => {
                   {({ value, onChange, error }) => (
                     <LakeLabel
                       style={styles.inputFull}
-                      label={t("individual.step.about.residenceAddress")}
+                      label={t("common.address")}
                       render={id => (
                         <PlacekitAddressSearchInput
                           id={id}
@@ -227,7 +232,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding }: Props) => {
                 <Field name="city">
                   {({ value, valid, error, onChange, ref }) => (
                     <LakeLabel
-                      label={t("individual.step.about.residenceCity")}
+                      label={t("common.city")}
                       render={id => (
                         <LakeTextInput
                           id={id}
@@ -245,7 +250,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding }: Props) => {
                 <Field name="postalCode">
                   {({ value, valid, error, onChange, ref }) => (
                     <LakeLabel
-                      label={t("individual.step.about.residencePostal")}
+                      label={t("common.postalCode")}
                       render={id => (
                         <LakeTextInput
                           id={id}
@@ -326,7 +331,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding }: Props) => {
                   {({ value, valid, error, onChange, ref, onBlur }) => (
                     <LakeLabel
                       label={t("company.step.legal.vatLabel")}
-                      optionalLabel={t("common.optional")}
+                      optionalLabel={isVatRequired ? undefined : t("common.optional")}
                       render={id => (
                         <LakeTextInput
                           id={id}

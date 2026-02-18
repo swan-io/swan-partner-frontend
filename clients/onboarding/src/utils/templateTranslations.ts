@@ -69,7 +69,7 @@ export const getRegistrationNumberName = (country: CountryCCA3, companyType: Com
     .with("DNK", () => "CVR-nummer")
     .with("EST", () => "Kood")
     .with("FIN", () => "Y-tunnus")
-    .with("FRA", () => (companyType === "Association" ? "SIREN or RNA" : "Numéro SIREN"))
+    .with("FRA", () => (companyType === "Association" ? "SIREN or RNA" : "SIREN"))
     .with("DEU", () => "Registernummer")
     .with(
       "GRC",

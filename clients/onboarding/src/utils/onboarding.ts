@@ -1,5 +1,10 @@
 import { match } from "ts-pattern";
-import { OnboardingRepresentative, OnboardingRepresentativeInput } from "../graphql/partner";
+import { UltimateBeneficialOwner } from "../../../banking/src/graphql/partner";
+import {
+  OnboardingRepresentative,
+  OnboardingRepresentativeInput,
+  UltimateBeneficialOwnerInput,
+} from "../graphql/partner";
 
 /**
  * Transforms OnboardingRepresentative (output type with __typename) to OnboardingRepresentativeInput (input type without __typename)
@@ -32,6 +37,32 @@ export const transformRepresentativesToInput = (
       })
       .exhaustive();
   });
+};
+
+/**
+ * Transforms UltimateBeneficialOwner array (output type with __typename) to UltimateBeneficialOwnerInput array (input type without __typename)
+ */
+export const transformUboToInput = (
+  ubos: Array<UltimateBeneficialOwner | null | undefined> | null | undefined,
+): UltimateBeneficialOwnerInput[] => {
+  if (!ubos) {
+    return [];
+  }
+
+  return ubos
+    .filter(ubo => ubo != null)
+    .map(ubo => {
+      const { qualificationType, ownership, controlTypes, unitedStatesTaxInfo, ...input } = ubo;
+      const cleanedUbo = cleanData(input);
+
+      // @TODO: add unitedStatesTaxInfo?
+      return {
+        ...cleanedUbo,
+        qualificationType: qualificationType ?? undefined,
+        ownership: qualificationType === "Ownership" ? ownership : undefined,
+        controlTypes: qualificationType === "Control" ? controlTypes : undefined,
+      };
+    });
 };
 
 // Utility function to clean data from __typename and undefined fields

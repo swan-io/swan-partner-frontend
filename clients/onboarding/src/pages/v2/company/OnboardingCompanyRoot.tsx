@@ -27,8 +27,8 @@ import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { omit } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
 import {
+  companyCountries,
   CountryCCA3,
-  individualCountries,
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
@@ -42,7 +42,11 @@ import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { LakeCompanyInput } from "../../../components/LakeCompanyInput";
 import { LegalFormsInput } from "../../../components/LegalFormsInput";
 import { RepresentativeFormsInput } from "../../../components/RepresentativeFormInput";
-import { cleanData, transformRepresentativesToInput } from "../../../utils/onboarding";
+import {
+  cleanData,
+  transformRepresentativesToInput,
+  transformUboToInput,
+} from "../../../utils/onboarding";
 import { CompanySuggestion } from "../../../utils/Pappers";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
@@ -145,6 +149,7 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
           .toUndefined();
 
         const companyInfo = cleanData(publicData);
+        const uboInput = transformUboToInput(publicData?.ultimateBeneficialOwners);
 
         updateCompanyOnboarding({
           input: {
@@ -152,6 +157,15 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
             company: {
               ...input,
               representatives: representativesInput,
+              ultimateBeneficialOwners: uboInput,
+              vatNumber: companyInfo?.vatNumber,
+              tradeName: companyInfo?.tradeName,
+              taxIdentificationNumber: companyInfo?.taxIdentificationNumber,
+              registrationNumber: companyInfo?.registrationNumber,
+              registrationDate: companyInfo?.registrationDate,
+              companyType: companyInfo?.companyType,
+              businessActivityCode: companyInfo?.businessActivityCode,
+              businessActivityDescription: companyInfo?.businessActivityDescription,
               address: {
                 country,
                 ...companyInfo?.address,
@@ -249,8 +263,8 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
                     <OnboardingCountryPicker
                       label={t("company.step.organisation.countryLabel")}
                       value={value}
-                      countries={individualCountries}
-                      holderType="individual"
+                      countries={companyCountries}
+                      holderType="company"
                       onlyIconHelp={small}
                       onValueChange={country => {
                         setManualMode(country !== "FRA");

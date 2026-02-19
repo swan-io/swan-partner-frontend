@@ -27,6 +27,7 @@ import {
   isMutationAuthorizedInWebBanking,
   isMutationRestrictedByWebBankingSettings,
 } from "./utils/permissions";
+import { getTgglClient } from "./utils/tggl";
 
 const countryTranslations: Record<AccountCountry, string> = {
   DEU: "German",
@@ -194,6 +195,17 @@ start({
     app.post<{ Params: { projectId: string } }>(
       "/api/projects/:projectId/partner",
       async (request, reply) => {
+        const fromWebBanking = request.headers.origin === env.BANKING_URL;
+        if (fromWebBanking) {
+          const disabled = getTgglClient(request.params.projectId).get("disableWebBanking", false);
+          if (disabled) {
+            request.log.warn(
+              `User from project ${request.params.projectId} attempted to access web-banking partner API`,
+            );
+            return reply.status(401).send("Unauthorized");
+          }
+        }
+
         const projectUserToken =
           request.accessToken == null
             ? Result.Ok(Option.None())
@@ -263,6 +275,17 @@ start({
     app.post<{ Params: { projectId: string } }>(
       "/api/projects/:projectId/partner-admin",
       async (request, reply) => {
+        const fromWebBanking = request.headers.origin === env.BANKING_URL;
+        if (fromWebBanking) {
+          const disabled = getTgglClient(request.params.projectId).get("disableWebBanking", false);
+          if (disabled) {
+            request.log.warn(
+              `User from project ${request.params.projectId} attempted to access web-banking partner-admin API`,
+            );
+            return reply.status(401).send("Unauthorized");
+          }
+        }
+
         if (request.accessToken == null) {
           return reply.status(401).send("Unauthorized");
         }

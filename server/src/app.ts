@@ -565,6 +565,7 @@ export const start = async ({
       projectId,
       email,
       phoneNumber,
+      fromDesktopIdentification,
     } = request.query;
     if (typeof redirectTo === "string") {
       const hostUrl = new URL(env.BANKING_URL);
@@ -639,6 +640,7 @@ export const start = async ({
           ...(identificationLevel != null ? { identificationLevel } : null),
           ...(projectId != null ? { projectId } : null),
           ...(accountMembershipId != null ? { accountMembershipId } : null),
+          ...(fromDesktopIdentification === "true" ? { fromDesktopIdentification: "true" } : null),
         },
         redirectUri: `${env.BANKING_URL}/auth/callback`,
         state: JSON.stringify(state),

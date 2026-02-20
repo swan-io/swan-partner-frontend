@@ -14,20 +14,6 @@ fragment BirthInfo on BirthInfo {
   birthDate
 }
 
-# fragment IndividualRepresentative on OnboardingIndividualRepresentative {
-#   firstName
-#   lastName
-#   roles
-#   nationality
-#   email
-#   birthInfo {
-#     ...BirthInfo
-#   }
-#   address {
-#     ...Address
-#   }
-# }
-
 fragment CompanyRelatedIndividual on CompanyRelatedIndividualInfo {
   type
   firstName
@@ -308,6 +294,7 @@ mutation UpdatePublicIndividualAccountHolderOnboarding(
         ...IndividualOnboarding
       }
     }
+    # @todo check why this rejection was deleted
     # ... on ValidationRejection {
     #   ...UpdateValidationErrors
     # }

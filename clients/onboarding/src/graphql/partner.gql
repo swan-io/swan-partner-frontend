@@ -156,26 +156,6 @@ fragment CompanyInfo on CompanyInfo {
       }
     }
   }
-  # ultimateBeneficialOwners {
-  #   firstName
-  #   lastName
-  #   qualificationType
-  #   controlTypes
-  #   ownership {
-  #     totalPercentage
-  #     type
-  #   }
-  # }
-  # representatives {
-  #   ... on OnboardingCompanyRepresentative {
-  #     entityName
-  #     registrationNumber
-  #     roles
-  #   }
-  #   ... on OnboardingIndividualRepresentative {
-  #     ...IndividualRepresentative
-  #   }
-  # }
 }
 
 fragment IndividualOrCompanyOnboarding on AccountHolderOnboardingBase {

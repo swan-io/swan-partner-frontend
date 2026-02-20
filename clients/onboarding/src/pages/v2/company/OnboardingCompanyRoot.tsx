@@ -42,11 +42,7 @@ import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { LakeCompanyInput } from "../../../components/LakeCompanyInput";
 import { LegalFormsInput } from "../../../components/LegalFormsInput";
 import { RepresentativeFormsInput } from "../../../components/RepresentativeFormInput";
-import {
-  cleanData,
-  transformRepresentativesToInput,
-  transformUboToInput,
-} from "../../../utils/onboarding";
+import { cleanData, transformRepresentativesToInput } from "../../../utils/onboarding";
 import { CompanySuggestion } from "../../../utils/Pappers";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
@@ -149,15 +145,13 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
           .toUndefined();
 
         const companyInfo = cleanData(publicData);
-        const uboInput = transformUboToInput(publicData?.ultimateBeneficialOwners);
+        // const uboInput = transformUboToInput(publicData?.ultimateBeneficialOwners); //@todo replace with relatedIndividuals
 
         updateCompanyOnboarding({
           input: {
             onboardingId,
             company: {
               ...input,
-              representatives: representativesInput,
-              ultimateBeneficialOwners: uboInput,
               vatNumber: companyInfo?.vatNumber,
               tradeName: companyInfo?.tradeName,
               taxIdentificationNumber: companyInfo?.taxIdentificationNumber,
@@ -217,15 +211,16 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
           .with(
             { __typename: "PublicCompanyInfoRegistryDataSuccessPayload" },
             ({ companyInfo }) => {
-              const { representatives, legalFormCode, ...info } = companyInfo;
+              const { relatedIndividuals, legalFormCode, ...info } = companyInfo;
               setPublicData(info);
               setFieldValue("legalFormCode", legalFormCode ?? undefined);
 
-              if (representatives) {
-                setRepresentatives(representatives.filter(Boolean) as OnboardingRepresentative[]);
-              } else {
-                setRepresentatives(undefined);
-              }
+              //@todo replace logic with relatedIndividuals
+              // if (representatives) {
+              //   setRepresentatives(representatives.filter(Boolean) as OnboardingRepresentative[]);
+              // } else {
+              //   setRepresentatives(undefined);
+              // }
             },
           )
           .otherwise(noop);

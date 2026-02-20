@@ -82,6 +82,7 @@ fragment CompanyInfo on CompanyInfo {
   legalFormCode
   vatNumber
   taxIdentificationNumber
+  businessActivity
   businessActivityDescription
   businessActivityCode
   address {

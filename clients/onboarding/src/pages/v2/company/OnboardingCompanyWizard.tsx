@@ -14,6 +14,7 @@ import { CompanyOnboardingFragment } from "../../../graphql/partner";
 import { t } from "../../../utils/i18n";
 import { CompanyOnboardingRouteV2, Router, companyOnboardingRoutesV2 } from "../../../utils/routes";
 import { NotFoundPage } from "../../NotFoundPage";
+import { OnboardingCompanyActivity } from "./OnboardingCompanyActivity";
 import { OnboardingCompanyDetails } from "./OnboardingCompanyDetails";
 import { OnboardingCompanyOrganisation } from "./OnboardingCompanyOrganisation";
 import { OnboardingCompanyRoot } from "./OnboardingCompanyRoot";
@@ -143,7 +144,7 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
                 <OnboardingCompanyOrganisation onboarding={onboarding} />
               ))
               .with({ name: "Activity" }, () => (
-                <OnboardingCompanyDetails onboarding={onboarding} />
+                <OnboardingCompanyActivity onboarding={onboarding} />
               ))
               .with({ name: "Ownership" }, () => (
                 <OnboardingCompanyDetails onboarding={onboarding} />

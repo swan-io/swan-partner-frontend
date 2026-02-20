@@ -55,7 +55,7 @@ export const extractServerInvalidFields = <T extends string>(
 
 export const getValidationErrorMessage = (
   code: ValidationFieldErrorCode | ServerInvalidFieldCode,
-  currentValue?: string,
+  currentValue?: string | string[],
 ): string => {
   return match(code)
     .with("Missing", () => t("error.requiredField"))
@@ -81,4 +81,11 @@ export const validateRegistrationNumber: Validator<string> = value => {
   if (!/^\d{10}$/.test(value)) {
     return t("common.form.help.nbDigits", { nbDigits: "10" });
   }
+};
+
+// check url with prefix https:// optional
+export const isValidUrl = (value: string) => {
+  return /^(?:https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/.test(
+    value,
+  );
 };

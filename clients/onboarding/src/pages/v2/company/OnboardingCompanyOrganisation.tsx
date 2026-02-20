@@ -157,13 +157,14 @@ export const OnboardingCompanyOrganisation = ({ onboarding }: Props) => {
                 city,
                 postalCode,
               },
+              regulatoryClassification: "NonFinancialActive", // Default value as we don't use it yet on product side but required by the api
               ...input,
             },
           },
         })
           .mapOk(data => data.updatePublicCompanyAccountHolderOnboarding)
           .mapOkToResult(filterRejectionsToResult)
-          .tapOk(() => Router.push("Organisation", { onboardingId }))
+          .tapOk(() => Router.push("Activity", { onboardingId }))
           .tapError(error => {
             match(error)
               .with({ __typename: "ValidationRejection" }, error => {

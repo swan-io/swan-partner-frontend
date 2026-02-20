@@ -3,11 +3,10 @@ import { isEmpty } from "@swan-io/lake/src/utils/nullish";
 import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, Validator } from "@swan-io/use-form";
 import dayjs from "dayjs";
-import { match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   OnboardingInvalidInfoFragment,
   UpdateValidationErrorsFragment,
-  ValidationFieldErrorCode,
 } from "../graphql/unauthenticated";
 import { locale, t } from "./i18n";
 
@@ -25,6 +24,40 @@ export type ServerInvalidFieldCode = "Missing";
 
 export const extractServerValidationErrors = <T extends string>(
   { fields }: UpdateValidationErrorsFragment,
+  pathToFieldName: (path: string[]) => T | null = () => null,
+): { fieldName: T; code: ValidationFieldErrorCode }[] => {
+  return Array.filterMap(fields, ({ path, code }) => {
+    const fieldName = pathToFieldName(path);
+    if (fieldName != null) {
+      return Option.Some({ fieldName, code });
+    }
+    return Option.None();
+  });
+};
+
+const validationFieldErrorCodePattern = P.union(
+  "InvalidString",
+  "InvalidType",
+  "TooLong",
+  "TooShort",
+  "UnrecognizedKeys",
+);
+
+type ValidationFieldErrorCode = P.infer<typeof validationFieldErrorCodePattern>;
+
+export const badUserInputErrorPattern = [
+  {
+    extensions: {
+      code: "BAD_USER_INPUT",
+      fields: P.array({ path: P.array(P.string), code: validationFieldErrorCodePattern }).select(
+        "fields",
+      ),
+    },
+  },
+] as const;
+
+export const extractServerValidationFields = <T extends string>(
+  fields: P.infer<typeof badUserInputErrorPattern>[0]["extensions"]["fields"],
   pathToFieldName: (path: string[]) => T | null = () => null,
 ): { fieldName: T; code: ValidationFieldErrorCode }[] => {
   return Array.filterMap(fields, ({ path, code }) => {

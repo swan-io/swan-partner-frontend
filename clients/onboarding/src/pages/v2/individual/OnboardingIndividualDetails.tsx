@@ -8,7 +8,7 @@ import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { trim } from "@swan-io/lake/src/utils/string";
-import { combineValidators, useForm } from "@swan-io/use-form";
+import { useForm } from "@swan-io/use-form";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
@@ -19,7 +19,8 @@ import {
 } from "../../../graphql/partner";
 import { locale, t } from "../../../utils/i18n";
 import {
-  extractServerValidationErrors,
+  badUserInputErrorPattern,
+  extractServerValidationFields,
   getValidationErrorMessage,
   ServerInvalidFieldCode,
 } from "../../../utils/validation";
@@ -36,7 +37,6 @@ import {
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import {
-  validateEmail,
   validateName,
   validateNullableRequired,
   validateRequired,
@@ -85,7 +85,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
     email: {
       initialValue: accountAdmin?.email ?? "",
       sanitize: trim,
-      validate: combineValidators(validateRequired, validateEmail),
+      // validate: combineValidators(validateRequired, validateEmail),
     },
     firstName: {
       initialValue: accountAdmin?.firstName ?? "",
@@ -207,8 +207,8 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
           .tapOk(() => Router.push("Activity", { onboardingId }))
           .tapError(error => {
             match(error)
-              .with({ __typename: "ValidationRejection" }, error => {
-                const invalidFields = extractServerValidationErrors(error, path => {
+              .with(badUserInputErrorPattern, ({ fields }) => {
+                const invalidFields = extractServerValidationFields(fields, path => {
                   return match(path)
                     .with(["accountAdmin", "email"], () => "email" as const)
                     .with(["accountAdmin", "firstName"], () => "firstName" as const)

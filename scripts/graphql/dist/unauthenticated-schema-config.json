@@ -173,6 +173,11 @@
       "CompanyAccountHolderOnboarding",
       "IndividualAccountHolderOnboarding"
     ],
+    "CompanyRelatedIndividualInfo": [
+      "CompanyLegalRepresentative",
+      "CompanyLegalRepresentativeAndUltimateBeneficialOwner",
+      "CompanyUltimateBeneficialOwner"
+    ],
     "FundingLimitSettingsChangeRequestStatusInfo": [
       "FundingLimitSettingsChangeRequestApprovedStatusInfo",
       "FundingLimitSettingsChangeRequestPendingStatusInfo",

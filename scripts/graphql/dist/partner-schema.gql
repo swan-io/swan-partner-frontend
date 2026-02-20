@@ -3934,11 +3934,21 @@ type CompanyInfo {
   """
   websites: [String!]
 
-  """Ultimate beneficial owners"""
+  """Ultimate beneficial owners @deprecated"""
   ultimateBeneficialOwners: [UltimateBeneficialOwner]
 
-  """List of representatives of the company"""
+  """List of representatives of the company @deprecated"""
   representatives: [OnboardingRepresentative]
+
+  """
+  Individuals related to the company (Ultimate beneficial owners and/or legal representatives)
+  """
+  relatedIndividuals: [CompanyRelatedIndividual!]
+
+  """
+  Companies related to the account holder company (company legal representatives)
+  """
+  relatedCompanies: [CompanyRelatedCompany!]
 
   """Company type"""
   companyType: CompanyType
@@ -4014,7 +4024,7 @@ input CompanyInfoInput {
   """Regulatory classification of the company"""
   regulatoryClassification: RegulatoryClassification
 
-  """List of representatives of the company"""
+  """List of representatives of the company @deprecated"""
   representatives: [OnboardingRepresentativeInput!]
 
   """Company headquarters address"""
@@ -4027,8 +4037,18 @@ input CompanyInfoInput {
   """
   taxIdentificationNumber: String
 
-  """List of ultimate beneficial owners of the company"""
+  """List of ultimate beneficial owners of the company @deprecated"""
   ultimateBeneficialOwners: [UltimateBeneficialOwnerInput!]
+
+  """
+  List of individuals related to the company (Ultimate beneficial owners and/or legal representatives)
+  """
+  relatedIndividuals: [RelatedIndividualInput!]
+
+  """
+  List of companies related to the account holder company (company legal representatives)
+  """
+  relatedCompanies: [RelatedCompanyInput!]
 
   """
   VAT identification number
@@ -4149,6 +4169,16 @@ input CompanyInfoUpdateInput {
   ultimateBeneficialOwners: [UltimateBeneficialOwnerInput!]
 
   """
+  List of individuals related to the company (UBOs and/or legal representatives)
+  """
+  relatedIndividuals: [RelatedIndividualInput!]
+
+  """
+  List of companies related to the account holder company (company legal representatives)
+  """
+  relatedCompanies: [RelatedCompanyInput!]
+
+  """
   VAT identification number
   
   - Must follow EU VAT number format
@@ -4166,6 +4196,95 @@ input CompanyInfoUpdateInput {
   websites: [String!]
 }
 
+"""Individual who is only a legal representative (not a UBO)"""
+type CompanyLegalRepresentative implements CompanyRelatedIndividualInfo {
+  """Type of the related individual (always LegalRepresentative)"""
+  type: RelatedIndividualType!
+
+  """First name of the individual"""
+  firstName: String
+
+  """Preferred first name of the individual"""
+  preferredFirstName: String
+
+  """Last name of the individual"""
+  lastName: String
+
+  """Sex of the individual"""
+  sex: Sex
+
+  """Email of the individual"""
+  email: String
+
+  """Birth information of the individual"""
+  birthInfo: BirthInfo
+
+  """Residency address of the individual"""
+  address: AddressInfo
+
+  """Nationality of the individual"""
+  nationality: CCA3
+
+  """Tax identification number of the individual, if applicable"""
+  taxIdentificationNumber: String
+
+  """
+  Tax information related to US persons as defined by FATCA, if applicable
+  """
+  unitedStatesTaxInfo: UnitedStatesTaxInfo
+
+  """Legal representative specific information"""
+  legalRepresentative: RelatedIndividualLegalRepresentative!
+}
+
+"""
+Individual who is both an ultimate beneficial owner and a legal representative
+"""
+type CompanyLegalRepresentativeAndUltimateBeneficialOwner implements CompanyRelatedIndividualInfo {
+  """
+  Type of the related individual (always LegalRepresentativeAndUltimateBeneficialOwner)
+  """
+  type: RelatedIndividualType!
+
+  """First name of the individual"""
+  firstName: String
+
+  """Preferred first name of the individual"""
+  preferredFirstName: String
+
+  """Last name of the individual"""
+  lastName: String
+
+  """Sex of the individual"""
+  sex: Sex
+
+  """Email of the individual"""
+  email: String
+
+  """Birth information of the individual"""
+  birthInfo: BirthInfo
+
+  """Residency address of the individual"""
+  address: AddressInfo
+
+  """Nationality of the individual"""
+  nationality: CCA3
+
+  """Tax identification number of the individual, if applicable"""
+  taxIdentificationNumber: String
+
+  """
+  Tax information related to US persons as defined by FATCA, if applicable
+  """
+  unitedStatesTaxInfo: UnitedStatesTaxInfo
+
+  """Ultimate beneficial owner specific information"""
+  ultimateBeneficialOwner: RelatedIndividualUltimateBeneficialOwner!
+
+  """Legal representative specific information"""
+  legalRepresentative: RelatedIndividualLegalRepresentative!
+}
+
 """Rejection returned if registration number is not correct"""
 type CompanyRegistryNotFoundRejection implements Rejection {
   message: String!
@@ -4178,6 +4297,80 @@ Rejection returned when the company registry service is temporarily unavailable
 """
 type CompanyRegistryUnavailableRejection implements Rejection {
   message: String!
+}
+
+"""
+Company related to the account holder company (company legal representative)
+"""
+type CompanyRelatedCompany {
+  """Legal name of the company"""
+  entityName: String
+
+  """Registration number of the company"""
+  registrationNumber: String
+
+  """Country where the company is registered"""
+  registrationCountry: CCA3
+
+  """Roles of the company within the account holder company"""
+  roles: [String!]!
+}
+
+"""Union of all possible related individual types (output)"""
+union CompanyRelatedIndividual = CompanyLegalRepresentative | CompanyUltimateBeneficialOwner | CompanyLegalRepresentativeAndUltimateBeneficialOwner
+
+"""Interface for common fields across all related individual types"""
+interface CompanyRelatedIndividualInfo {
+  """Type of the related individual"""
+  type: RelatedIndividualType!
+
+  """
+  First name of the individual
+  
+  - Must be between 1 and 100 characters
+  """
+  firstName: String
+
+  """
+  Preferred first name of the individual
+  
+  - Maximum 100 characters
+  """
+  preferredFirstName: String
+
+  """
+  Last name of the individual
+  
+  - Must be between 1 and 100 characters
+  """
+  lastName: String
+
+  """Sex of the individual"""
+  sex: Sex
+
+  """Email of the individual"""
+  email: String
+
+  """Birth information of the individual"""
+  birthInfo: BirthInfo
+
+  """Residency address of the individual"""
+  address: AddressInfo
+
+  """Nationality of the individual"""
+  nationality: CCA3
+
+  """
+  Tax identification number of the individual, if applicable
+  
+  - Maximum 16 characters
+  """
+  taxIdentificationNumber: String
+
+  """
+  Tax information related to US persons as defined by FATCA, if applicable
+  """
+  unitedStatesTaxInfo: UnitedStatesTaxInfo
 }
 
 type CompanyRepresentative {
@@ -4204,6 +4397,49 @@ enum CompanyType {
   HomeOwnerAssociation
   Other
   SelfEmployed
+}
+
+"""
+Individual who is only an ultimate beneficial owner (not a legal representative)
+"""
+type CompanyUltimateBeneficialOwner implements CompanyRelatedIndividualInfo {
+  """Type of the related individual (always UltimateBeneficialOwner)"""
+  type: RelatedIndividualType!
+
+  """First name of the individual"""
+  firstName: String
+
+  """Preferred first name of the individual"""
+  preferredFirstName: String
+
+  """Last name of the individual"""
+  lastName: String
+
+  """Sex of the individual"""
+  sex: Sex
+
+  """Email of the individual"""
+  email: String
+
+  """Birth information of the individual"""
+  birthInfo: BirthInfo
+
+  """Residency address of the individual"""
+  address: AddressInfo
+
+  """Nationality of the individual"""
+  nationality: CCA3
+
+  """Tax identification number of the individual, if applicable"""
+  taxIdentificationNumber: String
+
+  """
+  Tax information related to US persons as defined by FATCA, if applicable
+  """
+  unitedStatesTaxInfo: UnitedStatesTaxInfo
+
+  """Ultimate beneficial owner specific information"""
+  ultimateBeneficialOwner: RelatedIndividualUltimateBeneficialOwner!
 }
 
 type CompanyVerificationRenewalAccountAdmin {
@@ -7212,6 +7448,170 @@ interface Rejection {
   message: String!
 }
 
+"""
+Input for a company related to the account holder company (company legal representative)
+"""
+input RelatedCompanyInput {
+  """Legal name of the company"""
+  entityName: String
+
+  """Registration number of the company"""
+  registrationNumber: String
+
+  """Country where the company is registered"""
+  registrationCountry: CCA3
+
+  """Roles of the company within the account holder company"""
+  roles: [String!]!
+}
+
+"""
+Input for an individual related to the company (UBO and/or legal representative)
+"""
+input RelatedIndividualInput {
+  """
+  Type discriminator - determines which role-specific fields are required
+  """
+  type: RelatedIndividualType!
+
+  """
+  First name of the individual
+  
+  - Maximum 100 characters
+  """
+  firstName: String
+
+  """
+  Preferred first name of the individual
+  
+  - Maximum 100 characters
+  """
+  preferredFirstName: String
+
+  """
+  Last name of the individual
+  
+  - Maximum 100 characters
+  """
+  lastName: String
+
+  """Sex of the individual"""
+  sex: Sex
+
+  """
+  Email of the individual
+  
+  - Must be a valid email format
+  - Maximum 255 characters
+  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Disposable email domains are not allowed
+  """
+  email: String
+
+  """Birth information of the individual"""
+  birthInfo: BirthInfoInput
+
+  """Residency address of the individual"""
+  address: ResidencyAddressInput
+
+  """Nationality of the individual"""
+  nationality: CCA3
+
+  """
+  Tax identification number of the individual, if applicable
+  
+  - Maximum 16 characters
+  """
+  taxIdentificationNumber: String
+
+  """
+  Tax information related to US persons as defined by FATCA, if applicable
+  """
+  unitedStatesTaxInfo: UnitedStatesTaxInfoInput
+
+  """
+  Ultimate beneficial owner specific information
+  Required when type is UltimateBeneficialOwner or LegalRepresentativeAndUltimateBeneficialOwner
+  """
+  ultimateBeneficialOwner: RelatedIndividualUltimateBeneficialOwnerInput
+
+  """
+  Legal representative specific information
+  Required when type is LegalRepresentative or LegalRepresentativeAndUltimateBeneficialOwner
+  """
+  legalRepresentative: RelatedIndividualLegalRepresentativeInput
+}
+
+"""Legal representative specific information (output)"""
+type RelatedIndividualLegalRepresentative {
+  """Roles of the legal representative within the company"""
+  roles: [String!]!
+}
+
+"""Legal representative specific information for related individual"""
+input RelatedIndividualLegalRepresentativeInput {
+  """
+  Roles of the legal representative within the company
+  
+  - Each role: Maximum 100 characters
+  """
+  roles: [String!]
+}
+
+"""Type of individual related to the company"""
+enum RelatedIndividualType {
+  """Individual is only a Ultimate Beneficial Owner"""
+  UltimateBeneficialOwner
+
+  """Individual is only a Legal Representative"""
+  LegalRepresentative
+
+  """
+  Individual is both a Ultimate Beneficial Owner and a Legal Representative
+  """
+  LegalRepresentativeAndUltimateBeneficialOwner
+}
+
+"""Ultimate beneficial owner specific information (output)"""
+type RelatedIndividualUltimateBeneficialOwner {
+  """Ultimate beneficial owner qualification type"""
+  qualificationType: UltimateBeneficialOwnerQualificationType
+
+  """
+  Ultimate beneficial owner ownership information. Only applicable if qualificationType is Ownership
+  """
+  ownership: UltimateBeneficialOwnerOwnership
+
+  """
+  Ultimate beneficial owner control types. Only applicable if qualificationType is Control
+  """
+  controlTypes: [UltimateBeneficialOwnerControlType!]
+
+  """Ultimate beneficial owner identity document information"""
+  identityDocumentInfo: UltimateBeneficialOwnerIdentityDocumentInfo
+}
+
+"""Ultimate beneficial owner specific information for related individual"""
+input RelatedIndividualUltimateBeneficialOwnerInput {
+  """
+  Ultimate beneficial owner qualification type. If a ultimate beneficial owner has multiple qualification types, then priority is Ownership, then Control, then Legal Representative
+  """
+  qualificationType: UltimateBeneficialOwnerQualificationType
+
+  """
+  Ultimate beneficial owner ownership information. Only applicable if qualificationType is Ownership
+  """
+  ownership: UltimateBeneficialOwnerOwnershipInput
+
+  """
+  Ultimate beneficial owner control types. Only applicable if qualificationType is Control
+  """
+  controlTypes: [UltimateBeneficialOwnerControlType!]
+
+  """Ultimate beneficial owner identity document information"""
+  identityDocumentInfo: UltimateBeneficialOwnerIdentityDocumentInfoInput
+}
+
 union Representative = IndividualRepresentative | CompanyRepresentative
 
 """
@@ -9244,7 +9644,7 @@ input UpdateIndividualAccountHolderOnboardingInput {
 }
 
 """Payload for updating an individual account holder onboarding"""
-union UpdateIndividualAccountHolderOnboardingPayload = UpdateIndividualAccountHolderOnboardingSuccessPayload | ForbiddenRejection | ValidationRejection
+union UpdateIndividualAccountHolderOnboardingPayload = UpdateIndividualAccountHolderOnboardingSuccessPayload | OnboardingNotFoundRejection | OnboardingAlreadyFinalizedRejection
 
 """Success response for updating an individual account holder onboarding"""
 type UpdateIndividualAccountHolderOnboardingSuccessPayload {
@@ -9365,7 +9765,7 @@ input UpdatePublicIndividualAccountHolderOnboardingInput {
 }
 
 """Payload for updating an individual account holder onboarding"""
-union UpdatePublicIndividualAccountHolderOnboardingPayload = UpdatePublicIndividualAccountHolderOnboardingSuccessPayload | ForbiddenRejection | ValidationRejection | OnboardingNotFoundRejection | OnboardingAlreadyFinalizedRejection | InternalErrorRejection | PublicOnboardingDisabledRejection
+union UpdatePublicIndividualAccountHolderOnboardingPayload = UpdatePublicIndividualAccountHolderOnboardingSuccessPayload | OnboardingNotFoundRejection | OnboardingAlreadyFinalizedRejection | PublicOnboardingDisabledRejection
 
 """Success response for updating an individual account holder onboarding"""
 type UpdatePublicIndividualAccountHolderOnboardingSuccessPayload {

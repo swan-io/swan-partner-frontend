@@ -14,17 +14,53 @@ fragment BirthInfo on BirthInfo {
   birthDate
 }
 
-fragment IndividualRepresentative on OnboardingIndividualRepresentative {
+# fragment IndividualRepresentative on OnboardingIndividualRepresentative {
+#   firstName
+#   lastName
+#   roles
+#   nationality
+#   email
+#   birthInfo {
+#     ...BirthInfo
+#   }
+#   address {
+#     ...Address
+#   }
+# }
+
+fragment CompanyRelatedIndividual on CompanyRelatedIndividualInfo {
+  type
   firstName
   lastName
-  roles
-  nationality
+  sex
   email
   birthInfo {
     ...BirthInfo
   }
   address {
     ...Address
+  }
+  nationality
+  taxIdentificationNumber
+  unitedStatesTaxInfo {
+    isUnitedStatesPerson
+    unitedStatesTaxIdentificationNumber
+  }
+}
+
+fragment RelatedIndividualUltimateBeneficialOwner on RelatedIndividualUltimateBeneficialOwner {
+  qualificationType
+  controlTypes
+  ownership {
+    totalPercentage
+    type
+  }
+  identityDocumentInfo {
+    type
+    number
+    expiryDate
+    issueDate
+    issuingAuthority
   }
 }
 
@@ -94,26 +130,52 @@ fragment CompanyInfo on CompanyInfo {
   regulatoryClassification
   websites
   companyType
-  ultimateBeneficialOwners {
-    firstName
-    lastName
-    qualificationType
-    controlTypes
-    ownership {
-      totalPercentage
-      type
+  relatedCompanies {
+    entityName
+    registrationCountry
+    registrationNumber
+    roles
+  }
+  relatedIndividuals {
+    ... on CompanyLegalRepresentative {
+      ...CompanyRelatedIndividual
+    }
+    ... on CompanyUltimateBeneficialOwner {
+      ...CompanyRelatedIndividual
+      ultimateBeneficialOwner {
+        ...RelatedIndividualUltimateBeneficialOwner
+      }
+    }
+    ... on CompanyLegalRepresentativeAndUltimateBeneficialOwner {
+      ...CompanyRelatedIndividual
+      ultimateBeneficialOwner {
+        ...RelatedIndividualUltimateBeneficialOwner
+      }
+      legalRepresentative {
+        roles
+      }
     }
   }
-  representatives {
-    ... on OnboardingCompanyRepresentative {
-      entityName
-      registrationNumber
-      roles
-    }
-    ... on OnboardingIndividualRepresentative {
-      ...IndividualRepresentative
-    }
-  }
+  # ultimateBeneficialOwners {
+  #   firstName
+  #   lastName
+  #   qualificationType
+  #   controlTypes
+  #   ownership {
+  #     totalPercentage
+  #     type
+  #   }
+  # }
+  # representatives {
+  #   ... on OnboardingCompanyRepresentative {
+  #     entityName
+  #     registrationNumber
+  #     roles
+  #   }
+  #   ... on OnboardingIndividualRepresentative {
+  #     ...IndividualRepresentative
+  #   }
+  # }
 }
 
 fragment IndividualOrCompanyOnboarding on AccountHolderOnboardingBase {
@@ -266,9 +328,9 @@ mutation UpdatePublicIndividualAccountHolderOnboarding(
         ...IndividualOnboarding
       }
     }
-    ... on ValidationRejection {
-      ...UpdateValidationErrors
-    }
+    # ... on ValidationRejection {
+    #   ...UpdateValidationErrors
+    # }
   }
 }
 

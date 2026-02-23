@@ -16105,8 +16105,11 @@ type CapitalDepositDocumentRefusedStatusInfo implements CapitalDepositDocumentSt
   """Refused"""
   status: CapitalDepositDocumentStatus!
 
-  """Reason for the rejection."""
+  """Reason code for the rejection."""
   reasonCode: DocumentReasonCode!
+
+  """Additional information for the rejection."""
+  reason: String!
 }
 
 """Status of the Capital Deposit Case"""

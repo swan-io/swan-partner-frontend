@@ -8,7 +8,7 @@ import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { trim } from "@swan-io/lake/src/utils/string";
-import { useForm } from "@swan-io/use-form";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
@@ -37,6 +37,7 @@ import {
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import {
+  validateEmail,
   validateName,
   validateNullableRequired,
   validateRequired,
@@ -85,7 +86,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
     email: {
       initialValue: accountAdmin?.email ?? "",
       sanitize: trim,
-      // validate: combineValidators(validateRequired, validateEmail),
+      validate: combineValidators(validateRequired, validateEmail),
     },
     firstName: {
       initialValue: accountAdmin?.firstName ?? "",

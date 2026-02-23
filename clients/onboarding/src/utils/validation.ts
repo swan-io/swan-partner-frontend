@@ -22,6 +22,7 @@ export const validateMaxLength: (maxLength: number) => Validator<string> = maxLe
 
 export type ServerInvalidFieldCode = "Missing";
 
+// @depreacted: moving to extractServerValidationFields when using Graphql error
 export const extractServerValidationErrors = <T extends string>(
   { fields }: UpdateValidationErrorsFragment,
   pathToFieldName: (path: string[]) => T | null = () => null,

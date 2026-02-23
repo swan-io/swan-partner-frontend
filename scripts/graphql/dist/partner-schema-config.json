@@ -324,6 +324,11 @@
       "CompanyAccountHolderOnboarding",
       "IndividualAccountHolderOnboarding"
     ],
+    "CompanyRelatedIndividualInfo": [
+      "CompanyLegalRepresentative",
+      "CompanyLegalRepresentativeAndUltimateBeneficialOwner",
+      "CompanyUltimateBeneficialOwner"
+    ],
     "VerificationRenewalInfoBase": [
       "CompanyVerificationRenewalInfo",
       "IndividualVerificationRenewalInfo"

@@ -14,17 +14,39 @@ fragment BirthInfo on BirthInfo {
   birthDate
 }
 
-fragment IndividualRepresentative on OnboardingIndividualRepresentative {
+fragment CompanyRelatedIndividual on CompanyRelatedIndividualInfo {
+  type
   firstName
   lastName
-  roles
-  nationality
+  sex
   email
   birthInfo {
     ...BirthInfo
   }
   address {
     ...Address
+  }
+  nationality
+  taxIdentificationNumber
+  unitedStatesTaxInfo {
+    isUnitedStatesPerson
+    unitedStatesTaxIdentificationNumber
+  }
+}
+
+fragment RelatedIndividualUltimateBeneficialOwner on RelatedIndividualUltimateBeneficialOwner {
+  qualificationType
+  controlTypes
+  ownership {
+    totalPercentage
+    type
+  }
+  identityDocumentInfo {
+    type
+    number
+    expiryDate
+    issueDate
+    issuingAuthority
   }
 }
 
@@ -94,24 +116,30 @@ fragment CompanyInfo on CompanyInfo {
   regulatoryClassification
   websites
   companyType
-  ultimateBeneficialOwners {
-    firstName
-    lastName
-    qualificationType
-    controlTypes
-    ownership {
-      totalPercentage
-      type
-    }
+  relatedCompanies {
+    entityName
+    registrationCountry
+    registrationNumber
+    roles
   }
-  representatives {
-    ... on OnboardingCompanyRepresentative {
-      entityName
-      registrationNumber
-      roles
+  relatedIndividuals {
+    ... on CompanyLegalRepresentative {
+      ...CompanyRelatedIndividual
     }
-    ... on OnboardingIndividualRepresentative {
-      ...IndividualRepresentative
+    ... on CompanyUltimateBeneficialOwner {
+      ...CompanyRelatedIndividual
+      ultimateBeneficialOwner {
+        ...RelatedIndividualUltimateBeneficialOwner
+      }
+    }
+    ... on CompanyLegalRepresentativeAndUltimateBeneficialOwner {
+      ...CompanyRelatedIndividual
+      ultimateBeneficialOwner {
+        ...RelatedIndividualUltimateBeneficialOwner
+      }
+      legalRepresentative {
+        roles
+      }
     }
   }
 }
@@ -266,9 +294,10 @@ mutation UpdatePublicIndividualAccountHolderOnboarding(
         ...IndividualOnboarding
       }
     }
-    ... on ValidationRejection {
-      ...UpdateValidationErrors
-    }
+    # @todo check why this rejection was deleted
+    # ... on ValidationRejection {
+    #   ...UpdateValidationErrors
+    # }
   }
 }
 

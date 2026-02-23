@@ -146,7 +146,7 @@ export const OnboardingCompanyActivity = ({ onboarding, serverValidationErrors }
   }, [serverValidationErrors, isFirstMount, setFieldError]);
 
   const onPressPrevious = () => {
-    Router.push("Finalize", { onboardingId });
+    Router.push("Organisation", { onboardingId });
   };
 
   const onPressNext = () => {

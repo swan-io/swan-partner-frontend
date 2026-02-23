@@ -41,7 +41,8 @@ import { match, P } from "ts-pattern";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 import {
-  extractServerValidationErrors,
+  badUserInputErrorPattern,
+  extractServerValidationFields,
   getValidationErrorMessage,
   ServerInvalidFieldCode,
 } from "../../../utils/validation";
@@ -217,8 +218,8 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
           .tapOk(() => Router.push("Finalize", { onboardingId }))
           .tapError(error => {
             match(error)
-              .with({ __typename: "ValidationRejection" }, error => {
-                const invalidFields = extractServerValidationErrors(error, path => {
+              .with(badUserInputErrorPattern, ({ fields }) => {
+                const invalidFields = extractServerValidationFields(fields, path => {
                   return match(path)
                     .with(
                       [

@@ -139,6 +139,7 @@
       "MerchantProfileNotValidRejection",
       "MerchantProfileUpdateRequestPendingRejection",
       "MerchantProfileWrongStatusRejection",
+      "PaymentIntentInvalidStatusRejection",
       "PaymentMethodNotCompatibleRejection",
       "RejectionReasonMandatoryRejection",
       "SchemeWrongRejection",

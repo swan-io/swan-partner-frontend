@@ -4919,8 +4919,11 @@ type CapitalDepositDocumentRefusedStatusInfo implements CapitalDepositDocumentSt
   """Refused"""
   status: CapitalDepositDocumentStatus!
 
-  """Reason for the rejection."""
+  """Reason code for the rejection."""
   reasonCode: DocumentReasonCode!
+
+  """Additional information for the rejection."""
+  reason: String!
 }
 
 """Status of the Capital Deposit Case"""
@@ -10522,6 +10525,10 @@ type OtherAdditionalInformationRequirements {
   otherAdditionalInformation: [String!]!
 }
 
+type PaymentIntentInvalidStatusRejection implements Rejection {
+  message: String!
+}
+
 """
 Rejection returned when a payment method is not compatible for the requested mutation
 """
@@ -10961,7 +10968,7 @@ input SimulateIncomingInPersonPaymentIntentOutcomeInput {
   testCardScenario: InPersonCardTestScenario!
 }
 
-union SimulateIncomingInPersonPaymentIntentOutcomePayload = SimulateIncomingInPersonPaymentIntentOutcomeSuccessPayload | ForbiddenRejection | ValidationRejection | NotFoundRejection | InternalErrorRejection
+union SimulateIncomingInPersonPaymentIntentOutcomePayload = SimulateIncomingInPersonPaymentIntentOutcomeSuccessPayload | PaymentIntentInvalidStatusRejection | ForbiddenRejection | ValidationRejection | NotFoundRejection | InternalErrorRejection
 
 type SimulateIncomingInPersonPaymentIntentOutcomeSuccessPayload {
   paymentIntentId: String!

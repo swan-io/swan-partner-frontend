@@ -241,9 +241,9 @@ query GetPublicCompamyInfoRegistryData($input: PublicCompanyInfoRegistryDataInpu
         ...CompanyInfo
       }
     }
-    ... on Rejection {
-      message
-    }
+    # ... on Rejection {
+    #   message
+    # }
   }
 }
 
@@ -294,10 +294,6 @@ mutation UpdatePublicIndividualAccountHolderOnboarding(
         ...IndividualOnboarding
       }
     }
-    # @todo check why this rejection was deleted
-    # ... on ValidationRejection {
-    #   ...UpdateValidationErrors
-    # }
   }
 }
 
@@ -310,9 +306,9 @@ mutation UpdatePublicCompanyAccountHolderOnboarding(
         ...CompanyOnboarding
       }
     }
-    ... on ValidationRejection {
-      ...UpdateValidationErrors
-    }
+    # ... on ValidationRejection {
+    #   ...UpdateValidationErrors
+    # }
   }
 }
 

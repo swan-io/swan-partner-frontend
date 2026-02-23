@@ -40,7 +40,8 @@ import { match } from "ts-pattern";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 import {
-  extractServerValidationErrors,
+  badUserInputErrorPattern,
+  extractServerValidationFields,
   getValidationErrorMessage,
   isValidUrl,
   ServerInvalidFieldCode,
@@ -171,8 +172,8 @@ export const OnboardingCompanyActivity = ({ onboarding, serverValidationErrors }
           .tapOk(() => Router.push("Finalize", { onboardingId }))
           .tapError(error => {
             match(error)
-              .with({ __typename: "ValidationRejection" }, error => {
-                const invalidFields = extractServerValidationErrors(error, path => {
+              .with(badUserInputErrorPattern, ({ fields }) => {
+                const invalidFields = extractServerValidationFields(fields, path => {
                   return match(path)
                     .with(
                       ["company", "businessActivityDescription"],

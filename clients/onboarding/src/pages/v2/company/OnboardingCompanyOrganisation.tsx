@@ -19,7 +19,8 @@ import {
 } from "../../../graphql/partner";
 import { t } from "../../../utils/i18n";
 import {
-  extractServerValidationErrors,
+  badUserInputErrorPattern,
+  extractServerValidationFields,
   getValidationErrorMessage,
   validateRegistrationNumber,
 } from "../../../utils/validation";
@@ -167,8 +168,8 @@ export const OnboardingCompanyOrganisation = ({ onboarding }: Props) => {
           .tapOk(() => Router.push("Activity", { onboardingId }))
           .tapError(error => {
             match(error)
-              .with({ __typename: "ValidationRejection" }, error => {
-                const invalidFields = extractServerValidationErrors(error, path => {
+              .with(badUserInputErrorPattern, ({ fields }) => {
+                const invalidFields = extractServerValidationFields(fields, path => {
                   return match(path)
                     .with(["company", "address", "addressLine1"], () => "address" as const)
                     .with(["company", "address", "city"], () => "city" as const)

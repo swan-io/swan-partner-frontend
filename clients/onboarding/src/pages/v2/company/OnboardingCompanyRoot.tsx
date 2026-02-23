@@ -46,6 +46,11 @@ import { cleanData, transformRepresentativesToInput } from "../../../utils/onboa
 import { CompanySuggestion } from "../../../utils/Pappers";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
+import {
+  badUserInputErrorPattern,
+  extractServerValidationFields,
+  getValidationErrorMessage,
+} from "../../../utils/validation";
 
 type Props = {
   onboarding: NonNullable<CompanyOnboardingFragment>;
@@ -95,7 +100,7 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
   const [manualMode, setManualMode] = useState<boolean>(initialCountry !== "FRA");
   const [representatives, setRepresentatives] = useState<OnboardingRepresentative[]>();
 
-  const { Field, FieldsListener, setFieldValue, submitForm } = useForm({
+  const { Field, FieldsListener, setFieldValue, setFieldError, submitForm } = useForm({
     name: {
       initialValue: company?.name ?? "",
       sanitize: trim,
@@ -182,18 +187,17 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
           .tapOk(() => Router.push("Details", { onboardingId }))
           .tapError(error => {
             match(error)
-              .with({ __typename: "ValidationRejection" }, _error => {
-                // @TODO: handle validation errors@
-                // const invalidFields = extractServerValidationErrors(error, path => {
-                //   return match(path)
-                //     .with(["accountAdmin", "email"], () => "email" as const)
-                //     .with(["accountAdmin", "firstName"], () => "firstName" as const)
-                //     .otherwise(() => null);
-                // });
-                // invalidFields.forEach(({ fieldName, code }) => {
-                //   const message = getValidationErrorMessage(code, currentValues[fieldName]);
-                //   setFieldError(fieldName, message);
-                // });
+              .with(badUserInputErrorPattern, ({ fields }) => {
+                const invalidFields = extractServerValidationFields(fields, path => {
+                  return match(path)
+                    .with(["company", "name"], () => "name" as const)
+                    .with(["company", "legalFormCode"], () => "legalFormCode" as const)
+                    .otherwise(() => null);
+                });
+                invalidFields.forEach(({ fieldName, code }) => {
+                  const message = getValidationErrorMessage(code, currentValues[fieldName]);
+                  setFieldError(fieldName, message);
+                });
               })
               .otherwise(noop);
             showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });

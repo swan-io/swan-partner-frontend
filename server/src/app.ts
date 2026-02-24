@@ -983,6 +983,7 @@ export const start = async ({
       TGGL_API_KEY: process.env.TGGL_API_KEY,
       BANKING_URL: env.BANKING_URL,
       PAYMENT_URL: env.PAYMENT_URL,
+      IDENTITY_URL: env.IDENTITY_URL,
       SWAN_PROJECT_ID: projectId.match({
         Ok: projectId => projectId,
         Error: () => undefined,

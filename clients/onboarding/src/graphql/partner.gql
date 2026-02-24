@@ -276,15 +276,6 @@ query GetLegalForms($country: CCA3!) {
   }
 }
 
-fragment UpdateValidationErrors on ValidationRejection {
-  __typename
-  fields {
-    path
-    code
-    message
-  }
-}
-
 mutation UpdatePublicIndividualAccountHolderOnboarding(
   $input: UpdatePublicIndividualAccountHolderOnboardingInput!
 ) {
@@ -306,9 +297,6 @@ mutation UpdatePublicCompanyAccountHolderOnboarding(
         ...CompanyOnboarding
       }
     }
-    # ... on ValidationRejection {
-    #   ...UpdateValidationErrors
-    # }
   }
 }
 

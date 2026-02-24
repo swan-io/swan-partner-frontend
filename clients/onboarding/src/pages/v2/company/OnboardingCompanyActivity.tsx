@@ -169,7 +169,7 @@ export const OnboardingCompanyActivity = ({ onboarding, serverValidationErrors }
         })
           .mapOk(data => data.updatePublicCompanyAccountHolderOnboarding)
           .mapOkToResult(filterRejectionsToResult)
-          .tapOk(() => Router.push("Finalize", { onboardingId }))
+          .tapOk(() => Router.push("Ownership", { onboardingId }))
           .tapError(error => {
             match(error)
               .with(badUserInputErrorPattern, ({ fields }) => {

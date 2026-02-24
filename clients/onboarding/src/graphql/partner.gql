@@ -224,45 +224,29 @@ fragment IndividualOnboarding on IndividualAccountHolderOnboarding {
 
 query GetPublicOnboarding($id: ID!) {
   publicAccountHolderOnboarding(id: $id) {
-    __typename
-    ... on PublicAccountHolderOnboardingSuccessPayload {
-      onboarding {
-        ...CompanyOnboarding
-        ...IndividualOnboarding
-      }
-    }
+    ...CompanyOnboarding
+    ...IndividualOnboarding
   }
 }
 
 query GetPublicCompamyInfoRegistryData($input: PublicCompanyInfoRegistryDataInput!) {
   publicCompanyInfoRegistryData(input: $input) {
-    ... on PublicCompanyInfoRegistryDataSuccessPayload {
-      companyInfo {
-        ...CompanyInfo
-      }
-    }
-    # ... on Rejection {
-    #   message
-    # }
+    ...CompanyInfo
   }
 }
 
 query GetPublicOnboardingVersion($id: ID!) {
   publicAccountHolderOnboarding(id: $id) {
-    ... on PublicAccountHolderOnboardingSuccessPayload {
-      onboarding {
-        ... on CompanyAccountHolderOnboarding {
-          id
-          statusInfo {
-            validationVersion
-          }
-        }
-        ... on IndividualAccountHolderOnboarding {
-          id
-          statusInfo {
-            validationVersion
-          }
-        }
+    ... on CompanyAccountHolderOnboarding {
+      id
+      statusInfo {
+        validationVersion
+      }
+    }
+    ... on IndividualAccountHolderOnboarding {
+      id
+      statusInfo {
+        validationVersion
       }
     }
   }

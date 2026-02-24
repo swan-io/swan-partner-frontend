@@ -5,7 +5,7 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { useMemo } from "react";
 import { match, P } from "ts-pattern";
-import { OnboardingRepresentative } from "../graphql/partner";
+import { CompanyRelatedCompany, CompanyRelatedIndividual } from "../graphql/partner";
 import { t } from "../utils/i18n";
 
 type RepresentativeItem = Item<string> & {
@@ -14,34 +14,39 @@ type RepresentativeItem = Item<string> & {
 };
 
 type props = {
-  representatives: OnboardingRepresentative[];
+  individuals: (CompanyRelatedIndividual | CompanyRelatedCompany)[];
   value?: string;
   error?: string;
   onChange: (value: string) => void;
 };
 
-export const RepresentativeFormsInput = ({ representatives, value, onChange, error }: props) => {
+export const RepresentativeFormsInput = ({ individuals, value, onChange, error }: props) => {
   const items: RepresentativeItem[] = useMemo(() => {
-    const representativesItems = representatives
+    const representativesItems = individuals
       .map(representative => {
         return match(representative)
           .with(
             {
-              __typename: "OnboardingIndividualRepresentative",
+              __typename: P.union(
+                "CompanyLegalRepresentative",
+                "CompanyLegalRepresentativeAndUltimateBeneficialOwner",
+              ),
               firstName: P.string,
               lastName: P.string,
-              roles: P.array(P.string),
+              legalRepresentative: {
+                roles: P.array(P.string),
+              },
             },
-            ({ roles, firstName, lastName }) => ({
-              name: `${firstName} ${lastName} - ${roles.join(", ")}`,
+            ({ legalRepresentative, firstName, lastName }) => ({
+              name: `${firstName} ${lastName} - ${legalRepresentative.roles.join(", ")}`,
               fullName: `${firstName} ${lastName}`,
               value: lastName,
-              roles: roles.join(", "),
+              roles: legalRepresentative.roles.join(", "),
             }),
           )
           .with(
             {
-              __typename: "OnboardingCompanyRepresentative",
+              __typename: "CompanyRelatedCompany",
               entityName: P.string,
               roles: P.array(P.string),
             },
@@ -64,7 +69,7 @@ export const RepresentativeFormsInput = ({ representatives, value, onChange, err
     };
 
     return [...representativesItems, unlisted];
-  }, [representatives]);
+  }, [individuals]);
 
   return (
     <LakeLabel

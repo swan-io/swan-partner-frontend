@@ -52,7 +52,7 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
   // const { company } = onboarding;
 
   const onPressPrevious = () => {
-    Router.push("Organisation", { onboardingId });
+    Router.push("Activity", { onboardingId });
   };
 
   const onPressNext = () => {

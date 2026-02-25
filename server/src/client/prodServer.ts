@@ -26,7 +26,7 @@ const handleRequest = async (reqPath: string, appName: AppName, reply: FastifyRe
     } else {
       // Prevents having old HTMLs in cache referencing assets that
       // do not longer exist in its files
-      void reply.header("cache-control", "private, max-age=0");
+      void reply.header("cache-control", "no-cache, no-store, must-revalidate");
       if (isStaticAsset) {
         return reply.sendFile(reqPath, path.join(staticPath, appName));
       } else {

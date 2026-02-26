@@ -19,7 +19,8 @@ import {
 } from "../../../graphql/partner";
 import { t } from "../../../utils/i18n";
 import {
-  extractServerValidationErrors,
+  badUserInputErrorPattern,
+  extractServerValidationFields,
   getValidationErrorMessage,
   validateRegistrationNumber,
 } from "../../../utils/validation";
@@ -146,7 +147,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding }: Props) => {
         }
         const currentValues = option.get();
 
-        const { address, city, postalCode, ...input } = currentValues;
+        const { address, city, postalCode, vatNumber, ...input } = currentValues;
 
         updateCompanyOnboarding({
           input: {
@@ -157,6 +158,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding }: Props) => {
                 city,
                 postalCode,
               },
+              vatNumber: vatNumber === "" ? undefined : vatNumber, // Return undefined if empty otherwise the backend with run a regex on it
               regulatoryClassification: "NonFinancialActive", // Default value as we don't use it yet on product side but required by the api
               ...input,
             },
@@ -167,8 +169,8 @@ export const OnboardingCompanyOrganisation = ({ onboarding }: Props) => {
           .tapOk(() => Router.push("Activity", { onboardingId }))
           .tapError(error => {
             match(error)
-              .with({ __typename: "ValidationRejection" }, error => {
-                const invalidFields = extractServerValidationErrors(error, path => {
+              .with(badUserInputErrorPattern, ({ fields }) => {
+                const invalidFields = extractServerValidationFields(fields, path => {
                   return match(path)
                     .with(["company", "address", "addressLine1"], () => "address" as const)
                     .with(["company", "address", "city"], () => "city" as const)

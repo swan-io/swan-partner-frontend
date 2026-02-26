@@ -11,6 +11,7 @@ import { StyleSheet } from "react-native";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import { StepTitle } from "../../../components/StepTitle";
 import {
+  BusinessActivityCategory,
   CompanyHeadcount,
   CompanyOnboardingFragment,
   ForecastYearlyIncome,
@@ -24,11 +25,6 @@ import { LakeTagInput } from "@swan-io/lake/src/components/LakeTagInput";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { noop } from "@swan-io/lake/src/utils/function";
-import {
-  companyHeadcount,
-  forecastYearlyIncome,
-  monthlyPaymentVolumes,
-} from "@swan-io/shared-business/src/constants/business";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import {
   validateNullableRequired,
@@ -37,10 +33,17 @@ import {
 import { useEffect } from "react";
 import { View } from "react-native";
 import { match } from "ts-pattern";
+import {
+  businessActivityCategories,
+  companyHeadcount,
+  forecastYearlyIncome,
+  monthlyPaymentVolumes,
+} from "../../../constants/business";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 import {
-  extractServerValidationErrors,
+  badUserInputErrorPattern,
+  extractServerValidationFields,
   getValidationErrorMessage,
   isValidUrl,
   ServerInvalidFieldCode,
@@ -97,6 +100,13 @@ const companyHeadcountItems: Item<CompanyHeadcount>[] = companyHeadcount.map(({ 
   value,
 }));
 
+const businessActivitiesItems: Item<BusinessActivityCategory>[] = businessActivityCategories.map(
+  ({ text, value }) => ({
+    name: text,
+    value,
+  }),
+);
+
 const CHARACTER_LIMITATION = 1024;
 
 export const OnboardingCompanyActivity = ({ onboarding, serverValidationErrors }: Props) => {
@@ -113,6 +123,10 @@ export const OnboardingCompanyActivity = ({ onboarding, serverValidationErrors }
       initialValue: company?.businessActivityDescription ?? "",
       sanitize: trim,
       validate: combineValidators(validateRequired, validateMaxLength(CHARACTER_LIMITATION)),
+    },
+    businessActivity: {
+      initialValue: company?.businessActivity ?? undefined,
+      validate: validateNullableRequired,
     },
     monthlyPaymentVolume: {
       initialValue: company?.monthlyPaymentVolume ?? undefined,
@@ -168,11 +182,11 @@ export const OnboardingCompanyActivity = ({ onboarding, serverValidationErrors }
         })
           .mapOk(data => data.updatePublicCompanyAccountHolderOnboarding)
           .mapOkToResult(filterRejectionsToResult)
-          .tapOk(() => Router.push("Finalize", { onboardingId }))
+          .tapOk(() => Router.push("Ownership", { onboardingId }))
           .tapError(error => {
             match(error)
-              .with({ __typename: "ValidationRejection" }, error => {
-                const invalidFields = extractServerValidationErrors(error, path => {
+              .with(badUserInputErrorPattern, ({ fields }) => {
+                const invalidFields = extractServerValidationFields(fields, path => {
                   return match(path)
                     .with(
                       ["company", "businessActivityDescription"],
@@ -219,6 +233,25 @@ export const OnboardingCompanyActivity = ({ onboarding, serverValidationErrors }
                           maxCharCount={CHARACTER_LIMITATION}
                           onChangeText={onChange}
                           onBlur={onBlur}
+                        />
+                      )}
+                    />
+                  )}
+                </Field>
+
+                <Field name="businessActivity">
+                  {({ value, error, onChange, ref }) => (
+                    <LakeLabel
+                      label={t("company.step.organisation2.activityLabel")}
+                      render={id => (
+                        <LakeSelect
+                          id={id}
+                          placeholder={t("company.step.organisation2.activityPlaceholder")}
+                          value={value}
+                          items={businessActivitiesItems}
+                          error={error}
+                          onValueChange={onChange}
+                          ref={ref}
                         />
                       )}
                     />

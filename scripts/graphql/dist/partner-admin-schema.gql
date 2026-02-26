@@ -1672,17 +1672,88 @@ type CloseAccountReason implements Reason {
 
 """Specific type for closing account action"""
 enum CloseAccountReasonType {
-  """Compliance Reason"""
+  """The company is inactive or isn't registered."""
+  BusinessInactiveOrNotRegistered
+
+  """The capital deposit has been withdrawn."""
+  CapitalDepositCanceled
+
+  """
+  Standard closure of a Shareholder account after the capital deposit case is completed.
+  """
+  CapitalDepositCompleted
+
+  """The notary refused the capital deposit case."""
+  CapitalDepositRefusedByNotary
+
+  """Capital Deposit Reason"""
+  CapitalDepositReason
+
+  """Closure required for compliance reasons not covered by other values."""
   ComplianceReason
 
-  """Partner Reason"""
-  PartnerReason
+  """Account holder is deceased."""
+  DeathClosure
+
+  """The ultimate beneficial owner or resident is in a high-risk country."""
+  DeniedCountryResidency
+
+  """
+  Prolonged inactivity according to local regulatory definitions or internal policy.
+  """
+  DormantAccount
+
+  """A duplicate account was created by mistake."""
+  DuplicateOnboarding
+
+  """The account holder operates in a prohibited business sector."""
+  ForbiddenActivity
 
   """Inactivity"""
   Inactivity
 
-  """Capital Deposit Reason"""
-  CapitalDepositReason
+  """Required documents are missing, incorrect, or unanswered."""
+  KYCIssue
+
+  """Reason not covered by other values."""
+  Other
+
+  """The Partner is no longer working with Swan."""
+  PartnerChurn
+
+  """Partner Reason"""
+  PartnerReason
+
+  """
+  The company registration country isn't supported, or isn't available per the country allowlist.
+  """
+  CompanyRegistrationCountryNotSupported
+
+  """
+  The account holder was assigned the wrong IBAN country, or the IBAN country isn't available per the country allowlist.
+  """
+  RefusedIbanCountry
+
+  """Closure required by a regulatory obligation."""
+  RegulatoryRequirement
+
+  """The account holder didn't reply to a re-KYC request."""
+  ReKYCNoReply
+
+  """Closure following a Partner remediation plan."""
+  RemediationPlan
+
+  """The end user initiated the closure."""
+  RequestedByHolder
+
+  """Closure requested by the Partner for any reason."""
+  RequestedByPartner
+
+  """The account holder violated the terms and conditions."""
+  TCViolation
+
+  """Swan doesn't support this legal form."""
+  UnsupportedLegalForm
 }
 
 """

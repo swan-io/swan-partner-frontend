@@ -18,6 +18,7 @@ import { OnboardingCompanyActivity } from "./OnboardingCompanyActivity";
 import { OnboardingCompanyDetails } from "./OnboardingCompanyDetails";
 import { OnboardingCompanyOrganisation } from "./OnboardingCompanyOrganisation";
 import { OnboardingCompanyRoot } from "./OnboardingCompanyRoot";
+import { OnboardingCompanyOwnership } from "./OnboardingCompanyOwnership";
 
 const styles = StyleSheet.create({
   stepper: {
@@ -147,7 +148,7 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
                 <OnboardingCompanyActivity onboarding={onboarding} />
               ))
               .with({ name: "Ownership" }, () => (
-                <OnboardingCompanyDetails onboarding={onboarding} />
+                <OnboardingCompanyOwnership onboarding={onboarding} />
               ))
               .with({ name: "Documents" }, () => (
                 <OnboardingCompanyDetails onboarding={onboarding} />

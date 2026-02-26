@@ -205,7 +205,7 @@ const FlowPickerV2 = ({ onboardingId }: Props) => {
   useEffect(() => {
     const request = query({ id: onboardingId }).tapOk(({ publicAccountHolderOnboarding }) => {
       match(publicAccountHolderOnboarding)
-        .with({ __typename: "PublicAccountHolderOnboardingSuccessPayload" }, ({ onboarding }) => {
+        .with(P.nonNullable, onboarding => {
           if (onboarding.accountAdmin?.preferredLanguage === locale.language) {
             return;
           }
@@ -254,7 +254,7 @@ const FlowPickerV2 = ({ onboardingId }: Props) => {
       }
 
       return match(onboardingInfo)
-        .with({ __typename: "PublicAccountHolderOnboardingSuccessPayload" }, ({ onboarding }) => {
+        .with(P.nonNullable, onboarding => {
           const accountCountry = onboarding.accountInfo?.country ?? undefined;
           const projectInfo = onboarding.projectInfo;
           const projectColor = projectInfo.accentColor ?? invariantColors.defaultAccentColor;
@@ -304,15 +304,17 @@ const FlowPickerWizard = ({ onboardingId }: Props) => {
     })
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ publicAccountHolderOnboarding }) => {
       return match(publicAccountHolderOnboarding)
-        .with({ __typename: "OnboardingAlreadyFinalizedRejection" }, () => {
-          return <Redirect to={`${env.BANKING_URL}?source=onboarding`} />;
-        })
-        .with({ __typename: "PublicAccountHolderOnboardingSuccessPayload" }, ({ onboarding }) => {
-          return onboarding.statusInfo.validationVersion === "V2" ? (
-            <FlowPickerV2 onboardingId={onboardingId} />
-          ) : (
-            <FlowPickerV1 />
-          );
+        .with(P.nonNullable, onboarding => {
+          return match(onboarding.statusInfo)
+            .with({ __typename: "OnboardingFinalizedStatusInfo" }, () => {
+              return <Redirect to={`${env.BANKING_URL}?source=onboarding`} />;
+            })
+            .with({ validationVersion: "V2" }, () => {
+              return <FlowPickerV2 onboardingId={onboardingId} />;
+            })
+            .otherwise(() => {
+              return <FlowPickerV1 />;
+            });
         })
         .otherwise(() => <ErrorView />);
     })

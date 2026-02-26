@@ -9,9 +9,10 @@ import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import {
   CompanyInfo,
   CompanyOnboardingFragment,
+  CompanyRelatedCompany,
+  CompanyRelatedIndividual,
   GetPublicCompamyInfoRegistryDataDocument,
   LegalForm,
-  OnboardingRepresentative,
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { t } from "../../../utils/i18n";
@@ -42,10 +43,15 @@ import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { LakeCompanyInput } from "../../../components/LakeCompanyInput";
 import { LegalFormsInput } from "../../../components/LegalFormsInput";
 import { RepresentativeFormsInput } from "../../../components/RepresentativeFormInput";
-import { cleanData, transformRepresentativesToInput } from "../../../utils/onboarding";
+import { cleanData, transformRelatedIndividualsToInput } from "../../../utils/onboarding";
 import { CompanySuggestion } from "../../../utils/Pappers";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
+import {
+  badUserInputErrorPattern,
+  extractServerValidationFields,
+  getValidationErrorMessage,
+} from "../../../utils/validation";
 
 type Props = {
   onboarding: NonNullable<CompanyOnboardingFragment>;
@@ -93,9 +99,10 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
   const [siren, setSiren] = useState<string | null>(null);
   const [publicData, setPublicData] = useState<CompanyInfo>();
   const [manualMode, setManualMode] = useState<boolean>(initialCountry !== "FRA");
-  const [representatives, setRepresentatives] = useState<OnboardingRepresentative[]>();
+  const [representatives, setRepresentatives] =
+    useState<(CompanyRelatedIndividual | CompanyRelatedCompany)[]>();
 
-  const { Field, FieldsListener, setFieldValue, submitForm } = useForm({
+  const { Field, FieldsListener, setFieldValue, setFieldError, submitForm } = useForm({
     name: {
       initialValue: company?.name ?? "",
       sanitize: trim,
@@ -114,7 +121,7 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
       },
     },
     typeOfRepresentation: {
-      initialValue: accountAdmin?.typeOfRepresentation,
+      initialValue: accountAdmin?.typeOfRepresentation || "LegalRepresentative",
     },
     currentRepresentative: {
       initialValue: accountAdmin?.lastName ?? undefined,
@@ -130,7 +137,6 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
     submitForm({
       onSuccess: values => {
         const option = Option.allFromDict(omit(values, ["currentRepresentative"]));
-        const representativesInput = transformRepresentativesToInput(representatives);
 
         if (option.isNone()) {
           return;
@@ -141,11 +147,23 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
         // @TODO: improve matching logic
         const selectedRepresentative = values.currentRepresentative
           .flatMap(value => Option.fromNullable(value))
-          .map(value => representativesInput?.find(item => item.lastName === value))
-          .toUndefined();
+          .map(value =>
+            representatives?.find(item =>
+              match(item)
+                .with(
+                  { __typename: P.not("CompanyRelatedCompany") },
+                  individual => individual.lastName === value,
+                )
+                .otherwise(() => false),
+            ),
+          )
+          .toUndefined() as CompanyRelatedIndividual | undefined;
+        const cleanedRepresentative = cleanData(selectedRepresentative);
 
         const companyInfo = cleanData(publicData);
-        // const uboInput = transformUboToInput(publicData?.ultimateBeneficialOwners); //@todo replace with relatedIndividuals
+        const relatedIndividuals = transformRelatedIndividualsToInput(
+          publicData?.relatedIndividuals,
+        );
 
         updateCompanyOnboarding({
           input: {
@@ -161,18 +179,20 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
               businessActivity: companyInfo?.businessActivity,
               businessActivityCode: companyInfo?.businessActivityCode,
               businessActivityDescription: companyInfo?.businessActivityDescription,
+              relatedCompanies: companyInfo?.relatedCompanies,
+              relatedIndividuals: relatedIndividuals,
               address: {
                 country,
                 ...companyInfo?.address,
               },
             },
             accountAdmin: {
-              firstName: selectedRepresentative?.firstName,
-              lastName: selectedRepresentative?.lastName,
-              address: selectedRepresentative?.address,
-              birthInfo: selectedRepresentative?.birthInfo,
-              nationality: selectedRepresentative?.nationality,
-              email: selectedRepresentative?.email,
+              firstName: cleanedRepresentative?.firstName,
+              lastName: cleanedRepresentative?.lastName,
+              address: cleanedRepresentative?.address,
+              birthInfo: cleanedRepresentative?.birthInfo,
+              nationality: cleanedRepresentative?.nationality,
+              email: cleanedRepresentative?.email,
               typeOfRepresentation,
             },
           },
@@ -182,18 +202,17 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
           .tapOk(() => Router.push("Details", { onboardingId }))
           .tapError(error => {
             match(error)
-              .with({ __typename: "ValidationRejection" }, _error => {
-                // @TODO: handle validation errors@
-                // const invalidFields = extractServerValidationErrors(error, path => {
-                //   return match(path)
-                //     .with(["accountAdmin", "email"], () => "email" as const)
-                //     .with(["accountAdmin", "firstName"], () => "firstName" as const)
-                //     .otherwise(() => null);
-                // });
-                // invalidFields.forEach(({ fieldName, code }) => {
-                //   const message = getValidationErrorMessage(code, currentValues[fieldName]);
-                //   setFieldError(fieldName, message);
-                // });
+              .with(badUserInputErrorPattern, ({ fields }) => {
+                const invalidFields = extractServerValidationFields(fields, path => {
+                  return match(path)
+                    .with(["company", "name"], () => "name" as const)
+                    .with(["company", "legalFormCode"], () => "legalFormCode" as const)
+                    .otherwise(() => null);
+                });
+                invalidFields.forEach(({ fieldName, code }) => {
+                  const message = getValidationErrorMessage(code, currentValues[fieldName]);
+                  setFieldError(fieldName, message);
+                });
               })
               .otherwise(noop);
             showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
@@ -206,11 +225,11 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
     if (siren != null) {
       query({
         input: { registrationNumber: siren, residencyAddressCountry: "FRA" },
-      }).tapOk(({ publicCompanyInfoRegistryData }) => {
-        match(publicCompanyInfoRegistryData)
-          .with(
-            { __typename: "PublicCompanyInfoRegistryDataSuccessPayload" },
-            ({ companyInfo }) => {
+      })
+        .tapOk(({ publicCompanyInfoRegistryData }) => {
+          match(publicCompanyInfoRegistryData)
+            .with({ __typename: "CompanyInfo" }, companyInfo => {
+              console.log("companyInfo", companyInfo);
               const { relatedIndividuals, legalFormCode, ...info } = companyInfo;
               setPublicData(info);
               setFieldValue("legalFormCode", legalFormCode ?? undefined);
@@ -221,10 +240,113 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
               // } else {
               //   setRepresentatives(undefined);
               // }
-            },
-          )
-          .otherwise(noop);
-      });
+            })
+            .otherwise(noop);
+        })
+        .tapError(() => {
+          console.log("tapError");
+          const companyInfo: CompanyInfo = {
+            __typename: "CompanyInfo",
+            registrationNumber: "838622140",
+            name: "SOURCE VENTURES",
+            businessActivity: null,
+            businessActivityCode: "66.30Z",
+            businessActivityDescription: "Gestion de fonds",
+            relatedCompanies: [
+              {
+                __typename: "CompanyRelatedCompany",
+                registrationCountry: "FRA",
+                entityName: "PARISIENNE D'EXPERTISE COMPTABLE SPEC",
+                registrationNumber: null,
+                roles: ["Commissaire aux comptes titulaire"],
+              },
+            ],
+            relatedIndividuals: [
+              {
+                __typename: "CompanyLegalRepresentativeAndUltimateBeneficialOwner",
+                firstName: "Martin",
+                preferredFirstName: "Martin",
+                address: {
+                  __typename: "AddressInfo",
+                  addressLine1: "16 Rue Gustave Nickles",
+                  addressLine2: null,
+                  city: "Bagnolet",
+                  country: "FRA",
+                  postalCode: "93170",
+                  state: null,
+                },
+                birthInfo: {
+                  __typename: "BirthInfo",
+                  birthDate: "1987-02-23",
+                  city: "Castres",
+                  country: "FRA",
+                  postalCode: null,
+                },
+                email: null,
+                lastName: "Charpentier",
+                legalRepresentative: {
+                  __typename: "RelatedIndividualLegalRepresentative",
+                  roles: ["Président"],
+                },
+                nationality: "FRA",
+                sex: "Male",
+                taxIdentificationNumber: null,
+                type: "LegalRepresentativeAndUltimateBeneficialOwner",
+                ultimateBeneficialOwner: {
+                  __typename: "RelatedIndividualUltimateBeneficialOwner",
+                  controlTypes: null,
+                  ownership: {
+                    __typename: "UltimateBeneficialOwnerOwnership",
+                    totalPercentage: 35.79,
+                    type: "Indirect",
+                  },
+                  qualificationType: "Ownership",
+                },
+                unitedStatesTaxInfo: null,
+              },
+              {
+                __typename: "CompanyLegalRepresentative",
+                firstName: "Victor, Nathan, Nicolas",
+                preferredFirstName: "Victor",
+                address: {
+                  __typename: "AddressInfo",
+                  addressLine1: "110 Avenue du Président Wilson",
+                  addressLine2: null,
+                  city: "Montreuil",
+                  postalCode: "93100",
+                  country: "FRA",
+                  state: null,
+                },
+                email: null,
+                lastName: "Mertz",
+                legalRepresentative: {
+                  __typename: "RelatedIndividualLegalRepresentative",
+                  roles: ["Directeur général"],
+                },
+                sex: "Male",
+                taxIdentificationNumber: null,
+                type: "LegalRepresentative",
+                birthInfo: {
+                  __typename: "BirthInfo",
+                  birthDate: "1986-11-01",
+                  city: "Strasbourg",
+                  country: "FRA",
+                  postalCode: null,
+                },
+                nationality: "FRA",
+                unitedStatesTaxInfo: null,
+              },
+            ],
+            legalFormCode: "6CHY",
+          };
+          setPublicData(companyInfo);
+          setFieldValue("legalFormCode", companyInfo.legalFormCode ?? undefined);
+
+          setRepresentatives([
+            ...(companyInfo.relatedIndividuals ?? []),
+            ...(companyInfo.relatedCompanies ?? []),
+          ]);
+        });
     }
   }, [siren, query, setFieldValue]);
 
@@ -346,7 +468,7 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
                         <Field name="currentRepresentative">
                           {({ value, onChange, error }) => (
                             <RepresentativeFormsInput
-                              representatives={representatives}
+                              individuals={representatives}
                               value={value}
                               onChange={onChange}
                               error={error}

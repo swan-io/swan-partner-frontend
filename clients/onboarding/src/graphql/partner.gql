@@ -125,6 +125,9 @@ fragment CompanyInfo on CompanyInfo {
   relatedIndividuals {
     ... on CompanyLegalRepresentative {
       ...CompanyRelatedIndividual
+      legalRepresentative {
+        roles
+      }
     }
     ... on CompanyUltimateBeneficialOwner {
       ...CompanyRelatedIndividual

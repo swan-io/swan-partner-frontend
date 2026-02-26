@@ -10,6 +10,7 @@ import { formatNestedMessage, t } from "../../../utils/i18n";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { match } from "ts-pattern";
 import { Router } from "../../../utils/routes";
 
 export type ActivityFieldName =
@@ -49,7 +50,7 @@ const styles = StyleSheet.create({
 
 export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
   const onboardingId = onboarding.id;
-  // const { company } = onboarding;
+  const { company } = onboarding;
 
   const onPressPrevious = () => {
     Router.push("Activity", { onboardingId });
@@ -90,6 +91,31 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
                 <Icon name="add-circle-regular" size={24} color={colors.gray[500]} />
                 <LakeText>{t("company.step.ownersip.addTitle")}</LakeText>
               </Pressable>
+
+              {company?.relatedIndividuals?.map(individual => (
+                <>
+                  <LakeText>
+                    {individual.firstName} {individual.lastName}
+                  </LakeText>
+                  <LakeText>
+                    {match(individual)
+                      .with(
+                        { __typename: "CompanyLegalRepresentative" },
+                        ({ legalRepresentative }) => legalRepresentative.roles.join(", "),
+                      )
+                      .with({ __typename: "CompanyUltimateBeneficialOwner" }, () => "UBO")
+                      .with(
+                        { __typename: "CompanyLegalRepresentativeAndUltimateBeneficialOwner" },
+                        ({ legalRepresentative, ultimateBeneficialOwner }) =>
+                          legalRepresentative.roles.join(", ") +
+                          (ultimateBeneficialOwner?.ownership
+                            ? ` • ${ultimateBeneficialOwner.ownership.totalPercentage}% ownership (Direct)`
+                            : ""),
+                      )
+                      .exhaustive()}
+                  </LakeText>
+                </>
+              ))}
             </Tile>
           </>
         )}

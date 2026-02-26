@@ -16,8 +16,6 @@
       "BadRequestRejection",
       "CardNotFoundRejection",
       "ClosedAccountNotUpgradableRejection",
-      "CompanyRegistryNotFoundRejection",
-      "CompanyRegistryUnavailableRejection",
       "ExternalAccountAlreadyExistsRejection",
       "ForbiddenRejection",
       "IbanEntryNotFoundRejection",

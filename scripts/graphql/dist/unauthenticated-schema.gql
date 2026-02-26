@@ -1569,17 +1569,88 @@ type CloseAccountReason implements Reason {
 
 """Specific type for closing account action"""
 enum CloseAccountReasonType {
-  """Compliance Reason"""
+  """The company is inactive or isn't registered."""
+  BusinessInactiveOrNotRegistered
+
+  """The capital deposit has been withdrawn."""
+  CapitalDepositCanceled
+
+  """
+  Standard closure of a Shareholder account after the capital deposit case is completed.
+  """
+  CapitalDepositCompleted
+
+  """The notary refused the capital deposit case."""
+  CapitalDepositRefusedByNotary
+
+  """Capital Deposit Reason"""
+  CapitalDepositReason
+
+  """Closure required for compliance reasons not covered by other values."""
   ComplianceReason
 
-  """Partner Reason"""
-  PartnerReason
+  """Account holder is deceased."""
+  DeathClosure
+
+  """The ultimate beneficial owner or resident is in a high-risk country."""
+  DeniedCountryResidency
+
+  """
+  Prolonged inactivity according to local regulatory definitions or internal policy.
+  """
+  DormantAccount
+
+  """A duplicate account was created by mistake."""
+  DuplicateOnboarding
+
+  """The account holder operates in a prohibited business sector."""
+  ForbiddenActivity
 
   """Inactivity"""
   Inactivity
 
-  """Capital Deposit Reason"""
-  CapitalDepositReason
+  """Required documents are missing, incorrect, or unanswered."""
+  KYCIssue
+
+  """Reason not covered by other values."""
+  Other
+
+  """The Partner is no longer working with Swan."""
+  PartnerChurn
+
+  """Partner Reason"""
+  PartnerReason
+
+  """
+  The company registration country isn't supported, or isn't available per the country allowlist.
+  """
+  CompanyRegistrationCountryNotSupported
+
+  """
+  The account holder was assigned the wrong IBAN country, or the IBAN country isn't available per the country allowlist.
+  """
+  RefusedIbanCountry
+
+  """Closure required by a regulatory obligation."""
+  RegulatoryRequirement
+
+  """The account holder didn't reply to a re-KYC request."""
+  ReKYCNoReply
+
+  """Closure following a Partner remediation plan."""
+  RemediationPlan
+
+  """The end user initiated the closure."""
+  RequestedByHolder
+
+  """Closure requested by the Partner for any reason."""
+  RequestedByPartner
+
+  """The account holder violated the terms and conditions."""
+  TCViolation
+
+  """Swan doesn't support this legal form."""
+  UnsupportedLegalForm
 }
 
 """
@@ -1882,9 +1953,6 @@ input CompanyInfoInput {
   """Regulatory classification of the company"""
   regulatoryClassification: RegulatoryClassification
 
-  """List of representatives of the company @deprecated"""
-  representatives: [OnboardingRepresentativeInput!]
-
   """Company headquarters address"""
   address: ResidencyAddressInput
 
@@ -1894,9 +1962,6 @@ input CompanyInfoInput {
   - Maximum 16 characters
   """
   taxIdentificationNumber: String
-
-  """List of ultimate beneficial owners of the company @deprecated"""
-  ultimateBeneficialOwners: [UltimateBeneficialOwnerInput!]
 
   """
   List of individuals related to the company (Ultimate beneficial owners and/or legal representatives)
@@ -2013,20 +2078,6 @@ type CompanyLegalRepresentativeAndUltimateBeneficialOwner implements CompanyRela
 
   """Legal representative specific information"""
   legalRepresentative: RelatedIndividualLegalRepresentative!
-}
-
-"""Rejection returned if registration number is not correct"""
-type CompanyRegistryNotFoundRejection implements Rejection {
-  message: String!
-  registrationNumber: String!
-  country: String!
-}
-
-"""
-Rejection returned when the company registry service is temporarily unavailable
-"""
-type CompanyRegistryUnavailableRejection implements Rejection {
-  message: String!
 }
 
 """
@@ -3300,15 +3351,6 @@ type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
   typeOfRepresentation: TypeOfRepresentation
 }
 
-type OnboardingCompanyRepresentative {
-  roles: [String!]
-  entityName: String
-  registrationNumber: String
-  legalFormCode: String
-  address: AddressInfo
-  email: String
-}
-
 """
 Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
 """
@@ -3385,18 +3427,6 @@ type OnboardingIndividualAccountHolderInfo implements OnboardingAccountHolderInf
 
   """Tax Identification Number"""
   taxIdentificationNumber: String
-}
-
-type OnboardingIndividualRepresentative {
-  roles: [String!]
-  firstName: String
-  lastName: String
-  preferredFirstName: String
-  sex: Sex
-  birthInfo: BirthInfo
-  nationality: CCA3
-  address: AddressInfo
-  email: String
 }
 
 type OnboardingInfo {
@@ -3491,86 +3521,6 @@ enum OnboardingOrderByFieldInput {
 input OnboardingOrderByInput {
   field: OnboardingOrderByFieldInput
   direction: OrderByDirection
-}
-
-union OnboardingRepresentative = OnboardingCompanyRepresentative | OnboardingIndividualRepresentative
-
-"""Input for onboarding representative (company or individual)"""
-input OnboardingRepresentativeInput {
-  """Type of the representative (Company or Individual)"""
-  type: RepresentativeType!
-
-  """
-  Roles of the representative within the company
-  
-  - Each role: Maximum 100 characters
-  """
-  roles: [String!]
-
-  """
-  Legal name of the representative entity (when type is Company)
-  
-  - Maximum 100 characters
-  - Allowed characters: letters (including international characters), numbers, punctuation, and special symbols (¿, ¡, @, [, ], |, ', ', ?, =)
-  """
-  entityName: String
-
-  """
-  Registration number of the representative entity
-  
-  - Maximum 50 characters
-  """
-  registrationNumber: String
-
-  """
-  Legal form of the representative entity
-  
-  - Maximum 100 characters
-  """
-  legalForm: String
-
-  """Address of the representative"""
-  address: ResidencyAddressInput
-
-  """
-  First name of the representative
-  
-  - Maximum 100 characters
-  """
-  firstName: String
-
-  """
-  Last name of the representative
-  
-  - Maximum 100 characters
-  """
-  lastName: String
-
-  """
-  Preferred first name of the representative
-  
-  - Maximum 100 characters
-  """
-  preferredFirstName: String
-
-  """Sex of the representative"""
-  sex: Sex
-
-  """Birth information of the representative"""
-  birthInfo: BirthInfoInput
-
-  """Nationality of the representative"""
-  nationality: CCA3
-
-  """
-  Email of the representative
-  
-  - Must be a valid email format
-  - Maximum 255 characters
-  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
-  - Disposable email domains are not allowed
-  """
-  email: String
 }
 
 """Possible values for onboarding status"""
@@ -5104,61 +5054,6 @@ enum UBOIdentityDocumentType {
   IdCard
 }
 
-type UltimateBeneficialOwner {
-  """Ultimate beneficial owner birth information"""
-  birthInfo: BirthInfo
-
-  """
-  Ultimate beneficial owner qualification type. If a ultimate beneficial owner has multiple qualification types, then priority is Ownership, then Control, then Legal Representative
-  """
-  qualificationType: UltimateBeneficialOwnerQualificationType
-
-  """
-  Ultimate beneficial owner control types. Only applicable if qualificationType is Control
-  """
-  controlTypes: [UltimateBeneficialOwnerControlType!]
-
-  """
-  Ultimate beneficial owner first name
-  
-  - Must be between 1 and 100 characters
-  """
-  firstName: String
-
-  """Ultimate beneficial owner sex"""
-  sex: Sex
-
-  """
-  Ultimate beneficial owner last name
-  
-  - Must be between 1 and 100 characters
-  """
-  lastName: String
-
-  """
-  Ultimate beneficial owner ownership information. Only applicable if qualificationType is Ownership
-  """
-  ownership: UltimateBeneficialOwnerOwnership
-
-  """Ultimate beneficial owner residency address information"""
-  address: AddressInfo
-
-  """
-  Ultimate beneficial owner tax identification number, if applicable
-  
-  - Maximum 16 characters
-  """
-  taxIdentificationNumber: String
-
-  """
-  Tax information related to US persons as defined by FATCA, if applicable
-  """
-  unitedStatesTaxInfo: UnitedStatesTaxInfo
-
-  """Ultimate beneficial owner identity document information"""
-  identityDocumentInfo: UltimateBeneficialOwnerIdentityDocumentInfo
-}
-
 enum UltimateBeneficialOwnerControlType {
   """The ultimate beneficial owner exerts control via voting rights"""
   VotingRights
@@ -5251,61 +5146,6 @@ type UltimateBeneficialOwnerInfo {
   Shares ratio of the parent company. Example: 50 if the share ratio is 50%.
   """
   parentCompanyShareRatio: Float!
-}
-
-input UltimateBeneficialOwnerInput {
-  """Ultimate beneficial owner birth information"""
-  birthInfo: BirthInfoInput
-
-  """
-  Ultimate beneficial owner qualification type. If a ultimate beneficial owner has multiple qualification types, then priority is Ownership, then Control, then Legal Representative
-  """
-  qualificationType: UltimateBeneficialOwnerQualificationType
-
-  """
-  Ultimate beneficial owner control types. Only applicable if qualificationType is Control
-  """
-  controlTypes: [UltimateBeneficialOwnerControlType!]
-
-  """
-  Ultimate beneficial owner first name
-  
-  - Must be between 1 and 100 characters
-  """
-  firstName: String
-
-  """Ultimate beneficial owner sex"""
-  sex: Sex
-
-  """Ultimate beneficial owner identity document information"""
-  identityDocumentInfo: UltimateBeneficialOwnerIdentityDocumentInfoInput
-
-  """
-  Ultimate beneficial owner last name
-  
-  - Must be between 1 and 100 characters
-  """
-  lastName: String
-
-  """
-  Ultimate beneficial owner ownership information. Only applicable if qualificationType is Ownership
-  """
-  ownership: UltimateBeneficialOwnerOwnershipInput
-
-  """Ultimate beneficial owner residency address information"""
-  address: ResidencyAddressInput
-
-  """
-  Ultimate beneficial owner tax identification number, if applicable
-  
-  - Maximum 16 characters
-  """
-  taxIdentificationNumber: String
-
-  """
-  Tax information related to US persons as defined by FATCA, if applicable
-  """
-  unitedStatesTaxInfo: UnitedStatesTaxInfoInput
 }
 
 type UltimateBeneficialOwnerOwnership {
@@ -6653,6 +6493,9 @@ enum CardSettingsBackgroundType {
   """when Card background is light"""
   Silver
 
+  """when Card background is metal"""
+  Metal
+
   """when Card background is customized"""
   Custom
 }
@@ -7377,6 +7220,9 @@ enum ProjectCardSettingsBackgroundType {
 
   """when Card setting background is light"""
   Silver
+
+  """when Card setting background is metal"""
+  Metal
 
   """when Card setting background is customized"""
   Custom

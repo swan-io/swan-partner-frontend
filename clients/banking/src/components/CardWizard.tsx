@@ -31,10 +31,10 @@ import {
   CreateMultiConsentDocument,
   GetCardProductsDocument,
   GetCardProductsQuery,
-  SpendingLimitInput,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
+import { SpendingLimitValue } from "./CardItemSpendingLimit";
 import { CardWizardDelivery, CardWizardDeliveryRef } from "./CardWizardDelivery";
 import { CardFormat, CardWizardFormat, CardWizardFormatRef } from "./CardWizardFormat";
 import {
@@ -56,7 +56,7 @@ type StepDefault = {
   cardName?: string;
   cardProduct?: CardProduct;
   cardFormat?: CardFormat;
-  spendingLimit?: SpendingLimitInput;
+  spendingLimit?: SpendingLimitValue;
   eCommerce?: boolean;
   withdrawal?: boolean;
   international?: boolean;
@@ -73,7 +73,7 @@ type Step = StepDefault &
         name: "CardProductMembers";
         cardProduct: CardProduct;
         cardFormat: CardFormat;
-        spendingLimit: SpendingLimitInput;
+        spendingLimit: SpendingLimitValue;
         cardName?: string;
         eCommerce: boolean;
         withdrawal: boolean;
@@ -84,7 +84,7 @@ type Step = StepDefault &
         name: "CardProductDelivery";
         cardProduct: CardProduct;
         cardFormat: CardFormat;
-        spendingLimit: SpendingLimitInput;
+        spendingLimit: SpendingLimitValue;
         cardName?: string;
         eCommerce: boolean;
         withdrawal: boolean;
@@ -96,7 +96,7 @@ type Step = StepDefault &
         name: "CardProductGroupedDelivery";
         cardProduct: CardProduct;
         cardFormat: CardFormat;
-        spendingLimit: SpendingLimitInput;
+        spendingLimit: SpendingLimitValue;
         cardName?: string;
         eCommerce: boolean;
         withdrawal: boolean;
@@ -108,7 +108,7 @@ type Step = StepDefault &
         name: "CardProductIndividualDelivery";
         cardProduct: CardProduct;
         cardFormat: CardFormat;
-        spendingLimit: SpendingLimitInput;
+        spendingLimit: SpendingLimitValue;
         cardName?: string;
         eCommerce: boolean;
         withdrawal: boolean;

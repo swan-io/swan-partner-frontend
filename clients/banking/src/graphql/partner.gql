@@ -1051,6 +1051,32 @@ fragment DigitalCard on DigitalCard {
     }
   }
 }
+fragment SpendingLimit on SpendingLimit {
+  mode {
+    rolling {
+      rollingValue
+    }
+    calendar {
+      daily {
+        startHour
+      }
+      weekly {
+        startHour
+        startDay
+      }
+      monthly {
+        startHour
+        startDay
+      }
+    }
+  }
+  amount {
+    currency
+    value
+  }
+  period
+  type
+}
 
 fragment SpendingLimit on SpendingLimit {
   mode {

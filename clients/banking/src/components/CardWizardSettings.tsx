@@ -3,8 +3,6 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import { Icon, IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
-import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
-import { LakeSlider } from "@swan-io/lake/src/components/LakeSlider";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
@@ -28,10 +26,9 @@ import {
   AccountHolderForCardSettingsFragment,
   Amount,
   CardProductFragment,
-  SpendingLimitInput,
-  SpendingLimitPeriodInput,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
+import { SpendingLimitForm, SpendingLimitValue } from "./CardItemSpendingLimit";
 import { CardFormat } from "./CardWizardFormat";
 
 const styles = StyleSheet.create({
@@ -71,12 +68,6 @@ const styles = StyleSheet.create({
   contents: {
     ...commonStyles.fill,
   },
-  sliderContainer: {
-    zIndex: 1,
-  },
-  sliderContainerLarge: {
-    zIndex: 1,
-  },
   item: {
     alignSelf: "stretch",
   },
@@ -100,13 +91,7 @@ const styles = StyleSheet.create({
 
 type DirtyCardSettings = {
   cardName?: string;
-  spendingLimit: {
-    amount: {
-      value?: string;
-      currency: string;
-    };
-    period: SpendingLimitPeriodInput;
-  };
+  spendingLimit: SpendingLimitValue;
   eCommerce: boolean;
   withdrawal: boolean;
   international: boolean;
@@ -115,7 +100,7 @@ type DirtyCardSettings = {
 
 export type CardSettings = {
   cardName?: string;
-  spendingLimit: SpendingLimitInput;
+  spendingLimit: SpendingLimitValue;
   eCommerce: boolean;
   withdrawal: boolean;
   international: boolean;
@@ -125,7 +110,7 @@ export type CardSettings = {
 type OptionalCardSettings = {
   initialSettings?: string;
   cardName?: string;
-  spendingLimit?: SpendingLimitInput;
+  spendingLimit?: SpendingLimitValue;
   eCommerce?: boolean;
   withdrawal?: boolean;
   international?: boolean;
@@ -154,7 +139,7 @@ const validate = (input: DirtyCardSettings): Result<CardSettings, ValidationErro
   if (isNullish(input.spendingLimit.amount.value)) {
     errors.push("InvalidAmount" as const);
   }
-  return errors.length > 0 ? Result.Error(errors) : Result.Ok(input as CardSettings);
+  return errors.length > 0 ? Result.Error(errors) : Result.Ok(input);
 };
 
 type CardProduct = CardProductFragment;
@@ -222,12 +207,17 @@ const CardWizardSettingsBooleanTile = ({
   );
 };
 
-const PERIODS = [
-  { name: t("cardSettings.spendingLimit.daily"), value: "Daily" as const },
-  { name: t("cardSettings.spendingLimit.weekly"), value: "Weekly" as const },
-  { name: t("cardSettings.spendingLimit.monthly"), value: "Monthly" as const },
-  { name: t("cardSettings.spendingLimit.always"), value: "Always" as const },
-];
+const defaultSpendingLimit = (cardFormat: CardFormat, currency: string): SpendingLimitValue => ({
+  amount: {
+    value: "0",
+    currency,
+  },
+  mode: {
+    type: "rolling",
+    rollingValue: 1,
+    period: cardFormat === "SingleUseVirtual" ? "Always" : "Monthly",
+  },
+});
 
 export const CardWizardSettings = ({
   ref,
@@ -257,13 +247,10 @@ export const CardWizardSettings = ({
 
   const [currentSettings, setCurrentSettings] = useState<DirtyCardSettings>(() => ({
     cardName: initialSettings?.cardName,
-    spendingLimit: initialSettings?.spendingLimit ?? {
-      amount: {
-        value: cardFormat === "SingleUseVirtual" ? undefined : String(spendingLimitMaxValue),
-        currency,
-      },
-      period: cardFormat === "SingleUseVirtual" ? "Always" : "Monthly",
-    },
+    spendingLimit:
+      initialSettings?.spendingLimit != null
+        ? initialSettings.spendingLimit
+        : defaultSpendingLimit(cardFormat, currency),
     eCommerce: initialSettings?.eCommerce ?? true,
     withdrawal: initialSettings?.withdrawal ?? true,
     international: initialSettings?.international ?? true,
@@ -369,90 +356,13 @@ export const CardWizardSettings = ({
             <>
               {cardFormat !== "SingleUseVirtual" ? (
                 <Tile title={large ? t("card.settings.spendingLimit") : undefined}>
-                  <View style={large ? styles.sliderContainerLarge : styles.sliderContainer}>
-                    <LakeLabel
-                      label={t("card.settings.spendingLimit")}
-                      render={id => (
-                        <ResponsiveContainer breakpoint={breakpoints.tiny} style={styles.container}>
-                          {({ large }) =>
-                            large ? (
-                              <>
-                                <Box
-                                  direction="row"
-                                  justifyContent="end"
-                                  style={styles.sliderInput}
-                                >
-                                  <View>
-                                    <LakeTextInput
-                                      style={styles.input}
-                                      unit={"€"}
-                                      value={dirtyValue}
-                                      onChangeText={setDirtyValue}
-                                      onBlur={sanitizeInput}
-                                      inputMode="decimal"
-                                      disabled={disabled}
-                                    />
-                                  </View>
-                                </Box>
-
-                                <LakeSlider
-                                  value={Number(currentSettings.spendingLimit.amount.value)}
-                                  min={0}
-                                  max={spendingLimitMaxValue}
-                                  step={1}
-                                  disabled={disabled}
-                                  onChange={value =>
-                                    setCurrentSettings(settings => ({
-                                      ...settings,
-                                      spendingLimit: {
-                                        ...settings.spendingLimit,
-                                        amount: {
-                                          ...settings.spendingLimit.amount,
-                                          value: String(value),
-                                        },
-                                      },
-                                    }))
-                                  }
-                                />
-                              </>
-                            ) : (
-                              <LakeTextInput
-                                id={id}
-                                unit={"€"}
-                                value={dirtyValue}
-                                onChangeText={setDirtyValue}
-                                onBlur={sanitizeInput}
-                                inputMode="decimal"
-                                disabled={disabled}
-                              />
-                            )
-                          }
-                        </ResponsiveContainer>
-                      )}
-                    />
-                  </View>
-
-                  <Space height={16} />
-
-                  <LakeLabel
-                    label={t("cardSettings.spendingLimit.period")}
-                    render={id => (
-                      <LakeSelect
-                        id={id}
-                        items={PERIODS}
-                        value={currentSettings.spendingLimit.period}
-                        disabled={disabled}
-                        onValueChange={period =>
-                          setCurrentSettings({
-                            ...currentSettings,
-                            spendingLimit: {
-                              ...currentSettings.spendingLimit,
-                              period,
-                            },
-                          })
-                        }
-                      />
-                    )}
+                  <SpendingLimitForm
+                    value={currentSettings.spendingLimit}
+                    maxValue={spendingLimitMaxValue}
+                    disabled={disabled}
+                    onChange={spendingLimit =>
+                      setCurrentSettings(settings => ({ ...settings, spendingLimit }))
+                    }
                   />
                 </Tile>
               ) : (
@@ -545,13 +455,21 @@ export const CardWizardSettings = ({
             <ChoicePicker
               large={true}
               items={["Always" as const, "Monthly" as const]}
-              value={currentSettings.spendingLimit.period}
+              value={
+                currentSettings.spendingLimit.mode.type === "rolling"
+                  ? currentSettings.spendingLimit.mode.period
+                  : undefined
+              }
               onChange={period =>
                 setCurrentSettings({
                   ...currentSettings,
                   spendingLimit: {
                     ...currentSettings.spendingLimit,
-                    period,
+                    mode: {
+                      type: "rolling",
+                      rollingValue: 1,
+                      period,
+                    },
                   },
                 })
               }
@@ -562,7 +480,8 @@ export const CardWizardSettings = ({
                     <Box alignItems="center">
                       <Icon
                         color={
-                          currentSettings.spendingLimit.period === period
+                          currentSettings.spendingLimit.mode.type === "rolling" &&
+                          currentSettings.spendingLimit.mode.period === period
                             ? colors.swan[300]
                             : colors.swan[200]
                         }

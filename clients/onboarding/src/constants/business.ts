@@ -1,8 +1,10 @@
+import { match } from "ts-pattern";
 import {
   BusinessActivityCategory,
   CompanyHeadcount,
   ForecastYearlyIncome,
   MonthlyPaymentVolume,
+  UltimateBeneficialOwnerOwnership,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
 
@@ -93,3 +95,19 @@ export const businessActivityCategories: { text: string; value: BusinessActivity
   { text: t("businessActivityCategory.wholesaleAndRetailTrade"), value: "WholesaleAndRetailTrade" },
   { text: t("businessActivityCategory.otherServiceActivities"), value: "OtherServiceActivities" },
 ];
+
+export const ownershipText = ({ type, totalPercentage }: UltimateBeneficialOwnerOwnership) => {
+  return match(type)
+    .with("Direct", () =>
+      t("company.step.ownersip.ownership.direct", { totalPercentage: totalPercentage ?? 0 }),
+    )
+    .with("Indirect", () =>
+      t("company.step.ownersip.ownership.indirect", { totalPercentage: totalPercentage ?? 0 }),
+    )
+    .with("DirectAndIndirect", () =>
+      t("company.step.ownersip.ownership.directAndIndirect", {
+        totalPercentage: totalPercentage ?? 0,
+      }),
+    )
+    .exhaustive();
+};

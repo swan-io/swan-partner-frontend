@@ -1,16 +1,21 @@
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { breakpoints, colors, radii } from "@swan-io/lake/src/constants/design";
-import { Pressable, StyleSheet } from "react-native";
+import { breakpoints, colors, radii, texts } from "@swan-io/lake/src/constants/design";
+import { Pressable, StyleSheet, View } from "react-native";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import { StepTitle } from "../../../components/StepTitle";
 import { CompanyOnboardingFragment } from "../../../graphql/partner";
 import { formatNestedMessage, t } from "../../../utils/i18n";
 
+import { Box } from "@swan-io/lake/src/components/Box";
 import { Icon } from "@swan-io/lake/src/components/Icon";
+import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { match } from "ts-pattern";
+import { useMemo } from "react";
+import { match, P } from "ts-pattern";
+import { ownershipText, ownershipTypeText } from "../../../constants/business";
 import { Router } from "../../../utils/routes";
 
 export type ActivityFieldName =
@@ -46,11 +51,47 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: "8px",
   },
+  textTitle: {
+    ...texts.medium,
+    color: colors.gray[900],
+    marginBottom: 4,
+  },
+  textSubTitle: {
+    ...texts.smallMedium,
+    color: colors.gray[900],
+  },
 });
+
+const ActionMenu = () => (
+  <View style={{ width: 64 }}>
+    <LakeButton
+      size="small"
+      mode="tertiary"
+      icon="edit-regular"
+      color="gray"
+      onPress={() => console.log("edit")}
+      ariaLabel={t("common.edit")}
+    />
+    <Space width={4} />
+    <LakeButton
+      size="small"
+      mode="tertiary"
+      icon="delete-regular"
+      color="negative"
+      onPress={() => console.log("delete")}
+      ariaLabel={t("common.delete")}
+    />
+  </View>
+);
 
 export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
   const onboardingId = onboarding.id;
   const { company } = onboarding;
+
+  const relatedCompanyAndIndividual = useMemo(
+    () => [...(company?.relatedIndividuals ?? []), ...(company?.relatedCompanies ?? [])],
+    [company],
+  );
 
   const onPressPrevious = () => {
     Router.push("Activity", { onboardingId });
@@ -92,30 +133,95 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
                 <LakeText>{t("company.step.ownersip.addTitle")}</LakeText>
               </Pressable>
 
-              {company?.relatedIndividuals?.map(individual => (
+              {relatedCompanyAndIndividual.length > 0 && (
                 <>
-                  <LakeText>
-                    {individual.firstName} {individual.lastName}
-                  </LakeText>
-                  <LakeText>
-                    {match(individual)
-                      .with(
-                        { __typename: "CompanyLegalRepresentative" },
-                        ({ legalRepresentative }) => legalRepresentative.roles.join(", "),
-                      )
-                      .with({ __typename: "CompanyUltimateBeneficialOwner" }, () => "UBO")
-                      .with(
-                        { __typename: "CompanyLegalRepresentativeAndUltimateBeneficialOwner" },
-                        ({ legalRepresentative, ultimateBeneficialOwner }) =>
-                          legalRepresentative.roles.join(", ") +
-                          (ultimateBeneficialOwner?.ownership
-                            ? ` • ${ultimateBeneficialOwner.ownership.totalPercentage}% ownership (Direct)`
-                            : ""),
-                      )
-                      .exhaustive()}
-                  </LakeText>
+                  <Space height={32} />
+
+                  <Box direction="row">
+                    <LakeText style={{ flexGrow: 2, ...styles.textTitle }}>Name</LakeText>
+                    <LakeText style={styles.textTitle}>Role</LakeText>
+                    <View style={{ width: 64 }} />
+                  </Box>
+                  <Space height={32} />
+
+                  {relatedCompanyAndIndividual.map((item, index) => (
+                    <View key={index}>
+                      {index > 0 && (
+                        <>
+                          <Separator space={16} />
+                          <Space height={8} />
+                        </>
+                      )}
+
+                      {match(item)
+                        .with({ __typename: "CompanyRelatedCompany" }, company => (
+                          <Box direction="row">
+                            <Box grow={2}>
+                              <LakeText style={styles.textTitle}>{company.entityName}</LakeText>
+                              <LakeText style={texts.smallRegular}>
+                                {t("company.step.ownersip.company")} • {company.roles.join(", ")}
+                              </LakeText>
+                            </Box>
+                            <LakeText style={styles.textSubTitle}>
+                              {t("company.step.ownersip.role.legalRepresentative")}
+                            </LakeText>
+                            <ActionMenu />
+                          </Box>
+                        ))
+                        .with(
+                          {
+                            __typename: P.union(
+                              "CompanyLegalRepresentative",
+                              "CompanyUltimateBeneficialOwner",
+                              "CompanyLegalRepresentativeAndUltimateBeneficialOwner",
+                            ),
+                          },
+                          individual => (
+                            <Box direction="row">
+                              <Box grow={2}>
+                                <LakeText style={styles.textTitle}>
+                                  {individual.firstName} {individual.lastName}
+                                </LakeText>
+                                <LakeText style={texts.smallRegular}>
+                                  {match(individual)
+                                    .with(
+                                      { __typename: "CompanyLegalRepresentative" },
+                                      ({ legalRepresentative }) =>
+                                        legalRepresentative.roles.join(", "),
+                                    )
+                                    .with(
+                                      { __typename: "CompanyUltimateBeneficialOwner" },
+                                      ({ ultimateBeneficialOwner }) =>
+                                        ultimateBeneficialOwner?.ownership
+                                          ? ownershipText(ultimateBeneficialOwner.ownership)
+                                          : "",
+                                    )
+                                    .with(
+                                      {
+                                        __typename:
+                                          "CompanyLegalRepresentativeAndUltimateBeneficialOwner",
+                                      },
+                                      ({ legalRepresentative, ultimateBeneficialOwner }) =>
+                                        legalRepresentative.roles.join(", ") +
+                                        (ultimateBeneficialOwner?.ownership
+                                          ? ` • ${ownershipText(ultimateBeneficialOwner.ownership)}`
+                                          : ""),
+                                    )
+                                    .exhaustive()}
+                                </LakeText>
+                              </Box>
+                              <LakeText style={styles.textSubTitle}>
+                                {ownershipTypeText(individual.type)}
+                              </LakeText>
+                              <ActionMenu />
+                            </Box>
+                          ),
+                        )
+                        .exhaustive()}
+                    </View>
+                  ))}
                 </>
-              ))}
+              )}
             </Tile>
           </>
         )}

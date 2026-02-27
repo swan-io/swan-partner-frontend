@@ -1,8 +1,11 @@
+import { match } from "ts-pattern";
 import {
   BusinessActivityCategory,
   CompanyHeadcount,
   ForecastYearlyIncome,
   MonthlyPaymentVolume,
+  RelatedIndividualType,
+  UltimateBeneficialOwnerOwnership,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
 
@@ -93,3 +96,22 @@ export const businessActivityCategories: { text: string; value: BusinessActivity
   { text: t("businessActivityCategory.wholesaleAndRetailTrade"), value: "WholesaleAndRetailTrade" },
   { text: t("businessActivityCategory.otherServiceActivities"), value: "OtherServiceActivities" },
 ];
+
+export const ownershipText = ({ type, totalPercentage }: UltimateBeneficialOwnerOwnership) => {
+  const params = { totalPercentage: totalPercentage ?? 0 };
+  return match(type)
+    .with("Direct", () => t("company.step.ownersip.ownership.direct", params))
+    .with("Indirect", () => t("company.step.ownersip.ownership.indirect", params))
+    .with("DirectAndIndirect", () => t("company.step.ownersip.ownership.directAndIndirect", params))
+    .exhaustive();
+};
+
+export const ownershipTypeText = (type: RelatedIndividualType) => {
+  return match(type)
+    .with("LegalRepresentative", () => t("company.step.ownersip.role.legalRepresentative"))
+    .with("UltimateBeneficialOwner", () => t("company.step.ownersip.role.ubo"))
+    .with("LegalRepresentativeAndUltimateBeneficialOwner", () =>
+      t("company.step.ownersip.role.legalRepresentativeAndUbo"),
+    )
+    .exhaustive();
+};

@@ -97,17 +97,10 @@ export const businessActivityCategories: { text: string; value: BusinessActivity
 ];
 
 export const ownershipText = ({ type, totalPercentage }: UltimateBeneficialOwnerOwnership) => {
+  const params = { totalPercentage: totalPercentage ?? 0 };
   return match(type)
-    .with("Direct", () =>
-      t("company.step.ownersip.ownership.direct", { totalPercentage: totalPercentage ?? 0 }),
-    )
-    .with("Indirect", () =>
-      t("company.step.ownersip.ownership.indirect", { totalPercentage: totalPercentage ?? 0 }),
-    )
-    .with("DirectAndIndirect", () =>
-      t("company.step.ownersip.ownership.directAndIndirect", {
-        totalPercentage: totalPercentage ?? 0,
-      }),
-    )
+    .with("Direct", () => t("company.step.ownersip.ownership.direct", params))
+    .with("Indirect", () => t("company.step.ownersip.ownership.indirect", params))
+    .with("DirectAndIndirect", () => t("company.step.ownersip.ownership.directAndIndirect", params))
     .exhaustive();
 };

@@ -4,6 +4,7 @@ import {
   CompanyHeadcount,
   ForecastYearlyIncome,
   MonthlyPaymentVolume,
+  RelatedIndividualType,
   UltimateBeneficialOwnerOwnership,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
@@ -102,5 +103,15 @@ export const ownershipText = ({ type, totalPercentage }: UltimateBeneficialOwner
     .with("Direct", () => t("company.step.ownersip.ownership.direct", params))
     .with("Indirect", () => t("company.step.ownersip.ownership.indirect", params))
     .with("DirectAndIndirect", () => t("company.step.ownersip.ownership.directAndIndirect", params))
+    .exhaustive();
+};
+
+export const ownershipTypeText = (type: RelatedIndividualType) => {
+  return match(type)
+    .with("LegalRepresentative", () => t("company.step.ownersip.role.legalRepresentative"))
+    .with("UltimateBeneficialOwner", () => t("company.step.ownersip.role.ubo"))
+    .with("LegalRepresentativeAndUltimateBeneficialOwner", () =>
+      t("company.step.ownersip.role.legalRepresentativeAndUbo"),
+    )
     .exhaustive();
 };

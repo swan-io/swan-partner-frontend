@@ -15,7 +15,7 @@ import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { useMemo } from "react";
 import { match, P } from "ts-pattern";
-import { ownershipText } from "../../../constants/business";
+import { ownershipText, ownershipTypeText } from "../../../constants/business";
 import { Router } from "../../../utils/routes";
 
 export type ActivityFieldName =
@@ -159,12 +159,11 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
                             <Box grow={2}>
                               <LakeText style={styles.textTitle}>{company.entityName}</LakeText>
                               <LakeText style={texts.smallRegular}>
-                                {company.roles.join(", ")}
+                                {t("company.step.ownersip.company")} • {company.roles.join(", ")}
                               </LakeText>
                             </Box>
                             <LakeText style={styles.textSubTitle}>
-                              {t("company.step.ownersip.company")} •{" "}
-                              {t("company.step.ownersip.role.LegalRepresentative")}
+                              {t("company.step.ownersip.role.legalRepresentative")}
                             </LakeText>
                             <ActionMenu />
                           </Box>
@@ -212,7 +211,7 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
                                 </LakeText>
                               </Box>
                               <LakeText style={styles.textSubTitle}>
-                                {t(`company.step.ownersip.role.${individual.type}`)}
+                                {ownershipTypeText(individual.type)}
                               </LakeText>
                               <ActionMenu />
                             </Box>

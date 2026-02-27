@@ -195,8 +195,9 @@ start({
     app.post<{ Params: { projectId: string } }>(
       "/api/projects/:projectId/partner",
       async (request, reply) => {
+        const isLive = env.OAUTH_CLIENT_ID.startsWith("LIVE_");
         const fromWebBanking = request.headers.origin === env.BANKING_URL;
-        if (fromWebBanking) {
+        if (fromWebBanking && isLive) {
           const disabled = getTgglClient(request.params.projectId).get("disableWebBanking", false);
           if (disabled) {
             request.log.warn(
@@ -275,8 +276,9 @@ start({
     app.post<{ Params: { projectId: string } }>(
       "/api/projects/:projectId/partner-admin",
       async (request, reply) => {
+        const isLive = env.OAUTH_CLIENT_ID.startsWith("LIVE_");
         const fromWebBanking = request.headers.origin === env.BANKING_URL;
-        if (fromWebBanking) {
+        if (fromWebBanking && isLive) {
           const disabled = getTgglClient(request.params.projectId).get("disableWebBanking", false);
           if (disabled) {
             request.log.warn(

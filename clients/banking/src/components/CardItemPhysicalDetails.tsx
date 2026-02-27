@@ -50,7 +50,7 @@ import {
   ConfirmPhysicalCardRenewalDocument,
   PrintPhysicalCardDocument,
   ResumePhysicalCardDocument,
-  SpendingLimitCalendarMode,
+  SpendingLimitFragment,
   SuspendPhysicalCardDocument,
   ViewPhysicalCardNumbersDocument,
   ViewPhysicalCardPinDocument,
@@ -1107,9 +1107,11 @@ export const CardItemPhysicalDetails = ({
                           Number(spendingLimit.amount.value) - Number(spending.amount.value),
                         );
 
-                        const getSpendingLimitCalendar = (calendar: SpendingLimitCalendarMode) =>
-                          match(calendar)
-                            .with({ daily: P.nonNullable }, mode => (
+                        const getSpendingLimitCalendar = (
+                          mode: NonNullable<SpendingLimitFragment["mode"]>,
+                        ) =>
+                          match(mode)
+                            .with({ __typename: "SpendingLimitCalendarDayMode" }, mode => (
                               <LakeText color={textColor} variant="smallRegular">
                                 {t("card.spendingLimit.calendar.daily", {
                                   amount: formatCurrency(
@@ -1117,11 +1119,11 @@ export const CardItemPhysicalDetails = ({
                                     spendingLimit.amount.currency,
                                   ),
                                   period: spendingLimit.period,
-                                  hour: mode.daily.startHour,
+                                  hour: mode.startHour,
                                 })}
                               </LakeText>
                             ))
-                            .with({ monthly: P.nonNullable }, mode => (
+                            .with({ __typename: "SpendingLimitCalendarMonthMode" }, mode => (
                               <LakeText color={textColor} variant="smallRegular">
                                 {t("card.spendingLimit.calendar.monthly", {
                                   amount: formatCurrency(
@@ -1129,14 +1131,11 @@ export const CardItemPhysicalDetails = ({
                                     spendingLimit.amount.currency,
                                   ),
                                   period: spendingLimit.period,
-                                  day: getMonthlySpendingDate(
-                                    mode.monthly.startDay,
-                                    mode.monthly.startHour,
-                                  ),
+                                  day: getMonthlySpendingDate(mode.startMonthDay, mode.startHour),
                                 })}
                               </LakeText>
                             ))
-                            .with({ weekly: P.nonNullable }, mode => (
+                            .with({ __typename: "SpendingLimitCalendarWeekMode" }, mode => (
                               <LakeText color={textColor} variant="smallRegular">
                                 {t("card.spendingLimit.calendar.weekly", {
                                   amount: formatCurrency(
@@ -1144,8 +1143,8 @@ export const CardItemPhysicalDetails = ({
                                     spendingLimit.amount.currency,
                                   ),
                                   period: spendingLimit.period,
-                                  day: translateDay(mode.weekly.startDay, locale.language),
-                                  hour: mode.weekly.startHour,
+                                  day: translateDay(mode.startWeekDay, locale.language),
+                                  hour: mode.startHour,
                                 })}
                               </LakeText>
                             ))
@@ -1215,9 +1214,9 @@ export const CardItemPhysicalDetails = ({
 
                               <Space height={8} />
 
-                              {isNotNullish(spendingLimit.mode?.calendar) ? (
+                              {isNotNullish(spendingLimit.mode) ? (
                                 <View style={styles.spendingLimitText}>
-                                  {getSpendingLimitCalendar(spendingLimit.mode.calendar)}
+                                  {getSpendingLimitCalendar(spendingLimit.mode)}
                                   <Fill minWidth={24} />
 
                                   <LakeText

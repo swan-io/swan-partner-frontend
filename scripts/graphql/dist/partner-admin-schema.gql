@@ -12120,6 +12120,18 @@ type Spending {
 
   """amount spent during the period"""
   amount: Amount
+
+  """spending computing time range"""
+  timeRange: SpendingTimeRange
+}
+
+"""time range used to compute the current spending"""
+type SpendingTimeRange {
+  """spending time range start"""
+  start: DateTime!
+
+  """spending time range end"""
+  end: DateTime!
 }
 
 """StatusInfo when funding limit settings has been suspended"""

@@ -13,11 +13,7 @@ import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
-import {
-  CardPageQuery,
-  SpendingLimitCalendarMode,
-  ViewCardNumbersDocument,
-} from "../graphql/partner";
+import { CardPageQuery, SpendingLimitFragment, ViewCardNumbersDocument } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { formatCurrency, locale, t, translateDay } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -187,9 +183,9 @@ export const CardItemVirtualDetails = ({
                 Number(spendingLimit.amount.value) - Number(spending.amount.value),
               );
 
-              const getSpendingLimitCalendar = (calendar: SpendingLimitCalendarMode) =>
-                match(calendar)
-                  .with({ daily: P.nonNullable }, mode => (
+              const getSpendingLimitCalendar = (mode: NonNullable<SpendingLimitFragment["mode"]>) =>
+                match(mode)
+                  .with({ __typename: "SpendingLimitCalendarDayMode" }, mode => (
                     <LakeText color={textColor} variant="smallRegular">
                       {t("card.spendingLimit.calendar.daily", {
                         amount: formatCurrency(
@@ -197,11 +193,11 @@ export const CardItemVirtualDetails = ({
                           spendingLimit.amount.currency,
                         ),
                         period: spendingLimit.period,
-                        hour: mode.daily.startHour,
+                        hour: mode.startHour,
                       })}
                     </LakeText>
                   ))
-                  .with({ monthly: P.nonNullable }, mode => (
+                  .with({ __typename: "SpendingLimitCalendarMonthMode" }, mode => (
                     <LakeText color={textColor} variant="smallRegular">
                       {t("card.spendingLimit.calendar.monthly", {
                         amount: formatCurrency(
@@ -209,11 +205,11 @@ export const CardItemVirtualDetails = ({
                           spendingLimit.amount.currency,
                         ),
                         period: spendingLimit.period,
-                        day: getMonthlySpendingDate(mode.monthly.startDay, mode.monthly.startHour),
+                        day: getMonthlySpendingDate(mode.startMonthDay, mode.startHour),
                       })}
                     </LakeText>
                   ))
-                  .with({ weekly: P.nonNullable }, mode => (
+                  .with({ __typename: "SpendingLimitCalendarWeekMode" }, mode => (
                     <LakeText color={textColor} variant="smallRegular">
                       {t("card.spendingLimit.calendar.weekly", {
                         amount: formatCurrency(
@@ -221,8 +217,8 @@ export const CardItemVirtualDetails = ({
                           spendingLimit.amount.currency,
                         ),
                         period: spendingLimit.period,
-                        day: translateDay(mode.weekly.startDay, locale.language),
-                        hour: mode.weekly.startHour,
+                        day: translateDay(mode.startWeekDay, locale.language),
+                        hour: mode.startHour,
                       })}
                     </LakeText>
                   ))
@@ -286,9 +282,9 @@ export const CardItemVirtualDetails = ({
 
                     <Space height={8} />
 
-                    {isNotNullish(spendingLimit.mode?.calendar) ? (
+                    {isNotNullish(spendingLimit.mode) ? (
                       <View style={styles.spendingLimitText}>
-                        {getSpendingLimitCalendar(spendingLimit.mode.calendar)}
+                        {getSpendingLimitCalendar(spendingLimit.mode)}
                         <Fill minWidth={24} />
 
                         <LakeText

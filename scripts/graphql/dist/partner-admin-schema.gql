@@ -180,6 +180,11 @@ type Mutation {
   """Simulate the authorization of a card merchant payment"""
   simulateIncomingCardAuthorization(input: SimulateIncomingCardAuthorizationInput!): SimulateIncomingCardAuthorizationPayload!
 
+  """
+  Simulate the settlement process for the give in-person card merchant payments
+  """
+  simulateIncomingInPersonCardSettlement(input: SimulateIncomingInPersonCardSettlementInput!): SimulateIncomingInPersonCardSettlementPayload!
+
   """Simulate the outcome of an incoming in-person payment intent"""
   simulateIncomingInPersonPaymentIntentOutcome(input: SimulateIncomingInPersonPaymentIntentOutcomeInput!): SimulateIncomingInPersonPaymentIntentOutcomePayload!
 
@@ -11032,6 +11037,19 @@ Set this to "Successful" to simulate a successful authentication, and to "Failed
 enum SimulateIncomingCardAuthorizationThreeDSStatus {
   Successful
   Failed
+}
+
+input SimulateIncomingInPersonCardSettlementInput {
+  """
+  IDs of the `InPersonCardMerchantPayment`s to be included in the settlement.
+  """
+  merchantPaymentIds: [ID!]!
+}
+
+union SimulateIncomingInPersonCardSettlementPayload = SimulateIncomingInPersonCardSettlementSuccessPayload | ForbiddenRejection | ValidationRejection | NotFoundRejection | InternalErrorRejection
+
+type SimulateIncomingInPersonCardSettlementSuccessPayload {
+  merchantPayments: [MerchantPayment!]!
 }
 
 input SimulateIncomingInPersonPaymentIntentOutcomeInput {

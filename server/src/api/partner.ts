@@ -186,11 +186,7 @@ export const createPublicIndividualAccountHolderOnboarding = ({
       )
       .with(
         {
-          __typename: P.union(
-            "ValidationRejection",
-            "PublicOnboardingDisabledRejection",
-            "ForbiddenRejection",
-          ),
+          __typename: P.union("PublicOnboardingDisabledRejection"),
         },
         ({ __typename, message }) =>
           Result.Error(new CreateOnboardingRejectionError(JSON.stringify({ __typename, message }))),
@@ -218,11 +214,7 @@ export const createPublicCompanyAccountHolderOnboarding = ({
       )
       .with(
         {
-          __typename: P.union(
-            "ValidationRejection",
-            "PublicOnboardingDisabledRejection",
-            "ForbiddenRejection",
-          ),
+          __typename: P.union("PublicOnboardingDisabledRejection"),
         },
         ({ __typename, message }) =>
           Result.Error(new CreateOnboardingRejectionError(JSON.stringify({ __typename, message }))),

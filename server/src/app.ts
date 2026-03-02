@@ -426,9 +426,8 @@ export const start = async ({
               accountCountry,
               projectId,
             });
-          } else {
-            return onboardIndividualAccountHolder({ accountCountry, projectId });
           }
+          return onboardIndividualAccountHolder({ accountCountry, projectId });
         })
         .tapOk(onboardingId => {
           return reply
@@ -470,9 +469,8 @@ export const start = async ({
           request.log.info(`#isOnboardingV2 ${isOnboardingV2}`);
           if (isOnboardingV2) {
             return createPublicCompanyAccountHolderOnboarding({ accountCountry, projectId });
-          } else {
-            return onboardCompanyAccountHolder({ accountCountry, projectId });
           }
+          return onboardCompanyAccountHolder({ accountCountry, projectId });
         })
         .tapOk(onboardingId => {
           return reply

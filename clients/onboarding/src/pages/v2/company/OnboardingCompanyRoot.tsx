@@ -229,21 +229,15 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
           match(publicCompanyInfoRegistryData)
             .with({ __typename: "CompanyInfo" }, companyInfo => {
               console.log("companyInfo", companyInfo);
-              const { relatedIndividuals, legalFormCode, ...info } = companyInfo;
+              const { relatedIndividuals, relatedCompanies, legalFormCode, ...info } = companyInfo;
               setPublicData(info);
               setFieldValue("legalFormCode", legalFormCode ?? undefined);
-
-              //@todo replace logic with relatedIndividuals
-              // if (representatives) {
-              //   setRepresentatives(representatives.filter(Boolean) as OnboardingRepresentative[]);
-              // } else {
-              //   setRepresentatives(undefined);
-              // }
+              setRepresentatives([...(relatedIndividuals ?? []), ...(relatedCompanies ?? [])]);
             })
             .otherwise(noop);
         })
         .tapError(() => {
-          console.log("tapError");
+          //@todo: For testing purposes must be removed before going in production
           const companyInfo: CompanyInfo = {
             __typename: "CompanyInfo",
             registrationNumber: "838622140",

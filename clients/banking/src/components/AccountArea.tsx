@@ -470,6 +470,7 @@ export const AccountArea = ({
                             hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
                             lastIdentification={lastIdentification}
                             accentColor={accentColor}
+                            projectLogo={projectLogo}
                             accountMembershipId={accountMembershipId}
                             additionalInfo={additionalInfo}
                             projectName={projectName}

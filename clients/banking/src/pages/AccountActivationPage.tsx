@@ -704,6 +704,7 @@ type Props = {
   accountMembershipId: string;
   additionalInfo: AdditionalInfo;
   projectName: string;
+  projectLogo: string | undefined;
   refetchAccountAreaQuery: () => void;
   hasRequiredIdentificationLevel: boolean | undefined;
   lastIdentification: Option<IdentificationFragment>;
@@ -715,6 +716,7 @@ export const AccountActivationPage = ({
   accountMembershipId,
   additionalInfo,
   projectName,
+  projectLogo,
   refetchAccountAreaQuery,
   hasRequiredIdentificationLevel,
   lastIdentification,
@@ -781,6 +783,12 @@ export const AccountActivationPage = ({
             match(projectConfiguration.map(({ projectId }) => projectId))
               .with(Option.P.Some(P.select()), projectId => params.set("projectId", projectId))
               .otherwise(() => {});
+
+            params.set("partnerName", projectName);
+            params.set("accentColor", accentColor);
+            if (projectLogo != null) {
+              params.set("logoUri", projectLogo);
+            }
 
             params.set("identificationLevel", "Auto");
             params.set("nextUrl", Router.AccountActivationRoot({ accountMembershipId }));

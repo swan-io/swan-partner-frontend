@@ -11,7 +11,14 @@ import pc from "picocolors";
 import { P, match } from "ts-pattern";
 import { string, validate, url as validateUrl } from "valienv";
 import { exchangeToken } from "./api/oauth2.swan";
-import { UnsupportedAccountCountryError, parseAccountCountry, sdk, toFuture } from "./api/partner";
+import {
+  UnsupportedAccountCountryError,
+  createPublicCompanyAccountHolderOnboarding,
+  createPublicIndividualAccountHolderOnboarding,
+  parseAccountCountry,
+  sdk,
+  toFuture,
+} from "./api/partner";
 import { getAccountMembershipInvitationData } from "./api/partner.swan";
 import {
   OnboardingRejectionError,
@@ -375,16 +382,24 @@ start({
       "/projects/:projectId/onboarding/individual/start",
       async (request, reply) => {
         const accountCountry = parseAccountCountry(request.query.accountCountry);
+        const projectId = request.params.projectId;
         return Future.value(accountCountry)
-          .flatMapOk(accountCountry =>
-            onboardIndividualAccountHolder({ accountCountry, projectId: request.params.projectId }),
-          )
+          .flatMapOk(accountCountry => {
+            const tgglClient = getTgglClient(projectId);
+            const isOnboardingV2 = tgglClient.get("OnboardingV2NoCode", false);
+            request.log.info(`#isOnboardingV2 individual ${isOnboardingV2}`);
+            if (isOnboardingV2) {
+              return createPublicIndividualAccountHolderOnboarding({
+                accountCountry,
+                projectId,
+              });
+            }
+            return onboardIndividualAccountHolder({ accountCountry, projectId });
+          })
           .tapOk(onboardingId => {
             return reply
               .header("cache-control", "private, max-age=0")
-              .redirect(
-                `${env.ONBOARDING_URL}/projects/${request.params.projectId}/onboardings/${onboardingId}`,
-              );
+              .redirect(`${env.ONBOARDING_URL}/projects/${projectId}/onboardings/${onboardingId}`);
           })
           .tapError(error => {
             match(error)
@@ -412,16 +427,22 @@ start({
       "/projects/:projectId/onboarding/company/start",
       async (request, reply) => {
         const accountCountry = parseAccountCountry(request.query.accountCountry);
+        const projectId = request.params.projectId;
+
         return Future.value(accountCountry)
-          .flatMapOk(accountCountry =>
-            onboardCompanyAccountHolder({ accountCountry, projectId: request.params.projectId }),
-          )
+          .flatMapOk(accountCountry => {
+            const tgglClient = getTgglClient(projectId);
+            const isOnboardingV2 = tgglClient.get("OnboardingV2NoCode", false);
+            request.log.info(`#isOnboardingV2 company ${isOnboardingV2}`);
+            if (isOnboardingV2) {
+              return createPublicCompanyAccountHolderOnboarding({ accountCountry, projectId });
+            }
+            return onboardCompanyAccountHolder({ accountCountry, projectId });
+          })
           .tapOk(onboardingId => {
             return reply
               .header("cache-control", "private, max-age=0")
-              .redirect(
-                `${env.ONBOARDING_URL}/projects/${request.params.projectId}/onboardings/${onboardingId}`,
-              );
+              .redirect(`${env.ONBOARDING_URL}/projects/${projectId}/onboardings/${onboardingId}`);
           })
           .tapError(error => {
             match(error)

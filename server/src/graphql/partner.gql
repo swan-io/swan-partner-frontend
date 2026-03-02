@@ -134,12 +134,6 @@ mutation CreatePublicIndividualAccountHolderOnboarding(
         id
       }
     }
-    ... on ForbiddenRejection {
-      message
-    }
-    ... on ValidationRejection {
-      message
-    }
     ... on PublicOnboardingDisabledRejection {
       message
     }
@@ -154,12 +148,6 @@ mutation CreatePublicCompanyAccountHolderOnboarding(
       onboarding {
         id
       }
-    }
-    ... on ForbiddenRejection {
-      message
-    }
-    ... on ValidationRejection {
-      message
     }
     ... on PublicOnboardingDisabledRejection {
       message

@@ -1929,9 +1929,6 @@ input CompanyInfoInput {
   """
   tradeName: String
 
-  """Company type"""
-  companyType: CompanyType
-
   """Current company headcount"""
   headcount: CompanyHeadcount
 
@@ -5938,11 +5935,6 @@ type Card {
   """URL of the card design"""
   cardDesignUrl: String!
 
-  """
-  URL of the card with masked card information (like its number) and with full card information if connected user consented beforehand
-  """
-  cardUrl: String! @deprecated(reason: "Use cardMaskedNumber, expiryDate and cardDesignUrl to recreate the content of this page")
-
   """Card status information"""
   statusInfo: CardStatusInfo!
 
@@ -5983,6 +5975,9 @@ type Card {
 
   """Card insurance subscription"""
   insuranceSubscription: CardInsuranceSubscription
+
+  """Card package level"""
+  cardPackage: CardPackageLevel
 
   """Digital Cards linked to this card"""
   digitalCards(

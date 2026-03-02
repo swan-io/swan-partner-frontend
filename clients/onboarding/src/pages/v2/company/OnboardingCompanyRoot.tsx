@@ -175,7 +175,6 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
               taxIdentificationNumber: companyInfo?.taxIdentificationNumber,
               registrationNumber: companyInfo?.registrationNumber,
               registrationDate: companyInfo?.registrationDate,
-              companyType: companyInfo?.companyType,
               businessActivity: companyInfo?.businessActivity,
               businessActivityCode: companyInfo?.businessActivityCode,
               businessActivityDescription: companyInfo?.businessActivityDescription,

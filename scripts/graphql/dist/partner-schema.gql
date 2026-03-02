@@ -4057,9 +4057,6 @@ input CompanyInfoInput {
   """
   tradeName: String
 
-  """Company type"""
-  companyType: CompanyType
-
   """Current company headcount"""
   headcount: CompanyHeadcount
 
@@ -4167,9 +4164,6 @@ input CompanyInfoUpdateInput {
   - Same character restrictions as company name (no URLs or HTML special characters)
   """
   tradeName: String
-
-  """Company type"""
-  companyType: CompanyType
 
   """Current company headcount"""
   headcount: CompanyHeadcount
@@ -4655,7 +4649,7 @@ input CreateCompanyAccountHolderOnboardingInput {
 }
 
 """Payload for creating a company account holder onboarding"""
-union CreateCompanyAccountHolderOnboardingPayload = CreateCompanyAccountHolderOnboardingSuccessPayload | ForbiddenRejection | ValidationRejection
+union CreateCompanyAccountHolderOnboardingPayload = CreateCompanyAccountHolderOnboardingSuccessPayload
 
 """Success response for creating a company account holder onboarding"""
 type CreateCompanyAccountHolderOnboardingSuccessPayload {
@@ -4676,7 +4670,7 @@ input CreateIndividualAccountHolderOnboardingInput {
 }
 
 """Payload for creating an individual account holder onboarding"""
-union CreateIndividualAccountHolderOnboardingPayload = CreateIndividualAccountHolderOnboardingSuccessPayload | ForbiddenRejection | ValidationRejection
+union CreateIndividualAccountHolderOnboardingPayload = CreateIndividualAccountHolderOnboardingSuccessPayload
 
 """Success response for creating an individual account holder onboarding"""
 type CreateIndividualAccountHolderOnboardingSuccessPayload {
@@ -4700,7 +4694,7 @@ input CreatePublicCompanyAccountHolderOnboardingInput {
 }
 
 """Payload for creating a company account holder onboarding"""
-union CreatePublicCompanyAccountHolderOnboardingPayload = CreatePublicCompanyAccountHolderOnboardingSuccessPayload | ForbiddenRejection | ValidationRejection | PublicOnboardingDisabledRejection
+union CreatePublicCompanyAccountHolderOnboardingPayload = CreatePublicCompanyAccountHolderOnboardingSuccessPayload | PublicOnboardingDisabledRejection
 
 """Success response for creating a company account holder onboarding"""
 type CreatePublicCompanyAccountHolderOnboardingSuccessPayload {
@@ -4721,7 +4715,7 @@ input CreatePublicIndividualAccountHolderOnboardingInput {
 }
 
 """Payload for creating a public individual account holder onboarding"""
-union CreatePublicIndividualAccountHolderOnboardingPayload = CreatePublicIndividualAccountHolderOnboardingSuccessPayload | ForbiddenRejection | ValidationRejection | PublicOnboardingDisabledRejection
+union CreatePublicIndividualAccountHolderOnboardingPayload = CreatePublicIndividualAccountHolderOnboardingSuccessPayload | PublicOnboardingDisabledRejection
 
 """
 Success response for creating a public individual account holder onboarding
@@ -10291,11 +10285,6 @@ type Card {
   """URL of the card design"""
   cardDesignUrl: String!
 
-  """
-  URL of the card with masked card information (like its number) and with full card information if connected user consented beforehand
-  """
-  cardUrl: String! @deprecated(reason: "Use cardMaskedNumber, expiryDate and cardDesignUrl to recreate the content of this page")
-
   """Card status information"""
   statusInfo: CardStatusInfo!
 
@@ -10333,6 +10322,9 @@ type Card {
 
   """Card insurance subscription"""
   insuranceSubscription: CardInsuranceSubscription
+
+  """Card package level"""
+  cardPackage: CardPackageLevel
 
   """Digital Cards linked to this card"""
   digitalCards(

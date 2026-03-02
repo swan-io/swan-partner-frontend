@@ -242,11 +242,11 @@ export const OnboardingCompanyActivity = ({ onboarding, serverValidationErrors }
                 <Field name="businessActivity">
                   {({ value, error, onChange, ref }) => (
                     <LakeLabel
-                      label={t("company.step.organisation2.activityLabel")}
+                      label={t("company.step.activity.categoryLabel")}
                       render={id => (
                         <LakeSelect
                           id={id}
-                          placeholder={t("company.step.organisation2.activityPlaceholder")}
+                          placeholder={t("company.step.activity.categoryPlaceholder")}
                           value={value}
                           items={businessActivitiesItems}
                           error={error}

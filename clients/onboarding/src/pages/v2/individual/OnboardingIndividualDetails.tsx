@@ -42,7 +42,7 @@ import {
   validateNullableRequired,
   validateRequired,
 } from "@swan-io/shared-business/src/utils/validation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { Router } from "../../../utils/routes";
@@ -80,6 +80,14 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
 
   const [updateIndividualOnboarding, updateResult] = useMutation(
     UpdatePublicIndividualAccountHolderOnboardingDocument,
+  );
+
+  const [isAddressFromSuggestion, setIsAddressFromSuggestion] = useState(
+    Boolean(
+      accountAdmin?.address?.addressLine1 &&
+      accountAdmin.address.city &&
+      accountAdmin.address.postalCode,
+    ),
   );
 
   const { Field, FieldsListener, setFieldValue, setFieldError, submitForm } = useForm({
@@ -427,11 +435,17 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                               apiKey={__env.CLIENT_PLACEKIT_API_KEY}
                               country={residenceCountry.value}
                               value={value}
-                              onValueChange={onChange}
+                              onValueChange={value => {
+                                onChange(value);
+                                if (value === "") {
+                                  setIsAddressFromSuggestion(false);
+                                }
+                              }}
                               onSuggestion={suggestion => {
                                 setFieldValue("residenceAddress", suggestion.completeAddress);
                                 setFieldValue("residenceCity", suggestion.city);
                                 setFieldValue("residencePostal", suggestion.postalCode ?? "");
+                                setIsAddressFromSuggestion(true);
                               }}
                               language={locale.language}
                               placeholder={t("addressInput.placeholder")}
@@ -457,6 +471,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                           valid={valid}
                           error={error}
                           onChangeText={onChange}
+                          readOnly={isAddressFromSuggestion}
                         />
                       )}
                     />
@@ -475,6 +490,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                           valid={valid}
                           error={error}
                           onChangeText={onChange}
+                          readOnly={isAddressFromSuggestion}
                         />
                       )}
                     />

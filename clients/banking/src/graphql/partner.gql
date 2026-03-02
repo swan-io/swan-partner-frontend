@@ -1062,11 +1062,11 @@ fragment SpendingLimit on SpendingLimit {
     }
     ... on SpendingLimitCalendarWeekMode {
       startHour
-      startWeekDay: startDay
+      startWeekDay
     }
     ... on SpendingLimitCalendarMonthMode {
       startHour
-      startMonthDay: startDay
+      startMonthDay
     }
   }
   amount {

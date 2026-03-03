@@ -326,6 +326,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
 
                 <LakeLabel
                   label={t("common.email")}
+                  style={styles.inputFull}
                   render={id => (
                     <Field name="email">
                       {({ value, onBlur, onChange, error, ref }) => (

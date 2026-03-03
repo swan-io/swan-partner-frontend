@@ -1,19 +1,44 @@
+import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
+import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
-import { useCallback, useEffect, useState } from "react";
-import { View } from "react-native";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
-import { DayEnum, SpendingLimitFragment, SpendingLimitInput } from "../graphql/partner";
+import {
+  DayEnum,
+  SpendingLimitFragment,
+  SpendingLimitInput,
+  SpendingLimitPeriod,
+} from "../graphql/partner";
 import { t } from "../utils/i18n";
 
-const PERIODS = [
-  { name: t("cardSettings.spendingLimit.daily"), value: "Daily" as const },
-  { name: t("cardSettings.spendingLimit.weekly"), value: "Weekly" as const },
-  { name: t("cardSettings.spendingLimit.monthly"), value: "Monthly" as const },
-  { name: t("cardSettings.spendingLimit.always"), value: "Always" as const },
+const styles = StyleSheet.create({
+  fill: {
+    flex: 1,
+  },
+});
+
+const ROLLING_PERIODS = [
+  { name: t("cardSettings.spendingLimit.rolling.day"), value: "Daily" as const },
+  { name: t("cardSettings.spendingLimit.rolling.week"), value: "Weekly" as const },
+  { name: t("cardSettings.spendingLimit.rolling.month"), value: "Monthly" as const },
+  { name: t("cardSettings.spendingLimit.rolling.always"), value: "Always" as const },
+];
+
+const CALENDAR_PERIODS = [
+  { name: t("cardSettings.spendingLimit.calendar.daily"), value: "Daily" as const },
+  { name: t("cardSettings.spendingLimit.calendar.weekly"), value: "Weekly" as const },
+  { name: t("cardSettings.spendingLimit.calendar.monthly"), value: "Monthly" as const },
+];
+
+const LIMIT_TYPES = [
+  { name: t("cardSettings.spendingLimit.rolling"), value: "rolling" as const },
+  { name: t("cardSettings.spendingLimit.calendar"), value: "calendar" as const },
 ];
 
 export type SpendingLimitValue = {
@@ -25,7 +50,7 @@ export type SpendingLimitValue = {
     | {
         type: "rolling";
         rollingValue: number;
-        period: SpendingLimitFragment["period"];
+        period: SpendingLimitPeriod;
       }
     | {
         type: "calendarDayMode";
@@ -42,6 +67,9 @@ export type SpendingLimitValue = {
         startHour: number;
       };
 };
+
+type SpendingLimitRollingMode = Extract<SpendingLimitValue["mode"], { type: "rolling" }>;
+type SpendingLimitCalendarMode = Exclude<SpendingLimitValue["mode"], { type: "rolling" }>;
 
 export const deriveSpendingLimitValue = (
   spendingLimits: SpendingLimitFragment[],
@@ -103,11 +131,7 @@ export const deriveSpendingLimitInput = (value: SpendingLimitValue): SpendingLim
     .with({ mode: { type: "rolling" } }, ({ amount, mode }) => ({
       amount,
       period: mode.period,
-      mode: {
-        rolling: {
-          rollingValue: mode.rollingValue,
-        },
-      },
+      mode: mode.period === "Always" ? null : { rolling: { rollingValue: mode.rollingValue } },
     }))
     .with({ mode: { type: "calendarDayMode" } }, ({ amount, mode }) => ({
       amount,
@@ -189,42 +213,266 @@ export const SpendingLimitForm = ({
 
   return (
     <>
-      <View>
-        <LakeLabel
-          label={t("card.settings.spendingLimit")}
-          render={id => (
-            <LakeTextInput
-              id={id}
-              unit={"€"}
-              value={dirtyValue}
-              onChangeText={setDirtyValue}
-              onBlur={sanitizeInput}
-              inputMode="decimal"
-              disabled={disabled}
-            />
-          )}
-        />
-      </View>
+      <LakeLabel
+        label={t("card.settings.spendingLimit")}
+        render={id => (
+          <LakeTextInput
+            id={id}
+            unit={"€"}
+            value={dirtyValue}
+            onChangeText={setDirtyValue}
+            onBlur={sanitizeInput}
+            inputMode="decimal"
+            disabled={disabled}
+          />
+        )}
+      />
 
       <Space height={16} />
 
       <LakeLabel
-        label={t("cardSettings.spendingLimit.period")}
-        render={id => (
-          <LakeSelect
-            id={id}
-            items={PERIODS}
-            value={"Always"}
+        label={t("cardSettings.spendingLimit.limitType")}
+        render={() => (
+          <RadioGroup
             disabled={disabled}
-            onValueChange={_period =>
-              onChange({
-                ...value,
-                // period,
-              })
-            }
+            hideErrors={true}
+            color="current"
+            value={value.mode.type === "rolling" ? ("rolling" as const) : ("calendar" as const)}
+            onValueChange={mode => {
+              match(mode)
+                .with("rolling", () => {
+                  onChange({
+                    amount: value.amount,
+                    mode: {
+                      type: "rolling",
+                      rollingValue: value.mode.type === "rolling" ? value.mode.rollingValue : 1,
+                      period: "Daily",
+                    },
+                  });
+                })
+                .with("calendar", () => {
+                  onChange({
+                    amount: value.amount,
+                    mode: {
+                      type: "calendarDayMode",
+                      startHour: 0,
+                    },
+                  });
+                })
+                .exhaustive();
+            }}
+            items={LIMIT_TYPES}
           />
         )}
       />
+
+      <Space height={16} />
+
+      {value.mode.type === "rolling" ? (
+        <SpendingLimitRollingForm
+          disabled={disabled === true}
+          value={value.mode}
+          onChange={mode => onChange({ ...value, mode })}
+        />
+      ) : (
+        <SpendingLimitCalendarForm
+          disabled={disabled === true}
+          value={value.mode}
+          onChange={mode => onChange({ ...value, mode })}
+        />
+      )}
+    </>
+  );
+};
+
+const SpendingLimitRollingForm = ({
+  disabled,
+  value,
+  onChange,
+}: {
+  disabled: boolean;
+  value: SpendingLimitRollingMode;
+  onChange: (value: SpendingLimitRollingMode) => void;
+}) => {
+  const rollingValueOptions = useMemo(() => {
+    return match(value.period)
+      .with("Daily", () =>
+        new Array(30)
+          .fill(null)
+          .map((_, i) => i + 1)
+          .map(day => ({ name: t("common.form.nbDays", { count: day }), value: day })),
+      )
+      .with("Weekly", () =>
+        new Array(4)
+          .fill(null)
+          .map((_, i) => i + 1)
+          .map(week => ({ name: t("common.form.nbWeeks", { count: week }), value: week })),
+      )
+      .with("Monthly", () => [])
+      .with("Always", () => [])
+      .exhaustive();
+  }, [value.period]);
+
+  const periodInfo = match(value.period)
+    .with("Monthly", () => t("cardSettings.spendingLimit.rolling.month.info"))
+    .with("Always", () => t("cardSettings.spendingLimit.always.always.info"))
+    .otherwise(() => null);
+
+  return (
+    <>
+      <LakeLabel
+        label={t("cardSettings.spendingLimit.period")}
+        render={id => (
+          <>
+            <LakeSelect
+              id={id}
+              hideErrors={true}
+              items={ROLLING_PERIODS}
+              value={value.period}
+              disabled={disabled}
+              onValueChange={period =>
+                onChange({
+                  ...value,
+                  rollingValue: 1,
+                  period,
+                })
+              }
+            />
+            {periodInfo != null && (
+              <>
+                <Space height={4} />
+                <LakeText>{periodInfo}</LakeText>
+              </>
+            )}
+          </>
+        )}
+      />
+
+      {(value.period === "Daily" || value.period === "Weekly") && (
+        <>
+          <Space height={16} />
+
+          <LakeLabel
+            label={t("cardSettings.spendingLimit.resetEvery")}
+            render={id => (
+              <LakeSelect
+                id={id}
+                hideErrors={true}
+                items={rollingValueOptions}
+                value={value.rollingValue}
+                disabled={disabled}
+                onValueChange={rollingValue => onChange({ ...value, rollingValue })}
+              />
+            )}
+          />
+          <Space height={4} />
+          <LakeText>
+            {t("cardSettings.spendingLimit.resetEvery.info", {
+              frequency: match(value.period)
+                .with("Daily", () => t("common.form.nbDays", { count: value.rollingValue }))
+                .with("Weekly", () => t("common.form.nbWeeks", { count: value.rollingValue }))
+                .exhaustive(),
+            })}
+          </LakeText>
+        </>
+      )}
+    </>
+  );
+};
+
+const SpendingLimitCalendarForm = ({
+  disabled,
+  value,
+  onChange,
+}: {
+  disabled: boolean;
+  value: SpendingLimitCalendarMode;
+  onChange: (value: SpendingLimitCalendarMode) => void;
+}) => {
+  return (
+    <>
+      <LakeLabel
+        label={t("cardSettings.spendingLimit.resetFrequency")}
+        render={id => (
+          <>
+            <LakeSelect
+              id={id}
+              hideErrors={true}
+              items={CALENDAR_PERIODS}
+              value={match(value.type)
+                .returnType<"Daily" | "Weekly" | "Monthly">()
+                .with("calendarDayMode", () => "Daily")
+                .with("calendarWeekMode", () => "Weekly")
+                .with("calendarMonthMode", () => "Monthly")
+                .exhaustive()}
+              disabled={disabled}
+              onValueChange={period =>
+                match(period)
+                  .with("Daily", () => onChange({ type: "calendarDayMode", startHour: 0 }))
+                  .with("Weekly", () =>
+                    onChange({ type: "calendarWeekMode", startDay: "Monday", startHour: 0 }),
+                  )
+                  .with("Monthly", () =>
+                    onChange({ type: "calendarMonthMode", startDay: 1, startHour: 0 }),
+                  )
+                  .exhaustive()
+              }
+            />
+          </>
+        )}
+      />
+
+      <Space height={16} />
+
+      <Box direction="row">
+        {value.type !== "calendarDayMode" && (
+          <>
+            <LakeLabel
+              style={styles.fill}
+              label={t("cardSettings.spendingLimit.resetDay")}
+              render={id => (
+                <>
+                  <LakeSelect
+                    id={id}
+                    hideErrors={true}
+                    disabled={disabled}
+                    value={""}
+                    items={[]}
+                    onValueChange={() => {}}
+                  />
+                  {value.type === "calendarMonthMode" && (
+                    <>
+                      <Space height={4} />
+                      <LakeText>{t("cardSettings.spendingLimit.resetDay.monthlyInfo")}</LakeText>
+                    </>
+                  )}
+                </>
+              )}
+            />
+
+            <Space width={32} />
+          </>
+        )}
+
+        <LakeLabel
+          style={styles.fill}
+          label={t("cardSettings.spendingLimit.resetTime")}
+          render={id => (
+            <>
+              <LakeSelect
+                id={id}
+                hideErrors={true}
+                disabled={disabled}
+                value={""}
+                items={[]}
+                onValueChange={() => {}}
+              />
+              <Space height={4} />
+              <LakeText>{t("cardSettings.spendingLimit.resetTimeZone")}</LakeText>
+            </>
+          )}
+        />
+      </Box>
     </>
   );
 };

@@ -22,7 +22,7 @@ import { usePermissions } from "../hooks/usePermissions";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { CardCancelConfirmationModal } from "./CardCancelConfirmationModal";
-import { deriveSpendingLimitValue } from "./CardItemSpendingLimit";
+import { deriveSpendingLimitInput, deriveSpendingLimitValue } from "./CardItemSpendingLimit";
 import { CardSettings, CardWizardSettings, CardWizardSettingsRef } from "./CardWizardSettings";
 
 const styles = StyleSheet.create({
@@ -64,7 +64,7 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
         cardId,
         consentRedirectUrl:
           window.location.origin + Router.AccountCardsItemSettings({ cardId, accountMembershipId }),
-        spendingLimit,
+        spendingLimit: deriveSpendingLimitInput(spendingLimit),
         name: cardName,
         eCommerce,
         withdrawal,

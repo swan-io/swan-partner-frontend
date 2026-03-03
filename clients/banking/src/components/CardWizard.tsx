@@ -17,7 +17,7 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useFlag } from "react-tggl-client";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   AccountMembershipFragment,
   AddCardDocument,
@@ -34,7 +34,7 @@ import {
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { SpendingLimitValue } from "./CardItemSpendingLimit";
+import { deriveSpendingLimitInput, SpendingLimitValue } from "./CardItemSpendingLimit";
 import { CardWizardDelivery, CardWizardDeliveryRef } from "./CardWizardDelivery";
 import { CardFormat, CardWizardFormat, CardWizardFormatRef } from "./CardWizardFormat";
 import {
@@ -538,7 +538,7 @@ export const CardWizard = ({
                                   return {
                                     name: cardName,
                                     accountMembershipId: member.id,
-                                    spendingLimit,
+                                    spendingLimit: deriveSpendingLimitInput(spendingLimit),
                                   };
                                 }),
                               });
@@ -553,7 +553,7 @@ export const CardWizard = ({
                                 cards: memberships.map(member => {
                                   return {
                                     accountMembershipId: member.id,
-                                    spendingLimit,
+                                    spendingLimit: deriveSpendingLimitInput(spendingLimit),
                                     name: cardName,
                                     eCommerce,
                                     withdrawal,
@@ -662,7 +662,9 @@ export const CardWizard = ({
                                         return {
                                           name: cardSettings.cardName,
                                           accountMembershipId: accountMembership.id,
-                                          spendingLimit: cardSettings.spendingLimit,
+                                          spendingLimit: deriveSpendingLimitInput(
+                                            cardSettings.spendingLimit,
+                                          ),
                                         };
                                       }),
                                     });
@@ -677,7 +679,9 @@ export const CardWizard = ({
                                       cards: memberships.map(membership => {
                                         return {
                                           accountMembershipId: membership.id,
-                                          spendingLimit: cardSettings.spendingLimit,
+                                          spendingLimit: deriveSpendingLimitInput(
+                                            cardSettings.spendingLimit,
+                                          ),
                                           name: cardSettings.cardName,
                                           eCommerce: cardSettings.eCommerce,
                                           withdrawal: cardSettings.withdrawal,
@@ -803,7 +807,7 @@ export const CardWizard = ({
                                     groupDeliveryAddress: groupedDeliveryConfig.address,
                                     cards: groupedDeliveryConfig.members.map(membership => ({
                                       accountMembershipId: membership.id,
-                                      spendingLimit,
+                                      spendingLimit: deriveSpendingLimitInput(spendingLimit),
                                       eCommerce,
                                       withdrawal,
                                       name: cardName,
@@ -910,7 +914,7 @@ export const CardWizard = ({
                                       },
                                     }) => ({
                                       accountMembershipId: member.id,
-                                      spendingLimit,
+                                      spendingLimit: deriveSpendingLimitInput(spendingLimit),
                                       eCommerce,
                                       name: cardName,
                                       withdrawal,

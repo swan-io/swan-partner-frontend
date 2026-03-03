@@ -70,7 +70,6 @@ export const OwnershipFormWizard = ({
           <OwnershipFormType
             ref={typeRef}
             onSave={values => {
-              console.log("on save type in wizard", values);
               if (values.related === "company") {
                 onStepChange("company");
               } else {

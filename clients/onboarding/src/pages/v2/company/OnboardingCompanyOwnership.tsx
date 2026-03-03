@@ -423,9 +423,9 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
             loading={updateResult.isLoading()}
           >
             {match(modalState)
-              .with({ step: P.union("company", "legal") }, () => t("common.save"))
+              .with({ step: P.union("company", "legal") }, () => t("common.add"))
               .with({ step: P.union("ubo", "legalAndUbo"), form: "ownership" }, () =>
-                t("common.save"),
+                t("common.add"),
               )
               .otherwise(() => t("common.next"))}
           </LakeButton>

@@ -51,51 +51,50 @@ export const deriveSpendingLimitValue = (
     return undefined;
   }
 
-  return match(spendingLimit)
+  const { amount, period } = spendingLimit;
+
+  return match(spendingLimit.mode)
     .returnType<SpendingLimitValue>()
-    .with({ mode: { calendar: { daily: P.nonNullable } } }, ({ amount, mode }) => ({
-      amount: {
-        value: amount.value,
-        currency: amount.currency,
-      },
+    .with({ __typename: "SpendingLimitCalendarDayMode" }, mode => ({
+      amount,
       mode: {
         type: "calendarDayMode",
-        startHour: mode.calendar.daily.startHour,
+        startHour: mode.startHour,
       },
     }))
-    .with({ mode: { calendar: { weekly: P.nonNullable } } }, ({ amount, mode }) => ({
-      amount: {
-        value: amount.value,
-        currency: amount.currency,
-      },
+    .with({ __typename: "SpendingLimitCalendarWeekMode" }, mode => ({
+      amount,
       mode: {
         type: "calendarWeekMode",
-        startDay: mode.calendar.weekly.startDay,
-        startHour: mode.calendar.weekly.startHour,
+        startDay: mode.startWeekDay,
+        startHour: mode.startHour,
       },
     }))
-    .with({ mode: { calendar: { monthly: P.nonNullable } } }, ({ amount, mode }) => ({
-      amount: {
-        value: amount.value,
-        currency: amount.currency,
-      },
+    .with({ __typename: "SpendingLimitCalendarMonthMode" }, mode => ({
+      amount,
       mode: {
         type: "calendarMonthMode",
-        startDay: mode.calendar.monthly.startDay,
-        startHour: mode.calendar.monthly.startHour,
+        startDay: mode.startMonthDay,
+        startHour: mode.startHour,
       },
     }))
-    .otherwise(({ amount, mode, period }) => ({
-      amount: {
-        value: amount.value,
-        currency: amount.currency,
-      },
+    .with({ __typename: "SpendingLimitRollingMode" }, mode => ({
+      amount,
       mode: {
         type: "rolling",
-        rollingValue: mode?.rolling?.rollingValue ?? 1,
+        rollingValue: mode.rollingValue,
         period: period,
       },
-    }));
+    }))
+    .with(P.nullish, () => ({
+      amount,
+      mode: {
+        type: "rolling",
+        rollingValue: 1,
+        period,
+      },
+    }))
+    .exhaustive();
 };
 
 export const deriveSpendingLimitInput = (value: SpendingLimitValue): SpendingLimitInput => {

@@ -2,7 +2,7 @@ import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { Ref, useImperativeHandle, useRef, useState } from "react";
 import { match, P } from "ts-pattern";
 import { v4 as uuid } from "uuid";
-import { AccountCountry, RelatedCompanyInput } from "../../../../graphql/partner";
+import { AccountCountry, RelatedCompanyInput, RelatedIndividualInput } from "../../../../graphql/partner";
 import {
   OnboardingCompanyOwnershipFormCompanyRef,
   OwnershipFormCompany,
@@ -20,13 +20,17 @@ export type OnboardingCompanyOwnershipFormRef = {
 // because we can't depend on the index
 export const REFERENCE_SYMBOL = Symbol("REFERENCE");
 type WithReference<T> = T & { [REFERENCE_SYMBOL]: string };
-export type SaveValue = WithReference<Partial<RelatedCompanyInput>>;
+export type SaveValueCompany = WithReference<Partial<RelatedCompanyInput>>;
+export type SaveValueIndividual = WithReference<Partial<RelatedIndividualInput>>;
+export type SaveValue = SaveValueCompany | SaveValueIndividual;
 
 type Props = {
   ref: Ref<OnboardingCompanyOwnershipFormRef>;
+  initialValues?: SaveValue;
   accountCountry: AccountCountry;
   companyCountry: CountryCCA3;
   step: OwnershipFormStep;
+  type: 'edit' | 'add' | 'delete' | 'hidden'
   onStepChange: (step: OwnershipFormStep) => void;
   onSave: (editorState: SaveValue) => void | Promise<void>;
   onClose: () => void;
@@ -34,25 +38,29 @@ type Props = {
 
 export const OwnershipFormWizard = ({
   ref,
+  initialValues = {},
   step,
+  type,
   onClose,
   onSave,
   onStepChange,
   companyCountry,
 }: Props) => {
-  const [reference] = useState(() => uuid());
+  const [reference] = useState(() => initialValues[REFERENCE_SYMBOL] ?? uuid());
   const typeRef = useRef<OnboardingCompanyOwnershipFormTypeRef>(null);
   const companyRef = useRef<OnboardingCompanyOwnershipFormCompanyRef>(null);
 
   useImperativeHandle(ref, () => {
     return {
       cancel: () => {
-        match(step)
-          .with("init", () => onClose())
-          .with(P.union("company", "legal", "ubo", "legalAndUbo"), () => {
+        match({step, type})
+          .with({step: "init"}, () => onClose())
+          .with({ step: P.union("company", "legal", "ubo", "legalAndUbo"), type: "edit" }, () =>
+            onClose(),
+          )
+          .otherwise(() => {
             onStepChange("init");
-          })
-          .exhaustive();
+          });
       },
       submit: () => {
         match(step)
@@ -87,6 +95,7 @@ export const OwnershipFormWizard = ({
         .with("company", () => (
           <OwnershipFormCompany
             ref={companyRef}
+            initialValues={initialValues as Partial<RelatedCompanyInput>}
             companyCountry={companyCountry}
             onSave={values => {
               onSave({

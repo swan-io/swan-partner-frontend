@@ -19,12 +19,13 @@ export type OnboardingCompanyOwnershipFormCompanyRef = {
 };
 
 type Props = {
+  initialValues: Partial<RelatedCompanyInput>;
   ref: Ref<OnboardingCompanyOwnershipFormCompanyRef>;
   companyCountry: CountryCCA3;
   onSave: (input: RelatedCompanyInput) => void | Promise<void>;
 };
 
-export const OwnershipFormCompany = ({ ref, onSave, companyCountry }: Props) => {
+export const OwnershipFormCompany = ({ ref, onSave, companyCountry, initialValues }: Props) => {
   useImperativeHandle(ref, () => {
     return {
       submit: () => {
@@ -42,21 +43,21 @@ export const OwnershipFormCompany = ({ ref, onSave, companyCountry }: Props) => 
 
   const { Field, submitForm } = useForm({
     entityName: {
-      initialValue: "",
+      initialValue: initialValues.entityName ?? "",
       sanitize: trim,
       validate: validateRequired,
     },
     registrationCountry: {
-      initialValue: companyCountry,
+      initialValue: (initialValues.registrationCountry as CountryCCA3) ?? companyCountry,
       validate: validateRequired,
     },
     registrationNumber: {
-      initialValue: "",
+      initialValue: initialValues.registrationNumber ?? "",
       sanitize: trim,
       validate: validateRequired,
     },
     roles: {
-      initialValue: [] as string[],
+      initialValue: initialValues.roles ?? [],
       validate: value => {
         if (value.length === 0) {
           return t("error.invalidField");

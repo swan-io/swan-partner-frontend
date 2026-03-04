@@ -2,6 +2,7 @@ import { Option } from "@swan-io/boxed";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { noop } from "@swan-io/lake/src/utils/function";
 import { ChoicePicker } from "@swan-io/shared-business/src/components/ChoicePicker";
 import { validateNullableRequired } from "@swan-io/shared-business/src/utils/validation";
 import { useForm } from "@swan-io/use-form";
@@ -10,7 +11,6 @@ import { View } from "react-native";
 import { match } from "ts-pattern";
 import { RelatedIndividualType } from "../../../../graphql/partner";
 import { t } from "../../../../utils/i18n";
-import { noop } from "@swan-io/lake/src/utils/function";
 
 export type OnboardingCompanyOwnershipFormTypeRef = {
   submit: () => void;

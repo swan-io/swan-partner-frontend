@@ -37,9 +37,11 @@ import {
   OwnershipFormStep,
   OwnershipFormWizard,
   REFERENCE_SYMBOL,
-  SaveValue,
+  SaveValueCompany,
 } from "./ownership/OwnershipFormWizard";
 
+type ModalStep = "init" | "legal" | "ubo" | "legalAndUbo" | "company";
+type ModalSubForm = "detail" | "ownership";
 type ModalState =
   | {
       type: "hidden";
@@ -51,13 +53,15 @@ type ModalState =
       related: "company" | "individual";
     }
   | {
-      type: "add" | "edit";
-      step: "init" | "legal" | "ubo" | "legalAndUbo" | "company";
+      type: "add";
+      step: ModalStep;
+      form?: ModalSubForm;
     }
   | {
-      type: "add" | "edit";
-      step: "ubo" | "legalAndUbo";
-      form: "detail" | "ownership";
+      type: "edit";
+      step: ModalStep;
+      form?: ModalSubForm;
+      initialValue: LocalRelated;
     };
 
 type Props = {
@@ -174,7 +178,7 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
     setModalState({ type: "hidden" });
   };
 
-  const addRelatedCompany = (newCompany: SaveValue) => {
+  const addRelatedCompany = (newCompany: SaveValueCompany) => {
     const { roles, ...input } = newCompany;
     const updatedRelatedCompany: LocalRelatedCompany[] = [
       ...currentRelatedCompany,
@@ -184,6 +188,21 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
         ...input,
       },
     ];
+
+    updateRelatedCompany(updatedRelatedCompany);
+  };
+
+  const editRelatedCompany = (company: SaveValueCompany) => {
+    const { roles, ...input } = company;
+    const updatedRelatedCompany: LocalRelatedCompany[] = currentRelatedCompany.map(item =>
+      item[REFERENCE_SYMBOL] === company[REFERENCE_SYMBOL]
+        ? {
+            __typename: "CompanyRelatedCompany",
+            roles: roles ?? [],
+            ...input,
+          }
+        : item,
+    );
 
     updateRelatedCompany(updatedRelatedCompany);
   };
@@ -291,7 +310,13 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
                               {t("company.step.ownership.role.legalRepresentative")}
                             </LakeText>
                             <ActionMenu
-                              onEdit={() => console.log("onEdit")}
+                              onEdit={() =>
+                                setModalState({
+                                  type: "edit",
+                                  step: "company",
+                                  initialValue: company,
+                                })
+                              }
                               onDelete={() =>
                                 setModalState({
                                   type: "delete",
@@ -391,6 +416,7 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
       >
         <OwnershipFormWizard
           ref={ownershipFormRef}
+          type={modalState.type}
           step={match(modalState)
             .with({ step: P.string }, ({ step }) => step)
             .otherwise(() => "init")}
@@ -399,8 +425,12 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
           onStepChange={setFormStep}
           onClose={() => setModalState({ type: "hidden" })}
           onSave={match(modalState)
-            .with({ step: "company" }, () => addRelatedCompany)
+            .with({ type: "add", step: "company" }, () => addRelatedCompany)
+            .with({ type: "edit", step: "company" }, () => editRelatedCompany)
             .otherwise(() => noop)}
+          initialValues={match(modalState)
+            .with({ type: "edit" }, ({ initialValue }) => initialValue)
+            .otherwise(() => undefined)}
         />
 
         <Space height={24} />
@@ -413,6 +443,9 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
           >
             {match(modalState)
               .with({ step: P.union("init") }, () => t("common.cancel"))
+              .with({ step: P.union("company", "legal", "ubo", "legalAndUbo"), type: "edit" }, () =>
+                t("common.cancel"),
+              )
               .otherwise(() => t("common.back"))}
           </LakeButton>
 

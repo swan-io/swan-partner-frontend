@@ -21,6 +21,9 @@ const styles = StyleSheet.create({
   fill: {
     flex: 1,
   },
+  fullWidth: {
+    width: "100%",
+  },
 });
 
 const ROLLING_PERIODS = [
@@ -146,14 +149,18 @@ export const deriveSpendingLimitValue = (
 };
 
 export const deriveSpendingLimitInput = (value: SpendingLimitValue): SpendingLimitInput => {
+  const amount = {
+    value: value.amount.value,
+    currency: value.amount.currency,
+  };
   return match(value)
     .returnType<SpendingLimitInput>()
-    .with({ mode: { type: "rolling" } }, ({ amount, mode }) => ({
+    .with({ mode: { type: "rolling" } }, ({ mode }) => ({
       amount,
       period: mode.period,
       mode: mode.period === "Always" ? null : { rolling: { rollingValue: mode.rollingValue } },
     }))
-    .with({ mode: { type: "calendarDayMode" } }, ({ amount, mode }) => ({
+    .with({ mode: { type: "calendarDayMode" } }, ({ mode }) => ({
       amount,
       period: "Daily",
       mode: {
@@ -164,7 +171,7 @@ export const deriveSpendingLimitInput = (value: SpendingLimitValue): SpendingLim
         },
       },
     }))
-    .with({ mode: { type: "calendarWeekMode" } }, ({ amount, mode }) => ({
+    .with({ mode: { type: "calendarWeekMode" } }, ({ mode }) => ({
       amount,
       period: "Weekly",
       mode: {
@@ -176,7 +183,7 @@ export const deriveSpendingLimitInput = (value: SpendingLimitValue): SpendingLim
         },
       },
     }))
-    .with({ mode: { type: "calendarMonthMode" } }, ({ amount, mode }) => ({
+    .with({ mode: { type: "calendarMonthMode" } }, ({ mode }) => ({
       amount,
       period: "Monthly",
       mode: {
@@ -192,6 +199,7 @@ export const deriveSpendingLimitInput = (value: SpendingLimitValue): SpendingLim
 };
 
 type SpendingLimitFormProps = {
+  large: boolean;
   value: SpendingLimitValue;
   maxValue?: number;
   disabled?: boolean;
@@ -199,6 +207,7 @@ type SpendingLimitFormProps = {
 };
 
 export const SpendingLimitForm = ({
+  large,
   value,
   maxValue,
   disabled,
@@ -296,6 +305,7 @@ export const SpendingLimitForm = ({
         />
       ) : (
         <SpendingLimitCalendarForm
+          large={large}
           disabled={disabled === true}
           value={value.mode}
           onChange={mode => onChange({ ...value, mode })}
@@ -401,10 +411,12 @@ const SpendingLimitRollingForm = ({
 };
 
 const SpendingLimitCalendarForm = ({
+  large,
   disabled,
   value,
   onChange,
 }: {
+  large: boolean;
   disabled: boolean;
   value: SpendingLimitCalendarMode;
   onChange: (value: SpendingLimitCalendarMode) => void;
@@ -444,11 +456,11 @@ const SpendingLimitCalendarForm = ({
 
       <Space height={16} />
 
-      <Box direction="row">
+      <Box direction={large ? "row" : "column"} alignItems="start">
         {value.type !== "calendarDayMode" && (
           <>
             <LakeLabel
-              style={styles.fill}
+              style={large ? styles.fill : styles.fullWidth}
               label={t("cardSettings.spendingLimit.resetDay")}
               render={id =>
                 match(value)
@@ -480,12 +492,12 @@ const SpendingLimitCalendarForm = ({
               }
             />
 
-            <Space width={32} />
+            <Space width={32} height={16} />
           </>
         )}
 
         <LakeLabel
-          style={styles.fill}
+          style={large ? styles.fill : styles.fullWidth}
           label={t("cardSettings.spendingLimit.resetTime")}
           render={id => (
             <>

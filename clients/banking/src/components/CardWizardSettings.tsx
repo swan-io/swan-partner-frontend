@@ -357,6 +357,7 @@ export const CardWizardSettings = ({
               {cardFormat !== "SingleUseVirtual" ? (
                 <Tile title={large ? t("card.settings.spendingLimit") : undefined}>
                   <SpendingLimitForm
+                    large={large}
                     value={currentSettings.spendingLimit}
                     maxValue={spendingLimitMaxValue}
                     disabled={disabled}

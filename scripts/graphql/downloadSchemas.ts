@@ -25,9 +25,9 @@ const getIntrospection = (name: string, url: string) =>
     });
 
 void Promise.all([
-  getIntrospection("partner-admin", "https://api.swan.io/sandbox-partner-admin/graphql"),
-  getIntrospection("partner", "https://api.swan.io/live-partner/graphql"),
-  getIntrospection("unauthenticated", "https://api.swan.io/live-unauthenticated/graphql"),
+  getIntrospection("partner-admin", "https://api.preprod.swan.io/sandbox-partner-admin/graphql"),
+  getIntrospection("partner", "https://api.preprod.swan.io/live-partner/graphql"),
+  getIntrospection("unauthenticated", "https://api.preprod.swan.io/live-unauthenticated/graphql"),
 ]).then(() => {
   execSync(
     `generate-schema-config scripts/graphql/dist/partner-admin-schema.gql scripts/graphql/dist/partner-admin-schema-config.json`,

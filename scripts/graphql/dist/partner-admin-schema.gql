@@ -1681,7 +1681,7 @@ enum CloseAccountReasonType {
   BusinessInactiveOrNotRegistered
 
   """The capital deposit has been withdrawn."""
-  CapitalDepositCanceled
+  CapitalDepositWithdrawn
 
   """
   Standard closure of a Shareholder account after the capital deposit case is completed.
@@ -1759,6 +1759,9 @@ enum CloseAccountReasonType {
 
   """Swan doesn't support this legal form."""
   UnsupportedLegalForm
+
+  """Legacy: Use CapitalDepositWithdrawn instead."""
+  CapitalDepositCanceled @deprecated(reason: "Use CapitalDepositWithdrawn")
 }
 
 """
@@ -2469,6 +2472,8 @@ type OAuthRedirectParameters {
 
 """
 Information provided during the onboarding process of an individual or a company
+
+@deprecated Use `AccountHolderOnboarding`
 """
 type Onboarding {
   """Unique identifier of an onboarding"""
@@ -2611,6 +2616,8 @@ type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
 
 """
 Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
+
+@deprecated Use `AccountHolderOnboardingConnection`
 """
 type OnboardingConnection implements Connection {
   """Total number of element in the list"""
@@ -2623,7 +2630,11 @@ type OnboardingConnection implements Connection {
   edges: [OnboardingEdge!]!
 }
 
-"""Implements the Relay Edge interface"""
+"""
+Implements the Relay Edge interface
+
+@deprecated Use `AccountHolderOnboardingEdge`
+"""
 type OnboardingEdge implements Edge {
   """
   Opaque identifier pointing to this onboarding node in the pagination mechanism
@@ -2687,6 +2698,7 @@ type OnboardingIndividualAccountHolderInfo implements OnboardingAccountHolderInf
   taxIdentificationNumber: String
 }
 
+"""@deprecated Use `AccountHolderOnboarding`"""
 type OnboardingInfo {
   """Unique identifier of an onboarding"""
   id: String!
@@ -3168,17 +3180,6 @@ input SpendingLimitCalendarDayModeInput {
   startHour: Int! = 0
 }
 
-type SpendingLimitCalendarMode {
-  """a daily based calendar spending limit."""
-  daily: SpendingLimitCalendarDayMode
-
-  """a weekly based calendar spending limit."""
-  weekly: SpendingLimitCalendarWeekMode
-
-  """a monthly based calendar spending limit."""
-  monthly: SpendingLimitCalendarMonthMode
-}
-
 input SpendingLimitCalendarModeInput {
   """a daily based calendar spending limit."""
   daily: SpendingLimitCalendarDayModeInput
@@ -3195,7 +3196,7 @@ type SpendingLimitCalendarMonthMode {
   startHour: Int!
 
   """a day in month for the spending limit (1 to 31)."""
-  startDay: Int!
+  startMonthDay: Int!
 }
 
 input SpendingLimitCalendarMonthModeInput {
@@ -3211,7 +3212,7 @@ type SpendingLimitCalendarWeekMode {
   startHour: Int!
 
   """a day of week enum."""
-  startDay: DayEnum!
+  startWeekDay: DayEnum!
 }
 
 input SpendingLimitCalendarWeekModeInput {
@@ -3231,15 +3232,7 @@ input SpendingLimitInput {
   amount: AmountInput!
 }
 
-type SpendingLimitMode {
-  """a rolling period, defining a period of x days/weeks/months."""
-  rolling: SpendingLimitRollingMode
-
-  """
-  a fixed calendar period starting either at a given hour of day, a given hour and day in week/month
-  """
-  calendar: SpendingLimitCalendarMode
-}
+union SpendingLimitMode = SpendingLimitRollingMode | SpendingLimitCalendarDayMode | SpendingLimitCalendarWeekMode | SpendingLimitCalendarMonthMode
 
 input SpendingLimitModeInput {
   """a rolling period, defining a period of x days/weeks/months."""
@@ -4999,7 +4992,7 @@ type CapitalDepositDocumentRefusedStatusInfo implements CapitalDepositDocumentSt
   reasonCode: DocumentReasonCode!
 
   """Additional information for the rejection."""
-  reason: String!
+  reason: String
 }
 
 """Status of the Capital Deposit Case"""

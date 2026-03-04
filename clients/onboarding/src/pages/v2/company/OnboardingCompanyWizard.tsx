@@ -17,8 +17,8 @@ import { NotFoundPage } from "../../NotFoundPage";
 import { OnboardingCompanyActivity } from "./OnboardingCompanyActivity";
 import { OnboardingCompanyDetails } from "./OnboardingCompanyDetails";
 import { OnboardingCompanyOrganisation } from "./OnboardingCompanyOrganisation";
-import { OnboardingCompanyRoot } from "./OnboardingCompanyRoot";
 import { OnboardingCompanyOwnership } from "./OnboardingCompanyOwnership";
+import { OnboardingCompanyRoot } from "./OnboardingCompanyRoot";
 
 const styles = StyleSheet.create({
   stepper: {

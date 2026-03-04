@@ -228,117 +228,18 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
         .tapOk(({ publicCompanyInfoRegistryData }) => {
           match(publicCompanyInfoRegistryData)
             .with({ __typename: "CompanyInfo" }, companyInfo => {
-              console.log("companyInfo", companyInfo);
-              const { relatedIndividuals, relatedCompanies, legalFormCode, ...info } = companyInfo;
+              const { legalFormCode, ...info } = companyInfo;
               setPublicData(info);
               setFieldValue("legalFormCode", legalFormCode ?? undefined);
-              setRepresentatives([...(relatedIndividuals ?? []), ...(relatedCompanies ?? [])]);
+              setRepresentatives([
+                ...(companyInfo.relatedIndividuals ?? []),
+                ...(companyInfo.relatedCompanies ?? []),
+              ]);
             })
             .otherwise(noop);
         })
         .tapError(() => {
-          //@todo: For testing purposes must be removed before going in production
-          const companyInfo: CompanyInfo = {
-            __typename: "CompanyInfo",
-            registrationNumber: "838622140",
-            name: "SOURCE VENTURES",
-            businessActivity: null,
-            businessActivityCode: "66.30Z",
-            businessActivityDescription: "Gestion de fonds",
-            relatedCompanies: [
-              {
-                __typename: "CompanyRelatedCompany",
-                registrationCountry: "FRA",
-                entityName: "PARISIENNE D'EXPERTISE COMPTABLE SPEC",
-                registrationNumber: null,
-                roles: ["Commissaire aux comptes titulaire"],
-              },
-            ],
-            relatedIndividuals: [
-              {
-                __typename: "CompanyLegalRepresentativeAndUltimateBeneficialOwner",
-                firstName: "Martin",
-                preferredFirstName: "Martin",
-                address: {
-                  __typename: "AddressInfo",
-                  addressLine1: "16 Rue Gustave Nickles",
-                  addressLine2: null,
-                  city: "Bagnolet",
-                  country: "FRA",
-                  postalCode: "93170",
-                  state: null,
-                },
-                birthInfo: {
-                  __typename: "BirthInfo",
-                  birthDate: "1987-02-23",
-                  city: "Castres",
-                  country: "FRA",
-                  postalCode: null,
-                },
-                email: null,
-                lastName: "Charpentier",
-                legalRepresentative: {
-                  __typename: "RelatedIndividualLegalRepresentative",
-                  roles: ["Président"],
-                },
-                nationality: "FRA",
-                sex: "Male",
-                taxIdentificationNumber: null,
-                type: "LegalRepresentativeAndUltimateBeneficialOwner",
-                ultimateBeneficialOwner: {
-                  __typename: "RelatedIndividualUltimateBeneficialOwner",
-                  controlTypes: null,
-                  ownership: {
-                    __typename: "UltimateBeneficialOwnerOwnership",
-                    totalPercentage: 35.79,
-                    type: "Indirect",
-                  },
-                  qualificationType: "Ownership",
-                },
-                unitedStatesTaxInfo: null,
-              },
-              {
-                __typename: "CompanyLegalRepresentative",
-                firstName: "Victor, Nathan, Nicolas",
-                preferredFirstName: "Victor",
-                address: {
-                  __typename: "AddressInfo",
-                  addressLine1: "110 Avenue du Président Wilson",
-                  addressLine2: null,
-                  city: "Montreuil",
-                  postalCode: "93100",
-                  country: "FRA",
-                  state: null,
-                },
-                email: null,
-                lastName: "Mertz",
-                legalRepresentative: {
-                  __typename: "RelatedIndividualLegalRepresentative",
-                  roles: ["Directeur général"],
-                },
-                sex: "Male",
-                taxIdentificationNumber: null,
-                type: "LegalRepresentative",
-                birthInfo: {
-                  __typename: "BirthInfo",
-                  birthDate: "1986-11-01",
-                  city: "Strasbourg",
-                  country: "FRA",
-                  postalCode: null,
-                },
-                nationality: "FRA",
-                unitedStatesTaxInfo: null,
-              },
-            ],
-            legalFormCode: "6CHY",
-          };
-          setPublicData(companyInfo);
-          setFieldValue("legalFormCode", companyInfo.legalFormCode ?? undefined);
-
-          setRepresentatives([
-            ...(companyInfo.relatedIndividuals ?? []),
-            ...(companyInfo.relatedCompanies ?? []),
-          ]);
+          setManualMode(true);
         });
     }
   }, [siren, query, setFieldValue]);
@@ -364,9 +265,7 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
         {({ large, small }) => (
           <>
             <LakeHeading level={1}>{t("company.step.organisation.title")}</LakeHeading>
-            <LakeText>
-              {t("company.step.organisation.subtitle")} {manualMode ? "true" : "false"}
-            </LakeText>
+            <LakeText>{t("company.step.organisation.subtitle")}</LakeText>
             <Tile style={styles.gap}>
               <View style={[styles.grid, large && styles.gridDesktop]}>
                 <Field name="country">

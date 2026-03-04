@@ -100,18 +100,20 @@ export const businessActivityCategories: { text: string; value: BusinessActivity
 export const ownershipText = ({ type, totalPercentage }: UltimateBeneficialOwnerOwnership) => {
   const params = { totalPercentage: totalPercentage ?? 0 };
   return match(type)
-    .with("Direct", () => t("company.step.ownersip.ownership.direct", params))
-    .with("Indirect", () => t("company.step.ownersip.ownership.indirect", params))
-    .with("DirectAndIndirect", () => t("company.step.ownersip.ownership.directAndIndirect", params))
+    .with("Direct", () => t("company.step.ownership.ownership.direct", params))
+    .with("Indirect", () => t("company.step.ownership.ownership.indirect", params))
+    .with("DirectAndIndirect", () =>
+      t("company.step.ownership.ownership.directAndIndirect", params),
+    )
     .exhaustive();
 };
 
 export const ownershipTypeText = (type: RelatedIndividualType) => {
   return match(type)
-    .with("LegalRepresentative", () => t("company.step.ownersip.role.legalRepresentative"))
-    .with("UltimateBeneficialOwner", () => t("company.step.ownersip.role.ubo"))
+    .with("LegalRepresentative", () => t("company.step.ownership.role.legalRepresentative"))
+    .with("UltimateBeneficialOwner", () => t("company.step.ownership.role.ubo"))
     .with("LegalRepresentativeAndUltimateBeneficialOwner", () =>
-      t("company.step.ownersip.role.legalRepresentativeAndUbo"),
+      t("company.step.ownership.role.legalRepresentativeAndUbo"),
     )
     .exhaustive();
 };

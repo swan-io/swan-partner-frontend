@@ -22,6 +22,7 @@ import { usePermissions } from "../hooks/usePermissions";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { CardCancelConfirmationModal } from "./CardCancelConfirmationModal";
+import { deriveSpendingLimitInput, deriveSpendingLimitValue } from "./CardItemSpendingLimit";
 import { CardSettings, CardWizardSettings, CardWizardSettingsRef } from "./CardWizardSettings";
 
 const styles = StyleSheet.create({
@@ -63,7 +64,7 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
         cardId,
         consentRedirectUrl:
           window.location.origin + Router.AccountCardsItemSettings({ cardId, accountMembershipId }),
-        spendingLimit,
+        spendingLimit: deriveSpendingLimitInput(spendingLimit),
         name: cardName,
         eCommerce,
         withdrawal,
@@ -88,21 +89,6 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
     }
   };
 
-  const deriveInitialSpendingLimit = () => {
-    const spendingLimit = card.spendingLimits?.[0];
-    if (spendingLimit == null) {
-      return;
-    }
-    const {
-      amount: { value, currency },
-      period,
-    } = spendingLimit;
-    return {
-      amount: { value, currency },
-      period,
-    };
-  };
-
   return (
     <ResponsiveContainer breakpoint={breakpoints.medium}>
       {({ small, large }) => (
@@ -123,7 +109,7 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
               item => item.type === "Partner" && item.period === "Monthly",
             )}
             initialSettings={{
-              spendingLimit: deriveInitialSpendingLimit(),
+              spendingLimit: deriveSpendingLimitValue(card.spendingLimits ?? []),
               cardName: card.name ?? "",
               eCommerce: card.eCommerce ?? false,
               withdrawal: card.withdrawal ?? false,

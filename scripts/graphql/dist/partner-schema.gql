@@ -11,8 +11,6 @@ type Query {
   Returns an account holder onboarding from its id.
   
   *This query is restricted to a Project access token ([Learn More](https://docs.swan.io/developers/using-api/authentication))*
-  
-  @comingSoon -> this query is not available yet, and its shape is subject to breaking change
   """
   accountHolderOnboarding(id: ID!): AccountHolderOnboarding
 
@@ -139,7 +137,6 @@ type Query {
   """
   Fetch comprehensive company registry data by registration number and optional country.
   Returns detailed company information including representatives and beneficial owners.
-  @comingSoon -> this query is not available yet, and its shape is subject to breaking change
   """
   companyInfoRegistryData(input: CompanyInfoRegistryDataInput!): CompanyInfo
 
@@ -154,7 +151,7 @@ type Query {
   
   *This query is restricted to a Project access token ([Learn More](https://docs.swan.io/developers/using-api/authentication))*
   """
-  onboarding(id: ID!): Onboarding!
+  onboarding(id: ID!): Onboarding! @deprecated(reason: "Use `accountHolderOnboarding`")
 
   """
   Returns the list of onboardings.
@@ -182,7 +179,7 @@ type Query {
 
     """an order you can apply to your list of connections"""
     orderBy: OnboardingOrderByInput
-  ): OnboardingConnection!
+  ): OnboardingConnection! @deprecated(reason: "Use `accountHolderOnboardings`")
 
   """
   Returns an account admin change from its id.
@@ -194,15 +191,12 @@ type Query {
   """
   Returns an account holder onboarding from its id without authentication.
   This query can be used in unauthenticated contexts to fetch onboarding information.
-  
-  @comingSoon -> this query is not available yet, and its shape is subject to breaking change
   """
   publicAccountHolderOnboarding(id: ID!): AccountHolderOnboarding
 
   """
   Fetch comprehensive company registry data by registration number and optional country.
   Returns detailed company information including representatives and beneficial owners.
-  @comingSoon -> this query is not available yet, and its shape is subject to breaking change
   """
   publicCompanyInfoRegistryData(input: PublicCompanyInfoRegistryDataInput!): CompanyInfo
 
@@ -646,8 +640,6 @@ type Mutation {
   Creates an onboarding for a new company account holder.
   
   This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
-  
-  @comingSoon -> this query is not available yet, and its shape is subject to breaking change
   """
   createCompanyAccountHolderOnboarding(input: CreateCompanyAccountHolderOnboardingInput!): CreateCompanyAccountHolderOnboardingPayload!
 
@@ -655,8 +647,6 @@ type Mutation {
   Creates an onboarding for a new individual account holder.
   
   This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
-  
-  @comingSoon -> this query is not available yet, and its shape is subject to breaking change
   """
   createIndividualAccountHolderOnboarding(input: CreateIndividualAccountHolderOnboardingInput!): CreateIndividualAccountHolderOnboardingPayload!
 
@@ -664,8 +654,6 @@ type Mutation {
   Creates an onboarding for a new company account holder, belonging the target project.
   
   This mutation is restricted to unauthenticated access (no token)
-  
-  @comingSoon -> this query is not available yet, and its shape is subject to breaking change
   """
   createPublicCompanyAccountHolderOnboarding(input: CreatePublicCompanyAccountHolderOnboardingInput!): CreatePublicCompanyAccountHolderOnboardingPayload!
 
@@ -673,8 +661,6 @@ type Mutation {
   Creates an onboarding for a new individual account holder without authentication.
   
   This mutation is restricted to unauthenticated access (no token)
-  
-  @comingSoon -> this query is not available yet, and its shape is subject to breaking change
   """
   createPublicIndividualAccountHolderOnboarding(input: CreatePublicIndividualAccountHolderOnboardingInput!): CreatePublicIndividualAccountHolderOnboardingPayload!
 
@@ -697,8 +683,6 @@ type Mutation {
   Finalize an account holder onboarding, leading to the opening of a new account for your client, who thus becomes the account holder.
   
   *This mutation is restricted to a User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)).*
-  
-  @comingSoon -> this query is not available yet, and its shape is subject to breaking change
   """
   finalizeAccountHolderOnboarding(input: FinalizeAccountHolderOnboardingInput!): FinalizeAccountHolderOnboardingPayload!
 
@@ -707,7 +691,7 @@ type Mutation {
   
   *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)).*
   """
-  finalizeOnboarding(input: FinalizeOnboardingInput!): FinalizeOnboardingPayload!
+  finalizeOnboarding(input: FinalizeOnboardingInput!): FinalizeOnboardingPayload! @deprecated(reason: "Use `finalizeAccountHolderOnboarding`")
 
   """Internal Beta - do not use"""
   finalizeVerificationRenewal(input: FinalizeVerificationRenewalInput!): FinalizeVerificationRenewalPayload!
@@ -724,14 +708,14 @@ type Mutation {
   
   This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
   """
-  onboardCompanyAccountHolder(input: OnboardCompanyAccountHolderInput): OnboardCompanyAccountHolderPayload!
+  onboardCompanyAccountHolder(input: OnboardCompanyAccountHolderInput): OnboardCompanyAccountHolderPayload! @deprecated(reason: "Use `createCompanyAccountHolderOnboarding`")
 
   """
   Creates an onboarding for a new individual account holder.
   
   This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
   """
-  onboardIndividualAccountHolder(input: OnboardIndividualAccountHolderInput): OnboardIndividualAccountHolderPayload!
+  onboardIndividualAccountHolder(input: OnboardIndividualAccountHolderInput): OnboardIndividualAccountHolderPayload! @deprecated(reason: "Use `createIndividualAccountHolderOnboarding`")
 
   """Open an additional account"""
   openAccount(input: OpenAccountInput!): OpenAccountPayload!
@@ -801,8 +785,6 @@ type Mutation {
   Updates an existing company account holder onboarding.
   
   This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
-  
-  @comingSoon -> this query is not available yet, and its shape is subject to breaking change
   """
   updateCompanyAccountHolderOnboarding(input: UpdateCompanyAccountHolderOnboardingInput!): UpdateCompanyAccountHolderOnboardingPayload!
 
@@ -813,7 +795,7 @@ type Mutation {
   
   This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
   """
-  updateCompanyOnboarding(input: UpdateCompanyOnboardingInput): UpdateCompanyOnboardingPayload!
+  updateCompanyOnboarding(input: UpdateCompanyOnboardingInput): UpdateCompanyOnboardingPayload! @deprecated(reason: "Use `updateCompanyAccountHolderOnboarding`")
 
   """Internal Beta - do not use"""
   updateCompanyVerificationRenewal(input: UpdateCompanyVerificationRenewalInput!): UpdateCompanyVerificationRenewalPayload!
@@ -822,8 +804,6 @@ type Mutation {
   Updates an existing individual account holder onboarding.
   
   This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
-  
-  @comingSoon -> this query is not available yet, and its shape is subject to breaking change
   """
   updateIndividualAccountHolderOnboarding(input: UpdateIndividualAccountHolderOnboardingInput!): UpdateIndividualAccountHolderOnboardingPayload!
 
@@ -832,7 +812,7 @@ type Mutation {
   
   This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
   """
-  updateIndividualOnboarding(input: UpdateIndividualOnboardingInput!): UpdateIndividualOnboardingPayload!
+  updateIndividualOnboarding(input: UpdateIndividualOnboardingInput!): UpdateIndividualOnboardingPayload! @deprecated(reason: "Use `updateIndividualAccountHolderOnboarding`")
 
   """Internal Beta - do not use"""
   updateIndividualVerificationRenewal(input: UpdateIndividualVerificationRenewalInput!): UpdateIndividualVerificationRenewalPayload!
@@ -841,8 +821,6 @@ type Mutation {
   Updates an existing public company account holder onboarding.
   
   This mutation is restricted to a [Project access token](https://swan.io/developers/using-api/authentication/).
-  
-  @comingSoon -> this query is not available yet, and its shape is subject to breaking change
   """
   updatePublicCompanyAccountHolderOnboarding(input: UpdatePublicCompanyAccountHolderOnboardingInput!): UpdatePublicCompanyAccountHolderOnboardingPayload!
 
@@ -850,8 +828,6 @@ type Mutation {
   Updates an existing individual account holder onboarding.
   
   This mutation is restricted to unauthenticated access (no token)
-  
-  @comingSoon -> this query is not available yet, and its shape is subject to breaking change
   """
   updatePublicIndividualAccountHolderOnboarding(input: UpdatePublicIndividualAccountHolderOnboardingInput!): UpdatePublicIndividualAccountHolderOnboardingPayload!
   updateSupportingDocument(input: UpdateSupportingDocumentInput!): UpdateSupportingDocumentPayload!
@@ -3561,7 +3537,7 @@ enum CloseAccountReasonType {
   BusinessInactiveOrNotRegistered
 
   """The capital deposit has been withdrawn."""
-  CapitalDepositCanceled
+  CapitalDepositWithdrawn
 
   """
   Standard closure of a Shareholder account after the capital deposit case is completed.
@@ -3639,6 +3615,9 @@ enum CloseAccountReasonType {
 
   """Swan doesn't support this legal form."""
   UnsupportedLegalForm
+
+  """Legacy: Use CapitalDepositWithdrawn instead."""
+  CapitalDepositCanceled @deprecated(reason: "Use CapitalDepositWithdrawn")
 }
 
 """
@@ -5031,12 +5010,15 @@ type FinalizeAccountHolderOnboardingSuccessPayload {
   onboarding: AccountHolderOnboarding!
 }
 
+"""@deprecated Use `FinalizeAccountHolderOnboardingInput`"""
 input FinalizeOnboardingInput {
   onboardingId: String!
 }
 
+"""@deprecated Use `FinalizeAccountHolderOnboardingPayload`"""
 union FinalizeOnboardingPayload = FinalizeOnboardingSuccessPayload | InternalErrorRejection | ForbiddenRejection | OnboardingNotCompletedRejection | ValidationRejection
 
+"""@deprecated Use `FinalizeAccountHolderOnboardingSuccessPayload`"""
 type FinalizeOnboardingSuccessPayload {
   onboarding: Onboarding!
 }
@@ -6316,7 +6298,11 @@ input OAuthRedirectParametersInput {
   redirectUrl: String
 }
 
-"""Inputs to onboard a new company account holder"""
+"""
+Inputs to onboard a new company account holder
+
+@deprecated Use `CreateCompanyAccountHolderOnboardingInput`
+"""
 input OnboardCompanyAccountHolderInput {
   """
   Account name of the company account holder.
@@ -6454,13 +6440,15 @@ input OnboardCompanyAccountHolderInput {
   acquisitionChannel: AcquisitionChannel
 }
 
+"""@deprecated Use `CreateCompanyAccountHolderOnboardingPayload`"""
 union OnboardCompanyAccountHolderPayload = OnboardCompanyAccountHolderSuccessPayload | BadRequestRejection | ForbiddenRejection | ValidationRejection
 
+"""@deprecated Use `CreateCompanyAccountHolderOnboardingSuccessPayload`"""
 type OnboardCompanyAccountHolderSuccessPayload {
   onboarding: Onboarding!
 }
 
-"""Inputs to onboard a new individual account holder"""
+"""@deprecated Use `CreateIndividualAccountHolderOnboardingInput`"""
 input OnboardIndividualAccountHolderInput {
   """
   Account name of the individual account holder.
@@ -6515,14 +6503,20 @@ input OnboardIndividualAccountHolderInput {
   acquisitionChannel: AcquisitionChannel
 }
 
+"""@deprecated Use `CreateIndividualAccountHolderOnboardingPayload`"""
 union OnboardIndividualAccountHolderPayload = OnboardIndividualAccountHolderSuccessPayload | ForbiddenRejection | ValidationRejection
 
+"""
+@deprecated Use `CreateIndividualAccountHolderOnboardingSuccessPayload`
+"""
 type OnboardIndividualAccountHolderSuccessPayload {
   onboarding: Onboarding!
 }
 
 """
 Information provided during the onboarding process of an individual or a company
+
+@deprecated Use `AccountHolderOnboarding`
 """
 type Onboarding {
   """Unique identifier of an onboarding"""
@@ -6671,6 +6665,8 @@ type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
 
 """
 Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
+
+@deprecated Use `AccountHolderOnboardingConnection`
 """
 type OnboardingConnection implements Connection {
   """Total number of element in the list"""
@@ -6683,7 +6679,11 @@ type OnboardingConnection implements Connection {
   edges: [OnboardingEdge!]!
 }
 
-"""Implements the Relay Edge interface"""
+"""
+Implements the Relay Edge interface
+
+@deprecated Use `AccountHolderOnboardingEdge`
+"""
 type OnboardingEdge implements Edge {
   """
   Opaque identifier pointing to this onboarding node in the pagination mechanism
@@ -6747,6 +6747,7 @@ type OnboardingIndividualAccountHolderInfo implements OnboardingAccountHolderInf
   taxIdentificationNumber: String
 }
 
+"""@deprecated Use `AccountHolderOnboarding`"""
 type OnboardingInfo {
   """Unique identifier of an onboarding"""
   id: String!
@@ -7744,17 +7745,6 @@ input SpendingLimitCalendarDayModeInput {
   startHour: Int! = 0
 }
 
-type SpendingLimitCalendarMode {
-  """a daily based calendar spending limit."""
-  daily: SpendingLimitCalendarDayMode
-
-  """a weekly based calendar spending limit."""
-  weekly: SpendingLimitCalendarWeekMode
-
-  """a monthly based calendar spending limit."""
-  monthly: SpendingLimitCalendarMonthMode
-}
-
 input SpendingLimitCalendarModeInput {
   """a daily based calendar spending limit."""
   daily: SpendingLimitCalendarDayModeInput
@@ -7771,7 +7761,7 @@ type SpendingLimitCalendarMonthMode {
   startHour: Int!
 
   """a day in month for the spending limit (1 to 31)."""
-  startDay: Int!
+  startMonthDay: Int!
 }
 
 input SpendingLimitCalendarMonthModeInput {
@@ -7787,7 +7777,7 @@ type SpendingLimitCalendarWeekMode {
   startHour: Int!
 
   """a day of week enum."""
-  startDay: DayEnum!
+  startWeekDay: DayEnum!
 }
 
 input SpendingLimitCalendarWeekModeInput {
@@ -7812,15 +7802,7 @@ input SpendingLimitInput {
   mode: SpendingLimitModeInput
 }
 
-type SpendingLimitMode {
-  """a rolling period, defining a period of x days/weeks/months."""
-  rolling: SpendingLimitRollingMode
-
-  """
-  a fixed calendar period starting either at a given hour of day, a given hour and day in week/month
-  """
-  calendar: SpendingLimitCalendarMode
-}
+union SpendingLimitMode = SpendingLimitRollingMode | SpendingLimitCalendarDayMode | SpendingLimitCalendarWeekMode | SpendingLimitCalendarMonthMode
 
 input SpendingLimitModeInput {
   """a rolling period, defining a period of x days/weeks/months."""
@@ -9169,6 +9151,7 @@ type UpdateCompanyAccountHolderOnboardingSuccessPayload {
   onboarding: CompanyAccountHolderOnboarding!
 }
 
+"""@deprecated Use `UpdateCompanyAccountHolderOnboardingInput`"""
 input UpdateCompanyOnboardingInput {
   """
   Account name of the company account holder.
@@ -9306,10 +9289,18 @@ input UpdateCompanyOnboardingInput {
   acquisitionChannel: AcquisitionChannel
 }
 
-"""Possible results for mutation `updateCompanyOnboarding`"""
+"""
+Possible results for mutation `updateCompanyOnboarding`
+
+@deprecated Use `UpdateCompanyAccountHolderOnboardingPayload`
+"""
 union UpdateCompanyOnboardingPayload = ForbiddenRejection | InternalErrorRejection | UpdateCompanyOnboardingSuccessPayload | ValidationRejection
 
-"""Result when updateCompanyOnboarding is a success"""
+"""
+Result when updateCompanyOnboarding is a success
+
+@deprecated Use `UpdateCompanyAccountHolderOnboardingSuccessPayload`
+"""
 type UpdateCompanyOnboardingSuccessPayload {
   onboarding: OnboardingInfo!
 }
@@ -9436,6 +9427,7 @@ type UpdateIndividualAccountHolderOnboardingSuccessPayload {
   onboarding: IndividualAccountHolderOnboarding!
 }
 
+"""@deprecated Use `UpdateIndividualAccountHolderOnboardingInput`"""
 input UpdateIndividualOnboardingInput {
   """
   Account name of the individual account holder.
@@ -9490,10 +9482,18 @@ input UpdateIndividualOnboardingInput {
   acquisitionChannel: AcquisitionChannel
 }
 
-"""Possible result types for `updateIndividualOnboarding`"""
+"""
+Possible result types for `updateIndividualOnboarding`
+
+@deprecated Use `UpdateIndividualAccountHolderOnboardingPayload`
+"""
 union UpdateIndividualOnboardingPayload = ForbiddenRejection | InternalErrorRejection | UpdateIndividualOnboardingSuccessPayload | ValidationRejection
 
-"""Type of result when updateIndividualOnboarding is a success"""
+"""
+Type of result when updateIndividualOnboarding is a success
+
+@deprecated Use `UpdateIndividualAccountHolderOnboardingSuccessPayload`
+"""
 type UpdateIndividualOnboardingSuccessPayload {
   onboarding: OnboardingInfo!
 }
@@ -10341,7 +10341,7 @@ type Card {
   """Periodic Spending"""
   spending: Spending
 
-  """Periodic Spending limit list"""
+  """Spending limits for the card"""
   spendingLimits: [SpendingLimit!]
 }
 
@@ -15897,7 +15897,7 @@ type CapitalDepositDocumentRefusedStatusInfo implements CapitalDepositDocumentSt
   reasonCode: DocumentReasonCode!
 
   """Additional information for the rejection."""
-  reason: String!
+  reason: String
 }
 
 """Status of the Capital Deposit Case"""
@@ -23633,6 +23633,18 @@ type Spending {
 
   """amount spent during the period"""
   amount: Amount
+
+  """spending computing time range"""
+  timeRange: SpendingTimeRange
+}
+
+"""time range used to compute the current spending"""
+type SpendingTimeRange {
+  """spending time range start"""
+  start: DateTime!
+
+  """spending time range end"""
+  end: DateTime!
 }
 
 """StatusInfo when funding limit settings has been suspended"""

@@ -9,7 +9,7 @@ type Query {
   Fetch company info (name, beneficiaries...) by Company Ref and Headquarter Country
   """
   companyUboByCompanyRefAndHeadquarterCountry(input: CompanyUboByCompanyRefAndHeadquarterCountryInput!): CompanyUboByCompanyRefAndHeadquarterCountryPayload!
-  onboardingInfo(id: ID!): OnboardingInfo
+  onboardingInfo(id: ID!): OnboardingInfo @deprecated(reason: "Use `publicAccountHolderOnboarding`")
 
   """Returns a supporting document collection from its id."""
   supportingDocumentCollection(id: ID!): SupportingDocumentCollection
@@ -25,10 +25,10 @@ type Query {
 }
 
 type Mutation {
-  unauthenticatedOnboardPublicCompanyAccountHolder(input: UnauthenticatedOnboardPublicCompanyAccountHolderInput): UnauthenticatedOnboardPublicCompanyAccountHolderPayload!
-  unauthenticatedOnboardPublicIndividualAccountHolder(input: UnauthenticatedOnboardPublicIndividualAccountHolderInput): UnauthenticatedOnboardPublicIndividualAccountHolderPayload!
-  unauthenticatedUpdateCompanyOnboarding(input: UnauthenticatedUpdateCompanyOnboardingInput): UnauthenticatedUpdateCompanyOnboardingPayload!
-  unauthenticatedUpdateIndividualOnboarding(input: UnauthenticatedUpdateIndividualOnboardingInput!): UnauthenticatedUpdateIndividualOnboardingPayload!
+  unauthenticatedOnboardPublicCompanyAccountHolder(input: UnauthenticatedOnboardPublicCompanyAccountHolderInput): UnauthenticatedOnboardPublicCompanyAccountHolderPayload! @deprecated(reason: "Use `createPublicCompanyAccountHolderOnboarding`")
+  unauthenticatedOnboardPublicIndividualAccountHolder(input: UnauthenticatedOnboardPublicIndividualAccountHolderInput): UnauthenticatedOnboardPublicIndividualAccountHolderPayload! @deprecated(reason: "Use `createPublicIndividualAccountHolderOnboarding`")
+  unauthenticatedUpdateCompanyOnboarding(input: UnauthenticatedUpdateCompanyOnboardingInput): UnauthenticatedUpdateCompanyOnboardingPayload! @deprecated(reason: "Use `updatePublicCompanyAccountHolderOnboarding`")
+  unauthenticatedUpdateIndividualOnboarding(input: UnauthenticatedUpdateIndividualOnboardingInput!): UnauthenticatedUpdateIndividualOnboardingPayload! @deprecated(reason: "Use `updatePublicIndividualAccountHolderOnboarding`")
 
   """
   Delete a supporting document, in case uploaded file is not what was wanted. This action can not be undone.
@@ -1573,7 +1573,7 @@ enum CloseAccountReasonType {
   BusinessInactiveOrNotRegistered
 
   """The capital deposit has been withdrawn."""
-  CapitalDepositCanceled
+  CapitalDepositWithdrawn
 
   """
   Standard closure of a Shareholder account after the capital deposit case is completed.
@@ -1651,6 +1651,9 @@ enum CloseAccountReasonType {
 
   """Swan doesn't support this legal form."""
   UnsupportedLegalForm
+
+  """Legacy: Use CapitalDepositWithdrawn instead."""
+  CapitalDepositCanceled @deprecated(reason: "Use CapitalDepositWithdrawn")
 }
 
 """
@@ -3202,6 +3205,8 @@ input OAuthRedirectParametersInput {
 
 """
 Information provided during the onboarding process of an individual or a company
+
+@deprecated Use `AccountHolderOnboarding`
 """
 type Onboarding {
   """Unique identifier of an onboarding"""
@@ -3350,6 +3355,8 @@ type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
 
 """
 Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
+
+@deprecated Use `AccountHolderOnboardingConnection`
 """
 type OnboardingConnection implements Connection {
   """Total number of element in the list"""
@@ -3362,7 +3369,11 @@ type OnboardingConnection implements Connection {
   edges: [OnboardingEdge!]!
 }
 
-"""Implements the Relay Edge interface"""
+"""
+Implements the Relay Edge interface
+
+@deprecated Use `AccountHolderOnboardingEdge`
+"""
 type OnboardingEdge implements Edge {
   """
   Opaque identifier pointing to this onboarding node in the pagination mechanism
@@ -3426,6 +3437,7 @@ type OnboardingIndividualAccountHolderInfo implements OnboardingAccountHolderInf
   taxIdentificationNumber: String
 }
 
+"""@deprecated Use `AccountHolderOnboarding`"""
 type OnboardingInfo {
   """Unique identifier of an onboarding"""
   id: String!
@@ -4138,17 +4150,6 @@ input SpendingLimitCalendarDayModeInput {
   startHour: Int! = 0
 }
 
-type SpendingLimitCalendarMode {
-  """a daily based calendar spending limit."""
-  daily: SpendingLimitCalendarDayMode
-
-  """a weekly based calendar spending limit."""
-  weekly: SpendingLimitCalendarWeekMode
-
-  """a monthly based calendar spending limit."""
-  monthly: SpendingLimitCalendarMonthMode
-}
-
 input SpendingLimitCalendarModeInput {
   """a daily based calendar spending limit."""
   daily: SpendingLimitCalendarDayModeInput
@@ -4165,7 +4166,7 @@ type SpendingLimitCalendarMonthMode {
   startHour: Int!
 
   """a day in month for the spending limit (1 to 31)."""
-  startDay: Int!
+  startMonthDay: Int!
 }
 
 input SpendingLimitCalendarMonthModeInput {
@@ -4181,7 +4182,7 @@ type SpendingLimitCalendarWeekMode {
   startHour: Int!
 
   """a day of week enum."""
-  startDay: DayEnum!
+  startWeekDay: DayEnum!
 }
 
 input SpendingLimitCalendarWeekModeInput {
@@ -4206,15 +4207,7 @@ input SpendingLimitInput {
   mode: SpendingLimitModeInput
 }
 
-type SpendingLimitMode {
-  """a rolling period, defining a period of x days/weeks/months."""
-  rolling: SpendingLimitRollingMode
-
-  """
-  a fixed calendar period starting either at a given hour of day, a given hour and day in week/month
-  """
-  calendar: SpendingLimitCalendarMode
-}
+union SpendingLimitMode = SpendingLimitRollingMode | SpendingLimitCalendarDayMode | SpendingLimitCalendarWeekMode | SpendingLimitCalendarMonthMode
 
 input SpendingLimitModeInput {
   """a rolling period, defining a period of x days/weeks/months."""
@@ -5204,6 +5197,7 @@ enum UltimateBeneficialOwnerType {
   IndirectCompany
 }
 
+"""@deprecated Use `CreatePublicCompanyAccountHolderOnboardingInput`"""
 input UnauthenticatedOnboardPublicCompanyAccountHolderInput {
   """ID of the project."""
   projectId: ID!
@@ -5212,12 +5206,17 @@ input UnauthenticatedOnboardPublicCompanyAccountHolderInput {
   accountCountry: AccountCountry
 }
 
+"""@deprecated Use `CreatePublicCompanyAccountHolderOnboardingPayload`"""
 union UnauthenticatedOnboardPublicCompanyAccountHolderPayload = UnauthenticatedOnboardPublicCompanyAccountHolderSuccessPayload | PublicOnboardingDisabledRejection | ValidationRejection
 
+"""
+@deprecated Use `CreatePublicCompanyAccountHolderOnboardingSuccessPayload`
+"""
 type UnauthenticatedOnboardPublicCompanyAccountHolderSuccessPayload {
   onboarding: OnboardingInfo!
 }
 
+"""@deprecated Use `CreatePublicIndividualAccountHolderOnboardingInput`"""
 input UnauthenticatedOnboardPublicIndividualAccountHolderInput {
   """ID of the project."""
   projectId: ID!
@@ -5226,12 +5225,17 @@ input UnauthenticatedOnboardPublicIndividualAccountHolderInput {
   accountCountry: AccountCountry
 }
 
+"""@deprecated Use `CreatePublicIndividualAccountHolderOnboardingPayload`"""
 union UnauthenticatedOnboardPublicIndividualAccountHolderPayload = UnauthenticatedOnboardPublicIndividualAccountHolderSuccessPayload | PublicOnboardingDisabledRejection | ValidationRejection
 
+"""
+@deprecated Use `CreatePublicIndividualAccountHolderOnboardingSuccessPayload`
+"""
 type UnauthenticatedOnboardPublicIndividualAccountHolderSuccessPayload {
   onboarding: OnboardingInfo!
 }
 
+"""@deprecated Use `UpdatePublicCompanyAccountHolderOnboardingInput`"""
 input UnauthenticatedUpdateCompanyOnboardingInput {
   """
   Account name of the company account holder.
@@ -5366,12 +5370,17 @@ input UnauthenticatedUpdateCompanyOnboardingInput {
   acquisitionChannel: AcquisitionChannel
 }
 
+"""@deprecated Use `UpdatePublicCompanyAccountHolderOnboardingPayload`"""
 union UnauthenticatedUpdateCompanyOnboardingPayload = ForbiddenRejection | InternalErrorRejection | UnauthenticatedUpdateCompanyOnboardingSuccessPayload | ValidationRejection
 
+"""
+@deprecated Use `UpdatePublicCompanyAccountHolderOnboardingSuccessPayload`
+"""
 type UnauthenticatedUpdateCompanyOnboardingSuccessPayload {
   onboarding: OnboardingInfo!
 }
 
+"""@deprecated Use `UpdatePublicIndividualAccountHolderOnboardingInput`"""
 input UnauthenticatedUpdateIndividualOnboardingInput {
   """
   Account name of the individual account holder.
@@ -5426,8 +5435,12 @@ input UnauthenticatedUpdateIndividualOnboardingInput {
   acquisitionChannel: AcquisitionChannel
 }
 
+"""@deprecated Use `UpdatePublicIndividualAccountHolderOnboardingPayload`"""
 union UnauthenticatedUpdateIndividualOnboardingPayload = ForbiddenRejection | InternalErrorRejection | UnauthenticatedUpdateIndividualOnboardingSuccessPayload | ValidationRejection
 
+"""
+@deprecated Use `UpdatePublicIndividualAccountHolderOnboardingSuccessPayload`
+"""
 type UnauthenticatedUpdateIndividualOnboardingSuccessPayload {
   onboarding: OnboardingInfo!
 }
@@ -5951,9 +5964,6 @@ type Card {
 
   """`true` if this card allows transactions at eCommerce sites"""
   eCommerce: Boolean!
-
-  """Periodic Spending limit list"""
-  spendingLimits: [SpendingLimit!]
 
   """Physical card if the cardholder has ordered one"""
   physicalCard: PhysicalCard

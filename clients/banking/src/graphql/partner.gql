@@ -1052,6 +1052,31 @@ fragment DigitalCard on DigitalCard {
   }
 }
 
+fragment SpendingLimit on SpendingLimit {
+  mode {
+    ... on SpendingLimitRollingMode {
+      rollingValue
+    }
+    ... on SpendingLimitCalendarDayMode {
+      startHour
+    }
+    ... on SpendingLimitCalendarWeekMode {
+      startHour
+      startWeekDay
+    }
+    ... on SpendingLimitCalendarMonthMode {
+      startHour
+      startMonthDay
+    }
+  }
+  amount {
+    currency
+    value
+  }
+  period
+  type
+}
+
 query CardPage($cardId: ID!) {
   projectInfo {
     id
@@ -1145,27 +1170,7 @@ query CardPage($cardId: ID!) {
       }
     }
     spendingLimits {
-      mode {
-        calendar {
-          daily {
-            startHour
-          }
-          weekly {
-            startHour
-            startDay
-          }
-          monthly {
-            startHour
-            startDay
-          }
-        }
-      }
-      amount {
-        currency
-        value
-      }
-      period
-      type
+      ...SpendingLimit
     }
     spending {
       amount {

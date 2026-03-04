@@ -316,7 +316,7 @@ const FlowPickerWizard = ({ onboardingId }: Props) => {
               return <FlowPickerV1 />;
             });
         })
-        .otherwise(() => <ErrorView />);
+        .otherwise(() => <FlowPickerV1 />);
     })
     .exhaustive();
 };

@@ -207,9 +207,13 @@ const CardWizardSettingsBooleanTile = ({
   );
 };
 
-const defaultSpendingLimit = (cardFormat: CardFormat, currency: string): SpendingLimitValue => ({
+const defaultSpendingLimit = (
+  cardFormat: CardFormat,
+  maxValue: number,
+  currency: string,
+): SpendingLimitValue => ({
   amount: {
-    value: "0",
+    value: String(maxValue),
     currency,
   },
   mode: {
@@ -250,7 +254,7 @@ export const CardWizardSettings = ({
     spendingLimit:
       initialSettings?.spendingLimit != null
         ? initialSettings.spendingLimit
-        : defaultSpendingLimit(cardFormat, currency),
+        : defaultSpendingLimit(cardFormat, spendingLimitMaxValue, currency),
     eCommerce: initialSettings?.eCommerce ?? true,
     withdrawal: initialSettings?.withdrawal ?? true,
     international: initialSettings?.international ?? true,

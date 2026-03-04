@@ -2,7 +2,11 @@ import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { Ref, useImperativeHandle, useRef, useState } from "react";
 import { match, P } from "ts-pattern";
 import { v4 as uuid } from "uuid";
-import { AccountCountry, RelatedCompanyInput, RelatedIndividualInput } from "../../../../graphql/partner";
+import {
+  AccountCountry,
+  RelatedCompanyInput,
+  RelatedIndividualInput,
+} from "../../../../graphql/partner";
 import {
   OnboardingCompanyOwnershipFormCompanyRef,
   OwnershipFormCompany,
@@ -26,11 +30,11 @@ export type SaveValue = SaveValueCompany | SaveValueIndividual;
 
 type Props = {
   ref: Ref<OnboardingCompanyOwnershipFormRef>;
-  initialValues?: SaveValue;
+  initialValues?: Partial<SaveValue>;
   accountCountry: AccountCountry;
   companyCountry: CountryCCA3;
   step: OwnershipFormStep;
-  type: 'edit' | 'add' | 'delete' | 'hidden'
+  type: "edit" | "add" | "delete" | "hidden";
   onStepChange: (step: OwnershipFormStep) => void;
   onSave: (editorState: SaveValue) => void | Promise<void>;
   onClose: () => void;
@@ -38,7 +42,7 @@ type Props = {
 
 export const OwnershipFormWizard = ({
   ref,
-  initialValues = {},
+  initialValues = {} as Partial<SaveValue>,
   step,
   type,
   onClose,
@@ -53,8 +57,8 @@ export const OwnershipFormWizard = ({
   useImperativeHandle(ref, () => {
     return {
       cancel: () => {
-        match({step, type})
-          .with({step: "init"}, () => onClose())
+        match({ step, type })
+          .with({ step: "init" }, () => onClose())
           .with({ step: P.union("company", "legal", "ubo", "legalAndUbo"), type: "edit" }, () =>
             onClose(),
           )

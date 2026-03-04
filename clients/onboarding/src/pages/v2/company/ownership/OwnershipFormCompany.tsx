@@ -2,6 +2,7 @@ import { Option } from "@swan-io/boxed";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeTagInput } from "@swan-io/lake/src/components/LakeTagInput";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
+import { noop } from "@swan-io/lake/src/utils/function";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { companyCountries, CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
@@ -29,12 +30,10 @@ export const OwnershipFormCompany = ({ ref, onSave, companyCountry }: Props) => 
       submit: () => {
         submitForm({
           onSuccess: values => {
-            const option = Option.allFromDict(values);
-            if (option.isNone()) {
-              return;
-            }
-            const currentValues = option.get();
-            onSave(currentValues);
+            Option.allFromDict(values).match({
+              Some: onSave,
+              None: noop,
+            });
           },
         });
       },

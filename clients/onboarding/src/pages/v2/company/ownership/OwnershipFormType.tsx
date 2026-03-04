@@ -10,6 +10,7 @@ import { View } from "react-native";
 import { match } from "ts-pattern";
 import { RelatedIndividualType } from "../../../../graphql/partner";
 import { t } from "../../../../utils/i18n";
+import { noop } from "@swan-io/lake/src/utils/function";
 
 export type OnboardingCompanyOwnershipFormTypeRef = {
   submit: () => void;
@@ -42,12 +43,10 @@ export const OwnershipFormType = ({ ref, onSave }: Props) => {
       submit: () => {
         submitForm({
           onSuccess: values => {
-            const option = Option.allFromDict(values);
-            if (option.isNone()) {
-              return;
-            }
-            const currentValues = option.get();
-            onSave(currentValues);
+            Option.allFromDict(values).match({
+              Some: onSave,
+              None: noop,
+            });
           },
         });
       },

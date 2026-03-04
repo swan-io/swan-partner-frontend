@@ -41,6 +41,26 @@ const LIMIT_TYPES = [
   { name: t("cardSettings.spendingLimit.calendar"), value: "calendar" as const },
 ];
 
+const WEEK_DAYS = [
+  { name: t("common.form.weekDay.monday"), value: "Monday" as const },
+  { name: t("common.form.weekDay.tuesday"), value: "Tuesday" as const },
+  { name: t("common.form.weekDay.wednesday"), value: "Wednesday" as const },
+  { name: t("common.form.weekDay.thursday"), value: "Thursday" as const },
+  { name: t("common.form.weekDay.friday"), value: "Friday" as const },
+  { name: t("common.form.weekDay.saturday"), value: "Saturday" as const },
+  { name: t("common.form.weekDay.sunday"), value: "Sunday" as const },
+];
+
+const MONTH_DAYS = Array.from({ length: 31 }, (_, i) => i + 1).map(day => ({
+  name: t("common.form.monthDay", { count: day }),
+  value: day,
+}));
+
+const STARTING_HOUR_OPTIONS = Array.from({ length: 24 }, (_, i) => i).map(hour => ({
+  name: `${hour.toString().padStart(2, "0")}:00`,
+  value: hour,
+}));
+
 export type SpendingLimitValue = {
   amount: {
     value: string;
@@ -430,24 +450,34 @@ const SpendingLimitCalendarForm = ({
             <LakeLabel
               style={styles.fill}
               label={t("cardSettings.spendingLimit.resetDay")}
-              render={id => (
-                <>
-                  <LakeSelect
-                    id={id}
-                    hideErrors={true}
-                    disabled={disabled}
-                    value={""}
-                    items={[]}
-                    onValueChange={() => {}}
-                  />
-                  {value.type === "calendarMonthMode" && (
+              render={id =>
+                match(value)
+                  .with({ type: "calendarWeekMode" }, value => (
+                    <LakeSelect
+                      id={id}
+                      hideErrors={true}
+                      disabled={disabled}
+                      value={value.startDay}
+                      items={WEEK_DAYS}
+                      onValueChange={startDay => onChange({ ...value, startDay })}
+                    />
+                  ))
+                  .with({ type: "calendarMonthMode" }, value => (
                     <>
+                      <LakeSelect
+                        id={id}
+                        hideErrors={true}
+                        disabled={disabled}
+                        value={value.startDay}
+                        items={MONTH_DAYS}
+                        onValueChange={startDay => onChange({ ...value, startDay })}
+                      />
                       <Space height={4} />
                       <LakeText>{t("cardSettings.spendingLimit.resetDay.monthlyInfo")}</LakeText>
                     </>
-                  )}
-                </>
-              )}
+                  ))
+                  .exhaustive()
+              }
             />
 
             <Space width={32} />
@@ -463,9 +493,9 @@ const SpendingLimitCalendarForm = ({
                 id={id}
                 hideErrors={true}
                 disabled={disabled}
-                value={""}
-                items={[]}
-                onValueChange={() => {}}
+                value={value.startHour}
+                items={STARTING_HOUR_OPTIONS}
+                onValueChange={startHour => onChange({ ...value, startHour })}
               />
               <Space height={4} />
               <LakeText>{t("cardSettings.spendingLimit.resetTimeZone")}</LakeText>

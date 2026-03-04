@@ -1,13 +1,15 @@
 import { Box } from "@swan-io/lake/src/components/Box";
+import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { colors } from "@swan-io/lake/src/constants/design";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import {
   DayEnum,
@@ -15,7 +17,8 @@ import {
   SpendingLimitInput,
   SpendingLimitPeriod,
 } from "../graphql/partner";
-import { t } from "../utils/i18n";
+import { formatCurrency, locale, t, translateDay } from "../utils/i18n";
+import { getMonthlySpendingDate } from "../utils/spendingLimit";
 
 const styles = StyleSheet.create({
   fill: {
@@ -23,6 +26,11 @@ const styles = StyleSheet.create({
   },
   fullWidth: {
     width: "100%",
+  },
+  spendingLimitText: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "baseline",
   },
 });
 
@@ -516,5 +524,100 @@ const SpendingLimitCalendarForm = ({
         />
       </Box>
     </>
+  );
+};
+
+type RemainingSpendingLimitProps = {
+  spending: { amount: { value: string; currency: string } };
+  spendingLimit: SpendingLimitFragment;
+  hasBindingUserError: boolean;
+};
+
+export const RemainingSpendingLimit = ({
+  spending,
+  spendingLimit,
+  hasBindingUserError,
+}: RemainingSpendingLimitProps) => {
+  const textColor = hasBindingUserError ? colors.gray[300] : colors.gray[800];
+
+  const remainderToSpend = Math.max(
+    0,
+    Number(spendingLimit.amount.value) - Number(spending.amount.value),
+  );
+
+  const remainingTextColor = hasBindingUserError
+    ? colors.gray[300]
+    : remainderToSpend < 0
+      ? colors.negative[500]
+      : colors.gray[800];
+
+  return (
+    <View style={styles.spendingLimitText}>
+      {match(spendingLimit.mode)
+        .with({ __typename: "SpendingLimitCalendarDayMode" }, mode => (
+          <LakeText color={textColor} variant="smallRegular">
+            {t("card.spendingLimit.calendar.daily", {
+              amount: formatCurrency(
+                Number(spendingLimit.amount.value),
+                spendingLimit.amount.currency,
+              ),
+              period: spendingLimit.period,
+              hour: mode.startHour,
+            })}
+          </LakeText>
+        ))
+        .with({ __typename: "SpendingLimitCalendarMonthMode" }, mode => (
+          <LakeText color={textColor} variant="smallRegular">
+            {t("card.spendingLimit.calendar.monthly", {
+              amount: formatCurrency(
+                Number(spendingLimit.amount.value),
+                spendingLimit.amount.currency,
+              ),
+              period: spendingLimit.period,
+              day: getMonthlySpendingDate(mode.startMonthDay, mode.startHour),
+            })}
+          </LakeText>
+        ))
+        .with({ __typename: "SpendingLimitCalendarWeekMode" }, mode => (
+          <LakeText color={textColor} variant="smallRegular">
+            {t("card.spendingLimit.calendar.weekly", {
+              amount: formatCurrency(
+                Number(spendingLimit.amount.value),
+                spendingLimit.amount.currency,
+              ),
+              period: spendingLimit.period,
+              day: translateDay(mode.startWeekDay, locale.language),
+              hour: mode.startHour,
+            })}
+          </LakeText>
+        ))
+        .otherwise(mode => {
+          const rollingValue = mode?.rollingValue ?? 1;
+          return (
+            <LakeText color={textColor} variant="smallRegular">
+              {match(spendingLimit.period)
+                .with("Daily", () =>
+                  t("card.spendingLimit.remaining.daily", { count: rollingValue }),
+                )
+                .with("Weekly", () =>
+                  t("card.spendingLimit.remaining.weekly", { count: rollingValue }),
+                )
+                .with("Monthly", () =>
+                  t("card.spendingLimit.remaining.monthly", { count: rollingValue }),
+                )
+                .with("Always", () =>
+                  t("card.spendingLimit.remaining.always", { count: rollingValue }),
+                )
+                .exhaustive()}
+            </LakeText>
+          );
+        })}
+
+      <Fill minWidth={24} />
+
+      <LakeText color={remainingTextColor} variant="smallSemibold">
+        {formatCurrency(remainderToSpend, spending.amount.currency)}
+      </LakeText>
+    </View>
   );
 };

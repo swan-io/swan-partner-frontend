@@ -432,7 +432,7 @@
   "cardSettings.spendingLimit.rolling.day": "Tag",
   "cardSettings.spendingLimit.rolling.info": "Setzt sich automatisch basierend auf der verstrichenen Zeit zurück",
   "cardSettings.spendingLimit.rolling.month": "Monat",
-  "cardSettings.spendingLimit.rolling.month.info": "Es sind nur 1‑Monats‑Zeiträume verfügbar. Das Limit wird am 1. eines jeden Monats zurückgesetzt.",
+  "cardSettings.spendingLimit.rolling.month.info": "Es sind nur 1‑Monatszeiträume verfügbar.",
   "cardSettings.spendingLimit.rolling.week": "Woche",
   "cardSettings.spendingLimit.weekly": "Wöchentlich",
   "cardWizard.address.change": "Ändern",

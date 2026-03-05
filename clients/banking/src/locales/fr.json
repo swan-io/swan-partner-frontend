@@ -432,7 +432,7 @@
   "cardSettings.spendingLimit.rolling.day": "Jour",
   "cardSettings.spendingLimit.rolling.info": "Se réinitialise automatiquement en fonction du temps écoulé",
   "cardSettings.spendingLimit.rolling.month": "Mois",
-  "cardSettings.spendingLimit.rolling.month.info": "Seules des périodes d'un mois sont disponibles. La limite sera réinitialisée le 1er de chaque mois.",
+  "cardSettings.spendingLimit.rolling.month.info": "Seules des périodes d'un mois sont disponibles.",
   "cardSettings.spendingLimit.rolling.week": "Semaine",
   "cardSettings.spendingLimit.weekly": "7 jours glissants",
   "cardWizard.address.change": "Modifier",

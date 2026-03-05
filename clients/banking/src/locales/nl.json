@@ -432,7 +432,7 @@
   "cardSettings.spendingLimit.rolling.day": "Dag",
   "cardSettings.spendingLimit.rolling.info": "Wordt automatisch gereset op basis van verstreken tijd",
   "cardSettings.spendingLimit.rolling.month": "Maand",
-  "cardSettings.spendingLimit.rolling.month.info": "Alleen periodes van 1 maand zijn beschikbaar. Het limiet wordt op de 1e van elke maand gereset.",
+  "cardSettings.spendingLimit.rolling.month.info": "Alleen periodes van 1 maand zijn beschikbaar.",
   "cardSettings.spendingLimit.rolling.week": "Week",
   "cardSettings.spendingLimit.weekly": "Wekelijks",
   "cardWizard.address.change": "Wijzigen",

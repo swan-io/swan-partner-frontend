@@ -432,7 +432,7 @@
   "cardSettings.spendingLimit.rolling.day": "Day",
   "cardSettings.spendingLimit.rolling.info": "Resets automatically based on time passed",
   "cardSettings.spendingLimit.rolling.month": "Month",
-  "cardSettings.spendingLimit.rolling.month.info": "Only 1-month periods are available. The limit will reset on the 1st of each month.",
+  "cardSettings.spendingLimit.rolling.month.info": "Only 1-month periods are available.",
   "cardSettings.spendingLimit.rolling.week": "Week",
   "cardSettings.spendingLimit.weekly": "7 days rolling",
   "cardWizard.address.change": "Change",

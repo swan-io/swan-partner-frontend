@@ -432,7 +432,7 @@
   "cardSettings.spendingLimit.rolling.day": "Giorno",
   "cardSettings.spendingLimit.rolling.info": "Si azzera automaticamente in base al tempo trascorso",
   "cardSettings.spendingLimit.rolling.month": "Mese",
-  "cardSettings.spendingLimit.rolling.month.info": "Sono disponibili solo periodi di 1 mese. Il limite si azzera il 1° di ogni mese.",
+  "cardSettings.spendingLimit.rolling.month.info": "Sono disponibili solo periodi di 1 mese.",
   "cardSettings.spendingLimit.rolling.week": "Settimana",
   "cardSettings.spendingLimit.weekly": "Settimanale",
   "cardWizard.address.change": "Modifica",

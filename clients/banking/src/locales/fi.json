@@ -432,7 +432,7 @@
   "cardSettings.spendingLimit.rolling.day": "Päivä",
   "cardSettings.spendingLimit.rolling.info": "Nollautuu automaattisesti kuluneen ajan perusteella",
   "cardSettings.spendingLimit.rolling.month": "Kuukausi",
-  "cardSettings.spendingLimit.rolling.month.info": "Saatavilla on vain yhden kuukauden jaksot. Raja nollautuu kuukauden ensimmäisenä päivänä.",
+  "cardSettings.spendingLimit.rolling.month.info": "Saatavilla on vain yhden kuukauden jaksot.",
   "cardSettings.spendingLimit.rolling.week": "Viikko",
   "cardSettings.spendingLimit.weekly": "Rullaava 7 päivää",
   "cardWizard.address.change": "Muuta",

@@ -11,9 +11,14 @@ import {
   OnboardingCompanyOwnershipFormCompanyRef,
   OwnershipFormCompany,
 } from "./OwnershipFormCompany";
+import {
+  OnboardingCompanyOwnershipFormIndividualRef,
+  OwnershipFormIndividual,
+} from "./OwnershipFormIndividual";
 import { OnboardingCompanyOwnershipFormTypeRef, OwnershipFormType } from "./OwnershipFormType";
 
 export type OwnershipFormStep = "init" | "legal" | "ubo" | "legalAndUbo" | "company";
+export type OwnershipSubForm = "detail" | "capital";
 
 export type OnboardingCompanyOwnershipFormRef = {
   cancel: () => void;
@@ -25,7 +30,7 @@ export type OnboardingCompanyOwnershipFormRef = {
 export const REFERENCE_SYMBOL = Symbol("REFERENCE");
 type WithReference<T> = T & { [REFERENCE_SYMBOL]: string };
 export type SaveValueCompany = WithReference<Partial<RelatedCompanyInput>>;
-export type SaveValueIndividual = WithReference<Partial<RelatedIndividualInput>>;
+export type SaveValueIndividual = WithReference<RelatedIndividualInput>;
 export type SaveValue = SaveValueCompany | SaveValueIndividual;
 
 type Props = {
@@ -35,7 +40,8 @@ type Props = {
   companyCountry: CountryCCA3;
   step: OwnershipFormStep;
   type: "edit" | "add" | "delete" | "hidden";
-  onStepChange: (step: OwnershipFormStep) => void;
+  subForm?: OwnershipSubForm;
+  onStepChange: (step: OwnershipFormStep, form?: OwnershipSubForm) => void;
   onSave: (editorState: SaveValue) => void | Promise<void>;
   onClose: () => void;
 };
@@ -45,6 +51,7 @@ export const OwnershipFormWizard = ({
   initialValues = {} as Partial<SaveValue>,
   step,
   type,
+  subForm,
   onClose,
   onSave,
   onStepChange,
@@ -53,12 +60,16 @@ export const OwnershipFormWizard = ({
   const [reference] = useState(() => initialValues[REFERENCE_SYMBOL] ?? uuid());
   const typeRef = useRef<OnboardingCompanyOwnershipFormTypeRef>(null);
   const companyRef = useRef<OnboardingCompanyOwnershipFormCompanyRef>(null);
+  const individualRef = useRef<OnboardingCompanyOwnershipFormIndividualRef>(null);
 
   useImperativeHandle(ref, () => {
     return {
       cancel: () => {
-        match({ step, type })
+        match({ step, type, subForm })
           .with({ step: "init" }, () => onClose())
+          .with({ step: P.union("ubo", "legalAndUbo"), subForm: "capital" }, ({ step }) =>
+            onStepChange(step, "detail"),
+          )
           .with({ step: P.union("company", "legal", "ubo", "legalAndUbo"), type: "edit" }, () =>
             onClose(),
           )
@@ -70,6 +81,7 @@ export const OwnershipFormWizard = ({
         match(step)
           .with("init", () => typeRef.current?.submit())
           .with("company", () => companyRef.current?.submit())
+          .with(P.union("legal", "legalAndUbo", "ubo"), () => individualRef.current?.submit())
           .otherwise(() => null);
       },
     };
@@ -87,9 +99,9 @@ export const OwnershipFormWizard = ({
               } else {
                 match(values.type)
                   .with("LegalRepresentative", () => onStepChange("legal"))
-                  .with("UltimateBeneficialOwner", () => onStepChange("ubo"))
+                  .with("UltimateBeneficialOwner", () => onStepChange("ubo", "detail"))
                   .with("LegalRepresentativeAndUltimateBeneficialOwner", () =>
-                    onStepChange("legalAndUbo"),
+                    onStepChange("legalAndUbo", "detail"),
                   )
                   .exhaustive();
               }
@@ -106,6 +118,28 @@ export const OwnershipFormWizard = ({
                 [REFERENCE_SYMBOL]: reference,
                 ...values,
               });
+            }}
+          />
+        ))
+        .with(P.union("legal", "legalAndUbo", "ubo"), step => (
+          <OwnershipFormIndividual
+            ref={individualRef}
+            initialValues={initialValues as RelatedIndividualInput}
+            companyCountry={companyCountry}
+            step={step}
+            subForm={subForm}
+            onSave={values => {
+              match({ step, subForm })
+                .with({ step: P.union("ubo", "legalAndUbo"), subForm: "detail" }, ({ step }) =>
+                  onStepChange(step, "capital"),
+                )
+                .otherwise(() => {
+                  console.log("on save");
+                  onSave({
+                    [REFERENCE_SYMBOL]: reference,
+                    ...values,
+                  });
+                });
             }}
           />
         ))

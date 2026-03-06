@@ -6,6 +6,7 @@ import {
   AccountCountry,
   RelatedCompanyInput,
   RelatedIndividualInput,
+  RelatedIndividualType,
 } from "../../../../graphql/partner";
 import {
   OnboardingCompanyOwnershipFormCompanyRef,
@@ -61,6 +62,7 @@ export const OwnershipFormWizard = ({
   const typeRef = useRef<OnboardingCompanyOwnershipFormTypeRef>(null);
   const companyRef = useRef<OnboardingCompanyOwnershipFormCompanyRef>(null);
   const individualRef = useRef<OnboardingCompanyOwnershipFormIndividualRef>(null);
+  const [individualType, setIndividualType] = useState<RelatedIndividualType>();
 
   useImperativeHandle(ref, () => {
     return {
@@ -97,6 +99,7 @@ export const OwnershipFormWizard = ({
               if (values.related === "company") {
                 onStepChange("company");
               } else {
+                setIndividualType(values.type);
                 match(values.type)
                   .with("LegalRepresentative", () => onStepChange("legal"))
                   .with("UltimateBeneficialOwner", () => onStepChange("ubo", "detail"))
@@ -127,6 +130,7 @@ export const OwnershipFormWizard = ({
             initialValues={initialValues as RelatedIndividualInput}
             companyCountry={companyCountry}
             step={step}
+            individualType={individualType}
             subForm={subForm}
             onSave={values => {
               match({ step, subForm })
@@ -134,7 +138,6 @@ export const OwnershipFormWizard = ({
                   onStepChange(step, "capital"),
                 )
                 .otherwise(() => {
-                  console.log("on save");
                   onSave({
                     [REFERENCE_SYMBOL]: reference,
                     ...values,

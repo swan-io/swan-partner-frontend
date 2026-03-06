@@ -1,5 +1,6 @@
 import { Option } from "@swan-io/boxed";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeTagInput } from "@swan-io/lake/src/components/LakeTagInput";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -21,7 +22,8 @@ import { useForm } from "@swan-io/use-form";
 import { Ref, useImperativeHandle } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
-import { RelatedIndividualInput } from "../../../../graphql/partner";
+import { gender } from "../../../../constants/business";
+import { Gender, RelatedIndividualInput } from "../../../../graphql/partner";
 import { t } from "../../../../utils/i18n";
 
 const styles = StyleSheet.create({
@@ -49,8 +51,13 @@ type Props = {
   initialValues: RelatedIndividualInput;
   ref: Ref<OnboardingCompanyOwnershipFormIndividualDetailsRef>;
   companyCountry: CountryCCA3;
-  onSave: (input: RelatedIndividualInput) => void | Promise<void>;
+  onSave: (input: Partial<RelatedIndividualInput>) => void | Promise<void>;
 };
+
+const genderItems: Item<Gender>[] = gender.map(({ text, value }) => ({
+  name: text,
+  value,
+}));
 
 export const OwnershipFormIndividualDetails = ({
   ref,
@@ -63,27 +70,23 @@ export const OwnershipFormIndividualDetails = ({
       submit: () => {
         submitForm({
           onSuccess: values => {
-            console.log("SUBMIT DETAILS", values);
             const option = Option.allFromDict(values);
-            console.log("options", option);
             if (option.isNone()) {
               return;
             }
             const currentValues = option.get();
             const { birthDate, birthCountry, birthCity, birthPostal, roles, ...input } =
               currentValues;
-            console.log("currentValues", currentValues);
             onSave({
-              type: "LegalRepresentative", //@todo make it dynamic based on step
               birthInfo: {
                 birthDate,
                 country: birthCountry,
                 city: birthCity,
                 postalCode: birthPostal,
               },
-              legalRepresentative: {
-                roles,
-              },
+              ...(initialValues.type !== "UltimateBeneficialOwner" && {
+                legalRepresentative: { roles },
+              }),
               ...input,
             });
           },
@@ -133,10 +136,14 @@ export const OwnershipFormIndividualDetails = ({
       sanitize: trim,
       validate: validateRequired,
     },
+    sex: {
+      initialValue: initialValues?.sex ?? undefined,
+      validate: validateNullableRequired,
+    },
     roles: {
       initialValue: initialValues?.legalRepresentative?.roles ?? [],
       validate: value => {
-        if (value.length === 0) {
+        if (initialValues.type !== "UltimateBeneficialOwner" && value.length === 0) {
           return t("error.invalidField");
         }
       },
@@ -246,6 +253,26 @@ export const OwnershipFormIndividualDetails = ({
               />
             )}
           </Field>
+
+          <LakeLabel
+            label={t("company.step.ownership.form.genderLabel")}
+            render={id => (
+              <Field name="sex">
+                {({ value, onChange, ref, error }) => (
+                  <LakeSelect
+                    id={id}
+                    ref={ref}
+                    items={genderItems}
+                    value={value}
+                    onValueChange={onChange}
+                    error={error}
+                    placeholder={t("common.select")}
+                  />
+                )}
+              </Field>
+            )}
+          />
+
           <LakeLabel
             label={t("common.nationality")}
             render={id => (
@@ -264,15 +291,17 @@ export const OwnershipFormIndividualDetails = ({
             )}
           />
           <Field name="roles">
-            {({ value, error, onChange }) => (
-              <LakeLabel
-                label={t("company.step.ownership.form.roleLabel")}
-                style={styles.inputFull}
-                render={id => (
-                  <LakeTagInput id={id} onValuesChanged={onChange} values={value} error={error} />
-                )}
-              />
-            )}
+            {({ value, error, onChange }) =>
+              initialValues.type !== "UltimateBeneficialOwner" ? (
+                <LakeLabel
+                  label={t("company.step.ownership.form.roleLabel")}
+                  style={styles.inputFull}
+                  render={id => (
+                    <LakeTagInput id={id} onValuesChanged={onChange} values={value} error={error} />
+                  )}
+                />
+              ) : null
+            }
           </Field>
         </View>
       )}

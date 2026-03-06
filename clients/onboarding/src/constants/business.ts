@@ -3,6 +3,7 @@ import {
   BusinessActivityCategory,
   CompanyHeadcount,
   ForecastYearlyIncome,
+  Gender,
   MonthlyPaymentVolume,
   RelatedIndividualType,
   UltimateBeneficialOwnerOwnership,
@@ -38,6 +39,15 @@ export const uboQualificationType: {
   { text: t("uboQualificationType.control"), value: "Control" },
   { text: t("uboQualificationType.legal"), value: "LegalRepresentative" },
   { text: t("uboQualificationType.ownership"), value: "Ownership" },
+];
+
+export const gender: {
+  text: string;
+  value: Gender;
+}[] = [
+  { text: t("gender.female"), value: "Female" },
+  { text: t("gender.male"), value: "Male" },
+  { text: t("gender.unknown"), value: "Unknown" },
 ];
 
 export const businessActivityCategories: { text: string; value: BusinessActivityCategory }[] = [

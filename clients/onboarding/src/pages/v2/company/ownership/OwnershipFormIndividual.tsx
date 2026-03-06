@@ -1,7 +1,7 @@
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { Ref, useImperativeHandle, useRef, useState } from "react";
 import { match, P } from "ts-pattern";
-import { RelatedIndividualInput } from "../../../../graphql/partner";
+import { RelatedIndividualInput, RelatedIndividualType } from "../../../../graphql/partner";
 import {
   OnboardingCompanyOwnershipFormIndividualCapitalRef,
   OwnershipFormIndividualCapital,
@@ -21,6 +21,7 @@ type Props = {
   ref: Ref<OnboardingCompanyOwnershipFormIndividualRef>;
   companyCountry: CountryCCA3;
   step: Extract<OwnershipFormStep, "legal" | "legalAndUbo" | "ubo">;
+  individualType?: RelatedIndividualType;
   subForm?: OwnershipSubForm;
   onSave: (input: RelatedIndividualInput) => void | Promise<void>;
 };
@@ -31,14 +32,17 @@ export const OwnershipFormIndividual = ({
   step,
   companyCountry,
   initialValues,
+  individualType,
   subForm,
 }: Props) => {
   const detailRef = useRef<OnboardingCompanyOwnershipFormIndividualDetailsRef>(null);
   const capitalRef = useRef<OnboardingCompanyOwnershipFormIndividualCapitalRef>(null);
 
-  const [localValue, setLocalValue] = useState<RelatedIndividualInput>(initialValues);
+  const [localValue, setLocalValue] = useState<RelatedIndividualInput>(() => ({
+    ...initialValues,
+    ...(individualType != null && { type: individualType }),
+  }));
 
-  console.log("");
   useImperativeHandle(ref, () => {
     return {
       submit: () => {
@@ -52,7 +56,6 @@ export const OwnershipFormIndividual = ({
       ref={capitalRef}
       initialValues={localValue}
       onSave={input => {
-        console.log("save capital", input);
         onSave({ ...localValue, ...input });
       }}
     />
@@ -63,9 +66,13 @@ export const OwnershipFormIndividual = ({
       companyCountry={companyCountry}
       onSave={input =>
         match(step)
-          .with("legal", () => onSave(input))
+          .with("legal", () => onSave({ type: individualType ?? localValue.type, ...input }))
           .with(P.union("ubo", "legalAndUbo"), () => {
-            setLocalValue(input);
+            setLocalValue(prevState => ({
+              ...prevState,
+              ...input,
+              type: individualType ?? localValue.type,
+            }));
             onSave({} as RelatedIndividualInput); // will trigger the next step to show OwnershipFormIndividualCapital
           })
           .exhaustive()

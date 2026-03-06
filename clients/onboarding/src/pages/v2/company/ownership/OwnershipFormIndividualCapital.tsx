@@ -62,15 +62,19 @@ export const OwnershipFormIndividualCapital = ({ ref, onSave, initialValues }: P
       submit: () => {
         submitForm({
           onSuccess: values => {
-            console.log("SUBMIT CAPITAL", values);
             const option = Option.allFromDict(values);
-            console.log("options", option);
             if (option.isNone()) {
               return;
             }
             const currentValues = option.get();
-            const { isUnitedStatesPerson, unitedStatesTaxIdentificationNumber } = currentValues;
-            console.log("currentValues", currentValues);
+            const {
+              isUnitedStatesPerson,
+              unitedStatesTaxIdentificationNumber,
+              qualificationType,
+              totalPercentage,
+              type,
+              ...input
+            } = currentValues;
             onSave({
               unitedStatesTaxInfo: {
                 isUnitedStatesPerson,
@@ -78,6 +82,13 @@ export const OwnershipFormIndividualCapital = ({ ref, onSave, initialValues }: P
                   ? unitedStatesTaxIdentificationNumber
                   : undefined,
               },
+              ultimateBeneficialOwner: {
+                qualificationType,
+                ...(qualificationType === "Ownership" && {
+                  ownership: { totalPercentage: Number(totalPercentage), type },
+                }),
+              },
+              ...input,
             });
           },
         });

@@ -3,9 +3,11 @@ import {
   BusinessActivityCategory,
   CompanyHeadcount,
   ForecastYearlyIncome,
+  Gender,
   MonthlyPaymentVolume,
   RelatedIndividualType,
   UltimateBeneficialOwnerOwnership,
+  UltimateBeneficialOwnerQualificationType,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
 
@@ -28,6 +30,24 @@ export const companyHeadcount: { text: string; value: CompanyHeadcount }[] = [
   { text: "11-50", value: "Between11And50" },
   { text: "51-250", value: "Between51And250" },
   { text: "+250", value: "MoreThan250" },
+];
+
+export const uboQualificationType: {
+  text: string;
+  value: UltimateBeneficialOwnerQualificationType;
+}[] = [
+  { text: t("uboQualificationType.control"), value: "Control" },
+  { text: t("uboQualificationType.legal"), value: "LegalRepresentative" },
+  { text: t("uboQualificationType.ownership"), value: "Ownership" },
+];
+
+export const gender: {
+  text: string;
+  value: Gender;
+}[] = [
+  { text: t("gender.female"), value: "Female" },
+  { text: t("gender.male"), value: "Male" },
+  { text: t("gender.unknown"), value: "Unknown" },
 ];
 
 export const businessActivityCategories: { text: string; value: BusinessActivityCategory }[] = [

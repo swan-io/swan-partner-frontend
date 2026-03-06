@@ -165,6 +165,7 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
           publicData?.relatedIndividuals,
         );
 
+        // @TODO split into two mutation to separate user input and data from public registry
         updateCompanyOnboarding({
           input: {
             onboardingId,

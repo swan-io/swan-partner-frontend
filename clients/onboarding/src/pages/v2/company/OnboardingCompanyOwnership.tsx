@@ -9,6 +9,8 @@ import {
   CompanyOnboardingFragment,
   CompanyRelatedCompany,
   CompanyRelatedIndividual,
+  RelatedCompanyInput,
+  RelatedIndividualInput,
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { formatNestedMessage, t } from "../../../utils/i18n";
@@ -29,19 +31,20 @@ import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { useMemo, useRef, useState } from "react";
 import { match, P } from "ts-pattern";
 import { ownershipText, ownershipTypeText } from "../../../constants/business";
-import { cleanData } from "../../../utils/onboarding";
+import { cleanData, transformRelatedIndividualsToInput } from "../../../utils/onboarding";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 import {
   OnboardingCompanyOwnershipFormRef,
   OwnershipFormStep,
   OwnershipFormWizard,
+  OwnershipSubForm,
   REFERENCE_SYMBOL,
+  SaveValue,
   SaveValueCompany,
+  SaveValueIndividual,
 } from "./ownership/OwnershipFormWizard";
 
-type ModalStep = "init" | "legal" | "ubo" | "legalAndUbo" | "company";
-type ModalSubForm = "detail" | "ownership";
 type ModalState =
   | {
       type: "hidden";
@@ -54,13 +57,13 @@ type ModalState =
     }
   | {
       type: "add";
-      step: ModalStep;
-      form?: ModalSubForm;
+      step: OwnershipFormStep;
+      form?: OwnershipSubForm;
     }
   | {
       type: "edit";
-      step: ModalStep;
-      form?: ModalSubForm;
+      step: OwnershipFormStep;
+      form?: OwnershipSubForm;
       initialValue: LocalRelated;
     };
 
@@ -167,10 +170,11 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
   const [modalState, setModalState] = useState<ModalState>({ type: "hidden" });
   const ownershipFormRef = useRef<OnboardingCompanyOwnershipFormRef>(null);
 
-  const setFormStep = (step: OwnershipFormStep) => {
+  const setFormStep = (step: OwnershipFormStep, form?: OwnershipSubForm) => {
     setModalState(state => ({
       ...state,
       step,
+      form,
     }));
   };
 
@@ -179,32 +183,30 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
   };
 
   const addRelatedCompany = (newCompany: SaveValueCompany) => {
-    const { roles, ...input } = newCompany;
-    const updatedRelatedCompany: LocalRelatedCompany[] = [
+    const { [REFERENCE_SYMBOL]: _, roles, ...input } = newCompany;
+    const updatedRelatedCompany: RelatedCompanyInput[] = [
       ...currentRelatedCompany,
       {
-        __typename: "CompanyRelatedCompany",
         roles: roles ?? [],
         ...input,
       },
     ];
 
-    updateRelatedCompany(updatedRelatedCompany);
+    updateRelatedCompanies(updatedRelatedCompany);
   };
 
   const editRelatedCompany = (company: SaveValueCompany) => {
-    const { roles, ...input } = company;
-    const updatedRelatedCompany: LocalRelatedCompany[] = currentRelatedCompany.map(item =>
-      item[REFERENCE_SYMBOL] === company[REFERENCE_SYMBOL]
+    const { [REFERENCE_SYMBOL]: ref, roles, ...input } = company;
+    const updatedRelatedCompany: RelatedCompanyInput[] = currentRelatedCompany.map(item =>
+      item[REFERENCE_SYMBOL] === ref
         ? {
-            __typename: "CompanyRelatedCompany",
             roles: roles ?? [],
             ...input,
           }
         : item,
     );
 
-    updateRelatedCompany(updatedRelatedCompany);
+    updateRelatedCompanies(updatedRelatedCompany);
   };
 
   const deleteRelatedCompany = () => {
@@ -216,25 +218,60 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
     const updatedRelatedCompany = currentRelatedCompany.filter(
       item => item[REFERENCE_SYMBOL] !== modalState.reference,
     );
-
-    updateRelatedCompany(updatedRelatedCompany);
+    updateRelatedCompanies(updatedRelatedCompany);
   };
 
-  const updateRelatedCompany = (updatedRelatedCompany: LocalRelatedCompany[]) => {
-    updateCompanyOnboarding({
-      input: {
-        onboardingId,
-        company: {
-          relatedCompanies: cleanData(updatedRelatedCompany),
-        },
-      },
-    })
+  const addRelatedIndividual = (newIndividual: SaveValueIndividual) => {
+    const { [REFERENCE_SYMBOL]: _, ...input } = newIndividual;
+    const updatedRelatedIndividual = transformRelatedIndividualsToInput(currentRelatedIndividual);
+    updatedRelatedIndividual.push(input);
+    updateRelatedIndividuals(updatedRelatedIndividual);
+  };
+
+  const editRelatedIndividual = (individual: SaveValueIndividual) => {
+    const { [REFERENCE_SYMBOL]: ref, ...input } = individual;
+    const updatedRelatedIndividual = currentRelatedIndividual
+      .map(item =>
+        item[REFERENCE_SYMBOL] === ref
+          ? cleanData(input)
+          : transformRelatedIndividualsToInput([item])[0],
+      )
+      .filter((item): item is RelatedIndividualInput => item != null);
+    updateRelatedIndividuals(updatedRelatedIndividual);
+  };
+
+  const deleteRelatedIndividual = () => {
+    if (modalState.type !== "delete") {
+      return resetPageState();
+    }
+
+    const filteredRelatedIndividual = currentRelatedIndividual.filter(
+      item => item[REFERENCE_SYMBOL] !== modalState.reference,
+    );
+    const updatedRelatedIndividual = transformRelatedIndividualsToInput(filteredRelatedIndividual);
+    updateRelatedIndividuals(updatedRelatedIndividual);
+  };
+
+  const sendUpdate = (
+    company:
+      | { relatedCompanies: RelatedCompanyInput[] }
+      | { relatedIndividuals: RelatedIndividualInput[] },
+  ) => {
+    updateCompanyOnboarding({ input: { onboardingId, company } })
       .mapOk(data => data.updatePublicCompanyAccountHolderOnboarding)
       .mapOkToResult(filterRejectionsToResult)
       .tapOk(() => resetPageState())
       .tapError(error => {
         showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
       });
+  };
+
+  const updateRelatedCompanies = (items: RelatedCompanyInput[]) => {
+    sendUpdate({ relatedCompanies: cleanData(items) });
+  };
+
+  const updateRelatedIndividuals = (items: RelatedIndividualInput[]) => {
+    sendUpdate({ relatedIndividuals: items });
   };
 
   const onPressPrevious = () => {
@@ -374,7 +411,22 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
                                 {ownershipTypeText(individual.type)}
                               </LakeText>
                               <ActionMenu
-                                onEdit={() => console.log("onEdit")}
+                                onEdit={() =>
+                                  setModalState({
+                                    type: "edit",
+                                    step: match(individual.type)
+                                      .returnType<OwnershipFormStep>()
+                                      .with("LegalRepresentative", () => "legal")
+                                      .with(
+                                        "LegalRepresentativeAndUltimateBeneficialOwner",
+                                        () => "legalAndUbo",
+                                      )
+                                      .with("UltimateBeneficialOwner", () => "ubo")
+                                      .exhaustive(),
+                                    form: "detail",
+                                    initialValue: individual,
+                                  })
+                                }
                                 onDelete={() =>
                                   setModalState({
                                     type: "delete",
@@ -416,6 +468,9 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
       >
         <OwnershipFormWizard
           ref={ownershipFormRef}
+          subForm={match(modalState)
+            .with({ form: P.string }, ({ form }) => form)
+            .otherwise(() => undefined)}
           type={modalState.type}
           step={match(modalState)
             .with({ step: P.string }, ({ step }) => step)
@@ -427,6 +482,14 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
           onSave={match(modalState)
             .with({ type: "add", step: "company" }, () => addRelatedCompany)
             .with({ type: "edit", step: "company" }, () => editRelatedCompany)
+            .with(
+              { type: "add", step: P.union("legal", "legalAndUbo", "ubo") },
+              () => addRelatedIndividual as (editorState: SaveValue) => void,
+            )
+            .with(
+              { type: "edit", step: P.union("legal", "legalAndUbo", "ubo") },
+              () => editRelatedIndividual as (editorState: SaveValue) => void,
+            )
             .otherwise(() => noop)}
           initialValues={match(modalState)
             .with({ type: "edit" }, ({ initialValue }) => initialValue)
@@ -457,9 +520,7 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
           >
             {match(modalState)
               .with({ step: P.union("company", "legal") }, () => t("common.add"))
-              .with({ step: P.union("ubo", "legalAndUbo"), form: "ownership" }, () =>
-                t("common.add"),
-              )
+              .with({ step: P.union("ubo", "legalAndUbo"), form: "capital" }, () => t("common.add"))
               .otherwise(() => t("common.next"))}
           </LakeButton>
         </LakeButtonGroup>
@@ -472,7 +533,10 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
         })}
         icon="delete-regular"
         confirmText={t("common.remove")}
-        onConfirm={deleteRelatedCompany}
+        onConfirm={match(modalState)
+          .with({ related: "company" }, () => deleteRelatedCompany)
+          .with({ related: "individual" }, () => deleteRelatedIndividual)
+          .otherwise(() => noop)}
         onCancel={resetPageState}
         color="negative"
         loading={updateResult.isLoading()}

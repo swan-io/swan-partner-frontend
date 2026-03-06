@@ -6,6 +6,7 @@ import {
   MonthlyPaymentVolume,
   RelatedIndividualType,
   UltimateBeneficialOwnerOwnership,
+  UltimateBeneficialOwnerQualificationType,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
 
@@ -28,6 +29,15 @@ export const companyHeadcount: { text: string; value: CompanyHeadcount }[] = [
   { text: "11-50", value: "Between11And50" },
   { text: "51-250", value: "Between51And250" },
   { text: "+250", value: "MoreThan250" },
+];
+
+export const uboQualificationType: {
+  text: string;
+  value: UltimateBeneficialOwnerQualificationType;
+}[] = [
+  { text: t("uboQualificationType.control"), value: "Control" },
+  { text: t("uboQualificationType.legal"), value: "LegalRepresentative" },
+  { text: t("uboQualificationType.ownership"), value: "Ownership" },
 ];
 
 export const businessActivityCategories: { text: string; value: BusinessActivityCategory }[] = [

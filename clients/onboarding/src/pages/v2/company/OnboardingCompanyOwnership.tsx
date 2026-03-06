@@ -192,7 +192,7 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
       },
     ];
 
-    updateRelated(updatedRelatedCompany);
+    updateRelatedCompanies(updatedRelatedCompany);
   };
 
   const editRelatedCompany = (company: SaveValueCompany) => {
@@ -206,7 +206,7 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
         : item,
     );
 
-    updateRelated(updatedRelatedCompany);
+    updateRelatedCompanies(updatedRelatedCompany);
   };
 
   const deleteRelatedCompany = () => {
@@ -218,13 +218,13 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
     const updatedRelatedCompany = currentRelatedCompany.filter(
       item => item[REFERENCE_SYMBOL] !== modalState.reference,
     );
-    updateRelated(updatedRelatedCompany);
+    updateRelatedCompanies(updatedRelatedCompany);
   };
 
   const addRelatedIndividual = (newIndividual: SaveValueIndividual) => {
     const updatedRelatedIndividual = transformRelatedIndividualsToInput(currentRelatedIndividual);
     updatedRelatedIndividual.push(newIndividual);
-    updateRelated(updatedRelatedIndividual);
+    updateRelatedIndividuals(updatedRelatedIndividual);
   };
 
   const editRelatedIndividual = (individual: SaveValueIndividual) => {
@@ -235,7 +235,7 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
           : transformRelatedIndividualsToInput([item])[0],
       )
       .filter((item): item is RelatedIndividualInput => item != null);
-    updateRelated(updatedRelatedIndividual);
+    updateRelatedIndividuals(updatedRelatedIndividual);
   };
 
   const deleteRelatedIndividual = () => {
@@ -247,36 +247,29 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
       item => item[REFERENCE_SYMBOL] !== modalState.reference,
     );
     const updatedRelatedIndividual = transformRelatedIndividualsToInput(filteredRelatedIndividual);
-    updateRelated(updatedRelatedIndividual);
+    updateRelatedIndividuals(updatedRelatedIndividual);
   };
 
-  const updateRelated = (updatedRelated: (RelatedIndividualInput | RelatedCompanyInput)[]) => {
-    const company = match(updatedRelated)
-      .with(P.array({ entityName: P.nonNullable }), items => ({
-        relatedCompanies: cleanData(items),
-      }))
-      .with(
-        P.array({
-          type: P.nonNullable,
-        }),
-        items => ({
-          relatedIndividuals: cleanData(items),
-        }),
-      )
-      .otherwise(() => undefined);
-
-    updateCompanyOnboarding({
-      input: {
-        onboardingId,
-        company,
-      },
-    })
+  const sendUpdate = (
+    company:
+      | { relatedCompanies: RelatedCompanyInput[] }
+      | { relatedIndividuals: RelatedIndividualInput[] },
+  ) => {
+    updateCompanyOnboarding({ input: { onboardingId, company } })
       .mapOk(data => data.updatePublicCompanyAccountHolderOnboarding)
       .mapOkToResult(filterRejectionsToResult)
       .tapOk(() => resetPageState())
       .tapError(error => {
         showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
       });
+  };
+
+  const updateRelatedCompanies = (items: RelatedCompanyInput[]) => {
+    sendUpdate({ relatedCompanies: cleanData(items) });
+  };
+
+  const updateRelatedIndividuals = (items: RelatedIndividualInput[]) => {
+    sendUpdate({ relatedIndividuals: items });
   };
 
   const onPressPrevious = () => {

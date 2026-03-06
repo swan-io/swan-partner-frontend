@@ -132,17 +132,12 @@ export const OwnershipFormWizard = ({
             step={step}
             individualType={individualType}
             subForm={subForm}
+            onNext={() => onStepChange(step, "capital")}
             onSave={values => {
-              match({ step, subForm })
-                .with({ step: P.union("ubo", "legalAndUbo"), subForm: "detail" }, ({ step }) =>
-                  onStepChange(step, "capital"),
-                )
-                .otherwise(() => {
-                  onSave({
-                    [REFERENCE_SYMBOL]: reference,
-                    ...values,
-                  });
-                });
+              onSave({
+                [REFERENCE_SYMBOL]: reference,
+                ...values,
+              });
             }}
           />
         ))

@@ -183,7 +183,7 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
   };
 
   const addRelatedCompany = (newCompany: SaveValueCompany) => {
-    const { roles, ...input } = newCompany;
+    const { [REFERENCE_SYMBOL]: _, roles, ...input } = newCompany;
     const updatedRelatedCompany: RelatedCompanyInput[] = [
       ...currentRelatedCompany,
       {
@@ -196,9 +196,9 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
   };
 
   const editRelatedCompany = (company: SaveValueCompany) => {
-    const { roles, ...input } = company;
+    const { [REFERENCE_SYMBOL]: ref, roles, ...input } = company;
     const updatedRelatedCompany: RelatedCompanyInput[] = currentRelatedCompany.map(item =>
-      item[REFERENCE_SYMBOL] === company[REFERENCE_SYMBOL]
+      item[REFERENCE_SYMBOL] === ref
         ? {
             roles: roles ?? [],
             ...input,
@@ -222,16 +222,18 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
   };
 
   const addRelatedIndividual = (newIndividual: SaveValueIndividual) => {
+    const { [REFERENCE_SYMBOL]: _, ...input } = newIndividual;
     const updatedRelatedIndividual = transformRelatedIndividualsToInput(currentRelatedIndividual);
-    updatedRelatedIndividual.push(newIndividual);
+    updatedRelatedIndividual.push(input);
     updateRelatedIndividuals(updatedRelatedIndividual);
   };
 
   const editRelatedIndividual = (individual: SaveValueIndividual) => {
+    const { [REFERENCE_SYMBOL]: ref, ...input } = individual;
     const updatedRelatedIndividual = currentRelatedIndividual
       .map(item =>
-        item[REFERENCE_SYMBOL] === individual[REFERENCE_SYMBOL]
-          ? individual
+        item[REFERENCE_SYMBOL] === ref
+          ? cleanData(input)
           : transformRelatedIndividualsToInput([item])[0],
       )
       .filter((item): item is RelatedIndividualInput => item != null);

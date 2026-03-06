@@ -23,5 +23,6 @@ export const env = validate({
     BANKING_URL: url,
     ONBOARDING_URL: url,
     PAYMENT_URL: url,
+    IDENTITY_URL: url,
   },
 });

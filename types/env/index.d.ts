@@ -7,6 +7,7 @@ declare const __env: {
   ACCOUNT_MEMBERSHIP_INVITATION_MODE: "LINK" | "EMAIL";
   BANKING_URL: string;
   PAYMENT_URL: string;
+  IDENTITY_URL: string;
   IS_SWAN_MODE: boolean;
   // Client
   CLIENT_PLACEKIT_API_KEY: string;

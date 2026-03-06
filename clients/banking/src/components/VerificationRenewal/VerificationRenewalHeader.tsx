@@ -39,7 +39,7 @@ type Props = {
 };
 
 export const VerificationRenewalHeader = ({ projectName, projectLogo }: Props) => {
-  const isSandbox = env.IS_SWAN_MODE;
+  const isSandbox = env.APP_TYPE !== "LIVE";
 
   const languageOptions = useMemo(() => {
     return languages.map(country => ({

@@ -582,7 +582,6 @@ export const VerificationRenewalOwnership = ({
               )}
 
               <VerificationRenewalFooter
-                nextDisabled={shakeError}
                 onPrevious={
                   previousStep !== undefined
                     ? () =>
@@ -591,11 +590,16 @@ export const VerificationRenewalOwnership = ({
                         })
                     : undefined
                 }
-                onNext={() =>
+                onNext={() => {
+                  const hasInvalidUbo = currentUbos.some(ubo => isUboInvalid(ubo));
+                  if (hasInvalidUbo) {
+                    setShakeError.on();
+                    return;
+                  }
                   Router.push(nextStep.id, {
                     verificationRenewalId: verificationRenewalId,
-                  })
-                }
+                  });
+                }}
                 loading={updatingCompanyVerificationRenewal.isLoading()}
               />
             </>

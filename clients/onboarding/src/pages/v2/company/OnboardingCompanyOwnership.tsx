@@ -228,8 +228,6 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
   };
 
   const editRelatedIndividual = (individual: SaveValueIndividual) => {
-    console.log("editRelatedIndividual", individual);
-
     const updatedRelatedIndividual = currentRelatedIndividual
       .map(item =>
         item[REFERENCE_SYMBOL] === individual[REFERENCE_SYMBOL]
@@ -421,7 +419,15 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
                                 onEdit={() =>
                                   setModalState({
                                     type: "edit",
-                                    step: "legal", // @todo update step base on RelatedIndividualType
+                                    step: match(individual.type)
+                                      .returnType<OwnershipFormStep>()
+                                      .with("LegalRepresentative", () => "legal")
+                                      .with(
+                                        "LegalRepresentativeAndUltimateBeneficialOwner",
+                                        () => "legalAndUbo",
+                                      )
+                                      .with("UltimateBeneficialOwner", () => "ubo")
+                                      .exhaustive(),
                                     form: "detail",
                                     initialValue: individual,
                                   })

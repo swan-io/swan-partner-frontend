@@ -74,7 +74,7 @@ export const OwnershipFormIndividualDetails = ({
               currentValues;
             console.log("currentValues", currentValues);
             onSave({
-              type: "LegalRepresentative",
+              type: "LegalRepresentative", //@todo make it dynamic based on step
               birthInfo: {
                 birthDate,
                 country: birthCountry,

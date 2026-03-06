@@ -143,9 +143,7 @@ export const OwnershipFormWizard = ({
             }}
           />
         ))
-        .otherwise(() => (
-          <h1>@TODO {step}</h1>
-        ))}
+        .exhaustive()}
     </div>
   );
 };

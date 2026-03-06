@@ -1,5 +1,5 @@
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
-import { Ref, useImperativeHandle, useRef } from "react";
+import { Ref, useImperativeHandle, useRef, useState } from "react";
 import { match, P } from "ts-pattern";
 import { RelatedIndividualInput } from "../../../../graphql/partner";
 import {
@@ -36,13 +36,13 @@ export const OwnershipFormIndividual = ({
   const detailRef = useRef<OnboardingCompanyOwnershipFormIndividualDetailsRef>(null);
   const capitalRef = useRef<OnboardingCompanyOwnershipFormIndividualCapitalRef>(null);
 
+  const [localValue, setLocalValue] = useState<RelatedIndividualInput>(initialValues);
+
   console.log("");
   useImperativeHandle(ref, () => {
     return {
       submit: () => {
-        console.log("#submit from formIndividual");
         subForm === "capital" ? capitalRef.current?.submit() : detailRef.current?.submit();
-        // onSave({} as RelatedIndividualInput);
       },
     };
   });
@@ -50,20 +50,24 @@ export const OwnershipFormIndividual = ({
   return subForm === "capital" ? (
     <OwnershipFormIndividualCapital
       ref={capitalRef}
-      initialValues={initialValues}
+      initialValues={localValue}
       onSave={input => {
         console.log("save capital", input);
+        onSave({ ...localValue, ...input });
       }}
     />
   ) : (
     <OwnershipFormIndividualDetails
       ref={detailRef}
-      initialValues={initialValues}
+      initialValues={localValue}
       companyCountry={companyCountry}
       onSave={input =>
         match(step)
           .with("legal", () => onSave(input))
-          .with(P.union("ubo", "legalAndUbo"), () => console.log("TODO on save detail for ubo"))
+          .with(P.union("ubo", "legalAndUbo"), () => {
+            setLocalValue(input);
+            onSave({} as RelatedIndividualInput); // will trigger the next step to show OwnershipFormIndividualCapital
+          })
           .exhaustive()
       }
     />

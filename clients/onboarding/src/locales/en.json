@@ -79,7 +79,7 @@
   "common.delete": "Delete",
   "common.edit": "Edit",
   "common.email": "Email",
-  "common.fistname": "Firstname",
+  "common.fistname": "First name",
   "common.form.help.nbDigits": "{nbDigits} digits",
   "common.form.invalidDate": "Invalid date",
   "common.form.invalidLength": "This field is limited to {maxLength} characters",

@@ -1,9 +1,38 @@
+import { match } from "ts-pattern";
 import {
+  CompanyLegalRepresentativeAndUltimateBeneficialOwner,
   CompanyRelatedIndividual,
   RelatedIndividualInput,
+  RelatedIndividualUltimateBeneficialOwner,
+  RelatedIndividualUltimateBeneficialOwnerInput,
   UnitedStatesTaxInfo,
   UnitedStatesTaxInfoInput,
 } from "../graphql/partner";
+
+const toUltimateBeneficialOwnerInput = (
+  ubo: RelatedIndividualUltimateBeneficialOwner | null | undefined,
+): RelatedIndividualUltimateBeneficialOwnerInput | undefined => {
+  if (ubo == null) {
+    return undefined;
+  }
+
+  const { qualificationType, identityDocumentInfo, ownership, controlTypes } = ubo;
+
+  const raw = match(qualificationType)
+    .with("Ownership", () => ({
+      qualificationType,
+      identityDocumentInfo,
+      ownership: ownership ?? { type: "Direct" as const },
+    }))
+    .with("Control", () => ({
+      qualificationType,
+      identityDocumentInfo,
+      controlTypes: controlTypes ?? [],
+    }))
+    .otherwise(() => ({ qualificationType, identityDocumentInfo }));
+
+  return cleanData(raw);
+};
 
 const toUnitedStatesTaxInfoInput = (
   info: UnitedStatesTaxInfo | null | undefined,
@@ -22,10 +51,16 @@ export const transformRelatedIndividualsToInput = (
     return [];
   }
 
-  return individuals.map(({ unitedStatesTaxInfo, ...rest }) => ({
-    ...cleanData(rest),
-    unitedStatesTaxInfo: toUnitedStatesTaxInfoInput(unitedStatesTaxInfo),
-  })) as RelatedIndividualInput[];
+  return individuals.map(individual => {
+    const { unitedStatesTaxInfo, ultimateBeneficialOwner, ...rest } =
+      individual as CompanyLegalRepresentativeAndUltimateBeneficialOwner; // Cast for typescript to be able to descruture ultimateBeneficialOwner
+
+    return {
+      ...cleanData(rest),
+      unitedStatesTaxInfo: toUnitedStatesTaxInfoInput(unitedStatesTaxInfo),
+      ultimateBeneficialOwner: toUltimateBeneficialOwnerInput(ultimateBeneficialOwner),
+    };
+  }) as RelatedIndividualInput[];
 };
 
 // Utility function to clean data from __typename and undefined fields

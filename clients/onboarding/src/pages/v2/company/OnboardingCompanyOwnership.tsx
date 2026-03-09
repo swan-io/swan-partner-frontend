@@ -22,6 +22,7 @@ import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeBu
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { Tag } from "@swan-io/lake/src/components/Tag";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
@@ -111,6 +112,9 @@ const styles = StyleSheet.create({
     ...texts.smallMedium,
     color: colors.gray[900],
   },
+  tagError: {
+    marginLeft: "12px",
+  },
 });
 
 type ActionMenuProps = {
@@ -140,9 +144,12 @@ const ActionMenu = ({ onEdit, onDelete }: ActionMenuProps) => (
   </View>
 );
 
+const RELATED_COMPANY_REGEX = /^company\.relatedCompanies\[(\d+)\]/;
+const RELATED_INDIVIDUAL_REGEX = /^company\.relatedIndividuals\[(\d+)\]/;
+
 export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
   const onboardingId = onboarding.id;
-  const { company, accountInfo } = onboarding;
+  const { company, accountInfo, statusInfo } = onboarding;
 
   const accountCountry = accountInfo?.country;
   const companyCountry = company?.address?.country;
@@ -167,9 +174,28 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
     }));
   }, [company]);
 
-  const relatedCompanyAndIndividual: LocalRelated[] = useMemo(() => {
-    return [...currentRelatedCompany, ...currentRelatedIndividual];
-  }, [currentRelatedCompany, currentRelatedIndividual]);
+  const hasRelated = currentRelatedCompany.length > 0 || currentRelatedIndividual.length > 0;
+
+  const missingInfos = useMemo(() => {
+    const company = new Set<number>();
+    const individual = new Set<number>();
+
+    if (statusInfo.__typename === "OnboardingInvalidStatusInfo") {
+      statusInfo.errors.forEach(({ field }) => {
+        const companyMatch = RELATED_COMPANY_REGEX.exec(field);
+        if (companyMatch?.[1] != null) {
+          company.add(Number(companyMatch[1]));
+          return;
+        }
+        const individualMatch = RELATED_INDIVIDUAL_REGEX.exec(field);
+        if (individualMatch?.[1] != null) {
+          individual.add(Number(individualMatch[1]));
+        }
+      });
+    }
+
+    return { company, individual };
+  }, [statusInfo]);
 
   const [modalState, setModalState] = useState<ModalState>({ type: "hidden" });
   const [validationError, setValidationError] = useState<string | undefined>(undefined);
@@ -345,7 +371,7 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
                 </>
               )}
 
-              {relatedCompanyAndIndividual.length > 0 && (
+              {hasRelated && (
                 <>
                   <Space height={32} />
 
@@ -356,8 +382,8 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
                   </Box>
                   <Space height={32} />
 
-                  {relatedCompanyAndIndividual.map((item, index) => (
-                    <View key={item[REFERENCE_SYMBOL]}>
+                  {currentRelatedCompany.map((company, index) => (
+                    <View key={company[REFERENCE_SYMBOL]}>
                       {index > 0 && (
                         <>
                           <Separator space={16} />
@@ -365,114 +391,124 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
                         </>
                       )}
 
-                      {match(item)
-                        .with({ __typename: "CompanyRelatedCompany" }, company => (
-                          <Box direction="row">
-                            <Box grow={2}>
-                              <LakeText style={styles.textTitle}>{company.entityName}</LakeText>
-                              <LakeText style={texts.smallRegular}>
-                                {t("company.step.ownership.company")} • {company.roles.join(", ")}
-                              </LakeText>
-                            </Box>
-                            <LakeText style={styles.textSubTitle}>
-                              {t("company.step.ownership.role.legalRepresentative")}
-                            </LakeText>
-                            <ActionMenu
-                              onEdit={() =>
-                                setModalState({
-                                  type: "edit",
-                                  step: "company",
-                                  initialValue: company,
-                                })
-                              }
-                              onDelete={() =>
-                                setModalState({
-                                  type: "delete",
-                                  reference: company[REFERENCE_SYMBOL],
-                                  name: company.entityName ?? "",
-                                  related: "company",
-                                })
-                              }
-                            />
-                          </Box>
-                        ))
-                        .with(
-                          {
-                            __typename: P.union(
-                              "CompanyLegalRepresentative",
-                              "CompanyUltimateBeneficialOwner",
-                              "CompanyLegalRepresentativeAndUltimateBeneficialOwner",
-                            ),
-                          },
-                          individual => (
-                            <Box direction="row">
-                              <Box grow={2}>
-                                <LakeText style={styles.textTitle}>
-                                  {individual.firstName} {individual.lastName}
-                                </LakeText>
-                                <LakeText style={texts.smallRegular}>
-                                  {match(individual)
-                                    .with(
-                                      { __typename: "CompanyLegalRepresentative" },
-                                      ({ legalRepresentative }) =>
-                                        legalRepresentative.roles.join(", "),
-                                    )
-                                    .with(
-                                      { __typename: "CompanyUltimateBeneficialOwner" },
-                                      ({ ultimateBeneficialOwner }) =>
-                                        ultimateBeneficialOwner?.ownership
-                                          ? ownershipText(ultimateBeneficialOwner.ownership)
-                                          : "",
-                                    )
-                                    .with(
-                                      {
-                                        __typename:
-                                          "CompanyLegalRepresentativeAndUltimateBeneficialOwner",
-                                      },
-                                      ({ legalRepresentative, ultimateBeneficialOwner }) =>
-                                        legalRepresentative.roles.join(", ") +
-                                        (ultimateBeneficialOwner?.ownership
-                                          ? ` • ${ownershipText(ultimateBeneficialOwner.ownership)}`
-                                          : ""),
-                                    )
-                                    .exhaustive()}
-                                </LakeText>
-                              </Box>
-                              <LakeText style={styles.textSubTitle}>
-                                {ownershipTypeText(individual.type)}
-                              </LakeText>
-                              <ActionMenu
-                                onEdit={() =>
-                                  setModalState({
-                                    type: "edit",
-                                    step: match(individual.type)
-                                      .returnType<OwnershipFormStep>()
-                                      .with("LegalRepresentative", () => "legal")
-                                      .with(
-                                        "LegalRepresentativeAndUltimateBeneficialOwner",
-                                        () => "legalAndUbo",
-                                      )
-                                      .with("UltimateBeneficialOwner", () => "ubo")
-                                      .exhaustive(),
-                                    form: "detail",
-                                    initialValue: individual,
-                                  })
-                                }
-                                onDelete={() =>
-                                  setModalState({
-                                    type: "delete",
-                                    reference: individual[REFERENCE_SYMBOL],
-                                    name: [individual.firstName, individual.lastName]
-                                      .filter(Boolean)
-                                      .join(" "),
-                                    related: "individual",
-                                  })
-                                }
-                              />
-                            </Box>
-                          ),
-                        )
-                        .exhaustive()}
+                      <Box direction="row">
+                        <Box grow={2}>
+                          <LakeText style={styles.textTitle}>
+                            {company.entityName}
+                            {missingInfos.company.has(index) && (
+                              <Tag color="negative" style={styles.tagError}>
+                                {t("company.step.owners.missingInfo")}
+                              </Tag>
+                            )}
+                          </LakeText>
+                          <LakeText style={texts.smallRegular}>
+                            {t("company.step.ownership.company")} • {company.roles.join(", ")}
+                          </LakeText>
+                        </Box>
+
+                        <LakeText style={styles.textSubTitle}>
+                          {t("company.step.ownership.role.legalRepresentative")}
+                        </LakeText>
+                        <ActionMenu
+                          onEdit={() =>
+                            setModalState({
+                              type: "edit",
+                              step: "company",
+                              initialValue: company,
+                            })
+                          }
+                          onDelete={() =>
+                            setModalState({
+                              type: "delete",
+                              reference: company[REFERENCE_SYMBOL],
+                              name: company.entityName ?? "",
+                              related: "company",
+                            })
+                          }
+                        />
+                      </Box>
+                    </View>
+                  ))}
+
+                  {currentRelatedIndividual.map((individual, index) => (
+                    <View key={individual[REFERENCE_SYMBOL]}>
+                      {(index > 0 || currentRelatedCompany.length > 0) && (
+                        <>
+                          <Separator space={16} />
+                          <Space height={8} />
+                        </>
+                      )}
+
+                      <Box direction="row">
+                        <Box grow={2}>
+                          <LakeText style={styles.textTitle}>
+                            {individual.firstName} {individual.lastName}
+                            {missingInfos.individual.has(index) && (
+                              <Tag color="negative" style={styles.tagError}>
+                                {t("company.step.owners.missingInfo")}
+                              </Tag>
+                            )}
+                          </LakeText>
+                          <LakeText style={texts.smallRegular}>
+                            {match(individual)
+                              .with(
+                                { __typename: "CompanyLegalRepresentative" },
+                                ({ legalRepresentative }) => legalRepresentative.roles.join(", "),
+                              )
+                              .with(
+                                { __typename: "CompanyUltimateBeneficialOwner" },
+                                ({ ultimateBeneficialOwner }) =>
+                                  ultimateBeneficialOwner?.ownership
+                                    ? ownershipText(ultimateBeneficialOwner.ownership)
+                                    : "",
+                              )
+                              .with(
+                                {
+                                  __typename:
+                                    "CompanyLegalRepresentativeAndUltimateBeneficialOwner",
+                                },
+                                ({ legalRepresentative, ultimateBeneficialOwner }) =>
+                                  legalRepresentative.roles.join(", ") +
+                                  (ultimateBeneficialOwner?.ownership
+                                    ? ` • ${ownershipText(ultimateBeneficialOwner.ownership)}`
+                                    : ""),
+                              )
+                              .exhaustive()}
+                          </LakeText>
+                        </Box>
+
+                        <LakeText style={styles.textSubTitle}>
+                          {ownershipTypeText(individual.type)}
+                        </LakeText>
+                        <ActionMenu
+                          onEdit={() =>
+                            setModalState({
+                              type: "edit",
+                              step: match(individual.type)
+                                .returnType<OwnershipFormStep>()
+                                .with("LegalRepresentative", () => "legal")
+                                .with(
+                                  "LegalRepresentativeAndUltimateBeneficialOwner",
+                                  () => "legalAndUbo",
+                                )
+                                .with("UltimateBeneficialOwner", () => "ubo")
+                                .exhaustive(),
+                              form: "detail",
+                              initialValue: individual,
+                            })
+                          }
+                          onDelete={() =>
+                            setModalState({
+                              type: "delete",
+                              reference: individual[REFERENCE_SYMBOL],
+                              name: [individual.firstName, individual.lastName]
+                                .filter(Boolean)
+                                .join(" "),
+                              related: "individual",
+                            })
+                          }
+                        />
+                      </Box>
                     </View>
                   ))}
                 </>

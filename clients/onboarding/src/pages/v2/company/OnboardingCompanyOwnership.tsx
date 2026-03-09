@@ -300,15 +300,9 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
       currentRelatedIndividual.length === 0,
       currentRelatedCompany.length === 0,
     ] as const)
-      .with(
-        [true, true],
-        () => "Please add at least one legal representative or beneficial owner before proceeding.",
-      )
-      .with([false, true], () => "Please add at least one related company before proceeding.")
-      .with(
-        [true, false],
-        () => "Please add at least one individual (legal representative or UBO) before proceeding.",
-      )
+      .with([true, true], () => t("company.step.ownership.error.empty"))
+      .with([false, true], () => t("company.step.ownership.error.companyEmpty"))
+      .with([true, false], () => t("company.step.ownership.error.individualEmpty"))
       .with([false, false], () => undefined)
       .exhaustive();
   }, [currentRelatedIndividual.length, currentRelatedCompany.length]);

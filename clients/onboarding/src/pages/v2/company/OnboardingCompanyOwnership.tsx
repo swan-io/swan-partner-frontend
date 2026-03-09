@@ -43,6 +43,7 @@ import {
   SaveValue,
   SaveValueCompany,
   SaveValueIndividual,
+  WithReference,
 } from "./ownership/OwnershipFormWizard";
 
 type ModalState =
@@ -71,7 +72,6 @@ type Props = {
   onboarding: NonNullable<CompanyOnboardingFragment>;
 };
 
-type WithReference<T> = T & { [REFERENCE_SYMBOL]: string };
 type LocalRelatedCompany = WithReference<CompanyRelatedCompany>;
 type LocalRelatedIndividual = WithReference<CompanyRelatedIndividual>;
 type LocalRelated = LocalRelatedCompany | LocalRelatedIndividual;
@@ -466,8 +466,14 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
           onStepChange={setFormStep}
           onClose={() => setModalState({ type: "hidden" })}
           onSave={match(modalState)
-            .with({ type: "add", step: "company" }, () => addRelatedCompany as (editorState: SaveValue) => void)
-            .with({ type: "edit", step: "company" }, () => editRelatedCompany as (editorState: SaveValue) => void)
+            .with(
+              { type: "add", step: "company" },
+              () => addRelatedCompany as (editorState: SaveValue) => void,
+            )
+            .with(
+              { type: "edit", step: "company" },
+              () => editRelatedCompany as (editorState: SaveValue) => void,
+            )
             .with(
               { type: "add", step: P.union("legal", "legalAndUbo", "ubo") },
               () => addRelatedIndividual as (editorState: SaveValue) => void,

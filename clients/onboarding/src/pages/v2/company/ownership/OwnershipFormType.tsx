@@ -16,8 +16,11 @@ export type OnboardingCompanyOwnershipFormTypeRef = {
   submit: () => void;
 };
 
+const relatedItem = ["individual", "company"] as const;
+type RelatedItem = (typeof relatedItem)[number];
+
 export type Input = {
-  related: string;
+  related: RelatedItem;
   type: RelatedIndividualType;
 };
 
@@ -34,8 +37,6 @@ const relatedIndividualType: Item<RelatedIndividualType>[] = [
     value: "LegalRepresentativeAndUltimateBeneficialOwner",
   },
 ];
-
-const relatedItem: ["individual", "company"] = ["individual", "company"];
 
 export const OwnershipFormType = ({ ref, onSave }: Props) => {
   useImperativeHandle(ref, () => {
@@ -69,7 +70,7 @@ export const OwnershipFormType = ({ ref, onSave }: Props) => {
       <Field name="related">
         {({ value, onChange }) => (
           <ChoicePicker
-            items={relatedItem}
+            items={[...relatedItem]}
             value={value}
             large={true}
             onChange={onChange}

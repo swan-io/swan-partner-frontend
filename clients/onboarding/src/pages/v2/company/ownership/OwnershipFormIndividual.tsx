@@ -1,5 +1,6 @@
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { Ref, useImperativeHandle, useRef, useState } from "react";
+import { match, P } from "ts-pattern";
 import { RelatedIndividualInput, RelatedIndividualType } from "../../../../graphql/partner";
 import {
   OnboardingCompanyOwnershipFormIndividualCapitalRef,
@@ -47,32 +48,38 @@ export const OwnershipFormIndividual = ({
   useImperativeHandle(ref, () => {
     return {
       submit: () => {
-        subForm === "capital" ? capitalRef.current?.submit() : detailRef.current?.submit();
+        match(subForm)
+          .with("capital", () => capitalRef.current?.submit())
+          .with(P.union("detail", P.nullish), () => detailRef.current?.submit())
+          .exhaustive();
       },
     };
   });
 
-  return subForm === "capital" ? (
-    <OwnershipFormIndividualCapital
-      ref={capitalRef}
-      initialValues={localValue}
-      onSave={input => {
-        onSave({ ...localValue, ...input });
-      }}
-    />
-  ) : (
-    <OwnershipFormIndividualDetails
-      ref={detailRef}
-      initialValues={localValue}
-      companyCountry={companyCountry}
-      onSave={input => {
-        if (step === "legal") {
-          onSave({ ...input, type: individualType });
-        } else {
-          setLocalValue(prevState => ({ ...prevState, ...input, type: individualType }));
-          onNext();
-        }
-      }}
-    />
-  );
+  return match(subForm)
+    .with("capital", () => (
+      <OwnershipFormIndividualCapital
+        ref={capitalRef}
+        initialValues={localValue}
+        onSave={input => {
+          onSave({ ...localValue, ...input });
+        }}
+      />
+    ))
+    .with(P.union("detail", P.nullish), () => (
+      <OwnershipFormIndividualDetails
+        ref={detailRef}
+        initialValues={localValue}
+        companyCountry={companyCountry}
+        onSave={input => {
+          if (step === "legal") {
+            onSave({ ...input, type: individualType });
+          } else {
+            setLocalValue(prevState => ({ ...prevState, ...input, type: individualType }));
+            onNext();
+          }
+        }}
+      />
+    ))
+    .exhaustive();
 };

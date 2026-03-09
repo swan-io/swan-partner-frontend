@@ -16,11 +16,11 @@ export type OnboardingCompanyOwnershipFormIndividualRef = {
 };
 
 type Props = {
-  initialValues: RelatedIndividualInput;
+  initialValues: Partial<RelatedIndividualInput>;
   ref: Ref<OnboardingCompanyOwnershipFormIndividualRef>;
   companyCountry: CountryCCA3;
   step: Extract<OwnershipFormStep, "legal" | "legalAndUbo" | "ubo">;
-  individualType?: RelatedIndividualType;
+  individualType: RelatedIndividualType;
   subForm?: OwnershipSubForm;
   onSave: (input: RelatedIndividualInput) => void | Promise<void>;
   onNext: () => void;
@@ -41,7 +41,7 @@ export const OwnershipFormIndividual = ({
 
   const [localValue, setLocalValue] = useState<RelatedIndividualInput>(() => ({
     ...initialValues,
-    ...(individualType != null && { type: individualType }),
+    type: individualType,
   }));
 
   useImperativeHandle(ref, () => {
@@ -66,11 +66,10 @@ export const OwnershipFormIndividual = ({
       initialValues={localValue}
       companyCountry={companyCountry}
       onSave={input => {
-        const type = individualType ?? localValue.type;
         if (step === "legal") {
-          onSave({ ...input, type });
+          onSave({ ...input, type: individualType });
         } else {
-          setLocalValue(prevState => ({ ...prevState, ...input, type }));
+          setLocalValue(prevState => ({ ...prevState, ...input, type: individualType }));
           onNext();
         }
       }}

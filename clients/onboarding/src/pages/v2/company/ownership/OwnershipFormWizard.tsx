@@ -62,7 +62,10 @@ export const OwnershipFormWizard = ({
   const typeRef = useRef<OnboardingCompanyOwnershipFormTypeRef>(null);
   const companyRef = useRef<OnboardingCompanyOwnershipFormCompanyRef>(null);
   const individualRef = useRef<OnboardingCompanyOwnershipFormIndividualRef>(null);
-  const [individualType, setIndividualType] = useState<RelatedIndividualType>();
+  const [individualType, setIndividualType] = useState<RelatedIndividualType | undefined>(() => {
+    const initial = initialValues as Partial<RelatedIndividualInput> | undefined;
+    return initial?.type;
+  });
 
   useImperativeHandle(ref, () => {
     return {
@@ -124,13 +127,20 @@ export const OwnershipFormWizard = ({
             }}
           />
         ))
-        .with(P.union("legal", "legalAndUbo", "ubo"), step => (
+        .with(P.union("legal", "legalAndUbo", "ubo"), step => {
+          const resolvedType = individualType ?? match(step)
+            .with("legal", () => "LegalRepresentative" as const)
+            .with("ubo", () => "UltimateBeneficialOwner" as const)
+            .with("legalAndUbo", () => "LegalRepresentativeAndUltimateBeneficialOwner" as const)
+            .exhaustive();
+
+          return (
           <OwnershipFormIndividual
             ref={individualRef}
-            initialValues={initialValues as RelatedIndividualInput}
+            initialValues={initialValues as Partial<RelatedIndividualInput>}
             companyCountry={companyCountry}
             step={step}
-            individualType={individualType}
+            individualType={resolvedType}
             subForm={subForm}
             onNext={() => onStepChange(step, "capital")}
             onSave={values => {
@@ -140,7 +150,8 @@ export const OwnershipFormWizard = ({
               });
             }}
           />
-        ))
+          );
+        })
         .exhaustive()}
     </div>
   );

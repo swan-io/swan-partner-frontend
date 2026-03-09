@@ -24,11 +24,12 @@ import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { match, P } from "ts-pattern";
 import { ownershipText, ownershipTypeText } from "../../../constants/business";
 import { cleanData, transformRelatedIndividualsToInput } from "../../../utils/onboarding";
@@ -97,6 +98,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     gap: "8px",
+  },
+  addOwnerButtonError: {
+    borderColor: colors.negative[500],
   },
   textTitle: {
     ...texts.medium,
@@ -168,6 +172,7 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
   }, [currentRelatedCompany, currentRelatedIndividual]);
 
   const [modalState, setModalState] = useState<ModalState>({ type: "hidden" });
+  const [validationError, setValidationError] = useState<string | undefined>(undefined);
   const ownershipFormRef = useRef<OnboardingCompanyOwnershipFormRef>(null);
 
   const setFormStep = (step: OwnershipFormStep, form?: OwnershipSubForm) => {
@@ -264,8 +269,38 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
     Router.push("Activity", { onboardingId });
   };
 
+  const checkValidationError = useCallback(() => {
+    return match([
+      currentRelatedIndividual.length === 0,
+      currentRelatedCompany.length === 0,
+    ] as const)
+      .with(
+        [true, true],
+        () => "Please add at least one legal representative or beneficial owner before proceeding.",
+      )
+      .with([false, true], () => "Please add at least one related company before proceeding.")
+      .with(
+        [true, false],
+        () => "Please add at least one individual (legal representative or UBO) before proceeding.",
+      )
+      .with([false, false], () => undefined)
+      .exhaustive();
+  }, [currentRelatedIndividual.length, currentRelatedCompany.length]);
+
+  useEffect(() => {
+    console.log("use effect", validationError);
+    if (validationError != null) {
+      setValidationError(checkValidationError());
+    }
+  }, [validationError, checkValidationError]);
+
   const onPressNext = () => {
-    Router.push("Finalize", { onboardingId });
+    const errorMessage = checkValidationError();
+    setValidationError(errorMessage);
+
+    if (isNullish(errorMessage)) {
+      Router.push("Finalize", { onboardingId });
+    }
   };
 
   return (
@@ -293,12 +328,22 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
 
               <Pressable
                 role="button"
-                style={styles.addOwnerButton}
+                style={[
+                  styles.addOwnerButton,
+                  validationError != null && styles.addOwnerButtonError,
+                ]}
                 onPress={() => setModalState({ type: "add", step: "init" })}
               >
                 <Icon name="add-circle-regular" size={24} color={colors.gray[500]} />
                 <LakeText>{t("company.step.ownership.addTitle")}</LakeText>
               </Pressable>
+
+              {validationError != null && (
+                <>
+                  <Space height={4} />
+                  <LakeText color={colors.negative[500]}>{validationError}</LakeText>
+                </>
+              )}
 
               {relatedCompanyAndIndividual.length > 0 && (
                 <>

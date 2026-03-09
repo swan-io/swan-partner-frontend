@@ -30,7 +30,7 @@ export type OnboardingCompanyOwnershipFormRef = {
 // because we can't depend on the index
 export const REFERENCE_SYMBOL = Symbol("REFERENCE");
 type WithReference<T> = T & { [REFERENCE_SYMBOL]: string };
-export type SaveValueCompany = WithReference<Partial<RelatedCompanyInput>>;
+export type SaveValueCompany = WithReference<RelatedCompanyInput>;
 export type SaveValueIndividual = WithReference<RelatedIndividualInput>;
 export type SaveValue = SaveValueCompany | SaveValueIndividual;
 

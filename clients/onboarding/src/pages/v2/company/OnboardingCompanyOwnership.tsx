@@ -183,29 +183,15 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
   };
 
   const addRelatedCompany = (newCompany: SaveValueCompany) => {
-    const { [REFERENCE_SYMBOL]: _, roles, ...input } = newCompany;
-    const updatedRelatedCompany: RelatedCompanyInput[] = [
-      ...currentRelatedCompany,
-      {
-        roles: roles ?? [],
-        ...input,
-      },
-    ];
-
-    updateRelatedCompanies(updatedRelatedCompany);
+    const { [REFERENCE_SYMBOL]: _, ...input } = newCompany;
+    updateRelatedCompanies([...currentRelatedCompany, input]);
   };
 
   const editRelatedCompany = (company: SaveValueCompany) => {
-    const { [REFERENCE_SYMBOL]: ref, roles, ...input } = company;
+    const { [REFERENCE_SYMBOL]: ref, ...input } = company;
     const updatedRelatedCompany: RelatedCompanyInput[] = currentRelatedCompany.map(item =>
-      item[REFERENCE_SYMBOL] === ref
-        ? {
-            roles: roles ?? [],
-            ...input,
-          }
-        : item,
+      item[REFERENCE_SYMBOL] === ref ? input : item,
     );
-
     updateRelatedCompanies(updatedRelatedCompany);
   };
 
@@ -480,8 +466,8 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
           onStepChange={setFormStep}
           onClose={() => setModalState({ type: "hidden" })}
           onSave={match(modalState)
-            .with({ type: "add", step: "company" }, () => addRelatedCompany)
-            .with({ type: "edit", step: "company" }, () => editRelatedCompany)
+            .with({ type: "add", step: "company" }, () => addRelatedCompany as (editorState: SaveValue) => void)
+            .with({ type: "edit", step: "company" }, () => editRelatedCompany as (editorState: SaveValue) => void)
             .with(
               { type: "add", step: P.union("legal", "legalAndUbo", "ubo") },
               () => addRelatedIndividual as (editorState: SaveValue) => void,

@@ -15,9 +15,8 @@ import { t } from "../../../../utils/i18n";
 export type OnboardingCompanyOwnershipFormTypeRef = {
   submit: () => void;
 };
-
-const relatedItem = ["individual", "company"] as const;
-type RelatedItem = (typeof relatedItem)[number];
+type RelatedItem = "individual" | "company";
+const relatedItem: RelatedItem[] = ["individual", "company"];
 
 export type Input = {
   related: RelatedItem;
@@ -56,7 +55,7 @@ export const OwnershipFormType = ({ ref, onSave }: Props) => {
 
   const { Field, FieldsListener, submitForm } = useForm({
     related: {
-      initialValue: relatedItem[0] as (typeof relatedItem)[number],
+      initialValue: relatedItem[0] as RelatedItem,
       validate: validateNullableRequired,
     },
     type: {
@@ -70,7 +69,7 @@ export const OwnershipFormType = ({ ref, onSave }: Props) => {
       <Field name="related">
         {({ value, onChange }) => (
           <ChoicePicker
-            items={[...relatedItem]}
+            items={relatedItem}
             value={value}
             large={true}
             onChange={onChange}

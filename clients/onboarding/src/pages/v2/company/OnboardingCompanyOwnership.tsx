@@ -308,7 +308,6 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
   }, [currentRelatedIndividual.length, currentRelatedCompany.length]);
 
   useEffect(() => {
-    console.log("use effect", validationError);
     if (validationError != null) {
       setValidationError(checkValidationError());
     }

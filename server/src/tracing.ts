@@ -46,7 +46,16 @@ const inputConfigs: Required<InstrumentationConfigMap> = {
   "@opentelemetry/instrumentation-runtime-node": { enabled: false },
   "@opentelemetry/instrumentation-socket.io": { enabled: false },
   "@opentelemetry/instrumentation-tedious": { enabled: false },
-  "@opentelemetry/instrumentation-undici": { enabled: false },
+  "@opentelemetry/instrumentation-undici": {
+    enabled: true,
+    requestHook: (span, request) => {
+      for (const [key, value = ""] of Object.entries(request.headers)) {
+        if (!sensibleHeaderKeys.has(key)) {
+          span.setAttribute(`http.header.${key}`, value);
+        }
+      }
+    },
+  },
   "@opentelemetry/instrumentation-winston": { enabled: false },
 
   "@opentelemetry/instrumentation-pino": { enabled: true },

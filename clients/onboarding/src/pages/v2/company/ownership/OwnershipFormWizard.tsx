@@ -29,7 +29,7 @@ export type OnboardingCompanyOwnershipFormRef = {
 // The `REFERENCE_SYMBOL` is used to keep track of the instances of beneficiaries
 // because we can't depend on the index
 export const REFERENCE_SYMBOL = Symbol("REFERENCE");
-type WithReference<T> = T & { [REFERENCE_SYMBOL]: string };
+export type WithReference<T> = T & { [REFERENCE_SYMBOL]: string };
 export type SaveValueCompany = WithReference<RelatedCompanyInput>;
 export type SaveValueIndividual = WithReference<RelatedIndividualInput>;
 export type SaveValue = SaveValueCompany | SaveValueIndividual;
@@ -128,28 +128,30 @@ export const OwnershipFormWizard = ({
           />
         ))
         .with(P.union("legal", "legalAndUbo", "ubo"), step => {
-          const resolvedType = individualType ?? match(step)
-            .with("legal", () => "LegalRepresentative" as const)
-            .with("ubo", () => "UltimateBeneficialOwner" as const)
-            .with("legalAndUbo", () => "LegalRepresentativeAndUltimateBeneficialOwner" as const)
-            .exhaustive();
+          const resolvedType =
+            individualType ??
+            match(step)
+              .with("legal", () => "LegalRepresentative" as const)
+              .with("ubo", () => "UltimateBeneficialOwner" as const)
+              .with("legalAndUbo", () => "LegalRepresentativeAndUltimateBeneficialOwner" as const)
+              .exhaustive();
 
           return (
-          <OwnershipFormIndividual
-            ref={individualRef}
-            initialValues={initialValues as Partial<RelatedIndividualInput>}
-            companyCountry={companyCountry}
-            step={step}
-            individualType={resolvedType}
-            subForm={subForm}
-            onNext={() => onStepChange(step, "capital")}
-            onSave={values => {
-              onSave({
-                [REFERENCE_SYMBOL]: reference,
-                ...values,
-              });
-            }}
-          />
+            <OwnershipFormIndividual
+              ref={individualRef}
+              initialValues={initialValues as Partial<RelatedIndividualInput>}
+              companyCountry={companyCountry}
+              step={step}
+              individualType={resolvedType}
+              subForm={subForm}
+              onNext={() => onStepChange(step, "capital")}
+              onSave={values => {
+                onSave({
+                  [REFERENCE_SYMBOL]: reference,
+                  ...values,
+                });
+              }}
+            />
           );
         })
         .exhaustive()}

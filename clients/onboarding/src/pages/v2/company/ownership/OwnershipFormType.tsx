@@ -15,9 +15,11 @@ import { t } from "../../../../utils/i18n";
 export type OnboardingCompanyOwnershipFormTypeRef = {
   submit: () => void;
 };
+type RelatedItem = "individual" | "company";
+const relatedItem: RelatedItem[] = ["individual", "company"];
 
 export type Input = {
-  related: string;
+  related: RelatedItem;
   type: RelatedIndividualType;
 };
 
@@ -34,8 +36,6 @@ const relatedIndividualType: Item<RelatedIndividualType>[] = [
     value: "LegalRepresentativeAndUltimateBeneficialOwner",
   },
 ];
-
-const relatedItem: ["individual", "company"] = ["individual", "company"];
 
 export const OwnershipFormType = ({ ref, onSave }: Props) => {
   useImperativeHandle(ref, () => {
@@ -55,7 +55,7 @@ export const OwnershipFormType = ({ ref, onSave }: Props) => {
 
   const { Field, FieldsListener, submitForm } = useForm({
     related: {
-      initialValue: relatedItem[0] as (typeof relatedItem)[number],
+      initialValue: relatedItem[0] as RelatedItem,
       validate: validateNullableRequired,
     },
     type: {

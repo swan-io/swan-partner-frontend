@@ -33,8 +33,11 @@ export const getProjectId = () => {
     )
     .mapOk(({ projectInfo: { id } }) => id)
     .tapError(error => {
+      // We retry only if the error isn't related with request context
+      if (!error.message.includes("context forbidden")) {
+        projectIdFailed = true;
+      }
       console.error("Failed to get project ID", error);
-      projectIdFailed = true;
     });
 
   return projectId;

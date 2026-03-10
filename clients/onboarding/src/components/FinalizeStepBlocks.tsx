@@ -14,6 +14,7 @@ import { P, match } from "ts-pattern";
 import { t } from "../utils/i18n";
 import {
   CompanyOnboardingRoute,
+  CompanyOnboardingRouteV2,
   IndividualOnboardingRoute,
   IndividualOnboardingRouteV2,
   Router,
@@ -46,7 +47,11 @@ const styles = StyleSheet.create({
   },
 });
 
-type StepRoute = IndividualOnboardingRoute | CompanyOnboardingRoute | IndividualOnboardingRouteV2;
+type StepRoute =
+  | IndividualOnboardingRoute
+  | CompanyOnboardingRoute
+  | IndividualOnboardingRouteV2
+  | CompanyOnboardingRouteV2;
 
 type Props<R extends StepRoute> = {
   onboardingId: string;

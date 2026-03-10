@@ -23,6 +23,7 @@ import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
+import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { omit } from "@swan-io/lake/src/utils/object";
@@ -51,10 +52,17 @@ import {
   badUserInputErrorPattern,
   extractServerValidationFields,
   getValidationErrorMessage,
+  ServerInvalidFieldCode,
 } from "../../../utils/validation";
+
+export type InitFieldApiRequired = "name" | "country" | "legalFormCode" | "typeOfRepresentation";
 
 type Props = {
   onboarding: NonNullable<CompanyOnboardingFragment>;
+  serverValidationErrors: {
+    fieldName: InitFieldApiRequired;
+    code: ServerInvalidFieldCode;
+  }[];
 };
 
 const styles = StyleSheet.create({
@@ -81,9 +89,10 @@ const styles = StyleSheet.create({
   },
 });
 
-export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
+export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Props) => {
   const onboardingId = onboarding.id;
   const { accountAdmin, accountInfo, company } = onboarding;
+  const isFirstMount = useFirstMountState();
 
   const initialCountry = match([company?.address?.country, accountInfo?.country])
     .returnType<CountryCCA3>()
@@ -132,6 +141,16 @@ export const OnboardingCompanyRoot = ({ onboarding }: Props) => {
       },
     },
   });
+
+  useEffect(() => {
+    if (isFirstMount && serverValidationErrors.length > 0) {
+      serverValidationErrors.forEach(({ fieldName, code }) => {
+        const message = getValidationErrorMessage(code);
+        setFieldError(fieldName, message);
+      });
+      setManualMode(true);
+    }
+  }, [serverValidationErrors, isFirstMount, setFieldError]);
 
   const onPressNext = () => {
     submitForm({

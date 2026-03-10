@@ -3,7 +3,7 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import { StepTitle } from "../../../components/StepTitle";
-import { IndividualOnboardingFragment } from "../../../graphql/partner";
+import { CompanyOnboardingFragment } from "../../../graphql/partner";
 import { t } from "../../../utils/i18n";
 
 import { Option } from "@swan-io/boxed";
@@ -15,16 +15,16 @@ import { match, P } from "ts-pattern";
 import { FinalizeInvalidSteps } from "../../../components/FinalizeStepBlocks";
 import { env } from "../../../utils/env";
 import { projectConfiguration } from "../../../utils/projectId";
-import { IndividualOnboardingRouteV2, Router } from "../../../utils/routes";
+import { CompanyOnboardingRouteV2, Router } from "../../../utils/routes";
 
 type Props = {
-  onboarding: NonNullable<IndividualOnboardingFragment>;
-  steps: WizardStep<IndividualOnboardingRouteV2>[];
+  onboarding: NonNullable<CompanyOnboardingFragment>;
+  steps: WizardStep<CompanyOnboardingRouteV2>[];
   alreadySubmitted: boolean;
   onSubmitWithErrors: () => void;
 };
 
-export const OnboardingIndividualFinalize = ({
+export const OnboardingCompanyFinalize = ({
   onboarding,
   steps,
   alreadySubmitted,
@@ -34,7 +34,7 @@ export const OnboardingIndividualFinalize = ({
   const containsErrors = steps.some(({ errors }) => errors != null && errors.length > 0);
 
   const onPressPrevious = () => {
-    Router.push("Activity", { onboardingId });
+    Router.push("Ownership", { onboardingId });
   };
 
   const onPressNext = () => {

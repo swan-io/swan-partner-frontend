@@ -22,6 +22,7 @@ import {
   badUserInputErrorPattern,
   extractServerValidationFields,
   getValidationErrorMessage,
+  ServerInvalidFieldCode,
   validateRegistrationNumber,
 } from "../../../utils/validation";
 
@@ -36,6 +37,7 @@ import {
   validateRequired,
   validateVatNumber,
 } from "@swan-io/shared-business/src/utils/validation";
+import { useEffect } from "react";
 import { View } from "react-native";
 import { locale } from "../../../utils/i18n";
 import { Router } from "../../../utils/routes";
@@ -43,9 +45,22 @@ import {
   getRegistrationNumberName,
   getUpdateOnboardingError,
 } from "../../../utils/templateTranslations";
+import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
+
+export type OrganisationFieldApiRequired =
+  | "address"
+  | "city"
+  | "postalCode"
+  | "vatNumber"
+  | "taxIdentificationNumber"
+  | "registrationNumber";
 
 type Props = {
   onboarding: NonNullable<CompanyOnboardingFragment>;
+  serverValidationErrors: {
+    fieldName: OrganisationFieldApiRequired;
+    code: ServerInvalidFieldCode;
+  }[];
 };
 
 const styles = StyleSheet.create({
@@ -65,9 +80,10 @@ const styles = StyleSheet.create({
   },
 });
 
-export const OnboardingCompanyOrganisation = ({ onboarding }: Props) => {
+export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErrors }: Props) => {
   const onboardingId = onboarding.id;
   const { accountInfo, company } = onboarding;
+  const isFirstMount = useFirstMountState();
 
   const [updateCompanyOnboarding, updateResult] = useMutation(
     UpdatePublicCompanyAccountHolderOnboardingDocument,
@@ -133,6 +149,15 @@ export const OnboardingCompanyOrganisation = ({ onboarding }: Props) => {
       validate: validateNullableRequired,
     },
   });
+
+  useEffect(() => {
+    if (isFirstMount) {
+      serverValidationErrors.forEach(({ fieldName, code }) => {
+        const message = getValidationErrorMessage(code);
+        setFieldError(fieldName, message);
+      });
+    }
+  }, [serverValidationErrors, isFirstMount, setFieldError]);
 
   const onPressPrevious = () => {
     Router.push("Details", { onboardingId });

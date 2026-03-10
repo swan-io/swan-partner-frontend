@@ -13,12 +13,17 @@ import { OnboardingHeader } from "../../../components/OnboardingHeader";
 import { CompanyOnboardingFragment } from "../../../graphql/partner";
 import { t } from "../../../utils/i18n";
 import { CompanyOnboardingRouteV2, Router, companyOnboardingRoutesV2 } from "../../../utils/routes";
+import { extractServerInvalidFields } from "../../../utils/validation";
 import { NotFoundPage } from "../../NotFoundPage";
-import { OnboardingCompanyActivity } from "./OnboardingCompanyActivity";
-import { OnboardingCompanyDetails } from "./OnboardingCompanyDetails";
-import { OnboardingCompanyOrganisation } from "./OnboardingCompanyOrganisation";
+import { ActivityFieldApiRequired, OnboardingCompanyActivity } from "./OnboardingCompanyActivity";
+import { DetailsFieldApiRequired, OnboardingCompanyDetails } from "./OnboardingCompanyDetails";
+import { OnboardingCompanyFinalize } from "./OnboardingCompanyFinalize";
+import {
+  OnboardingCompanyOrganisation,
+  OrganisationFieldApiRequired,
+} from "./OnboardingCompanyOrganisation";
 import { OnboardingCompanyOwnership } from "./OnboardingCompanyOwnership";
-import { OnboardingCompanyRoot } from "./OnboardingCompanyRoot";
+import { InitFieldApiRequired, OnboardingCompanyRoot } from "./OnboardingCompanyRoot";
 
 const styles = StyleSheet.create({
   stepper: {
@@ -57,24 +62,75 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
   const projectName = onboarding.projectInfo?.name ?? "";
   const projectLogo = onboarding.projectInfo?.logoUri ?? logoSwan;
 
-  const [finalized] = useBoolean(false);
+  const [finalized, setFinalized] = useBoolean(false);
+
+  const detailsStepErrors = useMemo(() => {
+    return extractServerInvalidFields(onboarding.statusInfo, field =>
+      match(field)
+        .returnType<DetailsFieldApiRequired | null>()
+        .with("accountAdmin.email", () => "email")
+        .otherwise(() => null),
+    );
+  }, [onboarding.statusInfo]);
+
+  const organisationStepErrors = useMemo(() => {
+    return extractServerInvalidFields(onboarding.statusInfo, field =>
+      match(field)
+        .returnType<OrganisationFieldApiRequired | null>()
+        .with("company.address.addressLine1", () => "address")
+        .with("company.address.city", () => "city")
+        .with("company.address.postalCode", () => "postalCode")
+        .with("company.vatNumber", () => "vatNumber")
+        .with("company.taxIdentificationNumber", () => "taxIdentificationNumber")
+        .with("company.registrationNumber", () => "registrationNumber")
+        .otherwise(() => null),
+    );
+  }, [onboarding.statusInfo]);
+
+  const activityStepErrors = useMemo(() => {
+    return extractServerInvalidFields(onboarding.statusInfo, field =>
+      match(field)
+        .returnType<ActivityFieldApiRequired | null>()
+        .with("company.businessActivity", () => "businessActivity")
+        .with("company.businessActivityDescription", () => "businessActivityDescription")
+        .with("company.monthlyPaymentVolume", () => "monthlyPaymentVolume")
+        .otherwise(() => null),
+    );
+  }, [onboarding.statusInfo]);
+
+  const initStepErrors = useMemo(() => {
+    return extractServerInvalidFields(onboarding.statusInfo, field =>
+      match(field)
+        .returnType<InitFieldApiRequired | null>()
+        .with("company.name", () => "name")
+        .with("company.address.country", () => "country")
+        .with("company.legalFormCode", () => "legalFormCode")
+        .with("accountAdmin.typeOfRepresentation", () => "typeOfRepresentation")
+        .otherwise(() => null),
+    );
+  }, [onboarding.statusInfo]);
 
   const steps = useMemo<WizardStep<CompanyOnboardingRouteV2>[]>(
     () => [
       {
+        id: "Root",
+        label: "",
+        errors: initStepErrors,
+      },
+      {
         id: "Details",
         label: t("step.title.about"),
-        errors: [],
+        errors: detailsStepErrors,
       },
       {
         id: "Organisation",
         label: t("step.title.organisation"),
-        errors: [],
+        errors: organisationStepErrors,
       },
       {
         id: "Activity",
         label: t("step.title.activity"),
-        errors: [],
+        errors: activityStepErrors,
       },
       {
         id: "Ownership",
@@ -92,17 +148,19 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
         errors: [],
       },
     ],
-    [],
+    [detailsStepErrors, organisationStepErrors, activityStepErrors, initStepErrors],
   );
 
   const stepperSteps = useMemo<Step[]>(
     () =>
-      steps.map(step => ({
-        id: step.id,
-        label: step.label,
-        url: Router[step.id]({ onboardingId }),
-        hasErrors: finalized && step.errors.length > 0,
-      })),
+      steps
+        .filter(step => step.id !== "Root")
+        .map(step => ({
+          id: step.id,
+          label: step.label,
+          url: Router[step.id]({ onboardingId }),
+          hasErrors: finalized && step.errors.length > 0,
+        })),
     [onboardingId, steps, finalized],
   );
 
@@ -139,22 +197,41 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
             <Space height={32} />
 
             {match(route)
-              .with({ name: "Root" }, () => <OnboardingCompanyRoot onboarding={onboarding} />)
-              .with({ name: "Details" }, () => <OnboardingCompanyDetails onboarding={onboarding} />)
+              .with({ name: "Root" }, () => (
+                <OnboardingCompanyRoot
+                  onboarding={onboarding}
+                  serverValidationErrors={finalized ? initStepErrors : []}
+                />
+              ))
+              .with({ name: "Details" }, () => (
+                <OnboardingCompanyDetails
+                  onboarding={onboarding}
+                  serverValidationErrors={finalized ? detailsStepErrors : []}
+                />
+              ))
               .with({ name: "Organisation" }, () => (
-                <OnboardingCompanyOrganisation onboarding={onboarding} />
+                <OnboardingCompanyOrganisation
+                  onboarding={onboarding}
+                  serverValidationErrors={finalized ? organisationStepErrors : []}
+                />
               ))
               .with({ name: "Activity" }, () => (
-                <OnboardingCompanyActivity onboarding={onboarding} />
+                <OnboardingCompanyActivity
+                  onboarding={onboarding}
+                  serverValidationErrors={finalized ? activityStepErrors : []}
+                />
               ))
               .with({ name: "Ownership" }, () => (
                 <OnboardingCompanyOwnership onboarding={onboarding} />
               ))
-              .with({ name: "Documents" }, () => (
-                <OnboardingCompanyDetails onboarding={onboarding} />
-              ))
+              .with({ name: "Documents" }, () => <p>todo document</p>)
               .with({ name: "Finalize" }, () => (
-                <OnboardingCompanyDetails onboarding={onboarding} />
+                <OnboardingCompanyFinalize
+                  onboarding={onboarding}
+                  steps={steps}
+                  alreadySubmitted={finalized}
+                  onSubmitWithErrors={setFinalized.on}
+                />
               ))
               .with(P.nullish, () => <NotFoundPage />)
               .exhaustive()}

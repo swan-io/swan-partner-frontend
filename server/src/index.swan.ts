@@ -222,7 +222,7 @@ start({
               })
                 .mapOk(token => Option.Some(token))
                 .tapError(error => {
-                  request.log.error(error);
+                  request.log.error(error, "Failed to exchange token for partner API");
                 });
 
         const calledMutations = match(request.body)
@@ -248,8 +248,7 @@ start({
           );
 
           if (webBankingSettings.isError()) {
-            request.log.error("Failed to fetch web banking settings");
-            request.log.error(webBankingSettings.error);
+            request.log.error(webBankingSettings.error, "Failed to fetch web banking settings");
             return reply.internalServerError();
           }
 
@@ -260,8 +259,7 @@ start({
             );
 
           if (!isAuthorized) {
-            request.log.warn("Unauthorized mutation attempted");
-            request.log.warn(calledMutations);
+            request.log.warn(calledMutations, "Unauthorized mutation attempted");
             return reply.forbidden();
           }
         }
@@ -300,7 +298,7 @@ start({
           type: "AccountMemberToken",
           projectId: request.params.projectId,
         }).tapError(error => {
-          request.log.error(error);
+          request.log.error(error, "Failed to exchange token for partner API");
         });
         return reply.from(env.PARTNER_ADMIN_API_URL, {
           rewriteRequestHeaders: (_req, headers) => ({
@@ -351,7 +349,7 @@ start({
             .resultToPromise();
           return reply.send({ success: result });
         } catch (err) {
-          request.log.error(err);
+          request.log.error(err, "Failed to send account membership invitation");
           return reply.status(400).send("An error occured");
         }
       },
@@ -406,7 +404,7 @@ start({
               .with(
                 P.instanceOf(UnsupportedAccountCountryError),
                 P.instanceOf(OnboardingRejectionError),
-                error => request.log.warn(error),
+                error => request.log.warn(error, "Failed to start individual onboarding"),
               )
               .otherwise(error => request.log.error(error));
 
@@ -449,7 +447,7 @@ start({
               .with(
                 P.instanceOf(UnsupportedAccountCountryError),
                 P.instanceOf(OnboardingRejectionError),
-                error => request.log.warn(error),
+                error => request.log.warn(error, "Failed to start company onboarding"),
               )
               .otherwise(error => request.log.error(error));
 

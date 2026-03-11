@@ -282,7 +282,7 @@ export const start = async ({
             request.session.set("refreshToken", refreshToken);
           })
           .tapError(error => {
-            request.log.debug(error);
+            request.log.debug(error, "Failed to refresh access token");
             request.session.delete();
             void reply.redirect("/login");
           })
@@ -439,9 +439,9 @@ export const start = async ({
             .with(
               P.instanceOf(UnsupportedAccountCountryError),
               P.instanceOf(OnboardingRejectionError),
-              error => request.log.warn(error),
+              error => request.log.warn(error, "Failed to start individual onboarding"),
             )
-            .otherwise(error => request.log.error(error));
+            .otherwise(error => request.log.error(error, "Failed to start individual onboarding"));
 
           return replyWithError(app, request, reply, {
             status: 400,
@@ -482,9 +482,9 @@ export const start = async ({
             .with(
               P.instanceOf(UnsupportedAccountCountryError),
               P.instanceOf(OnboardingRejectionError),
-              error => request.log.warn(error),
+              error => request.log.warn(error, "Failed to start company onboarding"),
             )
-            .otherwise(error => request.log.error(error));
+            .otherwise(error => request.log.error(error, "Failed to start company onboarding"));
 
           return replyWithError(app, request, reply, {
             status: 400,
@@ -540,7 +540,7 @@ export const start = async ({
       });
       return reply.send({ success: result });
     } catch (err) {
-      request.log.error(err);
+      request.log.error(err, "Failed to send account membership invitation");
 
       return replyWithError(app, request, reply, {
         status: 400,
@@ -734,7 +734,7 @@ export const start = async ({
                             );
                           },
                           Error: error => {
-                            request.log.error(error);
+                            request.log.error(error, "Failed to finalize onboarding V2");
 
                             return replyWithError(app, request, reply, {
                               status: 400,
@@ -767,7 +767,7 @@ export const start = async ({
                             );
                           },
                           Error: error => {
-                            request.log.error(error);
+                            request.log.error(error, "Failed to finalize onboarding V2");
 
                             return replyWithError(app, request, reply, {
                               status: 400,
@@ -822,7 +822,7 @@ export const start = async ({
                             );
                           },
                           Error: error => {
-                            request.log.error(error);
+                            request.log.error(error, "Failed to finalize onboarding");
 
                             return replyWithError(app, request, reply, {
                               status: 400,
@@ -855,7 +855,7 @@ export const start = async ({
                             );
                           },
                           Error: error => {
-                            request.log.error(error);
+                            request.log.error(error, "Failed to finalize onboarding");
 
                             return replyWithError(app, request, reply, {
                               status: 400,
@@ -874,7 +874,7 @@ export const start = async ({
                             return reply.redirect(`${env.BANKING_URL}/${accountMembershipId}`);
                           },
                           Error: error => {
-                            request.log.error(error);
+                            request.log.error(error, "Failed to bind account membership");
                             return reply.redirect(env.BANKING_URL);
                           },
                         });
@@ -897,7 +897,7 @@ export const start = async ({
                               );
                             },
                             Error: error => {
-                              request.log.error(error);
+                              request.log.error(error, "Failed to bind account membership");
                               return reply.redirect(env.BANKING_URL);
                             },
                           });
@@ -905,12 +905,13 @@ export const start = async ({
                     },
                   )
                   .otherwise(error => {
+                    request.log.error("Received unknown state type in OAuth callback");
                     request.log.error(error);
                     return reply.redirect(env.BANKING_URL);
                   });
               },
               Error: error => {
-                request.log.error(error);
+                request.log.error(error, "Failed to bind account membership");
 
                 return replyWithError(app, request, reply, {
                   status: 400,
@@ -956,10 +957,13 @@ export const start = async ({
       .toResult("Invalid body")
       .flatMap(body => Result.fromExecution(() => JSON.parse(body) as unknown))
       .tapOk(body => {
-        request.log.warn({
-          name: "ClientSideError",
-          contents: body,
-        });
+        request.log.warn(
+          {
+            name: "ClientSideError",
+            contents: body,
+          },
+          "Received client side error report",
+        );
       })
       .isOk();
 
@@ -1024,7 +1028,7 @@ export const start = async ({
   }
 
   app.setErrorHandler((error, request, reply) => {
-    request.log.error(error);
+    request.log.error(error, "An unexpected error occurred while processing the request");
 
     const statusCode = error.statusCode as Exclude<HttpErrorCodes, string>;
 

@@ -110,6 +110,16 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
     );
   }, [onboarding.statusInfo]);
 
+  const ownershipStepErrors = useMemo(() => {
+    return extractServerInvalidFields(onboarding.statusInfo, field =>
+      match(field)
+        .returnType<"relatedIndividuals" | "relatedCompanies" | null>()
+        .with("company.relatedIndividuals", () => "relatedIndividuals")
+        .with("company.relatedCompanies", () => "relatedCompanies")
+        .otherwise(() => null),
+    );
+  }, [onboarding.statusInfo]);
+
   const steps = useMemo<WizardStep<CompanyOnboardingRouteV2>[]>(
     () => [
       {
@@ -135,7 +145,7 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
       {
         id: "Ownership",
         label: t("step.title.ownership"),
-        errors: [],
+        errors: ownershipStepErrors,
       },
       {
         id: "Documents",
@@ -148,7 +158,13 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
         errors: [],
       },
     ],
-    [detailsStepErrors, organisationStepErrors, activityStepErrors, initStepErrors],
+    [
+      detailsStepErrors,
+      organisationStepErrors,
+      activityStepErrors,
+      initStepErrors,
+      ownershipStepErrors,
+    ],
   );
 
   const stepperSteps = useMemo<Step[]>(
@@ -222,7 +238,10 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
                 />
               ))
               .with({ name: "Ownership" }, () => (
-                <OnboardingCompanyOwnership onboarding={onboarding} />
+                <OnboardingCompanyOwnership
+                  onboarding={onboarding}
+                  serverValidationErrors={finalized ? ownershipStepErrors : []}
+                />
               ))
               .with({ name: "Documents" }, () => <p>todo document</p>)
               .with({ name: "Finalize" }, () => (

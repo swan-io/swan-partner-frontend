@@ -67,11 +67,7 @@ export const TransferList = ({ accountId, params }: Props) => {
   );
 
   const paymentProduct = useMemo(() => {
-    return [
-      "SEPACreditTransfer" as const,
-      "InternalCreditTransfer" as const,
-      "InternationalCreditTransfer" as const,
-    ];
+    return ["SEPACreditTransfer" as const, "InternationalCreditTransfer" as const];
   }, []);
 
   const availableFilters = useMemo(() => Dict.keys(filters), [filters]);

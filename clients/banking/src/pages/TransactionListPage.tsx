@@ -94,7 +94,7 @@ export const TransactionListPage = ({ accountId, transferConsent, params }: Prop
       const items = match(item)
         .returnType<PaymentProduct[]>()
         .with("Card", "Fees", "Check", value => [value])
-        .with("CreditTransfer", () => ["SEPACreditTransfer", "InternalCreditTransfer"])
+        .with("CreditTransfer", () => ["SEPACreditTransfer", "InternationalCreditTransfer"])
         .with("DirectDebit", () => ["SEPADirectDebit", "InternalDirectDebit"])
         .exhaustive();
       actualPaymentProduct.push(...items);

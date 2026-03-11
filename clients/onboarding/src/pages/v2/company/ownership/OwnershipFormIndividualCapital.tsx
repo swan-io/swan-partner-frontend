@@ -32,7 +32,6 @@ const styles = StyleSheet.create({
     gap: "8px",
   },
   gridDesktop: {
-    // gridTemplateColumns: "1fr 1fr",
     gap: "16px 32px",
   },
   inputFull: {

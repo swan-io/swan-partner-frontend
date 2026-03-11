@@ -50,17 +50,15 @@ import {
   validateMaxLength,
 } from "../../../utils/validation";
 
-export type ActivityFieldName =
+export type ActivityFieldApiRequired =
+  | "businessActivity"
   | "businessActivityDescription"
-  | "monthlyPaymentVolume"
-  | "headcount"
-  | "websites"
-  | "forecastYearlyIncome";
+  | "monthlyPaymentVolume";
 
 type Props = {
   onboarding: NonNullable<CompanyOnboardingFragment>;
-  serverValidationErrors?: {
-    fieldName: ActivityFieldName;
+  serverValidationErrors: {
+    fieldName: ActivityFieldApiRequired;
     code: ServerInvalidFieldCode;
   }[];
 };

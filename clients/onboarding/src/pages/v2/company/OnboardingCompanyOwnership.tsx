@@ -23,6 +23,7 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
+import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
@@ -36,6 +37,7 @@ import { ownershipText, ownershipTypeText } from "../../../constants/business";
 import { cleanData, transformRelatedIndividualsToInput } from "../../../utils/onboarding";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
+import { ServerInvalidFieldCode } from "../../../utils/validation";
 import {
   OnboardingCompanyOwnershipFormRef,
   OwnershipFormStep,
@@ -72,6 +74,10 @@ type ModalState =
 
 type Props = {
   onboarding: NonNullable<CompanyOnboardingFragment>;
+  serverValidationErrors: {
+    fieldName: string;
+    code: ServerInvalidFieldCode;
+  }[];
 };
 
 type LocalRelatedCompany = WithReference<CompanyRelatedCompany>;
@@ -147,9 +153,10 @@ const ActionMenu = ({ onEdit, onDelete }: ActionMenuProps) => (
 const RELATED_COMPANY_REGEX = /^company\.relatedCompanies\[(\d+)\]/;
 const RELATED_INDIVIDUAL_REGEX = /^company\.relatedIndividuals\[(\d+)\]/;
 
-export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
+export const OnboardingCompanyOwnership = ({ onboarding, serverValidationErrors }: Props) => {
   const onboardingId = onboarding.id;
   const { company, accountInfo, statusInfo } = onboarding;
+  const isFirstMount = useFirstMountState();
 
   const accountCountry = accountInfo?.country;
   const companyCountry = company?.address?.country;
@@ -312,6 +319,12 @@ export const OnboardingCompanyOwnership = ({ onboarding }: Props) => {
       setValidationError(checkValidationError());
     }
   }, [validationError, checkValidationError]);
+
+  useEffect(() => {
+    if (isFirstMount && serverValidationErrors.length > 0) {
+      setValidationError(checkValidationError());
+    }
+  }, [serverValidationErrors, isFirstMount, checkValidationError]);
 
   const onPressNext = () => {
     const errorMessage = checkValidationError();

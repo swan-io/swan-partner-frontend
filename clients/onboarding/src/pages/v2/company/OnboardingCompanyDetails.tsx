@@ -22,9 +22,11 @@ import {
   badUserInputErrorPattern,
   extractServerValidationFields,
   getValidationErrorMessage,
+  ServerInvalidFieldCode,
 } from "../../../utils/validation";
 
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
+import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
@@ -42,13 +44,20 @@ import {
   validateRequired,
   validateUsaTaxNumber,
 } from "@swan-io/shared-business/src/utils/validation";
+import { useEffect } from "react";
 import { View } from "react-native";
 import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 
+export type DetailsFieldApiRequired = "email";
+
 type Props = {
   onboarding: NonNullable<CompanyOnboardingFragment>;
+  serverValidationErrors: {
+    fieldName: DetailsFieldApiRequired;
+    code: ServerInvalidFieldCode;
+  }[];
 };
 
 const styles = StyleSheet.create({
@@ -68,9 +77,10 @@ const styles = StyleSheet.create({
   },
 });
 
-export const OnboardingCompanyDetails = ({ onboarding }: Props) => {
+export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }: Props) => {
   const onboardingId = onboarding.id;
   const { accountAdmin, accountInfo } = onboarding;
+  const isFirstMount = useFirstMountState();
 
   const [updateCompanyOnboarding, updateResult] = useMutation(
     UpdatePublicCompanyAccountHolderOnboardingDocument,
@@ -159,6 +169,15 @@ export const OnboardingCompanyDetails = ({ onboarding }: Props) => {
       },
     },
   });
+
+  useEffect(() => {
+    if (isFirstMount) {
+      serverValidationErrors.forEach(({ fieldName, code }) => {
+        const message = getValidationErrorMessage(code);
+        setFieldError(fieldName, message);
+      });
+    }
+  }, [serverValidationErrors, isFirstMount, setFieldError]);
 
   const onPressPrevious = () => {
     Router.push("Root", { onboardingId });

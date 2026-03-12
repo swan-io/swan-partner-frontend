@@ -11,7 +11,6 @@ const styles = StyleSheet.create({
   root: {
     gap: "24px",
   },
-  item: {},
   itemAnimation: {
     transform: "translateZ(0px)",
     animationKeyframes: {

@@ -143,25 +143,6 @@ export const OwnershipFormIndividualCapital = ({ ref, onSave, initialValues }: P
               ultimateBeneficialOwner,
               taxIdentificationNumber,
             });
-
-            // onSave({
-            //   unitedStatesTaxInfo: {
-            //     isUnitedStatesPerson,
-            //     unitedStatesTaxIdentificationNumber: isUnitedStatesPerson
-            //       ? unitedStatesTaxIdentificationNumber
-            //       : undefined,
-            //   },
-            //   ultimateBeneficialOwner: {
-            //     qualificationType,
-            //     ...(qualificationType === "Ownership" && {
-            //       ownership: { totalPercentage: Number(totalPercentage), type },
-            //     }),
-            //     ...(qualificationType === "Control" && {
-            //       controlTypes: [controlTypes],
-            //     }),
-            //   },
-            //   taxIdentificationNumber,
-            // });
           },
         });
       },

@@ -38,7 +38,7 @@ import {
   validateRequired,
   validateVatNumber,
 } from "@swan-io/shared-business/src/utils/validation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { locale } from "../../../utils/i18n";
 import { Router } from "../../../utils/routes";
@@ -87,6 +87,10 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
 
   const [updateCompanyOnboarding, updateResult] = useMutation(
     UpdatePublicCompanyAccountHolderOnboardingDocument,
+  );
+
+  const [isAddressFromSuggestion, setIsAddressFromSuggestion] = useState(
+    Boolean(company?.address?.addressLine1 && company.address.city && company.address.postalCode),
   );
 
   const accountCountry = accountInfo?.country;
@@ -241,11 +245,17 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
                           apiKey={__env.CLIENT_PLACEKIT_API_KEY}
                           country={companyCountry as CompanyCountryCCA3}
                           value={value}
-                          onValueChange={onChange}
+                          onValueChange={value => {
+                            onChange(value);
+                            if (value === "") {
+                              setIsAddressFromSuggestion(false);
+                            }
+                          }}
                           onSuggestion={suggestion => {
                             setFieldValue("address", suggestion.completeAddress);
                             setFieldValue("city", suggestion.city);
                             setFieldValue("postalCode", suggestion.postalCode ?? "");
+                            setIsAddressFromSuggestion(true);
                           }}
                           language={locale.language}
                           placeholder={t("addressInput.placeholder")}
@@ -269,6 +279,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
                           valid={valid}
                           error={error}
                           onChangeText={onChange}
+                          readOnly={isAddressFromSuggestion}
                         />
                       )}
                     />
@@ -287,6 +298,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
                           valid={valid}
                           error={error}
                           onChangeText={onChange}
+                          readOnly={isAddressFromSuggestion}
                         />
                       )}
                     />

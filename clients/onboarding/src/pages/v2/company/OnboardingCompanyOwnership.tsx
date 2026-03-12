@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     marginLeft: "12px",
   },
   action: {
-    flexBasis: 0
+    flexBasis: 0,
   },
 });
 
@@ -532,6 +532,7 @@ export const OnboardingCompanyOwnership = ({ onboarding, serverValidationErrors 
         visible={match(modalState)
           .with({ type: "add" }, { type: "edit" }, () => true)
           .otherwise(() => false)}
+        icon={"add-circle-regular"}
         title={match(modalState)
           .with({ step: "init" }, () => t("company.step.ownership.modal.initTitle"))
           .with({ step: P.union("ubo", "company") }, () =>

@@ -19,6 +19,7 @@ import { StyleSheet, View } from "react-native";
 import { uboQualificationType } from "../../../../constants/business";
 import {
   RelatedIndividualInput,
+  UltimateBeneficialOwnerOwnershipType,
   UltimateBeneficialOwnerQualificationType,
 } from "../../../../graphql/partner";
 import { t } from "../../../../utils/i18n";
@@ -29,9 +30,11 @@ const styles = StyleSheet.create({
   },
   grid: {
     display: "grid",
+    gridTemplateColumns: "minmax(0, 1fr)",
     gap: "8px",
   },
   gridDesktop: {
+    gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
     gap: "16px 32px",
   },
   inputFull: {
@@ -54,6 +57,15 @@ const uboQualificationTypeItems: Item<UltimateBeneficialOwnerQualificationType>[
     name: text,
     value,
   }));
+
+const ownershipTypeItems: Item<UltimateBeneficialOwnerOwnershipType>[] = [
+  { name: t("company.step.ownership.form.direct"), value: "Direct" },
+  { name: t("company.step.ownership.form.indirect"), value: "Indirect" },
+  {
+    name: t("company.step.ownership.form.directAndIndirect"),
+    value: "DirectAndIndirect",
+  },
+];
 
 export const OwnershipFormIndividualCapital = ({ ref, onSave, initialValues }: Props) => {
   useImperativeHandle(ref, () => {
@@ -139,6 +151,7 @@ export const OwnershipFormIndividualCapital = ({ ref, onSave, initialValues }: P
         <View role="form" style={[styles.grid, large && styles.gridDesktop]}>
           <LakeLabel
             label={t("company.step.ownership.form.whyUboLabel")}
+            style={styles.inputFull}
             render={id => (
               <Field name="qualificationType">
                 {({ value, onChange, ref, error }) => (
@@ -176,42 +189,42 @@ export const OwnershipFormIndividualCapital = ({ ref, onSave, initialValues }: P
             )}
           </Field>
 
-          {/* @TODO Design with completely change */}
           <Field name="type">
-            {({ value, onChange }) => (
-              <RadioGroup
-                direction="row"
-                items={[
-                  {
-                    name: "Directly",
-                    value: "Direct",
-                  },
-                  {
-                    name: "Indirectly",
-                    value: "Indirect",
-                  },
-                ]}
-                value={value}
-                onValueChange={onChange}
+            {({ ref, value, onChange, error }) => (
+              <LakeLabel
+                label={t("company.step.ownership.form.capitalTypeLabel")}
+                render={id => (
+                  <LakeSelect
+                    id={id}
+                    ref={ref}
+                    items={ownershipTypeItems}
+                    value={value}
+                    onValueChange={onChange}
+                    error={error}
+                    placeholder={t("common.select")}
+                  />
+                )}
               />
             )}
           </Field>
 
-          <Field name="taxIdentificationNumber">
-            {({ value, valid, error, onChange, onBlur, ref }) => (
-              <TaxIdentificationNumberInput
-                ref={ref}
-                value={value}
-                error={error}
-                valid={valid}
-                onChange={onChange}
-                onBlur={onBlur}
-                country={"FRA"} // @todo make it dynamique
-                isCompany={true}
-                required={isTaxIdentificationRequired}
-              />
-            )}
-          </Field>
+          <View style={styles.inputFull}>
+            <Field name="taxIdentificationNumber">
+              {({ value, valid, error, onChange, onBlur, ref }) => (
+                <TaxIdentificationNumberInput
+                  ref={ref}
+                  value={value}
+                  error={error}
+                  valid={valid}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  country={"FRA"} // @todo make it dynamique
+                  isCompany={true}
+                  required={isTaxIdentificationRequired}
+                />
+              )}
+            </Field>
+          </View>
 
           <LakeLabel
             label={t("form.label.usaCitizen")}

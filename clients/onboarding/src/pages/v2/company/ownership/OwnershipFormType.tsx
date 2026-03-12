@@ -1,14 +1,13 @@
 import { Option } from "@swan-io/boxed";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
-import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { Space } from "@swan-io/lake/src/components/Space";
 import { noop } from "@swan-io/lake/src/utils/function";
-import { ChoicePicker } from "@swan-io/shared-business/src/components/ChoicePicker";
 import { validateNullableRequired } from "@swan-io/shared-business/src/utils/validation";
 import { useForm } from "@swan-io/use-form";
 import { Ref, useImperativeHandle } from "react";
 import { View } from "react-native";
-import { match } from "ts-pattern";
+import { RadioCardItem, RadioCards } from "../../../../components/RadioCards";
 import { RelatedIndividualType } from "../../../../graphql/partner";
 import { t } from "../../../../utils/i18n";
 
@@ -16,7 +15,6 @@ export type OnboardingCompanyOwnershipFormTypeRef = {
   submit: () => void;
 };
 type RelatedItem = "individual" | "company";
-const relatedItem: RelatedItem[] = ["individual", "company"];
 
 export type Input = {
   related: RelatedItem;
@@ -34,6 +32,19 @@ const relatedIndividualType: Item<RelatedIndividualType>[] = [
   {
     name: t("relatedIndividual.legalAndUbo"),
     value: "LegalRepresentativeAndUltimateBeneficialOwner",
+  },
+];
+
+const relatedItem: RadioCardItem<RelatedItem>[] = [
+  {
+    name: t("company.step.ownership.modal.type.individualLabel"),
+    description: t("company.step.ownership.modal.type.individualContent"),
+    value: "individual",
+  },
+  {
+    name: t("company.step.ownership.modal.type.companyLabel"),
+    description: t("company.step.ownership.modal.type.companyContent"),
+    value: "company",
   },
 ];
 
@@ -55,7 +66,7 @@ export const OwnershipFormType = ({ ref, onSave }: Props) => {
 
   const { Field, FieldsListener, submitForm } = useForm({
     related: {
-      initialValue: relatedItem[0] as RelatedItem,
+      initialValue: "individual" as RelatedItem,
       validate: validateNullableRequired,
     },
     type: {
@@ -68,30 +79,11 @@ export const OwnershipFormType = ({ ref, onSave }: Props) => {
     <View role="form">
       <Field name="related">
         {({ value, onChange }) => (
-          <ChoicePicker
-            items={relatedItem}
-            value={value}
-            large={true}
-            onChange={onChange}
-            renderItem={item =>
-              match(item)
-                .with("individual", () => (
-                  <>
-                    <LakeText>{t("company.step.ownership.modal.type.individualLabel")}</LakeText>
-                    <LakeText>{t("company.step.ownership.modal.type.individualContent")}</LakeText>
-                  </>
-                ))
-                .with("company", () => (
-                  <>
-                    <LakeText>{t("company.step.ownership.modal.type.companyLabel")}</LakeText>
-                    <LakeText>{t("company.step.ownership.modal.type.companyContent")}</LakeText>
-                  </>
-                ))
-                .exhaustive()
-            }
-          />
+          <RadioCards items={relatedItem} value={value} onChange={onChange} />
         )}
       </Field>
+
+      <Space height={24} />
 
       <FieldsListener names={["related"]}>
         {({ related }) => (

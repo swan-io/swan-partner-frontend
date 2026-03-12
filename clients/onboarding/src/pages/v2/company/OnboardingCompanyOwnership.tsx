@@ -539,6 +539,8 @@ export const OnboardingCompanyOwnership = ({ onboarding, serverValidationErrors 
           .otherwise(() => undefined)}
         maxWidth={850}
       >
+        <Space height={12} />
+        
         <OwnershipFormWizard
           ref={ownershipFormRef}
           subForm={match(modalState)

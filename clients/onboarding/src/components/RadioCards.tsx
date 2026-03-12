@@ -78,7 +78,6 @@ export const RadioCards = <T,>({
           key={String(index)}
           disabled={disabled}
           style={[
-            styles.item,
             disabled && commonStyles.disabled,
             styles.itemAnimation, // set enter animation only on desktop because it can break scroll snap
             { animationDelay: `${200 + 100 * index}ms` },

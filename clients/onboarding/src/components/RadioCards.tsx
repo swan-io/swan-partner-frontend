@@ -115,7 +115,6 @@ const Card = ({ title, description, hovered = false, disabled = false, selected 
       style={[
         styles.container,
         selected === false && styles.unselectedContainer,
-        hovered && styles.hoveredContainer,
         selected === false && hovered && styles.unselectedHoveredContainer,
         disabled && styles.disabled,
       ]}

@@ -121,6 +121,9 @@ const styles = StyleSheet.create({
   tagError: {
     marginLeft: "12px",
   },
+  action: {
+    flexBasis: 0
+  },
 });
 
 type ActionMenuProps = {
@@ -537,7 +540,7 @@ export const OnboardingCompanyOwnership = ({ onboarding, serverValidationErrors 
           .with({ step: "legal" }, () => t("company.step.ownership.modal.legalTitle"))
           .with({ step: "legalAndUbo" }, () => t("company.step.ownership.modal.legalAndUboTitle"))
           .otherwise(() => undefined)}
-        maxWidth={850}
+        maxWidth={704}
       >
         <Space height={12} />
         
@@ -584,6 +587,7 @@ export const OnboardingCompanyOwnership = ({ onboarding, serverValidationErrors 
             onPress={() => ownershipFormRef.current?.cancel()}
             mode="secondary"
             grow={true}
+            style={styles.action}
           >
             {match(modalState)
               .with({ step: P.union("init") }, () => t("common.cancel"))
@@ -597,6 +601,7 @@ export const OnboardingCompanyOwnership = ({ onboarding, serverValidationErrors 
             onPress={() => ownershipFormRef.current?.submit()}
             color="partner"
             grow={true}
+            style={styles.action}
             loading={updateResult.isLoading()}
           >
             {match(modalState)

@@ -27,14 +27,11 @@ import { Gender, RelatedIndividualInput } from "../../../../graphql/partner";
 import { t } from "../../../../utils/i18n";
 
 const styles = StyleSheet.create({
-  gap: {
-    gap: "32px",
-  },
   grid: {
-    display: "grid",
     gap: "8px",
   },
   gridDesktop: {
+    display: "grid",
     gridTemplateColumns: "1fr 1fr",
     gap: "16px 32px",
   },
@@ -151,7 +148,7 @@ export const OwnershipFormIndividualDetails = ({
   });
 
   return (
-    <ResponsiveContainer breakpoint={breakpoints.medium}>
+    <ResponsiveContainer breakpoint={breakpoints.small}>
       {({ large }) => (
         <View role="form" style={[styles.grid, large && styles.gridDesktop]}>
           <LakeLabel
@@ -201,7 +198,6 @@ export const OwnershipFormIndividualDetails = ({
 
           <LakeLabel
             label={t("form.label.birthCountry")}
-            style={styles.inputFull}
             render={id => (
               <Field name="birthCountry">
                 {({ value, onChange, error, ref }) => (

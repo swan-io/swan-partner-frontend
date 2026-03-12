@@ -26,6 +26,7 @@ import {
   validateRegistrationNumber,
 } from "../../../utils/validation";
 
+import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { InlineDatePicker } from "@swan-io/shared-business/src/components/InlineDatePicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
@@ -45,7 +46,6 @@ import {
   getRegistrationNumberName,
   getUpdateOnboardingError,
 } from "../../../utils/templateTranslations";
-import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 
 export type OrganisationFieldApiRequired =
   | "address"
@@ -68,10 +68,10 @@ const styles = StyleSheet.create({
     gap: "32px",
   },
   grid: {
-    display: "grid",
     gap: "8px",
   },
   gridDesktop: {
+    display: "grid",
     gridTemplateColumns: "1fr 1fr",
     gap: "16px 32px",
   },

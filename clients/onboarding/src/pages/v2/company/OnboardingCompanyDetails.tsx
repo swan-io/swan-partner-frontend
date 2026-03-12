@@ -65,10 +65,10 @@ const styles = StyleSheet.create({
     gap: "32px",
   },
   grid: {
-    display: "grid",
     gap: "8px",
   },
   gridDesktop: {
+    display: "grid",
     gridTemplateColumns: "1fr 1fr",
     gap: "16px 32px",
   },
@@ -431,7 +431,6 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
               <View style={[styles.grid, large && styles.gridDesktop]}>
                 <LakeLabel
                   label={t("form.label.birthCountry")}
-                  style={styles.inputFull}
                   render={id => (
                     <Field name="birthCountry">
                       {({ value, onChange, error, ref }) => (

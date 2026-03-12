@@ -25,16 +25,12 @@ import {
 import { t } from "../../../../utils/i18n";
 
 const styles = StyleSheet.create({
-  gap: {
-    gap: "32px",
-  },
   grid: {
-    display: "grid",
-    gridTemplateColumns: "minmax(0, 1fr)",
     gap: "8px",
   },
   gridDesktop: {
-    gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
     gap: "16px 32px",
   },
   inputFull: {
@@ -146,7 +142,7 @@ export const OwnershipFormIndividualCapital = ({ ref, onSave, initialValues }: P
   });
 
   return (
-    <ResponsiveContainer breakpoint={breakpoints.medium}>
+    <ResponsiveContainer breakpoint={breakpoints.small}>
       {({ large }) => (
         <View role="form" style={[styles.grid, large && styles.gridDesktop]}>
           <LakeLabel
@@ -227,7 +223,7 @@ export const OwnershipFormIndividualCapital = ({ ref, onSave, initialValues }: P
           </View>
 
           <LakeLabel
-            label={t("form.label.usaCitizen")}
+            label={t("form.label.usaCitizenShort")}
             render={() => (
               <Field name="isUnitedStatesPerson">
                 {({ value, onChange }) => (

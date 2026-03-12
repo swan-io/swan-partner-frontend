@@ -314,6 +314,7 @@
   "form.label.birthPostal": "Código postal",
   "form.label.residenceCountry": "País de residencia",
   "form.label.usaCitizen": "¿Eres una persona estadounidense a efectos fiscales?",
+  "form.label.usaCitizenShort": "¿Persona estadounidense a efectos fiscales?",
   "form.label.usaTax": "ID fiscal de EE. UU. (SSN o ITIN)",
   "form.label.usaTax.help": "Se requieren 9 dígitos",
   "form.label.usaTax.placeholder": "123-45-6789",

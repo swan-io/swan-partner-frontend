@@ -314,6 +314,7 @@
   "form.label.birthPostal": "Postcode",
   "form.label.residenceCountry": "Woonland",
   "form.label.usaCitizen": "Ben je een U.S. person voor belastingdoeleinden?",
+  "form.label.usaCitizenShort": "Persoon uit de VS voor belastingdoeleinden?",
   "form.label.usaTax": "Amerikaanse belasting-ID (SSN of ITIN)",
   "form.label.usaTax.help": "9 cijfers vereist",
   "form.label.usaTax.placeholder": "123-45-6789",

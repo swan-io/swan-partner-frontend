@@ -121,6 +121,9 @@ const styles = StyleSheet.create({
   tagError: {
     marginLeft: "12px",
   },
+  action: {
+    flexBasis: 0
+  },
 });
 
 type ActionMenuProps = {
@@ -582,7 +585,7 @@ export const OnboardingCompanyOwnership = ({ onboarding, serverValidationErrors 
             onPress={() => ownershipFormRef.current?.cancel()}
             mode="secondary"
             grow={true}
-            style={{ flexBasis: 0 }}
+            style={styles.action}
           >
             {match(modalState)
               .with({ step: P.union("init") }, () => t("common.cancel"))
@@ -596,7 +599,7 @@ export const OnboardingCompanyOwnership = ({ onboarding, serverValidationErrors 
             onPress={() => ownershipFormRef.current?.submit()}
             color="partner"
             grow={true}
-            style={{ flexBasis: 0 }}
+            style={styles.action}
             loading={updateResult.isLoading()}
           >
             {match(modalState)

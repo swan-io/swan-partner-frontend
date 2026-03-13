@@ -5,6 +5,7 @@ import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
+import { omit, pick } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import {
@@ -16,9 +17,11 @@ import {
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { Ref, useImperativeHandle } from "react";
 import { StyleSheet, View } from "react-native";
+import { match, P } from "ts-pattern";
 import { uboQualificationType } from "../../../../constants/business";
 import {
   RelatedIndividualInput,
+  UltimateBeneficialOwnerControlType,
   UltimateBeneficialOwnerOwnershipType,
   UltimateBeneficialOwnerQualificationType,
 } from "../../../../graphql/partner";
@@ -63,25 +66,73 @@ const ownershipTypeItems: Item<UltimateBeneficialOwnerOwnershipType>[] = [
   },
 ];
 
+const controlTypeItems: Item<UltimateBeneficialOwnerControlType>[] = [
+  { name: t("controlType.trust"), value: "ControlViaTrustOrSimilar" },
+  { name: t("controlType.board"), value: "RightToAppointOrRemoveBoard" },
+  { name: t("controlType.shareholderAgreement"), value: "ShareholderAgreementOrContract" },
+  { name: t("controlType.influence"), value: "StrategicOrManagerialInfluence" },
+  { name: t("controlType.votinRights"), value: "VotingRights" },
+];
+
 export const OwnershipFormIndividualCapital = ({ ref, onSave, initialValues }: Props) => {
   useImperativeHandle(ref, () => {
     return {
       submit: () => {
         submitForm({
-          onSuccess: values => {
-            const option = Option.allFromDict(values);
-            if (option.isNone()) {
+          onSuccess: value => {
+            const commonFields = Option.allFromDict(
+              omit(value, ["totalPercentage", "type", "controlTypes"]),
+            );
+            const requiredFieldsForOwner = Option.allFromDict(
+              pick(value, ["totalPercentage", "type"]),
+            );
+            const requiredFieldsForControl = Option.allFromDict(pick(value, ["controlTypes"]));
+
+            if (commonFields.isNone()) {
               return;
             }
-            const currentValues = option.get();
+
             const {
+              qualificationType,
               isUnitedStatesPerson,
               unitedStatesTaxIdentificationNumber,
+              taxIdentificationNumber,
+            } = commonFields.get();
+
+            const ultimateBeneficialOwner = match({
               qualificationType,
-              totalPercentage,
-              type,
-              ...input
-            } = currentValues;
+              requiredFieldsForOwner,
+              requiredFieldsForControl,
+            })
+              .with(
+                {
+                  qualificationType: "Ownership",
+                  requiredFieldsForOwner: Option.P.Some(P.select()),
+                },
+                ({ totalPercentage, type }) => ({
+                  qualificationType,
+                  ownership: { totalPercentage: Number(totalPercentage), type },
+                }),
+              )
+              .with(
+                {
+                  qualificationType: "Control",
+                  requiredFieldsForControl: Option.P.Some(P.select()),
+                },
+                ({ controlTypes }) => ({
+                  qualificationType,
+                  controlTypes: [controlTypes],
+                }),
+              )
+              .with({ qualificationType: "LegalRepresentative" }, () => ({
+                qualificationType,
+              }))
+              .otherwise(() => undefined);
+
+            if (ultimateBeneficialOwner === undefined) {
+              return;
+            }
+
             onSave({
               unitedStatesTaxInfo: {
                 isUnitedStatesPerson,
@@ -89,13 +140,8 @@ export const OwnershipFormIndividualCapital = ({ ref, onSave, initialValues }: P
                   ? unitedStatesTaxIdentificationNumber
                   : undefined,
               },
-              ultimateBeneficialOwner: {
-                qualificationType,
-                ...(qualificationType === "Ownership" && {
-                  ownership: { totalPercentage: Number(totalPercentage), type },
-                }),
-              },
-              ...input,
+              ultimateBeneficialOwner,
+              taxIdentificationNumber,
             });
           },
         });
@@ -108,6 +154,10 @@ export const OwnershipFormIndividualCapital = ({ ref, onSave, initialValues }: P
   const { Field, submitForm, FieldsListener } = useForm({
     qualificationType: {
       initialValue: initialValues.ultimateBeneficialOwner?.qualificationType ?? "Ownership",
+      validate: validateNullableRequired,
+    },
+    controlTypes: {
+      initialValue: initialValues.ultimateBeneficialOwner?.controlTypes?.[0] ?? "VotingRights",
       validate: validateNullableRequired,
     },
     totalPercentage: {
@@ -165,44 +215,76 @@ export const OwnershipFormIndividualCapital = ({ ref, onSave, initialValues }: P
             )}
           />
 
-          <Field name="totalPercentage">
-            {({ value, onChange, error }) => (
-              <LakeLabel
-                label={t("company.step.ownership.form.capitalLabel")}
-                render={id => (
-                  <LakeTextInput
-                    error={error}
-                    unit="%"
-                    inputMode="decimal"
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                    id={id}
-                    value={value}
-                    onChangeText={onChange}
-                  />
-                )}
-              />
-            )}
-          </Field>
+          <FieldsListener names={["qualificationType"]}>
+            {({ qualificationType }) =>
+              match(qualificationType.value)
+                .with("LegalRepresentative", () => null)
+                .with("Control", () => (
+                  <Field name="controlTypes">
+                    {({ ref, value, onChange, error }) => (
+                      <LakeLabel
+                        label={t("company.step.ownership.form.controlTypeLabel")}
+                        style={styles.inputFull}
+                        render={id => (
+                          <LakeSelect
+                            id={id}
+                            ref={ref}
+                            items={controlTypeItems}
+                            value={value}
+                            onValueChange={onChange}
+                            error={error}
+                            placeholder={t("common.select")}
+                          />
+                        )}
+                      />
+                    )}
+                  </Field>
+                ))
+                .with("Ownership", () => (
+                  <>
+                    <Field name="totalPercentage">
+                      {({ value, onChange, error }) => (
+                        <LakeLabel
+                          label={t("company.step.ownership.form.capitalLabel")}
+                          render={id => (
+                            <LakeTextInput
+                              error={error}
+                              unit="%"
+                              inputMode="decimal"
+                              aria-valuemin={0}
+                              aria-valuemax={100}
+                              id={id}
+                              value={value}
+                              onChangeText={onChange}
+                            />
+                          )}
+                        />
+                      )}
+                    </Field>
 
-          <Field name="type">
-            {({ ref, value, onChange, error }) => (
-              <LakeLabel
-                label={t("company.step.ownership.form.capitalTypeLabel")}
-                render={id => (
-                  <LakeSelect
-                    id={id}
-                    ref={ref}
-                    items={ownershipTypeItems}
-                    value={value}
-                    onValueChange={onChange}
-                    error={error}
-                    placeholder={t("common.select")}
-                  />
-                )}
-              />
-            )}
-          </Field>
+                    <Field name="type">
+                      {({ ref, value, onChange, error }) => (
+                        <LakeLabel
+                          label={t("company.step.ownership.form.capitalTypeLabel")}
+                          render={id => (
+                            <LakeSelect
+                              id={id}
+                              ref={ref}
+                              items={ownershipTypeItems}
+                              value={value}
+                              onValueChange={onChange}
+                              error={error}
+                              placeholder={t("common.select")}
+                            />
+                          )}
+                        />
+                      )}
+                    </Field>
+                  </>
+                ))
+                .exhaustive()
+            }
+          </FieldsListener>
 
           <View style={styles.inputFull}>
             <Field name="taxIdentificationNumber">

@@ -245,6 +245,7 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
                     .with({ routeName: "ChangeAdminRoot" }, () => (
                       <ChangeAdminFlowPresentation
                         templateLanguage={templateLanguage}
+                        projectName={data.accountHolder.projectInfo.name}
                         steps={flowSteps}
                         changeAdminRequestId={changeAdminRequestId}
                         nextStep="ChangeAdminContext1"

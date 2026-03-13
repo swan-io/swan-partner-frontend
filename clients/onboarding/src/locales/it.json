@@ -406,7 +406,7 @@
   "step.finalizeError.missingInfo": "Informazione mancante",
   "step.finalizeError.monthlyIncome": "Reddito mensile",
   "step.finalizeError.monthlyPaymentVolume": "Volume di pagamenti mensile",
-  "step.finalizeError.name": "Nome",
+  "step.finalizeError.name": "Denominazione dell'entità legale",
   "step.finalizeError.owners": "Mancano alcune informazioni sui titolari",
   "step.finalizeError.postalCode": "Codice postale di residenza",
   "step.finalizeError.registrationNumber": "Numero di registrazione",

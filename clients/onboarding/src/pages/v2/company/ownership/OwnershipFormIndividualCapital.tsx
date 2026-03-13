@@ -2,7 +2,6 @@ import { Option } from "@swan-io/boxed";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
-import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { omit, pick } from "@swan-io/lake/src/utils/object";
@@ -12,7 +11,6 @@ import {
   validateCompanyTaxNumber,
   validateNullableRequired,
   validateRequired,
-  validateUsaTaxNumber,
 } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { Ref, useImperativeHandle } from "react";
@@ -94,8 +92,7 @@ export const OwnershipFormIndividualCapital = ({ ref, onSave, initialValues }: P
 
             const {
               qualificationType,
-              isUnitedStatesPerson,
-              unitedStatesTaxIdentificationNumber,
+
               taxIdentificationNumber,
             } = commonFields.get();
 
@@ -134,12 +131,6 @@ export const OwnershipFormIndividualCapital = ({ ref, onSave, initialValues }: P
             }
 
             onSave({
-              unitedStatesTaxInfo: {
-                isUnitedStatesPerson,
-                unitedStatesTaxIdentificationNumber: isUnitedStatesPerson
-                  ? unitedStatesTaxIdentificationNumber
-                  : undefined,
-              },
               ultimateBeneficialOwner,
               taxIdentificationNumber,
             });
@@ -175,19 +166,6 @@ export const OwnershipFormIndividualCapital = ({ ref, onSave, initialValues }: P
       validate: isTaxIdentificationRequired
         ? combineValidators(validateRequired, validateCompanyTaxNumber("FRA")) // @todo make it dynamique
         : undefined,
-    },
-    isUnitedStatesPerson: {
-      initialValue: initialValues?.unitedStatesTaxInfo?.isUnitedStatesPerson ?? false,
-    },
-    unitedStatesTaxIdentificationNumber: {
-      initialValue: initialValues?.unitedStatesTaxInfo?.unitedStatesTaxIdentificationNumber ?? "",
-      sanitize: trim,
-      validate: (value, { getFieldValue }) => {
-        const isRequired = getFieldValue("isUnitedStatesPerson");
-        if (isRequired) {
-          return combineValidators(validateRequired, validateUsaTaxNumber)(value);
-        }
-      },
     },
   });
 
@@ -303,57 +281,6 @@ export const OwnershipFormIndividualCapital = ({ ref, onSave, initialValues }: P
               )}
             </Field>
           </View>
-
-          <LakeLabel
-            label={t("form.label.usaCitizenShort")}
-            render={() => (
-              <Field name="isUnitedStatesPerson">
-                {({ value, onChange }) => (
-                  <RadioGroup
-                    direction="row"
-                    items={[
-                      {
-                        name: t("common.yes"),
-                        value: true,
-                      },
-                      {
-                        name: t("common.no"),
-                        value: false,
-                      },
-                    ]}
-                    value={value}
-                    onValueChange={onChange}
-                  />
-                )}
-              </Field>
-            )}
-          />
-
-          <FieldsListener names={["isUnitedStatesPerson"]}>
-            {({ isUnitedStatesPerson }) => (
-              <Field name="unitedStatesTaxIdentificationNumber">
-                {({ value, onBlur, onChange, error, ref }) =>
-                  isUnitedStatesPerson.value ? (
-                    <LakeLabel
-                      label={t("form.label.usaTax")}
-                      render={id => (
-                        <LakeTextInput
-                          id={id}
-                          ref={ref}
-                          value={value}
-                          error={error}
-                          onBlur={onBlur}
-                          onChangeText={onChange}
-                          placeholder={t("form.label.usaTax.placeholder")}
-                          help={t("form.label.usaTax.help")}
-                        />
-                      )}
-                    />
-                  ) : null
-                }
-              </Field>
-            )}
-          </FieldsListener>
         </View>
       )}
     </ResponsiveContainer>

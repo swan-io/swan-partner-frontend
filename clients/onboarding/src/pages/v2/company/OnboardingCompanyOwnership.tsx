@@ -544,7 +544,7 @@ export const OnboardingCompanyOwnership = ({ onboarding, serverValidationErrors 
         maxWidth={704}
       >
         <Space height={12} />
-        
+
         <OwnershipFormWizard
           ref={ownershipFormRef}
           subForm={match(modalState)
@@ -592,8 +592,10 @@ export const OnboardingCompanyOwnership = ({ onboarding, serverValidationErrors 
           >
             {match(modalState)
               .with({ step: P.union("init") }, () => t("common.cancel"))
-              .with({ step: P.union("company", "legal", "ubo", "legalAndUbo"), type: "edit" }, () =>
-                t("common.cancel"),
+              .with({ step: "company", type: "edit" }, () => t("common.cancel"))
+              .with(
+                { step: P.union("legal", "ubo", "legalAndUbo"), form: "detail", type: "edit" },
+                () => t("common.cancel"),
               )
               .otherwise(() => t("common.back"))}
           </LakeButton>
@@ -606,7 +608,8 @@ export const OnboardingCompanyOwnership = ({ onboarding, serverValidationErrors 
             loading={updateResult.isLoading()}
           >
             {match(modalState)
-              .with({ step: P.union("company", "legal") }, () => t("common.add"))
+              .with({ step: "company" }, () => t("common.add"))
+              .with({ step: "legal", form: "address" }, () => t("common.add"))
               .with({ step: P.union("ubo", "legalAndUbo"), form: "capital" }, () => t("common.add"))
               .otherwise(() => t("common.next"))}
           </LakeButton>

@@ -318,6 +318,7 @@
   "form.label.birthCity": "Città di nascita",
   "form.label.birthCountry": "Paese di nascita",
   "form.label.birthPostal": "Codice postale",
+  "form.label.residenceAddress": "Indirizzo di residenza",
   "form.label.residenceCountry": "Paese di residenza",
   "form.label.usaCitizen": "È una « U.S. person » a fini fiscali?",
   "form.label.usaCitizenShort": "Persona statunitense ai fini fiscali?",

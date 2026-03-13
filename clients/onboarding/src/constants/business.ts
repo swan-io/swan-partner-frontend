@@ -36,9 +36,9 @@ export const uboQualificationType: {
   text: string;
   value: UltimateBeneficialOwnerQualificationType;
 }[] = [
+  { text: t("uboQualificationType.ownership"), value: "Ownership" },
   { text: t("uboQualificationType.control"), value: "Control" },
   { text: t("uboQualificationType.legal"), value: "LegalRepresentative" },
-  { text: t("uboQualificationType.ownership"), value: "Ownership" },
 ];
 
 export const gender: {

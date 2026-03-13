@@ -125,6 +125,7 @@
   "company.step.documents.confirmModal.uploadDocuments": "Télécharger le(s) document(s)",
   "company.step.documents.subtitle": "Veuillez fournir des fichiers de haute qualité, en couleur, présentant l'intégralité du document.",
   "company.step.documents.title": "Documents justificatifs",
+  "company.step.legal.prefilled": "Ces champs ont été pré-remplis à partir de l'entreprise sélectionnée. Pour sélectionner une autre entreprise, recommencez.",
   "company.step.legal.registrationDateLabel": "Date d'enregistrement",
   "company.step.legal.registrationNumberLabel": "Numéro d'enregistrement ({registrationNumberLegalName}) ?",
   "company.step.legal.taxLabel": "Date d'enregistrement",

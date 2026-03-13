@@ -130,6 +130,7 @@
   "company.step.legal.taxLabel": "Registration date",
   "company.step.legal.title": "Legal information",
   "company.step.legal.vatLabel": "VAT number",
+  "company.step.legal.prefilled": "These fields were pre-filled from your company selection. To select a different company, start over.",
   "company.step.organisation.addDetails": "Add your organization details",
   "company.step.organisation.address.title": "Organization address",
   "company.step.organisation.countryLabel": "Organization location",

@@ -4,7 +4,7 @@ import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { breakpoints } from "@swan-io/lake/src/constants/design";
+import { breakpoints, colors, radii } from "@swan-io/lake/src/constants/design";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { trim } from "@swan-io/lake/src/utils/string";
@@ -26,6 +26,7 @@ import {
   validateRegistrationNumber,
 } from "../../../utils/validation";
 
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { InlineDatePicker } from "@swan-io/shared-business/src/components/InlineDatePicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
@@ -38,10 +39,11 @@ import {
   validateRequired,
   validateVatNumber,
 } from "@swan-io/shared-business/src/utils/validation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { View } from "react-native";
 import { locale } from "../../../utils/i18n";
 import { Router } from "../../../utils/routes";
+import { hasOnboardingPrefilled } from "../../../utils/session";
 import {
   getRegistrationNumberName,
   getUpdateOnboardingError,
@@ -78,6 +80,13 @@ const styles = StyleSheet.create({
   inputFull: {
     gridColumnEnd: "span 2",
   },
+  prefilledInfo: {
+    backgroundColor: colors.gray[50],
+    borderRadius: radii[8],
+    borderWidth: 1,
+    borderColor: colors.gray[100],
+    padding: 24,
+  },
 });
 
 export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErrors }: Props) => {
@@ -106,6 +115,14 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
     .with({ accountCountry: "ESP" }, () => true)
     .with({ accountCountry: "ITA" }, () => true)
     .otherwise(() => false);
+
+  const prefilled = useMemo(
+    () =>
+      hasOnboardingPrefilled
+        .get()
+        .getOr({ registrationNumber: false, vatNumber: false, registrationDate: false }),
+    [],
+  );
 
   const { Field, setFieldValue, setFieldError, submitForm } = useForm({
     address: {
@@ -334,6 +351,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
                           valid={valid}
                           error={error}
                           onChangeText={onChange}
+                          readOnly={prefilled.registrationNumber}
                         />
                       )}
                     />
@@ -347,6 +365,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
                       value={value}
                       onValueChange={onChange}
                       error={error}
+                      readOnly={prefilled.registrationDate}
                     />
                   )}
                 </Field>
@@ -381,12 +400,20 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
                           valid={valid}
                           error={error}
                           onChangeText={onChange}
+                          readOnly={prefilled.vatNumber}
                         />
                       )}
                     />
                   )}
                 </Field>
               </View>
+
+              {/* If data are prefilled then registrationNumber will always be true */}
+              {prefilled.registrationNumber && (
+                <View style={styles.prefilledInfo}>
+                  <LakeText variant="smallRegular">{t("company.step.legal.prefilled")}</LakeText>
+                </View>
+              )}
             </Tile>
           </>
         )}

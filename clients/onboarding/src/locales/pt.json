@@ -125,6 +125,7 @@
   "company.step.documents.confirmModal.uploadDocuments": "Carregar documento(s)",
   "company.step.documents.subtitle": "Por favor, forneça ficheiros de alta qualidade, em cores completas, que capturem todo o documento.",
   "company.step.documents.title": "Documentos de apoio",
+  "company.step.legal.prefilled": "Estes campos foram preenchidos automaticamente a partir da seleção da sua empresa. Para selecionar uma empresa diferente, comece de novo.",
   "company.step.legal.registrationDateLabel": "Data de registo",
   "company.step.legal.registrationNumberLabel": "Número de registo ({registrationNumberLegalName})?",
   "company.step.legal.taxLabel": "Data de registo",

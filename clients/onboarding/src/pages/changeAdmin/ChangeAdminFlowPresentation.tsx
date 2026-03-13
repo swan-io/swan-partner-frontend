@@ -87,8 +87,9 @@ export const ChangeAdminFlowPresentation = ({
                   <LakeText variant="semibold" style={styles.underline}>
                     <Link
                       target="blank"
-                      to={`/sworn-statement-template/${match(templateLanguage)
-                        .with("nl", () => "nl")
+                      to={`/power-of-attorney-template/${match(templateLanguage)
+                        .with("fr", () => "fr")
+                        .with("de", () => "de")
                         .with("es", () => "es")
                         .with("it", () => "it")
                         .otherwise(() => "en")}.pdf`}

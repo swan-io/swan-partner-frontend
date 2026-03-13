@@ -125,6 +125,7 @@
   "company.step.documents.confirmModal.uploadDocuments": "Dokument(e) hochladen",
   "company.step.documents.subtitle": "Bitte stellen Sie hochwertige, vollfarbige Dateien bereit, die das gesamte Dokument erfassen.",
   "company.step.documents.title": "Unterstützende Dokumente",
+  "company.step.legal.prefilled": "Diese Felder wurden anhand Ihrer Unternehmensauswahl vorausgefüllt. Um ein anderes Unternehmen auszuwählen, beginnen Sie von vorn.",
   "company.step.legal.registrationDateLabel": "Anmeldedatum",
   "company.step.legal.registrationNumberLabel": "Registrierungsnummer ({registrationNumberLegalName})?",
   "company.step.legal.taxLabel": "Registrierungsdatum",

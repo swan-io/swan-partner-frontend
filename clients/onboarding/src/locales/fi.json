@@ -125,6 +125,7 @@
   "company.step.documents.confirmModal.uploadDocuments": "Lataa asiakirja(t)",
   "company.step.documents.subtitle": "Toimita laadukkaita, täysvärisiä tiedostoja, joihin on tallennettu koko asiakirja.",
   "company.step.documents.title": "Muut asiakirjat",
+  "company.step.legal.prefilled": "Nämä kentät täytettiin valmiiksi yrityksen valinnan perusteella. Jos haluat valita toisen yrityksen, aloita alusta.",
   "company.step.legal.registrationDateLabel": "Rekisteröintipäivä",
   "company.step.legal.registrationNumberLabel": "Rekisteröintinumero ({registrationNumberLegalName})?",
   "company.step.legal.taxLabel": "Rekisteröintipäivä",

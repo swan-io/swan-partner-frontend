@@ -125,6 +125,7 @@
   "company.step.documents.confirmModal.uploadDocuments": "Carica documento/i",
   "company.step.documents.subtitle": "Si prega di fornire file di alta qualità e a colori in cui sia visibile l'intero documento.",
   "company.step.documents.title": "Documenti di supporto",
+  "company.step.legal.prefilled": "Questi campi sono stati precompilati in base alla selezione della sua azienda. Per selezionare un'azienda diversa, ricominci da capo.",
   "company.step.legal.registrationDateLabel": "Data di registrazione",
   "company.step.legal.registrationNumberLabel": "Numero di registrazione ({registrationNumberLegalName})?",
   "company.step.legal.taxLabel": "Data di registrazione",

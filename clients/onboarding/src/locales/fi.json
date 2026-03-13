@@ -24,7 +24,7 @@
   "businessActivityCategory.waterSupplySewerageWasteManagementAndRemediation": "Vedenjakelu, viemäröinti, jätehuolto ja ympäristön kunnostus",
   "businessActivityCategory.wholesaleAndRetailTrade": "Tukku- ja vähittäiskauppa",
   "changeAdmin.presentation.description": "Tilin ylläpitäjä on ensisijainen yhteyshenkilö kaikissa tilitoiminnoissa, mukaan lukien tilitapahtumat, päivitykset, oikeudelliset tiedot ja tilin sulkeminen. Tämä on arkaluontoinen muutos, joka vaatii vahvistuksen. Anna tarkat tiedot, jotta muutos voidaan suorittaa loppuun.",
-  "changeAdmin.presentation.expireNotice": "Tämä portaali on käytettävissä <bold>48 tuntia</bold>. Ota sen jälkeen yhteyttä asiakastukeen saadaksesi uuden linkin.",
+  "changeAdmin.presentation.expireNotice": "Tämä portaali on käytettävissä <bold>7 kalenteripäivän ajan</bold>. Sen jälkeen ota yhteyttä {partner}in tukeen saadaksesi uuden linkin.",
   "changeAdmin.presentation.powerOfAttorneyNotice": "Tarvitset allekirjoitetun valtakirjan, jos uusi ylläpitäjä ei ole organisaation laillinen edustaja. Lataa <link>valtakirjamallimme</link> nopeuttaaksesi pyyntösi käsittelyä.",
   "changeAdmin.presentation.start": "Aloita pyyntö",
   "changeAdmin.presentation.title": "Tilin ylläpitäjän vaihtaminen: {count} vaihetta",

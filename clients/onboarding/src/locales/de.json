@@ -24,7 +24,7 @@
   "businessActivityCategory.waterSupplySewerageWasteManagementAndRemediation": "Wasserversorgung, Abwasserentsorgung, Abfallwirtschaft und Sanierung",
   "businessActivityCategory.wholesaleAndRetailTrade": "Groß- und Einzelhandel",
   "changeAdmin.presentation.description": "Der Kontoadministrator ist der Hauptansprechpartner für alle Kontovorgänge, einschließlich Transaktionen, Aktualisierungen, rechtliche Informationen und Kontoschließungen. Dies ist eine sensible Änderung, die eine Überprüfung erfordert. Bitte geben Sie genaue Informationen an, um diese Änderung durchzuführen.",
-  "changeAdmin.presentation.expireNotice": "Dieses Portal ist für<bold>48 Stunden</bold>zugänglich. Wenden Sie sich anschließend an den Kundensupport, um einen neuen Link zu erhalten.",
+  "changeAdmin.presentation.expireNotice": "Dieses Portal ist für <bold>7 Kalendertage</bold> zugänglich. Danach wenden Sie sich für einen neuen Link an den Support von {partner}.",
   "changeAdmin.presentation.powerOfAttorneyNotice": "Sie benötigen eine unterschriebene Vollmacht, wenn der neue Administrator nicht der gesetzliche Vertreter ist. Laden Sie unsere <link>Vorlage für die Vollmacht</link> herunter, um Ihre Anfrage zu beschleunigen.",
   "changeAdmin.presentation.start": "Anfrage starten",
   "changeAdmin.presentation.title": "Änderung des Kontoadministrators: {count} Schritte",

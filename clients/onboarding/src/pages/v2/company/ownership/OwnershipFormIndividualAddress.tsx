@@ -57,7 +57,6 @@ export const OwnershipFormIndividualAddress = ({
         submitForm({
           onSuccess: values => {
             const option = Option.allFromDict(values);
-            console.log("options", option, values);
             if (option.isNone()) {
               return;
             }

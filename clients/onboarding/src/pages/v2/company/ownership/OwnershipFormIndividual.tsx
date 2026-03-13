@@ -3,6 +3,10 @@ import { Ref, useImperativeHandle, useRef, useState } from "react";
 import { match, P } from "ts-pattern";
 import { RelatedIndividualInput, RelatedIndividualType } from "../../../../graphql/partner";
 import {
+  OnboardingCompanyOwnershipFormIndividualAddressRef,
+  OwnershipFormIndividualAddress,
+} from "./OwnershipFormIndividualAddress";
+import {
   OnboardingCompanyOwnershipFormIndividualCapitalRef,
   OwnershipFormIndividualCapital,
 } from "./OwnershipFormIndividualCapital";
@@ -24,7 +28,7 @@ type Props = {
   individualType: RelatedIndividualType;
   subForm?: OwnershipSubForm;
   onSave: (input: RelatedIndividualInput) => void | Promise<void>;
-  onNext: () => void;
+  onNext: (subForm: OwnershipSubForm) => void;
 };
 
 export const OwnershipFormIndividual = ({
@@ -39,6 +43,7 @@ export const OwnershipFormIndividual = ({
 }: Props) => {
   const detailRef = useRef<OnboardingCompanyOwnershipFormIndividualDetailsRef>(null);
   const capitalRef = useRef<OnboardingCompanyOwnershipFormIndividualCapitalRef>(null);
+  const addressRef = useRef<OnboardingCompanyOwnershipFormIndividualAddressRef>(null);
 
   const [localValue, setLocalValue] = useState<RelatedIndividualInput>(() => ({
     ...initialValues,
@@ -50,6 +55,7 @@ export const OwnershipFormIndividual = ({
       submit: () => {
         match(subForm)
           .with("capital", () => capitalRef.current?.submit())
+          .with("address", () => addressRef.current?.submit())
           .with(P.union("detail", P.nullish), () => detailRef.current?.submit())
           .exhaustive();
       },
@@ -66,18 +72,29 @@ export const OwnershipFormIndividual = ({
         }}
       />
     ))
+    .with("address", () => (
+      <OwnershipFormIndividualAddress
+        ref={addressRef}
+        initialValues={localValue}
+        companyCountry={companyCountry}
+        onSave={input => {
+          if (step === "legal") {
+            onSave({ ...localValue, ...input, type: individualType });
+          } else {
+            setLocalValue(prevState => ({ ...prevState, ...input, type: individualType }));
+            onNext("capital");
+          }
+        }}
+      />
+    ))
     .with(P.union("detail", P.nullish), () => (
       <OwnershipFormIndividualDetails
         ref={detailRef}
         initialValues={localValue}
         companyCountry={companyCountry}
         onSave={input => {
-          if (step === "legal") {
-            onSave({ ...input, type: individualType });
-          } else {
-            setLocalValue(prevState => ({ ...prevState, ...input, type: individualType }));
-            onNext();
-          }
+          setLocalValue(prevState => ({ ...prevState, ...input }));
+          onNext("address");
         }}
       />
     ))

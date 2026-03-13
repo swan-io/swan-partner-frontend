@@ -318,6 +318,7 @@
   "form.label.birthCity": "Geboortestad",
   "form.label.birthCountry": "Geboorteland",
   "form.label.birthPostal": "Postcode",
+  "form.label.residenceAddress": "Verblijfsadres",
   "form.label.residenceCountry": "Woonland",
   "form.label.usaCitizen": "Ben je een U.S. person voor belastingdoeleinden?",
   "form.label.usaCitizenShort": "Persoon uit de VS voor belastingdoeleinden?",

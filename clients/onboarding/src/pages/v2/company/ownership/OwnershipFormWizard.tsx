@@ -19,7 +19,7 @@ import {
 import { OnboardingCompanyOwnershipFormTypeRef, OwnershipFormType } from "./OwnershipFormType";
 
 export type OwnershipFormStep = "init" | "legal" | "ubo" | "legalAndUbo" | "company";
-export type OwnershipSubForm = "detail" | "capital";
+export type OwnershipSubForm = "detail" | "address" | "capital";
 
 export type OnboardingCompanyOwnershipFormRef = {
   cancel: () => void;
@@ -144,7 +144,7 @@ export const OwnershipFormWizard = ({
               step={step}
               individualType={resolvedType}
               subForm={subForm}
-              onNext={() => onStepChange(step, "capital")}
+              onNext={(form) => onStepChange(step, form)}
               onSave={values => {
                 onSave({
                   [REFERENCE_SYMBOL]: reference,

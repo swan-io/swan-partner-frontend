@@ -318,6 +318,7 @@
   "form.label.birthCity": "Syntymäkunta",
   "form.label.birthCountry": "Synnyinmaa",
   "form.label.birthPostal": "Postinumero",
+  "form.label.residenceAddress": "Asuinosoite",
   "form.label.residenceCountry": "Asuinmaa",
   "form.label.usaCitizen": "Oletko « U.S. person » verotuksellisesti?",
   "form.label.usaCitizenShort": "Oletko Yhdysvaltain verotuksellinen henkilö?",

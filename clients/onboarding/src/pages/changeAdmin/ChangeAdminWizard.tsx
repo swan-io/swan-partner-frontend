@@ -271,6 +271,8 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
                     ))
                     .with({ routeName: "ChangeAdminRequester" }, () => (
                       <ChangeAdminRequester
+                        isNewAdmin={data.isRequesterNewAdmin ?? false}
+                        admin={data.admin}
                         initialValues={data.requester}
                         changeAdminRequestId={changeAdminRequestId}
                         previousStep="ChangeAdminContext2"

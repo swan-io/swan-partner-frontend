@@ -24,7 +24,7 @@
   "businessActivityCategory.waterSupplySewerageWasteManagementAndRemediation": "Approvisionnement en eau, assainissement, gestion des déchets et dépollution",
   "businessActivityCategory.wholesaleAndRetailTrade": "Commerce de gros et de détail",
   "changeAdmin.presentation.description": "L'administrateur du compte est le principal interlocuteur pour toutes les opérations liées au compte, y compris les transactions, les mises à jour, les informations légales et la fermeture du compte. Cette modification est confidentielle et nécessite une vérification. Veuillez fournir des informations exactes pour la finaliser.",
-  "changeAdmin.presentation.expireNotice": "Ce portail est accessible pour<bold>48 heures</bold> Passé ce délai, veuillez contacter le service clientèle pour obtenir un nouveau lien.",
+  "changeAdmin.presentation.expireNotice": "Ce portail est accessible pendant <bold>7 jours calendaires</bold>. Après cela, contactez le support de {partner} pour obtenir un nouveau lien",
   "changeAdmin.presentation.powerOfAttorneyNotice": "Vous aurez besoin d'une procuration signée si le nouvel administrateur n'est pas le représentant légal. Téléchargez notre<link> Modèle de procuration</link> pour accélérer le traitement de votre demande.",
   "changeAdmin.presentation.start": "Commencer la demande",
   "changeAdmin.presentation.title": "Modification de l'administrateur du compte : {count} étapes",

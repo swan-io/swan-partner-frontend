@@ -31,6 +31,7 @@ const styles = StyleSheet.create({
 
 type Props = {
   templateLanguage: string;
+  projectName: string;
   changeAdminRequestId: string;
   steps: FlowStep[];
   nextStep: ChangeAdminRoute;
@@ -38,6 +39,7 @@ type Props = {
 
 export const ChangeAdminFlowPresentation = ({
   templateLanguage,
+  projectName,
   changeAdminRequestId,
   steps,
   nextStep,
@@ -72,6 +74,7 @@ export const ChangeAdminFlowPresentation = ({
 
             <LakeText align={small ? "center" : "left"}>
               {formatNestedMessage("changeAdmin.presentation.expireNotice", {
+                partner: projectName,
                 bold: text => <LakeText variant="semibold">{text}</LakeText>,
               })}
             </LakeText>

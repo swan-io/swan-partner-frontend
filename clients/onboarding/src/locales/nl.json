@@ -400,7 +400,7 @@
   "step.finalizeError.missingInfo": "Ontbrekende informatie",
   "step.finalizeError.monthlyIncome": "Maandelijks inkomen",
   "step.finalizeError.monthlyPaymentVolume": "Maandelijks betalingsvolume",
-  "step.finalizeError.name": "Naam",
+  "step.finalizeError.name": "Juridische entiteit naam",
   "step.finalizeError.owners": "Bij sommige eigenaren ontbreekt informatie",
   "step.finalizeError.postalCode": "Woonplaats postcode",
   "step.finalizeError.registrationNumber": "Registratienummer",

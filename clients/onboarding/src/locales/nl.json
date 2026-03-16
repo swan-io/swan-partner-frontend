@@ -125,6 +125,7 @@
   "company.step.documents.confirmModal.uploadDocuments": "Document(en) uploaden",
   "company.step.documents.subtitle": "Zorg voor hoogwaardige, full-color bestanden die het volledige document vastleggen.",
   "company.step.documents.title": "Ondersteunende documenten",
+  "company.step.legal.prefilled": "Deze velden zijn vooraf ingevuld op basis van je bedrijfskeuze. Als je een ander bedrijf wilt selecteren, begin dan opnieuw.",
   "company.step.legal.registrationDateLabel": "Registratiedatum",
   "company.step.legal.registrationNumberLabel": "Registratienummer ({registrationNumberLegalName})?",
   "company.step.legal.taxLabel": "Registratiedatum",

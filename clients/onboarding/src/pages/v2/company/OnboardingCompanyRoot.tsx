@@ -47,6 +47,7 @@ import { RepresentativeFormsInput } from "../../../components/RepresentativeForm
 import { cleanData, transformRelatedIndividualsToInput } from "../../../utils/onboarding";
 import { CompanySuggestion } from "../../../utils/Pappers";
 import { Router } from "../../../utils/routes";
+import { hasOnboardingPrefilled } from "../../../utils/session";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 import {
   badUserInputErrorPattern,
@@ -255,11 +256,17 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
                 ...(companyInfo.relatedIndividuals ?? []),
                 ...(companyInfo.relatedCompanies ?? []),
               ]);
+              hasOnboardingPrefilled.set({
+                registrationNumber: true,
+                vatNumber: Boolean(info.vatNumber),
+                registrationDate: Boolean(info.registrationDate),
+              });
             })
             .otherwise(noop);
         })
         .tapError(() => {
           setManualMode(true);
+          hasOnboardingPrefilled.delete();
         });
     }
   }, [siren, query, setFieldValue]);
@@ -328,6 +335,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
                                         onPress={() => {
                                           setManualMode(true);
                                           setRepresentatives(undefined);
+                                          hasOnboardingPrefilled.delete();
                                           setPublicData(undefined);
                                         }}
                                         style={({ hovered }) => hovered && styles.linkHover}

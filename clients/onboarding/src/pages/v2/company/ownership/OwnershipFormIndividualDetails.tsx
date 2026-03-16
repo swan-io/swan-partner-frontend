@@ -1,8 +1,8 @@
 import { Option } from "@swan-io/boxed";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
-import { LakeTagInput } from "@swan-io/lake/src/components/LakeTagInput";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
+import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { trim } from "@swan-io/lake/src/utils/string";
@@ -17,8 +17,9 @@ import {
   validateName,
   validateNullableRequired,
   validateRequired,
+  validateUsaTaxNumber,
 } from "@swan-io/shared-business/src/utils/validation";
-import { useForm } from "@swan-io/use-form";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import { Ref, useImperativeHandle } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
@@ -71,9 +72,15 @@ export const OwnershipFormIndividualDetails = ({
             if (option.isNone()) {
               return;
             }
-            const currentValues = option.get();
-            const { birthDate, birthCountry, birthCity, birthPostal, roles, ...input } =
-              currentValues;
+            const {
+              birthDate,
+              birthCountry,
+              birthCity,
+              birthPostal,
+              isUnitedStatesPerson,
+              unitedStatesTaxIdentificationNumber,
+              ...input
+            } = option.get();
             onSave({
               birthInfo: {
                 birthDate,
@@ -81,9 +88,12 @@ export const OwnershipFormIndividualDetails = ({
                 city: birthCity,
                 postalCode: birthPostal,
               },
-              ...(initialValues.type !== "UltimateBeneficialOwner" && {
-                legalRepresentative: { roles },
-              }),
+              unitedStatesTaxInfo: {
+                isUnitedStatesPerson,
+                unitedStatesTaxIdentificationNumber: isUnitedStatesPerson
+                  ? unitedStatesTaxIdentificationNumber
+                  : undefined,
+              },
               ...input,
             });
           },
@@ -92,7 +102,7 @@ export const OwnershipFormIndividualDetails = ({
     };
   });
 
-  const { Field, submitForm } = useForm({
+  const { Field, submitForm, FieldsListener } = useForm({
     firstName: {
       initialValue: initialValues?.firstName ?? "",
       sanitize: trim,
@@ -137,11 +147,16 @@ export const OwnershipFormIndividualDetails = ({
       initialValue: initialValues?.sex ?? undefined,
       validate: validateNullableRequired,
     },
-    roles: {
-      initialValue: initialValues?.legalRepresentative?.roles ?? [],
-      validate: value => {
-        if (initialValues.type !== "UltimateBeneficialOwner" && value.length === 0) {
-          return t("error.invalidField");
+    isUnitedStatesPerson: {
+      initialValue: initialValues?.unitedStatesTaxInfo?.isUnitedStatesPerson ?? false,
+    },
+    unitedStatesTaxIdentificationNumber: {
+      initialValue: initialValues?.unitedStatesTaxInfo?.unitedStatesTaxIdentificationNumber ?? "",
+      sanitize: trim,
+      validate: (value, { getFieldValue }) => {
+        const isRequired = getFieldValue("isUnitedStatesPerson");
+        if (isRequired) {
+          return combineValidators(validateRequired, validateUsaTaxNumber)(value);
         }
       },
     },
@@ -155,13 +170,14 @@ export const OwnershipFormIndividualDetails = ({
             label={t("common.fistname")}
             render={id => (
               <Field name="firstName">
-                {({ value, onBlur, onChange, error, ref }) => (
+                {({ value, onBlur, valid, onChange, error, ref }) => (
                   <LakeTextInput
                     id={id}
                     ref={ref}
                     value={value}
                     error={error}
                     onBlur={onBlur}
+                    valid={valid}
                     onChangeText={onChange}
                   />
                 )}
@@ -172,13 +188,14 @@ export const OwnershipFormIndividualDetails = ({
             label={t("common.lastname")}
             render={id => (
               <Field name="lastName">
-                {({ value, onBlur, onChange, error, ref }) => (
+                {({ value, onBlur, valid, onChange, error, ref }) => (
                   <LakeTextInput
                     id={id}
                     ref={ref}
                     value={value}
                     error={error}
                     onBlur={onBlur}
+                    valid={valid}
                     onChangeText={onChange}
                   />
                 )}
@@ -286,19 +303,57 @@ export const OwnershipFormIndividualDetails = ({
               </Field>
             )}
           />
-          <Field name="roles">
-            {({ value, error, onChange }) =>
-              initialValues.type !== "UltimateBeneficialOwner" ? (
-                <LakeLabel
-                  label={t("company.step.ownership.form.roleLabel")}
-                  style={styles.inputFull}
-                  render={id => (
-                    <LakeTagInput id={id} onValuesChanged={onChange} values={value} error={error} />
-                  )}
-                />
-              ) : null
-            }
-          </Field>
+          <LakeLabel
+            label={t("form.label.usaCitizenShort")}
+            render={() => (
+              <Field name="isUnitedStatesPerson">
+                {({ value, onChange }) => (
+                  <RadioGroup
+                    direction="row"
+                    items={[
+                      {
+                        name: t("common.yes"),
+                        value: true,
+                      },
+                      {
+                        name: t("common.no"),
+                        value: false,
+                      },
+                    ]}
+                    value={value}
+                    onValueChange={onChange}
+                  />
+                )}
+              </Field>
+            )}
+          />
+
+          <FieldsListener names={["isUnitedStatesPerson"]}>
+            {({ isUnitedStatesPerson }) => (
+              <Field name="unitedStatesTaxIdentificationNumber">
+                {({ value, onBlur, valid, onChange, error, ref }) =>
+                  isUnitedStatesPerson.value ? (
+                    <LakeLabel
+                      label={t("form.label.usaTax")}
+                      render={id => (
+                        <LakeTextInput
+                          id={id}
+                          ref={ref}
+                          value={value}
+                          error={error}
+                          valid={valid}
+                          onBlur={onBlur}
+                          onChangeText={onChange}
+                          placeholder={t("form.label.usaTax.placeholder")}
+                          help={t("form.label.usaTax.help")}
+                        />
+                      )}
+                    />
+                  ) : null
+                }
+              </Field>
+            )}
+          </FieldsListener>
         </View>
       )}
     </ResponsiveContainer>

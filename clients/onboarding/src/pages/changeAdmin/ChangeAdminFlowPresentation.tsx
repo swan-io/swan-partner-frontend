@@ -31,6 +31,7 @@ const styles = StyleSheet.create({
 
 type Props = {
   templateLanguage: string;
+  projectName: string;
   changeAdminRequestId: string;
   steps: FlowStep[];
   nextStep: ChangeAdminRoute;
@@ -38,6 +39,7 @@ type Props = {
 
 export const ChangeAdminFlowPresentation = ({
   templateLanguage,
+  projectName,
   changeAdminRequestId,
   steps,
   nextStep,
@@ -72,6 +74,7 @@ export const ChangeAdminFlowPresentation = ({
 
             <LakeText align={small ? "center" : "left"}>
               {formatNestedMessage("changeAdmin.presentation.expireNotice", {
+                partner: projectName,
                 bold: text => <LakeText variant="semibold">{text}</LakeText>,
               })}
             </LakeText>
@@ -84,8 +87,9 @@ export const ChangeAdminFlowPresentation = ({
                   <LakeText variant="semibold" style={styles.underline}>
                     <Link
                       target="blank"
-                      to={`/sworn-statement-template/${match(templateLanguage)
-                        .with("nl", () => "nl")
+                      to={`/power-of-attorney-template/${match(templateLanguage)
+                        .with("fr", () => "fr")
+                        .with("de", () => "de")
                         .with("es", () => "es")
                         .with("it", () => "it")
                         .otherwise(() => "en")}.pdf`}

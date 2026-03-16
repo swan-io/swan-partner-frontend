@@ -336,6 +336,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
                                           setManualMode(true);
                                           setRepresentatives(undefined);
                                           hasOnboardingPrefilled.delete();
+                                          setPublicData(undefined);
                                         }}
                                         style={({ hovered }) => hovered && styles.linkHover}
                                       >

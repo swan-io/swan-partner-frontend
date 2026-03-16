@@ -791,7 +791,10 @@ export const AccountActivationPage = ({
             }
 
             params.set("identificationLevel", "Auto");
-            params.set("nextUrl", Router.AccountActivationRoot({ accountMembershipId }));
+            params.set(
+              "nextUrl",
+              window.location.origin + Router.AccountActivationRoot({ accountMembershipId }),
+            );
             params.set("env", capitalize(lowerCase(env.APP_TYPE)));
             params.set("accountMembershipId", accountMembershipId);
 

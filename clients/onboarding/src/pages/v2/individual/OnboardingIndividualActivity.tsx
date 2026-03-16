@@ -229,10 +229,18 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
                       ],
                       () => "unitedStatesTaxIdentificationNumber" as const,
                     )
+                    .with(
+                      ["accountAdmin", "taxIdentificationNumber"],
+                      () => "taxIdentificationNumber" as const,
+                    )
                     .otherwise(() => null);
                 });
+                const fieldValueMap = {
+                  ...currentValues,
+                  taxIdentificationNumber: values.taxIdentificationNumber.getOr(""),
+                };
                 invalidFields.forEach(({ fieldName, code }) => {
-                  const message = getValidationErrorMessage(code, currentValues[fieldName]);
+                  const message = getValidationErrorMessage(code, fieldValueMap[fieldName]);
                   setFieldError(fieldName, message);
                 });
               })

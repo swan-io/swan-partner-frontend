@@ -120,6 +120,28 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
     );
   }, [onboarding.statusInfo]);
 
+  // @todo
+  // const hasOwnershipStep =
+  // ["Company", "Other"].includes(onboarding?.company?.companyType) ||
+  // match(onboarding.info)
+  //   .with(
+  //     {
+  //       __typename: "OnboardingCompanyAccountHolderInfo",
+  //       residencyAddress: { country: "NLD" },
+  //       companyType: P.union("Association", "HomeOwnerAssociation"),
+  //     },
+  //     () => true,
+  //   )
+  //   .with(
+  //     { __typename: "OnboardingCompanyAccountHolderInfo" },
+  //     info => (info.individualUltimateBeneficialOwners ?? []).length > 0,
+  //   )
+  //   .otherwise(() => false);
+
+  const hasDocumentsStep =
+    onboarding.supportingDocumentCollection?.statusInfo.status === "WaitingForDocument" &&
+    onboarding.supportingDocumentCollection?.requiredSupportingDocumentPurposes.length > 0;
+
   const steps = useMemo<WizardStep<CompanyOnboardingRouteV2>[]>(
     () => [
       {
@@ -147,11 +169,15 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
         label: t("step.title.ownership"),
         errors: ownershipStepErrors,
       },
-      {
-        id: "Documents",
-        label: t("step.title.document"),
-        errors: [],
-      },
+      ...(hasDocumentsStep
+        ? [
+            {
+              id: "Documents" as const,
+              label: t("step.title.document"),
+              errors: [],
+            },
+          ]
+        : []),
       {
         id: "Finalize",
         label: t("step.title.swanApp"),
@@ -164,6 +190,7 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
       activityStepErrors,
       initStepErrors,
       ownershipStepErrors,
+      hasDocumentsStep,
     ],
   );
 

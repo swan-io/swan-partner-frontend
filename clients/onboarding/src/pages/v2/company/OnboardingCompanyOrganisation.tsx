@@ -35,6 +35,7 @@ import { CompanyCountryCCA3 } from "@swan-io/shared-business/src/constants/count
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import {
   validateCompanyTaxNumber,
+  validateIndividualTaxNumber,
   validateNullableRequired,
   validateRequired,
   validateVatNumber,
@@ -104,10 +105,15 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
 
   const accountCountry = accountInfo?.country;
   const companyCountry = company?.address?.country;
+  const companyType = company?.companyType;
 
   const isVatRequired = match({ accountCountry })
     .with({ accountCountry: "ITA" }, () => true)
     .otherwise(() => false);
+
+  const isRegistrationNumberRequired = match({ companyCountry })
+    .with({ companyCountry: "DEU" }, () => false)
+    .otherwise(() => true);
 
   const isTaxIdentificationRequired = match({ companyCountry, accountCountry })
     .with({ companyCountry: P.not(accountCountry) }, () => true)
@@ -115,6 +121,15 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
     .with({ accountCountry: "ESP" }, () => true)
     .with({ accountCountry: "ITA" }, () => true)
     .otherwise(() => false);
+
+  //Italian company with a status self employed use the same tax validation rules as individual
+  const hasCompanyTaxRules = match({ companyType, companyCountry })
+    .with({ companyType: "SelfEmployed", companyCountry: "ITA" }, () => false)
+    .otherwise(() => true);
+
+  const validateTaxNumber = hasCompanyTaxRules
+    ? validateCompanyTaxNumber
+    : validateIndividualTaxNumber;
 
   const prefilled = useMemo(
     () =>
@@ -153,17 +168,17 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
       validate: isTaxIdentificationRequired
         ? combineValidators(
             validateRequired,
-            validateCompanyTaxNumber(companyCountry as CompanyCountryCCA3),
+            validateTaxNumber(companyCountry as CompanyCountryCCA3),
           )
         : undefined,
     },
     registrationNumber: {
       initialValue: company?.registrationNumber ?? "",
       sanitize: trim,
-      validate:
-        companyCountry === "BEL"
-          ? combineValidators(validateRequired, validateRegistrationNumber)
-          : validateRequired,
+      validate: match(companyCountry)
+        .with("BEL", () => combineValidators(validateRequired, validateRegistrationNumber))
+        .with("DEU", () => undefined)
+        .otherwise(() => validateRequired),
     },
     registrationDate: {
       initialValue: company?.registrationDate ?? undefined,
@@ -333,18 +348,20 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
                       label={t("company.step.legal.registrationNumberLabel", {
                         registrationNumberLegalName: getRegistrationNumberName(
                           companyCountry as CompanyCountryCCA3,
-                          company?.companyType ?? "Company",
+                          companyType ?? "Company",
                         ),
                       })}
+                      optionalLabel={
+                        isRegistrationNumberRequired ? undefined : t("common.optional")
+                      }
                       render={id => (
                         <LakeTextInput
                           onBlur={onBlur}
-                          // @todo shall we keep it?
-                          // help={
-                          //   accountCountry === "BEL"
-                          //     ? t("common.form.help.nbDigits", { nbDigits: "10" })
-                          //     : undefined
-                          // }
+                          help={
+                            accountCountry === "BEL"
+                              ? t("common.form.help.nbDigits", { nbDigits: "10" })
+                              : undefined
+                          }
                           id={id}
                           ref={ref}
                           value={value}
@@ -380,8 +397,19 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
                       onChange={onChange}
                       onBlur={onBlur}
                       country={companyCountry as CompanyCountryCCA3}
-                      isCompany={true}
+                      isCompany={hasCompanyTaxRules}
                       required={isTaxIdentificationRequired}
+                      label={
+                        // those are hardcoded because it's the only combination making the distinction
+                        accountCountry === "DEU" && companyCountry === "DEU"
+                          ? "Steuernummer"
+                          : undefined
+                      }
+                      placeholder={
+                        accountCountry === "DEU" && companyCountry === "DEU"
+                          ? "Steuernummer des Unternehmens"
+                          : undefined
+                      }
                     />
                   )}
                 </Field>

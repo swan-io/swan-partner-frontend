@@ -120,8 +120,19 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
     );
   }, [onboarding.statusInfo]);
 
-  const steps = useMemo<WizardStep<CompanyOnboardingRouteV2>[]>(
-    () => [
+  const hasOwnershipStep =
+  ownershipStepErrors.length > 0 ||
+  (onboarding?.company?.relatedIndividuals?.length ?? 0) > 0 ||
+  (onboarding?.company?.relatedCompanies?.length ?? 0) > 0;
+
+  const hasDocumentsStep =
+    onboarding.supportingDocumentCollection?.statusInfo.status === "WaitingForDocument" &&
+    onboarding.supportingDocumentCollection?.requiredSupportingDocumentPurposes.length > 0;
+
+  const steps = useMemo<WizardStep<CompanyOnboardingRouteV2>[]>(() => {
+    const steps: WizardStep<CompanyOnboardingRouteV2>[] = [];
+
+    steps.push(
       {
         id: "Root",
         label: "",
@@ -142,30 +153,37 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
         label: t("step.title.activity"),
         errors: activityStepErrors,
       },
-      {
+    );
+
+    if (hasOwnershipStep) {
+      steps.push({
         id: "Ownership",
         label: t("step.title.ownership"),
         errors: ownershipStepErrors,
-      },
-      {
+      });
+    }
+    if (hasDocumentsStep) {
+      steps.push({
         id: "Documents",
         label: t("step.title.document"),
         errors: [],
-      },
-      {
-        id: "Finalize",
-        label: t("step.title.swanApp"),
-        errors: [],
-      },
-    ],
-    [
-      detailsStepErrors,
-      organisationStepErrors,
-      activityStepErrors,
-      initStepErrors,
-      ownershipStepErrors,
-    ],
-  );
+      });
+    }
+    steps.push({
+      id: "Finalize",
+      label: t("step.title.swanApp"),
+      errors: [],
+    });
+    return steps;
+  }, [
+    hasOwnershipStep,
+    hasDocumentsStep,
+    detailsStepErrors,
+    organisationStepErrors,
+    activityStepErrors,
+    initStepErrors,
+    ownershipStepErrors,
+  ]);
 
   const stepperSteps = useMemo<Step[]>(
     () =>

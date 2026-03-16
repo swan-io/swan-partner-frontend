@@ -110,6 +110,7 @@ export const validateDate: Validator<string> = combineValidators<string>(
   },
 );
 
+// use for Belgium only
 export const validateRegistrationNumber: Validator<string> = value => {
   // test integer
   if (!/^\d{10}$/.test(value)) {

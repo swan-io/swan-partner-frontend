@@ -264,7 +264,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                   label={t("common.fistname")}
                   render={id => (
                     <Field name="firstName">
-                      {({ value, onBlur, onChange, error, ref }) => (
+                      {({ value, onBlur, valid, onChange, error, ref }) => (
                         <LakeTextInput
                           id={id}
                           ref={ref}
@@ -272,6 +272,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                           error={error}
                           onBlur={onBlur}
                           onChangeText={onChange}
+                          valid={valid}
                         />
                       )}
                     </Field>
@@ -281,7 +282,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                   label={t("common.lastname")}
                   render={id => (
                     <Field name="lastName">
-                      {({ value, onBlur, onChange, error, ref }) => (
+                      {({ value, onBlur, valid, onChange, error, ref }) => (
                         <LakeTextInput
                           id={id}
                           ref={ref}
@@ -289,6 +290,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                           error={error}
                           onBlur={onBlur}
                           onChangeText={onChange}
+                          valid={valid}
                         />
                       )}
                     </Field>
@@ -329,13 +331,14 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                   style={styles.inputFull}
                   render={id => (
                     <Field name="email">
-                      {({ value, onBlur, onChange, error, ref }) => (
+                      {({ value, onBlur, valid, onChange, error, ref }) => (
                         <LakeTextInput
                           id={id}
                           ref={ref}
                           value={value}
                           error={error}
                           onBlur={onBlur}
+                          valid={valid}
                           onChangeText={onChange}
                           icon="mail-regular"
                         />
@@ -377,8 +380,8 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                           id={id}
                           ref={ref}
                           value={value}
-                          valid={valid}
                           error={error}
+                          valid={valid}
                           onChangeText={onChange}
                         />
                       )}
@@ -395,8 +398,8 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                           id={id}
                           ref={ref}
                           value={value}
-                          valid={valid}
                           error={error}
+                          valid={valid}
                           onChangeText={onChange}
                         />
                       )}

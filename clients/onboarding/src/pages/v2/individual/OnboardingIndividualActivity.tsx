@@ -359,7 +359,7 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
                 <FieldsListener names={["isUnitedStatesPerson"]}>
                   {({ isUnitedStatesPerson }) => (
                     <Field name="unitedStatesTaxIdentificationNumber">
-                      {({ value, onBlur, onChange, error, ref }) =>
+                      {({ value, onBlur, valid, onChange, error, ref }) =>
                         isUnitedStatesPerson.value ? (
                           <LakeLabel
                             label={t("form.label.usaTax")}
@@ -370,6 +370,7 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
                                 value={value}
                                 error={error}
                                 onBlur={onBlur}
+                                valid={valid}
                                 onChangeText={onChange}
                                 placeholder={t("form.label.usaTax.placeholder")}
                                 help={t("form.label.usaTax.help")}

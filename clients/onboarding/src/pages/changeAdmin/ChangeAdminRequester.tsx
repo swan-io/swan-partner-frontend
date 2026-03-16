@@ -40,6 +40,8 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
+  isNewAdmin: boolean;
+  admin: AccountAdminChangeInfoFragment["admin"];
   initialValues: AccountAdminChangeInfoFragment["requester"];
   changeAdminRequestId: string;
   previousStep: ChangeAdminRoute;
@@ -47,6 +49,8 @@ type Props = {
 };
 
 export const ChangeAdminRequester = ({
+  isNewAdmin,
+  admin,
   initialValues,
   changeAdminRequestId,
   previousStep,
@@ -117,6 +121,18 @@ export const ChangeAdminRequester = ({
                   email: values.email,
                   phoneNumber: values.phoneNumber,
                 },
+                ...(isNewAdmin
+                  ? {
+                      admin: {
+                        firstName: values.firstName,
+                        lastName: values.lastName,
+                        email: values.email,
+                        phoneNumber: values.phoneNumber,
+                        birthCountry: admin?.birthCountry,
+                        birthDate: admin?.birthDate,
+                      },
+                    }
+                  : {}),
               },
             })
               .mapOk(data => data.publicUpdateAccountAdminChange)

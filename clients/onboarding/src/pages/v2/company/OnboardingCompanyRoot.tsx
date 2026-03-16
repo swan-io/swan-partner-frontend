@@ -328,6 +328,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
                                         onPress={() => {
                                           setManualMode(true);
                                           setRepresentatives(undefined);
+                                          setPublicData(undefined);
                                         }}
                                         style={({ hovered }) => hovered && styles.linkHover}
                                       >

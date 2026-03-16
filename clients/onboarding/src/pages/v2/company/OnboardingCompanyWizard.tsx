@@ -120,30 +120,19 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
     );
   }, [onboarding.statusInfo]);
 
-  // @todo
-  // const hasOwnershipStep =
-  // ["Company", "Other"].includes(onboarding?.company?.companyType) ||
-  // match(onboarding.info)
-  //   .with(
-  //     {
-  //       __typename: "OnboardingCompanyAccountHolderInfo",
-  //       residencyAddress: { country: "NLD" },
-  //       companyType: P.union("Association", "HomeOwnerAssociation"),
-  //     },
-  //     () => true,
-  //   )
-  //   .with(
-  //     { __typename: "OnboardingCompanyAccountHolderInfo" },
-  //     info => (info.individualUltimateBeneficialOwners ?? []).length > 0,
-  //   )
-  //   .otherwise(() => false);
+  const hasOwnershipStep =
+  ownershipStepErrors.length > 0 ||
+  (onboarding?.company?.relatedIndividuals?.length ?? 0) > 0 ||
+  (onboarding?.company?.relatedCompanies?.length ?? 0) > 0;
 
   const hasDocumentsStep =
     onboarding.supportingDocumentCollection?.statusInfo.status === "WaitingForDocument" &&
     onboarding.supportingDocumentCollection?.requiredSupportingDocumentPurposes.length > 0;
 
-  const steps = useMemo<WizardStep<CompanyOnboardingRouteV2>[]>(
-    () => [
+  const steps = useMemo<WizardStep<CompanyOnboardingRouteV2>[]>(() => {
+    const steps: WizardStep<CompanyOnboardingRouteV2>[] = [];
+
+    steps.push(
       {
         id: "Root",
         label: "",
@@ -164,35 +153,37 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
         label: t("step.title.activity"),
         errors: activityStepErrors,
       },
-      {
+    );
+
+    if (hasOwnershipStep) {
+      steps.push({
         id: "Ownership",
         label: t("step.title.ownership"),
         errors: ownershipStepErrors,
-      },
-      ...(hasDocumentsStep
-        ? [
-            {
-              id: "Documents" as const,
-              label: t("step.title.document"),
-              errors: [],
-            },
-          ]
-        : []),
-      {
-        id: "Finalize",
-        label: t("step.title.swanApp"),
+      });
+    }
+    if (hasDocumentsStep) {
+      steps.push({
+        id: "Documents",
+        label: t("step.title.document"),
         errors: [],
-      },
-    ],
-    [
-      detailsStepErrors,
-      organisationStepErrors,
-      activityStepErrors,
-      initStepErrors,
-      ownershipStepErrors,
-      hasDocumentsStep,
-    ],
-  );
+      });
+    }
+    steps.push({
+      id: "Finalize",
+      label: t("step.title.swanApp"),
+      errors: [],
+    });
+    return steps;
+  }, [
+    hasOwnershipStep,
+    hasDocumentsStep,
+    detailsStepErrors,
+    organisationStepErrors,
+    activityStepErrors,
+    initStepErrors,
+    ownershipStepErrors,
+  ]);
 
   const stepperSteps = useMemo<Step[]>(
     () =>

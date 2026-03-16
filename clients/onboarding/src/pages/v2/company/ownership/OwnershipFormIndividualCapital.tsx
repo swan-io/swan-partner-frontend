@@ -221,7 +221,7 @@ export const OwnershipFormIndividualCapital = ({ ref, onSave, initialValues }: P
                 .with("Ownership", () => (
                   <>
                     <Field name="totalPercentage">
-                      {({ value, onChange, error }) => (
+                      {({ value, valid, onChange, error }) => (
                         <LakeLabel
                           label={t("company.step.ownership.form.capitalLabel")}
                           render={id => (
@@ -233,6 +233,7 @@ export const OwnershipFormIndividualCapital = ({ ref, onSave, initialValues }: P
                               aria-valuemax={100}
                               id={id}
                               value={value}
+                              valid={valid}
                               onChangeText={onChange}
                             />
                           )}

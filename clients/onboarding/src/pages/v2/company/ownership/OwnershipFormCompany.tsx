@@ -72,12 +72,13 @@ export const OwnershipFormCompany = ({ ref, onSave, companyCountry, initialValue
         label={t("company.step.ownership.form.companyLabel")}
         render={id => (
           <Field name="entityName">
-            {({ value, onBlur, onChange, error, ref }) => (
+            {({ value, onBlur, valid, onChange, error, ref }) => (
               <LakeTextInput
                 id={id}
                 ref={ref}
                 value={value}
                 error={error}
+                valid={valid}
                 onBlur={onBlur}
                 onChangeText={onChange}
               />

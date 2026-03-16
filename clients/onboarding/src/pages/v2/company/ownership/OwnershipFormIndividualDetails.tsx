@@ -170,13 +170,14 @@ export const OwnershipFormIndividualDetails = ({
             label={t("common.fistname")}
             render={id => (
               <Field name="firstName">
-                {({ value, onBlur, onChange, error, ref }) => (
+                {({ value, onBlur, valid, onChange, error, ref }) => (
                   <LakeTextInput
                     id={id}
                     ref={ref}
                     value={value}
                     error={error}
                     onBlur={onBlur}
+                    valid={valid}
                     onChangeText={onChange}
                   />
                 )}
@@ -187,13 +188,14 @@ export const OwnershipFormIndividualDetails = ({
             label={t("common.lastname")}
             render={id => (
               <Field name="lastName">
-                {({ value, onBlur, onChange, error, ref }) => (
+                {({ value, onBlur, valid, onChange, error, ref }) => (
                   <LakeTextInput
                     id={id}
                     ref={ref}
                     value={value}
                     error={error}
                     onBlur={onBlur}
+                    valid={valid}
                     onChangeText={onChange}
                   />
                 )}
@@ -329,7 +331,7 @@ export const OwnershipFormIndividualDetails = ({
           <FieldsListener names={["isUnitedStatesPerson"]}>
             {({ isUnitedStatesPerson }) => (
               <Field name="unitedStatesTaxIdentificationNumber">
-                {({ value, onBlur, onChange, error, ref }) =>
+                {({ value, onBlur, valid, onChange, error, ref }) =>
                   isUnitedStatesPerson.value ? (
                     <LakeLabel
                       label={t("form.label.usaTax")}
@@ -339,6 +341,7 @@ export const OwnershipFormIndividualDetails = ({
                           ref={ref}
                           value={value}
                           error={error}
+                          valid={valid}
                           onBlur={onBlur}
                           onChangeText={onChange}
                           placeholder={t("form.label.usaTax.placeholder")}

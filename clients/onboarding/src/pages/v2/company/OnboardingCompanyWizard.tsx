@@ -17,6 +17,7 @@ import { extractServerInvalidFields } from "../../../utils/validation";
 import { NotFoundPage } from "../../NotFoundPage";
 import { ActivityFieldApiRequired, OnboardingCompanyActivity } from "./OnboardingCompanyActivity";
 import { DetailsFieldApiRequired, OnboardingCompanyDetails } from "./OnboardingCompanyDetails";
+import { OnboardingCompanyDocuments } from "./OnboardingCompanyDocuments";
 import { OnboardingCompanyFinalize } from "./OnboardingCompanyFinalize";
 import {
   OnboardingCompanyOrganisation,
@@ -121,9 +122,9 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
   }, [onboarding.statusInfo]);
 
   const hasOwnershipStep =
-  ownershipStepErrors.length > 0 ||
-  (onboarding?.company?.relatedIndividuals?.length ?? 0) > 0 ||
-  (onboarding?.company?.relatedCompanies?.length ?? 0) > 0;
+    ownershipStepErrors.length > 0 ||
+    (onboarding?.company?.relatedIndividuals?.length ?? 0) > 0 ||
+    (onboarding?.company?.relatedCompanies?.length ?? 0) > 0;
 
   const hasDocumentsStep =
     onboarding.supportingDocumentCollection?.statusInfo.status === "WaitingForDocument" &&
@@ -258,10 +259,25 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
               .with({ name: "Ownership" }, () => (
                 <OnboardingCompanyOwnership
                   onboarding={onboarding}
+                  nextStep={hasDocumentsStep ? "Documents" : "Finalize"}
                   serverValidationErrors={finalized ? ownershipStepErrors : []}
                 />
               ))
-              .with({ name: "Documents" }, () => <p>todo document</p>)
+              .with({ name: "Documents" }, () => {
+                const supportingDocumentCollection = onboarding.supportingDocumentCollection;
+                if (supportingDocumentCollection == null) {
+                  Router.push("Finalize", { onboardingId });
+                  return;
+                }
+                return (
+                  <OnboardingCompanyDocuments
+                    onboarding={onboarding}
+                    previousStep={hasOwnershipStep ? "Ownership" : "Activity"}
+                    supportingDocumentCollection={supportingDocumentCollection}
+                    templateLanguage={onboarding?.accountAdmin?.preferredLanguage ?? "en"}
+                  />
+                );
+              })
               .with({ name: "Finalize" }, () => (
                 <OnboardingCompanyFinalize
                   onboarding={onboarding}

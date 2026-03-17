@@ -4,7 +4,11 @@ import { LakeTagInput } from "@swan-io/lake/src/components/LakeTagInput";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { trim } from "@swan-io/lake/src/utils/string";
-import { companyCountries, CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import {
+  companyCountries,
+  CompanyCountryCCA3,
+  CountryCCA3,
+} from "@swan-io/shared-business/src/constants/countries";
 import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { useForm } from "@swan-io/use-form";
 import { Ref, useImperativeHandle } from "react";
@@ -41,14 +45,14 @@ export const OwnershipFormCompany = ({ ref, onSave, companyCountry, initialValue
     };
   });
 
-  const { Field, submitForm } = useForm({
+  const { Field, submitForm, FieldsListener } = useForm({
     entityName: {
       initialValue: initialValues.entityName ?? "",
       sanitize: trim,
       validate: validateRequired,
     },
     registrationCountry: {
-      initialValue: (initialValues.registrationCountry as CountryCCA3) ?? companyCountry,
+      initialValue: (initialValues.registrationCountry as CompanyCountryCCA3) ?? companyCountry,
       validate: validateRequired,
     },
     registrationNumber: {
@@ -100,26 +104,33 @@ export const OwnershipFormCompany = ({ ref, onSave, companyCountry, initialValue
         )}
       </Field>
 
-      <Field name="registrationNumber">
-        {({ value, valid, error, onChange, ref, onBlur }) => (
-          <LakeLabel
-            label={t("company.step.legal.registrationNumberLabel", {
-              registrationNumberLegalName: getRegistrationNumberName(companyCountry, "Company"),
-            })}
-            render={id => (
-              <LakeTextInput
-                onBlur={onBlur}
-                id={id}
-                ref={ref}
-                value={value}
-                valid={valid}
-                error={error}
-                onChangeText={onChange}
+      <FieldsListener names={["registrationCountry"]}>
+        {({ registrationCountry }) => (
+          <Field name="registrationNumber">
+            {({ value, valid, error, onChange, ref, onBlur }) => (
+              <LakeLabel
+                label={t("company.step.legal.registrationNumberLabel", {
+                  registrationNumberLegalName: getRegistrationNumberName(
+                    registrationCountry.value,
+                    "Company",
+                  ),
+                })}
+                render={id => (
+                  <LakeTextInput
+                    onBlur={onBlur}
+                    id={id}
+                    ref={ref}
+                    value={value}
+                    valid={valid}
+                    error={error}
+                    onChangeText={onChange}
+                  />
+                )}
               />
             )}
-          />
+          </Field>
         )}
-      </Field>
+      </FieldsListener>
 
       <Field name="roles">
         {({ value, error, onChange }) => (

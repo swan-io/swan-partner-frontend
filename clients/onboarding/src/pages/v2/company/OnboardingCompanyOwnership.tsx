@@ -17,7 +17,7 @@ import { formatNestedMessage, t } from "../../../utils/i18n";
 
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { Icon } from "@swan-io/lake/src/components/Icon";
+import { Icon, IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Separator } from "@swan-io/lake/src/components/Separator";
@@ -168,6 +168,7 @@ export const OnboardingCompanyOwnership = ({
 
   const accountCountry = accountInfo?.country;
   const companyCountry = company?.address?.country;
+  const regulatoryClassification = company?.regulatoryClassification ?? undefined;
 
   const [updateCompanyOnboarding, updateResult] = useMutation(
     UpdatePublicCompanyAccountHolderOnboardingDocument,
@@ -215,6 +216,10 @@ export const OnboardingCompanyOwnership = ({
   const [modalState, setModalState] = useState<ModalState>({ type: "hidden" });
   const [validationError, setValidationError] = useState<string | undefined>(undefined);
   const ownershipFormRef = useRef<OnboardingCompanyOwnershipFormRef>(null);
+
+  const actionText = useMemo(() => {
+    return modalState.type === "edit" ? t("common.save") : t("common.add");
+  }, [modalState.type]);
 
   const setFormStep = (step: OwnershipFormStep, form?: OwnershipSubForm) => {
     setModalState(state => ({
@@ -537,14 +542,21 @@ export const OnboardingCompanyOwnership = ({
         visible={match(modalState)
           .with({ type: "add" }, { type: "edit" }, () => true)
           .otherwise(() => false)}
-        icon={"add-circle-regular"}
+        icon={match(modalState)
+          .returnType<IconName>()
+          .with({ type: "edit" }, () => "edit-regular")
+          .otherwise(() => "add-circle-regular")}
         title={match(modalState)
           .with({ step: "init" }, () => t("company.step.ownership.modal.initTitle"))
-          .with({ step: P.union("ubo", "company") }, () =>
-            t("company.step.ownership.modal.uboTitle"),
+          .with({ step: P.union("ubo", "company") }, ({ type }) =>
+            t("company.step.ownership.modal.uboTitle", { type }),
           )
-          .with({ step: "legal" }, () => t("company.step.ownership.modal.legalTitle"))
-          .with({ step: "legalAndUbo" }, () => t("company.step.ownership.modal.legalAndUboTitle"))
+          .with({ step: "legal" }, ({ type }) =>
+            t("company.step.ownership.modal.legalTitle", { type }),
+          )
+          .with({ step: "legalAndUbo" }, ({ type }) =>
+            t("company.step.ownership.modal.legalAndUboTitle", { type }),
+          )
           .otherwise(() => undefined)}
         maxWidth={704}
       >
@@ -561,6 +573,7 @@ export const OnboardingCompanyOwnership = ({
             .otherwise(() => "init")}
           accountCountry={accountCountry ?? "FRA"}
           companyCountry={(companyCountry ?? "FRA") as CountryCCA3}
+          regulatoryClassification={regulatoryClassification}
           onStepChange={setFormStep}
           onClose={() => setModalState({ type: "hidden" })}
           onSave={match(modalState)
@@ -613,9 +626,12 @@ export const OnboardingCompanyOwnership = ({
             loading={updateResult.isLoading()}
           >
             {match(modalState)
-              .with({ step: "company" }, () => t("common.add"))
-              .with({ step: "legal", form: "address" }, () => t("common.add"))
-              .with({ step: P.union("ubo", "legalAndUbo"), form: "capital" }, () => t("common.add"))
+              .with({ step: "company" }, () => actionText)
+              .with({ step: "legal", form: "address" }, () => actionText)
+              .with({ form: "identity" }, () => actionText)
+              .with({ step: P.union("ubo", "legalAndUbo"), form: "capital" }, () =>
+                accountCountry === "ITA" ? t("common.next") : actionText,
+              )
               .otherwise(() => t("common.next"))}
           </LakeButton>
         </LakeButtonGroup>

@@ -4,6 +4,7 @@ import { match, P } from "ts-pattern";
 import { v4 as uuid } from "uuid";
 import {
   AccountCountry,
+  RegulatoryClassification,
   RelatedCompanyInput,
   RelatedIndividualInput,
   RelatedIndividualType,
@@ -19,7 +20,7 @@ import {
 import { OnboardingCompanyOwnershipFormTypeRef, OwnershipFormType } from "./OwnershipFormType";
 
 export type OwnershipFormStep = "init" | "legal" | "ubo" | "legalAndUbo" | "company";
-export type OwnershipSubForm = "detail" | "address" | "capital";
+export type OwnershipSubForm = "detail" | "address" | "capital" | "identity";
 
 export type OnboardingCompanyOwnershipFormRef = {
   cancel: () => void;
@@ -39,6 +40,7 @@ type Props = {
   initialValues?: Partial<SaveValue>;
   accountCountry: AccountCountry;
   companyCountry: CountryCCA3;
+  regulatoryClassification?: RegulatoryClassification;
   step: OwnershipFormStep;
   type: "edit" | "add" | "delete" | "hidden";
   subForm?: OwnershipSubForm;
@@ -57,6 +59,8 @@ export const OwnershipFormWizard = ({
   onSave,
   onStepChange,
   companyCountry,
+  accountCountry,
+  regulatoryClassification,
 }: Props) => {
   const [reference] = useState(() => initialValues[REFERENCE_SYMBOL] ?? uuid());
   const typeRef = useRef<OnboardingCompanyOwnershipFormTypeRef>(null);
@@ -72,12 +76,15 @@ export const OwnershipFormWizard = ({
       cancel: () => {
         match({ step, type, subForm })
           .with({ step: "init" }, () => onClose())
+          .with({ step: "company", type: "edit" }, () => onClose())
+          .with({ subForm: "detail", type: "edit" }, () => onClose())
+          .with({ step: P.union("ubo", "legalAndUbo"), subForm: "identity" }, ({ step }) =>
+            onStepChange(step, "capital"),
+          )
           .with({ step: P.union("ubo", "legalAndUbo"), subForm: "capital" }, ({ step }) =>
-            onStepChange(step, "detail"),
+            onStepChange(step, "address"),
           )
-          .with({ step: P.union("company", "legal", "ubo", "legalAndUbo"), type: "edit" }, () =>
-            onClose(),
-          )
+          .with({ subForm: "address" }, ({ step }) => onStepChange(step, "detail"))
           .otherwise(() => {
             onStepChange("init");
           });
@@ -141,10 +148,12 @@ export const OwnershipFormWizard = ({
               ref={individualRef}
               initialValues={initialValues as Partial<RelatedIndividualInput>}
               companyCountry={companyCountry}
+              accountCountry={accountCountry}
+              regulatoryClassification={regulatoryClassification}
               step={step}
               individualType={resolvedType}
               subForm={subForm}
-              onNext={(form) => onStepChange(step, form)}
+              onNext={form => onStepChange(step, form)}
               onSave={values => {
                 onSave({
                   [REFERENCE_SYMBOL]: reference,

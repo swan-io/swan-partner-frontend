@@ -168,6 +168,7 @@ export const OnboardingCompanyOwnership = ({
 
   const accountCountry = accountInfo?.country;
   const companyCountry = company?.address?.country;
+  const regulatoryClassification = company?.regulatoryClassification ?? undefined;
 
   const [updateCompanyOnboarding, updateResult] = useMutation(
     UpdatePublicCompanyAccountHolderOnboardingDocument,
@@ -215,6 +216,10 @@ export const OnboardingCompanyOwnership = ({
   const [modalState, setModalState] = useState<ModalState>({ type: "hidden" });
   const [validationError, setValidationError] = useState<string | undefined>(undefined);
   const ownershipFormRef = useRef<OnboardingCompanyOwnershipFormRef>(null);
+
+  const actionText = useMemo(() => {
+    return modalState.type === "edit" ? t("common.save") : t("common.add");
+  }, [modalState.type]);
 
   const setFormStep = (step: OwnershipFormStep, form?: OwnershipSubForm) => {
     setModalState(state => ({
@@ -561,6 +566,7 @@ export const OnboardingCompanyOwnership = ({
             .otherwise(() => "init")}
           accountCountry={accountCountry ?? "FRA"}
           companyCountry={(companyCountry ?? "FRA") as CountryCCA3}
+          regulatoryClassification={regulatoryClassification}
           onStepChange={setFormStep}
           onClose={() => setModalState({ type: "hidden" })}
           onSave={match(modalState)
@@ -613,9 +619,12 @@ export const OnboardingCompanyOwnership = ({
             loading={updateResult.isLoading()}
           >
             {match(modalState)
-              .with({ step: "company" }, () => t("common.add"))
-              .with({ step: "legal", form: "address" }, () => t("common.add"))
-              .with({ step: P.union("ubo", "legalAndUbo"), form: "capital" }, () => t("common.add"))
+              .with({ step: "company" }, () => actionText)
+              .with({ step: "legal", form: "address" }, () => actionText)
+              .with({ form: "identity" }, () => actionText)
+              .with({ step: P.union("ubo", "legalAndUbo"), form: "capital" }, () =>
+                accountCountry === "ITA" ? t("common.next") : actionText,
+              )
               .otherwise(() => t("common.next"))}
           </LakeButton>
         </LakeButtonGroup>

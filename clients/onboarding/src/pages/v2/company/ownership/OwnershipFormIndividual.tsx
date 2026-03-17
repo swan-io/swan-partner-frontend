@@ -1,7 +1,12 @@
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { Ref, useImperativeHandle, useRef, useState } from "react";
 import { match, P } from "ts-pattern";
-import { RelatedIndividualInput, RelatedIndividualType } from "../../../../graphql/partner";
+import {
+  AccountCountry,
+  RegulatoryClassification,
+  RelatedIndividualInput,
+  RelatedIndividualType,
+} from "../../../../graphql/partner";
 import {
   OnboardingCompanyOwnershipFormIndividualAddressRef,
   OwnershipFormIndividualAddress,
@@ -14,6 +19,10 @@ import {
   OnboardingCompanyOwnershipFormIndividualDetailsRef,
   OwnershipFormIndividualDetails,
 } from "./OwnershipFormIndividualDetails";
+import {
+  OnboardingCompanyOwnershipFormIndividualIdentityRef,
+  OwnershipFormIndividualIdentity,
+} from "./OwnershipFormIndividualIdentity";
 import { OwnershipFormStep, OwnershipSubForm } from "./OwnershipFormWizard";
 
 export type OnboardingCompanyOwnershipFormIndividualRef = {
@@ -24,6 +33,8 @@ type Props = {
   initialValues: Partial<RelatedIndividualInput>;
   ref: Ref<OnboardingCompanyOwnershipFormIndividualRef>;
   companyCountry: CountryCCA3;
+  accountCountry: AccountCountry;
+  regulatoryClassification?: RegulatoryClassification;
   step: Extract<OwnershipFormStep, "legal" | "legalAndUbo" | "ubo">;
   individualType: RelatedIndividualType;
   subForm?: OwnershipSubForm;
@@ -37,6 +48,8 @@ export const OwnershipFormIndividual = ({
   onNext,
   step,
   companyCountry,
+  accountCountry,
+  regulatoryClassification,
   initialValues,
   individualType,
   subForm,
@@ -44,16 +57,22 @@ export const OwnershipFormIndividual = ({
   const detailRef = useRef<OnboardingCompanyOwnershipFormIndividualDetailsRef>(null);
   const capitalRef = useRef<OnboardingCompanyOwnershipFormIndividualCapitalRef>(null);
   const addressRef = useRef<OnboardingCompanyOwnershipFormIndividualAddressRef>(null);
+  const identityRef = useRef<OnboardingCompanyOwnershipFormIndividualIdentityRef>(null);
 
   const [localValue, setLocalValue] = useState<RelatedIndividualInput>(() => ({
     ...initialValues,
     type: individualType,
   }));
 
+  const isIdentityRequired = match(accountCountry)
+    .with("ITA", () => true)
+    .otherwise(() => false);
+
   useImperativeHandle(ref, () => {
     return {
       submit: () => {
         match(subForm)
+          .with("identity", () => identityRef.current?.submit())
           .with("capital", () => capitalRef.current?.submit())
           .with("address", () => addressRef.current?.submit())
           .with(P.union("detail", P.nullish), () => detailRef.current?.submit())
@@ -63,12 +82,46 @@ export const OwnershipFormIndividual = ({
   });
 
   return match(subForm)
+    .with("identity", () => (
+      <OwnershipFormIndividualIdentity
+        ref={identityRef}
+        initialValues={localValue}
+        onSave={identityDocumentInfo => {
+          const { ultimateBeneficialOwner, ...rest } = localValue;
+
+          onSave({
+            ...rest,
+            ultimateBeneficialOwner: {
+              ...ultimateBeneficialOwner,
+              identityDocumentInfo,
+            },
+          });
+        }}
+      />
+    ))
     .with("capital", () => (
       <OwnershipFormIndividualCapital
         ref={capitalRef}
         initialValues={localValue}
+        accountCountry={accountCountry}
+        regulatoryClassification={regulatoryClassification}
         onSave={input => {
-          onSave({ ...localValue, ...input });
+          if (isIdentityRequired) {
+            const { ultimateBeneficialOwner, taxIdentificationNumber } = input;
+            setLocalValue(prevState => {
+              return {
+                ...prevState,
+                taxIdentificationNumber,
+                ultimateBeneficialOwner: {
+                  ...prevState.ultimateBeneficialOwner,
+                  ...ultimateBeneficialOwner,
+                },
+              };
+            });
+            onNext("identity");
+          } else {
+            onSave({ ...localValue, ...input });
+          }
         }}
       />
     ))

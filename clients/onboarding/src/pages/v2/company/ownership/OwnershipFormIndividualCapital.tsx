@@ -8,7 +8,7 @@ import { omit, pick } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import {
-  validateCompanyTaxNumber,
+  validateIndividualTaxNumber,
   validateNullableRequired,
   validateRequired,
 } from "@swan-io/shared-business/src/utils/validation";
@@ -18,6 +18,8 @@ import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { uboQualificationType } from "../../../../constants/business";
 import {
+  AccountCountry,
+  RegulatoryClassification,
   RelatedIndividualInput,
   UltimateBeneficialOwnerControlType,
   UltimateBeneficialOwnerOwnershipType,
@@ -45,6 +47,8 @@ export type OnboardingCompanyOwnershipFormIndividualCapitalRef = {
 
 type Props = {
   initialValues: RelatedIndividualInput;
+  accountCountry: AccountCountry;
+  regulatoryClassification?: RegulatoryClassification;
   ref: Ref<OnboardingCompanyOwnershipFormIndividualCapitalRef>;
   onSave: (input: Partial<RelatedIndividualInput>) => void | Promise<void>;
 };
@@ -72,7 +76,13 @@ const controlTypeItems: Item<UltimateBeneficialOwnerControlType>[] = [
   { name: t("controlType.votinRights"), value: "VotingRights" },
 ];
 
-export const OwnershipFormIndividualCapital = ({ ref, onSave, initialValues }: Props) => {
+export const OwnershipFormIndividualCapital = ({
+  ref,
+  onSave,
+  initialValues,
+  accountCountry,
+  regulatoryClassification,
+}: Props) => {
   useImperativeHandle(ref, () => {
     return {
       submit: () => {
@@ -140,7 +150,20 @@ export const OwnershipFormIndividualCapital = ({ ref, onSave, initialValues }: P
     };
   });
 
-  const isTaxIdentificationRequired = false; // @todo add rules
+  const isTaxIdentificationRequired = match({
+    accountCountry,
+    initialValues,
+    regulatoryClassification,
+  })
+    .with(
+      {
+        accountCountry: P.not(initialValues.address?.country),
+        regulatoryClassification: "NonFinancialPassive",
+      },
+      () => true,
+    )
+    .with({ accountCountry: P.union("DEU", "ITA") }, () => true)
+    .otherwise(() => false);
 
   const { Field, submitForm, FieldsListener } = useForm({
     qualificationType: {
@@ -164,8 +187,8 @@ export const OwnershipFormIndividualCapital = ({ ref, onSave, initialValues }: P
       initialValue: initialValues.taxIdentificationNumber ?? "",
       sanitize: trim,
       validate: isTaxIdentificationRequired
-        ? combineValidators(validateRequired, validateCompanyTaxNumber("FRA")) // @todo make it dynamique
-        : undefined,
+        ? combineValidators(validateRequired, validateIndividualTaxNumber(accountCountry))
+        : validateIndividualTaxNumber(accountCountry),
     },
   });
 
@@ -275,8 +298,8 @@ export const OwnershipFormIndividualCapital = ({ ref, onSave, initialValues }: P
                   valid={valid}
                   onChange={onChange}
                   onBlur={onBlur}
-                  country={"FRA"} // @todo make it dynamique
-                  isCompany={true}
+                  country={accountCountry}
+                  isCompany={false}
                   required={isTaxIdentificationRequired}
                 />
               )}

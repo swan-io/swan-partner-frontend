@@ -416,7 +416,7 @@
   "step.finalizeError.title": "Oups, des informations sont manquantes !",
   "step.finalizeError.typeOfRepresentation": "Type de représentation",
   "step.finalizeError.vatNumber": "Numéro de TVA",
-  "step.title.about": "À propos de vous",
+  "step.title.about": "À propos",
   "step.title.activity": "Activité",
   "step.title.address": "Lieu",
   "step.title.document": "Documents",

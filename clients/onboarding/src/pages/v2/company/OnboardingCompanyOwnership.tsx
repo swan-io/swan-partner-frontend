@@ -35,7 +35,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { match, P } from "ts-pattern";
 import { ownershipText, ownershipTypeText } from "../../../constants/business";
 import { cleanData, transformRelatedIndividualsToInput } from "../../../utils/onboarding";
-import { Router } from "../../../utils/routes";
+import { CompanyOnboardingRouteV2, Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 import { ServerInvalidFieldCode } from "../../../utils/validation";
 import {
@@ -74,6 +74,7 @@ type ModalState =
 
 type Props = {
   onboarding: NonNullable<CompanyOnboardingFragment>;
+  nextStep: CompanyOnboardingRouteV2;
   serverValidationErrors: {
     fieldName: string;
     code: ServerInvalidFieldCode;
@@ -156,7 +157,11 @@ const ActionMenu = ({ onEdit, onDelete }: ActionMenuProps) => (
 const RELATED_COMPANY_REGEX = /^company\.relatedCompanies\[(\d+)\]/;
 const RELATED_INDIVIDUAL_REGEX = /^company\.relatedIndividuals\[(\d+)\]/;
 
-export const OnboardingCompanyOwnership = ({ onboarding, serverValidationErrors }: Props) => {
+export const OnboardingCompanyOwnership = ({
+  onboarding,
+  nextStep,
+  serverValidationErrors,
+}: Props) => {
   const onboardingId = onboarding.id;
   const { company, accountInfo, statusInfo } = onboarding;
   const isFirstMount = useFirstMountState();
@@ -334,7 +339,7 @@ export const OnboardingCompanyOwnership = ({ onboarding, serverValidationErrors 
     setValidationError(errorMessage);
 
     if (isNullish(errorMessage)) {
-      Router.push("Finalize", { onboardingId });
+      Router.push(nextStep, { onboardingId });
     }
   };
 

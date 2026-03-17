@@ -17,7 +17,7 @@ import { formatNestedMessage, t } from "../../../utils/i18n";
 
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { Icon } from "@swan-io/lake/src/components/Icon";
+import { Icon, IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Separator } from "@swan-io/lake/src/components/Separator";
@@ -542,7 +542,10 @@ export const OnboardingCompanyOwnership = ({
         visible={match(modalState)
           .with({ type: "add" }, { type: "edit" }, () => true)
           .otherwise(() => false)}
-        icon={"add-circle-regular"}
+        icon={match(modalState)
+          .returnType<IconName>()
+          .with({ type: "edit" }, () => "edit-regular")
+          .otherwise(() => "add-circle-regular")}
         title={match(modalState)
           .with({ step: "init" }, () => t("company.step.ownership.modal.initTitle"))
           .with({ step: P.union("ubo", "company") }, () =>

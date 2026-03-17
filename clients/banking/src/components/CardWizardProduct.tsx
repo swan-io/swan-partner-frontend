@@ -585,7 +585,7 @@ export const CardWizardProduct = ({
         </Box>
       </LakeModal>
 
-      {insuranceType !== undefined && (
+      {insuranceType !== undefined && insuranceType.level !== "Custom" && (
         <LakeModal
           onPressClose={setOpened.close}
           visible={opened}

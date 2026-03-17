@@ -548,11 +548,15 @@ export const OnboardingCompanyOwnership = ({
           .otherwise(() => "add-circle-regular")}
         title={match(modalState)
           .with({ step: "init" }, () => t("company.step.ownership.modal.initTitle"))
-          .with({ step: P.union("ubo", "company") }, () =>
-            t("company.step.ownership.modal.uboTitle"),
+          .with({ step: P.union("ubo", "company") }, ({ type }) =>
+            t("company.step.ownership.modal.uboTitle", { type }),
           )
-          .with({ step: "legal" }, () => t("company.step.ownership.modal.legalTitle"))
-          .with({ step: "legalAndUbo" }, () => t("company.step.ownership.modal.legalAndUboTitle"))
+          .with({ step: "legal" }, ({ type }) =>
+            t("company.step.ownership.modal.legalTitle", { type }),
+          )
+          .with({ step: "legalAndUbo" }, ({ type }) =>
+            t("company.step.ownership.modal.legalAndUboTitle", { type }),
+          )
           .otherwise(() => undefined)}
         maxWidth={704}
       >

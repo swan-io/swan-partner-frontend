@@ -22,6 +22,7 @@ import {
   ViewProps,
 } from "react-native";
 import { match } from "ts-pattern";
+import { Except } from "type-fest";
 import {
   CardInsurancePackage,
   CardInsurancePackageLevel,
@@ -114,6 +115,9 @@ const IMAGE_STYLE: CSSProperties = {
   objectPosition: "50% 50%",
 };
 
+// const INSURANCE_DOCS_URL = "https://support.swan.io/hc/en-150/articles/27554041478301-Card-insurance";
+const INSURANCE_DOCS_URL = null; // undefined at the moment until the page is published
+
 const getTitleModal = (insuranceType: CardInsurancePackage) => {
   return match(insuranceType)
     .with({ level: "Basic" }, () => t("cardProducts.insurance.titleModal.basic"))
@@ -144,12 +148,12 @@ type Props = {
 const Table = (props: ViewProps) => unstable_createElement("table", props);
 const THead = (props: ViewProps) => unstable_createElement("thead", props);
 const Th = (
-  props: Omit<ViewProps, "style"> & { style?: ViewProps["style"] | TextProps["style"] },
+  props: Except<ViewProps, "style"> & { style?: ViewProps["style"] | TextProps["style"] },
 ) => unstable_createElement("th", props);
 const TBody = (props: ViewProps) => unstable_createElement("tbody", props);
 const Tr = (props: ViewProps) => unstable_createElement("tr", props);
 const Td = (
-  props: Omit<ViewProps, "style"> & { style?: ViewProps["style"] | TextProps["style"] },
+  props: Except<ViewProps, "style"> & { style?: ViewProps["style"] | TextProps["style"] },
 ) => unstable_createElement("td", props);
 
 const YES_ICON = (
@@ -162,7 +166,7 @@ const YES_ICON = (
 );
 
 type CardInsuranceDetailProps = {
-  insuranceLevel: Omit<CardInsurancePackageLevel, "Custom">;
+  insuranceLevel: Exclude<CardInsurancePackageLevel, "Custom">;
 };
 
 export const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps) => {
@@ -173,22 +177,24 @@ export const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps
       <View style={styles.tableContainer}>
         <Table style={styles.table}>
           <THead>
-            <Th style={[styles.cell, styles.lastCell, styles.leftColumnHeading]}>
-              <LakeText variant="semibold">{t("cardProducts.insurance.coverage")}</LakeText>
-            </Th>
-            <Th style={[styles.cell, styles.lastCell]}>
-              {match(insuranceLevel)
-                .with("Basic", () => (
-                  <LakeText variant="semibold">{t("cardProducts.insurance.Basic")}</LakeText>
-                ))
-                .with("Premium", () => (
-                  <LakeText variant="semibold">{t("cardProducts.insurance.Premium")}</LakeText>
-                ))
-                .with("Essential", () => (
-                  <LakeText variant="semibold">{t("cardProducts.insurance.Essential")}</LakeText>
-                ))
-                .otherwise(() => null)}
-            </Th>
+            <Tr>
+              <Th style={[styles.cell, styles.lastCell, styles.leftColumnHeading]}>
+                <LakeText variant="semibold">{t("cardProducts.insurance.coverage")}</LakeText>
+              </Th>
+              <Th style={[styles.cell, styles.lastCell]}>
+                {match(insuranceLevel)
+                  .with("Basic", () => (
+                    <LakeText variant="semibold">{t("cardProducts.insurance.Basic")}</LakeText>
+                  ))
+                  .with("Premium", () => (
+                    <LakeText variant="semibold">{t("cardProducts.insurance.Premium")}</LakeText>
+                  ))
+                  .with("Essential", () => (
+                    <LakeText variant="semibold">{t("cardProducts.insurance.Essential")}</LakeText>
+                  ))
+                  .otherwise(() => null)}
+              </Th>
+            </Tr>
           </THead>
           <TBody>
             <Tr>
@@ -315,28 +321,28 @@ export const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps
         </Table>
       </View>
 
-      <Space height={16} />
+      {INSURANCE_DOCS_URL != null && (
+        <>
+          <Space height={16} />
 
-      <LakeText>
-        <Link
-          style={styles.link}
-          to={"https://support.swan.io/hc/en-150/articles/27554041478301-Card-insurance"}
-          target="blank"
-        >
-          <Box direction="row" alignItems="center">
-            <LakeText color={colors.current.primary}>
-              {match(insuranceLevel)
-                .with("Basic", () => t("cardDetail.insurance.readMore.basic"))
-                .with("Premium", () => t("cardDetail.insurance.readMore.premium"))
-                .with("Essential", () => t("cardDetail.insurance.readMore.essential"))
-                .otherwise(() => null)}
-            </LakeText>
+          <LakeText>
+            <Link style={styles.link} to={INSURANCE_DOCS_URL} target="blank">
+              <Box direction="row" alignItems="center">
+                <LakeText color={colors.current.primary}>
+                  {match(insuranceLevel)
+                    .with("Basic", () => t("cardDetail.insurance.readMore.basic"))
+                    .with("Premium", () => t("cardDetail.insurance.readMore.premium"))
+                    .with("Essential", () => t("cardDetail.insurance.readMore.essential"))
+                    .otherwise(() => null)}
+                </LakeText>
 
-            <Space width={4} />
-            <Icon color={colors.current.primary} name="open-filled" size={16} />
-          </Box>
-        </Link>
-      </LakeText>
+                <Space width={4} />
+                <Icon color={colors.current.primary} name="open-filled" size={16} />
+              </Box>
+            </Link>
+          </LakeText>
+        </>
+      )}
     </>
   );
 };
@@ -579,7 +585,7 @@ export const CardWizardProduct = ({
         </Box>
       </LakeModal>
 
-      {insuranceType !== undefined && (
+      {insuranceType !== undefined && insuranceType.level !== "Custom" && (
         <LakeModal
           onPressClose={setOpened.close}
           visible={opened}

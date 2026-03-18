@@ -930,6 +930,8 @@
   "merchantProfile.settings.paymentMethods.disable.confirm": "Desactivar",
   "merchantProfile.settings.paymentMethods.disable.description": "No podrás utilizar este método para aceptar pagos. Para reactivarlo, tendremos que volver a revisar tu elegibilidad.",
   "merchantProfile.settings.paymentMethods.disable.title": "¿Seguro que deseas desactivar este método de pago?",
+  "merchantProfile.settings.paymentMethods.inPersonCard.description": "Aceptar pagos con tarjeta en persona",
+  "merchantProfile.settings.paymentMethods.inPersonCard.title": "Pago presencial con tarjeta",
   "merchantProfile.settings.paymentMethods.internalDirectDebitB2B.description": "Aceptar pagos debitando la cuenta de empresa del cliente con Swan",
   "merchantProfile.settings.paymentMethods.internalDirectDebitB2B.title": "Domiciliación bancaria interna B2B",
   "merchantProfile.settings.paymentMethods.internalDirectDebitStandard.description": "Aceptar pagos debitando la cuenta de empresa o individual del cliente con Swan",

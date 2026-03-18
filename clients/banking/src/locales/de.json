@@ -930,6 +930,8 @@
   "merchantProfile.settings.paymentMethods.disable.confirm": "Deaktiviert",
   "merchantProfile.settings.paymentMethods.disable.description": "Sie werden diese Methode nicht mehr verwenden können, um Zahlungen zu akzeptieren. Um sie wieder zu aktivieren, müssen wir Ihre Berechtigung erneut überprüfen.",
   "merchantProfile.settings.paymentMethods.disable.title": "Sind Sie sicher, dass Sie diese Zahlungsmethode deaktivieren möchten?",
+  "merchantProfile.settings.paymentMethods.inPersonCard.description": "Kartenzahlungen vor Ort akzeptieren",
+  "merchantProfile.settings.paymentMethods.inPersonCard.title": "Kartenzahlung vor Ort",
   "merchantProfile.settings.paymentMethods.internalDirectDebitB2B.description": "Zahlungen durch Belastung des Swan-Firmenkontos eines Kunden akzeptieren",
   "merchantProfile.settings.paymentMethods.internalDirectDebitB2B.title": "Interner B2B-Lastschrifteinzug",
   "merchantProfile.settings.paymentMethods.internalDirectDebitStandard.description": "Zahlungen durch Abbuchung vom Geschäfts- oder Privatkonto des Kunden bei Swan akzeptieren",

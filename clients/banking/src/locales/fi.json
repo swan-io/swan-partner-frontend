@@ -930,6 +930,8 @@
   "merchantProfile.settings.paymentMethods.disable.confirm": "Poista käytöstä",
   "merchantProfile.settings.paymentMethods.disable.description": "Et voi käyttää tätä menetelmää maksujen vastaanottamiseen. Jos haluat aktivoida sen uudelleen, meidän on tarkistettava kelpoisuutesi uudelleen.",
   "merchantProfile.settings.paymentMethods.disable.title": "Haluatko varmasti poistaa tämän maksutavan käytöstä?",
+  "merchantProfile.settings.paymentMethods.inPersonCard.description": "Hyväksy paikan päällä tehdyt korttimaksut",
+  "merchantProfile.settings.paymentMethods.inPersonCard.title": "Korttimaksut paikan päällä",
   "merchantProfile.settings.paymentMethods.internalDirectDebitB2B.description": "Hyväksy maksut veloittamalla asiakkaan Swan-yritystililtä",
   "merchantProfile.settings.paymentMethods.internalDirectDebitB2B.title": "Sisäinen suoraveloitus B2B",
   "merchantProfile.settings.paymentMethods.internalDirectDebitStandard.description": "Vastaanota maksuja veloittamalla asiakkaan Swan-yritys- tai yksityishenkilön tiliä",

@@ -110,6 +110,73 @@ export const MerchantProfilePaymentMethodCardRequestModal = ({
   );
 };
 
+export const MerchantProfilePaymentMethodInPersonCardRequestModal = ({
+  merchantProfileId,
+  visible,
+  onPressClose,
+  onSuccess,
+}: Props) => {
+  const [requestMerchantPaymentMethods, merchantPaymentMethodRequest] = useMutation(
+    RequestMerchantPaymentMethodsDocument,
+  );
+
+  const onPressSubmit = () => {
+    requestMerchantPaymentMethods({
+      input: {
+        merchantProfileId,
+        inPersonCard: {
+          activate: true,
+        },
+      },
+    })
+      .mapOkToResult(data =>
+        Option.fromNullable(data.requestMerchantPaymentMethods).toResult("No data"),
+      )
+      .mapOkToResult(filterRejectionsToResult)
+      .tapError(error => {
+        showToast({ variant: "error", title: translateError(error), error });
+      })
+      .tapOk(onSuccess);
+  };
+
+  return (
+    <LakeModal visible={visible} onPressClose={onPressClose}>
+      <View style={styles.modalContents}>
+        <Icon size={42} name="payment-regular" color={colors.gray[900]} />
+        <Space height={12} />
+
+        <LakeText variant="medium" color={colors.gray[900]}>
+          {t("merchantProfile.settings.paymentMethods.inPersonCard.title")}
+        </LakeText>
+
+        <LakeText variant="regular" color={colors.gray[500]}>
+          {t("merchantProfile.settings.paymentMethods.inPersonCard.description")}
+        </LakeText>
+
+        <Space height={24} />
+
+        <LakeText variant="smallRegular" color={colors.gray[600]}>
+          {t("merchantProfile.settings.paymentMethods.swanReview")}
+        </LakeText>
+
+        <Space height={8} />
+
+        <LakeButtonGroup paddingBottom={0}>
+          <LakeButton
+            grow={true}
+            mode="primary"
+            color="current"
+            loading={merchantPaymentMethodRequest.isLoading()}
+            onPress={onPressSubmit}
+          >
+            {t("merchantProfile.settings.paymentMethods.request")}
+          </LakeButton>
+        </LakeButtonGroup>
+      </View>
+    </LakeModal>
+  );
+};
+
 export const MerchantProfilePaymentMethodInternalDirectDebitB2BRequestModal = ({
   merchantProfileId,
   visible,

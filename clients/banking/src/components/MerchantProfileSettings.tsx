@@ -50,6 +50,7 @@ import { CheckDeclarationWizard } from "./CheckDeclarationWizard";
 import {
   MerchantProfilePaymentMethodCardRequestModal,
   MerchantProfilePaymentMethodCheckRequestModal,
+  MerchantProfilePaymentMethodInPersonCardRequestModal,
   MerchantProfilePaymentMethodInternalDirectDebitB2BRequestModal,
   MerchantProfilePaymentMethodInternalDirectDebitStandardRequestModal,
   MerchantProfilePaymentMethodSepaDirectDebitB2BRequestModal,
@@ -1042,7 +1043,7 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
                   )}
                   paymentMethod={paymentMethod.map(paymentMethod => paymentMethod).toUndefined()}
                   renderRequestEditor={({ visible, onPressClose }) => (
-                    <MerchantProfilePaymentMethodCardRequestModal
+                    <MerchantProfilePaymentMethodInPersonCardRequestModal
                       merchantProfileId={merchantProfile.id}
                       visible={visible}
                       onPressClose={onPressClose}

@@ -782,7 +782,6 @@
   "merchantProfile.list.Inactive": "Ei-aktiivinen",
   "merchantProfile.list.name": "Nimi",
   "merchantProfile.list.noResults": "Ei kauppiasprofiileja",
-  "merchantProfile.list.paymentMethods": "Maksutavat",
   "merchantProfile.list.productType": "Tuotetyyppi",
   "merchantProfile.list.status": "Tila",
   "merchantProfile.list.website": "Verkkosivusto",

@@ -691,6 +691,12 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
     type: "CardMerchantPaymentMethod",
   });
 
+  const inPersonCardPaymentMethod = getPaymentMethod({
+    merchantPaymentMethods,
+    isRequestable: permissions.canRequestMerchantOnlineCardsPaymentMethod,
+    type: "InPersonCardMerchantPaymentMethod",
+  });
+
   const internalDirectDebitB2BPaymentMethod = getPaymentMethod({
     merchantPaymentMethods,
     isRequestable: permissions.canRequestMerchantInternalDirectDebitB2BPaymentMethod,
@@ -1008,6 +1014,50 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
                   onDisable={() =>
                     requestMerchantPaymentMethods({
                       input: { merchantProfileId: merchantProfile.id, card: { activate: false } },
+                    })
+                      .mapOkToResult(data =>
+                        Option.fromNullable(data.requestMerchantPaymentMethods).toResult("No data"),
+                      )
+                      .mapOkToResult(filterRejectionsToResult)
+                      .tapOk(() => onUpdate())
+                      .tapError(error => {
+                        showToast({ variant: "error", title: translateError(error), error });
+                      })
+                  }
+                />
+              ))
+              .otherwise(() => null)}
+
+            {match(inPersonCardPaymentMethod)
+              .with(Option.P.Some(P.select()), paymentMethod => (
+                <MerchantProfileSettingsPaymentMethodTile
+                  title={t("merchantProfile.settings.paymentMethods.inPersonCard.title")}
+                  description={t(
+                    "merchantProfile.settings.paymentMethods.inPersonCard.description",
+                  )}
+                  icon={<Icon name="payment-regular" color={colors.gray[900]} size={24} />}
+                  iconLarge={<Icon name="payment-regular" color={colors.gray[900]} size={42} />}
+                  rollingReserve={paymentMethod.flatMap(paymentMethod =>
+                    Option.fromNullable(paymentMethod.rollingReserve),
+                  )}
+                  paymentMethod={paymentMethod.map(paymentMethod => paymentMethod).toUndefined()}
+                  renderRequestEditor={({ visible, onPressClose }) => (
+                    <MerchantProfilePaymentMethodCardRequestModal
+                      merchantProfileId={merchantProfile.id}
+                      visible={visible}
+                      onPressClose={onPressClose}
+                      onSuccess={() => {
+                        onUpdate();
+                        onPressClose();
+                      }}
+                    />
+                  )}
+                  onDisable={() =>
+                    requestMerchantPaymentMethods({
+                      input: {
+                        merchantProfileId: merchantProfile.id,
+                        inPersonCard: { activate: false },
+                      },
                     })
                       .mapOkToResult(data =>
                         Option.fromNullable(data.requestMerchantPaymentMethods).toResult("No data"),

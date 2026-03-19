@@ -227,7 +227,7 @@
   "company.step.ownership.deleteTitle": "Weet je zeker dat je {relatedName} wilt verwijderen?",
   "company.step.ownership.description": "Voeg de personen en entiteiten toe die jouw bedrijf juridisch vertegenwoordigen of bezitten. Wettelijk verplicht.",
   "company.step.ownership.error.companyEmpty": "Minstens één eigenaar van het bedrijf (UBO) is vereist",
-  "company.step.ownership.error.empty": "Minstens één wettelijke vertegenwoordiger en één uiteindelijk belanghebbende zijn vereist",
+  "company.step.ownership.error.empty": "Ten minste één natuurlijke persoon als wettelijke vertegenwoordiger en één uiteindelijke belanghebbende zijn vereist",
   "company.step.ownership.error.individualEmpty": "Minstens één wettelijke vertegenwoordiger is vereist",
   "company.step.ownership.error.missingInformation": "Vul de ontbrekende informatie in voor alle bedrijfsvertegenwoordigers en uiteindelijke begunstigden",
   "company.step.ownership.form.capitalLabel": "Aandeel in het kapitaal",

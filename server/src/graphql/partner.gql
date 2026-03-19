@@ -84,24 +84,29 @@ mutation FinalizeOnboarding($input: FinalizeOnboardingInput!) {
   }
 }
 
+fragment AccountHolderOnboardingRedirectInfo on AccountHolderOnboardingBase {
+  id
+  oAuthRedirectParameters {
+    redirectUrl
+    state
+  }
+  account {
+    legalRepresentativeMembership {
+      id
+    }
+  }
+}
+
 # used for onboarding v2
 mutation FinalizeAccountHolderOnboarding($input: FinalizeAccountHolderOnboardingInput!) {
   finalizeAccountHolderOnboarding(input: $input) {
     ... on FinalizeAccountHolderOnboardingSuccessPayload {
       onboarding {
         ... on CompanyAccountHolderOnboarding {
-          id
-          oAuthRedirectParameters {
-            redirectUrl
-            state
-          }
+          ...AccountHolderOnboardingRedirectInfo
         }
         ... on IndividualAccountHolderOnboarding {
-          id
-          oAuthRedirectParameters {
-            redirectUrl
-            state
-          }
+          ...AccountHolderOnboardingRedirectInfo
         }
       }
     }

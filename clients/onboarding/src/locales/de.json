@@ -227,7 +227,7 @@
   "company.step.ownership.deleteTitle": "Möchten Sie wirklich {relatedName} löschen?",
   "company.step.ownership.description": "Fügen Sie die Personen und Unternehmen hinzu, die Ihr Unternehmen rechtlich vertreten oder besitzen. Gesetzlich vorgeschrieben.",
   "company.step.ownership.error.companyEmpty": "Mindestens ein Unternehmensinhaber (UBO) ist erforderlich.",
-  "company.step.ownership.error.empty": "Mindestens ein gesetzlicher Vertreter und ein wirtschaftlich Berechtigter sind erforderlich.",
+  "company.step.ownership.error.empty": "Mindestens ein natürlicher gesetzlicher Vertreter und mindestens ein wirtschaftlich Berechtigter sind erforderlich.",
   "company.step.ownership.error.individualEmpty": "Mindestens ein gesetzlicher Vertreter ist erforderlich.",
   "company.step.ownership.error.missingInformation": "Bitte ergänzen Sie die fehlenden Angaben für alle Unternehmensvertreter und wirtschaftlich Berechtigten",
   "company.step.ownership.form.capitalLabel": "Anteil am Kapital",

@@ -50,15 +50,17 @@ export const badUserInputErrorPattern = [
   {
     extensions: {
       code: "BAD_USER_INPUT",
-      fields: P.array({ path: P.array(P.string), code: validationFieldErrorCodePattern }).select(
-        "fields",
-      ),
+      meta: {
+        fields: P.array({ path: P.array(P.string), code: validationFieldErrorCodePattern }).select(
+          "fields",
+        ),
+      },
     },
   },
 ] as const;
 
 export const extractServerValidationFields = <T extends string>(
-  fields: P.infer<typeof badUserInputErrorPattern>[0]["extensions"]["fields"],
+  fields: P.infer<typeof badUserInputErrorPattern>[0]["extensions"]["meta"]["fields"],
   pathToFieldName: (path: string[]) => T | null = () => null,
 ): { fieldName: T; code: ValidationFieldErrorCode }[] => {
   return Array.filterMap(fields, ({ path, code }) => {

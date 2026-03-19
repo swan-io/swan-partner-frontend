@@ -9,15 +9,16 @@ import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { combineValidators, useForm } from "@swan-io/use-form";
-import { Pressable, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
+import { OnboardingTcu } from "../../../components/OnboardingTcu";
 import { StepTitle } from "../../../components/StepTitle";
 import {
   CompanyOnboardingFragment,
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
-import { formatNestedMessage, t } from "../../../utils/i18n";
+import { t } from "../../../utils/i18n";
 import {
   badUserInputErrorPattern,
   extractServerValidationFields,
@@ -26,14 +27,8 @@ import {
   validateRegistrationNumber,
 } from "../../../utils/validation";
 
-import { Box } from "@swan-io/lake/src/components/Box";
-import { Icon } from "@swan-io/lake/src/components/Icon";
-import { LakeCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { Link } from "@swan-io/lake/src/components/Link";
-import { Space } from "@swan-io/lake/src/components/Space";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { omit } from "@swan-io/lake/src/utils/object";
 import { InlineDatePicker } from "@swan-io/shared-business/src/components/InlineDatePicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
@@ -95,29 +90,12 @@ const styles = StyleSheet.create({
     borderColor: colors.gray[100],
     padding: 24,
   },
-  tcuCheckbox: {
-    top: 3, // center checkbox with text
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  link: {
-    color: colors.partner[500],
-    textDecorationLine: "underline",
-  },
-  linkIcon: {
-    marginLeft: 4,
-    display: "inline-block",
-    verticalAlign: "middle",
-  },
 });
 
 export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErrors }: Props) => {
   const onboardingId = onboarding.id;
   const { accountInfo, company, projectInfo } = onboarding;
   const isFirstMount = useFirstMountState();
-
-  const tcuUrl = "#"; //@todo missing in schema
-  const tcuDocumentUri = projectInfo?.tcuDocumentUri ?? "#";
 
   const [updateCompanyOnboarding, updateResult] = useMutation(
     UpdatePublicCompanyAccountHolderOnboardingDocument,
@@ -130,6 +108,8 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
   const accountCountry = accountInfo?.country;
   const companyCountry = company?.address?.country;
   const companyType = company?.companyType;
+  const tcuUrl = "#"; //@todo missing in schema
+  const tcuDocumentUri = projectInfo?.tcuDocumentUri ?? "#";
 
   const haveToAcceptTcu = match({ accountCountry })
     .with({ accountCountry: P.union("DEU", "ITA") }, () => true)
@@ -165,7 +145,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
     [],
   );
 
-  const { Field, setFieldValue, setFieldError, submitForm, FieldsListener } = useForm({
+  const { Field, setFieldValue, setFieldError, submitForm } = useForm({
     address: {
       initialValue: company?.address?.addressLine1 ?? "",
       sanitize: trim,
@@ -482,54 +462,21 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
         )}
       </ResponsiveContainer>
 
-      <Box alignItems="start">
-        {haveToAcceptTcu && (
-          <>
-            <Box>
-              <Space height={32} />
-              <Field name="tcuAccepted">
-                {({ value, error, onChange, ref }) => (
-                  <Pressable
-                    ref={ref}
-                    role="checkbox"
-                    aria-checked={value}
-                    onPress={() => onChange(!value)}
-                    style={styles.tcuCheckbox}
-                  >
-                    <LakeCheckbox value={value} isError={isNotNullish(error)} />
-                    <Space width={8} />
-
-                    <LakeText>
-                      {formatNestedMessage("step.finalize.terms", {
-                        firstLink: (
-                          <Link target="blank" to={tcuUrl} style={styles.link}>
-                            {t("emailPage.firstLink")}
-
-                            <Icon name="open-filled" size={16} style={styles.linkIcon} />
-                          </Link>
-                        ),
-                        secondLink: (
-                          <Link target="blank" to={tcuDocumentUri} style={styles.link}>
-                            {t("emailPage.secondLink", { partner: projectInfo?.name })}
-
-                            <Icon name="open-filled" size={16} style={styles.linkIcon} />
-                          </Link>
-                        ),
-                      })}
-                    </LakeText>
-                  </Pressable>
-                )}
-              </Field>
-            </Box>
-            <Space height={4} />
-            <FieldsListener names={["tcuAccepted"]}>
-              {({ tcuAccepted }) => (
-                <LakeText color={colors.negative[500]}>{tcuAccepted.error ?? " "}</LakeText>
-              )}
-            </FieldsListener>
-          </>
-        )}
-      </Box>
+      {haveToAcceptTcu && (
+        <Field name="tcuAccepted">
+          {({ value, error, onChange, ref }) => (
+            <OnboardingTcu
+              ref={ref}
+              value={value}
+              error={error}
+              onChange={onChange}
+              tcuUrl={tcuUrl}
+              tcuDocumentUri={tcuDocumentUri}
+              partnerName={projectInfo?.name}
+            />
+          )}
+        </Field>
+      )}
 
       <OnboardingFooter
         onNext={onPressNext}

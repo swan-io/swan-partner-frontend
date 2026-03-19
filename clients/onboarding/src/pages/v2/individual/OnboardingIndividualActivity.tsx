@@ -9,6 +9,7 @@ import { trim } from "@swan-io/lake/src/utils/string";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { StyleSheet } from "react-native";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
+import { OnboardingTcu } from "../../../components/OnboardingTcu";
 import { StepTitle } from "../../../components/StepTitle";
 import {
   EmploymentStatus,
@@ -115,10 +116,16 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
   const isFirstMount = useFirstMountState();
 
   const onboardingId = onboarding.id;
-  const { accountAdmin, accountInfo } = onboarding;
+  const { accountAdmin, accountInfo, projectInfo } = onboarding;
 
   const addressCountry = accountAdmin?.address?.country;
   const accountCountry = accountInfo?.country;
+  const tcuUrl = "#"; //@todo missing in schema
+  const tcuDocumentUri = projectInfo?.tcuDocumentUri ?? "#";
+
+  const haveToAcceptTcu = match({ accountCountry })
+    .with({ accountCountry: "DEU" }, () => true)
+    .otherwise(() => false);
 
   const isTaxIdentificationRequired = match({ addressCountry, accountCountry })
     .with({ accountCountry: P.nullish }, () => true)
@@ -163,6 +170,14 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
         }
       },
     },
+    tcuAccepted: {
+      initialValue: !haveToAcceptTcu, // initialize as accepted if not required
+      validate: value => {
+        if (value === false) {
+          return t("step.finalize.termsError");
+        }
+      },
+    },
   });
 
   useEffect(() => {
@@ -181,7 +196,7 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
   const onPressNext = () => {
     submitForm({
       onSuccess: values => {
-        const option = Option.allFromDict(omit(values, ["taxIdentificationNumber"]));
+        const option = Option.allFromDict(omit(values, ["taxIdentificationNumber", "tcuAccepted"]));
         if (option.isNone()) {
           return;
         }
@@ -396,6 +411,23 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
           </>
         )}
       </ResponsiveContainer>
+
+      {haveToAcceptTcu && (
+        <Field name="tcuAccepted">
+          {({ value, error, onChange, ref }) => (
+            <OnboardingTcu
+              ref={ref}
+              value={value}
+              error={error}
+              onChange={onChange}
+              tcuUrl={tcuUrl}
+              tcuDocumentUri={tcuDocumentUri}
+              partnerName={projectInfo?.name}
+            />
+          )}
+        </Field>
+      )}
+
       <OnboardingFooter
         onNext={onPressNext}
         onPrevious={onPressPrevious}

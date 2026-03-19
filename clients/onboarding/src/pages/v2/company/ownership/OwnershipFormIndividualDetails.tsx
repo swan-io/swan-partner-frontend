@@ -5,6 +5,7 @@ import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
+import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
@@ -20,12 +21,13 @@ import {
   validateUsaTaxNumber,
 } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
-import { Ref, useImperativeHandle } from "react";
+import { Ref, useEffect, useImperativeHandle } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { gender } from "../../../../constants/business";
 import { Gender, RelatedIndividualInput } from "../../../../graphql/partner";
 import { t } from "../../../../utils/i18n";
+import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../../../utils/validation";
 
 const styles = StyleSheet.create({
   grid: {
@@ -47,6 +49,7 @@ export type OnboardingCompanyOwnershipFormIndividualDetailsRef = {
 
 type Props = {
   initialValues: RelatedIndividualInput;
+  errors: { fieldName: string; code: ServerInvalidFieldCode }[];
   ref: Ref<OnboardingCompanyOwnershipFormIndividualDetailsRef>;
   companyCountry: CountryCCA3;
   onSave: (input: Partial<RelatedIndividualInput>) => void | Promise<void>;
@@ -62,6 +65,7 @@ export const OwnershipFormIndividualDetails = ({
   onSave,
   companyCountry,
   initialValues,
+  errors,
 }: Props) => {
   useImperativeHandle(ref, () => {
     return {
@@ -102,7 +106,9 @@ export const OwnershipFormIndividualDetails = ({
     };
   });
 
-  const { Field, submitForm, FieldsListener } = useForm({
+  const isFirstMount = useFirstMountState();
+
+  const { Field, submitForm, FieldsListener, setFieldError } = useForm({
     firstName: {
       initialValue: initialValues?.firstName ?? "",
       sanitize: trim,
@@ -161,6 +167,29 @@ export const OwnershipFormIndividualDetails = ({
       },
     },
   });
+
+  useEffect(() => {
+    if (isFirstMount) {
+      errors.forEach(({ fieldName, code }) => {
+        const message = getValidationErrorMessage(code);
+        match(fieldName)
+          .with(P.union("firstName", "lastName", "nationality", "sex"), field =>
+            setFieldError(field, message),
+          )
+          .with("birthInfo.birthDate", () => setFieldError("birthDate", message))
+          .with("birthInfo.city", () => setFieldError("birthCity", message))
+          .with("birthInfo.country", () => setFieldError("birthCountry", message))
+          .with("birthInfo.postalCode", () => setFieldError("birthPostal", message))
+          .with("unitedStatesTaxInfo.isUnitedStatesPerson", () =>
+            setFieldError("isUnitedStatesPerson", message),
+          )
+          .with("unitedStatesTaxInfo.unitedStatesTaxIdentificationNumber", () =>
+            setFieldError("unitedStatesTaxIdentificationNumber", message),
+          )
+          .otherwise(() => null);
+      });
+    }
+  }, [errors, isFirstMount, setFieldError]);
 
   return (
     <ResponsiveContainer breakpoint={breakpoints.small}>
@@ -307,9 +336,10 @@ export const OwnershipFormIndividualDetails = ({
             label={t("form.label.usaCitizenShort")}
             render={() => (
               <Field name="isUnitedStatesPerson">
-                {({ value, onChange }) => (
+                {({ value, onChange, error }) => (
                   <RadioGroup
                     direction="row"
+                    error={error}
                     items={[
                       {
                         name: t("common.yes"),

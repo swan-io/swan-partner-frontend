@@ -4,6 +4,7 @@ import { LakeTagInput } from "@swan-io/lake/src/components/LakeTagInput";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
+import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import {
@@ -13,12 +14,13 @@ import {
 } from "@swan-io/shared-business/src/constants/countries";
 import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { useForm } from "@swan-io/use-form";
-import { Ref, useImperativeHandle, useState } from "react";
+import { Ref, useEffect, useImperativeHandle, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { OnboardingCountryPicker } from "../../../../components/CountryPicker";
 import { RelatedIndividualInput } from "../../../../graphql/partner";
 import { locale, t } from "../../../../utils/i18n";
+import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../../../utils/validation";
 
 const styles = StyleSheet.create({
   grid: {
@@ -40,6 +42,7 @@ export type OnboardingCompanyOwnershipFormIndividualAddressRef = {
 
 type Props = {
   initialValues: RelatedIndividualInput;
+  errors: { fieldName: string; code: ServerInvalidFieldCode }[];
   ref: Ref<OnboardingCompanyOwnershipFormIndividualAddressRef>;
   companyCountry: CountryCCA3;
   onSave: (input: Partial<RelatedIndividualInput>) => void | Promise<void>;
@@ -50,6 +53,7 @@ export const OwnershipFormIndividualAddress = ({
   onSave,
   companyCountry,
   initialValues,
+  errors,
 }: Props) => {
   useImperativeHandle(ref, () => {
     return {
@@ -76,6 +80,8 @@ export const OwnershipFormIndividualAddress = ({
     };
   });
 
+  const isFirstMount = useFirstMountState();
+
   const [isAddressFromSuggestion, setIsAddressFromSuggestion] = useState(
     Boolean(
       initialValues?.address?.addressLine1 &&
@@ -84,7 +90,7 @@ export const OwnershipFormIndividualAddress = ({
     ),
   );
 
-  const { Field, submitForm, FieldsListener, setFieldValue } = useForm({
+  const { Field, submitForm, FieldsListener, setFieldValue, setFieldError } = useForm({
     country: {
       initialValue: match([initialValues?.address?.country, companyCountry])
         .returnType<CountryCCA3>()
@@ -117,6 +123,21 @@ export const OwnershipFormIndividualAddress = ({
       },
     },
   });
+
+  useEffect(() => {
+    if (isFirstMount) {
+      errors.forEach(({ fieldName, code }) => {
+        const message = getValidationErrorMessage(code);
+        match(fieldName)
+          .with("address.country", () => setFieldError("country", message))
+          .with("address.addressLine1", () => setFieldError("addressLine1", message))
+          .with("address.city", () => setFieldError("city", message))
+          .with("address.postalCode", () => setFieldError("postalCode", message))
+          .with("legalRepresentative.roles", () => setFieldError("roles", message))
+          .otherwise(() => null);
+      });
+    }
+  }, [errors, isFirstMount, setFieldError]);
 
   return (
     <ResponsiveContainer breakpoint={breakpoints.small}>

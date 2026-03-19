@@ -71,6 +71,7 @@ type ModalState =
       step: OwnershipFormStep;
       form?: OwnershipSubForm;
       initialValue: LocalRelated;
+      errors: { fieldName: string; code: ServerInvalidFieldCode }[];
     };
 
 type Props = {
@@ -160,8 +161,8 @@ const ActionMenu = ({ onEdit, onDelete }: ActionMenuProps) => (
   </View>
 );
 
-const RELATED_COMPANY_REGEX = /^company\.relatedCompanies\[(\d+)\]/;
-const RELATED_INDIVIDUAL_REGEX = /^company\.relatedIndividuals\[(\d+)\]/;
+const RELATED_COMPANY_REGEX = /^company\.relatedCompanies\[(\d+)\]\.(.+)$/;
+const RELATED_INDIVIDUAL_REGEX = /^company\.relatedIndividuals\[(\d+)\]\.(.+)$/;
 
 export const OnboardingCompanyOwnership = ({
   onboarding,
@@ -199,19 +200,25 @@ export const OnboardingCompanyOwnership = ({
   const hasRelated = currentRelatedCompany.length > 0 || currentRelatedIndividual.length > 0;
 
   const missingInfos = useMemo(() => {
-    const company = new Set<number>();
-    const individual = new Set<number>();
+    const company = new Map<number, { fieldName: string; code: ServerInvalidFieldCode }[]>();
+    const individual = new Map<number, { fieldName: string; code: ServerInvalidFieldCode }[]>();
 
     if (statusInfo.__typename === "OnboardingInvalidStatusInfo") {
       statusInfo.errors.forEach(({ field }) => {
         const companyMatch = RELATED_COMPANY_REGEX.exec(field);
-        if (companyMatch?.[1] != null) {
-          company.add(Number(companyMatch[1]));
+        if (companyMatch?.[1] != null && companyMatch[2] != null) {
+          const index = Number(companyMatch[1]);
+          const fields = company.get(index) ?? [];
+          fields.push({ fieldName: companyMatch[2], code: "Missing" });
+          company.set(index, fields);
           return;
         }
         const individualMatch = RELATED_INDIVIDUAL_REGEX.exec(field);
-        if (individualMatch?.[1] != null) {
-          individual.add(Number(individualMatch[1]));
+        if (individualMatch?.[1] != null && individualMatch[2] != null) {
+          const index = Number(individualMatch[1]);
+          const fields = individual.get(index) ?? [];
+          fields.push({ fieldName: individualMatch[2], code: "Missing" });
+          individual.set(index, fields);
         }
       });
     }
@@ -454,6 +461,7 @@ export const OnboardingCompanyOwnership = ({
                               type: "edit",
                               step: "company",
                               initialValue: company,
+                              errors: missingInfos.company.get(index) ?? [],
                             })
                           }
                           onDelete={() =>
@@ -534,6 +542,7 @@ export const OnboardingCompanyOwnership = ({
                                 .exhaustive(),
                               form: "detail",
                               initialValue: individual,
+                              errors: missingInfos.individual.get(index) ?? [],
                             })
                           }
                           onDelete={() =>
@@ -615,6 +624,9 @@ export const OnboardingCompanyOwnership = ({
           initialValues={match(modalState)
             .with({ type: "edit" }, ({ initialValue }) => initialValue)
             .otherwise(() => undefined)}
+          errors={match(modalState)
+            .with({ type: "edit" }, ({ errors }) => errors)
+            .otherwise(() => [])}
         />
 
         <Space height={24} />

@@ -9,6 +9,7 @@ import {
   RelatedIndividualInput,
   RelatedIndividualType,
 } from "../../../../graphql/partner";
+import { ServerInvalidFieldCode } from "../../../../utils/validation";
 import {
   OnboardingCompanyOwnershipFormCompanyRef,
   OwnershipFormCompany,
@@ -38,6 +39,7 @@ export type SaveValue = SaveValueCompany | SaveValueIndividual;
 type Props = {
   ref: Ref<OnboardingCompanyOwnershipFormRef>;
   initialValues?: Partial<SaveValue>;
+  errors: { fieldName: string; code: ServerInvalidFieldCode }[];
   accountCountry: AccountCountry;
   companyCountry: CountryCCA3;
   regulatoryClassification?: RegulatoryClassification;
@@ -52,6 +54,7 @@ type Props = {
 export const OwnershipFormWizard = ({
   ref,
   initialValues = {} as Partial<SaveValue>,
+  errors,
   step,
   type,
   subForm,
@@ -126,6 +129,7 @@ export const OwnershipFormWizard = ({
             ref={companyRef}
             initialValues={initialValues as Partial<RelatedCompanyInput>}
             companyCountry={companyCountry}
+            errors={errors}
             onSave={values => {
               onSave({
                 [REFERENCE_SYMBOL]: reference,
@@ -147,6 +151,7 @@ export const OwnershipFormWizard = ({
             <OwnershipFormIndividual
               ref={individualRef}
               initialValues={initialValues as Partial<RelatedIndividualInput>}
+              errors={errors}
               companyCountry={companyCountry}
               accountCountry={accountCountry}
               regulatoryClassification={regulatoryClassification}

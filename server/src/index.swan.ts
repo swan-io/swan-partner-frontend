@@ -381,11 +381,10 @@ start({
       async (request, reply) => {
         const accountCountry = parseAccountCountry(request.query.accountCountry);
         const projectId = request.params.projectId;
+        const isOnboardingV2 = request.query.v2 === "true";
+
         return Future.value(accountCountry)
           .flatMapOk(accountCountry => {
-            const tgglClient = getTgglClient(projectId);
-            const isOnboardingV2 = tgglClient.get("OnboardingV2NoCode", false);
-            request.log.info(`#isOnboardingV2 individual ${isOnboardingV2}`);
             if (isOnboardingV2) {
               return createPublicIndividualAccountHolderOnboarding({
                 accountCountry,
@@ -426,12 +425,10 @@ start({
       async (request, reply) => {
         const accountCountry = parseAccountCountry(request.query.accountCountry);
         const projectId = request.params.projectId;
+        const isOnboardingV2 = request.query.v2 === "true";
 
         return Future.value(accountCountry)
           .flatMapOk(accountCountry => {
-            const tgglClient = getTgglClient(projectId);
-            const isOnboardingV2 = tgglClient.get("OnboardingV2NoCode", false);
-            request.log.info(`#isOnboardingV2 company ${isOnboardingV2}`);
             if (isOnboardingV2) {
               return createPublicCompanyAccountHolderOnboarding({ accountCountry, projectId });
             }

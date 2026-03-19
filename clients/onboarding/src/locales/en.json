@@ -227,7 +227,7 @@
   "company.step.ownership.deleteTitle": "Are you sure you want to delete {relatedName}?",
   "company.step.ownership.description": "Add the people and entities who legally represent or own your company. Required by law.",
   "company.step.ownership.error.companyEmpty": "At least one company owner (UBO) is required",
-  "company.step.ownership.error.empty": "At least one legal representative and one beneficial owner are required",
+  "company.step.ownership.error.empty": "At least one individual legal representative and beneficial owner are required",
   "company.step.ownership.error.individualEmpty": "At least one legal representative is required",
   "company.step.ownership.error.missingInformation": "Complete the missing information for all company representatives & beneficial owners",
   "company.step.ownership.form.capitalLabel": "Part of capital held",

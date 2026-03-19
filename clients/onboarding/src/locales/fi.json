@@ -227,7 +227,7 @@
   "company.step.ownership.deleteTitle": "Haluatko varmasti poistaa {relatedName}?",
   "company.step.ownership.description": "Lisää henkilöt ja tahot, jotka laillisesti edustavat tai omistavat yrityksesi. Lakisääteinen vaatimus.",
   "company.step.ownership.error.companyEmpty": "Vähintään yksi yritysomistaja (UBO) vaaditaan",
-  "company.step.ownership.error.empty": "Vähintään yksi laillinen edustaja ja yksi todellinen edunsaaja vaaditaan",
+  "company.step.ownership.error.empty": "Vähintään yksi luonnollinen henkilö lailliseksi edustajaksi ja yksi edunsaaja vaaditaan",
   "company.step.ownership.error.individualEmpty": "Vähintään yksi laillinen edustaja vaaditaan",
   "company.step.ownership.error.missingInformation": "Täydennä puuttuvat tiedot kaikilta yrityksen edustajilta ja tosiasiallisilta omistajilta",
   "company.step.ownership.form.capitalLabel": "Osuus pääomasta",

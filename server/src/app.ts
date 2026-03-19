@@ -47,8 +47,6 @@ import { startDevServer } from "./client/devServer";
 import { getProductionRequestHandler } from "./client/prodServer";
 import { env } from "./env";
 import { replyWithAuthError, replyWithError } from "./error";
-import { getTgglClient } from "./utils/tggl";
-
 const packageJson = JSON.parse(
   fs.readFileSync(path.join(__dirname, "../package.json"), "utf-8"),
 ) as { version: string };
@@ -415,12 +413,10 @@ export const start = async ({
     async (request, reply) => {
       const accountCountry = parseAccountCountry(request.query.accountCountry);
       const projectId = await getProjectId();
+      const isOnboardingV2 = request.query.v2 === "true";
 
       return Future.value(Result.allFromDict({ accountCountry, projectId }))
         .flatMapOk(({ accountCountry, projectId }) => {
-          const tgglClient = getTgglClient(projectId);
-          const isOnboardingV2 = tgglClient.get("OnboardingV2NoCode", false);
-          request.log.info(`#isOnboardingV2 ${isOnboardingV2}`);
           if (isOnboardingV2) {
             return createPublicIndividualAccountHolderOnboarding({
               accountCountry,
@@ -461,12 +457,10 @@ export const start = async ({
     async (request, reply) => {
       const accountCountry = parseAccountCountry(request.query.accountCountry);
       const projectId = await getProjectId();
+      const isOnboardingV2 = request.query.v2 === "true";
 
       return Future.value(Result.allFromDict({ accountCountry, projectId }))
         .flatMapOk(({ accountCountry, projectId }) => {
-          const tgglClient = getTgglClient(projectId);
-          const isOnboardingV2 = tgglClient.get("OnboardingV2NoCode", false);
-          request.log.info(`#isOnboardingV2 ${isOnboardingV2}`);
           if (isOnboardingV2) {
             return createPublicCompanyAccountHolderOnboarding({ accountCountry, projectId });
           }

@@ -227,7 +227,7 @@
   "company.step.ownership.deleteTitle": "Êtes-vous sûr de vouloir supprimer {relatedName} ?",
   "company.step.ownership.description": "Ajoutez les personnes et entités qui représentent légalement ou possèdent votre entreprise. Requis par la loi.",
   "company.step.ownership.error.companyEmpty": "Au moins un propriétaire de la société (UBO) est requis",
-  "company.step.ownership.error.empty": "Au moins un représentant légal et un bénéficiaire effectif sont requis",
+  "company.step.ownership.error.empty": "Au moins un représentant légal individuel et un bénéficiaire effectif sont requis",
   "company.step.ownership.error.individualEmpty": "Au moins un représentant légal est requis",
   "company.step.ownership.error.missingInformation": "Complétez les informations manquantes concernant tous les représentants de l'entreprise et les bénéficiaires effectifs.",
   "company.step.ownership.form.capitalLabel": "Part du capital détenue",

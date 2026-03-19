@@ -329,16 +329,11 @@ export const OnboardingCompanyOwnership = ({
   };
 
   const checkValidationError = useCallback(() => {
-    return match([
-      currentRelatedIndividual.length === 0,
-      currentRelatedCompany.length === 0,
-    ] as const)
-      .with([true, true], () => t("company.step.ownership.error.empty"))
-      .with([false, true], () => t("company.step.ownership.error.companyEmpty"))
-      .with([true, false], () => t("company.step.ownership.error.individualEmpty"))
-      .with([false, false], () => undefined)
+    return match([currentRelatedIndividual.length === 0] as const)
+      .with([true], () => t("company.step.ownership.error.empty"))
+      .with([false], () => undefined)
       .exhaustive();
-  }, [currentRelatedIndividual.length, currentRelatedCompany.length]);
+  }, [currentRelatedIndividual.length]);
 
   useEffect(() => {
     if (validationError != null) {

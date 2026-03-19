@@ -6,7 +6,7 @@ import { Link } from "@swan-io/lake/src/components/Link";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
-import { forwardRef } from "react";
+import { Ref } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { formatNestedMessage, t } from "../utils/i18n";
 
@@ -28,6 +28,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
+  ref: Ref<View>;
   value: boolean;
   error: string | undefined;
   onChange: (value: boolean) => void;
@@ -36,8 +37,7 @@ type Props = {
   partnerName: string | undefined;
 };
 
-export const OnboardingTcu = forwardRef<View, Props>(
-  ({ value, error, onChange, tcuUrl, tcuDocumentUri, partnerName = "" }, ref) => (
+export const OnboardingTcu = ({ ref, value, error, onChange, tcuUrl, tcuDocumentUri, partnerName = "" }: Props) => (
     <Box>
       <Space height={32} />
 
@@ -74,5 +74,4 @@ export const OnboardingTcu = forwardRef<View, Props>(
       <Space height={4} />
       <LakeText color={colors.negative[500]}>{error ?? " "}</LakeText>
     </Box>
-  ),
 );

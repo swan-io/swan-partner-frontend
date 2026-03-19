@@ -115,8 +115,14 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
     return extractServerInvalidFields(onboarding.statusInfo, field =>
       match(field)
         .returnType<"relatedIndividuals" | "relatedCompanies" | null>()
-        .with("company.relatedIndividuals", () => "relatedIndividuals")
-        .with("company.relatedCompanies", () => "relatedCompanies")
+        .with(
+          P.when(f => f.includes("company.relatedIndividuals")),
+          () => "relatedIndividuals",
+        )
+        .with(
+          P.when(f => f.includes("company.relatedCompanies")),
+          () => "relatedCompanies",
+        )
         .otherwise(() => null),
     );
   }, [onboarding.statusInfo]);

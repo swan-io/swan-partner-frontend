@@ -18,6 +18,7 @@ import { formatNestedMessage, t } from "../../../utils/i18n";
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Icon, IconName } from "@swan-io/lake/src/components/Icon";
+import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Separator } from "@swan-io/lake/src/components/Separator";
@@ -70,6 +71,7 @@ type ModalState =
       step: OwnershipFormStep;
       form?: OwnershipSubForm;
       initialValue: LocalRelated;
+      errors: { fieldName: string; code: ServerInvalidFieldCode }[];
     };
 
 type Props = {
@@ -125,6 +127,10 @@ const styles = StyleSheet.create({
   action: {
     flexBasis: 0,
   },
+  menu: {
+    width: 100,
+    flexDirection: "row",
+  },
 });
 
 type ActionMenuProps = {
@@ -133,7 +139,8 @@ type ActionMenuProps = {
 };
 
 const ActionMenu = ({ onEdit, onDelete }: ActionMenuProps) => (
-  <View style={{ width: 64 }}>
+  <View style={styles.menu}>
+    <Space width={8} />
     <LakeButton
       size="small"
       mode="tertiary"
@@ -154,8 +161,8 @@ const ActionMenu = ({ onEdit, onDelete }: ActionMenuProps) => (
   </View>
 );
 
-const RELATED_COMPANY_REGEX = /^company\.relatedCompanies\[(\d+)\]/;
-const RELATED_INDIVIDUAL_REGEX = /^company\.relatedIndividuals\[(\d+)\]/;
+const RELATED_COMPANY_REGEX = /^company\.relatedCompanies\[(\d+)\]\.(.+)$/;
+const RELATED_INDIVIDUAL_REGEX = /^company\.relatedIndividuals\[(\d+)\]\.(.+)$/;
 
 export const OnboardingCompanyOwnership = ({
   onboarding,
@@ -193,19 +200,25 @@ export const OnboardingCompanyOwnership = ({
   const hasRelated = currentRelatedCompany.length > 0 || currentRelatedIndividual.length > 0;
 
   const missingInfos = useMemo(() => {
-    const company = new Set<number>();
-    const individual = new Set<number>();
+    const company = new Map<number, { fieldName: string; code: ServerInvalidFieldCode }[]>();
+    const individual = new Map<number, { fieldName: string; code: ServerInvalidFieldCode }[]>();
 
     if (statusInfo.__typename === "OnboardingInvalidStatusInfo") {
       statusInfo.errors.forEach(({ field }) => {
         const companyMatch = RELATED_COMPANY_REGEX.exec(field);
-        if (companyMatch?.[1] != null) {
-          company.add(Number(companyMatch[1]));
+        if (companyMatch?.[1] != null && companyMatch[2] != null) {
+          const index = Number(companyMatch[1]);
+          const fields = company.get(index) ?? [];
+          fields.push({ fieldName: companyMatch[2], code: "Missing" });
+          company.set(index, fields);
           return;
         }
         const individualMatch = RELATED_INDIVIDUAL_REGEX.exec(field);
-        if (individualMatch?.[1] != null) {
-          individual.add(Number(individualMatch[1]));
+        if (individualMatch?.[1] != null && individualMatch[2] != null) {
+          const index = Number(individualMatch[1]);
+          const fields = individual.get(index) ?? [];
+          fields.push({ fieldName: individualMatch[2], code: "Missing" });
+          individual.set(index, fields);
         }
       });
     }
@@ -395,11 +408,25 @@ export const OnboardingCompanyOwnership = ({
                   <Space height={32} />
 
                   <Box direction="row">
-                    <LakeText style={{ flexGrow: 2, ...styles.textTitle }}>Name</LakeText>
-                    <LakeText style={styles.textTitle}>Role</LakeText>
-                    <View style={{ width: 64 }} />
+                    <LakeText style={{ flexGrow: 2, ...styles.textTitle }}>
+                      {t("company.step.owners.thead.name")}
+                    </LakeText>
+                    <LakeText style={styles.textTitle}>
+                      {t("company.step.owners.thead.role")}
+                    </LakeText>
+                    <View style={{ width: 100 }} />
                   </Box>
                   <Space height={32} />
+
+                  {(missingInfos.company.size > 0 || missingInfos.individual.size > 0) && (
+                    <>
+                      <LakeAlert
+                        variant="error"
+                        title={t("company.step.ownership.error.missingInformation")}
+                      />
+                      <Space height={32} />
+                    </>
+                  )}
 
                   {currentRelatedCompany.map((company, index) => (
                     <View key={company[REFERENCE_SYMBOL]}>
@@ -410,7 +437,7 @@ export const OnboardingCompanyOwnership = ({
                         </>
                       )}
 
-                      <Box direction="row">
+                      <Box direction="row" alignItems="center">
                         <Box grow={2}>
                           <LakeText style={styles.textTitle}>
                             {company.entityName}
@@ -434,6 +461,7 @@ export const OnboardingCompanyOwnership = ({
                               type: "edit",
                               step: "company",
                               initialValue: company,
+                              errors: missingInfos.company.get(index) ?? [],
                             })
                           }
                           onDelete={() =>
@@ -458,7 +486,7 @@ export const OnboardingCompanyOwnership = ({
                         </>
                       )}
 
-                      <Box direction="row">
+                      <Box direction="row" alignItems="center">
                         <Box grow={2}>
                           <LakeText style={styles.textTitle}>
                             {individual.firstName} {individual.lastName}
@@ -514,6 +542,7 @@ export const OnboardingCompanyOwnership = ({
                                 .exhaustive(),
                               form: "detail",
                               initialValue: individual,
+                              errors: missingInfos.individual.get(index) ?? [],
                             })
                           }
                           onDelete={() =>
@@ -548,10 +577,8 @@ export const OnboardingCompanyOwnership = ({
           .otherwise(() => "add-circle-regular")}
         title={match(modalState)
           .with({ step: "init" }, () => t("company.step.ownership.modal.initTitle"))
-          .with({ step: P.union("ubo", "company") }, ({ type }) =>
-            t("company.step.ownership.modal.uboTitle", { type }),
-          )
-          .with({ step: "legal" }, ({ type }) =>
+          .with({ step: "ubo" }, ({ type }) => t("company.step.ownership.modal.uboTitle", { type }))
+          .with({ step: P.union("legal", "company") }, ({ type }) =>
             t("company.step.ownership.modal.legalTitle", { type }),
           )
           .with({ step: "legalAndUbo" }, ({ type }) =>
@@ -597,6 +624,9 @@ export const OnboardingCompanyOwnership = ({
           initialValues={match(modalState)
             .with({ type: "edit" }, ({ initialValue }) => initialValue)
             .otherwise(() => undefined)}
+          errors={match(modalState)
+            .with({ type: "edit" }, ({ errors }) => errors)
+            .otherwise(() => [])}
         />
 
         <Space height={24} />

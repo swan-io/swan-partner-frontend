@@ -4,6 +4,7 @@ import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
+import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { omit, pick } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
@@ -13,7 +14,7 @@ import {
   validateRequired,
 } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
-import { Ref, useImperativeHandle } from "react";
+import { Ref, useEffect, useImperativeHandle } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { uboQualificationType } from "../../../../constants/business";
@@ -26,6 +27,7 @@ import {
   UltimateBeneficialOwnerQualificationType,
 } from "../../../../graphql/partner";
 import { t } from "../../../../utils/i18n";
+import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../../../utils/validation";
 
 const styles = StyleSheet.create({
   grid: {
@@ -47,6 +49,7 @@ export type OnboardingCompanyOwnershipFormIndividualCapitalRef = {
 
 type Props = {
   initialValues: RelatedIndividualInput;
+  errors: { fieldName: string; code: ServerInvalidFieldCode }[];
   accountCountry: AccountCountry;
   regulatoryClassification?: RegulatoryClassification;
   ref: Ref<OnboardingCompanyOwnershipFormIndividualCapitalRef>;
@@ -80,6 +83,7 @@ export const OwnershipFormIndividualCapital = ({
   ref,
   onSave,
   initialValues,
+  errors,
   accountCountry,
   regulatoryClassification,
 }: Props) => {
@@ -150,6 +154,8 @@ export const OwnershipFormIndividualCapital = ({
     };
   });
 
+  const isFirstMount = useFirstMountState();
+
   const isTaxIdentificationRequired = match({
     accountCountry,
     initialValues,
@@ -165,7 +171,7 @@ export const OwnershipFormIndividualCapital = ({
     .with({ accountCountry: P.union("DEU", "ITA") }, () => true)
     .otherwise(() => false);
 
-  const { Field, submitForm, FieldsListener } = useForm({
+  const { Field, submitForm, FieldsListener, setFieldError } = useForm({
     qualificationType: {
       initialValue: initialValues.ultimateBeneficialOwner?.qualificationType ?? "Ownership",
       validate: validateNullableRequired,
@@ -191,6 +197,27 @@ export const OwnershipFormIndividualCapital = ({
         : validateIndividualTaxNumber(accountCountry),
     },
   });
+
+  useEffect(() => {
+    if (isFirstMount) {
+      errors.forEach(({ fieldName, code }) => {
+        const message = getValidationErrorMessage(code);
+        match(fieldName)
+          .with("ultimateBeneficialOwner.qualificationType", () =>
+            setFieldError("qualificationType", message),
+          )
+          .with("ultimateBeneficialOwner.controlTypes", () =>
+            setFieldError("controlTypes", message),
+          )
+          .with("ultimateBeneficialOwner.ownership.totalPercentage", () =>
+            setFieldError("totalPercentage", message),
+          )
+          .with("ultimateBeneficialOwner.ownership.type", () => setFieldError("type", message))
+          .with("taxIdentificationNumber", field => setFieldError(field, message))
+          .otherwise(() => null);
+      });
+    }
+  }, [errors, isFirstMount, setFieldError]);
 
   return (
     <ResponsiveContainer breakpoint={breakpoints.small}>

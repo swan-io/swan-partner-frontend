@@ -2,6 +2,7 @@ import { Option } from "@swan-io/boxed";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeTagInput } from "@swan-io/lake/src/components/LakeTagInput";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
+import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { trim } from "@swan-io/lake/src/utils/string";
 import {
@@ -11,12 +12,14 @@ import {
 } from "@swan-io/shared-business/src/constants/countries";
 import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { useForm } from "@swan-io/use-form";
-import { Ref, useImperativeHandle } from "react";
+import { Ref, useEffect, useImperativeHandle } from "react";
 import { View } from "react-native";
+import { match, P } from "ts-pattern";
 import { OnboardingCountryPicker } from "../../../../components/CountryPicker";
 import { RelatedCompanyInput } from "../../../../graphql/partner";
 import { t } from "../../../../utils/i18n";
 import { getRegistrationNumberName } from "../../../../utils/templateTranslations";
+import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../../../utils/validation";
 
 export type OnboardingCompanyOwnershipFormCompanyRef = {
   submit: () => void;
@@ -24,12 +27,19 @@ export type OnboardingCompanyOwnershipFormCompanyRef = {
 
 type Props = {
   initialValues: Partial<RelatedCompanyInput>;
+  errors: { fieldName: string; code: ServerInvalidFieldCode }[];
   ref: Ref<OnboardingCompanyOwnershipFormCompanyRef>;
   companyCountry: CountryCCA3;
   onSave: (input: RelatedCompanyInput) => void | Promise<void>;
 };
 
-export const OwnershipFormCompany = ({ ref, onSave, companyCountry, initialValues }: Props) => {
+export const OwnershipFormCompany = ({
+  ref,
+  onSave,
+  companyCountry,
+  initialValues,
+  errors,
+}: Props) => {
   useImperativeHandle(ref, () => {
     return {
       submit: () => {
@@ -45,7 +55,9 @@ export const OwnershipFormCompany = ({ ref, onSave, companyCountry, initialValue
     };
   });
 
-  const { Field, submitForm, FieldsListener } = useForm({
+  const isFirstMount = useFirstMountState();
+
+  const { Field, submitForm, FieldsListener, setFieldError } = useForm({
     entityName: {
       initialValue: initialValues.entityName ?? "",
       sanitize: trim,
@@ -69,6 +81,19 @@ export const OwnershipFormCompany = ({ ref, onSave, companyCountry, initialValue
       },
     },
   });
+
+  useEffect(() => {
+    if (isFirstMount) {
+      errors.forEach(({ fieldName, code }) => {
+        const message = getValidationErrorMessage(code);
+        match(fieldName)
+          .with(P.union("entityName", "registrationNumber", "roles"), field =>
+            setFieldError(field, message),
+          )
+          .otherwise(() => null);
+      });
+    }
+  }, [errors, isFirstMount, setFieldError]);
 
   return (
     <View role="form">

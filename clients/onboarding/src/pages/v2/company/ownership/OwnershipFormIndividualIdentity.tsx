@@ -4,6 +4,7 @@ import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
+import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { deriveUnion } from "@swan-io/lake/src/utils/function";
 import { InlineDatePicker } from "@swan-io/shared-business/src/components/InlineDatePicker";
 import {
@@ -11,7 +12,7 @@ import {
   validateRequired,
 } from "@swan-io/shared-business/src/utils/validation";
 import { useForm } from "@swan-io/use-form";
-import { Ref, useImperativeHandle } from "react";
+import { Ref, useEffect, useImperativeHandle } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import {
@@ -20,6 +21,7 @@ import {
   UltimateBeneficialOwnerIdentityDocumentType,
 } from "../../../../graphql/partner";
 import { t } from "../../../../utils/i18n";
+import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../../../utils/validation";
 
 const styles = StyleSheet.create({
   grid: {
@@ -42,6 +44,7 @@ export type OnboardingCompanyOwnershipFormIndividualIdentityRef = {
 type Props = {
   ref: Ref<OnboardingCompanyOwnershipFormIndividualIdentityRef>;
   initialValues: RelatedIndividualInput;
+  errors: { fieldName: string; code: ServerInvalidFieldCode }[];
   onSave: (
     input: Partial<UltimateBeneficialOwnerIdentityDocumentInfoInput>,
   ) => void | Promise<void>;
@@ -58,7 +61,7 @@ const types = deriveUnion<UltimateBeneficialOwnerIdentityDocumentType>({
   value,
 }));
 
-export const OwnershipFormIndividualIdentity = ({ ref, onSave, initialValues }: Props) => {
+export const OwnershipFormIndividualIdentity = ({ ref, onSave, initialValues, errors }: Props) => {
   useImperativeHandle(ref, () => {
     return {
       submit: () => {
@@ -88,7 +91,9 @@ export const OwnershipFormIndividualIdentity = ({ ref, onSave, initialValues }: 
     };
   });
 
-  const { Field, submitForm } = useForm({
+  const isFirstMount = useFirstMountState();
+
+  const { Field, submitForm, setFieldError } = useForm({
     type: {
       initialValue: initialValues.ultimateBeneficialOwner?.identityDocumentInfo?.type ?? undefined,
       validate: validateNullableRequired,
@@ -113,6 +118,31 @@ export const OwnershipFormIndividualIdentity = ({ ref, onSave, initialValues }: 
       validate: validateRequired,
     },
   });
+
+  useEffect(() => {
+    if (isFirstMount) {
+      errors.forEach(({ fieldName, code }) => {
+        const message = getValidationErrorMessage(code);
+        match(fieldName)
+          .with("ultimateBeneficialOwner.identityDocumentInfo.type", () =>
+            setFieldError("type", message),
+          )
+          .with("ultimateBeneficialOwner.identityDocumentInfo.number", () =>
+            setFieldError("number", message),
+          )
+          .with("ultimateBeneficialOwner.identityDocumentInfo.issueDate", () =>
+            setFieldError("issueDate", message),
+          )
+          .with("ultimateBeneficialOwner.identityDocumentInfo.expiryDate", () =>
+            setFieldError("expiryDate", message),
+          )
+          .with("ultimateBeneficialOwner.identityDocumentInfo.issuingAuthority", () =>
+            setFieldError("issuingAuthority", message),
+          )
+          .otherwise(() => null);
+      });
+    }
+  }, [errors, isFirstMount, setFieldError]);
 
   return (
     <ResponsiveContainer breakpoint={breakpoints.small}>

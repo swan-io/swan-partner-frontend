@@ -7,6 +7,7 @@ import {
   RelatedIndividualInput,
   RelatedIndividualType,
 } from "../../../../graphql/partner";
+import { ServerInvalidFieldCode } from "../../../../utils/validation";
 import {
   OnboardingCompanyOwnershipFormIndividualAddressRef,
   OwnershipFormIndividualAddress,
@@ -37,6 +38,7 @@ type Props = {
   regulatoryClassification?: RegulatoryClassification;
   step: Extract<OwnershipFormStep, "legal" | "legalAndUbo" | "ubo">;
   individualType: RelatedIndividualType;
+  errors: { fieldName: string; code: ServerInvalidFieldCode }[];
   subForm?: OwnershipSubForm;
   onSave: (input: RelatedIndividualInput) => void | Promise<void>;
   onNext: (subForm: OwnershipSubForm) => void;
@@ -51,6 +53,7 @@ export const OwnershipFormIndividual = ({
   accountCountry,
   regulatoryClassification,
   initialValues,
+  errors,
   individualType,
   subForm,
 }: Props) => {
@@ -86,9 +89,9 @@ export const OwnershipFormIndividual = ({
       <OwnershipFormIndividualIdentity
         ref={identityRef}
         initialValues={localValue}
+        errors={errors}
         onSave={identityDocumentInfo => {
           const { ultimateBeneficialOwner, ...rest } = localValue;
-
           onSave({
             ...rest,
             ultimateBeneficialOwner: {
@@ -103,6 +106,7 @@ export const OwnershipFormIndividual = ({
       <OwnershipFormIndividualCapital
         ref={capitalRef}
         initialValues={localValue}
+        errors={errors}
         accountCountry={accountCountry}
         regulatoryClassification={regulatoryClassification}
         onSave={input => {
@@ -129,6 +133,7 @@ export const OwnershipFormIndividual = ({
       <OwnershipFormIndividualAddress
         ref={addressRef}
         initialValues={localValue}
+        errors={errors}
         companyCountry={companyCountry}
         onSave={input => {
           if (step === "legal") {
@@ -144,6 +149,7 @@ export const OwnershipFormIndividual = ({
       <OwnershipFormIndividualDetails
         ref={detailRef}
         initialValues={localValue}
+        errors={errors}
         companyCountry={companyCountry}
         onSave={input => {
           setLocalValue(prevState => ({ ...prevState, ...input }));

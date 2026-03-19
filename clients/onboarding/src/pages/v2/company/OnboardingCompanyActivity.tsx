@@ -18,7 +18,7 @@ import {
   MonthlyPaymentVolume,
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
-import { t } from "../../../utils/i18n";
+import { locale, t } from "../../../utils/i18n";
 
 import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeTagInput } from "@swan-io/lake/src/components/LakeTagInput";
@@ -177,6 +177,7 @@ export const OnboardingCompanyActivity = ({ onboarding, serverValidationErrors }
               ...currentValues,
             },
           },
+          language: locale.language,
         })
           .mapOk(data => data.updatePublicCompanyAccountHolderOnboarding)
           .mapOkToResult(filterRejectionsToResult)

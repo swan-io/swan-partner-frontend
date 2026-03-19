@@ -13,7 +13,7 @@ import {
   RelatedIndividualInput,
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
-import { formatNestedMessage, t } from "../../../utils/i18n";
+import { formatNestedMessage, locale, t } from "../../../utils/i18n";
 
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -307,7 +307,7 @@ export const OnboardingCompanyOwnership = ({
       | { relatedCompanies: RelatedCompanyInput[] }
       | { relatedIndividuals: RelatedIndividualInput[] },
   ) => {
-    updateCompanyOnboarding({ input: { onboardingId, company } })
+    updateCompanyOnboarding({ input: { onboardingId, company }, language: locale.language })
       .mapOk(data => data.updatePublicCompanyAccountHolderOnboarding)
       .mapOkToResult(filterRejectionsToResult)
       .tapOk(() => resetPageState())

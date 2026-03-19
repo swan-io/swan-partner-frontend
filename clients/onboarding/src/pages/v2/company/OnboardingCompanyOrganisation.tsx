@@ -12,6 +12,7 @@ import { combineValidators, useForm } from "@swan-io/use-form";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
+import { OnboardingTcu } from "../../../components/OnboardingTcu";
 import { StepTitle } from "../../../components/StepTitle";
 import {
   CompanyOnboardingFragment,
@@ -28,6 +29,7 @@ import {
 
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
+import { omit } from "@swan-io/lake/src/utils/object";
 import { InlineDatePicker } from "@swan-io/shared-business/src/components/InlineDatePicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
@@ -92,7 +94,7 @@ const styles = StyleSheet.create({
 
 export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErrors }: Props) => {
   const onboardingId = onboarding.id;
-  const { accountInfo, company } = onboarding;
+  const { accountInfo, company, projectInfo } = onboarding;
   const isFirstMount = useFirstMountState();
 
   const [updateCompanyOnboarding, updateResult] = useMutation(
@@ -106,6 +108,12 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
   const accountCountry = accountInfo?.country;
   const companyCountry = company?.address?.country;
   const companyType = company?.companyType;
+  const tcuUrl = "#"; //@todo missing in schema
+  const tcuDocumentUri = projectInfo?.tcuDocumentUri ?? "#";
+
+  const haveToAcceptTcu = match({ accountCountry })
+    .with({ accountCountry: P.union("DEU", "ITA") }, () => true)
+    .otherwise(() => false);
 
   const isVatRequired = match({ accountCountry })
     .with({ accountCountry: "ITA" }, () => true)
@@ -117,9 +125,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
 
   const isTaxIdentificationRequired = match({ companyCountry, accountCountry })
     .with({ companyCountry: P.not(accountCountry) }, () => true)
-    .with({ accountCountry: "DEU" }, () => true)
-    .with({ accountCountry: "ESP" }, () => true)
-    .with({ accountCountry: "ITA" }, () => true)
+    .with({ accountCountry: P.union("DEU", "ESP", "ITA") }, () => true)
     .otherwise(() => false);
 
   //Italian company with a status self employed use the same tax validation rules as individual
@@ -184,6 +190,14 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
       initialValue: company?.registrationDate ?? undefined,
       validate: validateNullableRequired,
     },
+    tcuAccepted: {
+      initialValue: !haveToAcceptTcu, // initialize as accepted if not required
+      validate: value => {
+        if (value === false) {
+          return t("step.finalize.termsError");
+        }
+      },
+    },
   });
 
   useEffect(() => {
@@ -202,7 +216,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
   const onPressNext = () => {
     submitForm({
       onSuccess: values => {
-        const option = Option.allFromDict(values);
+        const option = Option.allFromDict(omit(values, ["tcuAccepted"]));
         if (option.isNone()) {
           return;
         }
@@ -224,6 +238,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
               ...input,
             },
           },
+          language: locale.language,
         })
           .mapOk(data => data.updatePublicCompanyAccountHolderOnboarding)
           .mapOkToResult(filterRejectionsToResult)
@@ -446,6 +461,23 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
           </>
         )}
       </ResponsiveContainer>
+
+      {haveToAcceptTcu && (
+        <Field name="tcuAccepted">
+          {({ value, error, onChange, ref }) => (
+            <OnboardingTcu
+              ref={ref}
+              value={value}
+              error={error}
+              onChange={onChange}
+              tcuUrl={tcuUrl}
+              tcuDocumentUri={tcuDocumentUri}
+              partnerName={projectInfo?.name}
+            />
+          )}
+        </Field>
+      )}
+
       <OnboardingFooter
         onNext={onPressNext}
         onPrevious={onPressPrevious}

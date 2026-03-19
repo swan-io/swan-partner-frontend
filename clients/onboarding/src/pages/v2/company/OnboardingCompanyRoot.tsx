@@ -15,7 +15,7 @@ import {
   LegalForm,
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
-import { t } from "../../../utils/i18n";
+import { locale, t } from "../../../utils/i18n";
 
 import { Option } from "@swan-io/boxed";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
@@ -216,6 +216,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
               typeOfRepresentation,
             },
           },
+          language: locale.language,
         })
           .mapOk(data => data.updatePublicCompanyAccountHolderOnboarding)
           .mapOkToResult(filterRejectionsToResult)

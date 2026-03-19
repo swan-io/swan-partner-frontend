@@ -239,6 +239,7 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
               },
             },
           },
+          language: locale.language,
         })
           .mapOk(data => data.updatePublicCompanyAccountHolderOnboarding)
           .mapOkToResult(filterRejectionsToResult)

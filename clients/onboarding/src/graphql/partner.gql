@@ -163,6 +163,7 @@ fragment IndividualOrCompanyOnboarding on AccountHolderOnboardingBase {
     name
     accentColor
     logoUri
+    tcuDocumentUri(language: $language)
   }
 }
 
@@ -225,7 +226,7 @@ fragment IndividualOnboarding on IndividualAccountHolderOnboarding {
   }
 }
 
-query GetPublicOnboarding($id: ID!) {
+query GetPublicOnboarding($id: ID!, $language: String!) {
   publicAccountHolderOnboarding(id: $id) {
     ...CompanyOnboarding
     ...IndividualOnboarding
@@ -265,6 +266,7 @@ query GetLegalForms($country: CCA3!) {
 
 mutation UpdatePublicIndividualAccountHolderOnboarding(
   $input: UpdatePublicIndividualAccountHolderOnboardingInput!
+  $language: String!
 ) {
   updatePublicIndividualAccountHolderOnboarding(input: $input) {
     ... on UpdatePublicIndividualAccountHolderOnboardingSuccessPayload {
@@ -277,6 +279,7 @@ mutation UpdatePublicIndividualAccountHolderOnboarding(
 
 mutation UpdatePublicCompanyAccountHolderOnboarding(
   $input: UpdatePublicCompanyAccountHolderOnboardingInput!
+  $language: String!
 ) {
   updatePublicCompanyAccountHolderOnboarding(input: $input) {
     ... on UpdatePublicCompanyAccountHolderOnboardingSuccessPayload {

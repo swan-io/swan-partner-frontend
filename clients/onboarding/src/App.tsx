@@ -203,35 +203,39 @@ const FlowPickerV2 = ({ onboardingId }: Props) => {
   );
 
   useEffect(() => {
-    const request = query({ id: onboardingId }).tapOk(({ publicAccountHolderOnboarding }) => {
-      match(publicAccountHolderOnboarding)
-        .with(P.nonNullable, onboarding => {
-          if (onboarding.accountAdmin?.preferredLanguage === locale.language) {
-            return;
-          }
-          return match(onboarding.__typename)
-            .with("CompanyAccountHolderOnboarding", () =>
-              updateCompanyOnboarding({
-                input: {
-                  onboardingId,
-                  accountAdmin: { preferredLanguage: locale.language },
-                },
-              }),
-            )
-            .with("IndividualAccountHolderOnboarding", () =>
-              updateIndividualOnboarding({
-                input: {
-                  onboardingId,
-                  accountAdmin: { preferredLanguage: locale.language },
-                },
-              }),
-            )
-            .otherwise(() => {});
-        })
-        .otherwise(() => {});
+    const request = query({ id: onboardingId, language: locale.language }).tapOk(
+      ({ publicAccountHolderOnboarding }) => {
+        match(publicAccountHolderOnboarding)
+          .with(P.nonNullable, onboarding => {
+            if (onboarding.accountAdmin?.preferredLanguage === locale.language) {
+              return;
+            }
+            return match(onboarding.__typename)
+              .with("CompanyAccountHolderOnboarding", () =>
+                updateCompanyOnboarding({
+                  input: {
+                    onboardingId,
+                    accountAdmin: { preferredLanguage: locale.language },
+                  },
+                  language: locale.language,
+                }),
+              )
+              .with("IndividualAccountHolderOnboarding", () =>
+                updateIndividualOnboarding({
+                  input: {
+                    onboardingId,
+                    accountAdmin: { preferredLanguage: locale.language },
+                  },
+                  language: locale.language,
+                }),
+              )
+              .otherwise(() => {});
+          })
+          .otherwise(() => {});
 
-      return publicAccountHolderOnboarding;
-    });
+        return publicAccountHolderOnboarding;
+      },
+    );
 
     return () => request.cancel();
   }, [onboardingId, query, updateCompanyOnboarding, updateIndividualOnboarding]);

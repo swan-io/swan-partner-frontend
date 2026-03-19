@@ -17,7 +17,7 @@ import {
   MonthlyIncome,
   UpdatePublicIndividualAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
-import { t } from "../../../utils/i18n";
+import { locale, t } from "../../../utils/i18n";
 
 import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
@@ -212,6 +212,7 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
               },
             },
           },
+          language: locale.language,
         })
           .mapOk(data => data.updatePublicIndividualAccountHolderOnboarding)
           .mapOkToResult(filterRejectionsToResult)

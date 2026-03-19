@@ -210,6 +210,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
               },
             },
           },
+          language: locale.language,
         })
           .mapOk(data => data.updatePublicIndividualAccountHolderOnboarding)
           .mapOkToResult(filterRejectionsToResult)

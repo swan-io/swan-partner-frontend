@@ -134,8 +134,7 @@ export const FullNameAndCardTypeCell = ({ card }: { card: Card }) => {
                     <Space width={12} />
                     <Tag color="gray" icon="shield-checkmark-regular">
                       {match(insuranceSubscription.package.level)
-                        .with("Standard", () => t("cardProducts.insurance.Standard"))
-                        .with("Basic", () => t("cardProducts.insurance.Basic"))
+                        .with("Basic", "Standard", () => t("cardProducts.insurance.Standard"))
                         .with("Essential", () => t("cardProducts.insurance.Essential"))
                         .with("Custom", () => t("cardProducts.insurance.Custom"))
                         .with("Premium", () => t("cardProducts.insurance.Premium"))
@@ -178,8 +177,7 @@ export const FullNameAndCardTypeCell = ({ card }: { card: Card }) => {
                     <Space width={12} />
                     <Tag color="gray" icon="shield-checkmark-regular">
                       {match(insuranceSubscription.package.level)
-                        .with("Standard", () => t("cardProducts.insurance.Standard"))
-                        .with("Basic", () => t("cardProducts.insurance.Basic"))
+                        .with("Basic", "Standard", () => t("cardProducts.insurance.Standard"))
                         .with("Essential", () => t("cardProducts.insurance.Essential"))
                         .with("Custom", () => t("cardProducts.insurance.Custom"))
                         .with("Premium", () => t("cardProducts.insurance.Premium"))

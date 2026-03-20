@@ -120,8 +120,9 @@ const INSURANCE_DOCS_URL = null; // undefined at the moment until the page is pu
 
 const getTitleModal = (insuranceType: CardInsurancePackage) => {
   return match(insuranceType)
-    .with({ level: "Standard" }, () => t("cardProducts.insurance.titleModal.standard"))
-    .with({ level: "Basic" }, () => t("cardProducts.insurance.titleModal.basic"))
+    .with({ level: "Basic" }, { level: "Standard" }, () =>
+      t("cardProducts.insurance.titleModal.standard"),
+    )
     .with({ level: "Custom" }, () => t("cardProducts.insurance.titleModal.custom"))
     .with({ level: "Premium" }, () => t("cardProducts.insurance.titleModal.premium"))
     .with({ level: "Essential" }, () => t("cardProducts.insurance.titleModal.essential"))
@@ -331,7 +332,7 @@ export const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps
               <Box direction="row" alignItems="center">
                 <LakeText color={colors.current.primary}>
                   {match(insuranceLevel)
-                    .with("Basic", () => t("cardDetail.insurance.readMore.basic"))
+                    .with("Basic", "Standard", () => t("cardDetail.insurance.readMore.basic"))
                     .with("Premium", () => t("cardDetail.insurance.readMore.premium"))
                     .with("Essential", () => t("cardDetail.insurance.readMore.essential"))
                     .otherwise(() => null)}
@@ -491,7 +492,9 @@ export const CardWizardProduct = ({
 
                   <LakeText align="center" variant="smallRegular">
                     {match(defaultInsurancePackage)
-                      .with({ level: "Basic" }, () => t("cardProducts.insurance.badge.basic"))
+                      .with({ level: "Basic" }, { level: "Standard" }, () =>
+                        t("cardProducts.insurance.badge.basic"),
+                      )
                       .with({ level: "Essential" }, () =>
                         t("cardProducts.insurance.badge.essential"),
                       )

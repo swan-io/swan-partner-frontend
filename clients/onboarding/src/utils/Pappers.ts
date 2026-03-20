@@ -8,6 +8,8 @@ type PappersResult = {
   siren?: string;
   nom_entreprise?: string;
   denomination?: string;
+  libelle_code_naf?: string;
+  domaine_activite?: string;
   siege?: {
     code_postal?: string;
     ville?: string;
@@ -25,6 +27,7 @@ export type CompanySuggestion = {
   name: string;
   siren: string;
   value: string;
+  libelle: string;
 };
 
 export const queryCompanies = (query: string): Future<Result<Array<CompanySuggestion>, Error>> => {
@@ -46,17 +49,25 @@ export const queryCompanies = (query: string): Future<Result<Array<CompanySugges
         return [...resultats_siren, ...resultats_nom_entreprise, ...resultats_denomination]
           .filter(isNotNullish)
           .reduce<CompanySuggestion[]>((acc, result) => {
-            const { denomination, nom_entreprise, siege, siren = "" } = result;
+            const {
+              denomination,
+              nom_entreprise,
+              libelle_code_naf,
+              domaine_activite,
+              siege,
+              siren = "",
+            } = result;
 
             const name = nom_entreprise ?? denomination ?? "";
             const city = [siege?.code_postal, siege?.ville].filter(isNotNullish).join(" ");
+            const libelle = libelle_code_naf ?? domaine_activite ?? "";
 
             // we don't display result without name, without siren or already displayed
             if (name === "" || siren === "" || acc.some(suggestion => suggestion.siren === siren)) {
               return acc;
             }
 
-            acc.push({ value: siren, siren, name, city });
+            acc.push({ value: siren, siren, name, city, libelle });
             return acc;
           }, []);
       },

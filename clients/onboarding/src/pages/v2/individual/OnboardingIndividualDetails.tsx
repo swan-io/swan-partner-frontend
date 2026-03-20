@@ -5,7 +5,7 @@ import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
-import { noop } from "@swan-io/lake/src/utils/function";
+import { identity, noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { combineValidators, useForm } from "@swan-io/use-form";
@@ -29,6 +29,7 @@ import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
+import { PlacekitCityInput } from "@swan-io/shared-business/src/components/PlacekitCityInput";
 import {
   allCountries,
   CountryCCA3,
@@ -372,23 +373,34 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                   )}
                 />
 
-                <Field name="birthCity">
-                  {({ value, valid, error, onChange, ref }) => (
-                    <LakeLabel
-                      label={t("form.label.birthCity")}
-                      render={id => (
-                        <LakeTextInput
-                          id={id}
-                          ref={ref}
-                          value={value}
-                          error={error}
-                          valid={valid}
-                          onChangeText={onChange}
+                <FieldsListener names={["birthCountry"]}>
+                  {({ birthCountry }) => (
+                    <Field name="birthCity">
+                      {({ value, error, onChange }) => (
+                        <LakeLabel
+                          label={t("form.label.birthCity")}
+                          render={id => (
+                            <PlacekitCityInput
+                              id={id}
+                              apiKey={__env.CLIENT_PLACEKIT_API_KEY}
+                              error={error}
+                              country={birthCountry.value}
+                              value={value ?? ""}
+                              onValueChange={onChange}
+                              onSuggestion={place => {
+                                onChange(place.city);
+                                if (place.postalCode != null) {
+                                  setFieldValue("birthPostal", place.postalCode);
+                                }
+                              }}
+                              onLoadError={identity}
+                            />
+                          )}
                         />
                       )}
-                    />
+                    </Field>
                   )}
-                </Field>
+                </FieldsListener>
 
                 <Field name="birthPostal">
                   {({ value, valid, error, onChange, ref }) => (

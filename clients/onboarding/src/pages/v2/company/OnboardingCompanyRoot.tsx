@@ -9,7 +9,6 @@ import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import {
   CompanyInfo,
   CompanyOnboardingFragment,
-  CompanyRelatedCompany,
   CompanyRelatedIndividual,
   GetPublicCompamyInfoRegistryDataDocument,
   LegalForm,
@@ -109,8 +108,8 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
   const [siren, setSiren] = useState<string | null>(null);
   const [publicData, setPublicData] = useState<CompanyInfo>();
   const [manualMode, setManualMode] = useState<boolean>(initialCountry !== "FRA");
-  const [representatives, setRepresentatives] =
-    useState<(CompanyRelatedIndividual | CompanyRelatedCompany)[]>();
+  const related = [...(company?.relatedIndividuals ?? []), ...(company?.relatedCompanies ?? [])];
+  const [representatives, setRepresentatives] = useState(related.length > 0 ? related : undefined);
 
   const { Field, FieldsListener, setFieldValue, setFieldError, submitForm } = useForm({
     name: {
@@ -186,6 +185,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
         );
 
         // @TODO split into two mutation to separate user input and data from public registry
+        // @TODO data can be overided with empty public data when editing
         updateCompanyOnboarding({
           input: {
             onboardingId,
@@ -254,7 +254,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
               setPublicData(info);
               setFieldValue("legalFormCode", legalFormCode ?? undefined);
               setRepresentatives([
-                ...(companyInfo.relatedIndividuals ?? []), //@todo filters ubo
+                ...(companyInfo.relatedIndividuals ?? []),
                 ...(companyInfo.relatedCompanies ?? []),
               ]);
               hasOnboardingPrefilled.set({

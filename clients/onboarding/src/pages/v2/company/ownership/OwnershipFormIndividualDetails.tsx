@@ -6,9 +6,11 @@ import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
+import { identity } from "@swan-io/lake/src/utils/function";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
+import { PlacekitCityInput } from "@swan-io/shared-business/src/components/PlacekitCityInput";
 import {
   allCountries,
   CountryCCA3,
@@ -108,7 +110,7 @@ export const OwnershipFormIndividualDetails = ({
 
   const isFirstMount = useFirstMountState();
 
-  const { Field, submitForm, FieldsListener, setFieldError } = useForm({
+  const { Field, submitForm, FieldsListener, setFieldError, setFieldValue } = useForm({
     firstName: {
       initialValue: initialValues?.firstName ?? "",
       sanitize: trim,
@@ -261,23 +263,34 @@ export const OwnershipFormIndividualDetails = ({
             )}
           />
 
-          <Field name="birthCity">
-            {({ value, valid, error, onChange, ref }) => (
-              <LakeLabel
-                label={t("form.label.birthCity")}
-                render={id => (
-                  <LakeTextInput
-                    id={id}
-                    ref={ref}
-                    value={value}
-                    valid={valid}
-                    error={error}
-                    onChangeText={onChange}
+          <FieldsListener names={["birthCountry"]}>
+            {({ birthCountry }) => (
+              <Field name="birthCity">
+                {({ value, error, onChange }) => (
+                  <LakeLabel
+                    label={t("form.label.birthCity")}
+                    render={id => (
+                      <PlacekitCityInput
+                        id={id}
+                        apiKey={__env.CLIENT_PLACEKIT_API_KEY}
+                        error={error}
+                        country={birthCountry.value}
+                        value={value ?? ""}
+                        onValueChange={onChange}
+                        onSuggestion={place => {
+                          onChange(place.city);
+                          if (place.postalCode != null) {
+                            setFieldValue("birthPostal", place.postalCode);
+                          }
+                        }}
+                        onLoadError={identity}
+                      />
+                    )}
                   />
                 )}
-              />
+              </Field>
             )}
-          </Field>
+          </FieldsListener>
 
           <Field name="birthPostal">
             {({ value, valid, error, onChange, ref }) => (

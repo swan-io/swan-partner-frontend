@@ -597,6 +597,9 @@ input AccountHolderFilterInput {
   """Filter by verification status"""
   verificationStatus: [VerificationStatus!]
 
+  """Filter by verification requirement type"""
+  verificationRequirements: [VerificationRequirementType!]
+
   """
   Search string to look for
   
@@ -1740,7 +1743,9 @@ type CompanyAccountHolderOnboardingAccountAdmin {
   """
   First name of the account administrator
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   firstName: String
 
@@ -1752,7 +1757,9 @@ type CompanyAccountHolderOnboardingAccountAdmin {
   """
   Last name of the account administrator
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   lastName: String
 
@@ -1796,7 +1803,9 @@ input CompanyAccountHolderOnboardingAccountAdminInput {
   """
   First name of the account administrator
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   firstName: String
 
@@ -1808,7 +1817,9 @@ input CompanyAccountHolderOnboardingAccountAdminInput {
   """
   Last name of the account administrator
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   lastName: String
 
@@ -2769,7 +2780,9 @@ type IndividualAccountHolderOnboardingAccountAdmin {
   """
   First name of the account administrator
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   firstName: String
 
@@ -2781,7 +2794,9 @@ type IndividualAccountHolderOnboardingAccountAdmin {
   """
   Last name of the account administrator
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   lastName: String
 
@@ -3824,7 +3839,9 @@ input RelatedIndividualInput {
   """
   First name of the individual
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   firstName: String
 
@@ -3838,7 +3855,9 @@ input RelatedIndividualInput {
   """
   Last name of the individual
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   lastName: String
 
@@ -6209,10 +6228,11 @@ type CardInsurancePackage {
 }
 
 enum CardInsurancePackageLevel {
-  Basic
+  Standard
+  Basic @deprecated(reason: "We are renaming Basic -> Standard")
   Essential
   Premium
-  Custom
+  Custom @deprecated(reason: "There is no planned use for Custom insurance")
 }
 
 type CardInsuranceSubscription {
@@ -6839,6 +6859,15 @@ enum DigitalizationType {
 
   """We could not get the source of the digitalization"""
   Unknown
+
+  """This digital card was created by a tap to add card"""
+  TapToAddCard
+
+  """This digital card was created by a browser"""
+  Browser
+
+  """This digital card was created by a token"""
+  Token
 }
 
 """
@@ -8845,10 +8874,7 @@ type MerchantProfile {
     filters: MerchantPaymentFiltersInput
   ): MerchantPaymentConnection
 
-  """Url of the merchant's website"""
-  merchantWebsite: String @deprecated(reason: "Use merchantWebsiteUrl instead")
-
-  """Url of the merchant's website"""
+  """URL of the merchant website (Maximum 255 characters)"""
   merchantWebsiteUrl: String
 
   """
@@ -8868,22 +8894,13 @@ type MerchantProfile {
   requestMerchantProfileUpdate: RequestMerchantProfileUpdate
 
   """The URL of the main social network of the merchant."""
-  socialNetwork: String @deprecated(reason: "use socialNetworkUrl instead")
-
-  """The URL of the main social network of the merchant."""
   socialNetworkUrl: String
 
   """The status of the merchant profile"""
   statusInfo: MerchantProfileStatusInfo!
 
   """The URL of the support website or help center of the merchant."""
-  supportWebsite: String @deprecated(reason: "use supportWebsiteUrl instead")
-
-  """The URL of the support website or help center of the merchant."""
   supportWebsiteUrl: String
-
-  """The URL of the terms and conditions of the merchant."""
-  termsAndConditions: String @deprecated(reason: "use termsAndConditionsUrl instead")
 
   """The URL of the terms and conditions of the merchant."""
   termsAndConditionsUrl: String
@@ -9168,10 +9185,7 @@ type RequestMerchantProfileUpdate {
   """The Merchant Profile ID to update"""
   merchantProfileId: ID!
 
-  """Url of the merchant's website"""
-  merchantWebsite: String @deprecated(reason: "Use merchantWebsiteUrl instead")
-
-  """Url of the merchant's website"""
+  """URL of the merchant website (Maximum 255 characters)"""
   merchantWebsiteUrl: String
 
   """
@@ -9185,22 +9199,13 @@ type RequestMerchantProfileUpdate {
   productType: ProductType
 
   """The URL of the main social network of the merchant."""
-  socialNetwork: String @deprecated(reason: "use socialNetworkUrl instead")
-
-  """The URL of the main social network of the merchant."""
   socialNetworkUrl: String
 
   """The status of the request"""
   status: RequestMerchantProfileUpdateStatus!
 
   """The URL of the support website or help center of the merchant."""
-  supportWebsite: String @deprecated(reason: "use supportWebsiteUrl instead")
-
-  """The URL of the support website or help center of the merchant."""
   supportWebsiteUrl: String
-
-  """The URL of the terms and conditions of the merchant."""
-  termsAndConditions: String @deprecated(reason: "use termsAndConditionsUrl instead")
 
   """The URL of the terms and conditions of the merchant."""
   termsAndConditionsUrl: String

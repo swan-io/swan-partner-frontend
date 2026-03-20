@@ -120,6 +120,7 @@ const INSURANCE_DOCS_URL = null; // undefined at the moment until the page is pu
 
 const getTitleModal = (insuranceType: CardInsurancePackage) => {
   return match(insuranceType)
+    .with({ level: "Standard" }, () => t("cardProducts.insurance.titleModal.standard"))
     .with({ level: "Basic" }, () => t("cardProducts.insurance.titleModal.basic"))
     .with({ level: "Custom" }, () => t("cardProducts.insurance.titleModal.custom"))
     .with({ level: "Premium" }, () => t("cardProducts.insurance.titleModal.premium"))
@@ -183,8 +184,8 @@ export const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps
               </Th>
               <Th style={[styles.cell, styles.lastCell]}>
                 {match(insuranceLevel)
-                  .with("Basic", () => (
-                    <LakeText variant="semibold">{t("cardProducts.insurance.Basic")}</LakeText>
+                  .with("Basic", "Standard", () => (
+                    <LakeText variant="semibold">{t("cardProducts.insurance.Standard")}</LakeText>
                   ))
                   .with("Premium", () => (
                     <LakeText variant="semibold">{t("cardProducts.insurance.Premium")}</LakeText>
@@ -202,7 +203,7 @@ export const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps
                 <LakeText>{t("cardProducts.insurance.coverage.id")}</LakeText>
               </Td>
               {match(insuranceLevel)
-                .with("Basic", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .with("Basic", "Standard", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .with("Premium", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .with("Essential", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .otherwise(() => null)}
@@ -212,7 +213,7 @@ export const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps
                 <LakeText>{t("cardProducts.insurance.coverage.eReputation")}</LakeText>
               </Td>
               {match(insuranceLevel)
-                .with("Basic", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .with("Basic", "Standard", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .with("Premium", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .with("Essential", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .otherwise(() => null)}
@@ -222,7 +223,7 @@ export const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps
                 <LakeText>{t("cardProducts.insurance.coverage.fraudTransaction")}</LakeText>
               </Td>
               {match(insuranceLevel)
-                .with("Basic", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .with("Basic", "Standard", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .with("Premium", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .with("Essential", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .otherwise(() => null)}
@@ -232,7 +233,7 @@ export const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps
                 <LakeText>{t("cardProducts.insurance.coverage.fraudPhishing")}</LakeText>
               </Td>
               {match(insuranceLevel)
-                .with("Basic", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+                .with("Basic", "Standard", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .with("Premium", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .with("Essential", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .otherwise(() => null)}
@@ -244,7 +245,7 @@ export const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps
                 </LakeText>
               </Td>
               {match(insuranceLevel)
-                .with("Basic", () => (
+                .with("Basic", "Standard", () => (
                   <Td style={[styles.cell, styles.centered]}>
                     <LakeText color={colors.gray[200]}>—</LakeText>
                   </Td>
@@ -258,7 +259,7 @@ export const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps
                 <LakeText>{t("cardProducts.insurance.coverage.travelRental")}</LakeText>
               </Td>
               {match(insuranceLevel)
-                .with("Basic", () => (
+                .with("Basic", "Standard", () => (
                   <Td style={[styles.cell, styles.centered]}>
                     <LakeText color={colors.gray[200]}>—</LakeText>
                   </Td>
@@ -272,7 +273,7 @@ export const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps
                 <LakeText>{t("cardProducts.insurance.coverage.travelDelay")}</LakeText>
               </Td>
               {match(insuranceLevel)
-                .with("Basic", () => (
+                .with("Basic", "Standard", () => (
                   <Td style={[styles.cell, styles.centered]}>
                     <LakeText color={colors.gray[200]}>—</LakeText>
                   </Td>
@@ -286,7 +287,7 @@ export const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps
                 <LakeText>{t("cardProducts.insurance.coverage.travelBagages")}</LakeText>
               </Td>
               {match(insuranceLevel)
-                .with("Basic", () => (
+                .with("Basic", "Standard", () => (
                   <Td style={[styles.cell, styles.centered]}>
                     <LakeText color={colors.gray[200]}>—</LakeText>
                   </Td>
@@ -304,7 +305,7 @@ export const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps
                 <LakeText>{t("cardProducts.insurance.coverage.medicalExpensesAbroad")}</LakeText>
               </Td>
               {match(insuranceLevel)
-                .with("Basic", () => (
+                .with("Basic", "Standard", () => (
                   <Td style={[styles.cell, styles.centered, styles.lastCell]}>
                     <LakeText color={colors.gray[200]}>—</LakeText>
                   </Td>

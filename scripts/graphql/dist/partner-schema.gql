@@ -2224,6 +2224,9 @@ input AccountHolderFilterInput {
   """Filter by verification status"""
   verificationStatus: [VerificationStatus!]
 
+  """Filter by verification requirement type"""
+  verificationRequirements: [VerificationRequirementType!]
+
   """
   Search string to look for
   
@@ -3708,7 +3711,9 @@ type CompanyAccountHolderOnboardingAccountAdmin {
   """
   First name of the account administrator
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   firstName: String
 
@@ -3720,7 +3725,9 @@ type CompanyAccountHolderOnboardingAccountAdmin {
   """
   Last name of the account administrator
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   lastName: String
 
@@ -3764,7 +3771,9 @@ input CompanyAccountHolderOnboardingAccountAdminInput {
   """
   First name of the account administrator
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   firstName: String
 
@@ -3776,7 +3785,9 @@ input CompanyAccountHolderOnboardingAccountAdminInput {
   """
   Last name of the account administrator
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   lastName: String
 
@@ -3821,7 +3832,9 @@ input CompanyAccountHolderOnboardingAccountAdminUpdateInput {
   """
   First name of the account administrator
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   firstName: String
 
@@ -3833,7 +3846,9 @@ input CompanyAccountHolderOnboardingAccountAdminUpdateInput {
   """
   Last name of the account administrator
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   lastName: String
 
@@ -5418,7 +5433,9 @@ type IndividualAccountHolderOnboardingAccountAdmin {
   """
   First name of the account administrator
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   firstName: String
 
@@ -5430,7 +5447,9 @@ type IndividualAccountHolderOnboardingAccountAdmin {
   """
   Last name of the account administrator
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   lastName: String
 
@@ -5481,7 +5500,9 @@ input IndividualAccountHolderOnboardingAccountAdminInput {
   """
   First name of the account administrator
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   firstName: String
 
@@ -5493,7 +5514,9 @@ input IndividualAccountHolderOnboardingAccountAdminInput {
   """
   Last name of the account administrator
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   lastName: String
 
@@ -6164,10 +6187,7 @@ type MerchantProfile {
     filters: MerchantPaymentFiltersInput
   ): MerchantPaymentConnection
 
-  """Url of the merchant's website"""
-  merchantWebsite: String @deprecated(reason: "Use merchantWebsiteUrl instead")
-
-  """Url of the merchant's website"""
+  """URL of the merchant website (Maximum 255 characters)"""
   merchantWebsiteUrl: String
 
   """
@@ -6187,22 +6207,13 @@ type MerchantProfile {
   requestMerchantProfileUpdate: RequestMerchantProfileUpdate
 
   """The URL of the main social network of the merchant."""
-  socialNetwork: String @deprecated(reason: "use socialNetworkUrl instead")
-
-  """The URL of the main social network of the merchant."""
   socialNetworkUrl: String
 
   """The status of the merchant profile"""
   statusInfo: MerchantProfileStatusInfo!
 
   """The URL of the support website or help center of the merchant."""
-  supportWebsite: String @deprecated(reason: "use supportWebsiteUrl instead")
-
-  """The URL of the support website or help center of the merchant."""
   supportWebsiteUrl: String
-
-  """The URL of the terms and conditions of the merchant."""
-  termsAndConditions: String @deprecated(reason: "use termsAndConditionsUrl instead")
 
   """The URL of the terms and conditions of the merchant."""
   termsAndConditionsUrl: String
@@ -7195,7 +7206,9 @@ input PublicIndividualAccountHolderOnboardingAccountAdminInput {
   """
   First name of the account administrator
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   firstName: String
 
@@ -7207,7 +7220,9 @@ input PublicIndividualAccountHolderOnboardingAccountAdminInput {
   """
   Last name of the account administrator
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   lastName: String
 
@@ -7372,7 +7387,9 @@ input RelatedIndividualInput {
   """
   First name of the individual
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   firstName: String
 
@@ -7386,7 +7403,9 @@ input RelatedIndividualInput {
   """
   Last name of the individual
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   lastName: String
 
@@ -9356,7 +9375,9 @@ input UpdateIndividualAccountHolderOnboardingAccountAdminInput {
   """
   First name of the account administrator
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   firstName: String
 
@@ -9368,7 +9389,9 @@ input UpdateIndividualAccountHolderOnboardingAccountAdminInput {
   """
   Last name of the account administrator
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
   """
   lastName: String
 
@@ -11427,6 +11450,56 @@ enum FeesTypeEnum {
 
   """Fee for sending a card transaction"""
   CardTransaction
+
+  """Fee for a chargeback on a Tap To Pay transaction"""
+  TapToPayChargeback
+
+  """
+  Fee for a Tap To Pay transaction with an Amex commercial card in Europe
+  """
+  TapToPayTransactionAmexEeaCommercial
+
+  """Fee for a Tap To Pay transaction with an Amex consumer card in Europe"""
+  TapToPayTransactionAmexEeaConsumer
+
+  """
+  Fee for a Tap To Pay transaction with an Amex commercial card out of Europe
+  """
+  TapToPayTransactionAmexIntlCommercial
+
+  """
+  Fee for a Tap To Pay transaction with an Amex consumer card out of Europe
+  """
+  TapToPayTransactionAmexIntlConsumer
+
+  """Fee for a Tap To Pay transaction with a CB commercial card in Europe"""
+  TapToPayTransactionCbEeaCommercial
+
+  """Fee for a Tap To Pay transaction with a CB consumer card in Europe"""
+  TapToPayTransactionCbEeaConsumer
+
+  """Fee for a standard Tap To Pay transaction"""
+  TapToPayTransactionFallback
+
+  """
+  Fee for a Tap To Pay transaction with a Visa or Mastercard commercial card in Europe
+  """
+  TapToPayTransactionVisaMastercardEeaCommercial
+
+  """
+  Fee for a Tap To Pay transaction with a Visa or Mastercard consumer card in Europe
+  """
+  TapToPayTransactionVisaMastercardEeaConsumer
+
+  """
+  Fee for a Tap To Pay transaction with a Visa or Mastercard commercial card out of Europe
+  """
+  TapToPayTransactionVisaMastercardIntlCommercial
+
+  """
+  Fee for a Tap To Pay transaction with a Visa or Mastercard consumer card out of Europe
+  """
+  TapToPayTransactionVisaMastercardIntlConsumer
 }
 
 type FeeTransaction implements Transaction {
@@ -15667,6 +15740,57 @@ type CapitalDepositCase {
 type CapitalDepositCaseCanceledStatusInfo implements CapitalDepositCaseStatusInfo {
   """Canceled"""
   status: CapitalDepositStatus!
+
+  """Reason for cancellation"""
+  reasonType: CapitalDepositCaseCancellationReasonType
+}
+
+enum CapitalDepositCaseCancellationReasonType {
+  """The company is inactive or isn't registered."""
+  BusinessInactiveOrNotRegistered
+
+  """The notary refused the capital deposit case."""
+  CapitalDepositRefusedByNotary
+
+  """The capital deposit has been withdrawn."""
+  CapitalDepositWithdrawn
+
+  """
+  The company registration country isn't supported, or isn't available per the country allowlist.
+  """
+  CompanyRegistrationCountryNotSupported
+
+  """Closure required for compliance reasons not covered by other values."""
+  ComplianceReason
+
+  """The ultimate beneficial owner or resident is in a high-risk country."""
+  DeniedCountryResidency
+
+  """A duplicate account was created by mistake."""
+  DuplicateOnboarding
+
+  """The account holder operates in a prohibited business sector."""
+  ForbiddenActivity
+
+  """Required documents are missing, incorrect, or unanswered."""
+  KYCIssue
+
+  """The account holder didn't reply to a re-KYC request."""
+  ReKYCNoReply
+
+  """
+  The account holder was assigned the wrong IBAN country, or the IBAN country isn't available per the country allowlist.
+  """
+  RefusedIbanCountry
+
+  """Closure required by a regulatory obligation."""
+  RegulatoryRequirement
+
+  """The account holder violated the terms and conditions."""
+  TCViolation
+
+  """Swan doesn't support this legal form."""
+  UnsupportedLegalForm
 }
 
 """
@@ -16901,10 +17025,11 @@ type CardInsurancePackage {
 }
 
 enum CardInsurancePackageLevel {
-  Basic
+  Standard
+  Basic @deprecated(reason: "We are renaming Basic -> Standard")
   Essential
   Premium
-  Custom
+  Custom @deprecated(reason: "There is no planned use for Custom insurance")
 }
 
 type CardInsuranceSubscription {
@@ -17542,6 +17667,15 @@ enum DigitalizationType {
 
   """We could not get the source of the digitalization"""
   Unknown
+
+  """This digital card was created by a tap to add card"""
+  TapToAddCard
+
+  """This digital card was created by a browser"""
+  Browser
+
+  """This digital card was created by a token"""
+  Token
 }
 
 """
@@ -18873,6 +19007,9 @@ input ExportAccountHolderDataFilters {
 
   """Birth date to filter account holders."""
   birthDate: String
+
+  """Verification requirement types to filter account holders."""
+  verificationRequirements: [VerificationRequirementType!]
 }
 
 """Input for the `exportAccountHolderData` mutation."""
@@ -22982,7 +23119,7 @@ input RequestMerchantProfileInput {
   """
   merchantName: String!
 
-  """Url of the merchant's website"""
+  """URL of the merchant website (Maximum 255 characters)"""
   merchantWebsiteUrl: URL
 
   """
@@ -23051,10 +23188,7 @@ type RequestMerchantProfileUpdate {
   """The Merchant Profile ID to update"""
   merchantProfileId: ID!
 
-  """Url of the merchant's website"""
-  merchantWebsite: String @deprecated(reason: "Use merchantWebsiteUrl instead")
-
-  """Url of the merchant's website"""
+  """URL of the merchant website (Maximum 255 characters)"""
   merchantWebsiteUrl: String
 
   """
@@ -23068,22 +23202,13 @@ type RequestMerchantProfileUpdate {
   productType: ProductType
 
   """The URL of the main social network of the merchant."""
-  socialNetwork: String @deprecated(reason: "use socialNetworkUrl instead")
-
-  """The URL of the main social network of the merchant."""
   socialNetworkUrl: String
 
   """The status of the request"""
   status: RequestMerchantProfileUpdateStatus!
 
   """The URL of the support website or help center of the merchant."""
-  supportWebsite: String @deprecated(reason: "use supportWebsiteUrl instead")
-
-  """The URL of the support website or help center of the merchant."""
   supportWebsiteUrl: String
-
-  """The URL of the terms and conditions of the merchant."""
-  termsAndConditions: String @deprecated(reason: "use termsAndConditionsUrl instead")
 
   """The URL of the terms and conditions of the merchant."""
   termsAndConditionsUrl: String
@@ -23138,7 +23263,7 @@ input RequestMerchantProfileUpdateInput {
   merchantProfileId: ID!
 
   """
-  Url of the merchant's website.
+  URL of the merchant website (Maximum 255 characters).
   Use '' to delete the field. Don't add the field to the mutation if you want to keep the existing value.
   """
   merchantWebsiteUrl: String

@@ -90,11 +90,11 @@ export const LakeCompanyInput = ({
       renderItem={item => (
         <>
           <Text numberOfLines={1} style={styles.itemTitle}>
-            {item.siren} - {item.name}
+            {item.name} ({item.city})
           </Text>
 
           <Text numberOfLines={1} style={styles.itemSubtitle}>
-            {item.city}
+            {item.libelle}
           </Text>
         </>
       )}

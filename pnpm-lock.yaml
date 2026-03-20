@@ -147,14 +147,14 @@ importers:
         specifier: 0.8.0
         version: 0.8.0(graphql@16.12.0)(react@19.2.4)(typescript@5.9.3)
       '@swan-io/lake':
-        specifier: 13.6.2
-        version: 13.6.2(typescript@5.9.3)
+        specifier: 13.6.4
+        version: 13.6.4(typescript@5.9.3)
       '@swan-io/request':
         specifier: 3.1.0
         version: 3.1.0(@swan-io/boxed@3.2.1(typescript@5.9.3))
       '@swan-io/shared-business':
-        specifier: 13.6.2
-        version: 13.6.2(@swan-io/lake@13.6.2(typescript@5.9.3))(typescript@5.9.3)
+        specifier: 13.6.4
+        version: 13.6.4(@swan-io/lake@13.6.4(typescript@5.9.3))(typescript@5.9.3)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@19.2.4)(typescript@5.9.3)
@@ -229,14 +229,14 @@ importers:
         specifier: 0.8.0
         version: 0.8.0(graphql@16.12.0)(react@19.2.4)(typescript@5.9.3)
       '@swan-io/lake':
-        specifier: 13.6.2
-        version: 13.6.2(typescript@5.9.3)
+        specifier: 13.6.4
+        version: 13.6.4(typescript@5.9.3)
       '@swan-io/request':
         specifier: 3.1.0
         version: 3.1.0(@swan-io/boxed@3.2.1(typescript@5.9.3))
       '@swan-io/shared-business':
-        specifier: 13.6.2
-        version: 13.6.2(@swan-io/lake@13.6.2(typescript@5.9.3))(typescript@5.9.3)
+        specifier: 13.6.4
+        version: 13.6.4(@swan-io/lake@13.6.4(typescript@5.9.3))(typescript@5.9.3)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@19.2.4)(typescript@5.9.3)
@@ -302,11 +302,11 @@ importers:
         specifier: 0.8.0
         version: 0.8.0(graphql@16.12.0)(react@19.2.4)(typescript@5.9.3)
       '@swan-io/lake':
-        specifier: 13.6.2
-        version: 13.6.2(typescript@5.9.3)
+        specifier: 13.6.4
+        version: 13.6.4(typescript@5.9.3)
       '@swan-io/shared-business':
-        specifier: 13.6.2
-        version: 13.6.2(@swan-io/lake@13.6.2(typescript@5.9.3))(typescript@5.9.3)
+        specifier: 13.6.4
+        version: 13.6.4(@swan-io/lake@13.6.4(typescript@5.9.3))(typescript@5.9.3)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@19.2.4)(typescript@5.9.3)
@@ -2280,8 +2280,8 @@ packages:
     peerDependencies:
       react: '>=18.2.0'
 
-  '@swan-io/lake@13.6.2':
-    resolution: {integrity: sha512-0BbpjD1ESLUSRrOAZYXQ/qr/sPtbXKk1XGhzI1TMa4h6fsEFdbB/UVHaJUKLCGGHj3OBzdXDUbRAf0DwxiO/iQ==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-13.6.2.tgz}
+  '@swan-io/lake@13.6.4':
+    resolution: {integrity: sha512-o62QzCKglW45H1Hnpfh3sOW88SfaUNODheMjaJdBg5peHN47xJwM8s+nz//muw7/1P5B/g3amRqcGHOfkxtZ6A==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-13.6.4.tgz}
     engines: {node: '>22.12.0'}
 
   '@swan-io/request@3.1.0':
@@ -2289,11 +2289,11 @@ packages:
     peerDependencies:
       '@swan-io/boxed': '>=2.2.1'
 
-  '@swan-io/shared-business@13.6.2':
-    resolution: {integrity: sha512-nmsN1EYnhrdXduwemODiV7dnQm4lyirwg7DDlX/NHruvoP4ViS8nwmQE1CyRPNsmEtqcrlQSIg7Ge5BB54fsMw==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-13.6.2.tgz}
+  '@swan-io/shared-business@13.6.4':
+    resolution: {integrity: sha512-d1uwYkoKkQv81Vz0VdiN+eUu0gUZ8ok2qekjhUsDLBH4zLT5d+bsEivvGPmdZm77gKUb/fo+OnLka0sNMGMy0A==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-13.6.4.tgz}
     engines: {node: '>22.12.0'}
     peerDependencies:
-      '@swan-io/lake': 13.6.2
+      '@swan-io/lake': 13.6.4
 
   '@swan-io/use-form@3.1.0':
     resolution: {integrity: sha512-X6NpZ7LCeo7eS9RVCZrtpX+3GXZFUfUZpIwtVa2GNmqTLgyDbLhN8N6zBv+dmHL9KAQ+Zng2fTCCQpCZvmDu5A==, tarball: https://registry.npmjs.org/@swan-io/use-form/-/use-form-3.1.0.tgz}
@@ -3276,6 +3276,7 @@ packages:
   glob@11.0.3:
     resolution: {integrity: sha512-2Nim7dha1KVkaiF4q6Dj+ngPPMdfvLJEOpZk/jKiUAkqKebpGAWQXAq9z1xu9HKu5lWfqw/FASuccEjyznjPaA==, tarball: https://registry.npmjs.org/glob/-/glob-11.0.3.tgz}
     engines: {node: 20 || >=22}
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   glob@13.0.0:
@@ -3284,7 +3285,7 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==, tarball: https://registry.npmjs.org/glob/-/glob-7.2.3.tgz}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   globby@11.1.0:
     resolution: {integrity: sha512-jhIXaOzy1sb8IyocaruWSn1TjmnBVs8Ayhcy83rmxNJ8q2uWKCAj3CnJY+KpGSXCueAPc0i05kVvVKtP1t9S3g==, tarball: https://registry.npmjs.org/globby/-/globby-11.1.0.tgz}
@@ -7425,7 +7426,7 @@ snapshots:
       - graphql
       - typescript
 
-  '@swan-io/lake@13.6.2(typescript@5.9.3)':
+  '@swan-io/lake@13.6.4(typescript@5.9.3)':
     dependencies:
       '@swan-io/boxed': 3.2.1(typescript@5.9.3)
       '@swan-io/chicane': 3.0.0(react@19.2.4)
@@ -7447,12 +7448,12 @@ snapshots:
     dependencies:
       '@swan-io/boxed': 3.2.1(typescript@5.9.3)
 
-  '@swan-io/shared-business@13.6.2(@swan-io/lake@13.6.2(typescript@5.9.3))(typescript@5.9.3)':
+  '@swan-io/shared-business@13.6.4(@swan-io/lake@13.6.4(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
       '@formatjs/intl': 4.1.2(typescript@5.9.3)
       '@placekit/client-js': 2.3.0
       '@swan-io/boxed': 3.2.1(typescript@5.9.3)
-      '@swan-io/lake': 13.6.2(typescript@5.9.3)
+      '@swan-io/lake': 13.6.4(typescript@5.9.3)
       '@swan-io/request': 3.1.0(@swan-io/boxed@3.2.1(typescript@5.9.3))
       '@swan-io/use-form': 3.1.0(react@19.2.4)(typescript@5.9.3)
       dayjs: 1.11.19

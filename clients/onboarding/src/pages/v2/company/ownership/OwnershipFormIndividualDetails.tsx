@@ -238,6 +238,7 @@ export const OwnershipFormIndividualDetails = ({
                 value={value}
                 onValueChange={onChange}
                 error={error}
+                responsive={false}
               />
             )}
           </Field>

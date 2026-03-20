@@ -254,7 +254,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
               setPublicData(info);
               setFieldValue("legalFormCode", legalFormCode ?? undefined);
               setRepresentatives([
-                ...(companyInfo.relatedIndividuals ?? []),
+                ...(companyInfo.relatedIndividuals ?? []), //@todo filters ubo
                 ...(companyInfo.relatedCompanies ?? []),
               ]);
               hasOnboardingPrefilled.set({

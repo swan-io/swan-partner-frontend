@@ -186,7 +186,7 @@ type Mutation {
   simulateIncomingInPersonCardSettlement(input: SimulateIncomingInPersonCardSettlementInput!): SimulateIncomingInPersonCardSettlementPayload!
 
   """Simulate the outcome of an incoming in-person payment intent"""
-  simulateIncomingInPersonPaymentIntentOutcome(input: SimulateIncomingInPersonPaymentIntentOutcomeInput!): SimulateIncomingInPersonPaymentIntentOutcomePayload!
+  simulateIncomingInPersonCardAuthorization(input: SimulateIncomingInPersonCardAuthorizationInput!): SimulateIncomingInPersonCardAuthorizationPayload!
 
   """Simulate the update of a Merchant Payment Method"""
   simulateMerchantPaymentMethodRequestOutcome(input: SimulateMerchantPaymentMethodRequestOutcomeInput!): SimulateMerchantPaymentMethodRequestOutcomePayload!
@@ -842,6 +842,9 @@ input AccountHolderFilterInput {
 
   """Filter by verification status"""
   verificationStatus: [VerificationStatus!]
+
+  """Filter by verification requirement type"""
+  verificationRequirements: [VerificationRequirementType!]
 
   """
   Search string to look for
@@ -4768,6 +4771,57 @@ type CapitalDepositCase {
 type CapitalDepositCaseCanceledStatusInfo implements CapitalDepositCaseStatusInfo {
   """Canceled"""
   status: CapitalDepositStatus!
+
+  """Reason for cancellation"""
+  reasonType: CapitalDepositCaseCancellationReasonType
+}
+
+enum CapitalDepositCaseCancellationReasonType {
+  """The company is inactive or isn't registered."""
+  BusinessInactiveOrNotRegistered
+
+  """The notary refused the capital deposit case."""
+  CapitalDepositRefusedByNotary
+
+  """The capital deposit has been withdrawn."""
+  CapitalDepositWithdrawn
+
+  """
+  The company registration country isn't supported, or isn't available per the country allowlist.
+  """
+  CompanyRegistrationCountryNotSupported
+
+  """Closure required for compliance reasons not covered by other values."""
+  ComplianceReason
+
+  """The ultimate beneficial owner or resident is in a high-risk country."""
+  DeniedCountryResidency
+
+  """A duplicate account was created by mistake."""
+  DuplicateOnboarding
+
+  """The account holder operates in a prohibited business sector."""
+  ForbiddenActivity
+
+  """Required documents are missing, incorrect, or unanswered."""
+  KYCIssue
+
+  """The account holder didn't reply to a re-KYC request."""
+  ReKYCNoReply
+
+  """
+  The account holder was assigned the wrong IBAN country, or the IBAN country isn't available per the country allowlist.
+  """
+  RefusedIbanCountry
+
+  """Closure required by a regulatory obligation."""
+  RegulatoryRequirement
+
+  """The account holder violated the terms and conditions."""
+  TCViolation
+
+  """Swan doesn't support this legal form."""
+  UnsupportedLegalForm
 }
 
 """
@@ -9511,6 +9565,25 @@ enum IncomingThreeDsStatus {
   Failed
 }
 
+enum InPersonCardAuthorizationRejectionReason {
+  SoftDeclineInsufficientFunds
+  RejectedByCardIssuer
+  SoftDeclineRejectedByCardIssuer
+}
+
+enum InPersonCardAuthorizationStatus {
+  Authorized
+  Rejected
+}
+
+enum InPersonCardDetailsScheme {
+  Visa
+  Mastercard
+  CartesBancaires
+  AmericanExpress
+  Discover
+}
+
 type InPersonCardMerchantPaymentMethod implements MerchantPaymentMethod {
   """
   Unique identifier tied to every version of a given Merchant Payment Method
@@ -9548,107 +9621,6 @@ type InPersonCardMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """Location ID to use in Stripe's SDK"""
   mainLocationId: String
-}
-
-"""
-Test scenarios available for in person card payments
-The payment will succeed or fail based on the selected scenario.
-"""
-enum InPersonCardTestScenario {
-  """Visa"""
-  Visa
-
-  """Visa (debit)"""
-  VisaDebit
-
-  """Mastercard"""
-  Mastercard
-
-  """Mastercard (debit)"""
-  MastercardDebit
-
-  """Mastercard (prepaid)"""
-  MastercardPrepaid
-
-  """American Express"""
-  Amex
-
-  """American Express"""
-  Amex2
-
-  """Discover"""
-  Discover
-
-  """Discover"""
-  Discover2
-
-  """Diners Club"""
-  Diners
-
-  """Diners Club (14 digit card)"""
-  Diners14Digits
-
-  """JCB"""
-  Jcb
-
-  """UnionPay"""
-  UnionPay
-
-  """Interac"""
-  Interac
-
-  """Eftpos Australia"""
-  EftposAuDebit
-
-  """Charge is declined with a `card_declined` code."""
-  ChargeDeclined
-
-  """
-  Charge is declined with a `card_declined` code. The `decline_code` attribute is `insufficient_funds`.
-  """
-  ChargeDeclinedInsufficientFunds
-
-  """
-  Charge is declined with a `card_declined` code. The `decline_code` attribute is `lost_card`.
-  """
-  ChargeDeclinedLostCard
-
-  """
-  Charge is declined with a `card_declined` code. The `decline_code` attribute is `stolen_card`.
-  """
-  ChargeDeclinedStolenCard
-
-  """Charge is declined with an `expired_card` code."""
-  ChargeDeclinedExpiredCard
-
-  """Charge is declined with a `processing_error` code."""
-  ChargeDeclinedProcessingError
-
-  """Eftpos debit card with visa network branding."""
-  EftposAuVisaDebit
-
-  """Eftpos debit card with mastercard branding."""
-  EftposAuDebitMastercard
-
-  """
-  Simulates the cardholder being prompted for and entering an offline PIN. The resulting charge has `cardholder_verification_method` set to `offline_pin`.
-  """
-  OfflinePinCvm
-
-  """
-  Simulates an SCA-triggered retry flow where a cardholder's initial contactless charge fails and the reader then prompts the user to insert their card and enter their offline PIN. The resulting charge has `cardholder_verification_method` set to `offline_pin`.
-  """
-  OfflinePinScaRetry
-
-  """
-  Simulates the cardholder being prompted for and entering an online PIN. The resulting charge has `cardholder_verification_method` set to `online_pin`.
-  """
-  OnlinePinCvm
-
-  """
-  Simulates an SCA-triggered retry flow where a cardholder's initial contactless charge fails and the reader then prompts the user to insert their card and enter their online PIN. The resulting charge has `cardholder_verification_method` set to `online_pin`.
-  """
-  OnlinePinScaRetry
 }
 
 """InternalDirectDebitB2BMerchantPaymentMethod"""
@@ -10420,10 +10392,7 @@ type MerchantProfile {
     filters: MerchantPaymentFiltersInput
   ): MerchantPaymentConnection
 
-  """Url of the merchant's website"""
-  merchantWebsite: String @deprecated(reason: "Use merchantWebsiteUrl instead")
-
-  """Url of the merchant's website"""
+  """URL of the merchant website (Maximum 255 characters)"""
   merchantWebsiteUrl: String
 
   """
@@ -10443,22 +10412,13 @@ type MerchantProfile {
   requestMerchantProfileUpdate: RequestMerchantProfileUpdate
 
   """The URL of the main social network of the merchant."""
-  socialNetwork: String @deprecated(reason: "use socialNetworkUrl instead")
-
-  """The URL of the main social network of the merchant."""
   socialNetworkUrl: String
 
   """The status of the merchant profile"""
   statusInfo: MerchantProfileStatusInfo!
 
   """The URL of the support website or help center of the merchant."""
-  supportWebsite: String @deprecated(reason: "use supportWebsiteUrl instead")
-
-  """The URL of the support website or help center of the merchant."""
   supportWebsiteUrl: String
-
-  """The URL of the terms and conditions of the merchant."""
-  termsAndConditions: String @deprecated(reason: "use termsAndConditionsUrl instead")
 
   """The URL of the terms and conditions of the merchant."""
   termsAndConditionsUrl: String
@@ -10594,10 +10554,6 @@ type OtherAdditionalInformationRequirements {
   otherAdditionalInformation: [String!]!
 }
 
-type PaymentIntentInvalidStatusRejection implements Rejection {
-  message: String!
-}
-
 """
 Rejection returned when a payment method is not compatible for the requested mutation
 """
@@ -10685,10 +10641,7 @@ type RequestMerchantProfileUpdate {
   """The Merchant Profile ID to update"""
   merchantProfileId: ID!
 
-  """Url of the merchant's website"""
-  merchantWebsite: String @deprecated(reason: "Use merchantWebsiteUrl instead")
-
-  """Url of the merchant's website"""
+  """URL of the merchant website (Maximum 255 characters)"""
   merchantWebsiteUrl: String
 
   """
@@ -10702,22 +10655,13 @@ type RequestMerchantProfileUpdate {
   productType: ProductType
 
   """The URL of the main social network of the merchant."""
-  socialNetwork: String @deprecated(reason: "use socialNetworkUrl instead")
-
-  """The URL of the main social network of the merchant."""
   socialNetworkUrl: String
 
   """The status of the request"""
   status: RequestMerchantProfileUpdateStatus!
 
   """The URL of the support website or help center of the merchant."""
-  supportWebsite: String @deprecated(reason: "use supportWebsiteUrl instead")
-
-  """The URL of the support website or help center of the merchant."""
   supportWebsiteUrl: String
-
-  """The URL of the terms and conditions of the merchant."""
-  termsAndConditions: String @deprecated(reason: "use termsAndConditionsUrl instead")
 
   """The URL of the terms and conditions of the merchant."""
   termsAndConditionsUrl: String
@@ -11032,6 +10976,31 @@ enum SimulateIncomingCardAuthorizationThreeDSStatus {
   Failed
 }
 
+input SimulateIncomingInPersonCardAuthorization {
+  status: InPersonCardAuthorizationStatus!
+  rejectionReason: InPersonCardAuthorizationRejectionReason
+}
+
+input SimulateIncomingInPersonCardAuthorizationCardDetails {
+  scheme: InPersonCardDetailsScheme!
+}
+
+input SimulateIncomingInPersonCardAuthorizationInput {
+  paymentIntentSecret: String!
+  authorization: SimulateIncomingInPersonCardAuthorization!
+  cardDetails: SimulateIncomingInPersonCardAuthorizationCardDetails!
+}
+
+union SimulateIncomingInPersonCardAuthorizationPayload = SimulateIncomingInPersonCardAuthorizationSuccessPayload | ForbiddenRejection | ValidationRejection | UnsupportedTestScenario | NotFoundRejection | InternalErrorRejection
+
+type SimulateIncomingInPersonCardAuthorizationSuccessPayload {
+  paymentIntentId: String!
+}
+
+type SimulateIncomingInPersonCardOutcomeCardDetails {
+  InPersonCardDetailsScheme: InPersonCardDetailsScheme!
+}
+
 input SimulateIncomingInPersonCardSettlementInput {
   """
   IDs of the `InPersonCardMerchantPayment`s to be included in the settlement.
@@ -11043,17 +11012,6 @@ union SimulateIncomingInPersonCardSettlementPayload = SimulateIncomingInPersonCa
 
 type SimulateIncomingInPersonCardSettlementSuccessPayload {
   merchantPayments: [MerchantPayment!]!
-}
-
-input SimulateIncomingInPersonPaymentIntentOutcomeInput {
-  paymentIntentSecret: String!
-  testCardScenario: InPersonCardTestScenario!
-}
-
-union SimulateIncomingInPersonPaymentIntentOutcomePayload = SimulateIncomingInPersonPaymentIntentOutcomeSuccessPayload | PaymentIntentInvalidStatusRejection | ForbiddenRejection | ValidationRejection | NotFoundRejection | InternalErrorRejection
-
-type SimulateIncomingInPersonPaymentIntentOutcomeSuccessPayload {
-  paymentIntentId: String!
 }
 
 input SimulateMerchantPaymentMethodRequestOutcomeInput {
@@ -11190,6 +11148,11 @@ type ThreeDS {
 
 interface ThreeDsStatusInfo {
   status: IncomingThreeDsStatus!
+}
+
+"""Rejection returned if an input contains invalid data"""
+type UnsupportedTestScenario implements Rejection {
+  message: String!
 }
 
 type UpdateRequestNotPendingReviewRejection implements Rejection {

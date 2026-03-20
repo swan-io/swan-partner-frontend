@@ -1607,7 +1607,7 @@ export const CardItemPhysicalDetails = ({
                   <Space width={8} />
 
                   {match(level)
-                    .with("Basic", () => (
+                    .with("Basic", "Standard", () => (
                       <LakeText>{t("cardDetail.insurance.description.basic")}</LakeText>
                     ))
                     .with("Essential", () => (

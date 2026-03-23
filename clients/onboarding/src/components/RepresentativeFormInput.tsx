@@ -5,7 +5,7 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { useMemo } from "react";
 import { match, P } from "ts-pattern";
-import { CompanyRelatedCompany, CompanyRelatedIndividual } from "../graphql/partner";
+import { CompanyRelatedIndividual } from "../graphql/partner";
 import { t } from "../utils/i18n";
 
 type RepresentativeItem = Item<string> & {
@@ -14,7 +14,7 @@ type RepresentativeItem = Item<string> & {
 };
 
 type props = {
-  individuals: (CompanyRelatedIndividual | CompanyRelatedCompany)[];
+  individuals: CompanyRelatedIndividual[];
   value?: string;
   error?: string;
   onChange: (value: string) => void;
@@ -42,19 +42,6 @@ export const RepresentativeFormsInput = ({ individuals, value, onChange, error }
               fullName: `${firstName} ${lastName}`,
               value: lastName,
               roles: legalRepresentative.roles.join(", "),
-            }),
-          )
-          .with(
-            {
-              __typename: "CompanyRelatedCompany",
-              entityName: P.string,
-              roles: P.array(P.string),
-            },
-            ({ roles, entityName }) => ({
-              name: `${entityName} - ${roles.join(", ")}`,
-              fullName: `${entityName}`,
-              value: entityName,
-              roles: roles.join(", "),
             }),
           )
           .otherwise(() => null);

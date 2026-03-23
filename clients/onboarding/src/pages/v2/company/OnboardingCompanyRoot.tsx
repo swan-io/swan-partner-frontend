@@ -108,7 +108,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
   const [siren, setSiren] = useState<string | null>(null);
   const [publicData, setPublicData] = useState<CompanyInfo>();
   const [manualMode, setManualMode] = useState<boolean>(initialCountry !== "FRA");
-  const related = [...(company?.relatedIndividuals ?? []), ...(company?.relatedCompanies ?? [])];
+  const related = company?.relatedIndividuals ?? [];
   const [representatives, setRepresentatives] = useState(related.length > 0 ? related : undefined);
 
   const { Field, FieldsListener, setFieldValue, setFieldError, submitForm } = useForm({
@@ -133,7 +133,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
       initialValue: accountAdmin?.typeOfRepresentation || "LegalRepresentative",
     },
     currentRepresentative: {
-      initialValue: accountAdmin?.lastName ?? undefined,
+      initialValue: accountAdmin?.lastName ? "" : undefined,
       validate: (value, { getFieldValue }) => {
         if (getFieldValue("country") === "FRA" && representatives && value == null) {
           return t("error.requiredField");
@@ -179,65 +179,75 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
           .toUndefined() as CompanyRelatedIndividual | undefined;
         const cleanedRepresentative = cleanData(selectedRepresentative);
 
-        const companyInfo = cleanData(publicData);
-        const relatedIndividuals = transformRelatedIndividualsToInput(
-          publicData?.relatedIndividuals,
-        );
-
-        // @TODO split into two mutation to separate user input and data from public registry
-        // @TODO data can be overided with empty public data when editing
-        updateCompanyOnboarding({
-          input: {
-            onboardingId,
-            company: {
-              ...input,
-              vatNumber: companyInfo?.vatNumber,
-              tradeName: companyInfo?.tradeName,
-              taxIdentificationNumber: companyInfo?.taxIdentificationNumber,
-              registrationNumber: companyInfo?.registrationNumber,
-              registrationDate: companyInfo?.registrationDate,
-              businessActivity: companyInfo?.businessActivity,
-              businessActivityCode: companyInfo?.businessActivityCode,
-              businessActivityDescription: companyInfo?.businessActivityDescription,
-              relatedCompanies: companyInfo?.relatedCompanies,
-              relatedIndividuals: relatedIndividuals,
-              address: {
-                country,
-                ...companyInfo?.address,
+        const formMutation = () =>
+          updateCompanyOnboarding({
+            input: {
+              onboardingId,
+              company: {
+                ...input,
+                address: { country },
+              },
+              accountAdmin: {
+                firstName: cleanedRepresentative?.firstName,
+                lastName: cleanedRepresentative?.lastName,
+                address: cleanedRepresentative?.address,
+                birthInfo: cleanedRepresentative?.birthInfo,
+                nationality: cleanedRepresentative?.nationality,
+                email: cleanedRepresentative?.email,
+                typeOfRepresentation,
               },
             },
-            accountAdmin: {
-              firstName: cleanedRepresentative?.firstName,
-              lastName: cleanedRepresentative?.lastName,
-              address: cleanedRepresentative?.address,
-              birthInfo: cleanedRepresentative?.birthInfo,
-              nationality: cleanedRepresentative?.nationality,
-              email: cleanedRepresentative?.email,
-              typeOfRepresentation,
+            language: locale.language,
+          })
+            .mapOk(data => data.updatePublicCompanyAccountHolderOnboarding)
+            .mapOkToResult(filterRejectionsToResult)
+            .tapOk(() => Router.push("Details", { onboardingId }))
+            .tapError(error => {
+              match(error)
+                .with(badUserInputErrorPattern, ({ fields }) => {
+                  const invalidFields = extractServerValidationFields(fields, path => {
+                    return match(path)
+                      .with(["company", "name"], () => "name" as const)
+                      .with(["company", "legalFormCode"], () => "legalFormCode" as const)
+                      .otherwise(() => null);
+                  });
+                  invalidFields.forEach(({ fieldName, code }) => {
+                    const message = getValidationErrorMessage(code, currentValues[fieldName]);
+                    setFieldError(fieldName, message);
+                  });
+                })
+                .otherwise(noop);
+              showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
+            });
+
+        if (publicData != null) {
+          const companyInfo = cleanData(publicData);
+          const relatedIndividuals = transformRelatedIndividualsToInput(
+            publicData?.relatedIndividuals,
+          );
+
+          updateCompanyOnboarding({
+            input: {
+              onboardingId,
+              company: {
+                vatNumber: companyInfo.vatNumber,
+                tradeName: companyInfo.tradeName,
+                taxIdentificationNumber: companyInfo.taxIdentificationNumber,
+                registrationNumber: companyInfo.registrationNumber,
+                registrationDate: companyInfo.registrationDate,
+                businessActivity: companyInfo.businessActivity,
+                businessActivityCode: companyInfo.businessActivityCode,
+                businessActivityDescription: companyInfo.businessActivityDescription,
+                relatedCompanies: companyInfo.relatedCompanies,
+                relatedIndividuals,
+                address: companyInfo.address,
+              },
             },
-          },
-          language: locale.language,
-        })
-          .mapOk(data => data.updatePublicCompanyAccountHolderOnboarding)
-          .mapOkToResult(filterRejectionsToResult)
-          .tapOk(() => Router.push("Details", { onboardingId }))
-          .tapError(error => {
-            match(error)
-              .with(badUserInputErrorPattern, ({ fields }) => {
-                const invalidFields = extractServerValidationFields(fields, path => {
-                  return match(path)
-                    .with(["company", "name"], () => "name" as const)
-                    .with(["company", "legalFormCode"], () => "legalFormCode" as const)
-                    .otherwise(() => null);
-                });
-                invalidFields.forEach(({ fieldName, code }) => {
-                  const message = getValidationErrorMessage(code, currentValues[fieldName]);
-                  setFieldError(fieldName, message);
-                });
-              })
-              .otherwise(noop);
-            showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
-          });
+            language: locale.language,
+          }).tap(formMutation);
+        } else {
+          formMutation();
+        }
       },
     });
   };
@@ -253,10 +263,8 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
               const { legalFormCode, ...info } = companyInfo;
               setPublicData(info);
               setFieldValue("legalFormCode", legalFormCode ?? undefined);
-              setRepresentatives([
-                ...(companyInfo.relatedIndividuals ?? []),
-                ...(companyInfo.relatedCompanies ?? []),
-              ]);
+              setFieldValue("currentRepresentative", undefined);
+              setRepresentatives(companyInfo.relatedIndividuals ?? []);
               hasOnboardingPrefilled.set({
                 registrationNumber: true,
                 vatNumber: Boolean(info.vatNumber),

@@ -171,7 +171,7 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
       },
     },
     tcuAccepted: {
-      initialValue: !haveToAcceptTcu, // initialize as accepted if not required
+      initialValue: false,
       validate: value => {
         if (value === false) {
           return t("step.finalize.termsError");
@@ -412,21 +412,19 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
         )}
       </ResponsiveContainer>
 
-      {haveToAcceptTcu && (
-        <Field name="tcuAccepted">
-          {({ value, error, onChange, ref }) => (
-            <OnboardingTcu
-              ref={ref}
-              value={value}
-              error={error}
-              onChange={onChange}
-              tcuUrl={tcuUrl}
-              tcuDocumentUri={tcuDocumentUri}
-              partnerName={projectInfo?.name}
-            />
-          )}
-        </Field>
-      )}
+      <Field name="tcuAccepted">
+        {({ value, error, onChange, ref }) => (
+          <OnboardingTcu
+            ref={ref}
+            value={value}
+            error={error}
+            onChange={onChange}
+            tcuUrl={tcuUrl}
+            tcuDocumentUri={tcuDocumentUri}
+            partnerName={projectInfo?.name}
+          />
+        )}
+      </Field>
 
       <OnboardingFooter
         onNext={onPressNext}

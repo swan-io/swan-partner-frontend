@@ -111,10 +111,6 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
   const tcuUrl = "#"; //@todo missing in schema
   const tcuDocumentUri = projectInfo?.tcuDocumentUri ?? "#";
 
-  const haveToAcceptTcu = match({ accountCountry })
-    .with({ accountCountry: P.union("DEU", "ITA") }, () => true)
-    .otherwise(() => false);
-
   const isVatRequired = match({ accountCountry })
     .with({ accountCountry: "ITA" }, () => true)
     .otherwise(() => false);
@@ -191,7 +187,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
       validate: validateNullableRequired,
     },
     tcuAccepted: {
-      initialValue: !haveToAcceptTcu, // initialize as accepted if not required
+      initialValue: false,
       validate: value => {
         if (value === false) {
           return t("step.finalize.termsError");
@@ -462,21 +458,19 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
         )}
       </ResponsiveContainer>
 
-      {haveToAcceptTcu && (
-        <Field name="tcuAccepted">
-          {({ value, error, onChange, ref }) => (
-            <OnboardingTcu
-              ref={ref}
-              value={value}
-              error={error}
-              onChange={onChange}
-              tcuUrl={tcuUrl}
-              tcuDocumentUri={tcuDocumentUri}
-              partnerName={projectInfo?.name}
-            />
-          )}
-        </Field>
-      )}
+      <Field name="tcuAccepted">
+        {({ value, error, onChange, ref }) => (
+          <OnboardingTcu
+            ref={ref}
+            value={value}
+            error={error}
+            onChange={onChange}
+            tcuUrl={tcuUrl}
+            tcuDocumentUri={tcuDocumentUri}
+            partnerName={projectInfo?.name}
+          />
+        )}
+      </Field>
 
       <OnboardingFooter
         onNext={onPressNext}

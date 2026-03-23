@@ -331,17 +331,14 @@ export const OnboardingCompanyOwnership = ({
   const checkValidationError = useCallback((): string | undefined => {
     const errors = extractServerInvalidFields(onboarding.statusInfo, field =>
       match(field)
-        .with(
-          P.when(f => f.includes("company.relatedIndividuals.ultimateBeneficialOwner")),
-          () => t("company.step.ownership.error.uboEmpty"),
+        .with(P.string.includes("company.relatedIndividuals.ultimateBeneficialOwner"), () =>
+          t("company.step.ownership.error.uboEmpty"),
         )
-        .with(
-          P.when(f => f.includes("company.relatedIndividuals.legalRepresentative")),
-          () => t("company.step.ownership.error.individual.legalRepEmpty"),
+        .with(P.string.includes("company.relatedIndividuals.legalRepresentative"), () =>
+          t("company.step.ownership.error.individual.legalRepEmpty"),
         )
-        .with(
-          P.when(f => f.includes("company.relatedIndividuals")),
-          () => t("company.step.ownership.error.empty"),
+        .with(P.string.includes("company.relatedIndividuals"), () =>
+          t("company.step.ownership.error.empty"),
         )
         .otherwise(() => null),
     );
@@ -456,12 +453,12 @@ export const OnboardingCompanyOwnership = ({
                             )}
                           </LakeText>
                           <LakeText style={texts.smallRegular}>
-                            {t("company.step.ownership.company")} • {company.roles.join(", ")}
+                            {company.roles.join(", ")}
                           </LakeText>
                         </Box>
 
                         <LakeText style={styles.textSubTitle}>
-                          {t("company.step.ownership.role.legalRepresentative")}
+                          {t("company.step.ownership.role.CompanyLegalRepresentative")}
                         </LakeText>
                         <ActionMenu
                           onEdit={() =>

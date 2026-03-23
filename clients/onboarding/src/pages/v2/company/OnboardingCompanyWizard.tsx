@@ -114,14 +114,9 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
   const ownershipStepErrors = useMemo(() => {
     return extractServerInvalidFields(onboarding.statusInfo, field =>
       match(field)
-        .returnType<"relatedIndividuals" | "relatedCompanies" | null>()
         .with(
           P.when(f => f.includes("company.relatedIndividuals")),
           () => "relatedIndividuals",
-        )
-        .with(
-          P.when(f => f.includes("company.relatedCompanies")),
-          () => "relatedCompanies",
         )
         .otherwise(() => null),
     );
@@ -288,6 +283,9 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
                 <OnboardingCompanyFinalize
                   onboarding={onboarding}
                   steps={steps}
+                  previousStep={
+                    hasDocumentsStep ? "Documents" : hasOwnershipStep ? "Ownership" : "Activity"
+                  }
                   alreadySubmitted={finalized}
                   onSubmitWithErrors={setFinalized.on}
                 />

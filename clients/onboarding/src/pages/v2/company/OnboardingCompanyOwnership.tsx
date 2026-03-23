@@ -38,7 +38,7 @@ import { ownershipText, ownershipTypeText } from "../../../constants/business";
 import { cleanData, transformRelatedIndividualsToInput } from "../../../utils/onboarding";
 import { CompanyOnboardingRouteV2, Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
-import { ServerInvalidFieldCode } from "../../../utils/validation";
+import { extractServerInvalidFields, ServerInvalidFieldCode } from "../../../utils/validation";
 import {
   OnboardingCompanyOwnershipFormRef,
   OwnershipFormStep,
@@ -328,12 +328,25 @@ export const OnboardingCompanyOwnership = ({
     Router.push("Activity", { onboardingId });
   };
 
-  const checkValidationError = useCallback(() => {
-    return match([currentRelatedIndividual.length === 0] as const)
-      .with([true], () => t("company.step.ownership.error.empty"))
-      .with([false], () => undefined)
-      .exhaustive();
-  }, [currentRelatedIndividual.length]);
+  const checkValidationError = useCallback((): string | undefined => {
+    const errors = extractServerInvalidFields(onboarding.statusInfo, field =>
+      match(field)
+        .with(
+          P.when(f => f.includes("company.relatedIndividuals.ultimateBeneficialOwner")),
+          () => t("company.step.ownership.error.uboEmpty"),
+        )
+        .with(
+          P.when(f => f.includes("company.relatedIndividuals.legalRepresentative")),
+          () => t("company.step.ownership.error.individual.legalRepEmpty"),
+        )
+        .with(
+          P.when(f => f.includes("company.relatedIndividuals")),
+          () => t("company.step.ownership.error.empty"),
+        )
+        .otherwise(() => null),
+    );
+    return errors[0]?.fieldName;
+  }, [onboarding.statusInfo]);
 
   useEffect(() => {
     if (validationError != null) {

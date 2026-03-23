@@ -123,10 +123,6 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
   const tcuUrl = "#"; //@todo missing in schema
   const tcuDocumentUri = projectInfo?.tcuDocumentUri ?? "#";
 
-  const haveToAcceptTcu = match({ accountCountry })
-    .with({ accountCountry: "DEU" }, () => true)
-    .otherwise(() => false);
-
   const isTaxIdentificationRequired = match({ addressCountry, accountCountry })
     .with({ accountCountry: P.nullish }, () => true)
     .with({ addressCountry: P.not(accountCountry) }, () => true)
@@ -171,7 +167,7 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
       },
     },
     tcuAccepted: {
-      initialValue: !haveToAcceptTcu, // initialize as accepted if not required
+      initialValue: false,
       validate: value => {
         if (value === false) {
           return t("step.finalize.termsError");
@@ -412,21 +408,19 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
         )}
       </ResponsiveContainer>
 
-      {haveToAcceptTcu && (
-        <Field name="tcuAccepted">
-          {({ value, error, onChange, ref }) => (
-            <OnboardingTcu
-              ref={ref}
-              value={value}
-              error={error}
-              onChange={onChange}
-              tcuUrl={tcuUrl}
-              tcuDocumentUri={tcuDocumentUri}
-              partnerName={projectInfo?.name}
-            />
-          )}
-        </Field>
-      )}
+      <Field name="tcuAccepted">
+        {({ value, error, onChange, ref }) => (
+          <OnboardingTcu
+            ref={ref}
+            value={value}
+            error={error}
+            onChange={onChange}
+            tcuUrl={tcuUrl}
+            tcuDocumentUri={tcuDocumentUri}
+            partnerName={projectInfo?.name}
+          />
+        )}
+      </Field>
 
       <OnboardingFooter
         onNext={onPressNext}

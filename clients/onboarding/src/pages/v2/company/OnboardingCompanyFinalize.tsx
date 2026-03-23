@@ -21,6 +21,7 @@ type Props = {
   onboarding: NonNullable<CompanyOnboardingFragment>;
   steps: WizardStep<CompanyOnboardingRouteV2>[];
   alreadySubmitted: boolean;
+  previousStep: CompanyOnboardingRouteV2;
   onSubmitWithErrors: () => void;
 };
 
@@ -28,13 +29,14 @@ export const OnboardingCompanyFinalize = ({
   onboarding,
   steps,
   alreadySubmitted,
+  previousStep,
   onSubmitWithErrors,
 }: Props) => {
   const onboardingId = onboarding.id;
   const containsErrors = steps.some(({ errors }) => errors != null && errors.length > 0);
 
   const onPressPrevious = () => {
-    Router.push("Ownership", { onboardingId });
+    Router.push(previousStep, { onboardingId });
   };
 
   const onPressNext = () => {

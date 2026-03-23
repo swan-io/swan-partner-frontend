@@ -45,7 +45,6 @@ import {
   badUserInputErrorPattern,
   extractServerValidationFields,
   getValidationErrorMessage,
-  isValidUrl,
   ServerInvalidFieldCode,
   validateMaxLength,
 } from "../../../utils/validation";
@@ -140,11 +139,6 @@ export const OnboardingCompanyActivity = ({ onboarding, serverValidationErrors }
     },
     websites: {
       initialValue: company?.websites ?? [],
-      validate: value => {
-        if (value.length > 0 && value.some(url => !isValidUrl(url))) {
-          return t("error.invalidField");
-        }
-      },
     },
   });
 
@@ -265,7 +259,6 @@ export const OnboardingCompanyActivity = ({ onboarding, serverValidationErrors }
                       render={id => (
                         <LakeTagInput
                           id={id}
-                          validator={isValidUrl}
                           onValuesChanged={onChange}
                           values={value}
                           error={error}

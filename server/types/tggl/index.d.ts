@@ -68,6 +68,15 @@ declare module "tggl-client" {
     billing_tap_to_pay_configuration_enabled: boolean;
     block_reupload_register_extract: boolean;
     blockOtpRequestIfAntibotTokenIsInvalid: true;
+    "bnp-mock-mode-sct-instant":
+      | "ACCP"
+      | "HTTP-500"
+      | "HTTP-503"
+      | "PDNG"
+      | "RJCT-AC04"
+      | "RJCT-AM04"
+      | "RJCT-AM05"
+      | "RJCT-FF01";
     can_manage_beneficiary_for_untrusted_beneficiary: boolean;
     canHandleBulkPayment: boolean;
     cardExpirationNotificationEnabledGlobally: boolean;
@@ -92,8 +101,8 @@ declare module "tggl-client" {
     createVerificationRenewalInWaitingForInformationStatus: boolean;
     dashboardAccountClosingLink: true;
     dashboardBanner: null | {
-      text: "Please advise your users to be careful with unsolicited calls, texts or emails and to always protect their login and payment info.";
-      title: "Ongoing phishing risk";
+      text: "Due to exceptionally high volumes for KYC reviews and support tickets, response times will be longer than normal. Thank you for your patience.";
+      title: "KYC & Support";
     };
     dashboardInsightsServiceSection: boolean;
     dashboardNotificationSettings: true;
@@ -113,8 +122,10 @@ declare module "tggl-client" {
     disableWebBanking: boolean;
     displaySsoButton: boolean;
     dont_change_default_expiration_for_suvc_one_off_at_update: boolean;
+    emi_tax_rpc_agent: boolean;
     enable_automatic_identity_documents_upload: boolean;
     enable_card_risk_assessment: boolean;
+    enable_card_risk_backfill: boolean;
     enable_credit_zero_amount_author_public_api: boolean;
     enable_document_convertor_from_csv_generation: boolean;
     enable_document_convertor_generation: boolean;
@@ -123,6 +134,7 @@ declare module "tggl-client" {
     enable_mastercard_presettlement_reconciliation: true;
     enable_new_account_statement_file_name: boolean;
     enable_transaction_enrichment_from_origin_transaction: boolean;
+    enable_transaction_risk_backfill: boolean;
     enableBouyguesFraudPreventionPage: boolean;
     enableEmailConfirmationAtProjectCreation: boolean;
     enableFraudPreventionPage: boolean;
@@ -131,6 +143,7 @@ declare module "tggl-client" {
     end_customer_ict_billing_enabled: boolean;
     fctInRejectOnLimitedAccountsEnabled: boolean;
     FeatureFlagCreditEnabled: 1 | 2;
+    fetchSeonSignalsForAccountMembership: boolean;
     forceAllowDesktopAuth: boolean;
     free_units_enabled: boolean;
     frontDesktopToMobileIdentification: boolean;
@@ -147,7 +160,6 @@ declare module "tggl-client" {
     incomingTransferScreeningEnabled: boolean;
     incomingTransferScreeningLimit: 50;
     initiate_international_credit_transfer_outgoing: boolean;
-    initiateRefundsWorkflowV2Enabled: boolean;
     inPersonCardPaymentMethodEnabled: boolean;
     is_onboarding_v2_enabled_for_capital_deposit: boolean;
     is_onboarding_v2_enabled_for_iam: boolean;
@@ -159,6 +171,7 @@ declare module "tggl-client" {
     isFrenchIndividualFlowAutomationEnabled: boolean;
     isPhoneNumberSuspicious: boolean;
     isScaDelegationEnabled: boolean;
+    isTaxUserInformationInRecommendedIdentificationFlowEnabled: boolean;
     isThreeDsPaymentAllowToBeQueried: boolean;
     "kafka-consumers-enabled": boolean;
     kycAccountHoldersVerificationsView: true;
@@ -181,17 +194,21 @@ declare module "tggl-client" {
     };
     ledgerSpendingMigrationLimit: 0 | 1 | 10 | 100 | 1000 | 10000;
     lockRecomputeEnableB2B: true;
+    "mcd-process-auto-retry": boolean;
     merchantWebBanking: boolean;
     name_matching_use_valid_names_enabled: boolean;
     newGqlGateway: boolean;
     OnboardingV2NoCode: boolean;
+    OTPLinkForIdentifications: boolean;
     outboundFundsTransferRejectedNotificationEnabledGlobally: boolean;
     outboundFundsTransferSuccessfulNotificationEnabledGlobally: boolean;
+    packageSpendingLimit: { Essential: 40000 | 60000; Premium: 100000; Standard: 10000 | 20000 };
     partner_billing_v1_5_enabled: boolean;
     passcodeResetEmailVerification: boolean;
     passcodeResetFaceAuthVerification: boolean;
     passcodeResetIdentificationVerification: boolean;
     passcodeResetNoVerification: boolean;
+    pennylane_specific_spending_limits_on_card_package: boolean;
     pexTcuEventKillSwitch: boolean;
     recurring_suvc_fee_enabled: boolean;
     refundFeesActivateFixOnInvertedAccountIds: boolean;
@@ -237,14 +254,17 @@ declare module "tggl-client" {
     sendCreditAndZeroAmountAuthorization: boolean;
     sendValidationInsteadOfForbiddenRejection: boolean;
     sendVerificationRenewalEmails: boolean;
+    sendVerificationRenewalEmailsWhenOverdue: boolean;
     sepaDirectDebitInV2: true;
     SepaDirectDebitV2ActivationFlag: true;
     setIssuingProcessorCardProductOnRenewFeature: boolean;
     setUpAdminRole: boolean;
+    shareholderMigrationWrite: boolean;
     should_use_new_closing_reasons: boolean;
     shouldHistorizeIncomingVOPRequest: boolean;
     shouldIncludeAllAccountStatusesForMultiAccountLimit: boolean;
     shouldRestrictMultiAccountCreationWhenSuspensionExists: boolean;
+    sms_otp_5_min_duration: boolean;
     storeMonextAuthenticationRequest: boolean;
     supportingDocumentsUseBucketV2: boolean;
     swan_generate_missing_bank_details: true;
@@ -268,15 +288,16 @@ declare module "tggl-client" {
     trusted_beneficiary_transfers_consent_free_enabled: boolean;
     twilioRatio: 0 | 0.2 | 0.5 | 0.6 | 0.8 | 0.95 | 1;
     updateBusinessAndCustomerDataToSardine: boolean;
-    use_card_package_on_card_product_creation: boolean;
     use_mailjet_subaccount_for_mass_emailing: true;
     use_notification_manager: boolean;
+    "use-outbox-pattern-for-sepa-commands": boolean;
     useNotificationStackToSendAccountOpenedEmail: boolean;
     useNotificationStackToSendFirstTransferRequestEmail: boolean;
     useNotificationStackToSendNewAccountTcuEmail: boolean;
     useNotificationStackToSendNewMembershipEmail: boolean;
     useNotificationStackToSendSupportingDocumentRequestEmail: boolean;
     useNotificationStackToSendTCUUpdates: boolean;
+    useOutboxTableForBankDetailsGeneration: boolean;
     usePaymentV2FlowForAccountFunding: boolean;
     useTwilioVerifyServiceSidAlan: true;
     validation_of_postal_code: boolean;
@@ -286,5 +307,7 @@ declare module "tggl-client" {
     webhookRunUpdateConsumerCron: boolean;
     webhookSendWebhookTokenHeader: boolean;
     webhookSubscriptionLimit: boolean;
+    xpay_provisioning_eligibility_v2_enabled: boolean;
+    xpay_wrong_expiration_cvx_failed: boolean;
   }
 }

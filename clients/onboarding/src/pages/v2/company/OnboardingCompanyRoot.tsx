@@ -108,7 +108,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
   const [siren, setSiren] = useState<string | null>(null);
   const [publicData, setPublicData] = useState<CompanyInfo>();
   const [manualMode, setManualMode] = useState<boolean>(initialCountry !== "FRA");
-  const related = [...(company?.relatedIndividuals ?? []), ...(company?.relatedCompanies ?? [])];
+  const related = company?.relatedIndividuals ?? [];
   const [representatives, setRepresentatives] = useState(related.length > 0 ? related : undefined);
 
   const { Field, FieldsListener, setFieldValue, setFieldError, submitForm } = useForm({
@@ -133,7 +133,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
       initialValue: accountAdmin?.typeOfRepresentation || "LegalRepresentative",
     },
     currentRepresentative: {
-      initialValue: accountAdmin?.lastName ?? undefined,
+      initialValue: accountAdmin?.lastName ? "" : undefined,
       validate: (value, { getFieldValue }) => {
         if (getFieldValue("country") === "FRA" && representatives && value == null) {
           return t("error.requiredField");
@@ -264,10 +264,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
               setPublicData(info);
               setFieldValue("legalFormCode", legalFormCode ?? undefined);
               setFieldValue("currentRepresentative", undefined);
-              setRepresentatives([
-                ...(companyInfo.relatedIndividuals ?? []),
-                ...(companyInfo.relatedCompanies ?? []),
-              ]);
+              setRepresentatives(companyInfo.relatedIndividuals ?? []);
               hasOnboardingPrefilled.set({
                 registrationNumber: true,
                 vatNumber: Boolean(info.vatNumber),

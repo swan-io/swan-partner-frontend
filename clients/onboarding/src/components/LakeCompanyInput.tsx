@@ -90,7 +90,7 @@ export const LakeCompanyInput = ({
       renderItem={item => (
         <>
           <Text numberOfLines={1} style={styles.itemTitle}>
-            {item.name} ({item.city})
+            {item.name} {item.city && `(${item.city})`} - Siren {item.siren}
           </Text>
 
           <Text numberOfLines={1} style={styles.itemSubtitle}>

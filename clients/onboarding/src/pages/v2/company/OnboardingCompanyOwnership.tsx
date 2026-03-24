@@ -452,9 +452,7 @@ export const OnboardingCompanyOwnership = ({
                               </Tag>
                             )}
                           </LakeText>
-                          <LakeText style={texts.smallRegular}>
-                            {company.roles.join(", ")}
-                          </LakeText>
+                          <LakeText style={texts.smallRegular}>{company.roles.join(", ")}</LakeText>
                         </Box>
 
                         <LakeText style={styles.textSubTitle}>
@@ -536,16 +534,7 @@ export const OnboardingCompanyOwnership = ({
                           onEdit={() =>
                             setModalState({
                               type: "edit",
-                              step: match(individual.type)
-                                .returnType<OwnershipFormStep>()
-                                .with("LegalRepresentative", () => "legal")
-                                .with(
-                                  "LegalRepresentativeAndUltimateBeneficialOwner",
-                                  () => "legalAndUbo",
-                                )
-                                .with("UltimateBeneficialOwner", () => "ubo")
-                                .exhaustive(),
-                              form: "detail",
+                              step: "init",
                               initialValue: individual,
                               errors: missingInfos.individual.get(index) ?? [],
                             })

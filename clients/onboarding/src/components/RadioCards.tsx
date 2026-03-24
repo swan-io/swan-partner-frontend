@@ -11,22 +11,6 @@ const styles = StyleSheet.create({
   root: {
     gap: "24px",
   },
-  itemAnimation: {
-    transform: "translateZ(0px)",
-    animationKeyframes: {
-      from: {
-        opacity: 0,
-        transform: "translateZ(0px) translateX(50px)",
-      },
-      to: {
-        opacity: 1,
-        transform: "translateZ(0px) translateX(0px)",
-      },
-    },
-    animationDuration: "200ms",
-    animationFillMode: "backwards",
-    animationTimingFunction: "ease-in-out",
-  },
   container: {
     backgroundColor: colors.partner[50],
     borderRadius: radii[8],
@@ -77,11 +61,7 @@ export const RadioCards = <T,>({
         <Pressable
           key={String(index)}
           disabled={disabled}
-          style={[
-            disabled && commonStyles.disabled,
-            styles.itemAnimation, // set enter animation only on desktop because it can break scroll snap
-            { animationDelay: `${200 + 100 * index}ms` },
-          ]}
+          style={[disabled && commonStyles.disabled, { animationDelay: `${200 + 100 * index}ms` }]}
           onPress={() => onChange(item.value)}
         >
           {({ hovered }) => (

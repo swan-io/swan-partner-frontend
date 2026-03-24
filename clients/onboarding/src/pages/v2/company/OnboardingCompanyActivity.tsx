@@ -131,11 +131,9 @@ export const OnboardingCompanyActivity = ({ onboarding, serverValidationErrors }
     },
     forecastYearlyIncome: {
       initialValue: company?.forecastYearlyIncome ?? undefined,
-      validate: validateNullableRequired,
     },
     headcount: {
       initialValue: company?.headcount ?? undefined,
-      validate: validateNullableRequired,
     },
     websites: {
       initialValue: company?.websites ?? [],
@@ -271,6 +269,7 @@ export const OnboardingCompanyActivity = ({ onboarding, serverValidationErrors }
 
                 <LakeLabel
                   label={t("company.step.activity.headcountLabel")}
+                  optionalLabel={t("common.optional")}
                   render={id => (
                     <Field name="headcount">
                       {({ value, onChange, ref, error }) => (
@@ -314,6 +313,7 @@ export const OnboardingCompanyActivity = ({ onboarding, serverValidationErrors }
 
                 <LakeLabel
                   label={t("company.step.activity.yearlyLabel")}
+                  optionalLabel={t("common.optional")}
                   render={id => (
                     <Field name="forecastYearlyIncome">
                       {({ value, onChange, ref, error }) => (

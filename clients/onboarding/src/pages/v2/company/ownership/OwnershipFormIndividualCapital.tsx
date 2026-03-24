@@ -8,6 +8,7 @@ import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { omit, pick } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
+import { IndividualCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import {
   validateIndividualTaxNumber,
   validateNullableRequired,
@@ -155,29 +156,31 @@ export const OwnershipFormIndividualCapital = ({
   });
 
   const isFirstMount = useFirstMountState();
+  const residencyCountry = (initialValues?.address?.country ??
+    accountCountry) as IndividualCountryCCA3; // Fallback to accountCountry for typing, but this can never happen as address country is required at the previous step
 
   const isTaxIdentificationRequired = match({
     accountCountry,
-    initialValues,
+    residencyCountry,
     regulatoryClassification,
   })
     .with(
       {
-        accountCountry: P.not(initialValues.address?.country),
+        accountCountry: P.not(residencyCountry),
         regulatoryClassification: "NonFinancialPassive",
       },
       () => true,
     )
-    .with({ accountCountry: P.union("DEU", "ITA") }, () => true)
+    .with({ accountCountry: P.union("ITA") }, () => true)
     .otherwise(() => false);
 
   const { Field, submitForm, FieldsListener, setFieldError } = useForm({
     qualificationType: {
-      initialValue: initialValues.ultimateBeneficialOwner?.qualificationType ?? "Ownership",
+      initialValue: initialValues.ultimateBeneficialOwner?.qualificationType ?? undefined,
       validate: validateNullableRequired,
     },
     controlTypes: {
-      initialValue: initialValues.ultimateBeneficialOwner?.controlTypes?.[0] ?? "VotingRights",
+      initialValue: initialValues.ultimateBeneficialOwner?.controlTypes?.[0] ?? undefined,
       validate: validateNullableRequired,
     },
     totalPercentage: {
@@ -193,8 +196,8 @@ export const OwnershipFormIndividualCapital = ({
       initialValue: initialValues.taxIdentificationNumber ?? "",
       sanitize: trim,
       validate: isTaxIdentificationRequired
-        ? combineValidators(validateRequired, validateIndividualTaxNumber(accountCountry))
-        : validateIndividualTaxNumber(accountCountry),
+        ? combineValidators(validateRequired, validateIndividualTaxNumber(residencyCountry))
+        : validateIndividualTaxNumber(residencyCountry),
     },
   });
 
@@ -246,7 +249,7 @@ export const OwnershipFormIndividualCapital = ({
           <FieldsListener names={["qualificationType"]}>
             {({ qualificationType }) =>
               match(qualificationType.value)
-                .with("LegalRepresentative", () => null)
+                .with(P.union("LegalRepresentative", undefined), () => null)
                 .with("Control", () => (
                   <Field name="controlTypes">
                     {({ ref, value, onChange, error }) => (
@@ -325,7 +328,7 @@ export const OwnershipFormIndividualCapital = ({
                   valid={valid}
                   onChange={onChange}
                   onBlur={onBlur}
-                  country={accountCountry}
+                  country={residencyCountry}
                   isCompany={false}
                   required={isTaxIdentificationRequired}
                 />

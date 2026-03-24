@@ -44,7 +44,7 @@ type Props = {
   companyCountry: CountryCCA3;
   regulatoryClassification?: RegulatoryClassification;
   step: OwnershipFormStep;
-  type: "edit" | "add" | "delete" | "hidden";
+  type: "add" | "edit";
   subForm?: OwnershipSubForm;
   onStepChange: (step: OwnershipFormStep, form?: OwnershipSubForm) => void;
   onSave: (editorState: SaveValue) => void | Promise<void>;
@@ -158,6 +158,7 @@ export const OwnershipFormWizard = ({
               step={step}
               individualType={resolvedType}
               subForm={subForm}
+              mode={type}
               onNext={form => onStepChange(step, form)}
               onSave={values => {
                 onSave({

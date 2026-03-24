@@ -17,6 +17,7 @@ import {
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import {
+  validateBooleanTypeRequired,
   validateName,
   validateNullableRequired,
   validateRequired,
@@ -54,6 +55,7 @@ type Props = {
   errors: { fieldName: string; code: ServerInvalidFieldCode }[];
   ref: Ref<OnboardingCompanyOwnershipFormIndividualDetailsRef>;
   companyCountry: CountryCCA3;
+  mode: "add" | "edit";
   onSave: (input: Partial<RelatedIndividualInput>) => void | Promise<void>;
 };
 
@@ -68,6 +70,7 @@ export const OwnershipFormIndividualDetails = ({
   companyCountry,
   initialValues,
   errors,
+  mode,
 }: Props) => {
   useImperativeHandle(ref, () => {
     return {
@@ -95,7 +98,7 @@ export const OwnershipFormIndividualDetails = ({
                 postalCode: birthPostal,
               },
               unitedStatesTaxInfo: {
-                isUnitedStatesPerson,
+                isUnitedStatesPerson: isUnitedStatesPerson ?? false,
                 unitedStatesTaxIdentificationNumber: isUnitedStatesPerson
                   ? unitedStatesTaxIdentificationNumber
                   : undefined,
@@ -122,24 +125,26 @@ export const OwnershipFormIndividualDetails = ({
       validate: validateName,
     },
     nationality: {
-      initialValue: match([initialValues?.nationality, companyCountry] as const)
-        .returnType<CountryCCA3>()
-        .with([P.when(isCountryCCA3), P._], ([nationality]) => nationality)
-        .with([P._, P.when(isCountryCCA3)], ([_, country]) => country)
+      initialValue: match([initialValues?.nationality, companyCountry, mode] as const)
+        .returnType<CountryCCA3 | undefined>()
+        .with([P.when(isCountryCCA3), P._, P._], ([nationality]) => nationality)
+        .with([P._, P._, "edit"], () => undefined)
+        .with([P._, P.when(isCountryCCA3), P._], ([_, country]) => country)
         .otherwise(() => "FRA"),
-      validate: validateRequired,
+      validate: validateNullableRequired,
     },
     birthDate: {
       initialValue: initialValues?.birthInfo?.birthDate ?? undefined,
       validate: validateNullableRequired,
     },
     birthCountry: {
-      initialValue: match([initialValues?.birthInfo?.country, companyCountry])
-        .returnType<CountryCCA3>()
-        .with([P.when(isCountryCCA3), P._], ([nationality]) => nationality)
-        .with([P._, P.when(isCountryCCA3)], ([_, country]) => country)
+      initialValue: match([initialValues?.birthInfo?.country, companyCountry, mode])
+        .returnType<CountryCCA3 | undefined>()
+        .with([P.when(isCountryCCA3), P._, P._], ([country]) => country)
+        .with([P._, P._, "edit"], () => undefined)
+        .with([P._, P.when(isCountryCCA3), P._], ([_, country]) => country)
         .otherwise(() => "FRA"),
-      validate: validateRequired,
+      validate: validateNullableRequired,
     },
     birthCity: {
       initialValue: initialValues?.birthInfo?.city ?? "",
@@ -156,7 +161,10 @@ export const OwnershipFormIndividualDetails = ({
       validate: validateNullableRequired,
     },
     isUnitedStatesPerson: {
-      initialValue: initialValues?.unitedStatesTaxInfo?.isUnitedStatesPerson ?? false,
+      initialValue:
+        initialValues?.unitedStatesTaxInfo?.isUnitedStatesPerson ??
+        (mode === "add" ? false : undefined),
+      validate: validateBooleanTypeRequired,
     },
     unitedStatesTaxIdentificationNumber: {
       initialValue: initialValues?.unitedStatesTaxInfo?.unitedStatesTaxIdentificationNumber ?? "",

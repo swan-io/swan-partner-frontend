@@ -40,6 +40,7 @@ type Props = {
   individualType: RelatedIndividualType;
   errors: { fieldName: string; code: ServerInvalidFieldCode }[];
   subForm?: OwnershipSubForm;
+  mode: "add" | "edit";
   onSave: (input: RelatedIndividualInput) => void | Promise<void>;
   onNext: (subForm: OwnershipSubForm) => void;
 };
@@ -56,6 +57,7 @@ export const OwnershipFormIndividual = ({
   errors,
   individualType,
   subForm,
+  mode,
 }: Props) => {
   const detailRef = useRef<OnboardingCompanyOwnershipFormIndividualDetailsRef>(null);
   const capitalRef = useRef<OnboardingCompanyOwnershipFormIndividualCapitalRef>(null);
@@ -135,6 +137,7 @@ export const OwnershipFormIndividual = ({
         initialValues={localValue}
         errors={errors}
         companyCountry={companyCountry}
+        mode={mode}
         onSave={input => {
           if (step === "legal") {
             onSave({ ...localValue, ...input, type: individualType });
@@ -151,6 +154,7 @@ export const OwnershipFormIndividual = ({
         initialValues={localValue}
         errors={errors}
         companyCountry={companyCountry}
+        mode={mode}
         onSave={input => {
           setLocalValue(prevState => ({ ...prevState, ...input }));
           onNext("address");

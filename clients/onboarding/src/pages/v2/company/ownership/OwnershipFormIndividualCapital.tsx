@@ -173,11 +173,11 @@ export const OwnershipFormIndividualCapital = ({
 
   const { Field, submitForm, FieldsListener, setFieldError } = useForm({
     qualificationType: {
-      initialValue: initialValues.ultimateBeneficialOwner?.qualificationType ?? "Ownership",
+      initialValue: initialValues.ultimateBeneficialOwner?.qualificationType ?? undefined,
       validate: validateNullableRequired,
     },
     controlTypes: {
-      initialValue: initialValues.ultimateBeneficialOwner?.controlTypes?.[0] ?? "VotingRights",
+      initialValue: initialValues.ultimateBeneficialOwner?.controlTypes?.[0] ?? undefined,
       validate: validateNullableRequired,
     },
     totalPercentage: {
@@ -193,8 +193,8 @@ export const OwnershipFormIndividualCapital = ({
       initialValue: initialValues.taxIdentificationNumber ?? "",
       sanitize: trim,
       validate: isTaxIdentificationRequired
-        ? combineValidators(validateRequired, validateIndividualTaxNumber(accountCountry))
-        : validateIndividualTaxNumber(accountCountry),
+        ? combineValidators(validateRequired, validateIndividualTaxNumber(accountCountry)) // @TODO use ubo country? Use V1 validation?
+        : validateIndividualTaxNumber(accountCountry), // @TODO use ubo country? Use V1 validation?
     },
   });
 
@@ -246,7 +246,7 @@ export const OwnershipFormIndividualCapital = ({
           <FieldsListener names={["qualificationType"]}>
             {({ qualificationType }) =>
               match(qualificationType.value)
-                .with("LegalRepresentative", () => null)
+                .with(P.union("LegalRepresentative", undefined), () => null)
                 .with("Control", () => (
                   <Field name="controlTypes">
                     {({ ref, value, onChange, error }) => (

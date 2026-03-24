@@ -6,18 +6,21 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { trim } from "@swan-io/lake/src/utils/string";
+import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import {
-  companyCountries,
+  allCountries,
   CountryCCA3,
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
-import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
+import {
+  validateNullableRequired,
+  validateRequired,
+} from "@swan-io/shared-business/src/utils/validation";
 import { useForm } from "@swan-io/use-form";
 import { Ref, useEffect, useImperativeHandle, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
-import { OnboardingCountryPicker } from "../../../../components/CountryPicker";
 import { RelatedIndividualInput } from "../../../../graphql/partner";
 import { locale, t } from "../../../../utils/i18n";
 import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../../../utils/validation";
@@ -45,6 +48,7 @@ type Props = {
   errors: { fieldName: string; code: ServerInvalidFieldCode }[];
   ref: Ref<OnboardingCompanyOwnershipFormIndividualAddressRef>;
   companyCountry: CountryCCA3;
+  mode: "add" | "edit";
   onSave: (input: Partial<RelatedIndividualInput>) => void | Promise<void>;
 };
 
@@ -53,6 +57,7 @@ export const OwnershipFormIndividualAddress = ({
   onSave,
   companyCountry,
   initialValues,
+  mode,
   errors,
 }: Props) => {
   useImperativeHandle(ref, () => {
@@ -92,12 +97,13 @@ export const OwnershipFormIndividualAddress = ({
 
   const { Field, submitForm, FieldsListener, setFieldValue, setFieldError } = useForm({
     country: {
-      initialValue: match([initialValues?.address?.country, companyCountry])
-        .returnType<CountryCCA3>()
-        .with([P.when(isCountryCCA3), P._], ([nationality]) => nationality)
-        .with([P._, P.when(isCountryCCA3)], ([_, country]) => country)
+      initialValue: match([initialValues?.address?.country, companyCountry, mode])
+        .returnType<CountryCCA3 | undefined>()
+        .with([P.when(isCountryCCA3), P._, P._], ([nationality]) => nationality)
+        .with([P._, P._, "edit"], () => undefined)
+        .with([P._, P.when(isCountryCCA3), P._], ([_, country]) => country)
         .otherwise(() => "FRA"),
-      validate: validateRequired,
+      validate: validateNullableRequired,
     },
     addressLine1: {
       initialValue: initialValues?.address?.addressLine1 ?? "",
@@ -141,7 +147,7 @@ export const OwnershipFormIndividualAddress = ({
 
   return (
     <ResponsiveContainer breakpoint={breakpoints.small}>
-      {({ small, large }) => (
+      {({ large }) => (
         <View role="form" style={[styles.grid, large && styles.gridDesktop]}>
           <Field name="roles">
             {({ value, error, onChange }) =>
@@ -159,14 +165,17 @@ export const OwnershipFormIndividualAddress = ({
 
           <Field name="country">
             {({ value, onChange }) => (
-              <OnboardingCountryPicker
+              <LakeLabel
                 label={t("form.label.residenceCountry")}
-                value={value}
-                countries={companyCountries}
-                holderType="company"
-                onlyIconHelp={small}
-                onValueChange={onChange}
                 style={styles.inputFull}
+                render={id => (
+                  <CountryPicker
+                    id={id}
+                    value={value}
+                    countries={allCountries}
+                    onValueChange={onChange}
+                  />
+                )}
               />
             )}
           </Field>

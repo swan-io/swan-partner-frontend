@@ -331,15 +331,13 @@ export const OnboardingCompanyOwnership = ({
   const checkValidationError = useCallback((): string | undefined => {
     const errors = extractServerInvalidFields(onboarding.statusInfo, field =>
       match(field)
-        .with(P.string.includes("company.relatedIndividuals.ultimateBeneficialOwner"), () =>
+        .with("company.relatedIndividuals.ultimateBeneficialOwner", () =>
           t("company.step.ownership.error.uboEmpty"),
         )
-        .with(P.string.includes("company.relatedIndividuals.legalRepresentative"), () =>
+        .with("company.relatedIndividuals.legalRepresentative", () =>
           t("company.step.ownership.error.individual.legalRepEmpty"),
         )
-        .with(P.string.includes("company.relatedIndividuals"), () =>
-          t("company.step.ownership.error.empty"),
-        )
+        .with("company.relatedIndividuals", () => t("company.step.ownership.error.empty"))
         .otherwise(() => null),
     );
     return errors[0]?.fieldName;
@@ -361,7 +359,11 @@ export const OnboardingCompanyOwnership = ({
     const errorMessage = checkValidationError();
     setValidationError(errorMessage);
 
-    if (isNullish(errorMessage)) {
+    if (
+      isNullish(errorMessage) &&
+      missingInfos.company.size === 0 &&
+      missingInfos.individual.size === 0
+    ) {
       Router.push(nextStep, { onboardingId });
     }
   };
@@ -452,9 +454,7 @@ export const OnboardingCompanyOwnership = ({
                               </Tag>
                             )}
                           </LakeText>
-                          <LakeText style={texts.smallRegular}>
-                            {company.roles.join(", ")}
-                          </LakeText>
+                          <LakeText style={texts.smallRegular}>{company.roles.join(", ")}</LakeText>
                         </Box>
 
                         <LakeText style={styles.textSubTitle}>

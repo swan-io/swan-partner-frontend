@@ -1,9 +1,10 @@
 import { IntrospectionQuery, buildClientSchema, getIntrospectionQuery, printSchema } from "graphql";
-import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "pathe";
 
-const query = getIntrospectionQuery();
+const query = getIntrospectionQuery({
+  inputValueDeprecation: true,
+});
 
 const getIntrospection = (name: string, url: string) =>
   fetch(url, {
@@ -25,17 +26,7 @@ const getIntrospection = (name: string, url: string) =>
     });
 
 void Promise.all([
-  getIntrospection("partner-admin", "https://api.swan.io/sandbox-partner-admin/graphql"),
-  getIntrospection("partner", "https://api.swan.io/live-partner/graphql"),
-  getIntrospection("unauthenticated", "https://api.swan.io/live-unauthenticated/graphql"),
-]).then(() => {
-  execSync(
-    `generate-schema-config scripts/graphql/dist/partner-admin-schema.gql scripts/graphql/dist/partner-admin-schema-config.json`,
-  );
-  execSync(
-    `generate-schema-config scripts/graphql/dist/partner-schema.gql scripts/graphql/dist/partner-schema-config.json`,
-  );
-  execSync(
-    `generate-schema-config scripts/graphql/dist/unauthenticated-schema.gql scripts/graphql/dist/unauthenticated-schema-config.json`,
-  );
-});
+  getIntrospection("partner-admin", "https://api.master.oina.ws/sandbox-partner-admin/graphql"),
+  getIntrospection("partner", "https://api.master.oina.ws/live-partner/graphql"),
+  getIntrospection("unauthenticated", "https://api.master.oina.ws/live-unauthenticated/graphql"),
+]);

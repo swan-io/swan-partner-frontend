@@ -70,7 +70,7 @@ export const OwnershipFormType = ({ ref, onSave, initialValues }: Props) => {
         submitForm({
           onSuccess: values => {
             Option.allFromDict(values).match({
-              Some: value => onSave(value),
+              Some: onSave,
               None: noop,
             });
           },

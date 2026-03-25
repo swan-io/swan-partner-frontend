@@ -1,28 +1,29 @@
 import { Array, Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
-import { Box } from "@swan-io/lake/src/components/Box";
-import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
-import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
+import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
-import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
+import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import {
   Document,
   SupportingDocumentCollection,
   SupportingDocumentCollectionRef,
 } from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
+import { locale } from "@swan-io/shared-business/src/utils/i18n";
 import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
-import { ReactNode, useCallback, useRef } from "react";
-import { StyleSheet } from "react-native";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import { StepTitle } from "../../../components/StepTitle";
-import { CompanyOnboardingFragment } from "../../../graphql/partner";
+import {
+  CompanyOnboardingFragment,
+  UpdatePublicCompanyAccountHolderOnboardingDocument,
+} from "../../../graphql/partner";
 import {
   DeleteSupportingDocumentDocument,
   GenerateSupportingDocumentUploadUrlDocument,
@@ -31,12 +32,6 @@ import {
 import { t } from "../../../utils/i18n";
 import { CompanyOnboardingRouteV2, Router } from "../../../utils/routes";
 
-const styles = StyleSheet.create({
-  fill: {
-    flex: 1,
-  },
-});
-
 type Props = {
   onboarding: NonNullable<CompanyOnboardingFragment>;
   previousStep: CompanyOnboardingRouteV2;
@@ -44,6 +39,7 @@ type Props = {
     CompanyOnboardingFragment["supportingDocumentCollection"]
   >;
   templateLanguage: string;
+  finalized: boolean;
 };
 
 const DocumentsStepTile = ({ small, children }: { small: boolean; children: ReactNode }) => {
@@ -58,10 +54,10 @@ export const OnboardingCompanyDocuments = ({
   previousStep,
   supportingDocumentCollection,
   templateLanguage,
+  finalized,
 }: Props) => {
   const onboardingId = onboarding.id;
   const { accountInfo, company } = onboarding;
-
   const accountCountry = accountInfo?.country;
   const companyType = company?.companyType;
 
@@ -70,14 +66,27 @@ export const OnboardingCompanyDocuments = ({
   const requiredDocumentsPurposes =
     supportingDocumentCollection.requiredSupportingDocumentPurposes.map(d => d.name) ?? [];
 
-  const [generateSupportingDocumentUploadUrl] = useMutation(
+  const [error, showError] = useState(false);
+  const isFirstMount = useFirstMountState();
+
+  const [forceUpdateCompanyOnboarding, updateResult] = useMutation(
+    UpdatePublicCompanyAccountHolderOnboardingDocument,
+  );
+  const [generateSupportingDocumentUploadUrl, uploadResult] = useMutation(
     GenerateSupportingDocumentUploadUrlDocument,
   );
   const [deleteSupportingDocument] = useMutation(DeleteSupportingDocumentDocument);
-  const [showConfirmModal, setShowConfirmModal] = useBoolean(false);
-  const [missingDocumentConfirmed, setMissingDocumentConfirmed] = useBoolean(false);
   const supportingDocumentCollectionRef =
     useRef<SupportingDocumentCollectionRef<SupportingDocumentPurposeEnum>>(null);
+
+  useEffect(() => {
+    if (isFirstMount && finalized) {
+      const collection = supportingDocumentCollectionRef.current;
+      if (isNotNullish(collection) && !collection.areAllRequiredDocumentsFilled()) {
+        showError(true);
+      }
+    }
+  }, [isFirstMount, finalized]);
 
   const onPressPrevious = () => {
     Router.push(previousStep, { onboardingId });
@@ -93,9 +102,15 @@ export const OnboardingCompanyDocuments = ({
       return;
     }
     if (collection.areAllRequiredDocumentsFilled()) {
+      forceUpdateCompanyOnboarding({ input: { onboardingId }, language: locale.language })
+        .mapOk(data => data.updatePublicCompanyAccountHolderOnboarding)
+        .mapOkToResult(filterRejectionsToResult)
+        .tap(() => goToNextStep());
+
       goToNextStep();
     } else {
-      setShowConfirmModal.on();
+      showError(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -183,13 +198,21 @@ export const OnboardingCompanyDocuments = ({
       <ResponsiveContainer breakpoint={breakpoints.medium}>
         {({ small }) => (
           <>
-
-
             <DocumentsStepTile small={small}>
               <StepTitle isMobile={small}>{t("company.step.documents.title")}</StepTitle>
               <Space height={4} />
               <LakeText>{t("company.step.documents.subtitle")}</LakeText>
               <Space height={small ? 24 : 32} />
+
+              {error && (
+                <>
+                  <LakeAlert
+                    variant="error"
+                    title={t("company.step.ownership.error.missingDocuments")}
+                  />
+                  <Space height={small ? 24 : 32} />
+                </>
+              )}
 
               <SupportingDocumentCollection
                 ref={supportingDocumentCollectionRef}
@@ -223,49 +246,11 @@ export const OnboardingCompanyDocuments = ({
         )}
       </ResponsiveContainer>
 
-      <OnboardingFooter onPrevious={onPressPrevious} onNext={onPressNext} />
-
-      <LakeModal
-        visible={showConfirmModal}
-        title={t("company.step.documents.confirmModal.title")}
-        icon="warning-regular"
-        color="partner"
-      >
-        <LakeText>{t("company.step.documents.confirmModal.message")}</LakeText>
-        <Space height={16} />
-
-        <LakeLabelledCheckbox
-          value={missingDocumentConfirmed}
-          onValueChange={setMissingDocumentConfirmed.toggle}
-          label={t("company.step.documents.confirmModal.checkbox")}
-        />
-
-        <Space height={40} />
-
-        <Box direction="row">
-          <LakeButton
-            mode="secondary"
-            style={styles.fill}
-            onPress={() => {
-              setShowConfirmModal.off();
-              setMissingDocumentConfirmed.off();
-            }}
-          >
-            {t("company.step.documents.confirmModal.uploadDocuments")}
-          </LakeButton>
-
-          <Space width={24} />
-
-          <LakeButton
-            color="partner"
-            style={styles.fill}
-            onPress={goToNextStep}
-            disabled={!missingDocumentConfirmed}
-          >
-            {t("common.next")}
-          </LakeButton>
-        </Box>
-      </LakeModal>
+      <OnboardingFooter
+        onPrevious={onPressPrevious}
+        onNext={onPressNext}
+        loading={updateResult.isLoading() || uploadResult.isLoading()}
+      />
     </>
   );
 };

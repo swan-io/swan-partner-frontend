@@ -133,11 +133,13 @@ export const OwnershipFormIndividualCapital = ({
               .with(
                 {
                   qualificationType: P.select("qualificationType", "Control"),
-                  requiredFieldsForControl: Option.P.Some(P.select("control")),
+                  requiredFieldsForControl: Option.P.Some({
+                    controlTypes: P.select("control", P.string),
+                  }),
                 },
-                ({ qualificationType, control: { controlTypes } }) => ({
+                ({ qualificationType, control }) => ({
                   qualificationType,
-                  controlTypes: [controlTypes as UltimateBeneficialOwnerControlType],
+                  controlTypes: [control],
                 }),
               )
               .with({ qualificationType: "LegalRepresentative" }, ({ qualificationType }) => ({

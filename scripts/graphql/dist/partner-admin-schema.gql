@@ -4893,6 +4893,12 @@ input CapitalDepositCaseFiltersInput {
   """
   search: String
 
+  """
+  Filter by status
+  @deprecated(reason: "use `statuses` instead")
+  """
+  status: [CapitalDepositCaseStatus!] @deprecated(reason: "use `statuses` instead")
+
   """Filter by statuses"""
   statuses: [CapitalDepositStatus!]
 }
@@ -11047,6 +11053,7 @@ input SimulateIncomingCardAuthorizationAuthorization {
   Set this to "Authorized" to simulate a successful payment, and to "Rejected" to simulate a failed payment. You can't authorize a payment successfully with a failed 3DS. However, the authorization can be rejected even if 3DS succeed.
   """
   status: SimulateIncomingCardAuthorizationStatus!
+  rejectionReason: String @deprecated(reason: "Use rejectedReasonCode instead")
   rejectedReasonCode: SimulationFailedCardMerchantPaymentRejectedReason
 }
 
@@ -11104,6 +11111,7 @@ input SimulateIncomingCardAuthorizationInput {
   The status of the payer authentication returned by the issuing bank. Use this to simulate the success or failure of the 3DS authentication. This can't be set to "Failed" if the Authorization status is set to "Authorized".
   """
   threeDS: SimulateIncomingCardAuthorizationThreeDS!
+  autoCapture: Boolean @deprecated(reason: "field is not used anymore")
 
   """
   The details of the card used for the payment. Use this to simulate using a specific card for the payment.
@@ -11128,6 +11136,7 @@ type SimulateIncomingCardAuthorizationSuccessPayload {
 
 input SimulateIncomingCardAuthorizationThreeDS {
   status: SimulateIncomingCardAuthorizationThreeDSStatus!
+  rejectionReason: String @deprecated(reason: "Use rejectedReasonCode instead")
   rejectedReasonCode: SimulationFailedThreeDSReason
 }
 
@@ -11182,6 +11191,7 @@ input SimulateIncomingOnlineCardAuthorizationAuthorization {
   Set this to "Authorized" to simulate a successful payment, and to "Rejected" to simulate a failed payment. You can't authorize a payment successfully with a failed 3DS. However, the authorization can be rejected even if 3DS succeed.
   """
   status: SimulateIncomingOnlineCardAuthorizationStatus!
+  rejectionReason: String @deprecated(reason: "Use rejectedReasonCode instead")
   rejectedReasonCode: SimulationFailedOnlineCardMerchantPaymentRejectedReason
 }
 
@@ -11239,6 +11249,7 @@ input SimulateIncomingOnlineCardAuthorizationInput {
   The status of the payer authentication returned by the issuing bank. Use this to simulate the success or failure of the 3DS authentication. This can't be set to "Failed" if the Authorization status is set to "Authorized".
   """
   threeDS: SimulateIncomingOnlineCardAuthorizationThreeDS!
+  autoCapture: Boolean @deprecated(reason: "field is not used anymore")
 
   """
   The details of the card used for the payment. Use this to simulate using a specific card for the payment.
@@ -11263,6 +11274,7 @@ type SimulateIncomingOnlineCardAuthorizationSuccessPayload {
 
 input SimulateIncomingOnlineCardAuthorizationThreeDS {
   status: SimulateIncomingOnlineCardAuthorizationThreeDSStatus!
+  rejectionReason: String @deprecated(reason: "Use rejectedReasonCode instead")
   rejectedReasonCode: SimulationFailedThreeDSReason
 }
 
@@ -11277,6 +11289,11 @@ enum SimulateIncomingOnlineCardAuthorizationThreeDSStatus {
 input SimulateMerchantPaymentMethodRequestOutcomeInput {
   merchantPaymentMethodId: ID!
   merchantPaymentMethodStatus: MerchantPaymentMethodStatus!
+
+  """
+  In case status is Rejected, merchantPaymentMethodRejectReason is mandatory
+  """
+  merchantPaymentMethodRejectReason: MerchantPaymentMethodRejectReason @deprecated(reason: "Use merchantPaymentMethodRejectionReason instead")
 
   """
   In case status is Rejected, merchantPaymentMethodRejectionReason will soon be mandatory

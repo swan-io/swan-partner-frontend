@@ -3,7 +3,9 @@ import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "pathe";
 
-const query = getIntrospectionQuery();
+const query = getIntrospectionQuery({
+  inputValueDeprecation: true,
+});
 
 const getIntrospection = (name: string, url: string) =>
   fetch(url, {

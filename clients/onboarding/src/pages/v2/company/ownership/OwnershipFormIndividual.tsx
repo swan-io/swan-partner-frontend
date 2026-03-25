@@ -98,6 +98,7 @@ export const OwnershipFormIndividual = ({
             ...rest,
             ultimateBeneficialOwner: {
               ...ultimateBeneficialOwner,
+              qualificationType: ultimateBeneficialOwner?.qualificationType ?? "Control",
               identityDocumentInfo,
             },
           });
@@ -121,6 +122,7 @@ export const OwnershipFormIndividual = ({
                 ultimateBeneficialOwner: {
                   ...prevState.ultimateBeneficialOwner,
                   ...ultimateBeneficialOwner,
+                  qualificationType: ultimateBeneficialOwner?.qualificationType ?? "Ownership",
                 },
               };
             });

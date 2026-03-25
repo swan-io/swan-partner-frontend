@@ -146,7 +146,10 @@ export const OwnershipFormIndividualCapital = ({
             }
 
             onSave({
-              ultimateBeneficialOwner,
+              ultimateBeneficialOwner: {
+                ...ultimateBeneficialOwner,
+                qualificationType: ultimateBeneficialOwner.qualificationType ?? "Ownership",
+              },
               taxIdentificationNumber,
             });
           },

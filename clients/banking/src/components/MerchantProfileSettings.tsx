@@ -1014,7 +1014,10 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
                   )}
                   onDisable={() =>
                     requestMerchantPaymentMethods({
-                      input: { merchantProfileId: merchantProfile.id, card: { activate: false } },
+                      input: {
+                        merchantProfileId: merchantProfile.id,
+                        onlineCard: { activate: false },
+                      },
                     })
                       .mapOkToResult(data =>
                         Option.fromNullable(data.requestMerchantPaymentMethods).toResult("No data"),

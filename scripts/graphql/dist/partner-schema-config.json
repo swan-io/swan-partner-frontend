@@ -1,5 +1,9 @@
 {
   "interfaceToTypes": {
+    "AccountAdminChangeBase": [
+      "AccountAdminChange",
+      "NonOngoingAccountAdminChange"
+    ],
     "Rejection": [
       "AccountAdminChangeExpiredRejection",
       "AccountAdminChangeMissingDocumentsRejection",
@@ -402,6 +406,8 @@
     "MerchantPayment": [
       "CardMerchantPayment",
       "CheckMerchantPayment",
+      "InPersonCardMerchantPayment",
+      "OnlineCardMerchantPayment",
       "SepaDirectDebitMerchantPayment"
     ],
     "PaymentMandate": [
@@ -413,9 +419,11 @@
       "CardTransaction",
       "CheckTransaction",
       "FeeTransaction",
+      "InPersonCardTransaction",
       "InternalCreditTransfer",
       "InternalDirectDebitTransaction",
       "InternationalCreditTransferTransaction",
+      "OnlineCardTransaction",
       "SEPACreditTransferTransaction",
       "SEPADirectDebitTransaction"
     ],
@@ -626,6 +634,7 @@
       "InPersonCardMerchantPaymentMethod",
       "InternalDirectDebitB2BMerchantPaymentMethod",
       "InternalDirectDebitStandardMerchantPaymentMethod",
+      "OnlineCardMerchantPaymentMethod",
       "SepaDirectDebitB2BMerchantPaymentMethod",
       "SepaDirectDebitCoreMerchantPaymentMethod"
     ],

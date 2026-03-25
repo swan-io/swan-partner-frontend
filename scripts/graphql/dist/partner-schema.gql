@@ -186,7 +186,7 @@ type Query {
   
   @comingSoon
   """
-  publicAccountAdminChange(accountAdminChangeId: ID!): AccountAdminChange
+  publicAccountAdminChange(accountAdminChangeId: ID!): PublicAccountAdminChangePayload
 
   """
   Returns an account holder onboarding from its id without authentication.
@@ -964,7 +964,7 @@ type Mutation {
   addCards(input: AddCardsInput!): AddCardsPayload!
 
   """
-  Add a Digital Card to push to ApplePay or GooglePay
+  Add a digital card to push to Apple Pay or Google Pay
   
   This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.
   
@@ -1678,7 +1678,7 @@ type Account {
 }
 
 """Account administrator change request"""
-type AccountAdminChange {
+type AccountAdminChange implements AccountAdminChangeBase {
   """Unique identifier of the account admin change"""
   id: ID!
 
@@ -1702,6 +1702,9 @@ type AccountAdminChange {
 
   """Supporting document collection for the administrator change"""
   supportingDocumentCollection: SupportingDocumentCollection!
+
+  """Account admin change status"""
+  status: AccountAdminChangeStatus!
 }
 
 """Account information for account admin change"""
@@ -1741,6 +1744,15 @@ type AccountAdminChangeAdmin {
 
   """Birth date of the new administrator"""
   birthDate: Date
+}
+
+"""Base interface for account admin changes"""
+interface AccountAdminChangeBase {
+  """Unique identifier of the account admin change"""
+  id: ID!
+
+  """Account admin change status"""
+  status: AccountAdminChangeStatus!
 }
 
 """Rejection returned if the account admin change has expired"""
@@ -1810,6 +1822,30 @@ type AccountAdminChangeRequester {
 
   """Phone number of the requester"""
   phoneNumber: String
+}
+
+"""Status of the account administrator change"""
+enum AccountAdminChangeStatus {
+  """The request has not been submitted"""
+  Ongoing
+
+  """The request has expired"""
+  Expired
+
+  """The request is being reviewed"""
+  Pending
+
+  """The user must supply additional information"""
+  WaitingForInformation
+
+  """The new administrator has been invited to the account"""
+  InvitationSent
+
+  """The account administrator change has been completed"""
+  Verified
+
+  """The account administrator change has been refused"""
+  Refused
 }
 
 type AccountAdminChangeStatusNotEligibleRejection implements Rejection {
@@ -2335,6 +2371,9 @@ interface AccountHolderOnboardingBase {
   """
   onboardingUrl: String
   account: Account
+
+  """Swan Terms and Conditions URL"""
+  termsAndConditionsUrl: String!
 }
 
 """Connection type for paginated AccountHolderOnboarding results"""
@@ -3675,6 +3714,9 @@ type CompanyAccountHolderOnboarding implements AccountHolderOnboardingBase {
   """
   onboardingUrl: String
   account: Account
+
+  """Swan Terms and Conditions URL"""
+  termsAndConditionsUrl: String!
 }
 
 """Company account information for onboarding"""
@@ -3713,7 +3755,7 @@ type CompanyAccountHolderOnboardingAccountAdmin {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   firstName: String
 
@@ -3727,7 +3769,7 @@ type CompanyAccountHolderOnboardingAccountAdmin {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   lastName: String
 
@@ -3773,7 +3815,7 @@ input CompanyAccountHolderOnboardingAccountAdminInput {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   firstName: String
 
@@ -3787,7 +3829,7 @@ input CompanyAccountHolderOnboardingAccountAdminInput {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   lastName: String
 
@@ -3834,7 +3876,7 @@ input CompanyAccountHolderOnboardingAccountAdminUpdateInput {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   firstName: String
 
@@ -3848,7 +3890,7 @@ input CompanyAccountHolderOnboardingAccountAdminUpdateInput {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   lastName: String
 
@@ -5394,6 +5436,9 @@ type IndividualAccountHolderOnboarding implements AccountHolderOnboardingBase {
   """
   onboardingUrl: String
   account: Account
+
+  """Swan Terms and Conditions URL"""
+  termsAndConditionsUrl: String!
 }
 
 """Individual account information for onboarding"""
@@ -5435,7 +5480,7 @@ type IndividualAccountHolderOnboardingAccountAdmin {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   firstName: String
 
@@ -5449,7 +5494,7 @@ type IndividualAccountHolderOnboardingAccountAdmin {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   lastName: String
 
@@ -5502,7 +5547,7 @@ input IndividualAccountHolderOnboardingAccountAdminInput {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   firstName: String
 
@@ -5516,7 +5561,7 @@ input IndividualAccountHolderOnboardingAccountAdminInput {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   lastName: String
 
@@ -6265,6 +6310,15 @@ enum MonthlyPaymentVolume {
 type MultipleAccountsSettings {
   canOpenAccount: Boolean!
   accountCreationLimit: Int!
+}
+
+"""Account administrator change status information"""
+type NonOngoingAccountAdminChange implements AccountAdminChangeBase {
+  """Unique identifier of the account admin change"""
+  id: ID!
+
+  """Account admin change status"""
+  status: AccountAdminChangeStatus!
 }
 
 """
@@ -7152,6 +7206,8 @@ input PublicAccountAdminChangeAdminInput {
   birthDate: String
 }
 
+union PublicAccountAdminChangePayload = AccountAdminChange | NonOngoingAccountAdminChange
+
 """Input for the requester information"""
 input PublicAccountAdminChangeRequesterInput {
   """First name of the requester"""
@@ -7208,7 +7264,7 @@ input PublicIndividualAccountHolderOnboardingAccountAdminInput {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   firstName: String
 
@@ -7222,7 +7278,7 @@ input PublicIndividualAccountHolderOnboardingAccountAdminInput {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   lastName: String
 
@@ -7389,7 +7445,7 @@ input RelatedIndividualInput {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   firstName: String
 
@@ -7405,7 +7461,7 @@ input RelatedIndividualInput {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   lastName: String
 
@@ -7510,7 +7566,7 @@ input RelatedIndividualUltimateBeneficialOwnerInput {
   """
   Ultimate beneficial owner qualification type. If a ultimate beneficial owner has multiple qualification types, then priority is Ownership, then Control, then Legal Representative
   """
-  qualificationType: UltimateBeneficialOwnerQualificationType
+  qualificationType: UltimateBeneficialOwnerQualificationType!
 
   """
   Ultimate beneficial owner ownership information. Only applicable if qualificationType is Ownership
@@ -8743,10 +8799,8 @@ interface Transaction {
   """
   counterparty: String!
 
-  """
-  [DEPRECATED] booked balance after this transaction. Deprecated in favor of statusInfo.balance.amount on BookedTransactionStatusInfo
-  """
-  bookedBalanceAfter: Amount
+  """booked balance after this transaction"""
+  bookedBalanceAfter: Amount @deprecated(reason: "Use statusInfo.balance.amount on BookedTransactionStatusInfo instead")
 
   """payment product used for this transaction"""
   paymentProduct: PaymentProduct!
@@ -9377,7 +9431,7 @@ input UpdateIndividualAccountHolderOnboardingAccountAdminInput {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   firstName: String
 
@@ -9391,7 +9445,7 @@ input UpdateIndividualAccountHolderOnboardingAccountAdminInput {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   lastName: String
 
@@ -10607,10 +10661,8 @@ type CardTransaction implements Transaction {
   """
   counterparty: String!
 
-  """
-  [DEPRECATED] booked balance after this transaction. Deprecated in favor of statusInfo.balance.amount on BookedTransactionStatusInfo
-  """
-  bookedBalanceAfter: Amount
+  """booked balance after this transaction"""
+  bookedBalanceAfter: Amount @deprecated(reason: "Use statusInfo.balance.amount on BookedTransactionStatusInfo instead")
 
   """payment product used for this transaction"""
   paymentProduct: PaymentProduct!
@@ -10999,10 +11051,8 @@ type CheckTransaction implements Transaction {
   """
   counterparty: String!
 
-  """
-  [DEPRECATED] booked balance after this transaction. Deprecated in favor of statusInfo.balance.amount on BookedTransactionStatusInfo
-  """
-  bookedBalanceAfter: Amount
+  """booked balance after this transaction"""
+  bookedBalanceAfter: Amount @deprecated(reason: "Use statusInfo.balance.amount on BookedTransactionStatusInfo instead")
 
   """payment product used for this transaction"""
   paymentProduct: PaymentProduct!
@@ -11551,10 +11601,8 @@ type FeeTransaction implements Transaction {
   """
   counterparty: String!
 
-  """
-  [DEPRECATED] booked balance after this transaction. Deprecated in favor of statusInfo.balance.amount on BookedTransactionStatusInfo
-  """
-  bookedBalanceAfter: Amount
+  """booked balance after this transaction"""
+  bookedBalanceAfter: Amount @deprecated(reason: "Use statusInfo.balance.amount on BookedTransactionStatusInfo instead")
 
   """payment product used for this transaction"""
   paymentProduct: PaymentProduct!
@@ -11632,9 +11680,6 @@ input GenerateAccountStatementInput {
   """language to generate the statement in (default to account's language)"""
   language: AccountLanguage
 
-  """[DEPRECATED] Type of statement to generate"""
-  statementType: StatementType = PDF
-
   """[NEW] Format of statement to generate"""
   format: AccountStatementFormat = PDF
 }
@@ -11681,6 +11726,229 @@ Rejection returned if a transaction statement can’t be generated for this tran
 """
 type GenerationNotAllowedRejection implements Rejection {
   message: String!
+}
+
+type InPersonCardMerchantPayment implements MerchantPayment {
+  """unique identifier of a merchant payment"""
+  id: ID!
+
+  """
+  List of transactions associated with the Merchant Payment.
+  
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
+  """
+  transactions(
+    """the number of elements to load (default value 50, maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """
+    an order you can apply to your list of connections (default value UpdatedAt desc)
+    """
+    orderBy: TransactionsOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
+    filters: TransactionsFiltersInput
+  ): TransactionConnection
+
+  """status information"""
+  statusInfo: MerchantPaymentStatusInfo!
+
+  """amount"""
+  amount: Amount!
+
+  """payment link associated to the merchant payment"""
+  paymentMandate: PaymentMandate!
+
+  """payment link associated to the merchant payment"""
+  paymentLink: MerchantPaymentLink
+
+  """merchant profile associated to the merchant payment"""
+  merchantProfile: MerchantProfile!
+
+  """payment method associated to the merchant payment"""
+  paymentMethod: MerchantPaymentMethod!
+  balance: MerchantBalance!
+
+  """Label"""
+  label: String
+  reference: String
+
+  """
+  an arbitrary identifier that was defined by you when you created this payment
+  """
+  externalReference: String
+
+  """The billing address associated to the payment"""
+  billingAddress: Address
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Created date"""
+  createdAt: DateTime @deprecated(reason: "use createdAt in statusInfo instead")
+
+  """Authorized date"""
+  authorizedAt: DateTime @deprecated(reason: "use authorizedAt in statusInfo instead")
+
+  """Canceled date"""
+  canceledAt: DateTime @deprecated(reason: "use canceledAt in statusInfo instead")
+
+  """Captured date"""
+  capturedAt: DateTime @deprecated(reason: "use capturedAt in statusInfo instead")
+
+  """Rejected date"""
+  rejectedAt: DateTime @deprecated(reason: "use rejectedAt in statusInfo instead")
+
+  """Refunded date"""
+  refundedAt: DateTime @deprecated(reason: "use refundedAt in statusInfo instead")
+
+  """Disputed date"""
+  disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
+}
+
+type InPersonCardTransaction implements Transaction {
+  """unique identifier of the transaction"""
+  id: ID!
+
+  """external identifier of the transaction"""
+  reference: String!
+
+  """
+  payment method identifier used for this transaction. e.g masked PAN or IBAN or accountNumber
+  """
+  paymentMethodIdentifier: String!
+
+  """side (Credit or Debit)"""
+  side: TransactionSide!
+
+  """type"""
+  type: TransactionTypeEnum!
+
+  """amount"""
+  amount: Amount!
+
+  """label"""
+  label: String!
+
+  """status information"""
+  statusInfo: TransactionStatusInfo!
+
+  """ID of the payment associated to this transaction"""
+  paymentId: String
+
+  """payment associated to this transaction"""
+  payment: Payment
+
+  """created date"""
+  createdAt: DateTime!
+
+  """updated date"""
+  updatedAt: DateTime!
+
+  """
+  name of the counterparty. e.g Merchant name, Creditor name, Beneficiary Name ...
+  """
+  counterparty: String!
+
+  """
+  [DEPRECATED] booked balance after this transaction. Deprecated in favor of statusInfo.balance.amount on BookedTransactionStatusInfo
+  """
+  bookedBalanceAfter: Amount
+
+  """payment product used for this transaction"""
+  paymentProduct: PaymentProduct!
+
+  """unique identifier of the terminal"""
+  terminalId: String
+
+  """original amount and currency of the transaction"""
+  originalAmount: Amount!
+
+  """currency exchange if any"""
+  currencyExchange: [ReportExchangeRate!]!
+
+  """merchant associated"""
+  merchant: CardMerchant
+
+  """cardDetails associated"""
+  cardDetails: CardDetails
+
+  """
+  type of the authorization.
+  Only available for:
+  - authorization transaction
+  - debit transaction linked to a previous authorization transaction
+  """
+  authorizationType: AuthorizationType
+
+  """matching account for the transaction"""
+  account: Account
+
+  """
+  an arbitrary identifier that was defined by you when you created this transaction.
+  
+  For example, you can define it in the CreditTransferInput mutation.
+  """
+  externalReference: String
+
+  """
+  a date that reflects the execution date of a transaction from a user viewpoint. Can be used for sorting transactions.
+  """
+  executionDate: DateTime!
+
+  """
+  a date that reflects the time at which the user asked the transaction to be executed
+  """
+  requestedExecutionAt: DateTime
+
+  """ID of the origin transaction associated to this transaction"""
+  originTransactionId: String
+
+  """origin transaction associated to this transaction"""
+  originTransaction: Transaction
+
+  """enriched data of the merchant"""
+  enrichedTransactionInfo: EnrichedTransactionInfo
+
+  """indicator of the transit type used (optional)"""
+  transactionTransportType: TransactionTransportType
+
+  """true if a transaction statement can be generated for this transaction"""
+  statementCanBeGenerated: Boolean
+
+  """project id of the transaction"""
+  projectId: ID!
+
+  """reserved amount of the transaction computed with the rolling reserve."""
+  reservedAmount: Amount
+
+  """date on which reserved funds become available."""
+  reservedAmountReleasedAt: DateTime
+
+  """`true` if this transaction can still be cancelled"""
+  isCancelable: Boolean!
+  supportingDocumentCollections(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the preceding elements
+    """
+    before: String
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """a filtering table you can apply to your list of connections"""
+    filters: SupportingDocumentCollectionFilterInput
+  ): SupportingDocumentCollectionConnection!
 }
 
 """Internal Beneficiary"""
@@ -11752,10 +12020,8 @@ type InternalCreditTransfer implements Transaction {
   """
   counterparty: String!
 
-  """
-  [DEPRECATED] booked balance after this transaction. Deprecated in favor of statusInfo.balance.amount on BookedTransactionStatusInfo
-  """
-  bookedBalanceAfter: Amount
+  """booked balance after this transaction"""
+  bookedBalanceAfter: Amount @deprecated(reason: "Use statusInfo.balance.amount on BookedTransactionStatusInfo instead")
 
   """payment product used for this transaction"""
   paymentProduct: PaymentProduct!
@@ -11939,10 +12205,8 @@ type InternalDirectDebitTransaction implements Transaction {
   """
   counterparty: String!
 
-  """
-  [DEPRECATED] booked balance after this transaction. Deprecated in favor of statusInfo.balance.amount on BookedTransactionStatusInfo
-  """
-  bookedBalanceAfter: Amount
+  """booked balance after this transaction"""
+  bookedBalanceAfter: Amount @deprecated(reason: "Use statusInfo.balance.amount on BookedTransactionStatusInfo instead")
 
   """payment product used for this transaction"""
   paymentProduct: PaymentProduct!
@@ -12425,10 +12689,8 @@ type InternationalCreditTransferTransaction implements Transaction {
   """amount"""
   amount: Amount!
 
-  """
-  [DEPRECATED] booked balance after this transaction. Deprecated in favor of statusInfo.balance.amount on BookedTransactionStatusInfo
-  """
-  bookedBalanceAfter: Amount
+  """booked balance after this transaction"""
+  bookedBalanceAfter: Amount @deprecated(reason: "Use statusInfo.balance.amount on BookedTransactionStatusInfo instead")
 
   """
   name of the counterparty. e.g Merchant name, Creditor name, Beneficiary Name ...
@@ -13044,6 +13306,230 @@ enum MerchantSubCategory {
   OtherStores
   PerfumesAndCosmetics
   Other
+}
+
+type OnlineCardMerchantPayment implements MerchantPayment {
+  """unique identifier of a merchant payment"""
+  id: ID!
+
+  """
+  List of transactions associated with the Merchant Payment.
+  
+  Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
+  """
+  transactions(
+    """the number of elements to load (default value 50, maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """
+    an order you can apply to your list of connections (default value UpdatedAt desc)
+    """
+    orderBy: TransactionsOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
+    filters: TransactionsFiltersInput
+  ): TransactionConnection
+
+  """status information"""
+  statusInfo: MerchantPaymentStatusInfo!
+
+  """amount"""
+  amount: Amount!
+
+  """payment link associated to the merchant payment"""
+  paymentMandate: PaymentMandate!
+
+  """payment link associated to the merchant payment"""
+  paymentLink: MerchantPaymentLink
+
+  """merchant profile associated to the merchant payment"""
+  merchantProfile: MerchantProfile!
+
+  """payment method associated to the merchant payment"""
+  paymentMethod: MerchantPaymentMethod!
+  balance: MerchantBalance!
+
+  """Label"""
+  label: String
+  reference: String
+
+  """
+  an arbitrary identifier that was defined by you when you created this payment
+  """
+  externalReference: String
+
+  """The billing address associated to the payment"""
+  billingAddress: Address
+  threeDs: ThreeDS
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Created date"""
+  createdAt: DateTime @deprecated(reason: "use createdAt in statusInfo instead")
+
+  """Authorized date"""
+  authorizedAt: DateTime @deprecated(reason: "use authorizedAt in statusInfo instead")
+
+  """Canceled date"""
+  canceledAt: DateTime @deprecated(reason: "use canceledAt in statusInfo instead")
+
+  """Captured date"""
+  capturedAt: DateTime @deprecated(reason: "use capturedAt in statusInfo instead")
+
+  """Rejected date"""
+  rejectedAt: DateTime @deprecated(reason: "use rejectedAt in statusInfo instead")
+
+  """Refunded date"""
+  refundedAt: DateTime @deprecated(reason: "use refundedAt in statusInfo instead")
+
+  """Disputed date"""
+  disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
+}
+
+type OnlineCardTransaction implements Transaction {
+  """unique identifier of the transaction"""
+  id: ID!
+
+  """external identifier of the transaction"""
+  reference: String!
+
+  """
+  payment method identifier used for this transaction. e.g masked PAN or IBAN or accountNumber
+  """
+  paymentMethodIdentifier: String!
+
+  """side (Credit or Debit)"""
+  side: TransactionSide!
+
+  """type"""
+  type: TransactionTypeEnum!
+
+  """amount"""
+  amount: Amount!
+
+  """label"""
+  label: String!
+
+  """status information"""
+  statusInfo: TransactionStatusInfo!
+
+  """ID of the payment associated to this transaction"""
+  paymentId: String
+
+  """payment associated to this transaction"""
+  payment: Payment
+
+  """created date"""
+  createdAt: DateTime!
+
+  """updated date"""
+  updatedAt: DateTime!
+
+  """
+  name of the counterparty. e.g Merchant name, Creditor name, Beneficiary Name ...
+  """
+  counterparty: String!
+
+  """
+  [DEPRECATED] booked balance after this transaction. Deprecated in favor of statusInfo.balance.amount on BookedTransactionStatusInfo
+  """
+  bookedBalanceAfter: Amount
+
+  """payment product used for this transaction"""
+  paymentProduct: PaymentProduct!
+
+  """unique identifier of the terminal"""
+  terminalId: String
+
+  """original amount and currency of the transaction"""
+  originalAmount: Amount!
+
+  """currency exchange if any"""
+  currencyExchange: [ReportExchangeRate!]!
+
+  """merchant associated"""
+  merchant: CardMerchant
+
+  """cardDetails associated"""
+  cardDetails: CardDetails
+
+  """
+  type of the authorization.
+  Only available for:
+  - authorization transaction
+  - debit transaction linked to a previous authorization transaction
+  """
+  authorizationType: AuthorizationType
+
+  """matching account for the transaction"""
+  account: Account
+
+  """
+  an arbitrary identifier that was defined by you when you created this transaction.
+  
+  For example, you can define it in the CreditTransferInput mutation.
+  """
+  externalReference: String
+
+  """
+  a date that reflects the execution date of a transaction from a user viewpoint. Can be used for sorting transactions.
+  """
+  executionDate: DateTime!
+
+  """
+  a date that reflects the time at which the user asked the transaction to be executed
+  """
+  requestedExecutionAt: DateTime
+
+  """ID of the origin transaction associated to this transaction"""
+  originTransactionId: String
+
+  """origin transaction associated to this transaction"""
+  originTransaction: Transaction
+
+  """enriched data of the merchant"""
+  enrichedTransactionInfo: EnrichedTransactionInfo
+
+  """indicator of the transit type used (optional)"""
+  transactionTransportType: TransactionTransportType
+
+  """true if a transaction statement can be generated for this transaction"""
+  statementCanBeGenerated: Boolean
+
+  """project id of the transaction"""
+  projectId: ID!
+
+  """reserved amount of the transaction computed with the rolling reserve."""
+  reservedAmount: Amount
+
+  """date on which reserved funds become available."""
+  reservedAmountReleasedAt: DateTime
+
+  """`true` if this transaction can still be cancelled"""
+  isCancelable: Boolean!
+  supportingDocumentCollections(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the preceding elements
+    """
+    before: String
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """a filtering table you can apply to your list of connections"""
+    filters: SupportingDocumentCollectionFilterInput
+  ): SupportingDocumentCollectionConnection!
 }
 
 """
@@ -13890,10 +14376,8 @@ type SEPACreditTransferTransaction implements Transaction {
   """
   counterparty: String!
 
-  """
-  [DEPRECATED] booked balance after this transaction. Deprecated in favor of statusInfo.balance.amount on BookedTransactionStatusInfo
-  """
-  bookedBalanceAfter: Amount
+  """booked balance after this transaction"""
+  bookedBalanceAfter: Amount @deprecated(reason: "Use statusInfo.balance.amount on BookedTransactionStatusInfo instead")
 
   """payment product used for this transaction"""
   paymentProduct: PaymentProduct!
@@ -13944,6 +14428,25 @@ type SEPACreditTransferTransaction implements Transaction {
 
   """Result of the beneficiary verification"""
   beneficiaryVerificationResult: VerifyBeneficiaryResult
+
+  """List of settled transactions"""
+  settledTransactions(
+    """the number of elements to load (default value 50, maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """
+    an order you can apply to your list of connections (default value UpdatedAt desc)
+    """
+    orderBy: TransactionsOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
+    filters: TransactionsFiltersInput
+  ): TransactionConnection
 
   """SEPA beneficiary linked to the transaction"""
   beneficiary: Beneficiary
@@ -14224,10 +14727,8 @@ type SEPADirectDebitTransaction implements Transaction {
   """
   counterparty: String!
 
-  """
-  [DEPRECATED] booked balance after this transaction. Deprecated in favor of statusInfo.balance.amount on BookedTransactionStatusInfo
-  """
-  bookedBalanceAfter: Amount
+  """booked balance after this transaction"""
+  bookedBalanceAfter: Amount @deprecated(reason: "Use statusInfo.balance.amount on BookedTransactionStatusInfo instead")
 
   """payment product used for this transaction"""
   paymentProduct: PaymentProduct!
@@ -14604,8 +15105,8 @@ type Statement {
   """ending date of the date window"""
   closingDate: DateTime!
 
-  """[DEPRECATED] status of the statement"""
-  status: StatementStatus!
+  """status of the statement"""
+  status: StatementStatus! @deprecated(reason: "Use statusInfo instead")
 
   """[NEW] status of the statement"""
   statusInfo: AccountStatementStatusInfo!
@@ -14619,8 +15120,8 @@ type Statement {
   """the sum of debit transactions during the window"""
   totalDebits: Amount!
 
-  """[DEPRECATED] the sum of fee transactions during the window"""
-  fees: Amount!
+  """the sum of fee transactions during the window"""
+  fees: Amount! @deprecated(reason: "Use feeCredits and feeDebits instead")
 
   """[NEW] the sum of credit fee transactions during the window"""
   feeCredits: Amount!
@@ -14628,8 +15129,8 @@ type Statement {
   """[NEW] the sum of debit fee transactions during the window"""
   feeDebits: Amount!
 
-  """[DEPRECATED] type of statements (ex: PDF)"""
-  type: [StatementInfo]!
+  """type of statements (ex: PDF)"""
+  type: [StatementInfo]! @deprecated(reason: "Use format instead")
 
   """[NEW] format of statements (ex: PDF)"""
   format: AccountStatementFormat!
@@ -16598,7 +17099,7 @@ union AddDigitalCardPayload = AddDigitalCardSuccessPayload | CardNotFoundRejecti
 
 type AddDigitalCardSuccessPayload {
   """
-  Digital Card used for ApplePay or GooglePay
+  Digital card for use with Apple Pay or Google Pay
   
   The consent can be found in the digital card status information.
   """
@@ -16677,7 +17178,7 @@ type AlreadyValidPhysicalCardRejection implements Rejection {
   message: String!
 }
 
-"""Rejection return if the project is not configured to allow Apple Pay"""
+"""Rejection returned if the project is not configured to allow Apple Pay"""
 type ApplePayNotAllowedForProjectRejection implements Rejection {
   id: String!
   message: String!
@@ -17372,7 +17873,7 @@ input Certificate {
 }
 
 """
-Complete Digital Card used for ApplePay or GooglePay
+Complete digital card for use with Apple Pay or Google Pay
 
 Once the pending phase is over, more data will be available in the response
 """
@@ -17389,7 +17890,7 @@ type CompleteDigitalCard implements DigitalCard {
   """Updated date"""
   updatedAt: DateTime!
 
-  """Wallet Provider (ApplePay, GooglePay ...)"""
+  """Wallet Provider (Apple Pay, Google Pay...)"""
   walletProvider: WalletProvider!
 
   """
@@ -17479,7 +17980,7 @@ type Device {
   name: String
 }
 
-"""Digital Card used for ApplePay or GooglePay"""
+"""Digital card for use with Apple Pay or Google Pay"""
 interface DigitalCard {
   """Unique identifier of a digital card"""
   id: ID!
@@ -17493,7 +17994,7 @@ interface DigitalCard {
   """Updated date"""
   updatedAt: DateTime!
 
-  """Wallet Provider (ApplePay, GooglePay ...)"""
+  """Wallet Provider (Apple Pay, Google Pay...)"""
   walletProvider: WalletProvider!
 
   """Reference of the token in another system (ex: Mastercard)"""
@@ -17595,7 +18096,7 @@ input DigitalCardFiltersInput {
   """The ID of the wallet provider in the scheme system"""
   walletProviderId: String
 
-  """Either ApplePay or GooglePay"""
+  """Either Apple Pay or Google Pay"""
   walletProviderName: String
 
   """Reference of the token in another system (ex: Mastercard)"""
@@ -17685,7 +18186,7 @@ type EnabledCardDesignNotFoundRejection implements Rejection {
   message: String!
 }
 
-"""Data used for in app provisioning"""
+"""Data used for in-app provisioning"""
 type InAppProvisioningData {
   """Cryptographic OTP used to pre-validate digitalization"""
   activationData: String!
@@ -17733,7 +18234,7 @@ type PendingConsentAccountMembershipUpdate {
   consent: Consent!
 }
 
-"""Pending Digital Card used for ApplePay or GooglePay"""
+"""Pending digital card for use with Apple Pay or Google Pay"""
 type PendingDigitalCard implements DigitalCard {
   """Unique identifier of a digital card"""
   id: ID!
@@ -17747,7 +18248,7 @@ type PendingDigitalCard implements DigitalCard {
   """Updated date"""
   updatedAt: DateTime!
 
-  """Wallet Provider (ApplePay, GooglePay ...)"""
+  """Wallet Provider (Apple Pay, Google Pay...)"""
   walletProvider: WalletProvider!
 
   """
@@ -17758,11 +18259,11 @@ type PendingDigitalCard implements DigitalCard {
   statusInfo: PendingDigitalCardStatusInfo!
 
   """
-  Data to provide to the wallet during InApp Provisioning
+  Data to provide to the wallet during in-app provisioning
   
-  Signature Data is mandatory for ApplePay
+  Signature Data is mandatory for Apple Pay
   
-  This data is only available for a digital card in
+  This data is only available for a digital card in:
   - status: Pending
   - type: InApp
   """
@@ -18213,15 +18714,17 @@ enum ShippingProvider {
   NACEX
 }
 
-"""Signature data used during apple pay inApp provisioning"""
+"""Signature data used during Apple Pay in-app provisioning"""
 input SignatureData {
-  """nonce"""
+  """
+  One-time cryptographic value provided by Apple during in-app provisioning
+  """
   nonce: String!
 
-  """nonce signed by the secure element"""
+  """Nonce signed by the device's Secure Element"""
   nonceSignature: String!
 
-  """list of apple generated certificates"""
+  """Apple-generated certificates for provisioning verification"""
   certificates: [Certificate!]!
 }
 
@@ -18356,7 +18859,7 @@ type ViewPhysicalCardPinSuccessPayload {
   consent: Consent!
 }
 
-"""Wallet Provider (ApplePay, GooglePay ...)"""
+"""Wallet Provider (Apple Pay, Google Pay...)"""
 type WalletProvider {
   """name of the Wallet Provider (Apple / Google / Amazon or Unknown)"""
   name: String!
@@ -21574,7 +22077,6 @@ type CancelMerchantProfileUpdateRequestSuccessPayload {
   requestUpdateId: ID
 }
 
-"""COMING SOON"""
 type CardMerchantPaymentMethod implements MerchantPaymentMethod {
   """
   Unique identifier tied to every version of a given Merchant Payment Method
@@ -21679,6 +22181,8 @@ input CreateInPersonPaymentIntentInput {
   idempotencyKey: String
   externalReference: String
   reference: String
+
+  """Label of the payment intent, must contain at least one latin character"""
   label: String
 }
 
@@ -22703,6 +23207,7 @@ enum MerchantPaymentMethodType {
   Check
   Card
   InPersonCard
+  OnlineCard
 }
 
 interface MerchantPaymentMethodUpdateRequest {
@@ -22977,6 +23482,50 @@ type NotRequestedThreeDsStatusInfo implements ThreeDsStatusInfo {
   status: IncomingThreeDsStatus!
 }
 
+type OnlineCardMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+
+  """Reason of rejection when the status is Rejected"""
+  rejectReason: MerchantPaymentMethodCardRejectReason @deprecated(reason: "Use statusInfo.rejectionReason instead")
+
+  """The Merchant Payment Method payment amount limit"""
+  paymentAmountLimit: Amount
+}
+
+input OnlineCardPaymentMethodInput {
+  """Determine whether the payment method must be activated or not"""
+  activate: Boolean = false
+}
+
 type OtherAdditionalInformation {
   description: String!
   value: String!
@@ -23064,7 +23613,7 @@ input RequestMerchantPaymentMethodsInput {
   check: CheckPaymentMethodInput
 
   """Input for Card payment method"""
-  card: CardPaymentMethodInput
+  onlineCard: OnlineCardPaymentMethodInput
 
   """Input for In Person Card payment method"""
   inPersonCard: InPersonCardPaymentMethodInput

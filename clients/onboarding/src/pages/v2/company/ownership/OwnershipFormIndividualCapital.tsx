@@ -23,6 +23,7 @@ import {
   AccountCountry,
   RegulatoryClassification,
   RelatedIndividualInput,
+  RelatedIndividualUltimateBeneficialOwnerInput,
   UltimateBeneficialOwnerControlType,
   UltimateBeneficialOwnerOwnershipType,
   UltimateBeneficialOwnerQualificationType,
@@ -54,7 +55,10 @@ type Props = {
   accountCountry: AccountCountry;
   regulatoryClassification?: RegulatoryClassification;
   ref: Ref<OnboardingCompanyOwnershipFormIndividualCapitalRef>;
-  onSave: (input: Partial<RelatedIndividualInput>) => void | Promise<void>;
+  onSave: (input: {
+    ultimateBeneficialOwner: RelatedIndividualUltimateBeneficialOwnerInput;
+    taxIdentificationNumber: string;
+  }) => void | Promise<void>;
 };
 
 const uboQualificationTypeItems: Item<UltimateBeneficialOwnerQualificationType>[] =
@@ -118,25 +122,27 @@ export const OwnershipFormIndividualCapital = ({
             })
               .with(
                 {
-                  qualificationType: "Ownership",
-                  requiredFieldsForOwner: Option.P.Some(P.select()),
+                  qualificationType: P.select("qualificationType", "Ownership"),
+                  requiredFieldsForOwner: Option.P.Some(P.select("owner")),
                 },
-                ({ totalPercentage, type }) => ({
+                ({ qualificationType, owner: { totalPercentage, type } }) => ({
                   qualificationType,
                   ownership: { totalPercentage: Number(totalPercentage), type },
                 }),
               )
               .with(
                 {
-                  qualificationType: "Control",
-                  requiredFieldsForControl: Option.P.Some(P.select()),
+                  qualificationType: P.select("qualificationType", "Control"),
+                  requiredFieldsForControl: Option.P.Some({
+                    controlTypes: P.select("control", P.string),
+                  }),
                 },
-                ({ controlTypes }) => ({
+                ({ qualificationType, control }) => ({
                   qualificationType,
-                  controlTypes: [controlTypes],
+                  controlTypes: [control],
                 }),
               )
-              .with({ qualificationType: "LegalRepresentative" }, () => ({
+              .with({ qualificationType: "LegalRepresentative" }, ({ qualificationType }) => ({
                 qualificationType,
               }))
               .otherwise(() => undefined);
@@ -146,10 +152,7 @@ export const OwnershipFormIndividualCapital = ({
             }
 
             onSave({
-              ultimateBeneficialOwner: {
-                ...ultimateBeneficialOwner,
-                qualificationType: ultimateBeneficialOwner.qualificationType ?? "Ownership",
-              },
+              ultimateBeneficialOwner,
               taxIdentificationNumber,
             });
           },

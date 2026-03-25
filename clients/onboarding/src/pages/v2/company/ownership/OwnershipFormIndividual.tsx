@@ -64,10 +64,25 @@ export const OwnershipFormIndividual = ({
   const addressRef = useRef<OnboardingCompanyOwnershipFormIndividualAddressRef>(null);
   const identityRef = useRef<OnboardingCompanyOwnershipFormIndividualIdentityRef>(null);
 
-  const [localValue, setLocalValue] = useState<RelatedIndividualInput>(() => ({
-    ...initialValues,
-    type: individualType,
-  }));
+  const [localValue, setLocalValue] = useState<RelatedIndividualInput>(() => {
+    const base = { ...initialValues, type: individualType };
+    if (initialValues.type === individualType) {
+      return base;
+    }
+
+    // If editing the type we need to drop existing field
+    return match(individualType)
+      .with("LegalRepresentative", () => ({
+        ...base,
+        ultimateBeneficialOwner: undefined,
+      }))
+      .with("UltimateBeneficialOwner", () => ({
+        ...base,
+        legalRepresentative: undefined,
+      }))
+      .with("LegalRepresentativeAndUltimateBeneficialOwner", () => base)
+      .exhaustive();
+  });
 
   const isIdentityRequired = match(accountCountry)
     .with("ITA", () => true)
@@ -140,9 +155,9 @@ export const OwnershipFormIndividual = ({
         mode={mode}
         onSave={input => {
           if (step === "legal") {
-            onSave({ ...localValue, ...input, type: individualType });
+            onSave({ ...localValue, ...input });
           } else {
-            setLocalValue(prevState => ({ ...prevState, ...input, type: individualType }));
+            setLocalValue(prevState => ({ ...prevState, ...input }));
             onNext("capital");
           }
         }}

@@ -7,9 +7,11 @@ import { validateNullableRequired } from "@swan-io/shared-business/src/utils/val
 import { useForm } from "@swan-io/use-form";
 import { Ref, useImperativeHandle } from "react";
 import { View } from "react-native";
+import { match, P } from "ts-pattern";
 import { RadioCardItem, RadioCards } from "../../../../components/RadioCards";
 import { RelatedIndividualType } from "../../../../graphql/partner";
 import { t } from "../../../../utils/i18n";
+import { SaveValue } from "./OwnershipFormWizard";
 
 export type OnboardingCompanyOwnershipFormTypeRef = {
   submit: () => void;
@@ -23,6 +25,7 @@ export type Input = {
 
 type Props = {
   ref: Ref<OnboardingCompanyOwnershipFormTypeRef>;
+  initialValues?: Partial<SaveValue>;
   onSave: (input: Input) => void | Promise<void>;
 };
 
@@ -48,14 +51,26 @@ const relatedItem: RadioCardItem<RelatedItem>[] = [
   },
 ];
 
-export const OwnershipFormType = ({ ref, onSave }: Props) => {
+export const OwnershipFormType = ({ ref, onSave, initialValues }: Props) => {
+  const initial = match(initialValues)
+    .with({ type: P.string }, ({ type }) => ({
+      related: "individual" as RelatedItem,
+      type,
+      mode: "edit",
+    }))
+    .otherwise(() => ({
+      related: "individual" as RelatedItem,
+      type: "LegalRepresentative" as RelatedIndividualType,
+      mode: "add",
+    }));
+
   useImperativeHandle(ref, () => {
     return {
       submit: () => {
         submitForm({
           onSuccess: values => {
             Option.allFromDict(values).match({
-              Some: onSave,
+              Some: value => onSave(value),
               None: noop,
             });
           },
@@ -66,11 +81,11 @@ export const OwnershipFormType = ({ ref, onSave }: Props) => {
 
   const { Field, FieldsListener, submitForm } = useForm({
     related: {
-      initialValue: "individual" as RelatedItem,
+      initialValue: initial.related,
       validate: validateNullableRequired,
     },
     type: {
-      initialValue: "LegalRepresentative" as RelatedIndividualType,
+      initialValue: initial.type,
       validate: validateNullableRequired,
     },
   });
@@ -79,7 +94,12 @@ export const OwnershipFormType = ({ ref, onSave }: Props) => {
     <View role="form">
       <Field name="related">
         {({ value, onChange }) => (
-          <RadioCards items={relatedItem} value={value} onChange={onChange} />
+          <RadioCards
+            items={relatedItem}
+            value={value}
+            onChange={onChange}
+            disabled={initial.mode === "edit"}
+          />
         )}
       </Field>
 

@@ -108,6 +108,7 @@ export const OwnershipFormWizard = ({
         .with("init", () => (
           <OwnershipFormType
             ref={typeRef}
+            initialValues={initialValues}
             onSave={values => {
               if (values.related === "company") {
                 onStepChange("company");

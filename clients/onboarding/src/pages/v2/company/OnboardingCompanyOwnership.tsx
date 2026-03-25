@@ -536,16 +536,7 @@ export const OnboardingCompanyOwnership = ({
                           onEdit={() =>
                             setModalState({
                               type: "edit",
-                              step: match(individual.type)
-                                .returnType<OwnershipFormStep>()
-                                .with("LegalRepresentative", () => "legal")
-                                .with(
-                                  "LegalRepresentativeAndUltimateBeneficialOwner",
-                                  () => "legalAndUbo",
-                                )
-                                .with("UltimateBeneficialOwner", () => "ubo")
-                                .exhaustive(),
-                              form: "detail",
+                              step: "init",
                               initialValue: individual,
                               errors: missingInfos.individual.get(index) ?? [],
                             })

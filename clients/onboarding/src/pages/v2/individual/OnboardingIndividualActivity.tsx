@@ -120,7 +120,7 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
 
   const addressCountry = accountAdmin?.address?.country;
   const accountCountry = accountInfo?.country;
-  const tcuUrl = "#"; //@todo missing in schema
+  const tcuUrl = onboarding.termsAndConditionsUrl;
   const tcuDocumentUri = projectInfo?.tcuDocumentUri ?? "#";
 
   const isTaxIdentificationRequired = match({ addressCountry, accountCountry })

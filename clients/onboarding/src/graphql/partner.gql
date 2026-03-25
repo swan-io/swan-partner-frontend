@@ -165,6 +165,7 @@ fragment IndividualOrCompanyOnboarding on AccountHolderOnboardingBase {
     logoUri
     tcuDocumentUri(language: $language)
   }
+  termsAndConditionsUrl
 }
 
 fragment CompanyOnboarding on CompanyAccountHolderOnboarding {

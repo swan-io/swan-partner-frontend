@@ -108,7 +108,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
   const accountCountry = accountInfo?.country;
   const companyCountry = company?.address?.country;
   const companyType = company?.companyType;
-  const tcuUrl = "#"; //@todo missing in schema
+  const tcuUrl = onboarding.termsAndConditionsUrl;
   const tcuDocumentUri = projectInfo?.tcuDocumentUri ?? "#";
 
   const isVatRequired = match({ accountCountry })

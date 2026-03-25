@@ -57,7 +57,7 @@ export const MerchantProfilePaymentMethodCardRequestModal = ({
     requestMerchantPaymentMethods({
       input: {
         merchantProfileId,
-        onlineCard: {
+        card: {
           activate: true,
         },
       },

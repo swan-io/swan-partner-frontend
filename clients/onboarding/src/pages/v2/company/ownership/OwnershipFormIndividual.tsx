@@ -98,7 +98,7 @@ export const OwnershipFormIndividual = ({
             ...rest,
             ultimateBeneficialOwner: {
               ...ultimateBeneficialOwner,
-              qualificationType: ultimateBeneficialOwner?.qualificationType ?? "Control",
+              qualificationType: ultimateBeneficialOwner?.qualificationType ?? "Ownership",
               identityDocumentInfo,
             },
           });

@@ -6,6 +6,7 @@ import {
   RegulatoryClassification,
   RelatedIndividualInput,
   RelatedIndividualType,
+  RelatedIndividualUltimateBeneficialOwnerInput,
 } from "../../../../graphql/partner";
 import { ServerInvalidFieldCode } from "../../../../utils/validation";
 import {
@@ -112,8 +113,7 @@ export const OwnershipFormIndividual = ({
           onSave({
             ...rest,
             ultimateBeneficialOwner: {
-              ...ultimateBeneficialOwner,
-              qualificationType: ultimateBeneficialOwner?.qualificationType ?? "Ownership",
+              ...(ultimateBeneficialOwner as RelatedIndividualUltimateBeneficialOwnerInput),
               identityDocumentInfo,
             },
           });
@@ -137,7 +137,6 @@ export const OwnershipFormIndividual = ({
                 ultimateBeneficialOwner: {
                   ...prevState.ultimateBeneficialOwner,
                   ...ultimateBeneficialOwner,
-                  qualificationType: ultimateBeneficialOwner?.qualificationType ?? "Ownership",
                 },
               };
             });

@@ -5,6 +5,7 @@ import {
   RelatedIndividualInput,
   RelatedIndividualUltimateBeneficialOwner,
   RelatedIndividualUltimateBeneficialOwnerInput,
+  UltimateBeneficialOwnerQualificationType,
   UnitedStatesTaxInfo,
   UnitedStatesTaxInfoInput,
 } from "../graphql/partner";
@@ -30,7 +31,7 @@ const toUltimateBeneficialOwnerInput = (
       controlTypes: controlTypes ?? [],
     }))
     .otherwise(() => ({
-      qualificationType: qualificationType ?? "Ownership",
+      qualificationType: "LegalRepresentative" as UltimateBeneficialOwnerQualificationType,
       identityDocumentInfo,
     }));
 

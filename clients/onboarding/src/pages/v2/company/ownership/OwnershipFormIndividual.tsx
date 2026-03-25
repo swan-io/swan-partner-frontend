@@ -113,7 +113,7 @@ export const OwnershipFormIndividual = ({
           onSave({
             ...rest,
             ultimateBeneficialOwner: {
-              ...(ultimateBeneficialOwner as RelatedIndividualUltimateBeneficialOwnerInput),
+              ...(ultimateBeneficialOwner as RelatedIndividualUltimateBeneficialOwnerInput), // Enforcing type as ultimateBeneficialOwner can not be undefiend because set in the previous step
               identityDocumentInfo,
             },
           });

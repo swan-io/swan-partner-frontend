@@ -25,6 +25,7 @@ import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { omit } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
 import {
@@ -124,7 +125,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
     legalFormCode: {
       initialValue: company?.legalFormCode ?? undefined,
       validate: (value, { getFieldValue }) => {
-        if (getFieldValue("country") !== "FRA") {
+        if (getFieldValue("country") !== "FRA" || manualMode === true) {
           return validateNullableRequired(value);
         }
       },
@@ -162,6 +163,11 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
         }
         const currentValues = option.get();
         const { country, typeOfRepresentation, ...input } = currentValues;
+
+        if (isNullish(currentValues.legalFormCode)) {
+          setManualMode(true);
+          return;
+        }
 
         // @TODO: improve matching logic
         const selectedRepresentative = values.currentRepresentative

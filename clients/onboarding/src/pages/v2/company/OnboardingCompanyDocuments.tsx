@@ -106,8 +106,6 @@ export const OnboardingCompanyDocuments = ({
         .mapOk(data => data.updatePublicCompanyAccountHolderOnboarding)
         .mapOkToResult(filterRejectionsToResult)
         .tap(() => goToNextStep());
-
-      goToNextStep();
     } else {
       showError(true);
       window.scrollTo({ top: 0, behavior: "smooth" });

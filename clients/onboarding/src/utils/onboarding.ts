@@ -19,17 +19,20 @@ const toUltimateBeneficialOwnerInput = (
   const { qualificationType, identityDocumentInfo, ownership, controlTypes } = ubo;
 
   const raw = match(qualificationType)
-    .with("Ownership", () => ({
+    .with("Ownership", qualificationType => ({
       qualificationType,
       identityDocumentInfo,
       ownership: ownership ?? { type: "Direct" as const },
     }))
-    .with("Control", () => ({
+    .with("Control", qualificationType => ({
       qualificationType,
       identityDocumentInfo,
       controlTypes: controlTypes ?? [],
     }))
-    .otherwise(() => ({ qualificationType, identityDocumentInfo }));
+    .otherwise(() => ({
+      qualificationType: qualificationType ?? "Ownership",
+      identityDocumentInfo,
+    }));
 
   return cleanData(raw);
 };

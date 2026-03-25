@@ -188,6 +188,9 @@ type Mutation {
   """Simulate the outcome of an incoming in-person payment intent"""
   simulateIncomingInPersonCardAuthorization(input: SimulateIncomingInPersonCardAuthorizationInput!): SimulateIncomingInPersonCardAuthorizationPayload!
 
+  """Simulate the authorization of a card merchant payment"""
+  simulateIncomingOnlineCardAuthorization(input: SimulateIncomingOnlineCardAuthorizationInput!): SimulateIncomingOnlineCardAuthorizationPayload!
+
   """Simulate the update of a Merchant Payment Method"""
   simulateMerchantPaymentMethodRequestOutcome(input: SimulateMerchantPaymentMethodRequestOutcomeInput!): SimulateMerchantPaymentMethodRequestOutcomePayload!
 
@@ -9282,7 +9285,6 @@ type CardMerchantPayment implements MerchantPayment {
   disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
 }
 
-"""COMING SOON"""
 type CardMerchantPaymentMethod implements MerchantPaymentMethod {
   """
   Unique identifier tied to every version of a given Merchant Payment Method
@@ -9582,6 +9584,66 @@ enum InPersonCardDetailsScheme {
   CartesBancaires
   AmericanExpress
   Discover
+}
+
+type InPersonCardMerchantPayment implements MerchantPayment {
+  """unique identifier of a merchant payment"""
+  id: ID!
+
+  """status information"""
+  statusInfo: MerchantPaymentStatusInfo!
+
+  """amount"""
+  amount: Amount!
+
+  """payment link associated to the merchant payment"""
+  paymentMandate: PaymentMandate!
+
+  """payment link associated to the merchant payment"""
+  paymentLink: MerchantPaymentLink
+
+  """merchant profile associated to the merchant payment"""
+  merchantProfile: MerchantProfile!
+
+  """payment method associated to the merchant payment"""
+  paymentMethod: MerchantPaymentMethod!
+  balance: MerchantBalance!
+
+  """Label"""
+  label: String
+  reference: String
+
+  """
+  an arbitrary identifier that was defined by you when you created this payment
+  """
+  externalReference: String
+
+  """The billing address associated to the payment"""
+  billingAddress: Address
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Created date"""
+  createdAt: DateTime @deprecated(reason: "use createdAt in statusInfo instead")
+
+  """Authorized date"""
+  authorizedAt: DateTime @deprecated(reason: "use authorizedAt in statusInfo instead")
+
+  """Canceled date"""
+  canceledAt: DateTime @deprecated(reason: "use canceledAt in statusInfo instead")
+
+  """Captured date"""
+  capturedAt: DateTime @deprecated(reason: "use capturedAt in statusInfo instead")
+
+  """Rejected date"""
+  rejectedAt: DateTime @deprecated(reason: "use rejectedAt in statusInfo instead")
+
+  """Refunded date"""
+  refundedAt: DateTime @deprecated(reason: "use refundedAt in statusInfo instead")
+
+  """Disputed date"""
+  disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
 }
 
 type InPersonCardMerchantPaymentMethod implements MerchantPaymentMethod {
@@ -10180,6 +10242,7 @@ enum MerchantPaymentMethodType {
   Check
   Card
   InPersonCard
+  OnlineCard
 }
 
 interface MerchantPaymentMethodUpdateRequest {
@@ -10538,6 +10601,106 @@ union MerchantVerificationRequirements = MerchantRequirements | AdditionalInform
 
 type NotRequestedThreeDsStatusInfo implements ThreeDsStatusInfo {
   status: IncomingThreeDsStatus!
+}
+
+type OnlineCardMerchantPayment implements MerchantPayment {
+  """unique identifier of a merchant payment"""
+  id: ID!
+
+  """status information"""
+  statusInfo: MerchantPaymentStatusInfo!
+
+  """amount"""
+  amount: Amount!
+
+  """payment link associated to the merchant payment"""
+  paymentMandate: PaymentMandate!
+
+  """payment link associated to the merchant payment"""
+  paymentLink: MerchantPaymentLink
+
+  """merchant profile associated to the merchant payment"""
+  merchantProfile: MerchantProfile!
+
+  """payment method associated to the merchant payment"""
+  paymentMethod: MerchantPaymentMethod!
+  balance: MerchantBalance!
+
+  """Label"""
+  label: String
+  reference: String
+
+  """
+  an arbitrary identifier that was defined by you when you created this payment
+  """
+  externalReference: String
+
+  """The billing address associated to the payment"""
+  billingAddress: Address
+  threeDs: ThreeDS
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Created date"""
+  createdAt: DateTime @deprecated(reason: "use createdAt in statusInfo instead")
+
+  """Authorized date"""
+  authorizedAt: DateTime @deprecated(reason: "use authorizedAt in statusInfo instead")
+
+  """Canceled date"""
+  canceledAt: DateTime @deprecated(reason: "use canceledAt in statusInfo instead")
+
+  """Captured date"""
+  capturedAt: DateTime @deprecated(reason: "use capturedAt in statusInfo instead")
+
+  """Rejected date"""
+  rejectedAt: DateTime @deprecated(reason: "use rejectedAt in statusInfo instead")
+
+  """Refunded date"""
+  refundedAt: DateTime @deprecated(reason: "use refundedAt in statusInfo instead")
+
+  """Disputed date"""
+  disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
+}
+
+type OnlineCardMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+
+  """Reason of rejection when the status is Rejected"""
+  rejectReason: MerchantPaymentMethodCardRejectReason @deprecated(reason: "Use statusInfo.rejectionReason instead")
+
+  """The Merchant Payment Method payment amount limit"""
+  paymentAmountLimit: Amount
 }
 
 type OtherAdditionalInformation {
@@ -11014,6 +11177,103 @@ type SimulateIncomingInPersonCardSettlementSuccessPayload {
   merchantPayments: [MerchantPayment!]!
 }
 
+input SimulateIncomingOnlineCardAuthorizationAuthorization {
+  """
+  Set this to "Authorized" to simulate a successful payment, and to "Rejected" to simulate a failed payment. You can't authorize a payment successfully with a failed 3DS. However, the authorization can be rejected even if 3DS succeed.
+  """
+  status: SimulateIncomingOnlineCardAuthorizationStatus!
+  rejectedReasonCode: SimulationFailedOnlineCardMerchantPaymentRejectedReason
+}
+
+enum SimulateIncomingOnlineCardAuthorizationCardCategory {
+  Commercial
+  Consumer
+}
+
+input SimulateIncomingOnlineCardAuthorizationCardDetails {
+  """
+  The scheme of the card used for the payment, eg, Visa, Mastercard or CartesBancaires.
+  """
+  scheme: SimulateIncomingOnlineCardAuthorizationCardScheme!
+
+  """
+  The category of the card used for the payment, eg, Commercial or Consumer.
+  """
+  category: SimulateIncomingOnlineCardAuthorizationCardCategory!
+
+  """
+  The type of the card used for the payment, eg, Credit, Debit, Prepaid, Charge or DeferredDebit.
+  """
+  type: SimulateIncomingOnlineCardAuthorizationCardType!
+
+  """
+  The 3-letters code indicating the country of the card used for the payment.
+  """
+  country: String!
+}
+
+enum SimulateIncomingOnlineCardAuthorizationCardScheme {
+  Visa
+  Mastercard
+  CartesBancaires
+}
+
+enum SimulateIncomingOnlineCardAuthorizationCardType {
+  Credit
+  Debit
+  Prepaid
+  Charge
+  DeferredDebit
+}
+
+input SimulateIncomingOnlineCardAuthorizationInput {
+  """ID of the related payment link"""
+  paymentLinkId: ID!
+
+  """
+  The status of the authorization returned by the issuing bank. Use this to simulate the success or failure of a payment. This can't be set to "Authorized" if 3DS status is set to "Failed". However, the authorization can be rejected even if 3DS succeed.
+  """
+  authorization: SimulateIncomingOnlineCardAuthorizationAuthorization!
+
+  """
+  The status of the payer authentication returned by the issuing bank. Use this to simulate the success or failure of the 3DS authentication. This can't be set to "Failed" if the Authorization status is set to "Authorized".
+  """
+  threeDS: SimulateIncomingOnlineCardAuthorizationThreeDS!
+
+  """
+  The details of the card used for the payment. Use this to simulate using a specific card for the payment.
+  """
+  cardDetails: SimulateIncomingOnlineCardAuthorizationCardDetails!
+}
+
+"""SimulateIncomingOnlineCardAuthorizationPayload"""
+union SimulateIncomingOnlineCardAuthorizationPayload = InternalErrorRejection | ForbiddenRejection | NotFoundRejection | SimulateIncomingOnlineCardAuthorizationSuccessPayload | ValidationRejection
+
+enum SimulateIncomingOnlineCardAuthorizationStatus {
+  Authorized
+  Rejected
+}
+
+"""SimulateIncomingOnlineCardAuthorizationSuccessPayload"""
+type SimulateIncomingOnlineCardAuthorizationSuccessPayload {
+  paymentLinkId: ID!
+  cardMandateId: ID!
+  paymentId: ID!
+}
+
+input SimulateIncomingOnlineCardAuthorizationThreeDS {
+  status: SimulateIncomingOnlineCardAuthorizationThreeDSStatus!
+  rejectedReasonCode: SimulationFailedThreeDSReason
+}
+
+"""
+Set this to "Successful" to simulate a successful authentication, and to "Failed" to simulate a failed authentication. You can't authorize a payment successfully with a failed 3DS. However, the authorization can be rejected even if 3DS succeed.
+"""
+enum SimulateIncomingOnlineCardAuthorizationThreeDSStatus {
+  Successful
+  Failed
+}
+
 input SimulateMerchantPaymentMethodRequestOutcomeInput {
   merchantPaymentMethodId: ID!
   merchantPaymentMethodStatus: MerchantPaymentMethodStatus!
@@ -11030,7 +11290,7 @@ input SimulateMerchantPaymentMethodRequestOutcomeInput {
 }
 
 """SimulateMerchantPaymentMethodPayload"""
-union SimulateMerchantPaymentMethodRequestOutcomePayload = CheckMerchantPaymentMethod | InternalDirectDebitStandardMerchantPaymentMethod | InternalDirectDebitB2BMerchantPaymentMethod | SepaDirectDebitCoreMerchantPaymentMethod | SepaDirectDebitB2BMerchantPaymentMethod | InPersonCardMerchantPaymentMethod | CardMerchantPaymentMethod | NotFoundRejection | ForbiddenRejection | InternalErrorRejection | MerchantPaymentMethodWrongStatusRejection | RejectionReasonMandatoryRejection | VerificationRequirementsMandatoryRejection | ValidationRejection | MerchantProfileUpdateRequestPendingRejection
+union SimulateMerchantPaymentMethodRequestOutcomePayload = CheckMerchantPaymentMethod | InternalDirectDebitStandardMerchantPaymentMethod | InternalDirectDebitB2BMerchantPaymentMethod | SepaDirectDebitCoreMerchantPaymentMethod | SepaDirectDebitB2BMerchantPaymentMethod | InPersonCardMerchantPaymentMethod | CardMerchantPaymentMethod | OnlineCardMerchantPaymentMethod | NotFoundRejection | ForbiddenRejection | InternalErrorRejection | MerchantPaymentMethodWrongStatusRejection | RejectionReasonMandatoryRejection | VerificationRequirementsMandatoryRejection | ValidationRejection | MerchantProfileUpdateRequestPendingRejection
 
 input SimulateMerchantPaymentMethodUpdateRequestOutcomeInput {
   """
@@ -11088,6 +11348,32 @@ type SimulateMerchantProfileUpdateRequestOutcomeSuccessPayload {
 }
 
 enum SimulationFailedCardMerchantPaymentRejectedReason {
+  AmountInvalid
+  CardDetailsInvalid
+  CardExpired
+  InvalidPinAttemptsExceeded
+  RejectedByCardIssuer
+  SoftDecline3dsExpiration
+  SoftDecline3dsFailure
+  SoftDecline3dsNotSupported
+  SoftDecline3dsRequired
+  SoftDeclineCardAmountLimitsExceeded
+  SoftDeclineCardDetailsInvalid
+  SoftDeclineCardExpired
+  SoftDeclineCardNotActivated
+  SoftDeclineCardNotSupported
+  SoftDeclineCvcCheckFailed
+  SoftDeclineCvcInvalid
+  SoftDeclineInsufficientFunds
+  SoftDeclineRefundTimeLimitExceeded
+  SoftDeclineRejectedByCardIssuer
+  SoftDeclineSwanTechnicalErrorOccurred
+  SoftDeclineTransactionAmountIncorrect
+  SwanRefused
+  SwanTechnicalErrorOccurred
+}
+
+enum SimulationFailedOnlineCardMerchantPaymentRejectedReason {
   AmountInvalid
   CardDetailsInvalid
   CardExpired

@@ -364,7 +364,13 @@ fragment AccountAdminChangeInfo on AccountAdminChange {
 
 query AccountAdminChange($accountAdminChangeId: ID!) {
   publicAccountAdminChange(accountAdminChangeId: $accountAdminChangeId) {
-    ...AccountAdminChangeInfo
+    ... on AccountAdminChange {
+      ...AccountAdminChangeInfo
+    }
+    ... on NonOngoingAccountAdminChange {
+      id
+      status
+    }
   }
 }
 

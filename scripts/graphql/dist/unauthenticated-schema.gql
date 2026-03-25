@@ -172,7 +172,7 @@ type Account {
 }
 
 """Account administrator change request"""
-type AccountAdminChange {
+type AccountAdminChange implements AccountAdminChangeBase {
   """Unique identifier of the account admin change"""
   id: ID!
 
@@ -196,6 +196,9 @@ type AccountAdminChange {
 
   """Supporting document collection for the administrator change"""
   supportingDocumentCollection: SupportingDocumentCollection!
+
+  """Account admin change status"""
+  status: AccountAdminChangeStatus!
 }
 
 """Account information for account admin change"""
@@ -235,6 +238,15 @@ type AccountAdminChangeAdmin {
 
   """Birth date of the new administrator"""
   birthDate: Date
+}
+
+"""Base interface for account admin changes"""
+interface AccountAdminChangeBase {
+  """Unique identifier of the account admin change"""
+  id: ID!
+
+  """Account admin change status"""
+  status: AccountAdminChangeStatus!
 }
 
 """Rejection returned if the account admin change has expired"""
@@ -290,6 +302,30 @@ type AccountAdminChangeRequester {
 
   """Phone number of the requester"""
   phoneNumber: String
+}
+
+"""Status of the account administrator change"""
+enum AccountAdminChangeStatus {
+  """The request has not been submitted"""
+  Ongoing
+
+  """The request has expired"""
+  Expired
+
+  """The request is being reviewed"""
+  Pending
+
+  """The user must supply additional information"""
+  WaitingForInformation
+
+  """The new administrator has been invited to the account"""
+  InvitationSent
+
+  """The account administrator change has been completed"""
+  Verified
+
+  """The account administrator change has been refused"""
+  Refused
 }
 
 type AccountAdminChangeStatusNotEligibleRejection implements Rejection {
@@ -708,6 +744,9 @@ interface AccountHolderOnboardingBase {
   """
   onboardingUrl: String
   account: Account
+
+  """Swan Terms and Conditions URL"""
+  termsAndConditionsUrl: String!
 }
 
 """
@@ -1707,6 +1746,9 @@ type CompanyAccountHolderOnboarding implements AccountHolderOnboardingBase {
   """
   onboardingUrl: String
   account: Account
+
+  """Swan Terms and Conditions URL"""
+  termsAndConditionsUrl: String!
 }
 
 """Company account information for onboarding"""
@@ -1745,7 +1787,7 @@ type CompanyAccountHolderOnboardingAccountAdmin {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   firstName: String
 
@@ -1759,7 +1801,7 @@ type CompanyAccountHolderOnboardingAccountAdmin {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   lastName: String
 
@@ -1805,7 +1847,7 @@ input CompanyAccountHolderOnboardingAccountAdminInput {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   firstName: String
 
@@ -1819,7 +1861,7 @@ input CompanyAccountHolderOnboardingAccountAdminInput {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   lastName: String
 
@@ -2741,6 +2783,9 @@ type IndividualAccountHolderOnboarding implements AccountHolderOnboardingBase {
   """
   onboardingUrl: String
   account: Account
+
+  """Swan Terms and Conditions URL"""
+  termsAndConditionsUrl: String!
 }
 
 """Individual account information for onboarding"""
@@ -2782,7 +2827,7 @@ type IndividualAccountHolderOnboardingAccountAdmin {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   firstName: String
 
@@ -2796,7 +2841,7 @@ type IndividualAccountHolderOnboardingAccountAdmin {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   lastName: String
 
@@ -3174,6 +3219,15 @@ enum MonthlyPaymentVolume {
 type MultipleAccountsSettings {
   canOpenAccount: Boolean!
   accountCreationLimit: Int!
+}
+
+"""Account administrator change status information"""
+type NonOngoingAccountAdminChange implements AccountAdminChangeBase {
+  """Unique identifier of the account admin change"""
+  id: ID!
+
+  """Account admin change status"""
+  status: AccountAdminChangeStatus!
 }
 
 """
@@ -3841,7 +3895,7 @@ input RelatedIndividualInput {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   firstName: String
 
@@ -3857,7 +3911,7 @@ input RelatedIndividualInput {
   
   - Between 1 and 100 characters
   - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*$`
+  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
   """
   lastName: String
 
@@ -3962,7 +4016,7 @@ input RelatedIndividualUltimateBeneficialOwnerInput {
   """
   Ultimate beneficial owner qualification type. If a ultimate beneficial owner has multiple qualification types, then priority is Ownership, then Control, then Legal Representative
   """
-  qualificationType: UltimateBeneficialOwnerQualificationType
+  qualificationType: UltimateBeneficialOwnerQualificationType!
 
   """
   Ultimate beneficial owner ownership information. Only applicable if qualificationType is Ownership
@@ -5906,7 +5960,7 @@ type AlreadyValidPhysicalCardRejection implements Rejection {
   message: String!
 }
 
-"""Rejection return if the project is not configured to allow Apple Pay"""
+"""Rejection returned if the project is not configured to allow Apple Pay"""
 type ApplePayNotAllowedForProjectRejection implements Rejection {
   id: String!
   message: String!
@@ -6583,7 +6637,7 @@ input Certificate {
 }
 
 """
-Complete Digital Card used for ApplePay or GooglePay
+Complete digital card for use with Apple Pay or Google Pay
 
 Once the pending phase is over, more data will be available in the response
 """
@@ -6600,7 +6654,7 @@ type CompleteDigitalCard implements DigitalCard {
   """Updated date"""
   updatedAt: DateTime!
 
-  """Wallet Provider (ApplePay, GooglePay ...)"""
+  """Wallet Provider (Apple Pay, Google Pay...)"""
   walletProvider: WalletProvider!
 
   """
@@ -6671,7 +6725,7 @@ type Device {
   name: String
 }
 
-"""Digital Card used for ApplePay or GooglePay"""
+"""Digital card for use with Apple Pay or Google Pay"""
 interface DigitalCard {
   """Unique identifier of a digital card"""
   id: ID!
@@ -6685,7 +6739,7 @@ interface DigitalCard {
   """Updated date"""
   updatedAt: DateTime!
 
-  """Wallet Provider (ApplePay, GooglePay ...)"""
+  """Wallet Provider (Apple Pay, Google Pay...)"""
   walletProvider: WalletProvider!
 
   """Reference of the token in another system (ex: Mastercard)"""
@@ -6787,7 +6841,7 @@ input DigitalCardFiltersInput {
   """The ID of the wallet provider in the scheme system"""
   walletProviderId: String
 
-  """Either ApplePay or GooglePay"""
+  """Either Apple Pay or Google Pay"""
   walletProviderName: String
 
   """Reference of the token in another system (ex: Mastercard)"""
@@ -6877,7 +6931,7 @@ type EnabledCardDesignNotFoundRejection implements Rejection {
   message: String!
 }
 
-"""Data used for in app provisioning"""
+"""Data used for in-app provisioning"""
 type InAppProvisioningData {
   """Cryptographic OTP used to pre-validate digitalization"""
   activationData: String!
@@ -6923,7 +6977,7 @@ type MissingMandatoryFieldRejection implements Rejection {
   message: String!
 }
 
-"""Pending Digital Card used for ApplePay or GooglePay"""
+"""Pending digital card for use with Apple Pay or Google Pay"""
 type PendingDigitalCard implements DigitalCard {
   """Unique identifier of a digital card"""
   id: ID!
@@ -6937,7 +6991,7 @@ type PendingDigitalCard implements DigitalCard {
   """Updated date"""
   updatedAt: DateTime!
 
-  """Wallet Provider (ApplePay, GooglePay ...)"""
+  """Wallet Provider (Apple Pay, Google Pay...)"""
   walletProvider: WalletProvider!
 
   """
@@ -6948,11 +7002,11 @@ type PendingDigitalCard implements DigitalCard {
   statusInfo: PendingDigitalCardStatusInfo!
 
   """
-  Data to provide to the wallet during InApp Provisioning
+  Data to provide to the wallet during in-app provisioning
   
-  Signature Data is mandatory for ApplePay
+  Signature Data is mandatory for Apple Pay
   
-  This data is only available for a digital card in
+  This data is only available for a digital card in:
   - status: Pending
   - type: InApp
   """
@@ -7292,15 +7346,17 @@ enum ShippingProvider {
   NACEX
 }
 
-"""Signature data used during apple pay inApp provisioning"""
+"""Signature data used during Apple Pay in-app provisioning"""
 input SignatureData {
-  """nonce"""
+  """
+  One-time cryptographic value provided by Apple during in-app provisioning
+  """
   nonce: String!
 
-  """nonce signed by the secure element"""
+  """Nonce signed by the device's Secure Element"""
   nonceSignature: String!
 
-  """list of apple generated certificates"""
+  """Apple-generated certificates for provisioning verification"""
   certificates: [Certificate!]!
 }
 
@@ -7309,7 +7365,7 @@ type UserNotCardHolderRejection implements Rejection {
   message: String!
 }
 
-"""Wallet Provider (ApplePay, GooglePay ...)"""
+"""Wallet Provider (Apple Pay, Google Pay...)"""
 type WalletProvider {
   """name of the Wallet Provider (Apple / Google / Amazon or Unknown)"""
   name: String!
@@ -7788,7 +7844,6 @@ type CardMerchantPayment implements MerchantPayment {
   disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
 }
 
-"""COMING SOON"""
 type CardMerchantPaymentMethod implements MerchantPaymentMethod {
   """
   Unique identifier tied to every version of a given Merchant Payment Method
@@ -8059,6 +8114,66 @@ enum InitiateMerchantCardPaymentFromPaymentLinkCardScheme {
 
   """Cartes Bancaires Scheme"""
   CartesBancaires
+}
+
+type InPersonCardMerchantPayment implements MerchantPayment {
+  """unique identifier of a merchant payment"""
+  id: ID!
+
+  """status information"""
+  statusInfo: MerchantPaymentStatusInfo!
+
+  """amount"""
+  amount: Amount!
+
+  """payment link associated to the merchant payment"""
+  paymentMandate: PaymentMandate!
+
+  """payment link associated to the merchant payment"""
+  paymentLink: MerchantPaymentLink
+
+  """merchant profile associated to the merchant payment"""
+  merchantProfile: MerchantProfile!
+
+  """payment method associated to the merchant payment"""
+  paymentMethod: MerchantPaymentMethod!
+  balance: MerchantBalance!
+
+  """Label"""
+  label: String
+  reference: String
+
+  """
+  an arbitrary identifier that was defined by you when you created this payment
+  """
+  externalReference: String
+
+  """The billing address associated to the payment"""
+  billingAddress: Address
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Created date"""
+  createdAt: DateTime @deprecated(reason: "use createdAt in statusInfo instead")
+
+  """Authorized date"""
+  authorizedAt: DateTime @deprecated(reason: "use authorizedAt in statusInfo instead")
+
+  """Canceled date"""
+  canceledAt: DateTime @deprecated(reason: "use canceledAt in statusInfo instead")
+
+  """Captured date"""
+  capturedAt: DateTime @deprecated(reason: "use capturedAt in statusInfo instead")
+
+  """Rejected date"""
+  rejectedAt: DateTime @deprecated(reason: "use rejectedAt in statusInfo instead")
+
+  """Refunded date"""
+  refundedAt: DateTime @deprecated(reason: "use refundedAt in statusInfo instead")
+
+  """Disputed date"""
+  disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
 }
 
 type InPersonCardMerchantPaymentMethod implements MerchantPaymentMethod {
@@ -8662,6 +8777,7 @@ enum MerchantPaymentMethodType {
   Check
   Card
   InPersonCard
+  OnlineCard
 }
 
 interface MerchantPaymentMethodUpdateRequest {
@@ -9009,6 +9125,106 @@ union MerchantVerificationRequirements = MerchantRequirements | AdditionalInform
 
 type NotRequestedThreeDsStatusInfo implements ThreeDsStatusInfo {
   status: IncomingThreeDsStatus!
+}
+
+type OnlineCardMerchantPayment implements MerchantPayment {
+  """unique identifier of a merchant payment"""
+  id: ID!
+
+  """status information"""
+  statusInfo: MerchantPaymentStatusInfo!
+
+  """amount"""
+  amount: Amount!
+
+  """payment link associated to the merchant payment"""
+  paymentMandate: PaymentMandate!
+
+  """payment link associated to the merchant payment"""
+  paymentLink: MerchantPaymentLink
+
+  """merchant profile associated to the merchant payment"""
+  merchantProfile: MerchantProfile!
+
+  """payment method associated to the merchant payment"""
+  paymentMethod: MerchantPaymentMethod!
+  balance: MerchantBalance!
+
+  """Label"""
+  label: String
+  reference: String
+
+  """
+  an arbitrary identifier that was defined by you when you created this payment
+  """
+  externalReference: String
+
+  """The billing address associated to the payment"""
+  billingAddress: Address
+  threeDs: ThreeDS
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Created date"""
+  createdAt: DateTime @deprecated(reason: "use createdAt in statusInfo instead")
+
+  """Authorized date"""
+  authorizedAt: DateTime @deprecated(reason: "use authorizedAt in statusInfo instead")
+
+  """Canceled date"""
+  canceledAt: DateTime @deprecated(reason: "use canceledAt in statusInfo instead")
+
+  """Captured date"""
+  capturedAt: DateTime @deprecated(reason: "use capturedAt in statusInfo instead")
+
+  """Rejected date"""
+  rejectedAt: DateTime @deprecated(reason: "use rejectedAt in statusInfo instead")
+
+  """Refunded date"""
+  refundedAt: DateTime @deprecated(reason: "use refundedAt in statusInfo instead")
+
+  """Disputed date"""
+  disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
+}
+
+type OnlineCardMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+
+  """Reason of rejection when the status is Rejected"""
+  rejectReason: MerchantPaymentMethodCardRejectReason @deprecated(reason: "Use statusInfo.rejectionReason instead")
+
+  """The Merchant Payment Method payment amount limit"""
+  paymentAmountLimit: Amount
 }
 
 type OtherAdditionalInformation {

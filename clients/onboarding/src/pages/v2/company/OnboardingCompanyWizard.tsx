@@ -122,6 +122,18 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
     );
   }, [onboarding.statusInfo]);
 
+  const documentStepErrors = useMemo(() => {
+    const errors = extractServerInvalidFields(onboarding.statusInfo, field =>
+      match(field)
+        .with(
+          P.when(f => f.includes("supportingDocumentCollection")),
+          () => "document",
+        )
+        .otherwise(() => null),
+    );
+    return errors.slice(0, 1);
+  }, [onboarding.statusInfo]);
+
   const hasOwnershipStep =
     ownershipStepErrors.length > 0 ||
     (onboarding?.company?.relatedIndividuals?.length ?? 0) > 0 ||
@@ -168,7 +180,7 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
       steps.push({
         id: "Documents",
         label: t("step.title.document"),
-        errors: [],
+        errors: documentStepErrors,
       });
     }
     steps.push({
@@ -185,6 +197,7 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
     activityStepErrors,
     initStepErrors,
     ownershipStepErrors,
+    documentStepErrors,
   ]);
 
   const stepperSteps = useMemo<Step[]>(
@@ -276,6 +289,7 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
                     previousStep={hasOwnershipStep ? "Ownership" : "Activity"}
                     supportingDocumentCollection={supportingDocumentCollection}
                     templateLanguage={onboarding?.accountAdmin?.preferredLanguage ?? "en"}
+                    finalized={finalized}
                   />
                 );
               })

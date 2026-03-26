@@ -223,7 +223,6 @@
   "company.step.owners.title": "Erklären Sie die Eigentümerschaft Ihres Unternehmens",
   "company.step.ownership.addTitle": "Hinzufügen",
   "company.step.ownership.additionalDescription": "• <bold>Gesetzliche Vertreter</bold>: Personen oder Organisationen, die Dokumente im Namen Ihres Unternehmens rechtsgültig unterzeichnen können\n• <bold>Wirtschaftlich Berechtigte (Ultimate Beneficial Owners, UBOs)</bold>: Personen, die 25 % oder mehr Ihres Unternehmens besitzen oder kontrollieren, oder gesetzliche Vertreter, wenn keine anderen Personen diese Voraussetzungen erfüllen",
-  "company.step.ownership.company": "Unternehmen",
   "company.step.ownership.deleteTitle": "Möchten Sie wirklich {relatedName} löschen?",
   "company.step.ownership.description": "Fügen Sie die Personen und Unternehmen hinzu, die Ihr Unternehmen rechtlich vertreten oder besitzen. Gesetzlich vorgeschrieben.",
   "company.step.ownership.error.empty": "Mindestens ein natürlicher gesetzlicher Vertreter und mindestens ein wirtschaftlich Berechtigter sind erforderlich.",

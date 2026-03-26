@@ -223,7 +223,6 @@
   "company.step.owners.title": "Verklaar het eigenaarschap van jouw organisatie",
   "company.step.ownership.addTitle": "Toevoegen",
   "company.step.ownership.additionalDescription": "• <bold>Wettelijke vertegenwoordigers</bold>: Personen of entiteiten die juridisch gezien documenten namens jouw bedrijf kunnen ondertekenen\n• <bold>Uiteindelijke begunstigden (UBO's)</bold>: Personen die 25% of meer van jouw bedrijf bezitten of controle hebben, of wettelijke vertegenwoordigers zijn als niemand anders in aanmerking komt",
-  "company.step.ownership.company": "Bedrijf",
   "company.step.ownership.deleteTitle": "Weet je zeker dat je {relatedName} wilt verwijderen?",
   "company.step.ownership.description": "Voeg de personen en entiteiten toe die jouw bedrijf juridisch vertegenwoordigen of bezitten. Wettelijk verplicht.",
   "company.step.ownership.error.empty": "Ten minste één natuurlijke persoon als wettelijke vertegenwoordiger en één uiteindelijke belanghebbende zijn vereist",

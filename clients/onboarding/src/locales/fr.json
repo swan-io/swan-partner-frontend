@@ -223,7 +223,6 @@
   "company.step.owners.title": "Déclarez les bénéficiaires de votre organisation",
   "company.step.ownership.addTitle": "Ajouter",
   "company.step.ownership.additionalDescription": "• <bold>Représentants légaux</bold> : Personnes physiques ou morales qui peuvent signer légalement des documents au nom de votre entreprise\n• <bold>Bénéficiaires effectifs finaux (UBO)</bold> : Personnes qui possèdent ou contrôlent 25 % ou plus de votre entreprise, ou qui sont des représentants légaux si personne d'autre ne remplit les conditions",
-  "company.step.ownership.company": "Société",
   "company.step.ownership.deleteTitle": "Êtes-vous sûr de vouloir supprimer {relatedName} ?",
   "company.step.ownership.description": "Ajoutez les personnes et entités qui représentent légalement ou possèdent votre entreprise. Requis par la loi.",
   "company.step.ownership.error.empty": "Au moins un représentant légal individuel et un bénéficiaire effectif sont requis",

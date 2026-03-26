@@ -223,7 +223,6 @@
   "company.step.owners.title": "Declare a propriedade da sua organização",
   "company.step.ownership.addTitle": "Adicionar",
   "company.step.ownership.additionalDescription": "• <bold>Representantes legais</bold>: Indivíduos ou entidades que podem assinar legalmente documentos em nome da sua empresa\n• <bold>Beneficiários finais (UBOs)</bold>: Pessoas que possuem ou controlam 25% ou mais da sua empresa, ou são representantes legais se ninguém mais se qualificar",
-  "company.step.ownership.company": "Empresa",
   "company.step.ownership.deleteTitle": "Tem a certeza de que pretende eliminar {relatedName}?",
   "company.step.ownership.description": "Adicione as pessoas e entidades que representam legalmente ou são proprietárias da sua empresa. Obrigatório por lei.",
   "company.step.ownership.error.empty": "É necessário pelo menos um representante legal individual e um beneficiário efetivo.",

@@ -227,6 +227,7 @@
   "company.step.ownership.description": "Add the people and entities who legally represent or own your company. Required by law.",
   "company.step.ownership.error.empty": "At least one individual legal representative and one beneficial owner are required",
   "company.step.ownership.error.individual.legalRepEmpty": "At least one individual legal representative is required",
+  "company.step.ownership.error.missingDocument": "The document must be uploaded",
   "company.step.ownership.error.missingDocuments": "All the documents must be uploaded",
   "company.step.ownership.error.missingInformation": "Complete the missing information for all company representatives & beneficial owners",
   "company.step.ownership.error.uboEmpty": "At least one beneficial owner (UBO) is required",

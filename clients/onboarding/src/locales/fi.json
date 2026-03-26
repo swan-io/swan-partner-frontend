@@ -228,6 +228,7 @@
   "company.step.ownership.description": "Lisää henkilöt ja tahot, jotka laillisesti edustavat tai omistavat yrityksesi. Lakisääteinen vaatimus.",
   "company.step.ownership.error.empty": "Vähintään yksi luonnollinen henkilö lailliseksi edustajaksi ja yksi edunsaaja vaaditaan",
   "company.step.ownership.error.individual.legalRepEmpty": "Vähintään yksi laillinen edustaja vaaditaan",
+  "company.step.ownership.error.missingDocument": "Asiakirja täytyy ladata",
   "company.step.ownership.error.missingDocuments": "Kaikki asiakirjat tulee ladata",
   "company.step.ownership.error.missingInformation": "Täydennä puuttuvat tiedot kaikilta yrityksen edustajilta ja tosiasiallisilta omistajilta",
   "company.step.ownership.error.uboEmpty": "Vähintään yksi yritysomistaja (UBO) vaaditaan",

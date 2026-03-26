@@ -228,6 +228,7 @@
   "company.step.ownership.description": "Adicione as pessoas e entidades que representam legalmente ou são proprietárias da sua empresa. Obrigatório por lei.",
   "company.step.ownership.error.empty": "É necessário pelo menos um representante legal individual e um beneficiário efetivo.",
   "company.step.ownership.error.individual.legalRepEmpty": "É necessário pelo menos um representante legal",
+  "company.step.ownership.error.missingDocument": "O documento deve ser carregado",
   "company.step.ownership.error.missingDocuments": "Todos os documentos devem ser carregados",
   "company.step.ownership.error.missingInformation": "Complete as informações em falta para todos os representantes da empresa e beneficiários efetivos.",
   "company.step.ownership.error.uboEmpty": "É necessário pelo menos um beneficiário efetivo da empresa (UBO)",

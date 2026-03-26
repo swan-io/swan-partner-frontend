@@ -1,4 +1,4 @@
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { match } from "ts-pattern";
 import {
   CompanyAccountHolderOnboardingAccountAdmin,
@@ -73,10 +73,10 @@ export const namesMatch = (
   a: { firstName?: string | null; lastName?: string | null },
   b: { firstName?: string | null; lastName?: string | null },
 ): boolean =>
-  isNotNullish(a.firstName) &&
-  isNotNullish(a.lastName) &&
-  isNotNullish(b.firstName) &&
-  isNotNullish(b.lastName) &&
+  isNotNullishOrEmpty(a.firstName) &&
+  isNotNullishOrEmpty(a.lastName) &&
+  isNotNullishOrEmpty(b.firstName) &&
+  isNotNullishOrEmpty(b.lastName) &&
   a.firstName.trim().toLowerCase() === b.firstName.trim().toLowerCase() &&
   a.lastName.trim().toLowerCase() === b.lastName.trim().toLowerCase();
 

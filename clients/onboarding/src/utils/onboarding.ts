@@ -1,4 +1,4 @@
-import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { match } from "ts-pattern";
 import {
   CompanyAccountHolderOnboardingAccountAdmin,
@@ -84,7 +84,11 @@ export const isAccountAdminInRelatedIndividuals = (
   accountAdmin: CompanyAccountHolderOnboardingAccountAdmin | null | undefined,
   relatedIndividuals: CompanyRelatedIndividual[] | null | undefined,
 ): boolean => {
-  if (accountAdmin?.firstName == null || accountAdmin.lastName == null) {
+  if (
+    isNullishOrEmpty(accountAdmin) ||
+    isNullishOrEmpty(accountAdmin.firstName) ||
+    isNullishOrEmpty(accountAdmin.lastName)
+  ) {
     return false;
   }
 

@@ -399,6 +399,7 @@ export const OwnershipFormIndividualDetails = ({
                       ]}
                       value={value}
                       onValueChange={onChange}
+                      disabled={isAccountAdmin && typeof value === "boolean"}
                     />
                   )}
                 </Field>
@@ -423,6 +424,7 @@ export const OwnershipFormIndividualDetails = ({
                             onChangeText={onChange}
                             placeholder={t("form.label.usaTax.placeholder")}
                             help={t("form.label.usaTax.help")}
+                            readOnly={isReadOnly(value)}
                           />
                         )}
                       />

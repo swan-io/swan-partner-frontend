@@ -242,7 +242,7 @@
   "company.step.ownership.form.roleLabel": "Rol en la empresa",
   "company.step.ownership.form.typeLabel": "Añadiendo como",
   "company.step.ownership.form.whyUboLabel": "¿Por qué esta persona es propietaria de la empresa (UBO)?",
-  "company.step.ownership.modal.alertAccountAdmin": "Parte de la información se rellenó automáticamente a partir de tus datos.\nPara cambiarlos, vuelve al paso de detalles",
+  "company.step.ownership.modal.alertAccountAdmin": "La información se completó automáticamente con los datos personales que proporcionaste.\nPara actualizarlos, vuelve al paso \"Sobre ti\".",
   "company.step.ownership.modal.initTitle": "¿Estás añadiendo una persona física o una empresa?",
   "company.step.ownership.modal.legalAndUboTitle": "{type, select, edit {Modificar} other {Añadir}} un representante legal y propietario de la empresa",
   "company.step.ownership.modal.legalTitle": "{type, select, edit {Modificar} other {Añadir}} un representante legal",

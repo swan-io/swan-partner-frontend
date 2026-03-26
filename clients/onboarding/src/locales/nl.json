@@ -242,7 +242,7 @@
   "company.step.ownership.form.roleLabel": "Rol in het bedrijf",
   "company.step.ownership.form.typeLabel": "Toevoegen als",
   "company.step.ownership.form.whyUboLabel": "Waarom is deze persoon eigenaar van het bedrijf (UBO)?",
-  "company.step.ownership.modal.alertAccountAdmin": "Sommige gegevens zijn vooraf ingevuld vanuit je persoonsgegevens.\nOm ze te wijzigen, ga terug naar de stap 'Gegevens'.",
+  "company.step.ownership.modal.alertAccountAdmin": "Informatie is vooraf ingevuld op basis van de persoonlijke gegevens die je hebt opgegeven.\nOm deze bij te werken, ga terug naar de stap \"Over jou\"",
   "company.step.ownership.modal.initTitle": "Voeg je een persoon of een bedrijf toe?",
   "company.step.ownership.modal.legalAndUboTitle": "Een wettelijke vertegenwoordiger en bedrijfseigenaar (UBO) {type, select, edit {wijzigen} other {toevoegen}}",
   "company.step.ownership.modal.legalTitle": "Een wettelijke vertegenwoordiger {type, select, edit {wijzigen} other {toevoegen}}",

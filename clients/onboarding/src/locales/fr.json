@@ -242,7 +242,7 @@
   "company.step.ownership.form.roleLabel": "Rôle dans la société",
   "company.step.ownership.form.typeLabel": "Ajouté en tant que",
   "company.step.ownership.form.whyUboLabel": "Pourquoi cette personne est-elle propriétaire de la société (UBO) ?",
-  "company.step.ownership.modal.alertAccountAdmin": "Certaines informations ont été préremplies à partir de vos informations personnelles.\nPour les modifier, retournez à l'étape Détails",
+  "company.step.ownership.modal.alertAccountAdmin": "Les informations ont été pré-remplies à partir des renseignements personnels que vous avez fournis.\nPour les mettre à jour, revenez à l'étape \"À propos de vous\".",
   "company.step.ownership.modal.initTitle": "Ajoutez-vous une personne physique ou une société ?",
   "company.step.ownership.modal.legalAndUboTitle": "{type, select, edit {Modifier} other {Ajouter}} un représentant légal et propriétaire de la société",
   "company.step.ownership.modal.legalTitle": "{type, select, edit {Modifier} other {Ajouter}} un représentant légal",

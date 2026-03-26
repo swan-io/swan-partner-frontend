@@ -242,7 +242,7 @@
   "company.step.ownership.form.roleLabel": "Rooli yrityksessä",
   "company.step.ownership.form.typeLabel": "Lisätään roolina",
   "company.step.ownership.form.whyUboLabel": "Miksi tämä henkilö on yrityksen omistaja (UBO)?",
-  "company.step.ownership.modal.alertAccountAdmin": "Joitakin tietoja täytettiin valmiiksi tietojesi perusteella.\nJos haluat muuttaa niitä, palaa tietojen vaiheeseen",
+  "company.step.ownership.modal.alertAccountAdmin": "Tiedot täytettiin automaattisesti antamiesi henkilötietojen perusteella.\nPäivittääksesi ne, palaa kohtaan \"Tietoja sinusta\".",
   "company.step.ownership.modal.initTitle": "Lisäätkö yksityishenkilön vai yrityksen?",
   "company.step.ownership.modal.legalAndUboTitle": "{type, select, edit {Muokkaa} other {Lisää}} laillinen edustaja ja yrityksen omistaja",
   "company.step.ownership.modal.legalTitle": "{type, select, edit {Muokkaa} other {Lisää}} laillinen edustaja",

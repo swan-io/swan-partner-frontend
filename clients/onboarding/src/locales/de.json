@@ -242,7 +242,7 @@
   "company.step.ownership.form.roleLabel": "Rolle im Unternehmen",
   "company.step.ownership.form.typeLabel": "Hinzufügen als",
   "company.step.ownership.form.whyUboLabel": "Warum gilt diese Person als Unternehmensinhaber (UBO)?",
-  "company.step.ownership.modal.alertAccountAdmin": "Einige Informationen wurden aus Ihren Angaben vorausgefüllt.\nUm sie zu ändern, gehen Sie zurück zum Schritt Details.",
+  "company.step.ownership.modal.alertAccountAdmin": "Die Informationen wurden aus den von Ihnen angegebenen persönlichen Daten vorausgefüllt.\nUm sie zu aktualisieren, kehren Sie zum Schritt \"Über Sie\" zurück",
   "company.step.ownership.modal.initTitle": "Fügen Sie eine Einzelperson oder ein Unternehmen hinzu?",
   "company.step.ownership.modal.legalAndUboTitle": "Einen gesetzlichen Vertreter und Firmeninhaber {type, select, edit {bearbeiten} other {hinzufügen}}",
   "company.step.ownership.modal.legalTitle": "Einen gesetzlichen Vertreter {type, select, edit {bearbeiten} other {hinzufügen}}",

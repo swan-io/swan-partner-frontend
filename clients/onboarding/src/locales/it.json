@@ -242,7 +242,7 @@
   "company.step.ownership.form.roleLabel": "Ruolo nella società",
   "company.step.ownership.form.typeLabel": "Aggiungi come",
   "company.step.ownership.form.whyUboLabel": "Perché questa persona è un titolare effettivo della società (UBO)?",
-  "company.step.ownership.modal.alertAccountAdmin": "Alcune informazioni sono state precompilate con i dati del suo profilo.\nPer modificarle torni al passaggio dei dettagli",
+  "company.step.ownership.modal.alertAccountAdmin": "Le informazioni sono state precompilate dai dati personali che ha fornito.\nPer aggiornarle, torni al passaggio \"Informazioni su di te\".",
   "company.step.ownership.modal.initTitle": "Stai aggiungendo una persona fisica o una società?",
   "company.step.ownership.modal.legalAndUboTitle": "{type, select, edit {Modifica} other {Aggiungi}} un rappresentante legale e un titolare effettivo",
   "company.step.ownership.modal.legalTitle": "{type, select, edit {Modifica} other {Aggiungi}} un rappresentante legale",

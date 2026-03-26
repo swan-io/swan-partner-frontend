@@ -228,6 +228,7 @@
   "company.step.ownership.description": "Voeg de personen en entiteiten toe die jouw bedrijf juridisch vertegenwoordigen of bezitten. Wettelijk verplicht.",
   "company.step.ownership.error.empty": "Ten minste één natuurlijke persoon als wettelijke vertegenwoordiger en één uiteindelijke belanghebbende zijn vereist",
   "company.step.ownership.error.individual.legalRepEmpty": "Minstens één wettelijke vertegenwoordiger is vereist",
+  "company.step.ownership.error.missingDocument": "Het document moet worden geüpload.",
   "company.step.ownership.error.missingDocuments": "Alle documenten moeten geüpload worden",
   "company.step.ownership.error.missingInformation": "Vul de ontbrekende informatie in voor alle bedrijfsvertegenwoordigers en uiteindelijke begunstigden",
   "company.step.ownership.error.uboEmpty": "Minstens één eigenaar van het bedrijf (UBO) is vereist",

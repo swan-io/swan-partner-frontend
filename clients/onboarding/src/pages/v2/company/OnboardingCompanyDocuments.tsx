@@ -1,4 +1,4 @@
-import { Array, Option } from "@swan-io/boxed";
+import { Array, Future, Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -14,10 +14,11 @@ import {
   SupportingDocumentCollection,
   SupportingDocumentCollectionRef,
 } from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { locale } from "@swan-io/shared-business/src/utils/i18n";
 import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
-import { match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import { StepTitle } from "../../../components/StepTitle";
 import {
@@ -31,6 +32,8 @@ import {
 } from "../../../graphql/unauthenticated";
 import { t } from "../../../utils/i18n";
 import { CompanyOnboardingRouteV2, Router } from "../../../utils/routes";
+import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
+import { extractServerInvalidFields } from "../../../utils/validation";
 
 type Props = {
   onboarding: NonNullable<CompanyOnboardingFragment>;
@@ -67,12 +70,13 @@ export const OnboardingCompanyDocuments = ({
     supportingDocumentCollection.requiredSupportingDocumentPurposes.map(d => d.name) ?? [];
 
   const [error, showError] = useState(false);
+  const [validatingDocuments, setValidatingDocuments] = useState(false);
   const isFirstMount = useFirstMountState();
 
-  const [forceUpdateCompanyOnboarding, updateResult] = useMutation(
+  const [forceUpdateCompanyOnboarding] = useMutation(
     UpdatePublicCompanyAccountHolderOnboardingDocument,
   );
-  const [generateSupportingDocumentUploadUrl, uploadResult] = useMutation(
+  const [generateSupportingDocumentUploadUrl] = useMutation(
     GenerateSupportingDocumentUploadUrlDocument,
   );
   const [deleteSupportingDocument] = useMutation(DeleteSupportingDocumentDocument);
@@ -96,16 +100,51 @@ export const OnboardingCompanyDocuments = ({
     Router.push("Finalize", { onboardingId });
   };
 
+  const MAX_VALIDATION_ATTEMPTS = 3;
+
+  const validateDocuments = (attempt = 1): void => {
+    if (attempt === 1) {
+      setValidatingDocuments(true);
+    }
+
+    forceUpdateCompanyOnboarding({ input: { onboardingId }, language: locale.language })
+      .mapOk(data => data.updatePublicCompanyAccountHolderOnboarding)
+      .mapOkToResult(filterRejectionsToResult)
+      .tapOk(data => {
+        const errors = extractServerInvalidFields(data.onboarding.statusInfo, field =>
+          match(field)
+            .with(
+              P.when(f => f.includes("supportingDocumentCollection")),
+              () => "document",
+            )
+            .otherwise(() => null),
+        );
+        if (errors.length === 0) {
+          goToNextStep();
+        } else if (attempt < MAX_VALIDATION_ATTEMPTS) {
+          Future.wait(attempt * 3000).onResolve(() => validateDocuments(attempt + 1)); // Retry after 3s, then 6s, 9s, then show an error
+        } else {
+          showToast({
+            variant: "error",
+            title: t("error.generic"),
+            description: t("error.tryAgain"),
+          });
+          setValidatingDocuments(false);
+        }
+      })
+      .tapError(error => {
+        showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
+        setValidatingDocuments(false);
+      });
+  };
+
   const onPressNext = () => {
     const collection = supportingDocumentCollectionRef.current;
     if (collection == null) {
       return;
     }
     if (collection.areAllRequiredDocumentsFilled()) {
-      forceUpdateCompanyOnboarding({ input: { onboardingId }, language: locale.language })
-        .mapOk(data => data.updatePublicCompanyAccountHolderOnboarding)
-        .mapOkToResult(filterRejectionsToResult)
-        .tap(() => goToNextStep());
+      validateDocuments();
     } else {
       showError(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -206,7 +245,11 @@ export const OnboardingCompanyDocuments = ({
                 <>
                   <LakeAlert
                     variant="error"
-                    title={t("company.step.ownership.error.missingDocuments")}
+                    title={
+                      requiredDocumentsPurposes.length > 1
+                        ? t("company.step.ownership.error.missingDocuments")
+                        : t("company.step.ownership.error.missingDocument")
+                    }
                   />
                   <Space height={small ? 24 : 32} />
                 </>
@@ -247,7 +290,7 @@ export const OnboardingCompanyDocuments = ({
       <OnboardingFooter
         onPrevious={onPressPrevious}
         onNext={onPressNext}
-        loading={updateResult.isLoading() || uploadResult.isLoading()}
+        loading={validatingDocuments}
       />
     </>
   );

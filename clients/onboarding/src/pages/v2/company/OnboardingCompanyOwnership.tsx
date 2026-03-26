@@ -30,12 +30,15 @@ import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
-import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { match, P } from "ts-pattern";
 import { ownershipText, ownershipTypeText } from "../../../constants/business";
-import { cleanData, transformRelatedIndividualsToInput } from "../../../utils/onboarding";
+import {
+  cleanData,
+  namesMatch,
+  transformRelatedIndividualsToInput,
+} from "../../../utils/onboarding";
 import { CompanyOnboardingRouteV2, Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 import { extractServerInvalidFields, ServerInvalidFieldCode } from "../../../utils/validation";
@@ -170,12 +173,10 @@ export const OnboardingCompanyOwnership = ({
   serverValidationErrors,
 }: Props) => {
   const onboardingId = onboarding.id;
-  const { company, accountInfo, statusInfo } = onboarding;
+  const { company, accountInfo, accountAdmin, statusInfo } = onboarding;
   const isFirstMount = useFirstMountState();
 
   const accountCountry = accountInfo?.country;
-  const companyCountry = company?.address?.country;
-  const regulatoryClassification = company?.regulatoryClassification ?? undefined;
 
   const [updateCompanyOnboarding, updateResult] = useMutation(
     UpdatePublicCompanyAccountHolderOnboardingDocument,
@@ -495,6 +496,9 @@ export const OnboardingCompanyOwnership = ({
                         <Box grow={2}>
                           <LakeText style={styles.textTitle}>
                             {individual.firstName} {individual.lastName}
+                            {accountAdmin &&
+                              namesMatch(individual, accountAdmin) &&
+                              ` (${t("company.step.ownership.you")})`}
                             {missingInfos.individual.has(index) && (
                               <Tag color="negative" style={styles.tagError}>
                                 {t("company.step.owners.missingInfo")}
@@ -596,9 +600,7 @@ export const OnboardingCompanyOwnership = ({
           step={match(modalState)
             .with({ step: P.string }, ({ step }) => step)
             .otherwise(() => "init")}
-          accountCountry={accountCountry ?? "FRA"}
-          companyCountry={(companyCountry ?? "FRA") as CountryCCA3}
-          regulatoryClassification={regulatoryClassification}
+          onboarding={onboarding}
           onStepChange={setFormStep}
           onClose={() => setModalState({ type: "hidden" })}
           onSave={match(modalState)

@@ -3,8 +3,7 @@ import { Ref, useImperativeHandle, useRef, useState } from "react";
 import { match, P } from "ts-pattern";
 import { v4 as uuid } from "uuid";
 import {
-  AccountCountry,
-  RegulatoryClassification,
+  CompanyOnboardingFragment,
   RelatedCompanyInput,
   RelatedIndividualInput,
   RelatedIndividualType,
@@ -38,11 +37,9 @@ export type SaveValue = SaveValueCompany | SaveValueIndividual;
 
 type Props = {
   ref: Ref<OnboardingCompanyOwnershipFormRef>;
+  onboarding: NonNullable<CompanyOnboardingFragment>;
   initialValues?: Partial<SaveValue>;
   errors: { fieldName: string; code: ServerInvalidFieldCode }[];
-  accountCountry: AccountCountry;
-  companyCountry: CountryCCA3;
-  regulatoryClassification?: RegulatoryClassification;
   step: OwnershipFormStep;
   type: "add" | "edit";
   subForm?: OwnershipSubForm;
@@ -54,6 +51,7 @@ type Props = {
 export const OwnershipFormWizard = ({
   ref,
   initialValues = {} as Partial<SaveValue>,
+  onboarding,
   errors,
   step,
   type,
@@ -61,9 +59,6 @@ export const OwnershipFormWizard = ({
   onClose,
   onSave,
   onStepChange,
-  companyCountry,
-  accountCountry,
-  regulatoryClassification,
 }: Props) => {
   const [reference] = useState(() => initialValues[REFERENCE_SYMBOL] ?? uuid());
   const typeRef = useRef<OnboardingCompanyOwnershipFormTypeRef>(null);
@@ -73,6 +68,9 @@ export const OwnershipFormWizard = ({
     const initial = initialValues as Partial<RelatedIndividualInput> | undefined;
     return initial?.type;
   });
+
+  const { company } = onboarding;
+  const companyCountry = (company?.address?.country ?? "FRA") as CountryCCA3;
 
   useImperativeHandle(ref, () => {
     return {
@@ -153,9 +151,8 @@ export const OwnershipFormWizard = ({
               ref={individualRef}
               initialValues={initialValues as Partial<RelatedIndividualInput>}
               errors={errors}
+              onboarding={onboarding}
               companyCountry={companyCountry}
-              accountCountry={accountCountry}
-              regulatoryClassification={regulatoryClassification}
               step={step}
               individualType={resolvedType}
               subForm={subForm}

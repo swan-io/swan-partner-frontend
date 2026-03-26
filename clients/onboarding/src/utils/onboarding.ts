@@ -68,7 +68,7 @@ export const transformRelatedIndividualsToInput = (
   }) as RelatedIndividualInput[];
 };
 
-const namesMatch = (
+export const namesMatch = (
   a: { firstName?: string | null; lastName?: string | null },
   b: { firstName?: string | null; lastName?: string | null },
 ): boolean =>

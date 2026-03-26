@@ -448,7 +448,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
               </View>
 
               {/* If data are prefilled then registrationNumber will always be true */}
-              {prefilled.registrationNumber && (
+              {!prefilled.registrationNumber && (
                 <View style={styles.prefilledInfo}>
                   <LakeText variant="smallRegular">{t("company.step.legal.prefilled")}</LakeText>
                 </View>

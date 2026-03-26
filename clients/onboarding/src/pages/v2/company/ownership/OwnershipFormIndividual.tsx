@@ -1,3 +1,4 @@
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { Ref, useImperativeHandle, useRef, useState } from "react";
 import { match, P } from "ts-pattern";
@@ -66,9 +67,7 @@ export const OwnershipFormIndividual = ({
   const { company, accountInfo, accountAdmin } = onboarding;
   const accountCountry = accountInfo?.country ?? "FRA";
   const regulatoryClassification = company?.regulatoryClassification ?? undefined;
-
-  const isAccountAdmin = accountAdmin && namesMatch(accountAdmin, initialValues);
-  console.log("isAccountAdmin", isAccountAdmin);
+  const isAccountAdmin = isNotNullish(accountAdmin) && namesMatch(accountAdmin, initialValues);
 
   const [localValue, setLocalValue] = useState<RelatedIndividualInput>(() => {
     const base = { ...initialValues, type: individualType };
@@ -158,6 +157,7 @@ export const OwnershipFormIndividual = ({
         initialValues={localValue}
         errors={errors}
         companyCountry={companyCountry}
+        isAccountAdmin={isAccountAdmin}
         mode={mode}
         onSave={input => {
           if (step === "legal") {

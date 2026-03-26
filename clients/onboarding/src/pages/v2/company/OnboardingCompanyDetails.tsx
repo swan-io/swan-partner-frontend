@@ -48,10 +48,7 @@ import {
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { OnboardingCountryPicker } from "../../../components/CountryPicker";
-import {
-  isAccountAdminInRelatedIndividuals,
-  upsertAccountAdminInRelatedIndividuals,
-} from "../../../utils/onboarding";
+import { upsertAccountAdminInRelatedIndividuals } from "../../../utils/onboarding";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 
@@ -86,12 +83,6 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
   const onboardingId = onboarding.id;
   const { accountAdmin, accountInfo, company } = onboarding;
   const isFirstMount = useFirstMountState();
-
-  const isRelatedIndividual = isAccountAdminInRelatedIndividuals(
-    accountAdmin,
-    company?.relatedIndividuals,
-  );
-  console.log("isRelatedIndividual", isRelatedIndividual);
 
   const [updateCompanyOnboarding, updateResult] = useMutation(
     UpdatePublicCompanyAccountHolderOnboardingDocument,

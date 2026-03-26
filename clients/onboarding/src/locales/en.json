@@ -223,6 +223,7 @@
   "company.step.owners.title": "Declare your organization's ownership",
   "company.step.ownership.addTitle": "Add",
   "company.step.ownership.additionalDescription": "• <bold>Legal representatives</bold>: Individuals or entities who can legally sign documents on behalf of your company\n• <bold>Ultimate Beneficial Owners (UBOs)</bold>: People who own or control 25%+ of your company, or are legal representatives if no one else qualifies",
+  "company.step.ownership.company": "Company",
   "company.step.ownership.deleteTitle": "Are you sure you want to delete {relatedName}?",
   "company.step.ownership.description": "Add the people and entities who legally represent or own your company. Required by law.",
   "company.step.ownership.error.empty": "At least one individual legal representative and one beneficial owner are required",

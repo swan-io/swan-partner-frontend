@@ -175,6 +175,7 @@ export const OwnershipFormIndividual = ({
         initialValues={localValue}
         errors={errors}
         companyCountry={companyCountry}
+        isAccountAdmin={isAccountAdmin}
         mode={mode}
         onSave={input => {
           setLocalValue(prevState => ({ ...prevState, ...input }));

@@ -7,6 +7,7 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { identity } from "@swan-io/lake/src/utils/function";
+import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
@@ -55,6 +56,7 @@ type Props = {
   errors: { fieldName: string; code: ServerInvalidFieldCode }[];
   ref: Ref<OnboardingCompanyOwnershipFormIndividualDetailsRef>;
   companyCountry: CountryCCA3;
+  isAccountAdmin: boolean;
   mode: "add" | "edit";
   onSave: (input: Partial<RelatedIndividualInput>) => void | Promise<void>;
 };
@@ -68,6 +70,7 @@ export const OwnershipFormIndividualDetails = ({
   ref,
   onSave,
   companyCountry,
+  isAccountAdmin,
   initialValues,
   errors,
   mode,
@@ -112,6 +115,9 @@ export const OwnershipFormIndividualDetails = ({
   });
 
   const isFirstMount = useFirstMountState();
+
+  const isReadOnly = (value: string | null | undefined) =>
+    isAccountAdmin && isNotNullishOrEmpty(value);
 
   const { Field, submitForm, FieldsListener, setFieldError, setFieldValue } = useForm({
     firstName: {
@@ -218,6 +224,7 @@ export const OwnershipFormIndividualDetails = ({
                     onBlur={onBlur}
                     valid={valid}
                     onChangeText={onChange}
+                    readOnly={isReadOnly(value)}
                   />
                 )}
               </Field>
@@ -236,6 +243,7 @@ export const OwnershipFormIndividualDetails = ({
                     onBlur={onBlur}
                     valid={valid}
                     onChangeText={onChange}
+                    readOnly={isReadOnly(value)}
                   />
                 )}
               </Field>
@@ -249,6 +257,7 @@ export const OwnershipFormIndividualDetails = ({
                 onValueChange={onChange}
                 error={error}
                 responsive={false}
+                readOnly={isReadOnly(value)}
               />
             )}
           </Field>
@@ -265,6 +274,7 @@ export const OwnershipFormIndividualDetails = ({
                     value={value}
                     error={error}
                     onValueChange={onChange}
+                    readOnly={isReadOnly(value)}
                   />
                 )}
               </Field>
@@ -312,6 +322,7 @@ export const OwnershipFormIndividualDetails = ({
                     valid={valid}
                     error={error}
                     onChangeText={onChange}
+                    readOnly={isReadOnly(value)}
                   />
                 )}
               />
@@ -349,6 +360,7 @@ export const OwnershipFormIndividualDetails = ({
                     value={value}
                     error={error}
                     onValueChange={onChange}
+                    readOnly={isReadOnly(value)}
                   />
                 )}
               </Field>

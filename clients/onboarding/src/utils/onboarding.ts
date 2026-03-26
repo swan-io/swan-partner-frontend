@@ -1,5 +1,7 @@
+import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { match } from "ts-pattern";
 import {
+  CompanyAccountHolderOnboardingAccountAdmin,
   CompanyLegalRepresentativeAndUltimateBeneficialOwner,
   CompanyRelatedIndividual,
   RelatedIndividualInput,
@@ -65,6 +67,64 @@ export const transformRelatedIndividualsToInput = (
       ultimateBeneficialOwner: toUltimateBeneficialOwnerInput(ultimateBeneficialOwner),
     };
   }) as RelatedIndividualInput[];
+};
+
+export const namesMatch = (
+  a: { firstName?: string | null; lastName?: string | null },
+  b: { firstName?: string | null; lastName?: string | null },
+): boolean =>
+  isNotNullishOrEmpty(a.firstName) &&
+  isNotNullishOrEmpty(a.lastName) &&
+  isNotNullishOrEmpty(b.firstName) &&
+  isNotNullishOrEmpty(b.lastName) &&
+  a.firstName.trim().toLowerCase() === b.firstName.trim().toLowerCase() &&
+  a.lastName.trim().toLowerCase() === b.lastName.trim().toLowerCase();
+
+export const isAccountAdminInRelatedIndividuals = (
+  accountAdmin: CompanyAccountHolderOnboardingAccountAdmin | null | undefined,
+  relatedIndividuals: CompanyRelatedIndividual[] | null | undefined,
+): boolean => {
+  if (accountAdmin?.firstName == null || accountAdmin.lastName == null) {
+    return false;
+  }
+
+  if (!relatedIndividuals || relatedIndividuals.length === 0) {
+    return false;
+  }
+
+  return relatedIndividuals.some(individual => namesMatch(accountAdmin, individual));
+};
+
+export const upsertAccountAdminInRelatedIndividuals = (
+  accountAdmin: CompanyAccountHolderOnboardingAccountAdmin | null | undefined,
+  relatedIndividuals: CompanyRelatedIndividual[] | null | undefined,
+  updatedFields: Omit<RelatedIndividualInput, "type">,
+): RelatedIndividualInput[] => {
+  const inputs = transformRelatedIndividualsToInput(relatedIndividuals);
+
+  const matchIndex = inputs.findIndex(
+    individual =>
+      accountAdmin?.firstName != null &&
+      accountAdmin.lastName != null &&
+      namesMatch(accountAdmin, individual),
+  );
+
+  // Add new individual
+  if (matchIndex === -1) {
+    return [
+      ...inputs,
+      {
+        ...updatedFields,
+        type: "LegalRepresentative" as const,
+        legalRepresentative: { roles: [] },
+      },
+    ];
+  }
+
+  // Update existing individual
+  return inputs.map((individual, index) =>
+    index === matchIndex ? { ...individual, ...updatedFields } : individual,
+  );
 };
 
 // Utility function to clean data from __typename and undefined fields

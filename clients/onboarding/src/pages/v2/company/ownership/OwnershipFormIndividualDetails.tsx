@@ -1,12 +1,15 @@
 import { Option } from "@swan-io/boxed";
+import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import { Space } from "@swan-io/lake/src/components/Space";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { identity } from "@swan-io/lake/src/utils/function";
+import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
@@ -55,6 +58,7 @@ type Props = {
   errors: { fieldName: string; code: ServerInvalidFieldCode }[];
   ref: Ref<OnboardingCompanyOwnershipFormIndividualDetailsRef>;
   companyCountry: CountryCCA3;
+  isAccountAdmin: boolean;
   mode: "add" | "edit";
   onSave: (input: Partial<RelatedIndividualInput>) => void | Promise<void>;
 };
@@ -68,6 +72,7 @@ export const OwnershipFormIndividualDetails = ({
   ref,
   onSave,
   companyCountry,
+  isAccountAdmin,
   initialValues,
   errors,
   mode,
@@ -112,6 +117,9 @@ export const OwnershipFormIndividualDetails = ({
   });
 
   const isFirstMount = useFirstMountState();
+
+  const isReadOnly = (value: string | null | undefined) =>
+    isAccountAdmin && isNotNullishOrEmpty(value);
 
   const { Field, submitForm, FieldsListener, setFieldError, setFieldValue } = useForm({
     firstName: {
@@ -204,209 +212,229 @@ export const OwnershipFormIndividualDetails = ({
   return (
     <ResponsiveContainer breakpoint={breakpoints.small}>
       {({ large }) => (
-        <View role="form" style={[styles.grid, large && styles.gridDesktop]}>
-          <LakeLabel
-            label={t("common.fistname")}
-            render={id => (
-              <Field name="firstName">
-                {({ value, onBlur, valid, onChange, error, ref }) => (
-                  <LakeTextInput
-                    id={id}
-                    ref={ref}
-                    value={value}
-                    error={error}
-                    onBlur={onBlur}
-                    valid={valid}
-                    onChangeText={onChange}
-                  />
-                )}
-              </Field>
-            )}
-          />
-          <LakeLabel
-            label={t("common.lastname")}
-            render={id => (
-              <Field name="lastName">
-                {({ value, onBlur, valid, onChange, error, ref }) => (
-                  <LakeTextInput
-                    id={id}
-                    ref={ref}
-                    value={value}
-                    error={error}
-                    onBlur={onBlur}
-                    valid={valid}
-                    onChangeText={onChange}
-                  />
-                )}
-              </Field>
-            )}
-          />
-          <Field name="birthDate">
-            {({ value, onChange, error }) => (
-              <BirthdatePicker
-                label={t("common.birthdate")}
-                value={value}
-                onValueChange={onChange}
-                error={error}
-                responsive={false}
+        <>
+          {isAccountAdmin && (
+            <>
+              <LakeAlert
+                variant="info"
+                title={t("company.step.ownership.modal.alertAccountAdmin")}
               />
-            )}
-          </Field>
+              <Space height={24} />
+            </>
+          )}
+          <View role="form" style={[styles.grid, large && styles.gridDesktop]}>
+            <LakeLabel
+              label={t("common.fistname")}
+              render={id => (
+                <Field name="firstName">
+                  {({ value, onBlur, valid, onChange, error, ref }) => (
+                    <LakeTextInput
+                      id={id}
+                      ref={ref}
+                      value={value}
+                      error={error}
+                      onBlur={onBlur}
+                      valid={valid}
+                      onChangeText={onChange}
+                      readOnly={isReadOnly(value)}
+                    />
+                  )}
+                </Field>
+              )}
+            />
+            <LakeLabel
+              label={t("common.lastname")}
+              render={id => (
+                <Field name="lastName">
+                  {({ value, onBlur, valid, onChange, error, ref }) => (
+                    <LakeTextInput
+                      id={id}
+                      ref={ref}
+                      value={value}
+                      error={error}
+                      onBlur={onBlur}
+                      valid={valid}
+                      onChangeText={onChange}
+                      readOnly={isReadOnly(value)}
+                    />
+                  )}
+                </Field>
+              )}
+            />
+            <Field name="birthDate">
+              {({ value, onChange, error }) => (
+                <BirthdatePicker
+                  label={t("common.birthdate")}
+                  value={value}
+                  onValueChange={onChange}
+                  error={error}
+                  responsive={false}
+                  readOnly={isReadOnly(value)}
+                />
+              )}
+            </Field>
 
-          <LakeLabel
-            label={t("form.label.birthCountry")}
-            render={id => (
-              <Field name="birthCountry">
-                {({ value, onChange, error, ref }) => (
-                  <CountryPicker
-                    id={id}
-                    ref={ref}
-                    countries={allCountries}
-                    value={value}
-                    error={error}
-                    onValueChange={onChange}
-                  />
-                )}
-              </Field>
-            )}
-          />
+            <LakeLabel
+              label={t("form.label.birthCountry")}
+              render={id => (
+                <Field name="birthCountry">
+                  {({ value, onChange, error, ref }) => (
+                    <CountryPicker
+                      id={id}
+                      ref={ref}
+                      countries={allCountries}
+                      value={value}
+                      error={error}
+                      onValueChange={onChange}
+                      readOnly={isReadOnly(value)}
+                    />
+                  )}
+                </Field>
+              )}
+            />
 
-          <FieldsListener names={["birthCountry"]}>
-            {({ birthCountry }) => (
-              <Field name="birthCity">
-                {({ value, error, onChange }) => (
-                  <LakeLabel
-                    label={t("form.label.birthCity")}
-                    render={id => (
-                      <PlacekitCityInput
-                        id={id}
-                        apiKey={__env.CLIENT_PLACEKIT_API_KEY}
-                        error={error}
-                        country={birthCountry.value}
-                        value={value ?? ""}
-                        onValueChange={onChange}
-                        onSuggestion={place => {
-                          onChange(place.city);
-                          if (place.postalCode != null) {
-                            setFieldValue("birthPostal", place.postalCode);
-                          }
-                        }}
-                        onLoadError={identity}
-                      />
-                    )}
-                  />
-                )}
-              </Field>
-            )}
-          </FieldsListener>
-
-          <Field name="birthPostal">
-            {({ value, valid, error, onChange, ref }) => (
-              <LakeLabel
-                label={t("form.label.birthPostal")}
-                render={id => (
-                  <LakeTextInput
-                    id={id}
-                    ref={ref}
-                    value={value}
-                    valid={valid}
-                    error={error}
-                    onChangeText={onChange}
-                  />
-                )}
-              />
-            )}
-          </Field>
-
-          <LakeLabel
-            label={t("company.step.ownership.form.genderLabel")}
-            render={id => (
-              <Field name="sex">
-                {({ value, onChange, ref, error }) => (
-                  <LakeSelect
-                    id={id}
-                    ref={ref}
-                    items={genderItems}
-                    value={value}
-                    onValueChange={onChange}
-                    error={error}
-                    placeholder={t("common.select")}
-                  />
-                )}
-              </Field>
-            )}
-          />
-
-          <LakeLabel
-            label={t("common.nationality")}
-            render={id => (
-              <Field name="nationality">
-                {({ value, onChange, error, ref }) => (
-                  <CountryPicker
-                    id={id}
-                    ref={ref}
-                    countries={allCountries}
-                    value={value}
-                    error={error}
-                    onValueChange={onChange}
-                  />
-                )}
-              </Field>
-            )}
-          />
-          <LakeLabel
-            label={t("form.label.usaCitizenShort")}
-            render={() => (
-              <Field name="isUnitedStatesPerson">
-                {({ value, onChange, error }) => (
-                  <RadioGroup
-                    direction="row"
-                    error={error}
-                    items={[
-                      {
-                        name: t("common.yes"),
-                        value: true,
-                      },
-                      {
-                        name: t("common.no"),
-                        value: false,
-                      },
-                    ]}
-                    value={value}
-                    onValueChange={onChange}
-                  />
-                )}
-              </Field>
-            )}
-          />
-
-          <FieldsListener names={["isUnitedStatesPerson"]}>
-            {({ isUnitedStatesPerson }) => (
-              <Field name="unitedStatesTaxIdentificationNumber">
-                {({ value, onBlur, valid, onChange, error, ref }) =>
-                  isUnitedStatesPerson.value ? (
+            <FieldsListener names={["birthCountry"]}>
+              {({ birthCountry }) => (
+                <Field name="birthCity">
+                  {({ value, error, onChange }) => (
                     <LakeLabel
-                      label={t("form.label.usaTax")}
+                      label={t("form.label.birthCity")}
                       render={id => (
-                        <LakeTextInput
+                        <PlacekitCityInput
                           id={id}
-                          ref={ref}
-                          value={value}
+                          apiKey={__env.CLIENT_PLACEKIT_API_KEY}
                           error={error}
-                          valid={valid}
-                          onBlur={onBlur}
-                          onChangeText={onChange}
-                          placeholder={t("form.label.usaTax.placeholder")}
-                          help={t("form.label.usaTax.help")}
+                          country={birthCountry.value}
+                          value={value ?? ""}
+                          onValueChange={onChange}
+                          onSuggestion={place => {
+                            onChange(place.city);
+                            if (place.postalCode != null) {
+                              setFieldValue("birthPostal", place.postalCode);
+                            }
+                          }}
+                          onLoadError={identity}
+                          disabled={isReadOnly(value)}
                         />
                       )}
                     />
-                  ) : null
-                }
-              </Field>
-            )}
-          </FieldsListener>
-        </View>
+                  )}
+                </Field>
+              )}
+            </FieldsListener>
+
+            <Field name="birthPostal">
+              {({ value, valid, error, onChange, ref }) => (
+                <LakeLabel
+                  label={t("form.label.birthPostal")}
+                  render={id => (
+                    <LakeTextInput
+                      id={id}
+                      ref={ref}
+                      value={value}
+                      valid={valid}
+                      error={error}
+                      onChangeText={onChange}
+                      readOnly={isReadOnly(value)}
+                    />
+                  )}
+                />
+              )}
+            </Field>
+
+            <LakeLabel
+              label={t("company.step.ownership.form.genderLabel")}
+              render={id => (
+                <Field name="sex">
+                  {({ value, onChange, ref, error }) => (
+                    <LakeSelect
+                      id={id}
+                      ref={ref}
+                      items={genderItems}
+                      value={value}
+                      onValueChange={onChange}
+                      error={error}
+                      placeholder={t("common.select")}
+                    />
+                  )}
+                </Field>
+              )}
+            />
+
+            <LakeLabel
+              label={t("common.nationality")}
+              render={id => (
+                <Field name="nationality">
+                  {({ value, onChange, error, ref }) => (
+                    <CountryPicker
+                      id={id}
+                      ref={ref}
+                      countries={allCountries}
+                      value={value}
+                      error={error}
+                      onValueChange={onChange}
+                      readOnly={isReadOnly(value)}
+                    />
+                  )}
+                </Field>
+              )}
+            />
+            <LakeLabel
+              label={t("form.label.usaCitizenShort")}
+              render={() => (
+                <Field name="isUnitedStatesPerson">
+                  {({ value, onChange, error }) => (
+                    <RadioGroup
+                      direction="row"
+                      error={error}
+                      items={[
+                        {
+                          name: t("common.yes"),
+                          value: true,
+                        },
+                        {
+                          name: t("common.no"),
+                          value: false,
+                        },
+                      ]}
+                      value={value}
+                      onValueChange={onChange}
+                      disabled={isAccountAdmin && typeof value === "boolean"}
+                    />
+                  )}
+                </Field>
+              )}
+            />
+
+            <FieldsListener names={["isUnitedStatesPerson"]}>
+              {({ isUnitedStatesPerson }) => (
+                <Field name="unitedStatesTaxIdentificationNumber">
+                  {({ value, onBlur, valid, onChange, error, ref }) =>
+                    isUnitedStatesPerson.value ? (
+                      <LakeLabel
+                        label={t("form.label.usaTax")}
+                        render={id => (
+                          <LakeTextInput
+                            id={id}
+                            ref={ref}
+                            value={value}
+                            error={error}
+                            valid={valid}
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            placeholder={t("form.label.usaTax.placeholder")}
+                            help={t("form.label.usaTax.help")}
+                            readOnly={isReadOnly(value)}
+                          />
+                        )}
+                      />
+                    ) : null
+                  }
+                </Field>
+              )}
+            </FieldsListener>
+          </View>
+        </>
       )}
     </ResponsiveContainer>
   );

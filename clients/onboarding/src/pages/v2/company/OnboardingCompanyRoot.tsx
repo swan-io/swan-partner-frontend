@@ -43,7 +43,10 @@ import { Pressable, View } from "react-native";
 import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { LakeCompanyInput } from "../../../components/LakeCompanyInput";
 import { LegalFormsInput } from "../../../components/LegalFormsInput";
-import { RepresentativeFormsInput } from "../../../components/RepresentativeFormInput";
+import {
+  formatValueRepresentative,
+  RepresentativeFormsInput,
+} from "../../../components/RepresentativeFormInput";
 import { cleanData, transformRelatedIndividualsToInput } from "../../../utils/onboarding";
 import { CompanySuggestion } from "../../../utils/Pappers";
 import { Router } from "../../../utils/routes";
@@ -169,15 +172,19 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
           return;
         }
 
-        // @TODO: improve matching logic
         const selectedRepresentative = values.currentRepresentative
           .flatMap(value => Option.fromNullable(value))
           .map(value =>
             representatives?.find(item =>
               match(item)
                 .with(
-                  { __typename: P.not("CompanyRelatedCompany") },
-                  individual => individual.lastName === value,
+                  {
+                    __typename: P.not("CompanyRelatedCompany"),
+                    lastName: P.string,
+                    firstName: P.string,
+                  },
+                  ({ lastName, firstName }) =>
+                    formatValueRepresentative(lastName, firstName) === value,
                 )
                 .otherwise(() => false),
             ),

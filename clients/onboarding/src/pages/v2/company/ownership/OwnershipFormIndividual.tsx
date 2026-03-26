@@ -1,13 +1,14 @@
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { Ref, useImperativeHandle, useRef, useState } from "react";
 import { match, P } from "ts-pattern";
 import {
-  AccountCountry,
-  RegulatoryClassification,
+  CompanyOnboardingFragment,
   RelatedIndividualInput,
   RelatedIndividualType,
   RelatedIndividualUltimateBeneficialOwnerInput,
 } from "../../../../graphql/partner";
+import { namesMatch } from "../../../../utils/onboarding";
 import { ServerInvalidFieldCode } from "../../../../utils/validation";
 import {
   OnboardingCompanyOwnershipFormIndividualAddressRef,
@@ -34,9 +35,8 @@ export type OnboardingCompanyOwnershipFormIndividualRef = {
 type Props = {
   initialValues: Partial<RelatedIndividualInput>;
   ref: Ref<OnboardingCompanyOwnershipFormIndividualRef>;
+  onboarding: NonNullable<CompanyOnboardingFragment>;
   companyCountry: CountryCCA3;
-  accountCountry: AccountCountry;
-  regulatoryClassification?: RegulatoryClassification;
   step: Extract<OwnershipFormStep, "legal" | "legalAndUbo" | "ubo">;
   individualType: RelatedIndividualType;
   errors: { fieldName: string; code: ServerInvalidFieldCode }[];
@@ -48,12 +48,11 @@ type Props = {
 
 export const OwnershipFormIndividual = ({
   ref,
+  onboarding,
   onSave,
   onNext,
   step,
   companyCountry,
-  accountCountry,
-  regulatoryClassification,
   initialValues,
   errors,
   individualType,
@@ -64,6 +63,11 @@ export const OwnershipFormIndividual = ({
   const capitalRef = useRef<OnboardingCompanyOwnershipFormIndividualCapitalRef>(null);
   const addressRef = useRef<OnboardingCompanyOwnershipFormIndividualAddressRef>(null);
   const identityRef = useRef<OnboardingCompanyOwnershipFormIndividualIdentityRef>(null);
+
+  const { company, accountInfo, accountAdmin } = onboarding;
+  const accountCountry = accountInfo?.country ?? "FRA";
+  const regulatoryClassification = company?.regulatoryClassification ?? undefined;
+  const isAccountAdmin = isNotNullish(accountAdmin) && namesMatch(accountAdmin, initialValues);
 
   const [localValue, setLocalValue] = useState<RelatedIndividualInput>(() => {
     const base = { ...initialValues, type: individualType };
@@ -153,6 +157,7 @@ export const OwnershipFormIndividual = ({
         initialValues={localValue}
         errors={errors}
         companyCountry={companyCountry}
+        isAccountAdmin={isAccountAdmin}
         mode={mode}
         onSave={input => {
           if (step === "legal") {
@@ -170,6 +175,7 @@ export const OwnershipFormIndividual = ({
         initialValues={localValue}
         errors={errors}
         companyCountry={companyCountry}
+        isAccountAdmin={isAccountAdmin}
         mode={mode}
         onSave={input => {
           setLocalValue(prevState => ({ ...prevState, ...input }));

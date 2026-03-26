@@ -20,6 +20,9 @@ type props = {
   onChange: (value: string) => void;
 };
 
+export const formatValueRepresentative = (lastName: string, firstName: string) =>
+  lastName.trim().toLowerCase() + firstName.trim().toLowerCase();
+
 export const RepresentativeFormsInput = ({ individuals, value, onChange, error }: props) => {
   const items: RepresentativeItem[] = useMemo(() => {
     const representativesItems = individuals
@@ -40,7 +43,7 @@ export const RepresentativeFormsInput = ({ individuals, value, onChange, error }
             ({ legalRepresentative, firstName, lastName }) => ({
               name: `${firstName} ${lastName} - ${legalRepresentative.roles.join(", ")}`,
               fullName: `${firstName} ${lastName}`,
-              value: lastName,
+              value: formatValueRepresentative(lastName, firstName),
               roles: legalRepresentative.roles.join(", "),
             }),
           )

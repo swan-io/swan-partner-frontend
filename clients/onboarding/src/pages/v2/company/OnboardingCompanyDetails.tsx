@@ -48,6 +48,7 @@ import {
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { OnboardingCountryPicker } from "../../../components/CountryPicker";
+import { upsertAccountAdminInRelatedIndividuals } from "../../../utils/onboarding";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 
@@ -80,7 +81,7 @@ const styles = StyleSheet.create({
 
 export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }: Props) => {
   const onboardingId = onboarding.id;
-  const { accountAdmin, accountInfo } = onboarding;
+  const { accountAdmin, accountInfo, company } = onboarding;
   const isFirstMount = useFirstMountState();
 
   const [updateCompanyOnboarding, updateResult] = useMutation(
@@ -215,30 +216,42 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
           ...input
         } = currentValues;
 
+        const accountAdminFields = {
+          ...input,
+          birthInfo: {
+            birthDate,
+            country: birthCountry,
+            city: birthCity,
+            postalCode: birthPostal,
+          },
+          address: {
+            addressLine1: residenceAddress,
+            city: residenceCity,
+            country: residenceCountry,
+            postalCode: residencePostal,
+          },
+          unitedStatesTaxInfo: {
+            isUnitedStatesPerson,
+            unitedStatesTaxIdentificationNumber: isUnitedStatesPerson
+              ? unitedStatesTaxIdentificationNumber
+              : undefined,
+          },
+        };
+
+        const relatedIndividuals =
+          accountAdmin?.typeOfRepresentation === "LegalRepresentative"
+            ? upsertAccountAdminInRelatedIndividuals(
+                accountAdmin,
+                company?.relatedIndividuals,
+                accountAdminFields,
+              )
+            : undefined;
+
         updateCompanyOnboarding({
           input: {
             onboardingId,
-            accountAdmin: {
-              ...input,
-              birthInfo: {
-                birthDate,
-                country: birthCountry,
-                city: birthCity,
-                postalCode: birthPostal,
-              },
-              address: {
-                addressLine1: residenceAddress,
-                city: residenceCity,
-                country: residenceCountry,
-                postalCode: residencePostal,
-              },
-              unitedStatesTaxInfo: {
-                isUnitedStatesPerson,
-                unitedStatesTaxIdentificationNumber: isUnitedStatesPerson
-                  ? unitedStatesTaxIdentificationNumber
-                  : undefined,
-              },
-            },
+            accountAdmin: accountAdminFields,
+            company: { relatedIndividuals },
           },
           language: locale.language,
         })

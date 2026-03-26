@@ -70,13 +70,13 @@ export const OnboardingCompanyDocuments = ({
     supportingDocumentCollection.requiredSupportingDocumentPurposes.map(d => d.name) ?? [];
 
   const [error, showError] = useState(false);
-  const [loader, showLoader] = useState(false);
+  const [validatingDocuments, setValidatingDocuments] = useState(false);
   const isFirstMount = useFirstMountState();
 
   const [forceUpdateCompanyOnboarding] = useMutation(
     UpdatePublicCompanyAccountHolderOnboardingDocument,
   );
-  const [generateSupportingDocumentUploadUrl, uploadResult] = useMutation(
+  const [generateSupportingDocumentUploadUrl] = useMutation(
     GenerateSupportingDocumentUploadUrlDocument,
   );
   const [deleteSupportingDocument] = useMutation(DeleteSupportingDocumentDocument);
@@ -103,6 +103,10 @@ export const OnboardingCompanyDocuments = ({
   const MAX_VALIDATION_ATTEMPTS = 3;
 
   const validateDocuments = (attempt = 1): void => {
+    if (attempt === 1) {
+      setValidatingDocuments(true);
+    }
+
     forceUpdateCompanyOnboarding({ input: { onboardingId }, language: locale.language })
       .mapOk(data => data.updatePublicCompanyAccountHolderOnboarding)
       .mapOkToResult(filterRejectionsToResult)
@@ -125,12 +129,12 @@ export const OnboardingCompanyDocuments = ({
             title: t("error.generic"),
             description: t("error.tryAgain"),
           });
-          showLoader(false);
+          setValidatingDocuments(false);
         }
       })
       .tapError(error => {
         showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
-        showLoader(false);
+        setValidatingDocuments(false);
       });
   };
 
@@ -140,7 +144,6 @@ export const OnboardingCompanyDocuments = ({
       return;
     }
     if (collection.areAllRequiredDocumentsFilled()) {
-      showLoader(true);
       validateDocuments();
     } else {
       showError(true);
@@ -287,7 +290,7 @@ export const OnboardingCompanyDocuments = ({
       <OnboardingFooter
         onPrevious={onPressPrevious}
         onNext={onPressNext}
-        loading={loader || uploadResult.isLoading()}
+        loading={validatingDocuments}
       />
     </>
   );

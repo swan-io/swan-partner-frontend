@@ -2423,38 +2423,38 @@ packages:
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==, tarball: https://registry.npmjs.org/@standard-schema/spec/-/spec-1.1.0.tgz}
 
   '@swan-io/boxed@3.2.1':
-    resolution: {integrity: sha512-+FKLC+otoXrbcf+wTGM8kBp57buuIlaSw8VEkRd4WpTlB7P8nMYbe8uADf85VfSb9wP9wgI9pkj2VIzUWWI0Kg==, tarball: https://npm.pkg.github.com/download/@swan-io/boxed/3.2.1/c4ebe8d3a53e07fb69e7ee20cdfafcdcb089c6fc}
+    resolution: {integrity: sha512-MQqSpe09PdjDjTR4HCPpUxO9XsacNguCkce1C2wm1eIb6ycWXQoV+biYvLEuI/LiMqB31KySdgY2YFwrVucLCw==, tarball: https://registry.npmjs.org/@swan-io/boxed/-/boxed-3.2.1.tgz}
     peerDependencies:
       typescript: '>=5.0.0'
 
   '@swan-io/chicane@3.0.0':
-    resolution: {integrity: sha512-A/k8e0MXeLBTT71P8i52/Fn0+3CftQiVPDyCK6vfrS/cEDsBfWz+IvwhuhC1EFfAYm9O4ystvpOgEP5fraFfVA==, tarball: https://npm.pkg.github.com/download/@swan-io/chicane/3.0.0/714dc7f0b20b77e4c831babbf48d4efdcb8974f4}
+    resolution: {integrity: sha512-ELguiTjrK2+wYqiUfguusOXaAXUBdizGJjXM6pg5Jvye0Yefp18coVmSCpGJLdJY4hCaWXis/ct4i/DyV2FIuw==, tarball: https://registry.npmjs.org/@swan-io/chicane/-/chicane-3.0.0.tgz}
     peerDependencies:
       react: '>=19.0.0'
 
   '@swan-io/graphql-client@0.8.0':
-    resolution: {integrity: sha512-UlCtXUMpyBoL96qDijCasSYuwrH2b/8utR51OEIHJ1DWm6Bn7gLLlaF7WmtBcCw8M6ZqzUP5pTjhWqazQVTLPw==, tarball: https://npm.pkg.github.com/download/@swan-io/graphql-client/0.8.0/5b4f9cded2b6b8bb051ec384369fea01812b0bd3}
+    resolution: {integrity: sha512-+7cQV9NKUc5plt4hYt8nNz16gotnzGEGKcU2/xKaj1pjWjzSagKNoBt/ymLAy0d+U7wGLCgf0hF0yZyKLfYyaw==, tarball: https://registry.npmjs.org/@swan-io/graphql-client/-/graphql-client-0.8.0.tgz}
     hasBin: true
     peerDependencies:
       react: '>=18.2.0'
 
   '@swan-io/lake@13.6.6':
-    resolution: {integrity: sha512-MJRxJVXQ/EdGFu1Vl1eLA4+lxxR1om+Fl26KWaUWvDr3Nz0p8Vf1MTrvKUuWP7shjlRIbWnTP0/wfx5hsqh5Wg==, tarball: https://npm.pkg.github.com/download/@swan-io/lake/13.6.6/75965ba1258028abb400123ee780e5a936c67e3e}
+    resolution: {integrity: sha512-MJRxJVXQ/EdGFu1Vl1eLA4+lxxR1om+Fl26KWaUWvDr3Nz0p8Vf1MTrvKUuWP7shjlRIbWnTP0/wfx5hsqh5Wg==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-13.6.6.tgz}
     engines: {node: '>22.12.0'}
 
   '@swan-io/request@3.1.0':
-    resolution: {integrity: sha512-Lg5K8BVwY5k/YyjXHMclmvjPmuVa8jKP/K065PyLsu869+hZu3ENe7DBiNIimrzdwyHSNuGIZaQiDfzEnD32kQ==, tarball: https://npm.pkg.github.com/download/@swan-io/request/3.1.0/b4aef0cb88159d9731ae4a5edef13037026f987b}
+    resolution: {integrity: sha512-3NDXdNuew5+aEURpWg8aNIqPlYVNU6BZCD1rWptNemfNw9frTUBj8DmV+idOp9M5/4tVxncX7bxV7jBNtS6Cbg==, tarball: https://registry.npmjs.org/@swan-io/request/-/request-3.1.0.tgz}
     peerDependencies:
       '@swan-io/boxed': '>=2.2.1'
 
   '@swan-io/shared-business@13.6.6':
-    resolution: {integrity: sha512-jEwLqDzPIwdUjdh6muUTCe0/PTUCTC2bK6ru1q/jmY1WOcu5yP87boW9LMN6klA3PpG2V9HYMHBGNz+cnLjcNA==, tarball: https://npm.pkg.github.com/download/@swan-io/shared-business/13.6.6/089fdd9efa606e75250229c745c3f94f885c1531}
+    resolution: {integrity: sha512-jEwLqDzPIwdUjdh6muUTCe0/PTUCTC2bK6ru1q/jmY1WOcu5yP87boW9LMN6klA3PpG2V9HYMHBGNz+cnLjcNA==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-13.6.6.tgz}
     engines: {node: '>22.12.0'}
     peerDependencies:
       '@swan-io/lake': 13.6.6
 
   '@swan-io/use-form@3.1.0':
-    resolution: {integrity: sha512-m4LR7acxQy3sVRy5JFULKB6nKZB6DPmqNP4XsKvnL6W8u6ou+iaSi86bRfE4wUnl/I74mKLij30b7bSMr1C6tQ==, tarball: https://npm.pkg.github.com/download/@swan-io/use-form/3.1.0/f242dbf8d9fe0a163cfd69ae94061757d79d93d5}
+    resolution: {integrity: sha512-X6NpZ7LCeo7eS9RVCZrtpX+3GXZFUfUZpIwtVa2GNmqTLgyDbLhN8N6zBv+dmHL9KAQ+Zng2fTCCQpCZvmDu5A==, tarball: https://registry.npmjs.org/@swan-io/use-form/-/use-form-3.1.0.tgz}
     peerDependencies:
       react: '>=18.0.0'
 

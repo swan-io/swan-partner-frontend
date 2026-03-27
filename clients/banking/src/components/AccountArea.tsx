@@ -44,10 +44,11 @@ import { env } from "../utils/env";
 import { partnerAdminClient } from "../utils/gql";
 import { t } from "../utils/i18n";
 import { getIdentificationLevelStatusInfo } from "../utils/identification";
-import { logFrontendError, setPostHogUser } from "../utils/logger";
+import { logFrontendError } from "../utils/logger";
 import { projectConfiguration } from "../utils/projectId";
 import { accountRoutes, Router } from "../utils/routes";
 import { signout } from "../utils/signout";
+import { setTrackingUser } from "../utils/tracing";
 import { AccountDetailsArea } from "./AccountDetailsArea";
 import { AccountNavigation, Menu } from "./AccountNavigation";
 import { AccountActivationTag, AccountPicker, AccountPickerButton } from "./AccountPicker";
@@ -210,7 +211,7 @@ export const AccountArea = ({
   }, [setAccountMembershipState, accountMembershipId, userId]);
 
   useEffect(() => {
-    setPostHogUser({
+    setTrackingUser({
       id: user.id,
       firstName: nullishOrEmptyToUndefined(user.firstName),
       lastName: nullishOrEmptyToUndefined(user.preferredLastName),

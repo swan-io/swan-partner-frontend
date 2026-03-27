@@ -26,3 +26,10 @@ export const tgglClient = new TgglClient({
       .getOr(undefined),
   },
 });
+
+export const updateTgglContext = (context: Pick<TgglContext, "userId">) => {
+  tgglClient.setContext({
+    environment: tgglClient.getContext().environment,
+    userId: context.userId,
+  });
+};

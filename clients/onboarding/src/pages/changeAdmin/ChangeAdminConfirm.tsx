@@ -74,6 +74,7 @@ export const isAdminFilled = (
 type Props = {
   requester: RequesterFilled;
   admin: AdminFilled;
+  isRequesterNewAdmin: boolean;
   changeAdminRequestId: string;
   previousStep: ChangeAdminRoute;
   onSubmitted: () => void;
@@ -82,6 +83,7 @@ type Props = {
 export const ChangeAdminConfirm = ({
   requester,
   admin,
+  isRequesterNewAdmin,
   changeAdminRequestId,
   previousStep,
   onSubmitted,
@@ -114,16 +116,20 @@ export const ChangeAdminConfirm = ({
             <LakeText>{t("changeAdmin.step.confirm.description")}</LakeText>
             <Space height={small ? 24 : 32} />
 
-            <UserInfoTile
-              small={small}
-              title={t("changeAdmin.step.confirm.yourInfo")}
-              firstName={requester.firstName}
-              lastName={requester.lastName}
-              email={requester.email}
-              phoneNumber={requester.phoneNumber}
-            />
+            {!isRequesterNewAdmin && (
+              <>
+                <UserInfoTile
+                  small={small}
+                  title={t("changeAdmin.step.confirm.yourInfo")}
+                  firstName={requester.firstName}
+                  lastName={requester.lastName}
+                  email={requester.email}
+                  phoneNumber={requester.phoneNumber}
+                />
 
-            <Space height={small ? 24 : 32} />
+                <Space height={small ? 24 : 32} />
+              </>
+            )}
 
             <UserInfoTile
               small={small}

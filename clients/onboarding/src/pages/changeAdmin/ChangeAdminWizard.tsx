@@ -242,7 +242,7 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
                       ))
                       .with("ChangeAdminRequester", () => (
                         <ChangeAdminRequester
-                          isNewAdmin={data.isRequesterNewAdmin ?? false}
+                          isRequesterNewAdmin={data.isRequesterNewAdmin ?? false}
                           admin={data.admin}
                           initialValues={data.requester}
                           changeAdminRequestId={changeAdminRequestId}
@@ -275,6 +275,7 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
                           <ChangeAdminConfirm
                             requester={data.requester}
                             admin={data.admin}
+                            isRequesterNewAdmin={data.isRequesterNewAdmin ?? false}
                             changeAdminRequestId={changeAdminRequestId}
                             previousStep="ChangeAdminDocuments"
                             onSubmitted={reload}

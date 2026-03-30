@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  isNewAdmin: boolean;
+  isRequesterNewAdmin: boolean;
   admin: AccountAdminChangeInfoFragment["admin"];
   initialValues: AccountAdminChangeInfoFragment["requester"];
   changeAdminRequestId: string;
@@ -49,7 +49,7 @@ type Props = {
 };
 
 export const ChangeAdminRequester = ({
-  isNewAdmin,
+  isRequesterNewAdmin,
   admin,
   initialValues,
   changeAdminRequestId,
@@ -121,7 +121,7 @@ export const ChangeAdminRequester = ({
                   email: values.email,
                   phoneNumber: values.phoneNumber,
                 },
-                ...(isNewAdmin
+                ...(isRequesterNewAdmin
                   ? {
                       admin: {
                         firstName: values.firstName,

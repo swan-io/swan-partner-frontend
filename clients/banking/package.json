@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@formatjs/intl": "4.1.2",
+    "@grafana/faro-web-sdk": "2.2.4",
+    "@grafana/faro-web-tracing": "2.2.4",
     "@juggle/resize-observer": "3.4.0",
     "@swan-io/boxed": "3.2.1",
     "@swan-io/chicane": "3.0.0",

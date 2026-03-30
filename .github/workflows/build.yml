@@ -45,6 +45,22 @@ jobs:
           NODE_OPTIONS: "--max_old_space_size=4096"
         run: pnpm build
 
+      # Overwrite package.json version with the commit SHA
+      # This allows to identify the exact code deployed in master
+      - name: Overwrite package.json version
+        if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) }}
+        run: jq --arg v ${GITHUB_SHA:0:7} '.version = $v' server/package.json > package.json.tmp && mv package.json.tmp server/package.json
+
+      - name: Inject & upload source maps to Grafana Faro
+        if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) }}
+        run: |
+          scripts/sourcemaps/uploadSourcemaps.sh banking ${GITHUB_SHA:0:7} ${{ secrets.FARO_APP_ID_BANKING }}
+          scripts/sourcemaps/uploadSourcemaps.sh onboarding ${GITHUB_SHA:0:7} ${{ secrets.FARO_APP_ID_ONBOARDING }}
+        env:
+          FARO_SOURCEMAP_ENDPOINT: https://faro-api-prod-eu-west-6.grafana.net/faro/api/v1
+          FARO_API_KEY: ${{ secrets.FARO_API_KEY }}
+          FARO_STACK_ID: ${{ secrets.FARO_STACK_ID }}
+
       - name: Push onboarding translation keys
         if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) }}
         run: pnpm localazy upload onboarding -r ${{ secrets.LOCALAZY_ONBOARDING_READ_KEY }} -w ${{ secrets.LOCALAZY_ONBOARDING_WRITE_KEY }}

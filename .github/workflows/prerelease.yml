@@ -49,6 +49,16 @@ jobs:
           NODE_OPTIONS: "--max_old_space_size=4096"
         run: pnpm build
 
+      - name: Inject & upload source maps to Grafana Faro
+        run: |
+          PACKAGE_VERSION=$(jq -r .version server/package.json)
+          scripts/sourcemaps/uploadSourcemaps.sh banking $PACKAGE_VERSION ${{ secrets.FARO_APP_ID_BANKING }}
+          scripts/sourcemaps/uploadSourcemaps.sh onboarding $PACKAGE_VERSION ${{ secrets.FARO_APP_ID_ONBOARDING }}
+        env:
+          FARO_SOURCEMAP_ENDPOINT: https://faro-api-prod-eu-west-6.grafana.net/faro/api/v1
+          FARO_API_KEY: ${{ secrets.FARO_API_KEY }}
+          FARO_STACK_ID: ${{ secrets.FARO_STACK_ID }}
+
       - name: Configure AWS Credentials
         if: ${{ github.repository == 'swan-io/swan-partner-frontend' }}
         uses: aws-actions/configure-aws-credentials@v4

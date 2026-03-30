@@ -42,7 +42,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
   },
   sticky: {
-    // @ts-expect-error position "sticky" is valid on React Native Web but not in RN types
     position: "sticky",
     top: 0,
     backgroundColor: backgroundColor.default90Transparency,

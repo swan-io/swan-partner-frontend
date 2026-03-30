@@ -1,6 +1,7 @@
 import "@swan-io/lake/src/assets/fonts/Inter.css";
 import "@swan-io/lake/src/assets/main.css";
 import "./main.css";
+import "./utils/tracing";
 
 import { ResizeObserver } from "@juggle/resize-observer";
 import "core-js/proposals/array-flat-map";

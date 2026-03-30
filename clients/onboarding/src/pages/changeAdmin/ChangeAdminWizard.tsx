@@ -22,7 +22,7 @@ import { match, P } from "ts-pattern";
 import { ErrorView } from "../../components/ErrorView";
 import { OnboardingHeader } from "../../components/OnboardingHeader";
 import { Redirect } from "../../components/Redirect";
-import { AccountAdminChangeDocument, AccountAdminChangeStatus } from "../../graphql/partner";
+import { AccountAdminChangeDocument } from "../../graphql/partner";
 import { locale, t } from "../../utils/i18n";
 import { ChangeAdminRoute, changeAdminRoutes, Router } from "../../utils/routes";
 import { NotFoundPage } from "../NotFoundPage";
@@ -297,11 +297,14 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
                   </Box>
                 </WithPartnerAccentColor>
               ))
-              .with({ __typename: "NonOngoingAccountAdminChange" }, ({ status }) => (
-                <ChangeAdminStatusScreen
-                  status={status as Exclude<AccountAdminChangeStatus, "Ongoing">}
-                />
-              ))
+              .with({ __typename: "NonOngoingAccountAdminChange" }, ({ status }) => {
+                // "Ongoing" status should never appear with NonOngoingAccountAdminChange __typename
+                // If it does, it's a backend data inconsistency — throw so the ErrorBoundary catches it
+                if (status === "Ongoing") {
+                  throw new Error(`Unexpected status "Ongoing" for NonOngoingAccountAdminChange`);
+                }
+                return <ChangeAdminStatusScreen status={status} />;
+              })
               .with(P.nullish, () => <NotFoundPage />)
               .exhaustive(),
         }),

@@ -42,43 +42,43 @@ export const ChangeAdminStatusScreen = ({ status }: Props) => {
       description2?: string;
     }>()
     .with("Pending", () => ({
-      icon: "clock-regular" as IconName,
-      color: "mediumSladeBlue" as ColorVariants,
+      icon: "clock-regular",
+      color: "mediumSladeBlue",
       title: t("changeAdmin.status.pending.title"),
       description: t("changeAdmin.status.pending.description"),
       description2: t("changeAdmin.status.closePage"),
     }))
     .with("WaitingForInformation", () => ({
-      icon: "warning-regular" as IconName,
-      color: "warning" as ColorVariants,
+      icon: "warning-regular",
+      color: "warning",
       title: t("changeAdmin.status.waitingForInformation.title"),
       description: t("changeAdmin.status.waitingForInformation.description"),
       description2: t("changeAdmin.status.closePage"),
     }))
     .with("InvitationSent", () => ({
-      icon: "mail-regular" as IconName,
-      color: "mediumSladeBlue" as ColorVariants,
+      icon: "mail-regular",
+      color: "mediumSladeBlue",
       title: t("changeAdmin.status.invitationSent.title"),
       description: t("changeAdmin.status.invitationSent.description"),
       description2: t("changeAdmin.status.closePage"),
     }))
     .with("Verified", () => ({
-      icon: "lake-check" as IconName,
-      color: "positive" as ColorVariants,
+      icon: "lake-check",
+      color: "positive",
       title: t("changeAdmin.status.verified.title"),
       description: t("changeAdmin.status.verified.description"),
       description2: t("changeAdmin.status.closePage"),
     }))
     .with("Refused", () => ({
-      icon: "dismiss-circle-regular" as IconName,
-      color: "negative" as ColorVariants,
+      icon: "dismiss-circle-regular",
+      color: "negative",
       title: t("changeAdmin.status.refused.title"),
       description: t("changeAdmin.status.refused.description"),
       description2: t("changeAdmin.status.closePage"),
     }))
     .with("Expired", () => ({
-      icon: "warning-regular" as IconName,
-      color: "warning" as ColorVariants,
+      icon: "warning-regular",
+      color: "warning",
       title: t("changeAdmin.status.expired.title"),
       description: t("changeAdmin.status.expired.description"),
       description2: t("changeAdmin.status.closePage"),

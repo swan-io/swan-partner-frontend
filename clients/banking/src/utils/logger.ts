@@ -1,4 +1,4 @@
-import posthog, { SeverityLevel } from "posthog-js";
+import posthog from "posthog-js";
 import { env } from "./env";
 
 type User = {
@@ -43,16 +43,28 @@ export const initPostHog = () => {
 
         return event;
       },
+
+      advanced_enable_surveys: false,
+      enable_recording_console_log: false,
+      disable_conversations: true,
+      disable_external_dependency_loading: true,
+      disable_persistence: true,
+      disable_product_tours: true,
+      disable_scroll_properties: true,
+      disable_session_recording: true,
+      disable_surveys: true,
+      disable_surveys_automatic_display: true,
+      disable_web_experiments: true,
+
+      autocapture: false,
+      capture_heatmaps: false,
+      capture_dead_clicks: false,
+      capture_exceptions: false,
+      capture_performance: false,
+      capture_pageview: true,
+      capture_pageleave: true,
     });
+
+    posthog.register({ application: "banking" });
   }
-};
-
-type Context = Partial<{
-  level: SeverityLevel;
-  tags: Record<string, string>;
-  extra: Record<string, unknown>;
-}>;
-
-export const logFrontendError = (exception: Error, { extra, level, tags }: Context = {}) => {
-  posthog.captureException(exception, { extra, level, tags });
 };

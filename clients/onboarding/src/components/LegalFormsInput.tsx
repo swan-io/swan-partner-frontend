@@ -1,22 +1,14 @@
 import { AsyncData, Result } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
-import { LakeCombobox } from "@swan-io/lake/src/components/LakeCombobox";
-import { texts } from "@swan-io/lake/src/constants/design";
+import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { noop } from "@swan-io/lake/src/utils/function";
+import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
-import { Ref, RefObject, useEffect, useMemo } from "react";
-import { StyleSheet, Text, TextInput } from "react-native";
+import { Ref, useEffect, useMemo } from "react";
+import { TextInput } from "react-native";
 import { P, match } from "ts-pattern";
 import { GetLegalFormsDocument, LegalForm } from "../graphql/partner";
 import { t } from "../utils/i18n";
-
-const styles = StyleSheet.create({
-  itemTitle: {
-    ...texts.regular,
-    lineHeight: texts.h1.lineHeight,
-    userSelect: "none",
-  },
-});
 
 type Props = {
   ref?: Ref<TextInput>;
@@ -40,7 +32,6 @@ export const LegalFormsInput = ({
   disabled,
   error,
   onValueChange,
-  onSuggestion,
   onLoadError,
 }: Props) => {
   const [queryData] = useQuery(GetLegalFormsDocument, { country });
@@ -53,46 +44,34 @@ export const LegalFormsInput = ({
       .otherwise(noop);
   }, [queryData, onLoadError]);
 
-  const filteredData = useMemo(() => {
-    return queryData.mapOk(data => {
-      const legalForms = data.legalForms;
-      const searchValue = (value ?? "").toLowerCase().trim();
-
-      if (searchValue.length === 0) {
-        return legalForms;
-      }
-
-      return legalForms.filter(
-        form =>
-          form.code.toLowerCase().includes(searchValue) ||
-          form.localName.toLowerCase().includes(searchValue),
-      );
-    });
-  }, [queryData, value]);
-
-  const selectLegalForm = (suggestion: LegalForm) => {
-    onSuggestion?.(suggestion);
-  };
+  const data = useMemo(
+    () =>
+      queryData
+        .mapOk(data => data.legalForms)
+        .toOption()
+        .flatMap(result => result.toOption())
+        .getOr([])
+        .map(form => ({
+          name: isNotNullishOrEmpty(form.localAbbreviation)
+            ? `${form.localName} - ${form.localAbbreviation}`
+            : form.localName,
+          value: form.code,
+          searchTerms: [form.code],
+        })),
+    [queryData],
+  );
 
   return (
-    <LakeCombobox
+    <LakeSelect
       id={id}
-      inputRef={ref as RefObject<unknown>}
+      ref={ref}
       placeholder={placeholder ?? t("companyInput.placeholder")}
-      value={value ?? ""}
-      items={filteredData}
-      keyExtractor={item => item.code}
-      icon="search-filled"
-      emptyResult={t("common.noResult")}
-      disabled={disabled}
-      error={error}
+      value={value}
       onValueChange={onValueChange}
-      onSelectItem={selectLegalForm}
-      renderItem={item => (
-        <Text numberOfLines={1} style={styles.itemTitle}>
-          {item.code} - {item.localName}
-        </Text>
-      )}
+      items={data}
+      hasSearch={true}
+      error={error}
+      disabled={disabled}
     />
   );
 };

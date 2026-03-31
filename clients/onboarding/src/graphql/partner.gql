@@ -261,6 +261,7 @@ query GetLegalForms($country: CCA3!) {
   legalForms(country: $country) {
     country
     localName
+    localAbbreviation
     code
   }
 }

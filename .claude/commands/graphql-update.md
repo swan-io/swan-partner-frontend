@@ -34,10 +34,15 @@ Once codegen passes, scan all `.gql` files in:
 - `server/src/graphql/`
 - `tests/graphql/`
 
-For each field used in these files, cross-reference against the schema files in `scripts/graphql/dist/` to find any fields marked as `@deprecated`.
+For each field used in these files, cross-reference against the schema files in `scripts/graphql/dist/` to find any deprecated fields.
+
+Deprecations appear in **three forms** in these schemas:
+- Bare annotation: `fieldName: Type @deprecated`
+- Annotation with reason: `fieldName: Type @deprecated(reason: "Use X instead")`
+- Docstring comment (no `@`): `"""deprecated: description"""` on the line above the field definition
 
 For each deprecated field found:
-- Check the deprecation reason in the schema — it usually indicates the recommended replacement
+- Check the deprecation reason (in either form) — it usually indicates the recommended replacement
 - Replace the deprecated field with its suggested alternative
 - If no replacement is indicated and the field is still present in the schema, flag it for manual review rather than removing it blindly
 

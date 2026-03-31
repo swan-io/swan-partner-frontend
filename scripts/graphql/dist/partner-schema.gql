@@ -23628,7 +23628,7 @@ input RequestMerchantPaymentMethodsInput {
   """Input for Card payment method"""
   card: CardPaymentMethodInput @deprecated(reason: "use onlineCard instead")
 
-  """Input for Online Card payment method"""
+  """Input for Card payment method"""
   onlineCard: OnlineCardPaymentMethodInput
 
   """Input for In Person Card payment method"""

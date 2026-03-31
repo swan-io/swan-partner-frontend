@@ -37,10 +37,11 @@ type User = {
 };
 
 export const setTrackingUser = (user: User) => {
-  faro?.api.setUser({
-    id: user.id,
-  });
-
+  faro?.api.setUser({ id: user.id });
   setPostHogUser(user);
   updateTgglContext({ userId: user.id });
+};
+
+export const logFrontendError = (exception: Error) => {
+  faro?.api.pushError(exception);
 };

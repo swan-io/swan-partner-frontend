@@ -930,6 +930,7 @@ fragment CardListItem on Card {
   }
   cardDesignUrl
   cardProduct {
+    id
     fundingType
   }
   insuranceSubscription {

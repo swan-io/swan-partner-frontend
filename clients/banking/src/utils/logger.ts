@@ -1,5 +1,4 @@
 import posthog from "posthog-js";
-import { match, P } from "ts-pattern";
 import { env } from "./env";
 
 type User = {
@@ -34,11 +33,6 @@ export const initPostHog = () => {
         ? "phc_6u4uUv6Mp2a9mw7gOMEH8CiS4UEDlUHGuWlkz2OAYQe"
         : "phc_y7DlMezh1CgfrVIvkO2fkZMbJcbMziXCZvrPPWR2X8";
 
-    const environment = match(env.BANKING_URL)
-      .with(P.string.includes("master"), () => "master")
-      .with(P.string.includes("preprod"), () => "preprod")
-      .otherwise(() => "prod");
-
     posthog.init(token, {
       api_host: "https://eu.i.posthog.com",
       defaults: "2025-05-24",
@@ -71,6 +65,6 @@ export const initPostHog = () => {
       capture_pageleave: true,
     });
 
-    posthog.register({ application: "banking", environment });
+    posthog.register({ application: "banking" });
   }
 };

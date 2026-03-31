@@ -3,6 +3,8 @@ import { TracingInstrumentation } from "@grafana/faro-web-tracing";
 import { match, P } from "ts-pattern";
 import { env } from "./env";
 
+let faro: Faro | null = null;
+
 const environment = match(env.BANKING_URL)
   .with(P.string.includes("local"), () => null)
   .with(P.string.includes("master"), () => "master")
@@ -13,7 +15,7 @@ const FARO_URL =
   "https://faro-collector-prod-eu-west-6.grafana.net/collect/84a9c35701413e068ef36259fdcb57bd";
 
 if (environment != null) {
-  initializeFaro({
+  faro = initializeFaro({
     url: FARO_URL,
     app: {
       name: "onboarding",
@@ -24,3 +26,7 @@ if (environment != null) {
     instrumentations: [...getWebInstrumentations(), new TracingInstrumentation()],
   });
 }
+
+export const logFrontendError = (exception: Error) => {
+  faro?.api.pushError(exception);
+};

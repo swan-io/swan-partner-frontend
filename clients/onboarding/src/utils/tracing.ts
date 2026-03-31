@@ -1,4 +1,4 @@
-import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
+import { Faro, getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import { TracingInstrumentation } from "@grafana/faro-web-tracing";
 import { match, P } from "ts-pattern";
 import { env } from "./env";

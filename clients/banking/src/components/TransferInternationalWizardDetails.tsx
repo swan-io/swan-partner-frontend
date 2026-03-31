@@ -38,6 +38,7 @@ export type Details = {
 };
 
 type Props = {
+  accountId: string;
   initialDetails?: Details;
   amount: Amount;
   beneficiary: InternationalBeneficiary;
@@ -47,6 +48,7 @@ type Props = {
 };
 
 export const TransferInternationalWizardDetails = ({
+  accountId,
   initialDetails,
   amount,
   beneficiary,
@@ -59,6 +61,7 @@ export const TransferInternationalWizardDetails = ({
   const [data, { isLoading, setVariables }] = useQuery(
     GetInternationalCreditTransferTransactionDetailsDynamicFormDocument,
     {
+      accountId,
       name: beneficiary.name,
       route: beneficiary.route,
       amountValue: amount.value,

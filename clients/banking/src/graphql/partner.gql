@@ -2293,12 +2293,14 @@ query GetInternationalCreditTransferQuote(
 }
 
 query GetInternationalBeneficiaryDynamicForms(
+  $accountId: ID!
   $amountValue: AmountValue!
   $currency: Currency!
   $language: InternationalCreditTransferDisplayLanguage!
   $dynamicFields: [InternationalBeneficiaryDetailsInput!]
 ) {
   internationalBeneficiaryDynamicForms(
+    accountId: $accountId
     amount: { value: $amountValue, currency: $currency }
     language: $language
     dynamicFields: $dynamicFields
@@ -2347,6 +2349,7 @@ query GetInternationalBeneficiaryDynamicForms(
 }
 
 query GetInternationalCreditTransferTransactionDetailsDynamicForm(
+  $accountId: ID!
   $name: String!
   $route: InternationalCreditTransferRouteInput!
   $amountValue: AmountValue!
@@ -2356,6 +2359,7 @@ query GetInternationalCreditTransferTransactionDetailsDynamicForm(
   $dynamicFields: [InternationalCreditTransferDetailsInput!]
 ) {
   internationalCreditTransferTransactionDetailsDynamicForm(
+    accountId: $accountId
     internationalBeneficiary: {
       details: $beneficiaryDetails
       name: $name

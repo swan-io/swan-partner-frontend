@@ -79,6 +79,7 @@ const BeneficiaryStep = ({
       {match(activeTab)
         .with("new", () => (
           <BeneficiaryInternationalWizardForm
+            accountId={accountId}
             mode="continue"
             amount={amount}
             errors={errors}
@@ -290,6 +291,7 @@ export const TransferInternationalWizard = ({
               <Space height={24} />
 
               <TransferInternationalWizardDetails
+                accountId={accountId}
                 initialDetails={details}
                 amount={amount}
                 beneficiary={beneficiary}

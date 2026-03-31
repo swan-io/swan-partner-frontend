@@ -57,6 +57,7 @@ export type InternationalBeneficiary = (
 };
 
 type Props = {
+  accountId: string;
   mode: "add" | "continue";
   amount?: Amount;
   submitting?: boolean;
@@ -69,6 +70,7 @@ type Props = {
 };
 
 export const BeneficiaryInternationalWizardForm = ({
+  accountId,
   mode,
   amount = DEFAULT_AMOUNT,
   errors,
@@ -92,6 +94,7 @@ export const BeneficiaryInternationalWizardForm = ({
   const [data, { isLoading, setVariables }] = useQuery(
     GetInternationalBeneficiaryDynamicFormsDocument,
     {
+      accountId,
       dynamicFields: initialBeneficiary?.values,
       amountValue: amount.value,
       currency: amount.currency,

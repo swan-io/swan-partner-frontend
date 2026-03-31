@@ -77,6 +77,7 @@ export const BeneficiaryInternationalWizard = ({
       <Space height={32} />
 
       <BeneficiaryInternationalWizardForm
+        accountId={accountId}
         mode="add"
         submitting={internationalBeneficiaryAddition.isLoading()}
         saveCheckboxVisible={false}

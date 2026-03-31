@@ -34,6 +34,7 @@ import {
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import {
   validateNullableRequired,
   validateRequired,
@@ -114,6 +115,13 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
   const [manualMode, setManualMode] = useState<boolean>(initialCountry !== "FRA");
   const related = company?.relatedIndividuals ?? [];
   const [representatives, setRepresentatives] = useState(related.length > 0 ? related : undefined);
+
+  const resetToManualMode = useCallback(() => {
+    setManualMode(true);
+    setRepresentatives(undefined);
+    hasOnboardingPrefilled.delete();
+    setPublicData(undefined);
+  }, []);
 
   const { Field, FieldsListener, setFieldValue, setFieldError, submitForm } = useForm({
     name: {
@@ -349,17 +357,16 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
                                   error={error}
                                   onValueChange={onChange}
                                   onSuggestion={onSelectCompany}
-                                  onLoadError={noop}
+                                  onLoadError={_error => {
+                                    // @todo track paper error in grafana
+                                    // If papers not working, switching to manual mode
+                                    resetToManualMode();
+                                  }}
                                   emptyResult={
                                     <LakeText style={styles.emptyResult}>
                                       {t("company.step.organisation.notListed")}{" "}
                                       <Pressable
-                                        onPress={() => {
-                                          setManualMode(true);
-                                          setRepresentatives(undefined);
-                                          hasOnboardingPrefilled.delete();
-                                          setPublicData(undefined);
-                                        }}
+                                        onPress={resetToManualMode}
                                         style={({ hovered }) => hovered && styles.linkHover}
                                       >
                                         <LakeText style={styles.link}>
@@ -399,7 +406,13 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
                                   onSuggestion={onSelectLegalFormCode}
                                   error={error}
                                   onValueChange={onChange}
-                                  onLoadError={noop}
+                                  onLoadError={error =>
+                                    showToast({
+                                      variant: "error",
+                                      error,
+                                      title: translateError(error),
+                                    })
+                                  }
                                 />
                               )}
                             />

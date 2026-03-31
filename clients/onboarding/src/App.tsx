@@ -33,10 +33,11 @@ import { OnboardingIndividualWizard as OnboardingIndividualWizardV2 } from "./pa
 import { env } from "./utils/env";
 import { client, partnerClient } from "./utils/gql";
 import { locale } from "./utils/i18n";
-import { logFrontendError, registerOnboardingInfo } from "./utils/logger";
+import { registerOnboardingInfo } from "./utils/logger";
 import { TrackingProvider, useSessionTracking } from "./utils/matomo";
 import { Router } from "./utils/routes";
 import { tgglClient } from "./utils/tggl";
+import { logFrontendError } from "./utils/tracing";
 
 type Props = {
   onboardingId: string;

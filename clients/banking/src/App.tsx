@@ -20,10 +20,10 @@ import { AuthStatusDocument } from "./graphql/partner";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { ProjectLoginPage } from "./pages/ProjectLoginPage";
 import { partnerClient, unauthenticatedClient } from "./utils/gql";
-import { logFrontendError } from "./utils/logger";
 import { projectConfiguration } from "./utils/projectId";
 import { Router } from "./utils/routes";
 import { tgglClient } from "./utils/tggl";
+import { logFrontendError } from "./utils/tracing";
 
 const styles = StyleSheet.create({
   base: {

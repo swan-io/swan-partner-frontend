@@ -29,7 +29,11 @@ import {
   UltimateBeneficialOwnerQualificationType,
 } from "../../../../graphql/partner";
 import { t } from "../../../../utils/i18n";
-import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../../../utils/validation";
+import {
+  getValidationErrorMessage,
+  ServerInvalidFieldCode,
+  validateUboPercentage,
+} from "../../../../utils/validation";
 
 const styles = StyleSheet.create({
   grid: {
@@ -193,7 +197,7 @@ export const OwnershipFormIndividualCapital = ({
       initialValue:
         initialValues.ultimateBeneficialOwner?.ownership?.totalPercentage?.toString() ?? "",
       sanitize: trim,
-      validate: validateRequired,
+      validate: combineValidators(validateRequired, validateUboPercentage),
     },
     type: {
       initialValue: initialValues.ultimateBeneficialOwner?.ownership?.type ?? "Direct",
@@ -288,7 +292,7 @@ export const OwnershipFormIndividualCapital = ({
                               error={error}
                               unit="%"
                               inputMode="decimal"
-                              aria-valuemin={0}
+                              aria-valuemin={25}
                               aria-valuemax={100}
                               id={id}
                               value={value}

@@ -223,8 +223,17 @@ export const OnboardingCompanyOwnership = ({
         }
       });
     }
-
     return { company, individual };
+  }, [statusInfo]);
+
+  const isTotalPercentageNotValid = useMemo(() => {
+    if (statusInfo.__typename === "OnboardingInvalidStatusInfo") {
+      return statusInfo.errors.some(
+        ({ field }) =>
+          field === "company.relatedIndividuals.ultimateBeneficialOwner.ownership.totalPercentage",
+      );
+    }
+    return false;
   }, [statusInfo]);
 
   const [modalState, setModalState] = useState<ModalState>({ type: "hidden" });
@@ -424,7 +433,17 @@ export const OnboardingCompanyOwnership = ({
                     </LakeText>
                     <View style={{ width: 100 }} />
                   </Box>
-                  <Space height={32} />
+                  <Space height={24} />
+
+                  {isTotalPercentageNotValid && (
+                    <>
+                      <LakeAlert
+                        variant="error"
+                        title={t("company.step.ownership.error.totalPercentage")}
+                      />
+                      <Space height={32} />
+                    </>
+                  )}
 
                   {(missingInfos.company.size > 0 || missingInfos.individual.size > 0) && (
                     <>

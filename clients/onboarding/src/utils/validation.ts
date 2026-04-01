@@ -103,6 +103,13 @@ export const getValidationErrorMessage = (
     .exhaustive();
 };
 
+export const validateUboPercentage: Validator<string> = value => {
+  const num = Number(value);
+  if (Number.isNaN(num) || num < 25 || num > 100) {
+    return t("error.invalidUboPercentage");
+  }
+};
+
 export const validateDate: Validator<string> = combineValidators<string>(
   validateRequired,
   value => {

@@ -205,7 +205,7 @@ export const OnboardingCompanyActivity = ({ onboarding, serverValidationErrors }
         {({ large, small }) => (
           <>
             <Tile style={styles.gap}>
-              <StepTitle isMobile={small}>{t("company.step.activity.title1")}</StepTitle>
+              <StepTitle>{t("company.step.activity.title1")}</StepTitle>
               <View style={[styles.grid, large && styles.gridDesktop]}>
                 <Field name="businessActivityDescription">
                   {({ value, valid, error, onChange, onBlur, ref }) => (
@@ -290,7 +290,7 @@ export const OnboardingCompanyActivity = ({ onboarding, serverValidationErrors }
             </Tile>
 
             <Tile style={styles.gap}>
-              <StepTitle isMobile={small}>{t("company.step.activity.title2")}</StepTitle>
+              <StepTitle>{t("company.step.activity.title2")}</StepTitle>
               <View style={[styles.grid, large && styles.gridDesktop]}>
                 <LakeLabel
                   label={t("company.step.activity.monthlyLabel")}

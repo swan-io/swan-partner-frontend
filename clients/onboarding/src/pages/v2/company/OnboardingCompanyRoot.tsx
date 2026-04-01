@@ -321,8 +321,10 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
       <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.gap}>
         {({ large, small }) => (
           <>
-            <LakeHeading level={1}>{t("company.step.organisation.title")}</LakeHeading>
-            <LakeText>{t("company.step.organisation.subtitle")}</LakeText>
+            <View>
+              <LakeHeading level={1}>{t("company.step.organisation.title")}</LakeHeading>
+              <LakeText>{t("company.step.organisation.subtitle")}</LakeText>
+            </View>
             <Tile style={styles.gap}>
               <View style={[styles.grid, large && styles.gridDesktop]}>
                 <Field name="country">

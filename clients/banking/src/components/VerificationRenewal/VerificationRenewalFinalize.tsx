@@ -100,7 +100,7 @@ export const VerificationRenewalFinalize = ({ verificationRenewalId, previousSte
         <ResponsiveContainer breakpoint={breakpoints.medium}>
           {({ small }) => (
             <>
-              <StepTitle isMobile={small}>{t("verificationRenewal.consent.title")}</StepTitle>
+              <StepTitle>{t("verificationRenewal.consent.title")}</StepTitle>
               <Space height={8} />
               <LakeText>{t("verificationRenewal.consent.subtitle")}</LakeText>
 

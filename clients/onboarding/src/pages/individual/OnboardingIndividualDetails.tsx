@@ -174,7 +174,7 @@ export const OnboardingIndividualDetails = ({
         <ResponsiveContainer breakpoint={breakpoints.medium}>
           {({ small }) => (
             <>
-              <StepTitle isMobile={small}>{t("individual.step.details.title")}</StepTitle>
+              <StepTitle>{t("individual.step.details.title")}</StepTitle>
               <Space height={small ? 24 : 32} />
 
               <Tile

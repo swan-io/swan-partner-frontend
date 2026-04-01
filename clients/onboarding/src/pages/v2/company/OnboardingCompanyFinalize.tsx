@@ -76,7 +76,7 @@ export const OnboardingCompanyFinalize = ({
                 <Box alignItems="center">
                   <BorderedIcon name="lake-phone" size={100} padding={16} color="partner" />
                   <Space height={24} />
-                  <StepTitle isMobile={small}>{t("form.finalize.title")}</StepTitle>
+                  <StepTitle>{t("form.finalize.title")}</StepTitle>
                   <LakeText>{t("form.finalize.content")}</LakeText>
                 </Box>
               </Tile>

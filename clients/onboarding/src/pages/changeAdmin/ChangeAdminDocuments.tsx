@@ -154,7 +154,7 @@ export const ChangeAdminDocuments = ({
       <ResponsiveContainer breakpoint={breakpoints.medium}>
         {({ small }) => (
           <>
-            <StepTitle isMobile={small}>{t("changeAdmin.step.documents.title")}</StepTitle>
+            <StepTitle>{t("changeAdmin.step.documents.title")}</StepTitle>
             <Space height={small ? 8 : 12} />
             <LakeText>{t("changeAdmin.step.documents.description")}</LakeText>
             <Space height={small ? 24 : 32} />

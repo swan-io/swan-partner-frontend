@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 992,
     margin: "auto",
-    paddingHorizontal: 8,
+    paddingHorizontal: 16,
     paddingTop: 8,
     flex: 1,
   },

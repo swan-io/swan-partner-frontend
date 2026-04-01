@@ -236,7 +236,7 @@ export const OnboardingCompanyDocuments = ({
         {({ small }) => (
           <>
             <DocumentsStepTile small={small}>
-              <StepTitle isMobile={small}>{t("company.step.documents.title")}</StepTitle>
+              <StepTitle>{t("company.step.documents.title")}</StepTitle>
               <Space height={4} />
               <LakeText>{t("company.step.documents.subtitle")}</LakeText>
               <Space height={small ? 24 : 32} />

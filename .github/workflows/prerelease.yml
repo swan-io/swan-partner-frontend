@@ -54,6 +54,7 @@ jobs:
           PACKAGE_VERSION=$(jq -r .version server/package.json)
           scripts/sourcemaps/uploadSourcemaps.sh banking $PACKAGE_VERSION ${{ secrets.FARO_APP_ID_BANKING }}
           scripts/sourcemaps/uploadSourcemaps.sh onboarding $PACKAGE_VERSION ${{ secrets.FARO_APP_ID_ONBOARDING }}
+          scripts/sourcemaps/uploadSourcemaps.sh payment $PACKAGE_VERSION ${{ secrets.FARO_APP_ID_PAYMENT }}
         env:
           FARO_SOURCEMAP_ENDPOINT: https://faro-api-prod-eu-west-6.grafana.net/faro/api/v1
           FARO_API_KEY: ${{ secrets.FARO_API_KEY }}

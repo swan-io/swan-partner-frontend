@@ -10,8 +10,8 @@ import { PaymentArea } from "./components/PaymentArea";
 import { Preview } from "./components/Preview";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { client } from "./utils/gql";
-import { logFrontendError } from "./utils/logger";
 import { Router } from "./utils/routes";
+import { logFrontendError } from "./utils/tracing";
 
 export const App = () => {
   const route = Router.useRoute(["PaymentArea", "Preview"]);

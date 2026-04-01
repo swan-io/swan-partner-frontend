@@ -141,7 +141,6 @@
   "company.step.legal.prefilled": "Nämä kentät täytettiin valmiiksi yrityksen valinnan perusteella. Jos haluat valita toisen yrityksen, aloita alusta.",
   "company.step.legal.registrationDateLabel": "Rekisteröintipäivä",
   "company.step.legal.registrationNumberLabel": "Rekisteröintinumero ({registrationNumberLegalName})",
-  "company.step.legal.taxLabel": "Rekisteröintipäivä",
   "company.step.legal.title": "Oikeudelliset tiedot",
   "company.step.legal.vatLabel": "ALV-numero",
   "company.step.organisation.addDetails": "Lisää organisaatiosi tiedot",

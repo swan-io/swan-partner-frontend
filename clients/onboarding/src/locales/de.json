@@ -141,7 +141,6 @@
   "company.step.legal.prefilled": "Diese Felder wurden anhand Ihrer Unternehmensauswahl vorausgefüllt. Um ein anderes Unternehmen auszuwählen, beginnen Sie von vorn.",
   "company.step.legal.registrationDateLabel": "Registrierungsdatum",
   "company.step.legal.registrationNumberLabel": "Registrierungsnummer ({registrationNumberLegalName})",
-  "company.step.legal.taxLabel": "Registrierungsdatum",
   "company.step.legal.title": "Rechtliche Informationen",
   "company.step.legal.vatLabel": "Umsatzsteuer-Identifikationsnummer",
   "company.step.organisation.addDetails": "Fügen Sie Ihre Unternehmensdaten hinzu",

@@ -141,7 +141,6 @@
   "company.step.legal.prefilled": "Estos campos se completaron automáticamente a partir de la empresa seleccionada. Para seleccionar una empresa diferente, empieza de nuevo.",
   "company.step.legal.registrationDateLabel": "Fecha de registro",
   "company.step.legal.registrationNumberLabel": "Número de registro ({registrationNumberLegalName})",
-  "company.step.legal.taxLabel": "Fecha de registro",
   "company.step.legal.title": "Información legal",
   "company.step.legal.vatLabel": "Número de IVA",
   "company.step.organisation.addDetails": "Añade los datos de tu organización",

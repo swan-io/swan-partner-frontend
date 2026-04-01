@@ -141,7 +141,6 @@
   "company.step.legal.prefilled": "Deze velden zijn vooraf ingevuld op basis van je bedrijfskeuze. Als je een ander bedrijf wilt selecteren, begin dan opnieuw.",
   "company.step.legal.registrationDateLabel": "Datum van oprichting",
   "company.step.legal.registrationNumberLabel": "Registratienummer ({registrationNumberLegalName})",
-  "company.step.legal.taxLabel": "Registratiedatum",
   "company.step.legal.title": "Juridische informatie",
   "company.step.legal.vatLabel": "BTW-nummer",
   "company.step.organisation.addDetails": "Voeg de gegevens van je organisatie toe",

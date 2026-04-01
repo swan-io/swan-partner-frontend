@@ -69,6 +69,7 @@ export const LegalFormsInput = ({
       value={value}
       onValueChange={onValueChange}
       items={data}
+      matchReferenceWidth={true}
       hasSearch={true}
       error={error}
       disabled={disabled}

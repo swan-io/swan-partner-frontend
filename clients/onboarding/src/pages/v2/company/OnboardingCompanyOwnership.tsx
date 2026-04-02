@@ -233,21 +233,23 @@ export const OnboardingCompanyOwnership = ({
         }
       });
     }
-    return { company, individual };
+    const isValid = company.size === 0 && individual.size === 0;
+    return { company, individual, isValid };
   }, [statusInfo]);
 
-  const isTotalPercentageNotValid = useMemo(() => {
+  const isTotalPercentageValid = useMemo(() => {
     if (statusInfo.__typename === "OnboardingInvalidStatusInfo") {
-      return statusInfo.errors.some(
+      return !statusInfo.errors.some(
         ({ field }) =>
           field === "company.relatedIndividuals.ultimateBeneficialOwner.ownership.totalPercentage",
       );
     }
-    return false;
+    return true;
   }, [statusInfo]);
 
   const [modalState, setModalState] = useState<ModalState>({ type: "hidden" });
   const [validationError, setValidationError] = useState<string | undefined>(undefined);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const ownershipFormRef = useRef<OnboardingCompanyOwnershipFormRef>(null);
 
   const actionText = useMemo(() => {
@@ -376,14 +378,11 @@ export const OnboardingCompanyOwnership = ({
   }, [serverValidationErrors, isFirstMount, checkValidationError]);
 
   const onPressNext = () => {
+    setIsSubmitted(true);
     const errorMessage = checkValidationError();
     setValidationError(errorMessage);
 
-    if (
-      isNullish(errorMessage) &&
-      missingInfos.company.size === 0 &&
-      missingInfos.individual.size === 0
-    ) {
+    if (isNullish(errorMessage) && isTotalPercentageValid && missingInfos.isValid) {
       Router.push(nextStep, { onboardingId });
     }
   };
@@ -449,7 +448,7 @@ export const OnboardingCompanyOwnership = ({
                     </>
                   )}
 
-                  {isTotalPercentageNotValid && (
+                  {isSubmitted && !isTotalPercentageValid && (
                     <>
                       <LakeAlert
                         variant="error"
@@ -459,7 +458,7 @@ export const OnboardingCompanyOwnership = ({
                     </>
                   )}
 
-                  {(missingInfos.company.size > 0 || missingInfos.individual.size > 0) && (
+                  {isSubmitted && !missingInfos.isValid && (
                     <>
                       <LakeAlert
                         variant="error"

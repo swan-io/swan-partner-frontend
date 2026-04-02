@@ -272,7 +272,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
   return (
     <>
       <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.gap}>
-        {({ large, small }) => (
+        {({ large }) => (
           <>
             <Tile style={styles.gap}>
               <StepTitle>{t("company.step.organisation.address.title")}</StepTitle>

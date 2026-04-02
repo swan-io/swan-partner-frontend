@@ -202,7 +202,7 @@ export const OnboardingCompanyActivity = ({ onboarding, serverValidationErrors }
   return (
     <>
       <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.gap}>
-        {({ large, small }) => (
+        {({ large }) => (
           <>
             <Tile style={styles.gap}>
               <StepTitle>{t("company.step.activity.title1")}</StepTitle>

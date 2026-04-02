@@ -98,7 +98,7 @@ export const VerificationRenewalFinalize = ({ verificationRenewalId, previousSte
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => (
       <VerificationRenewalStepContent>
         <ResponsiveContainer breakpoint={breakpoints.medium}>
-          {({ small }) => (
+          {() => (
             <>
               <StepTitle>{t("verificationRenewal.consent.title")}</StepTitle>
               <Space height={8} />

@@ -136,7 +136,7 @@ export const VerificationRenewalAdministratorInformation = ({
   return (
     <VerificationRenewalStepContent>
       <ResponsiveContainer breakpoint={breakpoints.medium}>
-        {({ small, large }) => (
+        {({ large }) => (
           <>
             <Box direction="row" justifyContent="spaceBetween">
               <Box grow={1} justifyContent="center">

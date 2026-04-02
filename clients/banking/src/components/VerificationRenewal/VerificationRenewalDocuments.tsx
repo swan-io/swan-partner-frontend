@@ -149,7 +149,7 @@ export const VerificationRenewalDocuments = ({
   return (
     <VerificationRenewalStepContent>
       <ResponsiveContainer breakpoint={breakpoints.medium}>
-        {({ small }) => (
+        {() => (
           <>
             <StepTitle>{t("verificationRenewal.documents.title")}</StepTitle>
             <Space height={4} />

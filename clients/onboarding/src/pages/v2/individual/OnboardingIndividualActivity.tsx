@@ -267,7 +267,7 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
   return (
     <>
       <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.gap}>
-        {({ large, small }) => (
+        {({ large }) => (
           <>
             <Tile style={styles.gap}>
               <StepTitle>{t("individual.step.activity.title1")}</StepTitle>

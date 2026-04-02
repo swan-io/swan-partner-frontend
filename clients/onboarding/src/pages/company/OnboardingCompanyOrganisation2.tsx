@@ -179,7 +179,7 @@ export const OnboardingCompanyOrganisation2 = ({
         <ResponsiveContainer breakpoint={breakpoints.medium}>
           {({ small }) => (
             <>
-              <StepTitle isMobile={small}>{t("company.step.organisation2.title")}</StepTitle>
+              <StepTitle>{t("company.step.organisation2.title")}</StepTitle>
               <Space height={small ? 24 : 32} />
 
               <Tile>

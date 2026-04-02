@@ -260,7 +260,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
         {({ large, small }) => (
           <>
             <Tile style={styles.gap}>
-              <StepTitle isMobile={small}>{t("form.personalInformation.title")}</StepTitle>
+              <StepTitle>{t("form.personalInformation.title")}</StepTitle>
               <View style={[styles.grid, large && styles.gridDesktop]}>
                 <LakeLabel
                   label={t("common.fistname")}
@@ -352,7 +352,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
             </Tile>
 
             <Tile style={styles.gap}>
-              <StepTitle isMobile={small}>{t("form.placeOfBirth.title")}</StepTitle>
+              <StepTitle>{t("form.placeOfBirth.title")}</StepTitle>
               <View style={[styles.grid, large && styles.gridDesktop]}>
                 <LakeLabel
                   label={t("form.label.birthCountry")}
@@ -423,7 +423,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
             </Tile>
 
             <Tile style={styles.gap}>
-              <StepTitle isMobile={small}>{t("form.residence.title")}</StepTitle>
+              <StepTitle>{t("form.residence.title")}</StepTitle>
               <View style={[styles.grid, large && styles.gridDesktop]}>
                 <Field name="residenceCountry">
                   {({ value, onChange }) => (

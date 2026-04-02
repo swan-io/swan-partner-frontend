@@ -1,7 +1,7 @@
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints, colors, radii, texts } from "@swan-io/lake/src/constants/design";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 import { v4 as uuid } from "uuid";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import { StepTitle } from "../../../components/StepTitle";
@@ -124,25 +124,41 @@ const styles = StyleSheet.create({
     ...texts.smallMedium,
     color: colors.gray[900],
   },
+  thName: {
+    flexGrow: 2,
+  },
+  thRole: {
+    paddingRight: 100,
+  },
   tagError: {
     marginLeft: "12px",
   },
   action: {
     flexBasis: 0,
   },
+  ownerName: {
+    paddingRight: 100,
+  },
   menu: {
     width: 100,
     flexDirection: "row",
+  },
+  menuDesktop: {
+    position: "absolute",
+    top: -8,
+    right: 0,
+    justifyContent: "flex-end",
   },
 });
 
 type ActionMenuProps = {
   onEdit: () => void;
   onDelete: () => void;
+  style?: StyleProp<ViewStyle>;
 };
 
-const ActionMenu = ({ onEdit, onDelete }: ActionMenuProps) => (
-  <View style={styles.menu}>
+const ActionMenu = ({ onEdit, onDelete, style }: ActionMenuProps) => (
+  <View style={[styles.menu, style]}>
     <Space width={8} />
     <LakeButton
       size="small"
@@ -223,21 +239,23 @@ export const OnboardingCompanyOwnership = ({
         }
       });
     }
-    return { company, individual };
+    const isValid = company.size === 0 && individual.size === 0;
+    return { company, individual, isValid };
   }, [statusInfo]);
 
-  const isTotalPercentageNotValid = useMemo(() => {
+  const isTotalPercentageValid = useMemo(() => {
     if (statusInfo.__typename === "OnboardingInvalidStatusInfo") {
-      return statusInfo.errors.some(
+      return !statusInfo.errors.some(
         ({ field }) =>
           field === "company.relatedIndividuals.ultimateBeneficialOwner.ownership.totalPercentage",
       );
     }
-    return false;
+    return true;
   }, [statusInfo]);
 
   const [modalState, setModalState] = useState<ModalState>({ type: "hidden" });
   const [validationError, setValidationError] = useState<string | undefined>(undefined);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const ownershipFormRef = useRef<OnboardingCompanyOwnershipFormRef>(null);
 
   const actionText = useMemo(() => {
@@ -366,14 +384,11 @@ export const OnboardingCompanyOwnership = ({
   }, [serverValidationErrors, isFirstMount, checkValidationError]);
 
   const onPressNext = () => {
+    setIsSubmitted(true);
     const errorMessage = checkValidationError();
     setValidationError(errorMessage);
 
-    if (
-      isNullish(errorMessage) &&
-      missingInfos.company.size === 0 &&
-      missingInfos.individual.size === 0
-    ) {
+    if (isNullish(errorMessage) && isTotalPercentageValid && missingInfos.isValid) {
       Router.push(nextStep, { onboardingId });
     }
   };
@@ -384,7 +399,7 @@ export const OnboardingCompanyOwnership = ({
         {({ small }) => (
           <>
             <Tile>
-              <StepTitle isMobile={small}>{t("company.step.ownership.title")}</StepTitle>
+              <StepTitle>{t("company.step.ownership.title")}</StepTitle>
               <Space height={12} />
               <LakeText>{t("company.step.ownership.description")}</LakeText>
               <Space height={24} />
@@ -424,18 +439,21 @@ export const OnboardingCompanyOwnership = ({
                 <>
                   <Space height={32} />
 
-                  <Box direction="row">
-                    <LakeText style={{ flexGrow: 2, ...styles.textTitle }}>
-                      {t("company.step.owners.thead.name")}
-                    </LakeText>
-                    <LakeText style={styles.textTitle}>
-                      {t("company.step.owners.thead.role")}
-                    </LakeText>
-                    <View style={{ width: 100 }} />
-                  </Box>
-                  <Space height={24} />
+                  {!small && (
+                    <>
+                      <Box direction="row">
+                        <LakeText style={[styles.textTitle, styles.thName]}>
+                          {t("company.step.owners.thead.name")}
+                        </LakeText>
+                        <LakeText style={[styles.textTitle, styles.thRole]}>
+                          {t("company.step.owners.thead.role")}
+                        </LakeText>
+                      </Box>
+                      <Space height={24} />
+                    </>
+                  )}
 
-                  {isTotalPercentageNotValid && (
+                  {isSubmitted && !isTotalPercentageValid && (
                     <>
                       <LakeAlert
                         variant="error"
@@ -445,7 +463,7 @@ export const OnboardingCompanyOwnership = ({
                     </>
                   )}
 
-                  {(missingInfos.company.size > 0 || missingInfos.individual.size > 0) && (
+                  {isSubmitted && !missingInfos.isValid && (
                     <>
                       <LakeAlert
                         variant="error"
@@ -464,9 +482,12 @@ export const OnboardingCompanyOwnership = ({
                         </>
                       )}
 
-                      <Box direction="row" alignItems="center">
+                      <Box
+                        direction={small ? "column" : "row"}
+                        alignItems={small ? "start" : "center"}
+                      >
                         <Box grow={2}>
-                          <LakeText style={styles.textTitle}>
+                          <LakeText style={[styles.textTitle, styles.ownerName]}>
                             {company.entityName}
                             {missingInfos.company.has(index) && (
                               <Tag color="negative" style={styles.tagError}>
@@ -497,6 +518,7 @@ export const OnboardingCompanyOwnership = ({
                               related: "company",
                             })
                           }
+                          style={small && styles.menuDesktop}
                         />
                       </Box>
                     </View>
@@ -511,9 +533,12 @@ export const OnboardingCompanyOwnership = ({
                         </>
                       )}
 
-                      <Box direction="row" alignItems="center">
+                      <Box
+                        direction={small ? "column" : "row"}
+                        alignItems={small ? "start" : "center"}
+                      >
                         <Box grow={2}>
-                          <LakeText style={styles.textTitle}>
+                          <LakeText style={[styles.textTitle, styles.ownerName]}>
                             {individual.firstName} {individual.lastName}
                             {accountAdmin &&
                               namesMatch(individual, accountAdmin) &&
@@ -552,7 +577,9 @@ export const OnboardingCompanyOwnership = ({
                           </LakeText>
                         </Box>
 
-                        <LakeText style={styles.textSubTitle}>
+                        {small && <Space height={16} />}
+
+                        <LakeText style={styles.textSubTitle} align={small ? "left" : "right"}>
                           {ownershipTypeText(individual.type)}
                         </LakeText>
                         <ActionMenu
@@ -574,6 +601,7 @@ export const OnboardingCompanyOwnership = ({
                               related: "individual",
                             })
                           }
+                          style={small && styles.menuDesktop}
                         />
                       </Box>
                     </View>

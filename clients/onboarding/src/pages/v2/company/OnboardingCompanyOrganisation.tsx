@@ -272,10 +272,10 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
   return (
     <>
       <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.gap}>
-        {({ large, small }) => (
+        {({ large }) => (
           <>
             <Tile style={styles.gap}>
-              <StepTitle isMobile={small}>{t("company.step.organisation.address.title")}</StepTitle>
+              <StepTitle>{t("company.step.organisation.address.title")}</StepTitle>
               <View style={[styles.grid, large && styles.gridDesktop]}>
                 <Field name="address">
                   {({ value, onChange, error }) => (
@@ -351,7 +351,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
             </Tile>
 
             <Tile style={styles.gap}>
-              <StepTitle isMobile={small}>{t("company.step.legal.title")}</StepTitle>
+              <StepTitle>{t("company.step.legal.title")}</StepTitle>
               <View style={[styles.grid, large && styles.gridDesktop]}>
                 <Field name="registrationNumber">
                   {({ value, valid, error, onChange, ref, onBlur }) => (

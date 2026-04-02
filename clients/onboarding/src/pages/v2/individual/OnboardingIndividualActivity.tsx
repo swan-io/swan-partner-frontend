@@ -267,10 +267,10 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
   return (
     <>
       <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.gap}>
-        {({ large, small }) => (
+        {({ large }) => (
           <>
             <Tile style={styles.gap}>
-              <StepTitle isMobile={small}>{t("individual.step.activity.title1")}</StepTitle>
+              <StepTitle>{t("individual.step.activity.title1")}</StepTitle>
               <View style={[styles.grid, large && styles.gridDesktop]}>
                 <LakeLabel
                   label={t("individual.step.activity.status")}
@@ -331,7 +331,7 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
             </Tile>
 
             <Tile style={styles.gap}>
-              <StepTitle isMobile={small}>{t("individual.step.activity.title2")}</StepTitle>
+              <StepTitle>{t("individual.step.activity.title2")}</StepTitle>
               <View style={[styles.grid, large && styles.gridDesktop]}>
                 {isTaxIdentificationRequired && (
                   <Field name="taxIdentificationNumber">

@@ -252,9 +252,7 @@ export const VerificationRenewalPersonalInfo = ({
           <>
             <Box direction="row" justifyContent="spaceBetween">
               <Box grow={1} justifyContent="center">
-                <StepTitle isMobile={small}>
-                  {t("verificationRenewal.personalInformation.title")}
-                </StepTitle>
+                <StepTitle>{t("verificationRenewal.personalInformation.title")}</StepTitle>
               </Box>
               <LakeButton
                 size={large ? "large" : "small"}

@@ -554,7 +554,7 @@ export const OnboardingCompanyOwnership = ({
           {({ small }) =>
             currentUbos.length === 0 ? (
               <Box>
-                <StepTitle isMobile={small}>{t("company.step.owners.title")}</StepTitle>
+                <StepTitle>{t("company.step.owners.title")}</StepTitle>
                 <Space height={12} />
                 <LakeText>{t("company.step.owners.description", { companyName })}</LakeText>
                 <Space height={24} />
@@ -573,7 +573,7 @@ export const OnboardingCompanyOwnership = ({
               </Box>
             ) : (
               <Box>
-                <StepTitle isMobile={small}>{t("company.step.owners.title")}</StepTitle>
+                <StepTitle>{t("company.step.owners.title")}</StepTitle>
                 <Space height={12} />
                 <LakeText>{t("company.step.owners.description", { companyName })}</LakeText>
                 <Space height={24} />

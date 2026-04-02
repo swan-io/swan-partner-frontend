@@ -254,7 +254,7 @@ export const OnboardingCompanyRegistration = ({
         <ResponsiveContainer breakpoint={breakpoints.medium}>
           {({ small }) => (
             <>
-              <StepTitle isMobile={small}>{t("company.step.registration.title")}</StepTitle>
+              <StepTitle>{t("company.step.registration.title")}</StepTitle>
               <Space height={small ? 8 : 12} />
               <LakeText>{t("company.step.registration.description")}</LakeText>
               <Space height={small ? 24 : 32} />
@@ -284,9 +284,7 @@ export const OnboardingCompanyRegistration = ({
 
               {isAddressRequired && (
                 <>
-                  <StepTitle isMobile={small}>
-                    {t("company.step.registration.locationTitle")}
-                  </StepTitle>
+                  <StepTitle>{t("company.step.registration.locationTitle")}</StepTitle>
 
                   <Space height={small ? 24 : 32} />
 

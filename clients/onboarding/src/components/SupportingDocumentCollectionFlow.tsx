@@ -229,12 +229,10 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
                           <>
                             {match(supportingDocumentCollection.type)
                               .with("Onboarding", () => (
-                                <StepTitle isMobile={small}>
-                                  {t("supportingDocumentCollection.title")}
-                                </StepTitle>
+                                <StepTitle>{t("supportingDocumentCollection.title")}</StepTitle>
                               ))
                               .with("Merchant", () => (
-                                <StepTitle isMobile={small}>
+                                <StepTitle>
                                   {t("supportingDocumentCollection.merchant.title")}
                                 </StepTitle>
                               ))

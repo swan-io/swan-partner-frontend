@@ -526,7 +526,7 @@ export const VerificationRenewalOwnership = ({
             <>
               {currentUbos.length === 0 ? (
                 <Box>
-                  <StepTitle isMobile={small}>{t("verificationRenewal.ownership.title")}</StepTitle>
+                  <StepTitle>{t("verificationRenewal.ownership.title")}</StepTitle>
                   <Space height={12} />
                   <LakeText>
                     {t("verificationRenewal.ownership.subtitle", {
@@ -543,7 +543,7 @@ export const VerificationRenewalOwnership = ({
                 </Box>
               ) : (
                 <Box>
-                  <StepTitle isMobile={small}>{t("verificationRenewal.ownership.title")}</StepTitle>
+                  <StepTitle>{t("verificationRenewal.ownership.title")}</StepTitle>
                   <Space height={12} />
                   <LakeText>
                     {t("verificationRenewal.ownership.subtitle", {

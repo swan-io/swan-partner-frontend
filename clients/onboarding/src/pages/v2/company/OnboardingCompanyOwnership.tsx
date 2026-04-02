@@ -124,6 +124,12 @@ const styles = StyleSheet.create({
     ...texts.smallMedium,
     color: colors.gray[900],
   },
+  thName: {
+    flexGrow: 2,
+  },
+  thRole: {
+    paddingRight: 100,
+  },
   tagError: {
     marginLeft: "12px",
   },
@@ -436,13 +442,12 @@ export const OnboardingCompanyOwnership = ({
                   {!small && (
                     <>
                       <Box direction="row">
-                        <LakeText style={{ flexGrow: 2, ...styles.textTitle }}>
+                        <LakeText style={[styles.textTitle, styles.thName]}>
                           {t("company.step.owners.thead.name")}
                         </LakeText>
-                        <LakeText style={styles.textTitle}>
+                        <LakeText style={[styles.textTitle, styles.thRole]}>
                           {t("company.step.owners.thead.role")}
                         </LakeText>
-                        <View style={{ width: 100 }} />
                       </Box>
                       <Space height={24} />
                     </>

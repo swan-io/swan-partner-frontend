@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
     maxWidth: 992,
     margin: "auto",
     paddingHorizontal: 24,
-    paddingTop: 8,
+    paddingTop: 32,
     flex: 1,
   },
   wrapperDesktop: {

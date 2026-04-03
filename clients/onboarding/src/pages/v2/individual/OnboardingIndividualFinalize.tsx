@@ -1,14 +1,14 @@
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { breakpoints } from "@swan-io/lake/src/constants/design";
+import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
-import { StepTitle } from "../../../components/StepTitle";
 import { IndividualOnboardingFragment } from "../../../graphql/partner";
 import { t } from "../../../utils/i18n";
 
 import { Option } from "@swan-io/boxed";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { match, P } from "ts-pattern";
@@ -74,8 +74,13 @@ export const OnboardingIndividualFinalize = ({
                 <Box alignItems="center">
                   <BorderedIcon name="lake-phone" size={100} padding={16} color="partner" />
                   <Space height={24} />
-                  <StepTitle>{t("form.finalize.title")}</StepTitle>
-                  <LakeText>{t("form.finalize.content")}</LakeText>
+                  <LakeHeading level={5} variant="h5" color={colors.gray[700]} align="center">
+                    {t("form.finalize.title")}
+                  </LakeHeading>
+                  <Space height={4} />
+                  <LakeText align="center" variant="smallRegular">
+                    {t("form.finalize.content")}
+                  </LakeText>
                 </Box>
               </Tile>
             )}

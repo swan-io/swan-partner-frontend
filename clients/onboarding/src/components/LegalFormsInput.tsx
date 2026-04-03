@@ -8,7 +8,7 @@ import { Ref, useEffect, useMemo } from "react";
 import { TextInput } from "react-native";
 import { P, match } from "ts-pattern";
 import { GetLegalFormsDocument, LegalForm } from "../graphql/partner";
-import { t } from "../utils/i18n";
+import { locale, t } from "../utils/i18n";
 
 type Props = {
   ref?: Ref<TextInput>;
@@ -34,7 +34,17 @@ export const LegalFormsInput = ({
   onValueChange,
   onLoadError,
 }: Props) => {
-  const [queryData] = useQuery(GetLegalFormsDocument, { country });
+  const [queryData] = useQuery(
+    GetLegalFormsDocument,
+    { country },
+    {
+      overrides: {
+        headers: {
+          "accept-language": locale.language,
+        },
+      },
+    },
+  );
 
   useEffect(() => {
     match(queryData)

@@ -1,5 +1,5 @@
 import { Box } from "@swan-io/lake/src/components/Box";
-import { LakeStepper, MobileStepTitle, Step } from "@swan-io/lake/src/components/LakeStepper";
+import { LakeStepper, MobileStepper, Step } from "@swan-io/lake/src/components/LakeStepper";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     maxWidth: 992,
     margin: "auto",
     paddingHorizontal: 16,
-    paddingTop: 8,
+    paddingTop: 32,
     flex: 1,
   },
   wrapperDesktop: {
@@ -229,7 +229,7 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
           <Box style={[styles.wrapper, large && styles.wrapperDesktop]}>
             {isStepperDisplayed ? (
               small ? (
-                <MobileStepTitle activeStepId={route.name} steps={stepperSteps} />
+                <MobileStepper activeStepId={route.name} steps={stepperSteps} />
               ) : (
                 <>
                   <Box alignItems="center">

@@ -1791,7 +1791,7 @@
   "verificationRenewal.documents.title": "Supporting documents",
   "verificationRenewal.editModal.title": "Edit information",
   "verificationRenewal.finalize.error.button": "Try again",
-  "verificationRenewal.finalize.error.subtitle": "We couldn't process your information. Please try again.\nIf the issue persists, our team may contact you for further details.",
+  "verificationRenewal.finalize.error.subtitle": "We couldn't finalize your request. Please try again.\nIf the issue continues, contact support.",
   "verificationRenewal.finalize.error.title": "Something went wrong",
   "verificationRenewal.finalize.subtitle": "We've received your updated details and will review them shortly. If we need any additional information, we'll contact you.\n\nYou can now close this page.",
   "verificationRenewal.finalize.title": "Thank you!",

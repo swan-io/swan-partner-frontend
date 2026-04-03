@@ -130,9 +130,6 @@ const styles = StyleSheet.create({
   thRole: {
     paddingRight: 100,
   },
-  tagError: {
-    marginLeft: "12px",
-  },
   action: {
     flexBasis: 0,
   },
@@ -490,9 +487,10 @@ export const OnboardingCompanyOwnership = ({
                           <LakeText style={[styles.textTitle, styles.ownerName]}>
                             {company.entityName}
                             {missingInfos.company.has(index) && (
-                              <Tag color="negative" style={styles.tagError}>
-                                {t("company.step.owners.missingInfo")}
-                              </Tag>
+                              <>
+                                <Space width={12} />
+                                <Tag color="negative">{t("company.step.owners.missingInfo")}</Tag>
+                              </>
                             )}
                           </LakeText>
                           <LakeText style={texts.smallRegular}>{company.roles.join(", ")}</LakeText>
@@ -544,9 +542,10 @@ export const OnboardingCompanyOwnership = ({
                               namesMatch(individual, accountAdmin) &&
                               ` (${t("company.step.ownership.you")})`}
                             {missingInfos.individual.has(index) && (
-                              <Tag color="negative" style={styles.tagError}>
-                                {t("company.step.owners.missingInfo")}
-                              </Tag>
+                              <>
+                                <Space width={12} />
+                                <Tag color="negative">{t("company.step.owners.missingInfo")}</Tag>
+                              </>
                             )}
                           </LakeText>
                           <LakeText style={texts.smallRegular}>

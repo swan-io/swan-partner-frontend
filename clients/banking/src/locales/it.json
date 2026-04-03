@@ -1791,7 +1791,7 @@
   "verificationRenewal.documents.title": "Documenti di supporto",
   "verificationRenewal.editModal.title": "Modifica le informazioni",
   "verificationRenewal.finalize.error.button": "Riprova",
-  "verificationRenewal.finalize.error.subtitle": "Non siamo riusciti a elaborare le sue informazioni. Si prega di riprovare.\nSe il problema persiste, il nostro team potrebbe contattarla per ulteriori dettagli.",
+  "verificationRenewal.finalize.error.subtitle": "Non siamo riusciti a completare la tua richiesta. Per favore riprova.\nSe il problema persiste, contatta l'assistenza.",
   "verificationRenewal.finalize.error.title": "Qualcosa è andato storto",
   "verificationRenewal.finalize.subtitle": "Abbiamo ricevuto i suoi dettagli aggiornati e li esamineremo a breve. Se abbiamo bisogno di ulteriori informazioni, la contatteremo.\n\nOra può chiudere questa pagina.",
   "verificationRenewal.finalize.title": "Grazie!",

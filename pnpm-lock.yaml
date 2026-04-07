@@ -19,7 +19,7 @@ importers:
         version: 1.9.4
       '@graphql-codegen/cli':
         specifier: 5.0.7
-        version: 5.0.7(@types/node@25.5.0)(graphql-sock@1.0.1(graphql@16.12.0))(graphql@16.12.0)(typescript@5.9.3)
+        version: 5.0.7(@types/node@25.5.0)(graphql-sock@1.0.1(graphql@16.12.0))(graphql@16.12.0)(typescript@6.0.2)
       '@graphql-codegen/typed-document-node':
         specifier: 5.1.2
         version: 5.1.2(graphql@16.12.0)
@@ -43,7 +43,7 @@ importers:
         version: 0.4.6
       '@swan-io/boxed':
         specifier: 3.2.1
-        version: 3.2.1(typescript@5.9.3)
+        version: 3.2.1(typescript@6.0.2)
       '@types/prompts':
         specifier: 2.4.9
         version: 2.4.9
@@ -91,7 +91,7 @@ importers:
         version: 3.8.1
       prettier-plugin-organize-imports:
         specifier: 4.3.0
-        version: 4.3.0(prettier@3.8.1)(typescript@5.9.3)
+        version: 4.3.0(prettier@3.8.1)(typescript@6.0.2)
       prompts:
         specifier: 2.4.2
         version: 2.4.2
@@ -117,8 +117,8 @@ importers:
         specifier: 5.4.4
         version: 5.4.4
       typescript:
-        specifier: 5.9.3
-        version: 5.9.3
+        specifier: 6.0.2
+        version: 6.0.2
       valienv:
         specifier: 1.1.0
         version: 1.1.0
@@ -133,7 +133,7 @@ importers:
     dependencies:
       '@formatjs/intl':
         specifier: 4.1.2
-        version: 4.1.2(typescript@5.9.3)
+        version: 4.1.2(typescript@6.0.2)
       '@grafana/faro-web-sdk':
         specifier: 2.2.4
         version: 2.2.4
@@ -145,25 +145,25 @@ importers:
         version: 3.4.0
       '@swan-io/boxed':
         specifier: 3.2.1
-        version: 3.2.1(typescript@5.9.3)
+        version: 3.2.1(typescript@6.0.2)
       '@swan-io/chicane':
         specifier: 3.0.0
         version: 3.0.0(react@19.2.4)
       '@swan-io/graphql-client':
         specifier: 0.8.0
-        version: 0.8.0(graphql@16.12.0)(react@19.2.4)(typescript@5.9.3)
+        version: 0.8.0(graphql@16.12.0)(react@19.2.4)(typescript@6.0.2)
       '@swan-io/lake':
         specifier: 13.7.6
-        version: 13.7.6(typescript@5.9.3)
+        version: 13.7.6(typescript@6.0.2)
       '@swan-io/request':
         specifier: 3.1.0
-        version: 3.1.0(@swan-io/boxed@3.2.1(typescript@5.9.3))
+        version: 3.1.0(@swan-io/boxed@3.2.1(typescript@6.0.2))
       '@swan-io/shared-business':
         specifier: 13.7.6
-        version: 13.7.6(@swan-io/lake@13.7.6(typescript@5.9.3))(typescript@5.9.3)
+        version: 13.7.6(@swan-io/lake@13.7.6(typescript@6.0.2))(typescript@6.0.2)
       '@swan-io/use-form':
         specifier: 3.1.0
-        version: 3.1.0(react@19.2.4)(typescript@5.9.3)
+        version: 3.1.0(react@19.2.4)(typescript@6.0.2)
       core-js:
         specifier: 3.48.0
         version: 3.48.0
@@ -221,7 +221,7 @@ importers:
     dependencies:
       '@formatjs/intl':
         specifier: 4.1.2
-        version: 4.1.2(typescript@5.9.3)
+        version: 4.1.2(typescript@6.0.2)
       '@grafana/faro-web-sdk':
         specifier: 2.2.4
         version: 2.2.4
@@ -233,25 +233,25 @@ importers:
         version: 3.4.0
       '@swan-io/boxed':
         specifier: 3.2.1
-        version: 3.2.1(typescript@5.9.3)
+        version: 3.2.1(typescript@6.0.2)
       '@swan-io/chicane':
         specifier: 3.0.0
         version: 3.0.0(react@19.2.4)
       '@swan-io/graphql-client':
         specifier: 0.8.0
-        version: 0.8.0(graphql@16.12.0)(react@19.2.4)(typescript@5.9.3)
+        version: 0.8.0(graphql@16.12.0)(react@19.2.4)(typescript@6.0.2)
       '@swan-io/lake':
         specifier: 13.7.6
-        version: 13.7.6(typescript@5.9.3)
+        version: 13.7.6(typescript@6.0.2)
       '@swan-io/request':
         specifier: 3.1.0
-        version: 3.1.0(@swan-io/boxed@3.2.1(typescript@5.9.3))
+        version: 3.1.0(@swan-io/boxed@3.2.1(typescript@6.0.2))
       '@swan-io/shared-business':
         specifier: 13.7.6
-        version: 13.7.6(@swan-io/lake@13.7.6(typescript@5.9.3))(typescript@5.9.3)
+        version: 13.7.6(@swan-io/lake@13.7.6(typescript@6.0.2))(typescript@6.0.2)
       '@swan-io/use-form':
         specifier: 3.1.0
-        version: 3.1.0(react@19.2.4)(typescript@5.9.3)
+        version: 3.1.0(react@19.2.4)(typescript@6.0.2)
       core-js:
         specifier: 3.48.0
         version: 3.48.0
@@ -300,28 +300,28 @@ importers:
     dependencies:
       '@formatjs/intl':
         specifier: 4.1.2
-        version: 4.1.2(typescript@5.9.3)
+        version: 4.1.2(typescript@6.0.2)
       '@juggle/resize-observer':
         specifier: 3.4.0
         version: 3.4.0
       '@swan-io/boxed':
         specifier: 3.2.1
-        version: 3.2.1(typescript@5.9.3)
+        version: 3.2.1(typescript@6.0.2)
       '@swan-io/chicane':
         specifier: 3.0.0
         version: 3.0.0(react@19.2.4)
       '@swan-io/graphql-client':
         specifier: 0.8.0
-        version: 0.8.0(graphql@16.12.0)(react@19.2.4)(typescript@5.9.3)
+        version: 0.8.0(graphql@16.12.0)(react@19.2.4)(typescript@6.0.2)
       '@swan-io/lake':
         specifier: 13.7.6
-        version: 13.7.6(typescript@5.9.3)
+        version: 13.7.6(typescript@6.0.2)
       '@swan-io/shared-business':
         specifier: 13.7.6
-        version: 13.7.6(@swan-io/lake@13.7.6(typescript@5.9.3))(typescript@5.9.3)
+        version: 13.7.6(@swan-io/lake@13.7.6(typescript@6.0.2))(typescript@6.0.2)
       '@swan-io/use-form':
         specifier: 3.1.0
-        version: 3.1.0(react@19.2.4)(typescript@5.9.3)
+        version: 3.1.0(react@19.2.4)(typescript@6.0.2)
       core-js:
         specifier: 3.48.0
         version: 3.48.0
@@ -330,7 +330,7 @@ importers:
         version: 1.11.19
       frames-react:
         specifier: 1.2.3
-        version: 1.2.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(rollup@4.60.1)(typescript@5.9.3)
+        version: 1.2.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(rollup@4.60.1)(typescript@6.0.2)
       iban:
         specifier: 0.0.14
         version: 0.0.14
@@ -418,7 +418,7 @@ importers:
         version: 2.0.1(@opentelemetry/api@1.9.0)
       '@swan-io/boxed':
         specifier: 3.2.1
-        version: 3.2.1(typescript@5.9.3)
+        version: 3.2.1(typescript@6.0.2)
       '@types/escape-html':
         specifier: 1.0.4
         version: 1.0.4
@@ -2477,41 +2477,38 @@ packages:
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==, tarball: https://registry.npmjs.org/@standard-schema/spec/-/spec-1.1.0.tgz}
 
   '@swan-io/boxed@3.2.1':
-    resolution: {integrity: sha512-MQqSpe09PdjDjTR4HCPpUxO9XsacNguCkce1C2wm1eIb6ycWXQoV+biYvLEuI/LiMqB31KySdgY2YFwrVucLCw==, tarball: https://registry.npmjs.org/@swan-io/boxed/-/boxed-3.2.1.tgz}
+    resolution: {integrity: sha512-+FKLC+otoXrbcf+wTGM8kBp57buuIlaSw8VEkRd4WpTlB7P8nMYbe8uADf85VfSb9wP9wgI9pkj2VIzUWWI0Kg==, tarball: https://npm.pkg.github.com/download/@swan-io/boxed/3.2.1/c4ebe8d3a53e07fb69e7ee20cdfafcdcb089c6fc}
     peerDependencies:
       typescript: '>=5.0.0'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
 
   '@swan-io/chicane@3.0.0':
-    resolution: {integrity: sha512-ELguiTjrK2+wYqiUfguusOXaAXUBdizGJjXM6pg5Jvye0Yefp18coVmSCpGJLdJY4hCaWXis/ct4i/DyV2FIuw==, tarball: https://registry.npmjs.org/@swan-io/chicane/-/chicane-3.0.0.tgz}
+    resolution: {integrity: sha512-A/k8e0MXeLBTT71P8i52/Fn0+3CftQiVPDyCK6vfrS/cEDsBfWz+IvwhuhC1EFfAYm9O4ystvpOgEP5fraFfVA==, tarball: https://npm.pkg.github.com/download/@swan-io/chicane/3.0.0/714dc7f0b20b77e4c831babbf48d4efdcb8974f4}
     peerDependencies:
       react: '>=19.0.0'
 
   '@swan-io/graphql-client@0.8.0':
-    resolution: {integrity: sha512-+7cQV9NKUc5plt4hYt8nNz16gotnzGEGKcU2/xKaj1pjWjzSagKNoBt/ymLAy0d+U7wGLCgf0hF0yZyKLfYyaw==, tarball: https://registry.npmjs.org/@swan-io/graphql-client/-/graphql-client-0.8.0.tgz}
+    resolution: {integrity: sha512-UlCtXUMpyBoL96qDijCasSYuwrH2b/8utR51OEIHJ1DWm6Bn7gLLlaF7WmtBcCw8M6ZqzUP5pTjhWqazQVTLPw==, tarball: https://npm.pkg.github.com/download/@swan-io/graphql-client/0.8.0/5b4f9cded2b6b8bb051ec384369fea01812b0bd3}
     hasBin: true
     peerDependencies:
       react: '>=18.2.0'
 
   '@swan-io/lake@13.7.6':
-    resolution: {integrity: sha512-nC5FcmtzWm9cp9Hf3Y+spcMTQHkEUXAuYeM8ILO/N9wikPFoFnjmFAMfdUEBuApYTtlYU9FGzKrg59I5u59CAw==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-13.7.6.tgz}
+    resolution: {integrity: sha512-nC5FcmtzWm9cp9Hf3Y+spcMTQHkEUXAuYeM8ILO/N9wikPFoFnjmFAMfdUEBuApYTtlYU9FGzKrg59I5u59CAw==, tarball: https://npm.pkg.github.com/download/@swan-io/lake/13.7.6/b5f444f26328900f6f6b35aa2c4110aefb8feb3e}
     engines: {node: '>22.12.0'}
 
   '@swan-io/request@3.1.0':
-    resolution: {integrity: sha512-3NDXdNuew5+aEURpWg8aNIqPlYVNU6BZCD1rWptNemfNw9frTUBj8DmV+idOp9M5/4tVxncX7bxV7jBNtS6Cbg==, tarball: https://registry.npmjs.org/@swan-io/request/-/request-3.1.0.tgz}
+    resolution: {integrity: sha512-Lg5K8BVwY5k/YyjXHMclmvjPmuVa8jKP/K065PyLsu869+hZu3ENe7DBiNIimrzdwyHSNuGIZaQiDfzEnD32kQ==, tarball: https://npm.pkg.github.com/download/@swan-io/request/3.1.0/b4aef0cb88159d9731ae4a5edef13037026f987b}
     peerDependencies:
       '@swan-io/boxed': '>=2.2.1'
 
   '@swan-io/shared-business@13.7.6':
-    resolution: {integrity: sha512-LAADjiDQ0zDRd2bOsHifsBrI1Ym5kA/bKSZhNNEOEaUsbrwFrqSLLaQOArIr3CtG2GpQrzBjKi3rL7/o9lENyA==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-13.7.6.tgz}
+    resolution: {integrity: sha512-LAADjiDQ0zDRd2bOsHifsBrI1Ym5kA/bKSZhNNEOEaUsbrwFrqSLLaQOArIr3CtG2GpQrzBjKi3rL7/o9lENyA==, tarball: https://npm.pkg.github.com/download/@swan-io/shared-business/13.7.6/c182b87591ba0368b2c937db13013b441399b04d}
     engines: {node: '>22.12.0'}
     peerDependencies:
       '@swan-io/lake': 13.7.6
 
   '@swan-io/use-form@3.1.0':
-    resolution: {integrity: sha512-X6NpZ7LCeo7eS9RVCZrtpX+3GXZFUfUZpIwtVa2GNmqTLgyDbLhN8N6zBv+dmHL9KAQ+Zng2fTCCQpCZvmDu5A==, tarball: https://registry.npmjs.org/@swan-io/use-form/-/use-form-3.1.0.tgz}
+    resolution: {integrity: sha512-m4LR7acxQy3sVRy5JFULKB6nKZB6DPmqNP4XsKvnL6W8u6ou+iaSi86bRfE4wUnl/I74mKLij30b7bSMr1C6tQ==, tarball: https://npm.pkg.github.com/download/@swan-io/use-form/3.1.0/f242dbf8d9fe0a163cfd69ae94061757d79d93d5}
     peerDependencies:
       react: '>=18.0.0'
 
@@ -5041,8 +5038,8 @@ packages:
     resolution: {integrity: sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g==, tarball: https://registry.npmjs.org/type-is/-/type-is-1.6.18.tgz}
     engines: {node: '>= 0.6'}
 
-  typescript@5.9.3:
-    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==, tarball: https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz}
+  typescript@6.0.2:
+    resolution: {integrity: sha512-bGdAIrZ0wiGDo5l8c++HWtbaNCWTS4UTv7RaTH/ThVIgjkveJt83m74bBHMJkuCbslY8ixgLBVZJIOiQlQTjfQ==, tarball: https://registry.npmjs.org/typescript/-/typescript-6.0.2.tgz}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -6080,7 +6077,7 @@ snapshots:
       '@formatjs/fast-memoize': 3.1.0
       tslib: 2.8.1
 
-  '@formatjs/intl@4.1.2(typescript@5.9.3)':
+  '@formatjs/intl@4.1.2(typescript@6.0.2)':
     dependencies:
       '@formatjs/ecma402-abstract': 3.1.1
       '@formatjs/fast-memoize': 3.1.0
@@ -6088,7 +6085,7 @@ snapshots:
       intl-messageformat: 11.1.2
       tslib: 2.8.1
     optionalDependencies:
-      typescript: 5.9.3
+      typescript: 6.0.2
 
   '@grafana/faro-core@2.3.1':
     dependencies:
@@ -6123,7 +6120,7 @@ snapshots:
       graphql: 16.12.0
       tslib: 2.6.3
 
-  '@graphql-codegen/cli@5.0.7(@types/node@25.5.0)(graphql-sock@1.0.1(graphql@16.12.0))(graphql@16.12.0)(typescript@5.9.3)':
+  '@graphql-codegen/cli@5.0.7(@types/node@25.5.0)(graphql-sock@1.0.1(graphql@16.12.0))(graphql@16.12.0)(typescript@6.0.2)':
     dependencies:
       '@babel/generator': 7.29.1
       '@babel/template': 7.28.6
@@ -6143,11 +6140,11 @@ snapshots:
       '@graphql-tools/utils': 10.11.0(graphql@16.12.0)
       '@whatwg-node/fetch': 0.10.13
       chalk: 4.1.2
-      cosmiconfig: 8.3.6(typescript@5.9.3)
+      cosmiconfig: 8.3.6(typescript@6.0.2)
       debounce: 1.2.1
       detect-indent: 6.1.0
       graphql: 16.12.0
-      graphql-config: 5.1.6(@types/node@25.5.0)(graphql@16.12.0)(typescript@5.9.3)
+      graphql-config: 5.1.6(@types/node@25.5.0)(graphql@16.12.0)(typescript@6.0.2)
       inquirer: 8.2.7(@types/node@25.5.0)
       is-glob: 4.0.3
       jiti: 1.21.7
@@ -7912,9 +7909,9 @@ snapshots:
 
   '@standard-schema/spec@1.1.0': {}
 
-  '@swan-io/boxed@3.2.1(typescript@5.9.3)':
-    optionalDependencies:
-      typescript: 5.9.3
+  '@swan-io/boxed@3.2.1(typescript@6.0.2)':
+    dependencies:
+      typescript: 6.0.2
 
   '@swan-io/chicane@3.0.0(react@19.2.4)':
     dependencies:
@@ -7922,21 +7919,21 @@ snapshots:
       react: 19.2.4
       use-sync-external-store: 1.6.0(react@19.2.4)
 
-  '@swan-io/graphql-client@0.8.0(graphql@16.12.0)(react@19.2.4)(typescript@5.9.3)':
+  '@swan-io/graphql-client@0.8.0(graphql@16.12.0)(react@19.2.4)(typescript@6.0.2)':
     dependencies:
       '@0no-co/graphql.web': 1.2.0(graphql@16.12.0)
-      '@swan-io/boxed': 3.2.1(typescript@5.9.3)
-      '@swan-io/request': 3.1.0(@swan-io/boxed@3.2.1(typescript@5.9.3))
+      '@swan-io/boxed': 3.2.1(typescript@6.0.2)
+      '@swan-io/request': 3.1.0(@swan-io/boxed@3.2.1(typescript@6.0.2))
       react: 19.2.4
     transitivePeerDependencies:
       - graphql
       - typescript
 
-  '@swan-io/lake@13.7.6(typescript@5.9.3)':
+  '@swan-io/lake@13.7.6(typescript@6.0.2)':
     dependencies:
-      '@swan-io/boxed': 3.2.1(typescript@5.9.3)
+      '@swan-io/boxed': 3.2.1(typescript@6.0.2)
       '@swan-io/chicane': 3.0.0(react@19.2.4)
-      '@swan-io/use-form': 3.1.0(react@19.2.4)(typescript@5.9.3)
+      '@swan-io/use-form': 3.1.0(react@19.2.4)(typescript@6.0.2)
       dayjs: 1.11.19
       polished: 4.3.1
       prism-react-renderer: 2.4.1(react@19.2.4)
@@ -7950,18 +7947,18 @@ snapshots:
       - encoding
       - typescript
 
-  '@swan-io/request@3.1.0(@swan-io/boxed@3.2.1(typescript@5.9.3))':
+  '@swan-io/request@3.1.0(@swan-io/boxed@3.2.1(typescript@6.0.2))':
     dependencies:
-      '@swan-io/boxed': 3.2.1(typescript@5.9.3)
+      '@swan-io/boxed': 3.2.1(typescript@6.0.2)
 
-  '@swan-io/shared-business@13.7.6(@swan-io/lake@13.7.6(typescript@5.9.3))(typescript@5.9.3)':
+  '@swan-io/shared-business@13.7.6(@swan-io/lake@13.7.6(typescript@6.0.2))(typescript@6.0.2)':
     dependencies:
-      '@formatjs/intl': 4.1.2(typescript@5.9.3)
+      '@formatjs/intl': 4.1.2(typescript@6.0.2)
       '@placekit/client-js': 2.3.0
-      '@swan-io/boxed': 3.2.1(typescript@5.9.3)
-      '@swan-io/lake': 13.7.6(typescript@5.9.3)
-      '@swan-io/request': 3.1.0(@swan-io/boxed@3.2.1(typescript@5.9.3))
-      '@swan-io/use-form': 3.1.0(react@19.2.4)(typescript@5.9.3)
+      '@swan-io/boxed': 3.2.1(typescript@6.0.2)
+      '@swan-io/lake': 13.7.6(typescript@6.0.2)
+      '@swan-io/request': 3.1.0(@swan-io/boxed@3.2.1(typescript@6.0.2))
+      '@swan-io/use-form': 3.1.0(react@19.2.4)(typescript@6.0.2)
       dayjs: 1.11.19
       iban: 0.0.14
       react: 19.2.4
@@ -7976,9 +7973,9 @@ snapshots:
       - encoding
       - typescript
 
-  '@swan-io/use-form@3.1.0(react@19.2.4)(typescript@5.9.3)':
+  '@swan-io/use-form@3.1.0(react@19.2.4)(typescript@6.0.2)':
     dependencies:
-      '@swan-io/boxed': 3.2.1(typescript@5.9.3)
+      '@swan-io/boxed': 3.2.1(typescript@6.0.2)
       react: 19.2.4
     transitivePeerDependencies:
       - typescript
@@ -8570,14 +8567,14 @@ snapshots:
 
   core-js@3.48.0: {}
 
-  cosmiconfig@8.3.6(typescript@5.9.3):
+  cosmiconfig@8.3.6(typescript@6.0.2):
     dependencies:
       import-fresh: 3.3.1
       js-yaml: 4.1.1
       parse-json: 5.2.0
       path-type: 4.0.0
     optionalDependencies:
-      typescript: 5.9.3
+      typescript: 6.0.2
 
   cross-fetch@3.2.0:
     dependencies:
@@ -8945,12 +8942,12 @@ snapshots:
 
   forwarded@0.2.0: {}
 
-  frames-react@1.2.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(rollup@4.60.1)(typescript@5.9.3):
+  frames-react@1.2.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(rollup@4.60.1)(typescript@6.0.2):
     dependencies:
       classnames: 2.5.1
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
-      rollup-plugin-typescript2: 0.36.0(rollup@4.60.1)(typescript@5.9.3)
+      rollup-plugin-typescript2: 0.36.0(rollup@4.60.1)(typescript@6.0.2)
       tslib: 2.8.1
     transitivePeerDependencies:
       - rollup
@@ -9067,7 +9064,7 @@ snapshots:
 
   graceful-fs@4.2.11: {}
 
-  graphql-config@5.1.6(@types/node@25.5.0)(graphql@16.12.0)(typescript@5.9.3):
+  graphql-config@5.1.6(@types/node@25.5.0)(graphql@16.12.0)(typescript@6.0.2):
     dependencies:
       '@graphql-tools/graphql-file-loader': 8.1.12(graphql@16.12.0)
       '@graphql-tools/json-file-loader': 8.0.26(graphql@16.12.0)
@@ -9075,7 +9072,7 @@ snapshots:
       '@graphql-tools/merge': 9.1.7(graphql@16.12.0)
       '@graphql-tools/url-loader': 9.0.6(@types/node@25.5.0)(graphql@16.12.0)
       '@graphql-tools/utils': 11.0.0(graphql@16.12.0)
-      cosmiconfig: 8.3.6(typescript@5.9.3)
+      cosmiconfig: 8.3.6(typescript@6.0.2)
       graphql: 16.12.0
       jiti: 2.6.1
       minimatch: 10.2.5
@@ -10156,10 +10153,10 @@ snapshots:
 
   preact@10.28.3: {}
 
-  prettier-plugin-organize-imports@4.3.0(prettier@3.8.1)(typescript@5.9.3):
+  prettier-plugin-organize-imports@4.3.0(prettier@3.8.1)(typescript@6.0.2):
     dependencies:
       prettier: 3.8.1
-      typescript: 5.9.3
+      typescript: 6.0.2
 
   prettier@3.8.1: {}
 
@@ -10395,7 +10392,7 @@ snapshots:
       glob: 13.0.6
       package-json-from-dist: 1.0.1
 
-  rollup-plugin-typescript2@0.36.0(rollup@4.60.1)(typescript@5.9.3):
+  rollup-plugin-typescript2@0.36.0(rollup@4.60.1)(typescript@6.0.2):
     dependencies:
       '@rollup/pluginutils': 4.2.1
       find-cache-dir: 3.3.2
@@ -10403,7 +10400,7 @@ snapshots:
       rollup: 4.60.1
       semver: 7.7.4
       tslib: 2.8.1
-      typescript: 5.9.3
+      typescript: 6.0.2
 
   rollup@4.60.1:
     dependencies:
@@ -10768,7 +10765,7 @@ snapshots:
       media-typer: 0.3.0
       mime-types: 2.1.35
 
-  typescript@5.9.3: {}
+  typescript@6.0.2: {}
 
   ua-parser-js@1.0.41: {}
 

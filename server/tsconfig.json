@@ -26,8 +26,6 @@
     "allowSyntheticDefaultImports": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
-    "forceConsistentCasingInFileNames": false,
-
-    "typeRoots": ["types", "node_modules/@types"]
+    "forceConsistentCasingInFileNames": false
   }
 }

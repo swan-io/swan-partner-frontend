@@ -1791,7 +1791,7 @@
   "verificationRenewal.documents.title": "Documentos de apoio",
   "verificationRenewal.editModal.title": "Editar informações",
   "verificationRenewal.finalize.error.button": "Tentar novamente",
-  "verificationRenewal.finalize.error.subtitle": "Não conseguimos finalizar o seu pedido. Por favor, tente novamente.\nSe o problema persistir, contacte a equipa de apoio.",
+  "verificationRenewal.finalize.error.subtitle": "Não foi possível processar as suas informações. Por favor, tente novamente. Se o problema persistir, a nossa equipa poderá entrar em contato para obter mais detalhes.",
   "verificationRenewal.finalize.error.title": "Algo correu mal",
   "verificationRenewal.finalize.subtitle": "Recebemos os seus dados atualizados e iremos analisá-los em breve. Se precisarmos de informações adicionais, entraremos em contacto consigo.\n\nAgora pode fechar esta página.",
   "verificationRenewal.finalize.title": "Obrigado!",

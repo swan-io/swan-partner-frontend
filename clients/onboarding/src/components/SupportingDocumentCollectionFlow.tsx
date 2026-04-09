@@ -186,11 +186,6 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
             .exhaustive(),
         );
 
-        const requiredDocumentsPurposes =
-          supportingDocumentCollection.requiredSupportingDocumentPurposes.map(
-            purpose => purpose.name,
-          ) ?? [];
-
         return (
           <WithPartnerAccentColor
             color={
@@ -293,7 +288,14 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
                               <SupportingDocumentCollection
                                 ref={supportingDocumentCollectionRef}
                                 documents={docs}
-                                requiredDocumentPurposes={requiredDocumentsPurposes}
+                                requiredDocumentPurposes={Object.fromEntries(
+                                  supportingDocumentCollection.requiredSupportingDocumentPurposes.map(
+                                    item => [
+                                      item.name,
+                                      { label: item.label, description: item.description, purposeDetails: item.purposeDetails ?? undefined },
+                                    ],
+                                  ),
+                                ) as Record<SupportingDocumentPurposeEnum, { label: string; description: string; purposeDetails?: string }>}
                                 generateUpload={generateUpload}
                                 status={supportingDocumentCollection.statusInfo.status}
                                 templateLanguage={locale.language}

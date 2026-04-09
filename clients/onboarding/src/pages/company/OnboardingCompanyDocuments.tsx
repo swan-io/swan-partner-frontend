@@ -24,8 +24,6 @@ import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
 import {
-  AccountCountry,
-  CompanyType,
   DeleteSupportingDocumentDocument,
   GenerateSupportingDocumentUploadUrlDocument,
   SupportingDocumentCollectionStatus,
@@ -48,12 +46,10 @@ type Props = {
   nextStep: CompanyOnboardingRoute;
   onboardingId: string;
   documents: SupportingDocumentFragment[];
-  requiredDocumentsPurposes: SupportingDocumentPurposeEnum[];
+  requiredDocumentsPurposes: Array<{ name: SupportingDocumentPurposeEnum; label: string; description: string; purposeDetails?: string | null }>;
   supportingDocumentCollectionId: string;
   supportingDocumentCollectionStatus: SupportingDocumentCollectionStatus;
   templateLanguage: string;
-  accountCountry: AccountCountry;
-  companyType: CompanyType;
   forcedUpdateInputs: Partial<UnauthenticatedUpdateCompanyOnboardingInput>;
 };
 
@@ -73,8 +69,6 @@ export const OnboardingCompanyDocuments = ({
   supportingDocumentCollectionId,
   supportingDocumentCollectionStatus,
   templateLanguage,
-  accountCountry,
-  companyType,
   forcedUpdateInputs,
 }: Props) => {
   const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
@@ -210,29 +204,16 @@ export const OnboardingCompanyDocuments = ({
                 <SupportingDocumentCollection
                   ref={supportingDocumentCollectionRef}
                   documents={docs}
-                  requiredDocumentPurposes={requiredDocumentsPurposes}
+                  requiredDocumentPurposes={Object.fromEntries(
+                    requiredDocumentsPurposes.map(({ name, label, description, purposeDetails }) => [
+                      name,
+                      { label, description, purposeDetails: purposeDetails ?? undefined },
+                    ]),
+                  ) as Record<SupportingDocumentPurposeEnum, { label: string; description: string; purposeDetails?: string }>}
                   generateUpload={generateUpload}
                   status={supportingDocumentCollectionStatus}
                   templateLanguage={templateLanguage}
                   onRemoveFile={onRemoveFile}
-                  purposeLabelOverrides={{
-                    ...(accountCountry === "DEU" && companyType === "SelfEmployed"
-                      ? {
-                          CompanyRegistration: t(
-                            "company.document.supportingDocuments.purpose.CompanyRegistrationSelfEmployedGermany",
-                          ),
-                        }
-                      : null),
-                  }}
-                  purposeDescriptionLabelOverrides={{
-                    ...(accountCountry === "DEU" && companyType === "SelfEmployed"
-                      ? {
-                          CompanyRegistration: t(
-                            "company.document.supportingDocuments.purpose.CompanyRegistrationSelfEmployedGermany.description",
-                          ),
-                        }
-                      : null),
-                  }}
                 />
               </DocumentsStepTile>
             </>

@@ -60,14 +60,10 @@ export const OnboardingCompanyDocuments = ({
   finalized,
 }: Props) => {
   const onboardingId = onboarding.id;
-  const { accountInfo, company } = onboarding;
-  const accountCountry = accountInfo?.country;
-  const companyType = company?.companyType;
-
   const supportingDocumentCollectionId = supportingDocumentCollection.id;
   const documents = supportingDocumentCollection.supportingDocuments;
-  const requiredDocumentsPurposes =
-    supportingDocumentCollection.requiredSupportingDocumentPurposes.map(d => d.name) ?? [];
+  const requiredSupportingDocumentPurposes =
+    supportingDocumentCollection.requiredSupportingDocumentPurposes;
 
   const [error, showError] = useState(false);
   const [validatingDocuments, setValidatingDocuments] = useState(false);
@@ -246,7 +242,7 @@ export const OnboardingCompanyDocuments = ({
                   <LakeAlert
                     variant="error"
                     title={
-                      requiredDocumentsPurposes.length > 1
+                      requiredSupportingDocumentPurposes.length > 1
                         ? t("company.step.ownership.error.missingDocuments")
                         : t("company.step.ownership.error.missingDocument")
                     }
@@ -258,29 +254,16 @@ export const OnboardingCompanyDocuments = ({
               <SupportingDocumentCollection
                 ref={supportingDocumentCollectionRef}
                 documents={docs}
-                requiredDocumentPurposes={requiredDocumentsPurposes}
+                requiredDocumentPurposes={Object.fromEntries(
+                  requiredSupportingDocumentPurposes.map(({ name, label, description, purposeDetails }) => [
+                    name,
+                    { label, description, purposeDetails: purposeDetails ?? undefined },
+                  ]),
+                ) as Record<SupportingDocumentPurposeEnum, { label: string; description: string; purposeDetails?: string }>}
                 generateUpload={generateUpload}
                 status={supportingDocumentCollection.statusInfo.status}
                 templateLanguage={templateLanguage}
                 onRemoveFile={onRemoveFile}
-                purposeLabelOverrides={{
-                  ...(accountCountry === "DEU" && companyType === "SelfEmployed"
-                    ? {
-                        CompanyRegistration: t(
-                          "company.document.supportingDocuments.purpose.CompanyRegistrationSelfEmployedGermany",
-                        ),
-                      }
-                    : null),
-                }}
-                purposeDescriptionLabelOverrides={{
-                  ...(accountCountry === "DEU" && companyType === "SelfEmployed"
-                    ? {
-                        CompanyRegistration: t(
-                          "company.document.supportingDocuments.purpose.CompanyRegistrationSelfEmployedGermany.description",
-                        ),
-                      }
-                    : null),
-                }}
               />
             </DocumentsStepTile>
           </>

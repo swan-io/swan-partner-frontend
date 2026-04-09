@@ -154,9 +154,21 @@ export const SupportingDocumentsForm = ({
       <SupportingDocumentCollection
         ref={supportingDocumentCollectionRef}
         documents={docs}
-        requiredDocumentPurposes={collection.requiredSupportingDocumentPurposes.map(
-          item => item.name,
-        )}
+        requiredDocumentPurposes={
+          Object.fromEntries(
+            collection.requiredSupportingDocumentPurposes.map(item => [
+              item.name,
+              {
+                label: item.label,
+                description: item.description,
+                purposeDetails: item.purposeDetails ?? undefined,
+              },
+            ]),
+          ) as Record<
+            SupportingDocumentPurposeEnum,
+            { label: string; description: string; purposeDetails?: string }
+          >
+        }
         generateUpload={generateUpload}
         status={collection.statusInfo.status}
         templateLanguage={templateLanguage}

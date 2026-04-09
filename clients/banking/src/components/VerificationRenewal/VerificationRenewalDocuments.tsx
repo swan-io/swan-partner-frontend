@@ -162,7 +162,12 @@ export const VerificationRenewalDocuments = ({
             ) : (
               <SupportingDocumentCollection
                 generateUpload={generateUpload}
-                requiredDocumentPurposes={requiredDocumentsPurposes}
+                requiredDocumentPurposes={Object.fromEntries(
+                  supportingDocumentCollection.requiredSupportingDocumentPurposes.map(item => [
+                    item.name,
+                    { label: item.label, description: item.description, purposeDetails: item.purposeDetails ?? undefined },
+                  ]),
+                ) as Record<SupportingDocumentPurposeEnum, { label: string; description: string; purposeDetails?: string }>}
                 status={supportingDocumentCollection.statusInfo.status}
                 documents={docs}
                 templateLanguage={templateLanguage}

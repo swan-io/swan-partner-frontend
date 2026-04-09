@@ -152,7 +152,7 @@
   "company.step.organisation.notListed": "Votre organisation n'est pas répertoriée ?",
   "company.step.organisation.relation.attorney": "Je dispose d'une procuration",
   "company.step.organisation.relation.legal": "Je suis le représentant légal",
-  "company.step.organisation.relationLabel": "Quel est votre lien avec cette organisation ?",
+  "company.step.organisation.relationLabel": "Comment êtes-vous autorisé à ouvrir ce compte ?",
   "company.step.organisation.representative.or": "Ou",
   "company.step.organisation.representative.unlisted": "Je ne vois pas mon nom dans la liste",
   "company.step.organisation.representativeLabel": "Qui êtes-vous ?",

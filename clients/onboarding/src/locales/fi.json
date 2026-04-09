@@ -152,7 +152,7 @@
   "company.step.organisation.notListed": "Yritystä ei ole luettelossa?",
   "company.step.organisation.relation.attorney": "Minulla on valtakirja",
   "company.step.organisation.relation.legal": "Olen laillinen edustaja",
-  "company.step.organisation.relationLabel": "Mikä on suhteesi tähän organisaatioon?",
+  "company.step.organisation.relationLabel": "Millä perusteella olet valtuutettu avaamaan tämän tilin?",
   "company.step.organisation.representative.or": "Tai",
   "company.step.organisation.representative.unlisted": "En löydä nimeäni listalta",
   "company.step.organisation.representativeLabel": "Kuka olet?",

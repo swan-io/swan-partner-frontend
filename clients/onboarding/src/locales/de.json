@@ -152,7 +152,7 @@
   "company.step.organisation.notListed": "Unternehmen nicht aufgeführt?",
   "company.step.organisation.relation.attorney": "Ich habe eine Vollmacht",
   "company.step.organisation.relation.legal": "Ich bin ein gesetzlicher Vertreter",
-  "company.step.organisation.relationLabel": "In welcher Beziehung stehen Sie zu dieser Organisation?",
+  "company.step.organisation.relationLabel": "Wie sind Sie zur Eröffnung dieses Kontos bevollmächtigt?",
   "company.step.organisation.representative.or": "Oder",
   "company.step.organisation.representative.unlisted": "Mein Name ist nicht aufgeführt.",
   "company.step.organisation.representativeLabel": "Wer sind Sie?",

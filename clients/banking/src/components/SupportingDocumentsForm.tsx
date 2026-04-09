@@ -20,6 +20,7 @@ import {
   SupportingDocumentPurposeEnum,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
+import { toRequiredDocumentPurposes } from "../utils/supportingDocuments";
 
 type Collection = GetNode<
   NonNullable<
@@ -154,8 +155,8 @@ export const SupportingDocumentsForm = ({
       <SupportingDocumentCollection
         ref={supportingDocumentCollectionRef}
         documents={docs}
-        requiredDocumentPurposes={collection.requiredSupportingDocumentPurposes.map(
-          item => item.name,
+        requiredDocumentPurposes={toRequiredDocumentPurposes(
+          collection.requiredSupportingDocumentPurposes,
         )}
         generateUpload={generateUpload}
         status={collection.statusInfo.status}

@@ -32,6 +32,7 @@ import {
 } from "../../../graphql/unauthenticated";
 import { t } from "../../../utils/i18n";
 import { CompanyOnboardingRouteV2, Router } from "../../../utils/routes";
+import { toRequiredDocumentPurposes } from "../../../utils/supportingDocuments";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 import { extractServerInvalidFields } from "../../../utils/validation";
 
@@ -60,14 +61,10 @@ export const OnboardingCompanyDocuments = ({
   finalized,
 }: Props) => {
   const onboardingId = onboarding.id;
-  const { accountInfo, company } = onboarding;
-  const accountCountry = accountInfo?.country;
-  const companyType = company?.companyType;
-
   const supportingDocumentCollectionId = supportingDocumentCollection.id;
   const documents = supportingDocumentCollection.supportingDocuments;
-  const requiredDocumentsPurposes =
-    supportingDocumentCollection.requiredSupportingDocumentPurposes.map(d => d.name) ?? [];
+  const requiredSupportingDocumentPurposes =
+    supportingDocumentCollection.requiredSupportingDocumentPurposes;
 
   const [error, showError] = useState(false);
   const [validatingDocuments, setValidatingDocuments] = useState(false);
@@ -246,7 +243,7 @@ export const OnboardingCompanyDocuments = ({
                   <LakeAlert
                     variant="error"
                     title={
-                      requiredDocumentsPurposes.length > 1
+                      requiredSupportingDocumentPurposes.length > 1
                         ? t("company.step.ownership.error.missingDocuments")
                         : t("company.step.ownership.error.missingDocument")
                     }
@@ -258,29 +255,13 @@ export const OnboardingCompanyDocuments = ({
               <SupportingDocumentCollection
                 ref={supportingDocumentCollectionRef}
                 documents={docs}
-                requiredDocumentPurposes={requiredDocumentsPurposes}
+                requiredDocumentPurposes={toRequiredDocumentPurposes(
+                  requiredSupportingDocumentPurposes,
+                )}
                 generateUpload={generateUpload}
                 status={supportingDocumentCollection.statusInfo.status}
                 templateLanguage={templateLanguage}
                 onRemoveFile={onRemoveFile}
-                purposeLabelOverrides={{
-                  ...(accountCountry === "DEU" && companyType === "SelfEmployed"
-                    ? {
-                        CompanyRegistration: t(
-                          "company.document.supportingDocuments.purpose.CompanyRegistrationSelfEmployedGermany",
-                        ),
-                      }
-                    : null),
-                }}
-                purposeDescriptionLabelOverrides={{
-                  ...(accountCountry === "DEU" && companyType === "SelfEmployed"
-                    ? {
-                        CompanyRegistration: t(
-                          "company.document.supportingDocuments.purpose.CompanyRegistrationSelfEmployedGermany.description",
-                        ),
-                      }
-                    : null),
-                }}
               />
             </DocumentsStepTile>
           </>

@@ -29,6 +29,7 @@ import {
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { locale, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
+import { toRequiredDocumentPurposes } from "../utils/supportingDocuments";
 import { ErrorView } from "./ErrorView";
 import { OnboardingFooter } from "./OnboardingFooter";
 import { OnboardingHeader } from "./OnboardingHeader";
@@ -186,11 +187,6 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
             .exhaustive(),
         );
 
-        const requiredDocumentsPurposes =
-          supportingDocumentCollection.requiredSupportingDocumentPurposes.map(
-            purpose => purpose.name,
-          ) ?? [];
-
         return (
           <WithPartnerAccentColor
             color={
@@ -293,7 +289,9 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
                               <SupportingDocumentCollection
                                 ref={supportingDocumentCollectionRef}
                                 documents={docs}
-                                requiredDocumentPurposes={requiredDocumentsPurposes}
+                                requiredDocumentPurposes={toRequiredDocumentPurposes(
+                                  supportingDocumentCollection.requiredSupportingDocumentPurposes,
+                                )}
                                 generateUpload={generateUpload}
                                 status={supportingDocumentCollection.statusInfo.status}
                                 templateLanguage={locale.language}

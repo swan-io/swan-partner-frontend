@@ -88,6 +88,9 @@ fragment SupportingDocumentCollection on SupportingDocumentCollection {
   id
   requiredSupportingDocumentPurposes {
     name
+    label
+    description
+    purposeDetails
   }
   statusInfo {
     status
@@ -357,6 +360,9 @@ fragment AccountAdminChangeInfo on AccountAdminChange {
     }
     requiredSupportingDocumentPurposes {
       name
+      label
+      description
+      purposeDetails
     }
     supportingDocuments {
       ...SupportingDocument

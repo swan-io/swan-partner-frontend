@@ -1617,6 +1617,9 @@ query AccountActivationPage($accountMembershipId: ID!) {
               id
               requiredSupportingDocumentPurposes {
                 name
+                label
+                description
+                purposeDetails
               }
               statusInfo {
                 status
@@ -3611,16 +3614,13 @@ fragment SupportingDocumentRenewal on SupportingDocumentCollection {
   requiredSupportingDocumentPurposes {
     name
     label
+    description
+    purposeDetails
+    acceptableSupportingDocumentTypes
   }
   statusInfo {
     __typename
     status
-  }
-  requiredSupportingDocumentPurposes {
-    name
-    acceptableSupportingDocumentTypes
-    label
-    description
   }
   createdAt
   updatedAt

@@ -210,7 +210,12 @@ type Mutation {
   """
   After an incoming Card transaction has been scheduled, simulate the corresponding transaction being booked on the Swan creditor account.
   """
-  simulateIncomingCardBooking(input: SimulateIncomingCardBookingInput!): SimulateIncomingCardBookingPayload!
+  simulateIncomingCardBooking(input: SimulateIncomingCardBookingInput!): SimulateIncomingCardBookingPayload! @deprecated(reason: "Use SimulateIncomingOnlineCardBooking instead")
+
+  """
+  After an incoming Card transaction has been scheduled, simulate the corresponding transaction being booked on the Swan creditor account.
+  """
+  simulateIncomingOnlineCardBooking(input: SimulateIncomingOnlineCardBookingInput!): SimulateIncomingOnlineCardBookingPayload!
 
   """
   After an incoming Check has been scheduled, simulate the corresponding transaction being booked on the Swan creditor account.
@@ -3083,12 +3088,26 @@ enum RepresentativeType {
   Company
 }
 
-input RequestSupportingDocumentsInput {
-  supportingDocumentCollectionId: ID!
-  requiredSupportingDocumentPurposes: [SupportingDocumentPurposeEnum!]!
+input RequestSupportingDocumentPurposeWithDetailsInput {
+  type: SupportingDocumentPurposeEnum!
+
+  """
+  Describes what specific document is needed. Any purpose can carry details.
+  """
+  details: String
 }
 
-union RequestSupportingDocumentsPayload = RequestSupportingDocumentsSuccessPayload | AccountHolderNotFoundRejection | SupportingDocumentCollectionNotFoundRejection | ForbiddenRejection | InternalErrorRejection
+input RequestSupportingDocumentsInput {
+  supportingDocumentCollectionId: ID!
+
+  """@deprecated Use purposesWithDetails instead"""
+  requiredSupportingDocumentPurposes: [SupportingDocumentPurposeEnum!]
+
+  """Preferred field — replaces requiredSupportingDocumentPurposes"""
+  purposesWithDetails: [RequestSupportingDocumentPurposeWithDetailsInput!]
+}
+
+union RequestSupportingDocumentsPayload = RequestSupportingDocumentsSuccessPayload | AccountHolderNotFoundRejection | SupportingDocumentCollectionNotFoundRejection | ForbiddenRejection | InternalErrorRejection | ValidationRejection
 
 type RequestSupportingDocumentsSuccessPayload {
   supportingDocumentCollection: SupportingDocumentCollection!
@@ -3534,6 +3553,11 @@ type SupportingDocumentPurpose {
   Corresponding Supporting Document Purpose Description translation according to accept-language header
   """
   description: String!
+
+  """
+  When set, describes what specific document is required for this purpose
+  """
+  purposeDetails: String
 }
 
 """Supporting document purpose"""
@@ -11949,6 +11973,20 @@ type SimulateIncomingInternationalCreditTransferReturnSuccessPayload {
 
 """SimulateIncomingInternationalCreditTransferSuccessPayload"""
 type SimulateIncomingInternationalCreditTransferSuccessPayload {
+  transactionId: ID!
+}
+
+"""Book an incoming card transaction simulation input"""
+input SimulateIncomingOnlineCardBookingInput {
+  """Transaction ID to be booked"""
+  transactionId: ID!
+}
+
+"""Union of Success payload and potential rejections"""
+union SimulateIncomingOnlineCardBookingPayload = SimulateIncomingOnlineCardBookingSuccessPayload | ForbiddenRejection | TransactionNotFoundRejection
+
+"""Success payload type"""
+type SimulateIncomingOnlineCardBookingSuccessPayload {
   transactionId: ID!
 }
 

@@ -498,27 +498,10 @@ type Query {
   fundingSource(id: ID!): FundingSource
 
   """Returns an international beneficiary dynamic forms."""
-  internationalBeneficiaryDynamicForms(
-    """
-    Optional. If provided, account should exist. This field becomes mandatory on March 31, 2026.
-    """
-    accountId: ID
-    amount: AmountInput!
-    language: InternationalCreditTransferDisplayLanguage
-    dynamicFields: [InternationalBeneficiaryDetailsInput!]
-  ): InternationalBeneficiaryDynamicForms
+  internationalBeneficiaryDynamicForms(accountId: ID!, amount: AmountInput!, language: InternationalCreditTransferDisplayLanguage, dynamicFields: [InternationalBeneficiaryDetailsInput!]): InternationalBeneficiaryDynamicForms
 
   """Returns an international credit transfer dynamic form."""
-  internationalCreditTransferTransactionDetailsDynamicForm(
-    """
-    Optional. If provided, account should exist. This field becomes mandatory on March 31, 2026.
-    """
-    accountId: ID
-    targetAmount: AmountInput!
-    language: InternationalCreditTransferDisplayLanguage
-    internationalBeneficiary: InternationalBeneficiaryInput!
-    refreshableFields: [InternationalCreditTransferDetailsInput!]
-  ): InternationalCreditTransferDynamicForm
+  internationalCreditTransferTransactionDetailsDynamicForm(accountId: ID!, targetAmount: AmountInput!, language: InternationalCreditTransferDisplayLanguage, internationalBeneficiary: InternationalBeneficiaryInput!, refreshableFields: [InternationalCreditTransferDetailsInput!]): InternationalCreditTransferDynamicForm
 
   """Request an international credit transfer quote."""
   internationalCreditTransferQuote(accountId: ID!, route: InternationalCreditTransferRouteInput, targetAmount: AmountInput!, language: InternationalCreditTransferDisplayLanguage): InternationalCreditTransferQuote
@@ -8239,6 +8222,11 @@ type SupportingDocumentPurpose {
   Corresponding Supporting Document Purpose Description translation according to accept-language header
   """
   description: String!
+
+  """
+  When set, describes what specific document is required for this purpose
+  """
+  purposeDetails: String
 }
 
 """Supporting document purpose"""
@@ -17057,7 +17045,7 @@ input AddCardsInput {
   cardProductId: ID
 }
 
-union AddCardsPayload = AddCardsSuccessPayload | AddingCardsToDifferentAccountsRejection | BadAccountStatusRejection | TooManyItemsRejection | AccountMembershipNotAllowedRejection | CardPackageNotAllowedRejection | CardProductInvalidFundingTypeRejection | CardProductSuspendedRejection | CardProductNotApplicableToPhysicalCardsRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection | InvalidShippingProviderRejection
+union AddCardsPayload = AddCardsSuccessPayload | AddingCardsToDifferentAccountsRejection | BadAccountStatusRejection | TooManyItemsRejection | AccountMembershipNotAllowedRejection | CardPackageNotAllowedRejection | CardProductInvalidFundingTypeRejection | CardProductSuspendedRejection | CardProductNotApplicableToPhysicalCardsRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection | InvalidShippingProviderRejection | ForbiddenRejection
 
 type AddCardsSuccessPayload {
   """The newly created cards"""
@@ -17148,7 +17136,7 @@ input AddSingleUseVirtualCardInput {
   cardContractExpiryDate: DateTime
 }
 
-union AddSingleUseVirtualCardPayload = AddSingleUseVirtualCardSuccessForUserPayload | AddSingleUseVirtualCardSuccessForProjectOwnerPayload | BadAccountStatusRejection | AccountMembershipNotAllowedRejection | CardPackageNotAllowedRejection | CardProductInvalidFundingTypeRejection | CardProductSuspendedRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection
+union AddSingleUseVirtualCardPayload = AddSingleUseVirtualCardSuccessForUserPayload | AddSingleUseVirtualCardSuccessForProjectOwnerPayload | BadAccountStatusRejection | AccountMembershipNotAllowedRejection | CardPackageNotAllowedRejection | CardProductInvalidFundingTypeRejection | CardProductSuspendedRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection | ForbiddenRejection
 
 """Input to add a new single-use virtual cards"""
 input AddSingleUseVirtualCardsInput {
@@ -17162,7 +17150,7 @@ input AddSingleUseVirtualCardsInput {
   cardProductId: ID
 }
 
-union AddSingleUseVirtualCardsPayload = AddSingleUseVirtualCardsSuccessPayload | AddingCardsToDifferentAccountsRejection | TooManyItemsRejection | BadAccountStatusRejection | AccountMembershipNotAllowedRejection | CardPackageNotAllowedRejection | CardProductInvalidFundingTypeRejection | CardProductSuspendedRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection
+union AddSingleUseVirtualCardsPayload = AddSingleUseVirtualCardsSuccessPayload | AddingCardsToDifferentAccountsRejection | TooManyItemsRejection | BadAccountStatusRejection | AccountMembershipNotAllowedRejection | CardPackageNotAllowedRejection | CardProductInvalidFundingTypeRejection | CardProductSuspendedRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection | ForbiddenRejection
 
 type AddSingleUseVirtualCardsSuccessPayload {
   """The newly created single use virtual cards"""

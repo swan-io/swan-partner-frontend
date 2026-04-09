@@ -4588,6 +4588,11 @@ type SupportingDocumentPurpose {
   Corresponding Supporting Document Purpose Description translation according to accept-language header
   """
   description: String!
+
+  """
+  When set, describes what specific document is required for this purpose
+  """
+  purposeDetails: String
 }
 
 """Supporting document purpose"""

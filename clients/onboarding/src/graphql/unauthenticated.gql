@@ -141,6 +141,9 @@ fragment OnboardingData on OnboardingInfo {
     id
     requiredSupportingDocumentPurposes {
       name
+      label
+      description
+      purposeDetails
     }
     statusInfo {
       status
@@ -238,6 +241,9 @@ query SupportingDocumentCollection($supportingDocumentCollectionId: ID!) {
     }
     requiredSupportingDocumentPurposes {
       name
+      label
+      description
+      purposeDetails
     }
     statusInfo {
       status

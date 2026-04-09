@@ -127,8 +127,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
   const isRegistered = holder.isRegistered;
 
   const requiredDocumentsPurposes =
-    onboarding?.supportingDocumentCollection.requiredSupportingDocumentPurposes.map(d => d.name) ??
-    [];
+    onboarding?.supportingDocumentCollection.requiredSupportingDocumentPurposes ?? [];
 
   // If company type is "Other", we always update with this value to prevent backend to overwrite it
   // We do it in front-end instead of backend to avoid apply this logic to partners using the partner API
@@ -436,8 +435,6 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
                 onboarding?.supportingDocumentCollection.statusInfo.status
               }
               templateLanguage={onboarding.language ?? "en"}
-              accountCountry={accountCountry}
-              companyType={companyType}
               forcedUpdateInputs={forcedUpdateInputs}
             />
           </TrackingProvider>

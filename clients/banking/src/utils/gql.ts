@@ -16,6 +16,7 @@ import { customAlphabet } from "nanoid";
 import { P, match } from "ts-pattern";
 import partnerSchemaConfig from "../../../../scripts/graphql/dist/partner-schema-config.json";
 import unauthenticatedSchemaConfig from "../../../../scripts/graphql/dist/unauthenticated-schema-config.json";
+import { locale } from "./i18n";
 import { projectConfiguration } from "./projectId";
 import { Router } from "./routes";
 
@@ -83,6 +84,7 @@ const makeRequest: MakeRequest = ({ url, headers, operationName, document, varia
     type: "json",
     headers: {
       ...headers,
+      "accept-language": locale.language,
       "x-swan-request-id": requestId,
       traceparent,
     },

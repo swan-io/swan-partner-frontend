@@ -15,6 +15,7 @@ import { P, match } from "ts-pattern";
 import partnerSchemaConfig from "../../../../scripts/graphql/dist/partner-schema-config.json";
 import schemaConfig from "../../../../scripts/graphql/dist/unauthenticated-schema-config.json";
 import { env } from "./env";
+import { locale } from "./i18n";
 import { projectConfiguration } from "./projectId";
 
 const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
@@ -48,6 +49,7 @@ const makeRequest: MakeRequest = ({ url, headers, operationName, document, varia
     type: "json",
     headers: {
       ...headers,
+      "accept-language": locale.language,
       "x-swan-request-id": requestId,
       traceparent,
     },

@@ -19,6 +19,7 @@ import {
 } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
+import { toRequiredDocumentPurposes } from "../../utils/supportingDocuments";
 import { RenewalStep } from "../../utils/verificationRenewal";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 import { VerificationRenewalStepContent } from "./VerificationRenewalStepContent";
@@ -162,12 +163,9 @@ export const VerificationRenewalDocuments = ({
             ) : (
               <SupportingDocumentCollection
                 generateUpload={generateUpload}
-                requiredDocumentPurposes={Object.fromEntries(
-                  supportingDocumentCollection.requiredSupportingDocumentPurposes.map(item => [
-                    item.name,
-                    { label: item.label, description: item.description, purposeDetails: item.purposeDetails ?? undefined },
-                  ]),
-                ) as Record<SupportingDocumentPurposeEnum, { label: string; description: string; purposeDetails?: string }>}
+                requiredDocumentPurposes={toRequiredDocumentPurposes(
+                  supportingDocumentCollection.requiredSupportingDocumentPurposes,
+                )}
                 status={supportingDocumentCollection.statusInfo.status}
                 documents={docs}
                 templateLanguage={templateLanguage}

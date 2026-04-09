@@ -34,6 +34,7 @@ import {
 } from "../../graphql/unauthenticated";
 import { locale, t } from "../../utils/i18n";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
+import { toRequiredDocumentPurposes } from "../../utils/supportingDocuments";
 
 const styles = StyleSheet.create({
   fill: {
@@ -46,7 +47,12 @@ type Props = {
   nextStep: CompanyOnboardingRoute;
   onboardingId: string;
   documents: SupportingDocumentFragment[];
-  requiredDocumentsPurposes: Array<{ name: SupportingDocumentPurposeEnum; label: string; description: string; purposeDetails?: string | null }>;
+  requiredDocumentsPurposes: Array<{
+    name: SupportingDocumentPurposeEnum;
+    label: string;
+    description: string;
+    purposeDetails?: string | null;
+  }>;
   supportingDocumentCollectionId: string;
   supportingDocumentCollectionStatus: SupportingDocumentCollectionStatus;
   templateLanguage: string;
@@ -204,12 +210,7 @@ export const OnboardingCompanyDocuments = ({
                 <SupportingDocumentCollection
                   ref={supportingDocumentCollectionRef}
                   documents={docs}
-                  requiredDocumentPurposes={Object.fromEntries(
-                    requiredDocumentsPurposes.map(({ name, label, description, purposeDetails }) => [
-                      name,
-                      { label, description, purposeDetails: purposeDetails ?? undefined },
-                    ]),
-                  ) as Record<SupportingDocumentPurposeEnum, { label: string; description: string; purposeDetails?: string }>}
+                  requiredDocumentPurposes={toRequiredDocumentPurposes(requiredDocumentsPurposes)}
                   generateUpload={generateUpload}
                   status={supportingDocumentCollectionStatus}
                   templateLanguage={templateLanguage}

@@ -24,6 +24,7 @@ import {
 } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
+import { toRequiredDocumentPurposes } from "../../utils/supportingDocuments";
 
 type Props = {
   supportingDocumentCollection: AccountAdminChangeInfoFragment["supportingDocumentCollection"];
@@ -162,12 +163,9 @@ export const ChangeAdminDocuments = ({
             <DocumentsStepTile small={small}>
               <SupportingDocumentCollection
                 documents={docs}
-                requiredDocumentPurposes={Object.fromEntries(
-                  supportingDocumentCollection.requiredSupportingDocumentPurposes.map(item => [
-                    item.name,
-                    { label: item.label, description: item.description, purposeDetails: item.purposeDetails ?? undefined },
-                  ]),
-                ) as Record<SupportingDocumentPurposeEnum, { label: string; description: string; purposeDetails?: string }>}
+                requiredDocumentPurposes={toRequiredDocumentPurposes(
+                  supportingDocumentCollection.requiredSupportingDocumentPurposes,
+                )}
                 generateUpload={generateUpload}
                 status={supportingDocumentCollectionStatus}
                 templateLanguage={templateLanguage}

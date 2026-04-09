@@ -32,6 +32,7 @@ import {
 } from "../../../graphql/unauthenticated";
 import { t } from "../../../utils/i18n";
 import { CompanyOnboardingRouteV2, Router } from "../../../utils/routes";
+import { toRequiredDocumentPurposes } from "../../../utils/supportingDocuments";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 import { extractServerInvalidFields } from "../../../utils/validation";
 
@@ -254,12 +255,9 @@ export const OnboardingCompanyDocuments = ({
               <SupportingDocumentCollection
                 ref={supportingDocumentCollectionRef}
                 documents={docs}
-                requiredDocumentPurposes={Object.fromEntries(
-                  requiredSupportingDocumentPurposes.map(({ name, label, description, purposeDetails }) => [
-                    name,
-                    { label, description, purposeDetails: purposeDetails ?? undefined },
-                  ]),
-                ) as Record<SupportingDocumentPurposeEnum, { label: string; description: string; purposeDetails?: string }>}
+                requiredDocumentPurposes={toRequiredDocumentPurposes(
+                  requiredSupportingDocumentPurposes,
+                )}
                 generateUpload={generateUpload}
                 status={supportingDocumentCollection.statusInfo.status}
                 templateLanguage={templateLanguage}

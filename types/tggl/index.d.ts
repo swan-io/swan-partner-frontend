@@ -89,7 +89,6 @@ declare module "react-tggl-client" {
     cardPinInvalidNotificationEnabledGlobally: boolean;
     cardSpendingLimitReachedNotificationEnabledGlobally: boolean;
     categoryPurposeOnSCTOutInitiation: boolean;
-    changeAccountAdmin: boolean;
     check_order_of_xpay_events: boolean;
     ciao_es_enabled: boolean;
     cms_call_cema_carte_for_choose_pin: true;

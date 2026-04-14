@@ -61,7 +61,7 @@
   "changeAdmin.step.context2.requestReason.currentAdministratorLeft": "Current admin left the organization",
   "changeAdmin.step.context2.requestReason.internalReorganization": "Internal restructuring or role change",
   "changeAdmin.step.context2.requestReason.other": "Other",
-  "changeAdmin.step.context2.requestReason.placeholder": "Select a option",
+  "changeAdmin.step.context2.requestReason.placeholder": "Select an option",
   "changeAdmin.step.context2.title": "Tell us about this change",
   "changeAdmin.step.documents": "Supporting documents",
   "changeAdmin.step.documents.description": "Upload clear, complete documents in the formats specified below to support your request.",

@@ -61,7 +61,7 @@
   "changeAdmin.step.context2.requestReason.currentAdministratorLeft": "L'amministratore attuale ha lasciato l'organizzazione",
   "changeAdmin.step.context2.requestReason.internalReorganization": "Riorganizzazione interna o cambiamento di ruolo",
   "changeAdmin.step.context2.requestReason.other": "Altro",
-  "changeAdmin.step.context2.requestReason.placeholder": "Selezioi un'opzione",
+  "changeAdmin.step.context2.requestReason.placeholder": "Selezioni un'opzione",
   "changeAdmin.step.context2.title": "Ci spieghi il perché di questo cambiamento",
   "changeAdmin.step.documents": "Documenti di supporto",
   "changeAdmin.step.documents.description": "Si prega di caricare documenti chiari e completi nei formati specificati di seguito a supporto della sua richiesta.",

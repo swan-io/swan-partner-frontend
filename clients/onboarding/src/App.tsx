@@ -6,7 +6,7 @@ import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartner
 import { colors, invariantColors } from "@swan-io/lake/src/constants/design";
 import { ToastStack } from "@swan-io/shared-business/src/components/ToastStack";
 import { useEffect } from "react";
-import { TgglProvider, useFlag, useTggl } from "react-tggl-client";
+import { TgglProvider, useTggl } from "react-tggl-client";
 import { P, match } from "ts-pattern";
 import { ErrorView } from "./components/ErrorView";
 import { Redirect } from "./components/Redirect";
@@ -328,8 +328,6 @@ const FlowPickerWizard = ({ onboardingId }: Props) => {
 
 export const Routing = () => {
   const route = Router.useRoute(["Area", "SupportingDocumentCollectionArea", "ChangeAdminArea"]);
-  const displayChangeAccountAdmin = useFlag("changeAccountAdmin", false);
-
   return (
     <ErrorBoundary
       key={route?.name}
@@ -347,15 +345,11 @@ export const Routing = () => {
             </ClientContext.Provider>
           ),
         )
-        .with({ name: "ChangeAdminArea" }, ({ params: { requestId } }) =>
-          displayChangeAccountAdmin ? (
-            <ClientContext.Provider value={partnerClient}>
-              <ChangeAdminWizard changeAdminRequestId={requestId} />
-            </ClientContext.Provider>
-          ) : (
-            <NotFoundPage />
-          ),
-        )
+        .with({ name: "ChangeAdminArea" }, ({ params: { requestId } }) => (
+          <ClientContext.Provider value={partnerClient}>
+            <ChangeAdminWizard changeAdminRequestId={requestId} />
+          </ClientContext.Provider>
+        ))
         .with({ name: "Area" }, ({ params: { onboardingId } }) => (
           <ClientContext.Provider value={partnerClient}>
             <FlowPickerWizard onboardingId={onboardingId} />

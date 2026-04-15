@@ -21,27 +21,11 @@ import { projectConfiguration } from "./projectId";
 const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
 const nanoid = customAlphabet(alphabet, 8);
 
-const generateTraceId = () => {
-  const buffer = new Uint8Array(16);
-  crypto.getRandomValues(buffer);
-  return Array.from(buffer, value => value.toString(16).padStart(2, "0")).join("");
-};
-
-const generateSpanId = () => {
-  const buffer = new Uint8Array(8);
-  crypto.getRandomValues(buffer);
-  return Array.from(buffer, value => value.toString(16).padStart(2, "0")).join("");
-};
-
-const traceparentVersion = "00";
-const traceFlags = "01";
-
 export const errorToRequestId = new WeakMap<WeakKey, string>();
 registerErrorToRequestId(errorToRequestId);
 
 const makeRequest: MakeRequest = ({ url, headers, operationName, document, variables }) => {
   const requestId = "req-" + nanoid();
-  const traceparent = `${traceparentVersion}-${generateTraceId()}-${generateSpanId()}-${traceFlags}`;
 
   return Request.make({
     url,
@@ -51,7 +35,9 @@ const makeRequest: MakeRequest = ({ url, headers, operationName, document, varia
       ...headers,
       "accept-language": locale.language,
       "x-swan-request-id": requestId,
-      traceparent,
+      // Used for reporting in GraphQL federation
+      "x-graphql-client-name": "onboarding",
+      "x-graphql-client-version": env.VERSION,
     },
     body: JSON.stringify({
       operationName,

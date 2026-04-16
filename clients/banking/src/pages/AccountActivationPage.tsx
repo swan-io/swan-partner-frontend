@@ -28,7 +28,6 @@ import { AdditionalInfo, SupportChat } from "@swan-io/shared-business/src/compon
 import dayjs from "dayjs";
 import { ReactNode, useCallback, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { useFlag } from "react-tggl-client";
 import { match, P } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
 import { LakeCopyTextLine } from "../components/LakeCopyTextLine";
@@ -722,7 +721,8 @@ export const AccountActivationPage = ({
   lastIdentification,
   largeViewport,
 }: Props) => {
-  const desktopToMobileIdentification = useFlag("frontDesktopToMobileIdentification", false);
+  const desktopToMobileIdentification = false;
+  // const desktopToMobileIdentification = useFlag("frontDesktopToMobileIdentification", false);
   const [data, { reload }] = useQuery(AccountActivationPageDocument, { accountMembershipId });
 
   const route = Router.useRoute(accountActivationRoutes);

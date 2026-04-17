@@ -1,7 +1,7 @@
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints, colors, radii, texts } from "@swan-io/lake/src/constants/design";
-import { Pressable, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { v4 as uuid } from "uuid";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import { StepTitle } from "../../../components/StepTitle";
@@ -17,6 +17,7 @@ import { formatNestedMessage, locale, t } from "../../../utils/i18n";
 
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { ContextMenu, ContextMenuItem } from "@swan-io/lake/src/components/ContextMenu";
 import { Icon, IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -136,46 +137,7 @@ const styles = StyleSheet.create({
   ownerName: {
     paddingRight: 100,
   },
-  menu: {
-    width: 100,
-    flexDirection: "row",
-  },
-  menuDesktop: {
-    position: "absolute",
-    top: -8,
-    right: 0,
-    justifyContent: "flex-end",
-  },
 });
-
-type ActionMenuProps = {
-  onEdit: () => void;
-  onDelete: () => void;
-  style?: StyleProp<ViewStyle>;
-};
-
-const ActionMenu = ({ onEdit, onDelete, style }: ActionMenuProps) => (
-  <View style={[styles.menu, style]}>
-    <Space width={8} />
-    <LakeButton
-      size="small"
-      mode="tertiary"
-      icon="edit-regular"
-      color="gray"
-      onPress={onEdit}
-      ariaLabel={t("common.edit")}
-    />
-    <Space width={4} />
-    <LakeButton
-      size="small"
-      mode="tertiary"
-      icon="delete-regular"
-      color="negative"
-      onPress={onDelete}
-      ariaLabel={t("common.delete")}
-    />
-  </View>
-);
 
 const RELATED_COMPANY_REGEX = /^company\.relatedCompanies\[(\d+)\]\.(.+)$/;
 const RELATED_INDIVIDUAL_REGEX = /^company\.relatedIndividuals\[(\d+)\]\.(.+)$/;
@@ -499,25 +461,39 @@ export const OnboardingCompanyOwnership = ({
                         <LakeText style={styles.textSubTitle}>
                           {t("company.step.ownership.role.CompanyLegalRepresentative")}
                         </LakeText>
-                        <ActionMenu
-                          onEdit={() =>
-                            setModalState({
-                              type: "edit",
-                              step: "company",
-                              initialValue: company,
-                              errors: missingInfos.company.get(index) ?? [],
-                            })
-                          }
-                          onDelete={() =>
-                            setModalState({
-                              type: "delete",
-                              reference: company[REFERENCE_SYMBOL],
-                              name: company.entityName ?? "",
-                              related: "company",
-                            })
-                          }
-                          style={small && styles.menuDesktop}
-                        />
+                        <Space width={8} />
+                        <ContextMenu
+                          ariaLabel={t("common.openActions")}
+                          withPill={missingInfos.company.has(index)}
+                          verticalPlacement="below"
+                        >
+                          <ContextMenuItem
+                            withPill={missingInfos.company.has(index)}
+                            onPress={() =>
+                              setModalState({
+                                type: "edit",
+                                step: "company",
+                                initialValue: company,
+                                errors: missingInfos.company.get(index) ?? [],
+                              })
+                            }
+                          >
+                            {t("common.edit")}
+                          </ContextMenuItem>
+                          <Separator />
+                          <ContextMenuItem
+                            onPress={() =>
+                              setModalState({
+                                type: "delete",
+                                reference: company[REFERENCE_SYMBOL],
+                                name: company.entityName ?? "",
+                                related: "company",
+                              })
+                            }
+                          >
+                            {t("common.remove")}
+                          </ContextMenuItem>
+                        </ContextMenu>
                       </Box>
                     </View>
                   ))}
@@ -581,27 +557,41 @@ export const OnboardingCompanyOwnership = ({
                         <LakeText style={styles.textSubTitle} align={small ? "left" : "right"}>
                           {ownershipTypeText(individual.type)}
                         </LakeText>
-                        <ActionMenu
-                          onEdit={() =>
-                            setModalState({
-                              type: "edit",
-                              step: "init",
-                              initialValue: individual,
-                              errors: missingInfos.individual.get(index) ?? [],
-                            })
-                          }
-                          onDelete={() =>
-                            setModalState({
-                              type: "delete",
-                              reference: individual[REFERENCE_SYMBOL],
-                              name: [individual.firstName, individual.lastName]
-                                .filter(Boolean)
-                                .join(" "),
-                              related: "individual",
-                            })
-                          }
-                          style={small && styles.menuDesktop}
-                        />
+                        <Space width={8} />
+                        <ContextMenu
+                          ariaLabel={t("common.openActions")}
+                          withPill={missingInfos.individual.has(index)}
+                          verticalPlacement="below"
+                        >
+                          <ContextMenuItem
+                            withPill={missingInfos.individual.has(index)}
+                            onPress={() =>
+                              setModalState({
+                                type: "edit",
+                                step: "init",
+                                initialValue: individual,
+                                errors: missingInfos.individual.get(index) ?? [],
+                              })
+                            }
+                          >
+                            {t("common.edit")}
+                          </ContextMenuItem>
+                          <Separator />
+                          <ContextMenuItem
+                            onPress={() =>
+                              setModalState({
+                                type: "delete",
+                                reference: individual[REFERENCE_SYMBOL],
+                                name: [individual.firstName, individual.lastName]
+                                  .filter(Boolean)
+                                  .join(" "),
+                                related: "individual",
+                              })
+                            }
+                          >
+                            {t("common.remove")}
+                          </ContextMenuItem>
+                        </ContextMenu>
                       </Box>
                     </View>
                   ))}

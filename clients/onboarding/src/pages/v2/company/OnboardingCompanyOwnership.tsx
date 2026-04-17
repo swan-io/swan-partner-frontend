@@ -463,7 +463,7 @@ export const OnboardingCompanyOwnership = ({
                         </LakeText>
                         <Space width={8} />
                         <ContextMenu
-                          ariaLabel={t("common.edit")}
+                          ariaLabel={t("common.openActions")}
                           withPill={missingInfos.company.has(index)}
                           verticalPlacement="below"
                         >
@@ -559,7 +559,7 @@ export const OnboardingCompanyOwnership = ({
                         </LakeText>
                         <Space width={8} />
                         <ContextMenu
-                          ariaLabel={t("common.edit")}
+                          ariaLabel={t("common.openActions")}
                           withPill={missingInfos.individual.has(index)}
                           verticalPlacement="below"
                         >

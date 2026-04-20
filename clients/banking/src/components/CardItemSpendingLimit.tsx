@@ -1,10 +1,11 @@
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { LakeRadio } from "@swan-io/lake/src/components/LakeRadio";
 import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
-import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
+import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
@@ -33,6 +34,10 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     alignItems: "baseline",
   },
+  limitTypeItem: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
 });
 
 const ROLLING_PERIODS = [
@@ -49,8 +54,16 @@ const CALENDAR_PERIODS = [
 ];
 
 const LIMIT_TYPES = [
-  { name: t("cardSettings.spendingLimit.rolling"), value: "rolling" as const },
-  { name: t("cardSettings.spendingLimit.calendar"), value: "calendar" as const },
+  {
+    name: t("cardSettings.spendingLimit.rolling"),
+    description: t("cardSettings.spendingLimit.rolling.info"),
+    value: "rolling" as const,
+  },
+  {
+    name: t("cardSettings.spendingLimit.calendar"),
+    description: t("cardSettings.spendingLimit.calendar.info"),
+    value: "calendar" as const,
+  },
 ];
 
 const WEEK_DAYS = [
@@ -252,19 +265,17 @@ export const SpendingLimitForm = ({
 
   return (
     <>
-      <LakeLabel
-        label={t("card.settings.spendingLimit")}
-        render={id => (
-          <LakeTextInput
-            id={id}
-            unit={"€"}
-            value={dirtyValue}
-            onChangeText={setDirtyValue}
-            onBlur={sanitizeInput}
-            inputMode="decimal"
-            disabled={disabled}
-          />
-        )}
+      <LakeText color={colors.gray[500]}>{t("card.settings.spendingLimit.amount")}</LakeText>
+
+      <Space height={4} />
+
+      <LakeTextInput
+        unit={"€"}
+        value={dirtyValue}
+        onChangeText={setDirtyValue}
+        onBlur={sanitizeInput}
+        inputMode="decimal"
+        disabled={disabled}
       />
 
       {calendarSpendingLimitEnabled && (
@@ -274,36 +285,53 @@ export const SpendingLimitForm = ({
           <LakeLabel
             label={t("cardSettings.spendingLimit.limitType")}
             render={() => (
-              <RadioGroup
-                disabled={disabled}
-                hideErrors={true}
-                color="current"
-                value={value.mode.type === "rolling" ? ("rolling" as const) : ("calendar" as const)}
-                onValueChange={mode => {
-                  match(mode)
-                    .with("rolling", () => {
-                      onChange({
-                        amount: value.amount,
-                        mode: {
-                          type: "rolling",
-                          rollingValue: value.mode.type === "rolling" ? value.mode.rollingValue : 1,
-                          period: "Daily",
-                        },
-                      });
-                    })
-                    .with("calendar", () => {
-                      onChange({
-                        amount: value.amount,
-                        mode: {
-                          type: "calendarDayMode",
-                          startHour: 0,
-                        },
-                      });
-                    })
-                    .exhaustive();
-                }}
-                items={LIMIT_TYPES}
-              />
+              <Box direction="column">
+                {LIMIT_TYPES.map((item, index) => {
+                  const currentValue = value.mode.type === "rolling" ? "rolling" : "calendar";
+                  const isSelected = item.value === currentValue;
+                  return (
+                    <>
+                      <Pressable
+                        key={item.value}
+                        disabled={disabled}
+                        style={styles.limitTypeItem}
+                        onPress={() => {
+                          match(item.value)
+                            .with("rolling", () => {
+                              onChange({
+                                amount: value.amount,
+                                mode: {
+                                  type: "rolling",
+                                  rollingValue:
+                                    value.mode.type === "rolling" ? value.mode.rollingValue : 1,
+                                  period: "Daily",
+                                },
+                              });
+                            })
+                            .with("calendar", () => {
+                              onChange({
+                                amount: value.amount,
+                                mode: { type: "calendarDayMode", startHour: 0 },
+                              });
+                            })
+                            .exhaustive();
+                        }}
+                      >
+                        <LakeRadio color="current" disabled={disabled} value={isSelected} />
+                        <Space width={12} />
+                        <LakeText color={disabled ? colors.gray[300] : colors.gray[900]}>
+                          {item.name}
+                        </LakeText>
+                        <LakeText color={disabled ? colors.gray[300] : colors.gray[500]}>
+                          {`: ${item.description}`}
+                        </LakeText>
+                      </Pressable>
+
+                      {index < LIMIT_TYPES.length - 1 && <Space height={12} />}
+                    </>
+                  );
+                })}
+              </Box>
             )}
           />
         </>

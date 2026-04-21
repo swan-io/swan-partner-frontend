@@ -223,6 +223,45 @@ export const CardWizardSettings = ({
     });
   }, [spendingLimitMaxValue, dirtyValue, currentSettings]);
 
+  const cardSettingItems = [
+    {
+      key: "eCommerce",
+      title: t("card.settings.eCommerce"),
+      description: t("card.settings.eCommerce.description"),
+      icon: "cart-regular",
+      checked: currentSettings.eCommerce,
+      onChange: (eCommerce: boolean) =>
+        setCurrentSettings(settings => ({ ...settings, eCommerce })),
+    },
+    {
+      key: "withdrawal",
+      title: t("card.settings.withdrawal"),
+      description: t("card.settings.withdrawal.description"),
+      icon: "money-regular",
+      checked: currentSettings.withdrawal,
+      onChange: (withdrawal: boolean) =>
+        setCurrentSettings(settings => ({ ...settings, withdrawal })),
+    },
+    {
+      key: "international",
+      title: t("card.settings.international"),
+      description: t("card.settings.international.description"),
+      icon: "earth-regular",
+      checked: currentSettings.international,
+      onChange: (international: boolean) =>
+        setCurrentSettings(settings => ({ ...settings, international })),
+    },
+    {
+      key: "nonMainCurrencyTransactions",
+      title: t("card.settings.nonMainCurrencyTransactions"),
+      description: t("card.settings.nonMainCurrencyTransactions.description"),
+      icon: "lake-currencies",
+      checked: currentSettings.nonMainCurrencyTransactions,
+      onChange: (nonMainCurrencyTransactions: boolean) =>
+        setCurrentSettings(settings => ({ ...settings, nonMainCurrencyTransactions })),
+    },
+  ] as const;
+
   return (
     <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.root}>
       {({ large }) => (
@@ -271,49 +310,7 @@ export const CardWizardSettings = ({
 
           {cardFormat !== "SingleUseVirtual" ? (
             <Tile title={t("card.settings.title")}>
-              {(
-                [
-                  {
-                    key: "eCommerce",
-                    title: t("card.settings.eCommerce"),
-                    description: t("card.settings.eCommerce.description"),
-                    icon: "cart-regular",
-                    checked: currentSettings.eCommerce,
-                    onChange: (eCommerce: boolean) =>
-                      setCurrentSettings(settings => ({ ...settings, eCommerce })),
-                  },
-                  {
-                    key: "withdrawal",
-                    title: t("card.settings.withdrawal"),
-                    description: t("card.settings.withdrawal.description"),
-                    icon: "money-regular",
-                    checked: currentSettings.withdrawal,
-                    onChange: (withdrawal: boolean) =>
-                      setCurrentSettings(settings => ({ ...settings, withdrawal })),
-                  },
-                  {
-                    key: "international",
-                    title: t("card.settings.international"),
-                    description: t("card.settings.international.description"),
-                    icon: "earth-regular",
-                    checked: currentSettings.international,
-                    onChange: (international: boolean) =>
-                      setCurrentSettings(settings => ({ ...settings, international })),
-                  },
-                  {
-                    key: "nonMainCurrencyTransactions",
-                    title: t("card.settings.nonMainCurrencyTransactions"),
-                    description: t("card.settings.nonMainCurrencyTransactions.description"),
-                    icon: "lake-currencies",
-                    checked: currentSettings.nonMainCurrencyTransactions,
-                    onChange: (nonMainCurrencyTransactions: boolean) =>
-                      setCurrentSettings(settings => ({
-                        ...settings,
-                        nonMainCurrencyTransactions,
-                      })),
-                  },
-                ] as const
-              ).map((item, index, arr) => (
+              {cardSettingItems.map((item, index, arr) => (
                 <View key={item.key}>
                   <View style={styles.settingRow}>
                     <Icon name={item.icon} color={colors.current[500]} size={24} />

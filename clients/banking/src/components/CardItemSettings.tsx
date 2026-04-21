@@ -243,6 +243,14 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
           {canUpdateCard && (
             <>
               <LakeButtonGroup>
+                <LakeButton
+                  color="current"
+                  onPress={onPressSubmit}
+                  loading={cardUpdate.isLoading()}
+                >
+                  {t("common.save")}
+                </LakeButton>
+
                 {match(card.statusInfo)
                   .with(
                     {
@@ -264,14 +272,6 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
                   .otherwise(() => (
                     <View />
                   ))}
-
-                <LakeButton
-                  color="current"
-                  onPress={onPressSubmit}
-                  loading={cardUpdate.isLoading()}
-                >
-                  {t("common.save")}
-                </LakeButton>
               </LakeButtonGroup>
 
               <CardCancelConfirmationModal

@@ -1,22 +1,16 @@
 import { Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { Icon, IconName } from "@swan-io/lake/src/components/Icon";
+import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
-import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Switch } from "@swan-io/lake/src/components/Switch";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import {
-  breakpoints,
-  colors,
-  negativeSpacings,
-  spacings,
-} from "@swan-io/lake/src/constants/design";
+import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { ChoicePicker } from "@swan-io/shared-business/src/components/ChoicePicker";
 import { Ref, useCallback, useEffect, useImperativeHandle, useState } from "react";
@@ -35,38 +29,14 @@ const styles = StyleSheet.create({
   root: {
     display: "block",
   },
-  container: {
-    ...commonStyles.fill,
-  },
-  booleanTiles: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginHorizontal: negativeSpacings[8],
-    alignItems: "stretch",
-  },
-  booleanTilesMobile: {
-    flexDirection: "column",
-    marginHorizontal: negativeSpacings[8],
-    alignItems: "stretch",
-  },
-  booleanTile: {
-    flexBasis: "50%",
-    padding: spacings[8],
-  },
-  text: {
-    flexDirection: "row",
-  },
-  booleanTileText: {
-    width: 1,
-    flexGrow: 1,
-  },
-  tileContents: {
+  settingRow: {
     flexDirection: "row",
     alignItems: "center",
-    flexGrow: 1,
+    paddingVertical: spacings[16],
   },
-  contents: {
-    ...commonStyles.fill,
+  settingText: {
+    flex: 1,
+    marginHorizontal: spacings[16],
   },
   item: {
     alignSelf: "stretch",
@@ -78,14 +48,6 @@ const styles = StyleSheet.create({
   description: {
     width: 1,
     flexGrow: 1,
-  },
-  sliderInput: {
-    marginTop: negativeSpacings[40],
-  },
-  input: {
-    maxWidth: 120,
-    zIndex: 1,
-    position: "relative",
   },
 });
 
@@ -143,69 +105,6 @@ const validate = (input: DirtyCardSettings): Result<CardSettings, ValidationErro
 };
 
 type CardProduct = CardProductFragment;
-
-type CardWizardSettingsBooleanTileProps = {
-  title: string;
-  description: string;
-  icon: IconName;
-  checked: boolean;
-  onChange: (nextValue: boolean) => void;
-  desktop: boolean;
-  disabled?: boolean;
-};
-
-const CardWizardSettingsBooleanTile = ({
-  title,
-  description,
-  icon,
-  checked,
-  onChange,
-  desktop,
-  disabled = false,
-}: CardWizardSettingsBooleanTileProps) => {
-  return (
-    <Pressable
-      role="checkbox"
-      aria-checked={checked}
-      onPress={() => onChange(!checked)}
-      style={styles.container}
-      disabled={disabled}
-    >
-      {({ hovered }) => (
-        <Tile flexGrow={1} hovered={hovered} selected={checked} paddingVertical={12}>
-          <View style={styles.tileContents}>
-            <Icon name={icon} color={colors.current[500]} size={24} />
-            <Space width={24} />
-
-            <View style={styles.contents}>
-              <View style={styles.text}>
-                <LakeHeading
-                  level={3}
-                  variant="h5"
-                  userSelect="none"
-                  style={styles.booleanTileText}
-                >
-                  {title}
-                </LakeHeading>
-              </View>
-
-              {desktop && (
-                <View style={styles.text}>
-                  <LakeText variant="smallRegular" userSelect="none" style={styles.booleanTileText}>
-                    {description}
-                  </LakeText>
-                </View>
-              )}
-            </View>
-
-            <Space width={24} />
-            <Switch disabled={disabled} value={checked} onValueChange={onChange} />
-          </View>
-        </Tile>
-      )}
-    </Pressable>
-  );
-};
 
 const defaultSpendingLimit = (
   cardFormat: CardFormat,
@@ -324,38 +223,49 @@ export const CardWizardSettings = ({
     });
   }, [spendingLimitMaxValue, dirtyValue, currentSettings]);
 
+  const cardSettingItems = [
+    {
+      key: "eCommerce",
+      title: t("card.settings.eCommerce"),
+      description: t("card.settings.eCommerce.description"),
+      icon: "cart-regular",
+      checked: currentSettings.eCommerce,
+      onChange: (eCommerce: boolean) =>
+        setCurrentSettings(settings => ({ ...settings, eCommerce })),
+    },
+    {
+      key: "withdrawal",
+      title: t("card.settings.withdrawal"),
+      description: t("card.settings.withdrawal.description"),
+      icon: "money-regular",
+      checked: currentSettings.withdrawal,
+      onChange: (withdrawal: boolean) =>
+        setCurrentSettings(settings => ({ ...settings, withdrawal })),
+    },
+    {
+      key: "international",
+      title: t("card.settings.international"),
+      description: t("card.settings.international.description"),
+      icon: "earth-regular",
+      checked: currentSettings.international,
+      onChange: (international: boolean) =>
+        setCurrentSettings(settings => ({ ...settings, international })),
+    },
+    {
+      key: "nonMainCurrencyTransactions",
+      title: t("card.settings.nonMainCurrencyTransactions"),
+      description: t("card.settings.nonMainCurrencyTransactions.description"),
+      icon: "lake-currencies",
+      checked: currentSettings.nonMainCurrencyTransactions,
+      onChange: (nonMainCurrencyTransactions: boolean) =>
+        setCurrentSettings(settings => ({ ...settings, nonMainCurrencyTransactions })),
+    },
+  ] as const;
+
   return (
     <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.root}>
       {({ large }) => (
         <>
-          <Tile>
-            <LakeLabel
-              label={t("cardSettings.name")}
-              optionalLabel={t("form.optional")}
-              render={id => (
-                <LakeTextInput
-                  id={id}
-                  disabled={disabled}
-                  value={currentSettings.cardName ?? ""}
-                  onChangeText={cardName =>
-                    setCurrentSettings(settings => ({
-                      ...settings,
-                      cardName,
-                    }))
-                  }
-                  onBlur={() =>
-                    setCurrentSettings(settings => ({
-                      ...settings,
-                      cardName: settings?.cardName?.trim() ?? "",
-                    }))
-                  }
-                />
-              )}
-            />
-          </Tile>
-
-          <Space height={24} />
-
           {spendingLimitMaxValue != null ? (
             <>
               {cardFormat !== "SingleUseVirtual" ? (
@@ -394,68 +304,38 @@ export const CardWizardSettings = ({
                 </Tile>
               )}
 
-              <Space height={12} />
+              <Space height={24} />
             </>
           ) : null}
 
           {cardFormat !== "SingleUseVirtual" ? (
-            <View style={large ? styles.booleanTiles : styles.booleanTilesMobile}>
-              <View style={styles.booleanTile}>
-                <CardWizardSettingsBooleanTile
-                  title={t("card.settings.eCommerce")}
-                  description={t("card.settings.eCommerce.description")}
-                  icon="cart-regular"
-                  checked={currentSettings.eCommerce}
-                  onChange={eCommerce =>
-                    setCurrentSettings(settings => ({ ...settings, eCommerce }))
-                  }
-                  disabled={disabled}
-                  desktop={large}
-                />
-              </View>
+            <Tile title={t("card.settings.title")}>
+              {cardSettingItems.map((item, index, arr) => (
+                <View key={item.key}>
+                  <View style={styles.settingRow}>
+                    <Icon name={item.icon} color={colors.current[500]} size={24} />
 
-              <View style={styles.booleanTile}>
-                <CardWizardSettingsBooleanTile
-                  title={t("card.settings.withdrawal")}
-                  description={t("card.settings.withdrawal.description")}
-                  icon="money-regular"
-                  checked={currentSettings.withdrawal}
-                  onChange={withdrawal =>
-                    setCurrentSettings(settings => ({ ...settings, withdrawal }))
-                  }
-                  disabled={disabled}
-                  desktop={large}
-                />
-              </View>
+                    <View style={styles.settingText}>
+                      <LakeHeading level={3} variant="h5">
+                        {item.title}
+                      </LakeHeading>
 
-              <View style={styles.booleanTile}>
-                <CardWizardSettingsBooleanTile
-                  title={t("card.settings.nonMainCurrencyTransactions")}
-                  description={t("card.settings.nonMainCurrencyTransactions.description")}
-                  icon="lake-currencies"
-                  checked={currentSettings.nonMainCurrencyTransactions}
-                  onChange={nonMainCurrencyTransactions =>
-                    setCurrentSettings(settings => ({ ...settings, nonMainCurrencyTransactions }))
-                  }
-                  disabled={disabled}
-                  desktop={large}
-                />
-              </View>
+                      <LakeText variant="smallRegular" color={colors.gray[500]}>
+                        {item.description}
+                      </LakeText>
+                    </View>
 
-              <View style={styles.booleanTile}>
-                <CardWizardSettingsBooleanTile
-                  title={t("card.settings.international")}
-                  description={t("card.settings.international.description")}
-                  icon="earth-regular"
-                  checked={currentSettings.international}
-                  onChange={international =>
-                    setCurrentSettings(settings => ({ ...settings, international }))
-                  }
-                  disabled={disabled}
-                  desktop={large}
-                />
-              </View>
-            </View>
+                    <Switch
+                      disabled={disabled}
+                      value={item.checked}
+                      onValueChange={item.onChange}
+                    />
+                  </View>
+
+                  {index < arr.length - 1 && <Separator />}
+                </View>
+              ))}
+            </Tile>
           ) : (
             <ChoicePicker
               large={true}
@@ -524,6 +404,44 @@ export const CardWizardSettings = ({
               }}
             />
           )}
+
+          <Space height={24} />
+
+          <Tile>
+            <LakeLabel
+              style={{ paddingTop: 0 }}
+              label={t("cardSettings.name")}
+              extra={() => (
+                <LakeText color={colors.gray[500]} style={{ fontStyle: "italic" }}>
+                  {` (${t("form.optional")})`}
+                </LakeText>
+              )}
+              render={id => (
+                <>
+                  <LakeTextInput
+                    id={id}
+                    hideErrors={true}
+                    disabled={disabled}
+                    value={currentSettings.cardName ?? ""}
+                    onChangeText={cardName =>
+                      setCurrentSettings(settings => ({
+                        ...settings,
+                        cardName,
+                      }))
+                    }
+                    onBlur={() =>
+                      setCurrentSettings(settings => ({
+                        ...settings,
+                        cardName: settings?.cardName?.trim() ?? "",
+                      }))
+                    }
+                  />
+                  <Space height={4} />
+                  <LakeText>{t("cardSettings.name.description")}</LakeText>
+                </>
+              )}
+            />
+          </Tile>
         </>
       )}
     </ResponsiveContainer>

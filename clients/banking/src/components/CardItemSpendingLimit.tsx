@@ -49,8 +49,16 @@ const CALENDAR_PERIODS = [
 ];
 
 const LIMIT_TYPES = [
-  { name: t("cardSettings.spendingLimit.rolling"), value: "rolling" as const },
-  { name: t("cardSettings.spendingLimit.calendar"), value: "calendar" as const },
+  {
+    name: t("cardSettings.spendingLimit.rolling"),
+    description: t("cardSettings.spendingLimit.rolling.info"),
+    value: "rolling" as const,
+  },
+  {
+    name: t("cardSettings.spendingLimit.calendar"),
+    description: t("cardSettings.spendingLimit.calendar.info"),
+    value: "calendar" as const,
+  },
 ];
 
 const WEEK_DAYS = [
@@ -252,19 +260,17 @@ export const SpendingLimitForm = ({
 
   return (
     <>
-      <LakeLabel
-        label={t("card.settings.spendingLimit")}
-        render={id => (
-          <LakeTextInput
-            id={id}
-            unit={"€"}
-            value={dirtyValue}
-            onChangeText={setDirtyValue}
-            onBlur={sanitizeInput}
-            inputMode="decimal"
-            disabled={disabled}
-          />
-        )}
+      <LakeText color={colors.gray[500]}>{t("card.settings.spendingLimit.amount")}</LakeText>
+
+      <Space height={4} />
+
+      <LakeTextInput
+        unit={"€"}
+        value={dirtyValue}
+        onChangeText={setDirtyValue}
+        onBlur={sanitizeInput}
+        inputMode="decimal"
+        disabled={disabled}
       />
 
       {calendarSpendingLimitEnabled && (
@@ -294,15 +300,20 @@ export const SpendingLimitForm = ({
                     .with("calendar", () => {
                       onChange({
                         amount: value.amount,
-                        mode: {
-                          type: "calendarDayMode",
-                          startHour: 0,
-                        },
+                        mode: { type: "calendarDayMode", startHour: 0 },
                       });
                     })
                     .exhaustive();
                 }}
-                items={LIMIT_TYPES}
+                items={LIMIT_TYPES.map(item => ({
+                  value: item.value,
+                  name: (
+                    <>
+                      {item.name}
+                      <LakeText color={colors.gray[500]}>{`: ${item.description}`}</LakeText>
+                    </>
+                  ),
+                }))}
               />
             )}
           />

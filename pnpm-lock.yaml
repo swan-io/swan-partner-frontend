@@ -153,14 +153,14 @@ importers:
         specifier: 0.8.0
         version: 0.8.0(graphql@16.12.0)(react@19.2.4)(typescript@6.0.2)
       '@swan-io/lake':
-        specifier: 13.7.13
-        version: 13.7.13(typescript@6.0.2)
+        specifier: 13.7.14
+        version: 13.7.14(typescript@6.0.2)
       '@swan-io/request':
         specifier: 3.1.0
         version: 3.1.0(@swan-io/boxed@3.2.1(typescript@6.0.2))
       '@swan-io/shared-business':
-        specifier: 13.7.13
-        version: 13.7.13(@swan-io/lake@13.7.13(typescript@6.0.2))(typescript@6.0.2)
+        specifier: 13.7.14
+        version: 13.7.14(@swan-io/lake@13.7.14(typescript@6.0.2))(typescript@6.0.2)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@19.2.4)(typescript@6.0.2)
@@ -241,14 +241,14 @@ importers:
         specifier: 0.8.0
         version: 0.8.0(graphql@16.12.0)(react@19.2.4)(typescript@6.0.2)
       '@swan-io/lake':
-        specifier: 13.7.13
-        version: 13.7.13(typescript@6.0.2)
+        specifier: 13.7.14
+        version: 13.7.14(typescript@6.0.2)
       '@swan-io/request':
         specifier: 3.1.0
         version: 3.1.0(@swan-io/boxed@3.2.1(typescript@6.0.2))
       '@swan-io/shared-business':
-        specifier: 13.7.13
-        version: 13.7.13(@swan-io/lake@13.7.13(typescript@6.0.2))(typescript@6.0.2)
+        specifier: 13.7.14
+        version: 13.7.14(@swan-io/lake@13.7.14(typescript@6.0.2))(typescript@6.0.2)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@19.2.4)(typescript@6.0.2)
@@ -314,11 +314,11 @@ importers:
         specifier: 0.8.0
         version: 0.8.0(graphql@16.12.0)(react@19.2.4)(typescript@6.0.2)
       '@swan-io/lake':
-        specifier: 13.7.13
-        version: 13.7.13(typescript@6.0.2)
+        specifier: 13.7.14
+        version: 13.7.14(typescript@6.0.2)
       '@swan-io/shared-business':
-        specifier: 13.7.13
-        version: 13.7.13(@swan-io/lake@13.7.13(typescript@6.0.2))(typescript@6.0.2)
+        specifier: 13.7.14
+        version: 13.7.14(@swan-io/lake@13.7.14(typescript@6.0.2))(typescript@6.0.2)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@19.2.4)(typescript@6.0.2)
@@ -2481,6 +2481,7 @@ packages:
 
   '@swan-io/boxed@3.2.1':
     resolution: {integrity: sha512-MQqSpe09PdjDjTR4HCPpUxO9XsacNguCkce1C2wm1eIb6ycWXQoV+biYvLEuI/LiMqB31KySdgY2YFwrVucLCw==, tarball: https://registry.npmjs.org/@swan-io/boxed/-/boxed-3.2.1.tgz}
+    deprecated: This package has been transferred to @bloodyowl/boxed
     peerDependencies:
       typescript: '>=5.0.0'
     peerDependenciesMeta:
@@ -2489,29 +2490,32 @@ packages:
 
   '@swan-io/chicane@3.0.0':
     resolution: {integrity: sha512-ELguiTjrK2+wYqiUfguusOXaAXUBdizGJjXM6pg5Jvye0Yefp18coVmSCpGJLdJY4hCaWXis/ct4i/DyV2FIuw==, tarball: https://registry.npmjs.org/@swan-io/chicane/-/chicane-3.0.0.tgz}
+    deprecated: This package has been transferred to @zoontek/chicane
     peerDependencies:
       react: '>=19.0.0'
 
   '@swan-io/graphql-client@0.8.0':
     resolution: {integrity: sha512-+7cQV9NKUc5plt4hYt8nNz16gotnzGEGKcU2/xKaj1pjWjzSagKNoBt/ymLAy0d+U7wGLCgf0hF0yZyKLfYyaw==, tarball: https://registry.npmjs.org/@swan-io/graphql-client/-/graphql-client-0.8.0.tgz}
+    deprecated: This package has been transferred to @bloodyowl/graphql-client
     hasBin: true
     peerDependencies:
       react: '>=18.2.0'
 
-  '@swan-io/lake@13.7.13':
-    resolution: {integrity: sha512-WPqNtr+Ycq4nv8vfcrWYcWBCvEH+OwGOmOEtWZ5s36GmsMW9AGnazrwHrUEaLZ6KvJkP1xbOQNvw+qLjV4dmyQ==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-13.7.13.tgz}
+  '@swan-io/lake@13.7.14':
+    resolution: {integrity: sha512-Vu49DjP9TYdlHR6szACKMCv4o54d3fX+YCuEvxbv5Dp/n6pdu1UNG7eo4YdQd8F/aDOOD1QxF2reCuuegLRzmQ==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-13.7.14.tgz}
     engines: {node: '>22.12.0'}
 
   '@swan-io/request@3.1.0':
     resolution: {integrity: sha512-3NDXdNuew5+aEURpWg8aNIqPlYVNU6BZCD1rWptNemfNw9frTUBj8DmV+idOp9M5/4tVxncX7bxV7jBNtS6Cbg==, tarball: https://registry.npmjs.org/@swan-io/request/-/request-3.1.0.tgz}
+    deprecated: This package has been transferred to @bloodyowl/request
     peerDependencies:
       '@swan-io/boxed': '>=2.2.1'
 
-  '@swan-io/shared-business@13.7.13':
-    resolution: {integrity: sha512-ey16Wj2hyCXFVqORRLrVHuT2Ysg7dxLrGbLJ8kqU+ZmOrHom6Fr1yFYUkBK8w4NUCK1X0yc/Z/jjrvP37Caspg==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-13.7.13.tgz}
+  '@swan-io/shared-business@13.7.14':
+    resolution: {integrity: sha512-cH4PjJGV9R1mkGXTDtGBRbPtZUMO9i9yX6k/dSlbbSGXu4IhALb5G5MULRriMaI8krt6kojoJu4g9FZYrzvcIw==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-13.7.14.tgz}
     engines: {node: '>22.12.0'}
     peerDependencies:
-      '@swan-io/lake': 13.7.13
+      '@swan-io/lake': 13.7.14
 
   '@swan-io/use-form@3.1.0':
     resolution: {integrity: sha512-X6NpZ7LCeo7eS9RVCZrtpX+3GXZFUfUZpIwtVa2GNmqTLgyDbLhN8N6zBv+dmHL9KAQ+Zng2fTCCQpCZvmDu5A==, tarball: https://registry.npmjs.org/@swan-io/use-form/-/use-form-3.1.0.tgz}
@@ -7935,7 +7939,7 @@ snapshots:
       - graphql
       - typescript
 
-  '@swan-io/lake@13.7.13(typescript@6.0.2)':
+  '@swan-io/lake@13.7.14(typescript@6.0.2)':
     dependencies:
       '@swan-io/boxed': 3.2.1(typescript@6.0.2)
       '@swan-io/chicane': 3.0.0(react@19.2.4)
@@ -7957,12 +7961,12 @@ snapshots:
     dependencies:
       '@swan-io/boxed': 3.2.1(typescript@6.0.2)
 
-  '@swan-io/shared-business@13.7.13(@swan-io/lake@13.7.13(typescript@6.0.2))(typescript@6.0.2)':
+  '@swan-io/shared-business@13.7.14(@swan-io/lake@13.7.14(typescript@6.0.2))(typescript@6.0.2)':
     dependencies:
       '@formatjs/intl': 4.1.2(typescript@6.0.2)
       '@placekit/client-js': 2.3.0
       '@swan-io/boxed': 3.2.1(typescript@6.0.2)
-      '@swan-io/lake': 13.7.13(typescript@6.0.2)
+      '@swan-io/lake': 13.7.14(typescript@6.0.2)
       '@swan-io/request': 3.1.0(@swan-io/boxed@3.2.1(typescript@6.0.2))
       '@swan-io/use-form': 3.1.0(react@19.2.4)(typescript@6.0.2)
       dayjs: 1.11.19

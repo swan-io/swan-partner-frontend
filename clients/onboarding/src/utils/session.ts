@@ -22,11 +22,13 @@ const createSessionStorage = <T>(name: string) => {
       Result.fromExecution(() => Serializer.decode(value) as T).toOption(),
     );
 
+  const isSome = () => window.sessionStorage.getItem(name) !== null;
+
   const delete_ = () => {
     window.sessionStorage.removeItem(name);
   };
 
-  return { set, update, get, delete: delete_ };
+  return { set, update, get, isSome, delete: delete_ };
 };
 
 export const hasOnboardingPrefilled = createSessionStorage<PrefilleldParams>("Onboarding");

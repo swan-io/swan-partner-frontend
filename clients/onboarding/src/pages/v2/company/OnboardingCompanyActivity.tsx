@@ -40,6 +40,7 @@ import {
   monthlyPaymentVolumes,
 } from "../../../constants/business";
 import { Router } from "../../../utils/routes";
+import { hasOnboardingPrefilled } from "../../../utils/session";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 import {
   badUserInputErrorPattern,
@@ -141,13 +142,16 @@ export const OnboardingCompanyActivity = ({ onboarding, serverValidationErrors }
   });
 
   useEffect(() => {
-    if (isFirstMount && serverValidationErrors) {
+    if (isFirstMount) {
+      if (hasOnboardingPrefilled.isSome()) {
+        submitForm();
+      }
       serverValidationErrors.forEach(({ fieldName, code }) => {
         const message = getValidationErrorMessage(code);
         setFieldError(fieldName, message);
       });
     }
-  }, [serverValidationErrors, isFirstMount, setFieldError]);
+  }, [serverValidationErrors, isFirstMount, setFieldError, submitForm]);
 
   const onPressPrevious = () => {
     Router.push("Organisation", { onboardingId });

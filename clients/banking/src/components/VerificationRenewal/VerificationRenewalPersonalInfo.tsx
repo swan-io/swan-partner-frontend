@@ -146,7 +146,6 @@ export const VerificationRenewalPersonalInfo = ({
     },
     addressLine2: {
       initialValue: info.accountAdmin.residencyAddress.addressLine2 ?? "",
-      validate: validateRequired,
       sanitize: value => value.trim(),
     },
     postalCode: {

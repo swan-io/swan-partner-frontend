@@ -650,6 +650,7 @@ export const CardWizard = ({
                             cardFormat={cardFormat}
                             initialSettings={{
                               cardName,
+                              spendingLimit,
                               eCommerce,
                               withdrawal,
                               international,
@@ -657,22 +658,14 @@ export const CardWizard = ({
                             }}
                             accountHolder={accountMembership.account?.holder}
                             onSubmit={cardSettings => {
-                              const {
-                                spendingLimit: cardSettingsSpendingLimit,
-                                ...restCardSettings
-                              } = cardSettings;
-                              const effectiveSpendingLimit =
-                                cardSettingsSpendingLimit ?? spendingLimit;
-                              if (effectiveSpendingLimit == null) {
-                                return;
-                              }
+                              const { spendingLimit, ...restCardSettings } = cardSettings;
 
                               if (hasMoreThanOneMember) {
                                 setStep({
                                   name: "CardProductMembers",
                                   cardProduct,
                                   cardFormat,
-                                  spendingLimit: effectiveSpendingLimit,
+                                  spendingLimit,
                                   ...restCardSettings,
                                 });
                               } else {
@@ -689,7 +682,7 @@ export const CardWizard = ({
                                     cardProduct,
                                     cardFormat,
                                     memberships,
-                                    spendingLimit: effectiveSpendingLimit,
+                                    spendingLimit,
                                     ...restCardSettings,
                                   });
                                 } else {
@@ -705,8 +698,7 @@ export const CardWizard = ({
                                         return {
                                           name: cardSettings.cardName,
                                           accountMembershipId: accountMembership.id,
-                                          spendingLimit:
-                                            deriveSpendingLimitInput(effectiveSpendingLimit),
+                                          spendingLimit: deriveSpendingLimitInput(spendingLimit),
                                         };
                                       }),
                                     });
@@ -721,8 +713,7 @@ export const CardWizard = ({
                                       cards: memberships.map(membership => {
                                         return {
                                           accountMembershipId: membership.id,
-                                          spendingLimit:
-                                            deriveSpendingLimitInput(effectiveSpendingLimit),
+                                          spendingLimit: deriveSpendingLimitInput(spendingLimit),
                                           name: cardSettings.cardName,
                                           eCommerce: cardSettings.eCommerce,
                                           withdrawal: cardSettings.withdrawal,

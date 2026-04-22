@@ -62,7 +62,7 @@ type DirtyCardSettings = {
 
 export type CardSettings = {
   cardName?: string;
-  spendingLimit?: SpendingLimitValue;
+  spendingLimit: SpendingLimitValue;
   eCommerce: boolean;
   withdrawal: boolean;
   international: boolean;
@@ -97,11 +97,11 @@ type Props = {
 type ValidationError = "InvalidAmount";
 
 const validate = (input: DirtyCardSettings): Result<CardSettings, ValidationError[]> => {
-  const errors: ValidationError[] = [];
-  if (input.spendingLimit != null && isNullish(input.spendingLimit.amount.value)) {
-    errors.push("InvalidAmount" as const);
+  const { spendingLimit, ...rest } = input;
+  if (spendingLimit == null || isNullish(spendingLimit.amount.value)) {
+    return Result.Error(["InvalidAmount"]);
   }
-  return errors.length > 0 ? Result.Error(errors) : Result.Ok(input);
+  return Result.Ok({ ...rest, spendingLimit });
 };
 
 type CardProduct = CardProductFragment;
@@ -147,9 +147,11 @@ export const CardWizardSettings = ({
   const [currentSettings, setCurrentSettings] = useState<DirtyCardSettings>(() => ({
     cardName: initialSettings?.cardName,
     spendingLimit:
-      cardFormat === "SingleUseVirtual"
-        ? (initialSettings?.spendingLimit ?? defaultSpendingLimit(spendingLimitMaxValue, currency))
-        : undefined,
+      initialSettings?.spendingLimit != null
+        ? initialSettings.spendingLimit
+        : cardFormat === "SingleUseVirtual"
+          ? defaultSpendingLimit(spendingLimitMaxValue, currency)
+          : undefined,
     eCommerce: initialSettings?.eCommerce ?? true,
     withdrawal: initialSettings?.withdrawal ?? true,
     international: initialSettings?.international ?? true,

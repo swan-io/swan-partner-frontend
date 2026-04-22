@@ -198,12 +198,15 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
 
   useEffect(() => {
     if (isFirstMount) {
+      if (hasOnboardingPrefilled.isSome()) {
+        submitForm();
+      }
       serverValidationErrors.forEach(({ fieldName, code }) => {
         const message = getValidationErrorMessage(code);
         setFieldError(fieldName, message);
       });
     }
-  }, [serverValidationErrors, isFirstMount, setFieldError]);
+  }, [serverValidationErrors, isFirstMount, setFieldError, submitForm]);
 
   const onPressPrevious = () => {
     Router.push("Details", { onboardingId });

@@ -50,6 +50,7 @@ import { View } from "react-native";
 import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { upsertAccountAdminInRelatedIndividuals } from "../../../utils/onboarding";
 import { Router } from "../../../utils/routes";
+import { hasOnboardingPrefilled } from "../../../utils/session";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 
 export type DetailsFieldApiRequired = "email";
@@ -182,12 +183,15 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
 
   useEffect(() => {
     if (isFirstMount) {
+      if (hasOnboardingPrefilled.isSome()) {
+        submitForm();
+      }
       serverValidationErrors.forEach(({ fieldName, code }) => {
         const message = getValidationErrorMessage(code);
         setFieldError(fieldName, message);
       });
     }
-  }, [serverValidationErrors, isFirstMount, setFieldError]);
+  }, [serverValidationErrors, isFirstMount, setFieldError, submitForm]);
 
   const onPressPrevious = () => {
     Router.push("Root", { onboardingId });

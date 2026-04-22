@@ -48,6 +48,7 @@ import {
 import { CardWizardMembers, CardWizardMembersRef, Member } from "./CardWizardMembers";
 import { CardWizardProduct, CardWizardProductRef } from "./CardWizardProduct";
 import { CardWizardSettings, CardWizardSettingsRef } from "./CardWizardSettings";
+import { CardWizardSpendingLimit, CardWizardSpendingLimitRef } from "./CardWizardSpendingLimit";
 import { ErrorView } from "./ErrorView";
 
 type CardProduct = NonNullable<GetCardProductsQuery["projectInfo"]["cardProducts"]>[number];
@@ -68,6 +69,7 @@ type Step = StepDefault &
   (
     | { name: "CardProductType" }
     | { name: "CardProductFormat"; cardProduct: CardProduct }
+    | { name: "CardProductSpendingLimit"; cardProduct: CardProduct; cardFormat: CardFormat }
     | { name: "CardProductSettings"; cardProduct: CardProduct; cardFormat: CardFormat }
     | {
         name: "CardProductMembers";
@@ -380,6 +382,7 @@ export const CardWizard = ({
 
   const cardWizardProductRef = useRef<CardWizardProductRef>(null);
   const cardWizardFormatRef = useRef<CardWizardFormatRef>(null);
+  const cardWizardSpendingLimitRef = useRef<CardWizardSpendingLimitRef>(null);
   const cardWizardSettingsRef = useRef<CardWizardSettingsRef>(null);
   const cardWizardMembersRef = useRef<CardWizardMembersRef>(null);
   const cardWizardDeliveryRef = useRef<CardWizardDeliveryRef>(null);
@@ -445,6 +448,10 @@ export const CardWizard = ({
 
                     <Title visible={step.name === "CardProductFormat"}>
                       {t("cardWizard.header.cardFormat")}
+                    </Title>
+
+                    <Title visible={step.name === "CardProductSpendingLimit"}>
+                      {t("card.settings.spendingLimit")}
                     </Title>
 
                     <Title visible={step.name === "CardProductSettings"}>
@@ -596,10 +603,35 @@ export const CardWizard = ({
                           cardProduct={cardProduct}
                           initialCardFormat={cardFormat}
                           onSubmit={cardFormat =>
-                            setStep({ name: "CardProductSettings", cardProduct, cardFormat })
+                            cardFormat === "SingleUseVirtual"
+                              ? setStep({ name: "CardProductSettings", cardProduct, cardFormat })
+                              : setStep({
+                                  name: "CardProductSpendingLimit",
+                                  cardProduct,
+                                  cardFormat,
+                                })
                           }
                         />
                       ))
+                      .with(
+                        { name: "CardProductSpendingLimit" },
+                        ({ cardProduct, cardFormat, spendingLimit }) => (
+                          <CardWizardSpendingLimit
+                            ref={cardWizardSpendingLimitRef}
+                            cardProduct={cardProduct}
+                            initialSpendingLimit={spendingLimit}
+                            accountHolder={accountMembership.account?.holder}
+                            onSubmit={spendingLimit =>
+                              setStep({
+                                name: "CardProductSettings",
+                                cardProduct,
+                                cardFormat,
+                                spendingLimit,
+                              })
+                            }
+                          />
+                        ),
+                      )
                       .with(
                         { name: "CardProductSettings" },
                         ({
@@ -626,12 +658,15 @@ export const CardWizard = ({
                             }}
                             accountHolder={accountMembership.account?.holder}
                             onSubmit={cardSettings => {
+                              const { spendingLimit, ...restCardSettings } = cardSettings;
+
                               if (hasMoreThanOneMember) {
                                 setStep({
                                   name: "CardProductMembers",
                                   cardProduct,
                                   cardFormat,
-                                  ...cardSettings,
+                                  spendingLimit,
+                                  ...restCardSettings,
                                 });
                               } else {
                                 const memberships =
@@ -647,7 +682,8 @@ export const CardWizard = ({
                                     cardProduct,
                                     cardFormat,
                                     memberships,
-                                    ...cardSettings,
+                                    spendingLimit,
+                                    ...restCardSettings,
                                   });
                                 } else {
                                   if (cardFormat === "SingleUseVirtual") {
@@ -662,9 +698,7 @@ export const CardWizard = ({
                                         return {
                                           name: cardSettings.cardName,
                                           accountMembershipId: accountMembership.id,
-                                          spendingLimit: deriveSpendingLimitInput(
-                                            cardSettings.spendingLimit,
-                                          ),
+                                          spendingLimit: deriveSpendingLimitInput(spendingLimit),
                                         };
                                       }),
                                     });
@@ -679,9 +713,7 @@ export const CardWizard = ({
                                       cards: memberships.map(membership => {
                                         return {
                                           accountMembershipId: membership.id,
-                                          spendingLimit: deriveSpendingLimitInput(
-                                            cardSettings.spendingLimit,
-                                          ),
+                                          spendingLimit: deriveSpendingLimitInput(spendingLimit),
                                           name: cardSettings.cardName,
                                           eCommerce: cardSettings.eCommerce,
                                           withdrawal: cardSettings.withdrawal,
@@ -950,8 +982,22 @@ export const CardWizard = ({
                               ? onPressClose?.()
                               : setStep({ name: "CardProductType", ...rest }),
                           )
-                          .with({ name: "CardProductSettings" }, ({ cardProduct, name, ...rest }) =>
-                            setStep({ name: "CardProductFormat", cardProduct, ...rest }),
+                          .with(
+                            { name: "CardProductSpendingLimit" },
+                            ({ cardProduct, name, ...rest }) =>
+                              setStep({ name: "CardProductFormat", cardProduct, ...rest }),
+                          )
+                          .with(
+                            { name: "CardProductSettings" },
+                            ({ cardProduct, cardFormat, name, ...rest }) =>
+                              cardFormat === "SingleUseVirtual"
+                                ? setStep({ name: "CardProductFormat", cardProduct, ...rest })
+                                : setStep({
+                                    name: "CardProductSpendingLimit",
+                                    cardProduct,
+                                    cardFormat,
+                                    ...rest,
+                                  }),
                           )
                           .with({ name: "CardProductMembers" }, ({ name, ...rest }) =>
                             setStep({ name: "CardProductSettings", ...rest }),
@@ -997,6 +1043,9 @@ export const CardWizard = ({
                           })
                           .with("CardProductFormat", () => {
                             cardWizardFormatRef.current?.submit();
+                          })
+                          .with("CardProductSpendingLimit", () => {
+                            cardWizardSpendingLimitRef.current?.submit();
                           })
                           .with("CardProductSettings", () => {
                             cardWizardSettingsRef.current?.submit();

@@ -22,7 +22,7 @@ import {
   CardProductFragment,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { SpendingLimitForm, SpendingLimitValue } from "./CardItemSpendingLimit";
+import { SpendingLimitValue } from "./CardItemSpendingLimit";
 import { CardFormat } from "./CardWizardFormat";
 
 const styles = StyleSheet.create({
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
 
 type DirtyCardSettings = {
   cardName?: string;
-  spendingLimit: SpendingLimitValue;
+  spendingLimit?: SpendingLimitValue;
   eCommerce: boolean;
   withdrawal: boolean;
   international: boolean;
@@ -97,20 +97,16 @@ type Props = {
 type ValidationError = "InvalidAmount";
 
 const validate = (input: DirtyCardSettings): Result<CardSettings, ValidationError[]> => {
-  const errors: ValidationError[] = [];
-  if (isNullish(input.spendingLimit.amount.value)) {
-    errors.push("InvalidAmount" as const);
+  const { spendingLimit, ...rest } = input;
+  if (spendingLimit == null || isNullish(spendingLimit.amount.value)) {
+    return Result.Error(["InvalidAmount"]);
   }
-  return errors.length > 0 ? Result.Error(errors) : Result.Ok(input);
+  return Result.Ok({ ...rest, spendingLimit });
 };
 
 type CardProduct = CardProductFragment;
 
-const defaultSpendingLimit = (
-  cardFormat: CardFormat,
-  maxValue: number,
-  currency: string,
-): SpendingLimitValue => ({
+const defaultSpendingLimit = (maxValue: number, currency: string): SpendingLimitValue => ({
   amount: {
     value: String(maxValue),
     currency,
@@ -118,7 +114,7 @@ const defaultSpendingLimit = (
   mode: {
     type: "rolling",
     rollingValue: 1,
-    period: cardFormat === "SingleUseVirtual" ? "Always" : "Monthly",
+    period: "Always",
   },
 });
 
@@ -153,7 +149,9 @@ export const CardWizardSettings = ({
     spendingLimit:
       initialSettings?.spendingLimit != null
         ? initialSettings.spendingLimit
-        : defaultSpendingLimit(cardFormat, spendingLimitMaxValue, currency),
+        : cardFormat === "SingleUseVirtual"
+          ? defaultSpendingLimit(spendingLimitMaxValue, currency)
+          : undefined,
     eCommerce: initialSettings?.eCommerce ?? true,
     withdrawal: initialSettings?.withdrawal ?? true,
     international: initialSettings?.international ?? true,
@@ -179,18 +177,18 @@ export const CardWizardSettings = ({
   );
 
   const [dirtyValue, setDirtyValue] = useState(
-    isNullish(currentSettings.spendingLimit.amount.value)
+    isNullish(currentSettings.spendingLimit?.amount.value)
       ? undefined
-      : String(currentSettings.spendingLimit.amount.value),
+      : String(currentSettings.spendingLimit?.amount.value),
   );
 
   useEffect(() => {
     setDirtyValue(
-      isNullish(currentSettings.spendingLimit.amount.value)
+      isNullish(currentSettings.spendingLimit?.amount.value)
         ? undefined
-        : String(currentSettings.spendingLimit.amount.value),
+        : String(currentSettings.spendingLimit?.amount.value),
     );
-  }, [currentSettings.spendingLimit.amount.value]);
+  }, [currentSettings.spendingLimit?.amount.value]);
 
   useEffect(() => {
     if (validation != null) {
@@ -202,7 +200,7 @@ export const CardWizardSettings = ({
   }, [validation, currentSettings]);
 
   const sanitizeInput = useCallback(() => {
-    if (isNullish(dirtyValue)) {
+    if (isNullish(dirtyValue) || currentSettings.spendingLimit == null) {
       return;
     }
     const sanitizedDirtyValue = dirtyValue.replace(",", ".");
@@ -264,45 +262,31 @@ export const CardWizardSettings = ({
 
   return (
     <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.root}>
-      {({ large }) => (
+      {() => (
         <>
-          {spendingLimitMaxValue != null ? (
+          {cardFormat === "SingleUseVirtual" && spendingLimitMaxValue != null ? (
             <>
-              {cardFormat !== "SingleUseVirtual" ? (
-                <Tile title={large ? t("card.settings.spendingLimit") : undefined}>
-                  <SpendingLimitForm
-                    large={large}
-                    value={currentSettings.spendingLimit}
-                    maxValue={spendingLimitMaxValue}
-                    disabled={disabled}
-                    onChange={spendingLimit =>
-                      setCurrentSettings(settings => ({ ...settings, spendingLimit }))
-                    }
-                  />
-                </Tile>
-              ) : (
-                <Tile>
-                  <LakeLabel
-                    label={t("cardSettings.amount")}
-                    render={id => (
-                      <LakeTextInput
-                        id={id}
-                        unit="EUR"
-                        value={dirtyValue ?? ""}
-                        onChangeText={setDirtyValue}
-                        onBlur={sanitizeInput}
-                        inputMode="decimal"
-                        disabled={disabled}
-                        error={
-                          (validation?.includes("InvalidAmount") ?? false)
-                            ? t("common.form.invalidAmount")
-                            : undefined
-                        }
-                      />
-                    )}
-                  />
-                </Tile>
-              )}
+              <Tile>
+                <LakeLabel
+                  label={t("cardSettings.amount")}
+                  render={id => (
+                    <LakeTextInput
+                      id={id}
+                      unit="EUR"
+                      value={dirtyValue ?? ""}
+                      onChangeText={setDirtyValue}
+                      onBlur={sanitizeInput}
+                      inputMode="decimal"
+                      disabled={disabled}
+                      error={
+                        (validation?.includes("InvalidAmount") ?? false)
+                          ? t("common.form.invalidAmount")
+                          : undefined
+                      }
+                    />
+                  )}
+                />
+              </Tile>
 
               <Space height={24} />
             </>
@@ -341,22 +325,21 @@ export const CardWizardSettings = ({
               large={true}
               items={["Always" as const, "Monthly" as const]}
               value={
-                currentSettings.spendingLimit.mode.type === "rolling"
+                currentSettings.spendingLimit?.mode.type === "rolling"
                   ? currentSettings.spendingLimit.mode.period
                   : undefined
               }
               onChange={period =>
-                setCurrentSettings({
-                  ...currentSettings,
+                setCurrentSettings(settings => ({
+                  ...settings,
                   spendingLimit: {
-                    ...currentSettings.spendingLimit,
-                    mode: {
-                      type: "rolling",
-                      rollingValue: 1,
-                      period,
+                    amount: settings.spendingLimit?.amount ?? {
+                      value: String(spendingLimitMaxValue),
+                      currency,
                     },
+                    mode: { type: "rolling", rollingValue: 1, period },
                   },
-                })
+                }))
               }
               disabled={disabled}
               renderItem={period => {
@@ -365,7 +348,7 @@ export const CardWizardSettings = ({
                     <Box alignItems="center">
                       <Icon
                         color={
-                          currentSettings.spendingLimit.mode.type === "rolling" &&
+                          currentSettings.spendingLimit?.mode.type === "rolling" &&
                           currentSettings.spendingLimit.mode.period === period
                             ? colors.swan[300]
                             : colors.swan[200]

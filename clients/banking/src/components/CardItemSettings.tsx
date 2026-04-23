@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
     color: colors.current.primary,
     display: "inline-block",
   },
+  box: { width: "50%" },
 });
 
 type Card = NonNullable<CardPageQuery["card"]>;
@@ -155,11 +156,57 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
 
           <Space height={24} />
 
+          {canUpdateCard && (
+            <>
+              <LakeButtonGroup>
+                <LakeButton
+                  color="current"
+                  onPress={onPressSubmit}
+                  loading={cardUpdate.isLoading()}
+                >
+                  {t("common.save")}
+                </LakeButton>
+
+                {match(card.statusInfo)
+                  .with(
+                    {
+                      __typename: P.not(
+                        P.union("CardCanceledStatusInfo", "CardCancelingStatusInfo"),
+                      ),
+                    },
+                    () => (
+                      <LakeButton
+                        color="negative"
+                        mode="secondary"
+                        icon="subtract-circle-regular"
+                        onPress={() => setIsCancelConfirmationModalVisible(true)}
+                      >
+                        {t("card.cancel.cancelCard")}
+                      </LakeButton>
+                    ),
+                  )
+                  .otherwise(() => (
+                    <View />
+                  ))}
+              </LakeButtonGroup>
+
+              <CardCancelConfirmationModal
+                cardId={cardId}
+                onPressClose={() => setIsCancelConfirmationModalVisible(false)}
+                visible={isCancelConfirmationModalVisible}
+                onSuccess={() => {
+                  setIsCancelConfirmationModalVisible(false);
+                  Router.push("AccountCardsList", { accountMembershipId });
+                }}
+              />
+            </>
+          )}
+
           <Box direction={large && cardHolderType === "Company" ? "row" : "column"}>
-            <Box style={small ? undefined : styles.box}>
-              {cardInsurance != null &&
-                cardInsurance.package.noticeUrl != null &&
-                cardHolderType === "Company" && (
+            {cardInsurance != null &&
+              cardInsurance.package.noticeUrl != null &&
+              cardHolderType === "Company" && (
+                <Box style={small ? undefined : styles.box}>
                   <>
                     <Box direction="row" alignItems="center">
                       <Icon name="shield-checkmark-regular" size={16} color={colors.gray[500]} />
@@ -219,11 +266,9 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
                         })}
                       </LakeText>
                     </Box>
-
-                    <Space height={24} />
                   </>
-                )}
-            </Box>
+                </Box>
+              )}
 
             <Box style={small ? undefined : styles.box}>
               {match({
@@ -272,54 +317,6 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
                 .otherwise(() => null)}
             </Box>
           </Box>
-
-          <Space height={24} />
-
-          {canUpdateCard && (
-            <>
-              <LakeButtonGroup>
-                <LakeButton
-                  color="current"
-                  onPress={onPressSubmit}
-                  loading={cardUpdate.isLoading()}
-                >
-                  {t("common.save")}
-                </LakeButton>
-
-                {match(card.statusInfo)
-                  .with(
-                    {
-                      __typename: P.not(
-                        P.union("CardCanceledStatusInfo", "CardCancelingStatusInfo"),
-                      ),
-                    },
-                    () => (
-                      <LakeButton
-                        color="negative"
-                        mode="secondary"
-                        icon="subtract-circle-regular"
-                        onPress={() => setIsCancelConfirmationModalVisible(true)}
-                      >
-                        {t("card.cancel.cancelCard")}
-                      </LakeButton>
-                    ),
-                  )
-                  .otherwise(() => (
-                    <View />
-                  ))}
-              </LakeButtonGroup>
-
-              <CardCancelConfirmationModal
-                cardId={cardId}
-                onPressClose={() => setIsCancelConfirmationModalVisible(false)}
-                visible={isCancelConfirmationModalVisible}
-                onSuccess={() => {
-                  setIsCancelConfirmationModalVisible(false);
-                  Router.push("AccountCardsList", { accountMembershipId });
-                }}
-              />
-            </>
-          )}
         </>
       )}
     </ResponsiveContainer>

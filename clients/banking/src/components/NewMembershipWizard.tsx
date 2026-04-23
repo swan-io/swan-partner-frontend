@@ -314,7 +314,6 @@ export const NewMembershipWizard = ({
     taxIdentificationNumber: {
       initialValue: partiallySavedValues?.taxIdentificationNumber ?? "",
       strategy: "onBlur",
-      // sanitize: value => value.trim().replace(/\//g, ""),
       sanitize: value => value.replace(/[-_. \/]/g, ""),
       validate: (value, { getFieldValue }) => {
         return match({

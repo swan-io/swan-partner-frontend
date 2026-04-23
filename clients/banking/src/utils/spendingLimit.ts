@@ -1,4 +1,48 @@
 import dayjs from "dayjs";
+import {
+  AccountHolderForCardSettingsFragment,
+  Amount,
+  CardProductFragment,
+} from "../graphql/partner";
+import { formatCurrency, t } from "./i18n";
+
+export const sanitizeAmountString = (raw: string): string => {
+  const sanitized = raw.replace(",", ".");
+  const parsed = Number(sanitized);
+  return String(Number.isNaN(parsed) || parsed < 0 ? 0 : parsed);
+};
+
+export const deriveSpendingLimitContext = (
+  cardProduct: CardProductFragment,
+  accountHolder: AccountHolderForCardSettingsFragment | undefined,
+  maxSpendingLimit?: { amount: Amount },
+): { maxValue: number; currency: string } => {
+  const isIndividual = accountHolder?.info.__typename === "AccountHolderIndividualInfo";
+  const limit = isIndividual
+    ? cardProduct.individualSpendingLimit
+    : cardProduct.companySpendingLimit;
+  return {
+    currency: limit.amount.currency,
+    maxValue:
+      maxSpendingLimit != null ? Number(maxSpendingLimit.amount.value) : Number(limit.amount.value),
+  };
+};
+
+export const getSpendingLimitAmountError = (
+  validation: string[] | null,
+  maxValue: number,
+  currency: string,
+): string | undefined => {
+  if (validation?.includes("ExceedsMaxAmount") === true) {
+    return t("card.settings.spendingLimit.exceedsMax", {
+      max: formatCurrency(maxValue, currency),
+    });
+  }
+  if (validation?.includes("InvalidAmount") === true) {
+    return t("common.form.invalidAmount");
+  }
+  return undefined;
+};
 
 export const getMonthlySpendingDate = (spendingDay: number, hour: number) => {
   const today = dayjs();

@@ -16,21 +16,25 @@ import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { CardPageQuery, UpdateCardDocument } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { CardCancelConfirmationModal } from "./CardCancelConfirmationModal";
-import { deriveSpendingLimitInput, deriveSpendingLimitValue } from "./CardItemSpendingLimit";
+import {
+  deriveSpendingLimitInput,
+  deriveSpendingLimitValue,
+  SpendingLimitValue,
+} from "./CardItemSpendingLimit";
 import { CardSettings, CardWizardSettings, CardWizardSettingsRef } from "./CardWizardSettings";
+import { CardWizardSpendingLimit, CardWizardSpendingLimitRef } from "./CardWizardSpendingLimit";
 
 const styles = StyleSheet.create({
   link: {
     color: colors.current.primary,
     display: "inline-block",
   },
-  box: { width: "50%" },
 });
 
 type Card = NonNullable<CardPageQuery["card"]>;
@@ -45,20 +49,24 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
   const [updateCard, cardUpdate] = useMutation(UpdateCardDocument);
   const [isCancelConfirmationModalVisible, setIsCancelConfirmationModalVisible] = useState(false);
   const accountHolder = card.accountMembership.account?.holder;
+  const spendingLimitRef = useRef<CardWizardSpendingLimitRef>(null);
   const settingsRef = useRef<CardWizardSettingsRef>(null);
+  const pendingSpendingLimitRef = useRef<SpendingLimitValue | null>(null);
   const cardInsurance = card.insuranceSubscription;
   const cardHolderType = card.accountMembership.account?.holder.info.type;
 
   const { canUpdateCard } = usePermissions();
 
   const onSubmit = ({
-    spendingLimit,
+    spendingLimit: settingsSpendingLimit,
     eCommerce,
     cardName,
     withdrawal,
     international,
     nonMainCurrencyTransactions,
   }: CardSettings) => {
+    const spendingLimit = pendingSpendingLimitRef.current ?? settingsSpendingLimit;
+    pendingSpendingLimitRef.current = null;
     updateCard({
       input: {
         cardId,
@@ -83,9 +91,16 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
       });
   };
 
+  const onSpendingLimitSubmit = (spendingLimit: SpendingLimitValue) => {
+    pendingSpendingLimitRef.current = spendingLimit;
+    settingsRef.current?.submit();
+  };
+
   const onPressSubmit = () => {
-    if (settingsRef.current != null) {
-      settingsRef.current.submit();
+    if (card.type !== "SingleUseVirtual") {
+      spendingLimitRef.current?.submit();
+    } else {
+      settingsRef.current?.submit();
     }
   };
 
@@ -96,6 +111,24 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
           {card.accountMembership.canManageCards ? null : (
             <>
               <LakeAlert title={t("card.settings.notAllowed")} variant="info" />
+              <Space height={24} />
+            </>
+          )}
+
+          {card.type !== "SingleUseVirtual" && (
+            <>
+              <CardWizardSpendingLimit
+                ref={spendingLimitRef}
+                cardProduct={card.cardProduct}
+                initialSpendingLimit={deriveSpendingLimitValue(card.spendingLimits ?? [])}
+                maxSpendingLimit={card.spendingLimits?.find(
+                  item => item.type === "Partner" && item.period === "Monthly",
+                )}
+                accountHolder={accountHolder}
+                disabled={!canUpdateCard}
+                onSubmit={onSpendingLimitSubmit}
+              />
+
               <Space height={24} />
             </>
           )}
@@ -239,6 +272,8 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
                 .otherwise(() => null)}
             </Box>
           </Box>
+
+          <Space height={24} />
 
           {canUpdateCard && (
             <>

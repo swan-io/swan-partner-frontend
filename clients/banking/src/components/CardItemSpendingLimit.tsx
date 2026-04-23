@@ -19,7 +19,7 @@ import {
   SpendingLimitPeriod,
 } from "../graphql/partner";
 import { formatCurrency, locale, t, translateDay } from "../utils/i18n";
-import { getMonthlySpendingDate } from "../utils/spendingLimit";
+import { getMonthlySpendingDate, sanitizeAmountString } from "../utils/spendingLimit";
 
 const styles = StyleSheet.create({
   fill: {
@@ -108,8 +108,41 @@ export type SpendingLimitValue = {
       };
 };
 
-type SpendingLimitRollingMode = Extract<SpendingLimitValue["mode"], { type: "rolling" }>;
 type SpendingLimitCalendarMode = Exclude<SpendingLimitValue["mode"], { type: "rolling" }>;
+
+type SpendingLimitRollingModePartial = {
+  type: "rolling";
+  rollingValue: number;
+  period?: SpendingLimitPeriod;
+};
+
+type SpendingLimitCalendarModePartial = SpendingLimitCalendarMode | { type: "calendarUnset" };
+
+type SpendingLimitFormMode = SpendingLimitRollingModePartial | SpendingLimitCalendarModePartial;
+
+export type SpendingLimitFormValue = {
+  amount: SpendingLimitValue["amount"];
+  mode?: SpendingLimitFormMode;
+};
+
+export const narrowSpendingLimitValue = (
+  value: SpendingLimitFormValue,
+): SpendingLimitValue | null => {
+  const { mode } = value;
+  if (mode == null || mode.type === "calendarUnset") {
+    return null;
+  }
+  if (mode.type === "rolling") {
+    if (mode.period == null) {
+      return null;
+    }
+    return {
+      amount: value.amount,
+      mode: { type: "rolling", rollingValue: mode.rollingValue, period: mode.period },
+    };
+  }
+  return { amount: value.amount, mode };
+};
 
 export const deriveSpendingLimitValue = (
   spendingLimits: SpendingLimitFragment[],
@@ -217,17 +250,19 @@ export const deriveSpendingLimitInput = (value: SpendingLimitValue): SpendingLim
 
 type SpendingLimitFormProps = {
   large: boolean;
-  value: SpendingLimitValue;
-  maxValue?: number;
+  value: SpendingLimitFormValue;
   disabled?: boolean;
-  onChange: (value: SpendingLimitValue) => void;
+  error?: string;
+  modeError?: string;
+  onChange: (value: SpendingLimitFormValue) => void;
 };
 
 export const SpendingLimitForm = ({
   large,
   value,
-  maxValue,
   disabled,
+  error,
+  modeError,
   onChange,
 }: SpendingLimitFormProps) => {
   const calendarSpendingLimitEnabled = useFlag("activate_calendar_spending_limits", false);
@@ -243,20 +278,10 @@ export const SpendingLimitForm = ({
     if (isNullish(dirtyValue)) {
       return;
     }
-    const sanitizedDirtyValue = dirtyValue.replace(",", ".");
-
-    const cleanValue = Math.max(
-      Math.min(Number(sanitizedDirtyValue), maxValue ?? Number.POSITIVE_INFINITY),
-      0,
-    );
-    const parsedValue = Number.isNaN(cleanValue) ? 0 : cleanValue;
-
-    setDirtyValue(String(parsedValue));
-    onChange({
-      ...value,
-      amount: { ...value.amount, value: String(parsedValue) },
-    });
-  }, [maxValue, dirtyValue, value, onChange]);
+    const sanitized = sanitizeAmountString(dirtyValue);
+    setDirtyValue(sanitized);
+    onChange({ ...value, amount: { ...value.amount, value: sanitized } });
+  }, [dirtyValue, value, onChange]);
 
   return (
     <>
@@ -271,6 +296,7 @@ export const SpendingLimitForm = ({
         onBlur={sanitizeInput}
         inputMode="decimal"
         disabled={disabled}
+        error={error}
       />
 
       {calendarSpendingLimitEnabled && (
@@ -282,9 +308,16 @@ export const SpendingLimitForm = ({
             render={() => (
               <RadioGroup
                 disabled={disabled}
-                hideErrors={true}
+                hideErrors={value.mode != null || modeError == null}
+                error={value.mode == null ? modeError : undefined}
                 color="current"
-                value={value.mode.type === "rolling" ? ("rolling" as const) : ("calendar" as const)}
+                value={
+                  value.mode == null
+                    ? undefined
+                    : value.mode.type === "rolling"
+                      ? ("rolling" as const)
+                      : ("calendar" as const)
+                }
                 onValueChange={mode => {
                   match(mode)
                     .with("rolling", () => {
@@ -292,15 +325,15 @@ export const SpendingLimitForm = ({
                         amount: value.amount,
                         mode: {
                           type: "rolling",
-                          rollingValue: value.mode.type === "rolling" ? value.mode.rollingValue : 1,
-                          period: "Daily",
+                          rollingValue:
+                            value.mode?.type === "rolling" ? value.mode.rollingValue : 1,
                         },
                       });
                     })
                     .with("calendar", () => {
                       onChange({
                         amount: value.amount,
-                        mode: { type: "calendarDayMode", startHour: 0 },
+                        mode: { type: "calendarUnset" },
                       });
                     })
                     .exhaustive();
@@ -320,21 +353,27 @@ export const SpendingLimitForm = ({
         </>
       )}
 
-      <Space height={16} />
+      {(value.mode == null ? !calendarSpendingLimitEnabled : true) && (
+        <>
+          <Space height={16} />
 
-      {value.mode.type === "rolling" ? (
-        <SpendingLimitRollingForm
-          disabled={disabled === true}
-          value={value.mode}
-          onChange={mode => onChange({ ...value, mode })}
-        />
-      ) : (
-        <SpendingLimitCalendarForm
-          large={large}
-          disabled={disabled === true}
-          value={value.mode}
-          onChange={mode => onChange({ ...value, mode })}
-        />
+          {value.mode == null || value.mode.type === "rolling" ? (
+            <SpendingLimitRollingForm
+              disabled={disabled === true}
+              value={value.mode ?? { type: "rolling", rollingValue: 1 }}
+              periodError={value.mode?.period == null ? modeError : undefined}
+              onChange={mode => onChange({ ...value, mode })}
+            />
+          ) : (
+            <SpendingLimitCalendarForm
+              large={large}
+              disabled={disabled === true}
+              value={value.mode}
+              frequencyError={value.mode.type === "calendarUnset" ? modeError : undefined}
+              onChange={mode => onChange({ ...value, mode })}
+            />
+          )}
+        </>
       )}
     </>
   );
@@ -343,11 +382,13 @@ export const SpendingLimitForm = ({
 const SpendingLimitRollingForm = ({
   disabled,
   value,
+  periodError,
   onChange,
 }: {
   disabled: boolean;
-  value: SpendingLimitRollingMode;
-  onChange: (value: SpendingLimitRollingMode) => void;
+  value: SpendingLimitRollingModePartial;
+  periodError?: string;
+  onChange: (value: SpendingLimitRollingModePartial) => void;
 }) => {
   const rollingValueOptions = useMemo(() => {
     return match(value.period)
@@ -363,8 +404,7 @@ const SpendingLimitRollingForm = ({
           .map((_, i) => i + 1)
           .map(week => ({ name: t("common.form.nbWeeks", { count: week }), value: week })),
       )
-      .with("Monthly", () => [])
-      .with("Always", () => [])
+      .with(P.nullish, "Monthly", "Always", () => [])
       .exhaustive();
   }, [value.period]);
 
@@ -381,9 +421,11 @@ const SpendingLimitRollingForm = ({
           <>
             <LakeSelect
               id={id}
-              hideErrors={true}
+              hideErrors={periodError == null}
+              error={periodError}
               items={ROLLING_PERIODS}
               value={value.period}
+              placeholder={t("cardSettings.spendingLimit.period.placeholder")}
               disabled={disabled}
               onValueChange={period =>
                 onChange({
@@ -439,12 +481,14 @@ const SpendingLimitCalendarForm = ({
   large,
   disabled,
   value,
+  frequencyError,
   onChange,
 }: {
   large: boolean;
   disabled: boolean;
-  value: SpendingLimitCalendarMode;
-  onChange: (value: SpendingLimitCalendarMode) => void;
+  value: SpendingLimitCalendarModePartial;
+  frequencyError?: string;
+  onChange: (value: SpendingLimitCalendarModePartial) => void;
 }) => {
   return (
     <>
@@ -454,14 +498,20 @@ const SpendingLimitCalendarForm = ({
           <>
             <LakeSelect
               id={id}
-              hideErrors={true}
+              hideErrors={frequencyError == null}
+              error={frequencyError}
               items={CALENDAR_PERIODS}
-              value={match(value.type)
-                .returnType<"Daily" | "Weekly" | "Monthly">()
-                .with("calendarDayMode", () => "Daily")
-                .with("calendarWeekMode", () => "Weekly")
-                .with("calendarMonthMode", () => "Monthly")
-                .exhaustive()}
+              value={
+                value.type === "calendarUnset"
+                  ? undefined
+                  : match(value.type)
+                      .returnType<"Daily" | "Weekly" | "Monthly">()
+                      .with("calendarDayMode", () => "Daily")
+                      .with("calendarWeekMode", () => "Weekly")
+                      .with("calendarMonthMode", () => "Monthly")
+                      .exhaustive()
+              }
+              placeholder={t("cardSettings.spendingLimit.resetFrequency.placeholder")}
               disabled={disabled}
               onValueChange={period =>
                 match(period)
@@ -479,67 +529,73 @@ const SpendingLimitCalendarForm = ({
         )}
       />
 
-      <Space height={16} />
+      {value.type !== "calendarUnset" && (
+        <>
+          <Space height={16} />
 
-      <Box direction={large ? "row" : "column"} alignItems="start">
-        {value.type !== "calendarDayMode" && (
-          <>
+          <Box direction={large ? "row" : "column"} alignItems="start">
+            {value.type !== "calendarDayMode" && (
+              <>
+                <LakeLabel
+                  style={large ? styles.fill : styles.fullWidth}
+                  label={t("cardSettings.spendingLimit.resetDay")}
+                  render={id =>
+                    match(value)
+                      .with({ type: "calendarWeekMode" }, value => (
+                        <LakeSelect
+                          id={id}
+                          hideErrors={true}
+                          disabled={disabled}
+                          value={value.startDay}
+                          items={WEEK_DAYS}
+                          onValueChange={startDay => onChange({ ...value, startDay })}
+                        />
+                      ))
+                      .with({ type: "calendarMonthMode" }, value => (
+                        <>
+                          <LakeSelect
+                            id={id}
+                            hideErrors={true}
+                            disabled={disabled}
+                            value={value.startDay}
+                            items={MONTH_DAYS}
+                            onValueChange={startDay => onChange({ ...value, startDay })}
+                          />
+                          <Space height={4} />
+                          <LakeText>
+                            {t("cardSettings.spendingLimit.resetDay.monthlyInfo")}
+                          </LakeText>
+                        </>
+                      ))
+                      .exhaustive()
+                  }
+                />
+
+                <Space width={32} height={16} />
+              </>
+            )}
+
             <LakeLabel
               style={large ? styles.fill : styles.fullWidth}
-              label={t("cardSettings.spendingLimit.resetDay")}
-              render={id =>
-                match(value)
-                  .with({ type: "calendarWeekMode" }, value => (
-                    <LakeSelect
-                      id={id}
-                      hideErrors={true}
-                      disabled={disabled}
-                      value={value.startDay}
-                      items={WEEK_DAYS}
-                      onValueChange={startDay => onChange({ ...value, startDay })}
-                    />
-                  ))
-                  .with({ type: "calendarMonthMode" }, value => (
-                    <>
-                      <LakeSelect
-                        id={id}
-                        hideErrors={true}
-                        disabled={disabled}
-                        value={value.startDay}
-                        items={MONTH_DAYS}
-                        onValueChange={startDay => onChange({ ...value, startDay })}
-                      />
-                      <Space height={4} />
-                      <LakeText>{t("cardSettings.spendingLimit.resetDay.monthlyInfo")}</LakeText>
-                    </>
-                  ))
-                  .exhaustive()
-              }
+              label={t("cardSettings.spendingLimit.resetTime")}
+              render={id => (
+                <>
+                  <LakeSelect
+                    id={id}
+                    hideErrors={true}
+                    disabled={disabled}
+                    value={value.startHour}
+                    items={STARTING_HOUR_OPTIONS}
+                    onValueChange={startHour => onChange({ ...value, startHour })}
+                  />
+                  <Space height={4} />
+                  <LakeText>{t("cardSettings.spendingLimit.resetTimeZone")}</LakeText>
+                </>
+              )}
             />
-
-            <Space width={32} height={16} />
-          </>
-        )}
-
-        <LakeLabel
-          style={large ? styles.fill : styles.fullWidth}
-          label={t("cardSettings.spendingLimit.resetTime")}
-          render={id => (
-            <>
-              <LakeSelect
-                id={id}
-                hideErrors={true}
-                disabled={disabled}
-                value={value.startHour}
-                items={STARTING_HOUR_OPTIONS}
-                onValueChange={startHour => onChange({ ...value, startHour })}
-              />
-              <Space height={4} />
-              <LakeText>{t("cardSettings.spendingLimit.resetTimeZone")}</LakeText>
-            </>
-          )}
-        />
-      </Box>
+          </Box>
+        </>
+      )}
     </>
   );
 };

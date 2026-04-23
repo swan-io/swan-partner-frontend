@@ -85,7 +85,7 @@ export const VerificationRenewalOwnershipFormAddress = ({
     },
     taxIdentificationNumber: {
       initialValue: initialValues.taxIdentificationNumber ?? "",
-      sanitize: trim,
+      sanitize: value => value.replace(/[-_. \/]/g, ""),
       validate: (value, { getFieldValue }) => {
         const beneficiaryCountry = getFieldValue("country");
 

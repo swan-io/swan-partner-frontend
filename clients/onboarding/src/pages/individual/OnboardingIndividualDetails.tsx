@@ -13,7 +13,6 @@ import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { pick } from "@swan-io/lake/src/utils/object";
-import { trim } from "@swan-io/lake/src/utils/string";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import {
   CountryCCA3,
@@ -110,7 +109,7 @@ export const OnboardingIndividualDetails = ({
     },
     taxIdentificationNumber: {
       initialValue: initialTaxIdentificationNumber,
-      sanitize: trim,
+      sanitize: value => value.replace(/[-_. \/]/g, ""),
       validate: canSetTaxIdentification
         ? combineValidators(
             isTaxIdentificationRequired && validateRequired,

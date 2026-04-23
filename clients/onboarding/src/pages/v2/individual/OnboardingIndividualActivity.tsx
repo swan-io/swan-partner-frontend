@@ -5,7 +5,6 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { trim } from "@swan-io/lake/src/utils/string";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { StyleSheet } from "react-native";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
@@ -148,7 +147,7 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
     },
     taxIdentificationNumber: {
       initialValue: accountAdmin?.taxIdentificationNumber ?? "",
-      sanitize: trim,
+      sanitize: value => value.replace(/[-_. \/]/g, ""),
       validate: isTaxIdentificationRequired
         ? combineValidators(
             validateRequired,
@@ -158,7 +157,7 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
     },
     unitedStatesTaxIdentificationNumber: {
       initialValue: accountAdmin?.unitedStatesTaxInfo?.unitedStatesTaxIdentificationNumber ?? "",
-      sanitize: trim,
+      sanitize: value => value.replace(/[-_. \/]/g, ""),
       validate: (value, { getFieldValue }) => {
         const isRequired = getFieldValue("isUnitedStatesPerson");
         if (isRequired) {

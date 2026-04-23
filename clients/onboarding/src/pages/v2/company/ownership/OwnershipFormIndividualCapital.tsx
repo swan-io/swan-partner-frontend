@@ -204,7 +204,7 @@ export const OwnershipFormIndividualCapital = ({
     },
     taxIdentificationNumber: {
       initialValue: initialValues.taxIdentificationNumber ?? "",
-      sanitize: trim,
+      sanitize: value => value.replace(/[-_. \/]/g, ""),
       validate: isTaxIdentificationRequired
         ? combineValidators(validateRequired, validateIndividualTaxNumber(residencyCountry))
         : validateIndividualTaxNumber(residencyCountry),

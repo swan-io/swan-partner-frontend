@@ -343,7 +343,7 @@
   "card.settings.notAllowed": "Voor het wijzigen van kaartinstellingen heb je toestemming nodig. Neem contact op met je kaartbeheerder voor aanpassingen.",
   "card.settings.spendingLimit": "Bestedingslimiet",
   "card.settings.spendingLimit.amount": "Bedrag bestedingslimiet",
-  "card.settings.spendingLimit.exceedsMax": "Maximale bestedingslimiet is € {max}",
+  "card.settings.spendingLimit.exceedsMax": "Maximale bestedingslimiet is {max}",
   "card.settings.title": "Kaartinstellingen",
   "card.settings.unavailable": "Kaartinstellingen niet beschikbaar",
   "card.settings.withdrawal": "Geldopnames bij geldautomaten",

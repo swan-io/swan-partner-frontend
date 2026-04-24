@@ -343,7 +343,7 @@
   "card.settings.notAllowed": "To change card settings, you must have permission to manage cards. If you need to change your card settings, please ask your admin.",
   "card.settings.spendingLimit": "Spending limit",
   "card.settings.spendingLimit.amount": "Spending limit amount",
-  "card.settings.spendingLimit.exceedsMax": "Maximum spending limit is {max} €",
+  "card.settings.spendingLimit.exceedsMax": "Maximum spending limit is {max}",
   "card.settings.title": "Card settings",
   "card.settings.unavailable": "Card settings not available",
   "card.settings.withdrawal": "ATM withdrawals",

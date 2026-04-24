@@ -343,7 +343,7 @@
   "card.settings.notAllowed": "Per modificare le impostazioni della carta, è necessario disporre dell'autorizzazione per la gestione delle carte. Se desidera modificare le impostazioni della sua carta, contatti l'amministratore.",
   "card.settings.spendingLimit": "Limite di spesa",
   "card.settings.spendingLimit.amount": "Importo limite di spesa",
-  "card.settings.spendingLimit.exceedsMax": "Il limite massimo di spesa è {max} €",
+  "card.settings.spendingLimit.exceedsMax": "Il limite massimo di spesa è {max}",
   "card.settings.title": "Impostazioni della carta",
   "card.settings.unavailable": "Impostazioni carta non disponibili",
   "card.settings.withdrawal": "Prelievi bancomat",

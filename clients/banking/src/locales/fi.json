@@ -343,7 +343,7 @@
   "card.settings.notAllowed": "Voit vaihtaa kortin asetuksia, jos sinulla on oikeus hallinnoida kortteja. Jos haluat muuttaa korttisi asetuksia, kysy lisää järjestelmävalvojaltasi.",
   "card.settings.spendingLimit": "Käyttöraja",
   "card.settings.spendingLimit.amount": "Käyttörajan määrä",
-  "card.settings.spendingLimit.exceedsMax": "Suurin sallittu kulutusraja on {max} €",
+  "card.settings.spendingLimit.exceedsMax": "Suurin sallittu kulutusraja on {max}",
   "card.settings.title": "Korttiasetukset",
   "card.settings.unavailable": "Kortin asetukset eivät ole saatavilla",
   "card.settings.withdrawal": "Pankkiautomaattinostot",

@@ -343,7 +343,7 @@
   "card.settings.notAllowed": "Um Karteneinstellungen zu ändern, benötigen Sie die Berechtigung zur Verwaltung der Karten. Wenn Sie Ihre Karteneinstellungen ändern müssen, fragen Sie bitte Ihren Administrator.",
   "card.settings.spendingLimit": "Ausgabenlimit",
   "card.settings.spendingLimit.amount": "Betrag des Ausgabelimits",
-  "card.settings.spendingLimit.exceedsMax": "Das maximale Ausgabenlimit beträgt {max} €",
+  "card.settings.spendingLimit.exceedsMax": "Das maximale Ausgabenlimit beträgt {max}",
   "card.settings.title": "Karteneinstellungen",
   "card.settings.unavailable": "Karteneinstellungen nicht verfügbar",
   "card.settings.withdrawal": "Geldautomatenabhebungen",

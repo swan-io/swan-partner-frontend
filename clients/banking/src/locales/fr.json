@@ -343,7 +343,7 @@
   "card.settings.notAllowed": "Pour modifier les paramètres d'une carte, vous devez disposer d'une autorisation de gestion des cartes. Si vous avez besoin de modifier les paramètres de votre carte, veuillez vous adresser à votre administrateur.",
   "card.settings.spendingLimit": "Limite de dépense",
   "card.settings.spendingLimit.amount": "Montant du plafond de dépenses",
-  "card.settings.spendingLimit.exceedsMax": "La limite de dépenses maximale est de {max} €",
+  "card.settings.spendingLimit.exceedsMax": "La limite de dépenses maximale est de {max}",
   "card.settings.title": "Paramètres de la carte",
   "card.settings.unavailable": "Paramètres de la carte non disponibles",
   "card.settings.withdrawal": "Retraits aux distributeurs automatiques",

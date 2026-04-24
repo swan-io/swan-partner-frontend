@@ -343,7 +343,7 @@
   "card.settings.notAllowed": "Para alterar as configurações do cartão, deve ter permissão para gerenciar cartões. Se precisar alterar as configurações do seu cartão, por favor, peça ao seu administrador.",
   "card.settings.spendingLimit": "Limite de gastos",
   "card.settings.spendingLimit.amount": "Valor do limite de gastos",
-  "card.settings.spendingLimit.exceedsMax": "O limite máximo de gastos é {max} €",
+  "card.settings.spendingLimit.exceedsMax": "O limite máximo de gastos é {max}",
   "card.settings.title": "Configurações do cartão",
   "card.settings.unavailable": "As definições dos cartões estão indisponíveis",
   "card.settings.withdrawal": "Levantamentos em caixas automáticos",

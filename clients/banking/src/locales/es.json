@@ -343,7 +343,7 @@
   "card.settings.notAllowed": "Para cambiar la configuración de una tarjeta, debes tener permiso para gestionar las tarjetas. Si necesitas cambiar la configuración de tu tarjeta, consulta a tu administrador.",
   "card.settings.spendingLimit": "Límite de gasto",
   "card.settings.spendingLimit.amount": "Importe del límite de gasto",
-  "card.settings.spendingLimit.exceedsMax": "El límite máximo de gasto es {max} €",
+  "card.settings.spendingLimit.exceedsMax": "El límite máximo de gasto es {max}",
   "card.settings.title": "Configuración de la tarjeta",
   "card.settings.unavailable": "Ajustes de tarjeta no disponibles",
   "card.settings.withdrawal": "Retiros en cajeros automáticos",

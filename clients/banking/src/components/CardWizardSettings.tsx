@@ -15,13 +15,17 @@ import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { ChoicePicker } from "@swan-io/shared-business/src/components/ChoicePicker";
 import { Ref, useCallback, useEffect, useImperativeHandle, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { match, P } from "ts-pattern";
 import {
   AccountHolderForCardSettingsFragment,
   Amount,
   CardProductFragment,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
+import {
+  deriveSpendingLimitContext,
+  getSpendingLimitAmountError,
+  sanitizeAmountString,
+} from "../utils/spendingLimit";
 import { SpendingLimitValue } from "./CardItemSpendingLimit";
 import { CardFormat } from "./CardWizardFormat";
 
@@ -70,7 +74,6 @@ export type CardSettings = {
 };
 
 type OptionalCardSettings = {
-  initialSettings?: string;
   cardName?: string;
   spendingLimit?: SpendingLimitValue;
   eCommerce?: boolean;
@@ -94,29 +97,24 @@ type Props = {
   disabled?: boolean;
 };
 
-type ValidationError = "InvalidAmount";
+type ValidationError = "InvalidAmount" | "ExceedsMaxAmount";
 
-const validate = (input: DirtyCardSettings): Result<CardSettings, ValidationError[]> => {
+const validate = (
+  input: DirtyCardSettings,
+  maxValue: number,
+): Result<CardSettings, ValidationError[]> => {
   const { spendingLimit, ...rest } = input;
-  if (spendingLimit == null || isNullish(spendingLimit.amount.value)) {
+  const numericValue = Number(spendingLimit?.amount.value);
+  if (spendingLimit == null || !(numericValue > 0)) {
     return Result.Error(["InvalidAmount"]);
+  }
+  if (numericValue > maxValue) {
+    return Result.Error(["ExceedsMaxAmount"]);
   }
   return Result.Ok({ ...rest, spendingLimit });
 };
 
 type CardProduct = CardProductFragment;
-
-const defaultSpendingLimit = (maxValue: number, currency: string): SpendingLimitValue => ({
-  amount: {
-    value: String(maxValue),
-    currency,
-  },
-  mode: {
-    type: "rolling",
-    rollingValue: 1,
-    period: "Always",
-  },
-});
 
 export const CardWizardSettings = ({
   ref,
@@ -128,30 +126,22 @@ export const CardWizardSettings = ({
   maxSpendingLimit,
   disabled = false,
 }: Props) => {
-  const spendingLimitMaxValue = match({
-    accountHolderType: accountHolder?.info.__typename,
+  const { maxValue: spendingLimitMaxValue, currency } = deriveSpendingLimitContext(
+    cardProduct,
+    accountHolder,
     maxSpendingLimit,
-  })
-    .with({ maxSpendingLimit: P.nonNullable }, ({ maxSpendingLimit }) =>
-      Number(maxSpendingLimit.amount.value),
-    )
-    .with({ accountHolderType: "AccountHolderIndividualInfo" }, () =>
-      Number(cardProduct.individualSpendingLimit.amount.value),
-    )
-    .otherwise(() => Number(cardProduct.companySpendingLimit.amount.value));
-
-  const currency = match(accountHolder?.info.__typename)
-    .with("AccountHolderIndividualInfo", () => cardProduct.individualSpendingLimit.amount.currency)
-    .otherwise(() => cardProduct.companySpendingLimit.amount.currency);
+  );
 
   const [currentSettings, setCurrentSettings] = useState<DirtyCardSettings>(() => ({
     cardName: initialSettings?.cardName,
     spendingLimit:
-      initialSettings?.spendingLimit != null
-        ? initialSettings.spendingLimit
-        : cardFormat === "SingleUseVirtual"
-          ? defaultSpendingLimit(spendingLimitMaxValue, currency)
-          : undefined,
+      initialSettings?.spendingLimit ??
+      (cardFormat === "SingleUseVirtual"
+        ? {
+            amount: { value: "", currency },
+            mode: { type: "rolling", rollingValue: 1, period: "Always" },
+          }
+        : undefined),
     eCommerce: initialSettings?.eCommerce ?? true,
     withdrawal: initialSettings?.withdrawal ?? true,
     international: initialSettings?.international ?? true,
@@ -164,7 +154,7 @@ export const CardWizardSettings = ({
     ref,
     () => ({
       submit: () => {
-        validate(currentSettings).match({
+        validate(currentSettings, spendingLimitMaxValue).match({
           Ok: cardSettings => {
             setValidation(null);
             onSubmit(cardSettings);
@@ -173,7 +163,7 @@ export const CardWizardSettings = ({
         });
       },
     }),
-    [currentSettings, onSubmit],
+    [currentSettings, spendingLimitMaxValue, onSubmit],
   );
 
   const [dirtyValue, setDirtyValue] = useState(
@@ -192,34 +182,27 @@ export const CardWizardSettings = ({
 
   useEffect(() => {
     if (validation != null) {
-      validate(currentSettings).match({
+      validate(currentSettings, spendingLimitMaxValue).match({
         Ok: () => setValidation(null),
         Error: errors => setValidation(errors),
       });
     }
-  }, [validation, currentSettings]);
+  }, [validation, currentSettings, spendingLimitMaxValue]);
 
   const sanitizeInput = useCallback(() => {
     if (isNullish(dirtyValue) || currentSettings.spendingLimit == null) {
       return;
     }
-    const sanitizedDirtyValue = dirtyValue.replace(",", ".");
-
-    const cleanValue = Math.max(
-      Math.min(Number(sanitizedDirtyValue), spendingLimitMaxValue ?? Number.POSITIVE_INFINITY),
-      0,
-    );
-    const value = Number.isNaN(cleanValue) ? 0 : cleanValue;
-
-    setDirtyValue(String(value));
+    const sanitized = sanitizeAmountString(dirtyValue);
+    setDirtyValue(sanitized);
     setCurrentSettings({
       ...currentSettings,
       spendingLimit: {
         ...currentSettings.spendingLimit,
-        amount: { ...currentSettings.spendingLimit.amount, value: String(value) },
+        amount: { ...currentSettings.spendingLimit.amount, value: sanitized },
       },
     });
-  }, [spendingLimitMaxValue, dirtyValue, currentSettings]);
+  }, [dirtyValue, currentSettings]);
 
   const cardSettingItems = [
     {
@@ -278,11 +261,11 @@ export const CardWizardSettings = ({
                       onBlur={sanitizeInput}
                       inputMode="decimal"
                       disabled={disabled}
-                      error={
-                        (validation?.includes("InvalidAmount") ?? false)
-                          ? t("common.form.invalidAmount")
-                          : undefined
-                      }
+                      error={getSpendingLimitAmountError(
+                        validation,
+                        spendingLimitMaxValue,
+                        currency,
+                      )}
                     />
                   )}
                 />
@@ -334,7 +317,7 @@ export const CardWizardSettings = ({
                   ...settings,
                   spendingLimit: {
                     amount: settings.spendingLimit?.amount ?? {
-                      value: String(spendingLimitMaxValue),
+                      value: dirtyValue ?? "",
                       currency,
                     },
                     mode: { type: "rolling", rollingValue: 1, period },

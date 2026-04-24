@@ -2,20 +2,24 @@ import { Result } from "@swan-io/boxed";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
-import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { Ref, useImperativeHandle, useState } from "react";
-import { match, P } from "ts-pattern";
 import {
   AccountHolderForCardSettingsFragment,
   Amount,
   CardProductFragment,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { SpendingLimitForm, SpendingLimitValue } from "./CardItemSpendingLimit";
+import { deriveSpendingLimitContext, getSpendingLimitAmountError } from "../utils/spendingLimit";
+import {
+  SpendingLimitForm,
+  SpendingLimitFormValue,
+  SpendingLimitValue,
+  narrowSpendingLimitValue,
+} from "./CardItemSpendingLimit";
 
 type CardProduct = CardProductFragment;
 
-type ValidationError = "InvalidAmount";
+type ValidationError = "InvalidAmount" | "ExceedsMaxAmount" | "InvalidMode";
 
 export type CardWizardSpendingLimitRef = {
   submit: () => void;
@@ -27,15 +31,33 @@ type Props = {
   initialSpendingLimit?: SpendingLimitValue;
   accountHolder?: AccountHolderForCardSettingsFragment;
   maxSpendingLimit?: { amount: Amount };
+  disabled?: boolean;
   onSubmit: (spendingLimit: SpendingLimitValue) => void;
 };
 
-const validate = (value: SpendingLimitValue): Result<SpendingLimitValue, ValidationError[]> => {
+const validate = (
+  value: SpendingLimitFormValue,
+  maxValue: number,
+): Result<SpendingLimitValue, ValidationError[]> => {
+  const numericValue = Number(value.amount.value);
   const errors: ValidationError[] = [];
-  if (isNullish(value.amount.value)) {
+  if (!(numericValue > 0)) {
     errors.push("InvalidAmount");
   }
-  return errors.length > 0 ? Result.Error(errors) : Result.Ok(value);
+  if (numericValue > maxValue) {
+    errors.push("ExceedsMaxAmount");
+  }
+  const narrowed = narrowSpendingLimitValue(value);
+  if (narrowed == null) {
+    errors.push("InvalidMode");
+  }
+  if (errors.length > 0) {
+    return Result.Error(errors);
+  }
+  if (narrowed == null) {
+    return Result.Error(["InvalidMode"]);
+  }
+  return Result.Ok(narrowed);
 };
 
 export const CardWizardSpendingLimit = ({
@@ -44,44 +66,57 @@ export const CardWizardSpendingLimit = ({
   accountHolder,
   initialSpendingLimit,
   maxSpendingLimit,
+  disabled,
   onSubmit,
 }: Props) => {
-  const spendingLimitMaxValue = match({
-    accountHolderType: accountHolder?.info.__typename,
+  const { maxValue: spendingLimitMaxValue, currency } = deriveSpendingLimitContext(
+    cardProduct,
+    accountHolder,
     maxSpendingLimit,
-  })
-    .with({ maxSpendingLimit: P.nonNullable }, ({ maxSpendingLimit }) =>
-      Number(maxSpendingLimit.amount.value),
-    )
-    .with({ accountHolderType: "AccountHolderIndividualInfo" }, () =>
-      Number(cardProduct.individualSpendingLimit.amount.value),
-    )
-    .otherwise(() => Number(cardProduct.companySpendingLimit.amount.value));
+  );
 
-  const currency = match(accountHolder?.info.__typename)
-    .with("AccountHolderIndividualInfo", () => cardProduct.individualSpendingLimit.amount.currency)
-    .otherwise(() => cardProduct.companySpendingLimit.amount.currency);
-
-  const [spendingLimit, setSpendingLimit] = useState<SpendingLimitValue>(
+  const [spendingLimit, setSpendingLimit] = useState<SpendingLimitFormValue>(
     () =>
       initialSpendingLimit ?? {
-        amount: { value: String(spendingLimitMaxValue), currency },
-        mode: { type: "rolling", rollingValue: 1, period: "Monthly" },
+        amount: { value: "", currency },
+        mode: undefined,
       },
   );
+
+  const [validation, setValidation] = useState<ValidationError[] | null>(null);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
 
   useImperativeHandle(
     ref,
     () => ({
       submit: () => {
-        validate(spendingLimit).match({
-          Ok: value => onSubmit(value),
-          Error: () => {},
+        setSubmitAttempted(true);
+        validate(spendingLimit, spendingLimitMaxValue).match({
+          Ok: value => {
+            setValidation(null);
+            onSubmit(value);
+          },
+          Error: errors => setValidation(errors),
         });
       },
     }),
-    [spendingLimit, onSubmit],
+    [spendingLimit, spendingLimitMaxValue, onSubmit],
   );
+
+  const onChangeSpendingLimit = (value: SpendingLimitFormValue) => {
+    setSpendingLimit(value);
+    validate(value, spendingLimitMaxValue).match({
+      Ok: () => setValidation(null),
+      Error: errors => setValidation(errors),
+    });
+  };
+
+  const errorMessage = getSpendingLimitAmountError(validation, spendingLimitMaxValue, currency);
+
+  const modeError =
+    submitAttempted && validation?.includes("InvalidMode") === true
+      ? t("common.form.required")
+      : undefined;
 
   return (
     <ResponsiveContainer breakpoint={breakpoints.medium}>
@@ -90,8 +125,10 @@ export const CardWizardSpendingLimit = ({
           <SpendingLimitForm
             large={large}
             value={spendingLimit}
-            maxValue={spendingLimitMaxValue}
-            onChange={setSpendingLimit}
+            onChange={onChangeSpendingLimit}
+            disabled={disabled}
+            error={errorMessage}
+            modeError={modeError}
           />
         </Tile>
       )}

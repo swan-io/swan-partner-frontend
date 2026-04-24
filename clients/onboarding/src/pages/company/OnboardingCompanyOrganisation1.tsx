@@ -196,7 +196,7 @@ export const OnboardingCompanyOrganisation1 = ({
     },
     taxIdentificationNumber: {
       initialValue: initialTaxIdentificationNumber,
-      sanitize: trim,
+      sanitize: value => value.replace(/[-_. \/]/g, ""),
       validate: canSetTaxIdentification
         ? combineValidators(
             isTaxIdentificationRequired && validateRequired,

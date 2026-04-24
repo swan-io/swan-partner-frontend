@@ -245,7 +245,7 @@ export const MembershipDetailEditor = ({
     taxIdentificationNumber: {
       initialValue: editingAccountMembership.taxIdentificationNumber ?? "",
       strategy: "onBlur",
-      sanitize: trim,
+      sanitize: value => value.replace(/[-_. \/]/g, ""),
       validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,

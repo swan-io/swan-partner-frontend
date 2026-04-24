@@ -138,7 +138,7 @@ const UpdateAccountForm = ({
     },
     taxIdentificationNumber: {
       initialValue: holderInfo?.taxIdentificationNumber ?? "",
-      sanitize: trim,
+      sanitize: value => value.replace(/[-_. \/]/g, ""),
       validate: isCompany
         ? validateCompanyTaxNumber(accountCountry)
         : validateIndividualTaxNumber(accountCountry),

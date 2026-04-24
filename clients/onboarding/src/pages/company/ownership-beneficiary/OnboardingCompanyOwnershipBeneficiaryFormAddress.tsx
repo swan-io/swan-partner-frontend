@@ -87,7 +87,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = ({
     },
     taxIdentificationNumber: {
       initialValue: initialValues.taxIdentificationNumber ?? "",
-      sanitize: trim,
+      sanitize: value => value.replace(/[-_. \/]/g, ""),
       validate: (value, { getFieldValue }) => {
         const beneficiaryCountry = getFieldValue("residencyAddressCountry");
 

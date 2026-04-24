@@ -1679,6 +1679,8 @@
   "transfer.new.internationalTransfer.details.title": "Détails du virement",
   "transfer.new.internationalTransfer.errors.title": "Nous ne sommes pas en mesure de procéder à ce virement",
   "transfer.new.internationalTransfer.fee": "Frais de virement : <bold>{fee}</bold>",
+  "transfer.new.internationalTransfer.formUnavailable.message": "Une erreur est survenue. Veuillez réessayer,\nou contactez le support si le problème persiste.",
+  "transfer.new.internationalTransfer.formUnavailable.retry": "Réessayer",
   "transfer.new.internationalTransfer.route.Aba": "Numéro de compte et numéro d'acheminement ACH",
   "transfer.new.internationalTransfer.route.Argentina": "Alias CBU (code bancaire unique)",
   "transfer.new.internationalTransfer.route.Australian": "Numéro de compte et code BSB",

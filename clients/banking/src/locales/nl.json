@@ -1679,6 +1679,8 @@
   "transfer.new.internationalTransfer.details.title": "Details van de overschrijving",
   "transfer.new.internationalTransfer.errors.title": "Kan deze overschrijving niet volbrengen",
   "transfer.new.internationalTransfer.fee": "Overschrijvingskosten: <bold>{fee}</bold>",
+  "transfer.new.internationalTransfer.formUnavailable.message": "Er is iets misgegaan. Probeer het opnieuw,\nof neem contact op met de ondersteuning als het probleem aanhoudt.",
+  "transfer.new.internationalTransfer.formUnavailable.retry": "Opnieuw proberen",
   "transfer.new.internationalTransfer.route.Aba": "Rekeningnummer en ACH-routingnummer",
   "transfer.new.internationalTransfer.route.Argentina": "Alias CBU (enkele bankcode)",
   "transfer.new.internationalTransfer.route.Australian": "Rekeningnummer en BSB-code",

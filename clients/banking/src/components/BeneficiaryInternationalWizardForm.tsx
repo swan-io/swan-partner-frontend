@@ -1,5 +1,6 @@
 import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
+import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -41,6 +42,10 @@ const DEFAULT_AMOUNT: Amount = {
 };
 
 const styles = StyleSheet.create({
+  unavailableTile: {
+    alignItems: "center",
+    paddingVertical: 60,
+  },
   hidden: {
     display: "none",
   },
@@ -91,7 +96,7 @@ export const BeneficiaryInternationalWizardForm = ({
   const dynamicFormRef = useRef<DynamicFormRef>(null);
   const [currency, setCurrency] = useState(DEFAULT_AMOUNT.currency);
 
-  const [data, { isLoading, setVariables }] = useQuery(
+  const [data, { isLoading, setVariables, reload }] = useQuery(
     GetInternationalBeneficiaryDynamicFormsDocument,
     {
       accountId,
@@ -162,129 +167,144 @@ export const BeneficiaryInternationalWizardForm = ({
         name: getInternationalTransferFormRouteLabel(type),
       }));
 
-      const firstRoute = routes[0];
+      const firstRoute = Option.fromNullable(routes[0]).map(route => route.value);
 
-      if (firstRoute == null) {
-        return <ErrorView />;
-      }
-
-      const selectedRoute = route.getOr(firstRoute.value);
-
-      const fields = Array.find(schemes, scheme => scheme.type === selectedRoute)
-        .map(scheme => scheme.fields)
-        .getOr([]);
+      const selectedRoute = route.isSome() ? route : firstRoute;
 
       return (
         <View>
-          <Tile
-            footer={match(errors)
-              .with(P.union([], P.nullish), () => null)
-              .with([P.select()], error => (
-                <LakeAlert anchored={true} variant="error" title={error} />
-              ))
-              .otherwise(errors => (
-                <LakeAlert
-                  anchored={true}
-                  variant="error"
-                  title={t("transfer.new.internationalTransfer.errors.title")}
+          {selectedRoute.match({
+            None: () => (
+              <Tile style={styles.unavailableTile}>
+                <BorderedIcon color="current" name="lake-warning" size={100} padding={24} />
+                <Space height={24} />
+                <LakeText variant="smallRegular" color={colors.gray[900]}>
+                  {t("transfer.new.internationalTransfer.formUnavailable.message")}
+                </LakeText>
+                <Space height={24} />
+                <LakeButton color="current" onPress={reload}>
+                  {t("transfer.new.internationalTransfer.formUnavailable.retry")}
+                </LakeButton>
+              </Tile>
+            ),
+            Some: selectedRoute => {
+              const fields = Array.find(schemes, scheme => scheme.type === selectedRoute)
+                .map(scheme => scheme.fields)
+                .getOr([]);
+
+              return (
+                <Tile
+                  footer={match(errors)
+                    .with(P.union([], P.nullish), () => null)
+                    .with([P.select()], error => (
+                      <LakeAlert anchored={true} variant="error" title={error} />
+                    ))
+                    .otherwise(errors => (
+                      <LakeAlert
+                        anchored={true}
+                        variant="error"
+                        title={t("transfer.new.internationalTransfer.errors.title")}
+                      >
+                        {errors.map((message, index) => (
+                          <LakeText key={`validation-alert-${index}`}>{message}</LakeText>
+                        ))}
+                      </LakeAlert>
+                    ))}
                 >
-                  {errors.map((message, index) => (
-                    <LakeText key={`validation-alert-${index}`}>{message}</LakeText>
-                  ))}
-                </LakeAlert>
-              ))}
-          >
-            <LakeLabel
-              label={t("transfer.new.internationalTransfer.beneficiary.name")}
-              render={id => (
-                <Field name="name">
-                  {({ value, onChange, onBlur, error, valid, ref }) => (
-                    <LakeTextInput
-                      ref={ref}
-                      id={id}
-                      value={value}
-                      error={error}
-                      valid={valid}
-                      onChangeText={onChange}
-                      onBlur={onBlur}
-                      inputMode="text"
+                  <LakeLabel
+                    label={t("transfer.new.internationalTransfer.beneficiary.name")}
+                    render={id => (
+                      <Field name="name">
+                        {({ value, onChange, onBlur, error, valid, ref }) => (
+                          <LakeTextInput
+                            ref={ref}
+                            id={id}
+                            value={value}
+                            error={error}
+                            valid={valid}
+                            onChangeText={onChange}
+                            onBlur={onBlur}
+                            inputMode="text"
+                          />
+                        )}
+                      </Field>
+                    )}
+                  />
+
+                  {/* If initial amount is not specified, we show currency select in the form */}
+                  {amount === DEFAULT_AMOUNT && (
+                    <LakeLabel
+                      label={t("transfer.new.internationalTransfer.beneficiary.currency")}
+                      render={id => (
+                        <LakeSelect
+                          id={id}
+                          items={currencyItems}
+                          value={currency}
+                          onValueChange={handleOnCurrencyChange}
+                        />
+                      )}
                     />
                   )}
-                </Field>
-              )}
-            />
 
-            {/* If initial amount is not specified, we show currency select in the form */}
-            {amount === DEFAULT_AMOUNT && (
-              <LakeLabel
-                label={t("transfer.new.internationalTransfer.beneficiary.currency")}
-                render={id => (
-                  <LakeSelect
-                    id={id}
-                    items={currencyItems}
-                    value={currency}
-                    onValueChange={handleOnCurrencyChange}
-                  />
-                )}
-              />
-            )}
-
-            <Space height={8} />
-
-            <LakeLabel
-              label={t("transfer.new.internationalTransfer.beneficiary.route.intro")}
-              style={routes.length < 2 && styles.hidden}
-              render={() => (
-                <>
                   <Space height={8} />
 
-                  <RadioGroup
-                    items={routes}
-                    value={selectedRoute}
-                    onValueChange={route => setRoute(Option.Some(route))}
+                  <LakeLabel
+                    label={t("transfer.new.internationalTransfer.beneficiary.route.intro")}
+                    style={routes.length < 2 && styles.hidden}
+                    render={() => (
+                      <>
+                        <Space height={8} />
+
+                        <RadioGroup
+                          items={routes}
+                          value={selectedRoute}
+                          onValueChange={route => setRoute(Option.Some(route))}
+                        />
+
+                        <Space height={32} />
+                      </>
+                    )}
                   />
 
-                  <Space height={32} />
-                </>
-              )}
-            />
+                  <TransferInternationalDynamicForm
+                    ref={dynamicFormRef}
+                    fields={fields}
+                    initialValues={initialBeneficiary?.values ?? []}
+                    onRefreshRequest={onRefreshRequest}
+                    refreshing={isLoading}
+                    onSubmit={values => {
+                      submitForm({
+                        onSuccess: ({ name }) => {
+                          name.tapSome(name =>
+                            onPressSubmit({
+                              kind: "new",
+                              save: saveBeneficiary,
+                              name,
+                              currency,
+                              route: selectedRoute,
+                              values,
+                            }),
+                          );
+                        },
+                      });
+                    }}
+                  />
 
-            <TransferInternationalDynamicForm
-              ref={dynamicFormRef}
-              fields={fields}
-              initialValues={initialBeneficiary?.values ?? []}
-              onRefreshRequest={onRefreshRequest}
-              refreshing={isLoading}
-              onSubmit={values => {
-                submitForm({
-                  onSuccess: ({ name }) => {
-                    name.tapSome(name =>
-                      onPressSubmit({
-                        kind: "new",
-                        save: saveBeneficiary,
-                        name,
-                        currency,
-                        route: selectedRoute,
-                        values,
-                      }),
-                    );
-                  },
-                });
-              }}
-            />
+                  {saveCheckboxVisible && (
+                    <>
+                      <Space height={4} />
 
-            {saveCheckboxVisible && (
-              <>
-                <Space height={4} />
-
-                <LakeLabelledCheckbox
-                  label={t("transfer.new.beneficiary.save")}
-                  value={saveBeneficiary}
-                  onValueChange={setSaveBeneficiary}
-                />
-              </>
-            )}
-          </Tile>
+                      <LakeLabelledCheckbox
+                        label={t("transfer.new.beneficiary.save")}
+                        value={saveBeneficiary}
+                        onValueChange={setSaveBeneficiary}
+                      />
+                    </>
+                  )}
+                </Tile>
+              );
+            },
+          })}
 
           <Space height={32} />
 
@@ -305,7 +325,7 @@ export const BeneficiaryInternationalWizardForm = ({
 
                 <LakeButton
                   color="current"
-                  disabled={data.isLoading()}
+                  disabled={data.isLoading() || selectedRoute.isNone()}
                   grow={small}
                   loading={submitting}
                   icon={mode === "add" ? "add-circle-filled" : undefined}

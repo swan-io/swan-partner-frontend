@@ -1679,6 +1679,8 @@
   "transfer.new.internationalTransfer.details.title": "Detalhes da transferência",
   "transfer.new.internationalTransfer.errors.title": "Não é possível continuar esta transferência",
   "transfer.new.internationalTransfer.fee": "Taxa de transferência <bold>{fee}</bold>",
+  "transfer.new.internationalTransfer.formUnavailable.message": "Algo correu mal. Por favor, tente novamente,\nou contacte a equipa de apoio se o problema persistir.",
+  "transfer.new.internationalTransfer.formUnavailable.retry": "Tente novamente",
   "transfer.new.internationalTransfer.route.Aba": "Número da conta e número de roteamento ACH",
   "transfer.new.internationalTransfer.route.Argentina": "IBAN (International Bank Account Number)",
   "transfer.new.internationalTransfer.route.Australian": "Número da conta e NIB",

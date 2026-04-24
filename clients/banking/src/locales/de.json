@@ -1679,6 +1679,8 @@
   "transfer.new.internationalTransfer.details.title": "Details zur Überweisung",
   "transfer.new.internationalTransfer.errors.title": "Diese Überweisung kann nicht fortgesetzt werden",
   "transfer.new.internationalTransfer.fee": "Überweisungsgebühr <bold>{fee}</bold>",
+  "transfer.new.internationalTransfer.formUnavailable.message": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut,\noder kontaktieren Sie den Support, wenn das Problem weiterhin besteht.",
+  "transfer.new.internationalTransfer.formUnavailable.retry": "Erneut versuchen",
   "transfer.new.internationalTransfer.route.Aba": "Kontonummer und ACH-Bankleitzahl",
   "transfer.new.internationalTransfer.route.Argentina": "Alias CBU (einheitliche Bankleitzahl)",
   "transfer.new.internationalTransfer.route.Australian": "Kontonummer und BSB-Code",

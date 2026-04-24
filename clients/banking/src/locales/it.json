@@ -1682,6 +1682,8 @@
   "transfer.new.internationalTransfer.details.title": "Dettagli del bonifico",
   "transfer.new.internationalTransfer.errors.title": "Impossibile procedere al bonifico",
   "transfer.new.internationalTransfer.fee": "Commissione per il bonifico: <bold>{fee}</bold>",
+  "transfer.new.internationalTransfer.formUnavailable.message": "Qualcosa è andato storto. Riprova,\no contatta l'assistenza se il problema persiste.",
+  "transfer.new.internationalTransfer.formUnavailable.retry": "Riprova",
   "transfer.new.internationalTransfer.route.Aba": "Numero del conto e numero di routing ACH",
   "transfer.new.internationalTransfer.route.Argentina": "Numero CBU (codice bancario univoco)",
   "transfer.new.internationalTransfer.route.Australian": "Numero del conto e codice BSB",

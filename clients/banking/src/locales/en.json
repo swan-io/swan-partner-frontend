@@ -1682,6 +1682,8 @@
   "transfer.new.internationalTransfer.details.title": "Transfer details",
   "transfer.new.internationalTransfer.errors.title": "Unable to continue this transfer",
   "transfer.new.internationalTransfer.fee": "Transfer fee: <bold>{fee}</bold>",
+  "transfer.new.internationalTransfer.formUnavailable.message": "Something went wrong. Please try again,\nor contact support if the issue continues.",
+  "transfer.new.internationalTransfer.formUnavailable.retry": "Try again",
   "transfer.new.internationalTransfer.route.Aba": "Account number and ACH routing number",
   "transfer.new.internationalTransfer.route.Argentina": "Alias CBU (single banking code)",
   "transfer.new.internationalTransfer.route.Australian": "Account number and BSB code",

@@ -1682,6 +1682,8 @@
   "transfer.new.internationalTransfer.details.title": "Datos de la transferencia",
   "transfer.new.internationalTransfer.errors.title": "No es posible seguir con la transferencia",
   "transfer.new.internationalTransfer.fee": "Comisión de la transferencia: <bold>{fee}</bold>",
+  "transfer.new.internationalTransfer.formUnavailable.message": "Algo salió mal. Por favor, inténtalo de nuevo,\no contacta con el equipo de soporte si el problema continúa.",
+  "transfer.new.internationalTransfer.formUnavailable.retry": "Inténtalo de nuevo",
   "transfer.new.internationalTransfer.route.Aba": "Número de cuenta y número de ruta ACH",
   "transfer.new.internationalTransfer.route.Argentina": "Alias CBU (código bancario único)",
   "transfer.new.internationalTransfer.route.Australian": "Número de cuenta y código BSB",

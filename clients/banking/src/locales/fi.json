@@ -1682,6 +1682,8 @@
   "transfer.new.internationalTransfer.details.title": "Siirron tiedot",
   "transfer.new.internationalTransfer.errors.title": "Siirtoa ei voi jatkaa",
   "transfer.new.internationalTransfer.fee": "Siirtomaksu <bold>{fee}</bold>",
+  "transfer.new.internationalTransfer.formUnavailable.message": "Jotain meni pieleen. Yritä uudelleen\ntai ota yhteyttä tukeen, jos ongelma jatkuu.",
+  "transfer.new.internationalTransfer.formUnavailable.retry": "Yritä uudelleen",
   "transfer.new.internationalTransfer.route.Aba": "Tilinumero ja ACH-reititysnumero",
   "transfer.new.internationalTransfer.route.Argentina": "Alias CBU (yksittäinen pankkikoodi)",
   "transfer.new.internationalTransfer.route.Australian": "Tilinumero ja BSB-koodi",

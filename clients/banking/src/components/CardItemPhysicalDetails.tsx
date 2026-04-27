@@ -593,7 +593,6 @@ export const CardItemPhysicalDetails = ({
                           .format("LL"),
                       })}
                     >
-                      {" "}
                       <>
                         <LakeText>
                           {t("card.physical.toRenewAlert.description", {
@@ -678,8 +677,9 @@ export const CardItemPhysicalDetails = ({
                             physicalCard: { statusInfo: { status: "ToRenew" } },
                             previousCard: P.nonNullable,
                           },
-                          ({ previousCard }) =>
-                            large ? (
+                          ({ previousCard }) => {
+                            console.log("TOTO");
+                            return large ? (
                               <>
                                 <View style={styles.physicalCardContainer}>
                                   <Svg role="none" viewBox="0 0 85 55" />
@@ -827,7 +827,8 @@ export const CardItemPhysicalDetails = ({
                                   </View>
                                 )}
                               />
-                            ),
+                            );
+                          },
                         )
                         .otherwise(() => (
                           <MaskedCard

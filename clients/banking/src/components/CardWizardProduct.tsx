@@ -11,7 +11,15 @@ import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { useDisclosure } from "@swan-io/lake/src/hooks/useDisclosure";
 import { ChoicePicker } from "@swan-io/shared-business/src/components/ChoicePicker";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
-import { CSSProperties, Ref, useEffect, useImperativeHandle, useMemo, useState } from "react";
+import {
+  CSSProperties,
+  ReactNode,
+  Ref,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useState,
+} from "react";
 import {
   Pressable,
   StyleSheet,
@@ -612,7 +620,7 @@ export const CardWizardProduct = ({
   );
 };
 
-const CardProductLine = ({ children }: { children: string | React.ReactNode }) => (
+const CardProductLine = ({ children }: { children: string | ReactNode }) => (
   <Box direction="row" alignItems="center">
     <Icon name="checkmark-filled" size={16} color={colors.gray[600]} />
     <Space width={4} />

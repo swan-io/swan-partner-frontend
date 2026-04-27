@@ -677,9 +677,8 @@ export const CardItemPhysicalDetails = ({
                             physicalCard: { statusInfo: { status: "ToRenew" } },
                             previousCard: P.nonNullable,
                           },
-                          ({ previousCard }) => {
-                            console.log("TOTO");
-                            return large ? (
+                          ({ previousCard }) =>
+                            large ? (
                               <>
                                 <View style={styles.physicalCardContainer}>
                                   <Svg role="none" viewBox="0 0 85 55" />
@@ -826,8 +825,7 @@ export const CardItemPhysicalDetails = ({
                                   </View>
                                 )}
                               />
-                            );
-                          },
+                            ),
                         )
                         .otherwise(() => (
                           <MaskedCard

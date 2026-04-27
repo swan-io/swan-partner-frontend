@@ -1777,7 +1777,7 @@ type CompanyAccountHolderOnboardingAccountAdmin {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Following this pattern: /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
   - Disposable email domains are not allowed
   """
   email: String
@@ -1837,7 +1837,7 @@ input CompanyAccountHolderOnboardingAccountAdminInput {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Following this pattern: /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
   - Disposable email domains are not allowed
   """
   email: String
@@ -2814,7 +2814,7 @@ type IndividualAccountHolderOnboardingAccountAdmin {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Following this pattern: /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
   - Disposable email domains are not allowed
   """
   email: String
@@ -3923,7 +3923,7 @@ input RelatedIndividualInput {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Following this pattern: /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
   - Disposable email domains are not allowed
   """
   email: String
@@ -5341,7 +5341,7 @@ input UnauthenticatedUpdateCompanyOnboardingInput {
   - Length must be from 0 to 255 characters.
   - Valid format (regex):
     ```
-    /^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$/i
+    /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
     ```
   - Some email providers are not accepted by our system.
   """
@@ -5474,7 +5474,7 @@ input UnauthenticatedUpdateIndividualOnboardingInput {
   - Length must be from 0 to 255 characters.
   - Valid format (regex):
     ```
-    /^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$/i
+    /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
     ```
   - Some email providers are not accepted by our system.
   """

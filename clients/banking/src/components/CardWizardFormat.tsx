@@ -67,6 +67,7 @@ export const CardWizardFormat = ({ ref, cardProduct, initialCardFormat, onSubmit
 
   return (
     <ChoicePicker
+      tileColor="current"
       items={items}
       renderItem={cardFormat => {
         return (

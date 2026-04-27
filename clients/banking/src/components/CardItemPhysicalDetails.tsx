@@ -593,7 +593,6 @@ export const CardItemPhysicalDetails = ({
                           .format("LL"),
                       })}
                     >
-                      {" "}
                       <>
                         <LakeText>
                           {t("card.physical.toRenewAlert.description", {
@@ -769,7 +768,6 @@ export const CardItemPhysicalDetails = ({
                               </>
                             ) : (
                               <ChoicePicker
-                                tile={false}
                                 onChange={setCurrentCard}
                                 value={currentCard}
                                 items={["previous", "renewed"]}

@@ -6,13 +6,20 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Link } from "@swan-io/lake/src/components/Link";
 import { SegmentedControl } from "@swan-io/lake/src/components/SegmentedControl";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { Tag } from "@swan-io/lake/src/components/Tag";
 import { colors, radii, spacings } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { useDisclosure } from "@swan-io/lake/src/hooks/useDisclosure";
 import { ChoicePicker } from "@swan-io/shared-business/src/components/ChoicePicker";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
-import { CSSProperties, Ref, useEffect, useImperativeHandle, useMemo, useState } from "react";
+import {
+  CSSProperties,
+  ReactNode,
+  Ref,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useState,
+} from "react";
 import {
   Pressable,
   StyleSheet,
@@ -47,8 +54,9 @@ const styles = StyleSheet.create({
   },
   image: {
     width: "100%",
-    maxWidth: 320,
+    maxWidth: 150,
     marginHorizontal: "auto",
+    transform: "perspective(1000px) rotateX(50deg) rotateZ(35deg)",
   },
   insurances: {
     flexDirection: "row",
@@ -427,11 +435,14 @@ export const CardWizardProduct = ({
       )}
 
       <ChoicePicker
+        tileColor="current"
         items={displayedCardProducts}
         renderItem={cardProduct => {
           const cardDesign = cardProduct.cardDesigns.find(item => item.status === "Enabled");
           const cardDesignUrl = cardDesign?.cardDesignUrl;
-          const defaultInsurancePackage = cardProduct.insurance?.defaultInsurancePackage;
+          const defaultInsurancePackage =
+            cardProduct.insurance?.defaultInsurancePackage ??
+            cardProduct.insurance?.availableInsurancePackages?.[0];
 
           return (
             <View style={styles.item}>
@@ -445,94 +456,99 @@ export const CardWizardProduct = ({
                 ) : null}
               </View>
 
-              <Space height={24} />
+              <Space height={40} />
 
-              <LakeHeading
-                level={3}
-                variant="h5"
-                align="center"
-                color={currentCardProduct?.id === cardProduct.id ? colors.current[500] : undefined}
-              >
+              <LakeHeading level={3} variant="h3">
                 {cardProduct.name}
               </LakeHeading>
 
-              <Space height={12} />
+              <Space height={32} />
 
-              <LakeText align="center" variant="smallRegular">
-                {t("cards.maxSpendingLimit")}
-              </LakeText>
-
-              <LakeText align="center" variant="smallSemibold" color={colors.gray[700]}>
-                {match(accountHolderType)
-                  .with("Company", () =>
-                    t("card.maxSpendingLimits.perMonth", {
-                      value: formatCurrency(
-                        Number(cardProduct.companySpendingLimit.amount.value),
-                        cardProduct.companySpendingLimit.amount.currency,
-                      ),
-                    }),
-                  )
-                  .with("Individual", () =>
-                    t("card.maxSpendingLimits.perMonth", {
-                      value: formatCurrency(
-                        Number(cardProduct.individualSpendingLimit.amount.value),
-                        cardProduct.individualSpendingLimit.amount.currency,
-                      ),
-                    }),
-                  )
-                  .otherwise(() => null)}
-              </LakeText>
-
-              <Space height={8} />
-
-              {defaultInsurancePackage != null && accountHolderType === "Company" && (
-                <Box direction="row" alignItems="center" justifyContent="center">
-                  <Icon name="shield-checkmark-regular" size={16} color={colors.gray[500]} />
-                  <Space width={8} />
-
-                  <LakeText align="center" variant="smallRegular">
-                    {match(defaultInsurancePackage)
-                      .with({ level: "Basic" }, { level: "Standard" }, () =>
-                        t("cardProducts.insurance.badge.basic"),
+              <CardProductLine>
+                <>
+                  {t("cards.maxSpendingLimit")}
+                  <Space width={4} />
+                  <LakeText align="center" variant="smallSemibold" color={colors.gray[900]}>
+                    {match(accountHolderType)
+                      .with("Company", () =>
+                        t("card.maxSpendingLimits.perMonth", {
+                          value: formatCurrency(
+                            Number(cardProduct.companySpendingLimit.amount.value),
+                            cardProduct.companySpendingLimit.amount.currency,
+                          ),
+                        }),
                       )
-                      .with({ level: "Essential" }, () =>
-                        t("cardProducts.insurance.badge.essential"),
+                      .with("Individual", () =>
+                        t("card.maxSpendingLimits.perMonth", {
+                          value: formatCurrency(
+                            Number(cardProduct.individualSpendingLimit.amount.value),
+                            cardProduct.individualSpendingLimit.amount.currency,
+                          ),
+                        }),
                       )
-                      .with({ level: "Premium" }, () => t("cardProducts.insurance.badge.premium"))
                       .otherwise(() => null)}
                   </LakeText>
-                  <Space width={8} />
+                </>
+              </CardProductLine>
 
-                  {defaultInsurancePackage.level !== "Custom" && (
-                    <Pressable
-                      onPress={() => {
-                        setInsuranceType(defaultInsurancePackage);
-                        setOpened.open();
-                      }}
-                    >
-                      <Icon name="info-regular" size={16} color={colors.gray[500]} />
-                    </Pressable>
-                  )}
-                </Box>
+              {cardProduct.applicableToPhysicalCards ? (
+                <>
+                  <Space height={12} />
+
+                  <CardProductLine>
+                    {formatNestedMessage("cards.availableAsPhysical", {
+                      bold: text => (
+                        <LakeText variant="semibold" color={colors.gray[900]}>
+                          {text}
+                        </LakeText>
+                      ),
+                    })}
+                  </CardProductLine>
+                </>
+              ) : null}
+
+              {cardProduct.fundingType === "DeferredDebit" ? (
+                <>
+                  <Space height={12} />
+
+                  <CardProductLine>{t("cards.manageCashFlow")}</CardProductLine>
+                </>
+              ) : null}
+
+              {defaultInsurancePackage != null && accountHolderType === "Company" && (
+                <>
+                  <Space height={12} />
+
+                  <CardProductLine>
+                    {t("cardProducts.insurance")}
+                    {": "}
+                    <Box direction="row" alignItems="center">
+                      <LakeText variant="semibold" color={colors.gray[900]}>
+                        {match(defaultInsurancePackage)
+                          .with({ level: "Basic" }, { level: "Standard" }, () =>
+                            t("cardProducts.insurance.Standard"),
+                          )
+                          .with({ level: "Essential" }, () => t("cardProducts.insurance.Essential"))
+                          .with({ level: "Premium" }, () => t("cardProducts.insurance.Premium"))
+                          .otherwise(() => null)}
+                      </LakeText>
+
+                      <Space width={4} />
+
+                      {defaultInsurancePackage.level !== "Custom" && (
+                        <Pressable
+                          onPress={() => {
+                            setInsuranceType(defaultInsurancePackage);
+                            setOpened.open();
+                          }}
+                        >
+                          <Icon name="info-regular" size={16} color={colors.gray[600]} />
+                        </Pressable>
+                      )}
+                    </Box>
+                  </CardProductLine>
+                </>
               )}
-
-              <Box alignItems="center">
-                {cardProduct.applicableToPhysicalCards ? (
-                  <>
-                    <Space height={24} />
-
-                    <LakeText align="center" variant="smallRegular">
-                      {t("cards.availableFormats")}
-                    </LakeText>
-
-                    <Space height={4} />
-
-                    <Tag color="shakespear" icon="payment-regular">
-                      {t("cards.format.physical")}
-                    </Tag>
-                  </>
-                ) : null}
-              </Box>
             </View>
           );
         }}
@@ -603,3 +619,13 @@ export const CardWizardProduct = ({
     </>
   );
 };
+
+const CardProductLine = ({ children }: { children: string | ReactNode }) => (
+  <Box direction="row" alignItems="center">
+    <Icon name="checkmark-filled" size={16} color={colors.gray[600]} />
+    <Space width={4} />
+    <LakeText variant="light" color={colors.gray[600]}>
+      {children}
+    </LakeText>
+  </Box>
+);

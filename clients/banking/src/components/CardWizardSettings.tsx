@@ -305,6 +305,7 @@ export const CardWizardSettings = ({
             </Tile>
           ) : (
             <ChoicePicker
+              tileColor="current"
               large={true}
               items={["Always" as const, "Monthly" as const]}
               value={

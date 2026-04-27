@@ -55,6 +55,7 @@ export const CardWizardDelivery = ({ ref, initialDeliveryMode, onSubmit }: Props
 
   return (
     <ChoicePicker
+      tileColor="current"
       items={items}
       renderItem={cardDeliveryMode => {
         return (

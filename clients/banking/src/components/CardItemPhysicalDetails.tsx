@@ -769,7 +769,6 @@ export const CardItemPhysicalDetails = ({
                               </>
                             ) : (
                               <ChoicePicker
-                                tile={false}
                                 onChange={setCurrentCard}
                                 value={currentCard}
                                 items={["previous", "renewed"]}

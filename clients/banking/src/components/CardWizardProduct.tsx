@@ -427,6 +427,7 @@ export const CardWizardProduct = ({
       )}
 
       <ChoicePicker
+        tileColor="current"
         items={displayedCardProducts}
         renderItem={cardProduct => {
           const cardDesign = cardProduct.cardDesigns.find(item => item.status === "Enabled");

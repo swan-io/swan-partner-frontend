@@ -181,11 +181,7 @@ type Query {
     orderBy: OnboardingOrderByInput
   ): OnboardingConnection! @deprecated(reason: "Use `accountHolderOnboardings`")
 
-  """
-  Returns an account admin change from its id.
-  
-  @comingSoon
-  """
+  """Returns an account admin change from its id."""
   publicAccountAdminChange(accountAdminChangeId: ID!): PublicAccountAdminChangePayload
 
   """
@@ -703,21 +699,13 @@ type Mutation {
   """Open an additional account"""
   openAccount(input: OpenAccountInput!): OpenAccountPayload!
 
-  """
-  Finalizes an Account Admin Change
-  
-  @comingSoon
-  """
+  """Finalizes an Account Admin Change"""
   publicFinalizeAccountAdminChange(
     """Unique identifier of the account admin change to finalize"""
     accountAdminChangeId: ID!
   ): PublicFinalizeAccountAdminChangePayload!
 
-  """
-  Updates an Account Admin Change
-  
-  @comingSoon
-  """
+  """Updates an Account Admin Change"""
   publicUpdateAccountAdminChange(input: PublicUpdateAccountAdminChangeInput!): PublicUpdateAccountAdminChangePayload!
 
   """
@@ -3728,7 +3716,7 @@ type CompanyAccountHolderOnboardingAccountAdmin {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Following this pattern: /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
   - Disposable email domains are not allowed
   """
   email: String
@@ -3788,7 +3776,7 @@ input CompanyAccountHolderOnboardingAccountAdminInput {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Following this pattern: /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
   - Disposable email domains are not allowed
   """
   email: String
@@ -3849,7 +3837,7 @@ input CompanyAccountHolderOnboardingAccountAdminUpdateInput {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Following this pattern: /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
   - Disposable email domains are not allowed
   """
   email: String
@@ -5450,7 +5438,7 @@ type IndividualAccountHolderOnboardingAccountAdmin {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Following this pattern: /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
   - Disposable email domains are not allowed
   """
   email: String
@@ -6415,7 +6403,7 @@ input OnboardCompanyAccountHolderInput {
   - Length must be from 0 to 255 characters.
   - Valid format (regex):
     ```
-    /^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$/i
+    /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
     ```
   - Some email providers are not accepted by our system.
   """
@@ -6524,7 +6512,7 @@ input OnboardIndividualAccountHolderInput {
   - Length must be from 0 to 255 characters.
   - Valid format (regex):
     ```
-    /^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$/i
+    /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
     ```
   - Some email providers are not accepted by our system.
   """
@@ -7456,7 +7444,7 @@ input RelatedIndividualInput {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Following this pattern: /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
   - Disposable email domains are not allowed
   """
   email: String
@@ -9277,7 +9265,7 @@ input UpdateCompanyOnboardingInput {
   - Length must be from 0 to 255 characters.
   - Valid format (regex):
     ```
-    /^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$/i
+    /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
     ```
   - Some email providers are not accepted by our system.
   """
@@ -9406,7 +9394,7 @@ input UpdateIndividualAccountHolderOnboardingAccountAdminInput {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Following this pattern: /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
   - Disposable email domains are not allowed
   """
   email: String
@@ -9520,7 +9508,7 @@ input UpdateIndividualOnboardingInput {
   - Length must be from 0 to 255 characters.
   - Valid format (regex):
     ```
-    /^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$/i
+    /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
     ```
   - Some email providers are not accepted by our system.
   """
@@ -16266,9 +16254,6 @@ enum CapitalDepositCaseCancellationReasonType {
 
   """Required documents are missing, incorrect, or unanswered."""
   KYCIssue
-
-  """The account holder didn't reply to a re-KYC request."""
-  ReKYCNoReply
 
   """
   The account holder was assigned the wrong IBAN country, or the IBAN country isn't available per the country allowlist.

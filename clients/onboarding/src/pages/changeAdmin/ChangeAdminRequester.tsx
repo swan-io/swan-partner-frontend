@@ -1,16 +1,18 @@
 import { Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { InputPhoneNumber } from "@swan-io/lake/src/components/InputPhoneNumber";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { breakpoints } from "@swan-io/lake/src/constants/design";
+import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { trim } from "@swan-io/lake/src/utils/string";
+import { Flag } from "@swan-io/shared-business/src/components/Flag";
 import { getCountryByCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
@@ -21,7 +23,7 @@ import {
 } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { StyleSheet, View } from "react-native";
-import { InputPhoneNumber } from "../../components/InputPhoneNumber";
+import { CountryList } from "../../components/CountryList";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
@@ -233,14 +235,47 @@ export const ChangeAdminRequester = ({
                 <Field name="phoneNumber">
                   {({ value, onBlur, onChange, valid, error, ref }) => (
                     <View style={styles.inputContainer}>
-                      <InputPhoneNumber
+                      <LakeLabel
                         label={t("changeAdmin.step.requesterInfo.phoneNumber")}
-                        ref={ref}
-                        error={error}
-                        value={value}
-                        valid={valid}
-                        onBlur={onBlur}
-                        onValueChange={onChange}
+                        render={id => (
+                          <>
+                            <InputPhoneNumber
+                              id={id}
+                              ref={ref}
+                              country={value.country}
+                              value={value.nationalNumber}
+                              valid={valid}
+                              error={error}
+                              flag={<Flag code={value.country.cca2} width={16} />}
+                              countryList={close => (
+                                <CountryList
+                                  country={value.country}
+                                  onChange={country => {
+                                    onChange({
+                                      country,
+                                      nationalNumber: value.nationalNumber,
+                                    });
+                                    close();
+                                  }}
+                                />
+                              )}
+                              onChangeText={text =>
+                                onChange({ country: value.country, nationalNumber: text })
+                              }
+                              onBlur={onBlur}
+                              countryButtonAriaLabel={t("inputPhoneNumber.country")}
+                            />
+
+                            <Space height={4} />
+
+                            <LakeText
+                              variant="smallRegular"
+                              color={error != null ? colors.negative[500] : colors.gray[500]}
+                            >
+                              {error ?? " "}
+                            </LakeText>
+                          </>
+                        )}
                       />
                     </View>
                   )}

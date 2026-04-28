@@ -361,7 +361,7 @@
   "card.toRenew": "Expiring soon",
   "card.tooltipConflict": "Deactivated until your information conflict is solved",
   "card.yourAddress": "Your address",
-  "cardDetail.insurance.claim": "Make an insurance claim after an incident. <link>Go to the claim portal</link>",
+  "cardDetail.insurance.claim": "File an insurance claim",
   "cardDetail.insurance.description.basic": "Basic insurance coverage",
   "cardDetail.insurance.description.essential": "Essential insurance coverage",
   "cardDetail.insurance.description.premium": "Premium insurance coverage",

@@ -361,7 +361,7 @@
   "card.toRenew": "Caduca pronto",
   "card.tooltipConflict": "Desactivada hasta que se resuelva el conflicto de datos",
   "card.yourAddress": "Tu dirección",
-  "cardDetail.insurance.claim": "Presentar una reclamación de seguro tras un incidente. <link>Acceder al portal de reclamaciones</link>",
+  "cardDetail.insurance.claim": "Presentar una reclamación de seguro",
   "cardDetail.insurance.description.basic": "Cobertura de seguro básica",
   "cardDetail.insurance.description.essential": "Cobertura de seguro esencial",
   "cardDetail.insurance.description.premium": "Cobertura de seguro premium",

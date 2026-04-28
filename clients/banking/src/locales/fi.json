@@ -361,7 +361,7 @@
   "card.toRenew": "Vanhenee pian",
   "card.tooltipConflict": "Pois käytöstä, kunnes tietoristiriita on saatu ratkaistua",
   "card.yourAddress": "Osoitteesi",
-  "cardDetail.insurance.claim": "Tee korvauspyyntö vakuutustapahtuman jälkeen. <link>Siirry vaatimusportaaliin</link>",
+  "cardDetail.insurance.claim": "Tee vakuutusilmoitus",
   "cardDetail.insurance.description.basic": "Perustason vakuutusturva",
   "cardDetail.insurance.description.essential": "Välttämätön vakuutusturva",
   "cardDetail.insurance.description.premium": "Premium-vakuutusturva",

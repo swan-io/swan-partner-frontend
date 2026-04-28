@@ -361,7 +361,7 @@
   "card.toRenew": "Expire bientôt",
   "card.tooltipConflict": "Désactivée jusqu'à ce que vos informations soient complétées",
   "card.yourAddress": "Votre adresse",
-  "cardDetail.insurance.claim": "Déposer une réclamation d'assurance après un incident. <link>Aller au portail de réclamation</link>",
+  "cardDetail.insurance.claim": "Déposer une réclamation d'assurance",
   "cardDetail.insurance.description.basic": "Couverture d'assurance basique",
   "cardDetail.insurance.description.essential": "Couverture d'assurance essentielle",
   "cardDetail.insurance.description.premium": "Couverture d'assurance premium",

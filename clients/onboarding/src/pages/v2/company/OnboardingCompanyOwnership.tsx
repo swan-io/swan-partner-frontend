@@ -137,6 +137,11 @@ const styles = StyleSheet.create({
   ownerName: {
     paddingRight: 100,
   },
+  menuMobile: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+  },
 });
 
 const RELATED_COMPANY_REGEX = /^company\.relatedCompanies\[(\d+)\]\.(.+)$/;
@@ -461,39 +466,43 @@ export const OnboardingCompanyOwnership = ({
                         <LakeText style={styles.textSubTitle}>
                           {t("company.step.ownership.role.CompanyLegalRepresentative")}
                         </LakeText>
-                        <Space width={8} />
-                        <ContextMenu
-                          ariaLabel={t("common.openActions")}
-                          withPill={missingInfos.company.has(index)}
-                          verticalPlacement="below"
-                        >
-                          <ContextMenuItem
+
+                        {!small && <Space width={8} />}
+
+                        <View style={small ? styles.menuMobile : undefined}>
+                          <ContextMenu
+                            ariaLabel={t("common.openActions")}
                             withPill={missingInfos.company.has(index)}
-                            onPress={() =>
-                              setModalState({
-                                type: "edit",
-                                step: "company",
-                                initialValue: company,
-                                errors: missingInfos.company.get(index) ?? [],
-                              })
-                            }
+                            verticalPlacement="below"
                           >
-                            {t("common.edit")}
-                          </ContextMenuItem>
-                          <Separator />
-                          <ContextMenuItem
-                            onPress={() =>
-                              setModalState({
-                                type: "delete",
-                                reference: company[REFERENCE_SYMBOL],
-                                name: company.entityName ?? "",
-                                related: "company",
-                              })
-                            }
-                          >
-                            {t("common.remove")}
-                          </ContextMenuItem>
-                        </ContextMenu>
+                            <ContextMenuItem
+                              withPill={missingInfos.company.has(index)}
+                              onPress={() =>
+                                setModalState({
+                                  type: "edit",
+                                  step: "company",
+                                  initialValue: company,
+                                  errors: missingInfos.company.get(index) ?? [],
+                                })
+                              }
+                            >
+                              {t("common.edit")}
+                            </ContextMenuItem>
+                            <Separator />
+                            <ContextMenuItem
+                              onPress={() =>
+                                setModalState({
+                                  type: "delete",
+                                  reference: company[REFERENCE_SYMBOL],
+                                  name: company.entityName ?? "",
+                                  related: "company",
+                                })
+                              }
+                            >
+                              {t("common.remove")}
+                            </ContextMenuItem>
+                          </ContextMenu>
+                        </View>
                       </Box>
                     </View>
                   ))}
@@ -557,41 +566,45 @@ export const OnboardingCompanyOwnership = ({
                         <LakeText style={styles.textSubTitle} align={small ? "left" : "right"}>
                           {ownershipTypeText(individual.type)}
                         </LakeText>
-                        <Space width={8} />
-                        <ContextMenu
-                          ariaLabel={t("common.openActions")}
-                          withPill={missingInfos.individual.has(index)}
-                          verticalPlacement="below"
-                        >
-                          <ContextMenuItem
+
+                        {!small && <Space width={8} />}
+
+                        <View style={small ? styles.menuMobile : undefined}>
+                          <ContextMenu
+                            ariaLabel={t("common.openActions")}
                             withPill={missingInfos.individual.has(index)}
-                            onPress={() =>
-                              setModalState({
-                                type: "edit",
-                                step: "init",
-                                initialValue: individual,
-                                errors: missingInfos.individual.get(index) ?? [],
-                              })
-                            }
+                            verticalPlacement="below"
                           >
-                            {t("common.edit")}
-                          </ContextMenuItem>
-                          <Separator />
-                          <ContextMenuItem
-                            onPress={() =>
-                              setModalState({
-                                type: "delete",
-                                reference: individual[REFERENCE_SYMBOL],
-                                name: [individual.firstName, individual.lastName]
-                                  .filter(Boolean)
-                                  .join(" "),
-                                related: "individual",
-                              })
-                            }
-                          >
-                            {t("common.remove")}
-                          </ContextMenuItem>
-                        </ContextMenu>
+                            <ContextMenuItem
+                              withPill={missingInfos.individual.has(index)}
+                              onPress={() =>
+                                setModalState({
+                                  type: "edit",
+                                  step: "init",
+                                  initialValue: individual,
+                                  errors: missingInfos.individual.get(index) ?? [],
+                                })
+                              }
+                            >
+                              {t("common.edit")}
+                            </ContextMenuItem>
+                            <Separator />
+                            <ContextMenuItem
+                              onPress={() =>
+                                setModalState({
+                                  type: "delete",
+                                  reference: individual[REFERENCE_SYMBOL],
+                                  name: [individual.firstName, individual.lastName]
+                                    .filter(Boolean)
+                                    .join(" "),
+                                  related: "individual",
+                                })
+                              }
+                            >
+                              {t("common.remove")}
+                            </ContextMenuItem>
+                          </ContextMenu>
+                        </View>
                       </Box>
                     </View>
                   ))}

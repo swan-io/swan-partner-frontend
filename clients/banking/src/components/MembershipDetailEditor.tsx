@@ -1,12 +1,14 @@
 import { AsyncData, Option, Result } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { InputPhoneNumber } from "@swan-io/lake/src/components/InputPhoneNumber";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { backgroundColor } from "@swan-io/lake/src/constants/design";
+import { backgroundColor, colors } from "@swan-io/lake/src/constants/design";
 import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { pick } from "@swan-io/lake/src/utils/object";
@@ -14,6 +16,7 @@ import { trim } from "@swan-io/lake/src/utils/string";
 import { Request, badStatusToError } from "@swan-io/request";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
+import { Flag } from "@swan-io/shared-business/src/components/Flag";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import {
@@ -48,7 +51,7 @@ import { parsePhoneNumber, prefixPhoneNumber } from "../utils/phone";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 import { validateAddressLine } from "../utils/validations";
-import { InputPhoneNumber } from "./InputPhoneNumber";
+import { CountryList } from "./CountryList";
 import { MembershipCancelConfirmationModal } from "./MembershipCancelConfirmationModal";
 import { MembershipInvitationLinkModal } from "./MembershipInvitationLinkModal";
 
@@ -679,14 +682,47 @@ export const MembershipDetailEditor = ({
 
               <Field name="phoneNumber">
                 {({ value, valid, error, onChange, ref, onBlur }) => (
-                  <InputPhoneNumber
+                  <LakeLabel
                     label={t("membershipDetail.edit.phoneNumber")}
-                    ref={ref}
-                    onValueChange={onChange}
-                    error={error}
-                    value={value}
-                    valid={valid}
-                    onBlur={onBlur}
+                    render={id => (
+                      <>
+                        <InputPhoneNumber
+                          id={id}
+                          ref={ref}
+                          country={value.country}
+                          value={value.nationalNumber}
+                          valid={valid}
+                          error={error}
+                          flag={<Flag code={value.country.cca2} width={16} />}
+                          countryList={close => (
+                            <CountryList
+                              country={value.country}
+                              onChange={country => {
+                                onChange({
+                                  country,
+                                  nationalNumber: value.nationalNumber,
+                                });
+                                close();
+                              }}
+                            />
+                          )}
+                          onChangeText={text =>
+                            onChange({ country: value.country, nationalNumber: text })
+                          }
+                          onBlur={onBlur}
+                          countryButtonAriaLabel={t("inputPhoneNumber.country")}
+                        />
+
+                        <Space height={4} />
+
+                        <LakeText
+                          variant="smallRegular"
+                          color={error != null ? colors.negative[500] : colors.gray[500]}
+                        >
+                          {error ?? " "}
+                        </LakeText>
+                      </>
+                    )}
                   />
                 )}
               </Field>

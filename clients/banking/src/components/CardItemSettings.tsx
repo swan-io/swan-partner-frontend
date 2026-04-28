@@ -139,6 +139,7 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
             disabled={!canUpdateCard}
             cardProduct={card.cardProduct}
             cardFormat={card.type}
+            canEditPeriodicity={card.type !== "SingleUseVirtual"}
             maxSpendingLimit={card.spendingLimits?.find(
               item => item.type === "Partner" && item.period === "Monthly",
             )}

@@ -95,7 +95,63 @@ type Props = {
   accountHolder?: AccountHolderForCardSettingsFragment;
   maxSpendingLimit?: { amount: Amount };
   disabled?: boolean;
+  canEditPeriodicity?: boolean;
 };
+
+type Periodicity = "Always" | "Monthly";
+
+type PeriodicityPickerProps = {
+  value: Periodicity | undefined;
+  onChange: (period: Periodicity) => void;
+  disabled: boolean;
+};
+
+const PeriodicityPicker = ({ value, onChange, disabled }: PeriodicityPickerProps) => (
+  <ChoicePicker
+    tileColor="current"
+    large={true}
+    items={["Always" as const, "Monthly" as const]}
+    value={value}
+    onChange={onChange}
+    disabled={disabled}
+    renderItem={period => (
+      <View style={styles.item}>
+        <Box alignItems="center">
+          <Icon
+            color={value === period ? colors.swan[300] : colors.swan[200]}
+            size={148}
+            name={period === "Always" ? "lake-card-one-off" : "lake-card-recurring"}
+          />
+
+          <Space height={24} />
+
+          <LakeHeading userSelect="none" level={3} variant="h3">
+            {period === "Always"
+              ? t("cards.periodicity.oneOff")
+              : t("cards.periodicity.recurring")}
+          </LakeHeading>
+
+          <Space height={12} />
+
+          <View style={styles.descriptionContainer}>
+            <LakeText
+              userSelect="none"
+              variant="smallRegular"
+              align="center"
+              style={styles.description}
+            >
+              {period === "Always"
+                ? t("cards.periodicity.oneOff.description")
+                : t("cards.periodicity.recurring.description")}
+            </LakeText>
+          </View>
+        </Box>
+
+        <Space height={12} />
+      </View>
+    )}
+  />
+);
 
 type ValidationError = "InvalidAmount" | "ExceedsMaxAmount";
 
@@ -125,6 +181,7 @@ export const CardWizardSettings = ({
   onSubmit,
   maxSpendingLimit,
   disabled = false,
+  canEditPeriodicity = true,
 }: Props) => {
   const { maxValue: spendingLimitMaxValue, currency } = deriveSpendingLimitContext(
     cardProduct,
@@ -275,104 +332,66 @@ export const CardWizardSettings = ({
             </>
           ) : null}
 
-          {cardFormat !== "SingleUseVirtual" ? (
-            <Tile title={t("card.settings.title")}>
-              {cardSettingItems.map((item, index, arr) => (
-                <View key={item.key}>
-                  <View style={styles.settingRow}>
-                    <Icon name={item.icon} color={colors.current[500]} size={24} />
+          {cardFormat !== "SingleUseVirtual" && (
+            <>
+              <Tile title={t("card.settings.title")}>
+                {cardSettingItems.map((item, index, arr) => (
+                  <View key={item.key}>
+                    <View style={styles.settingRow}>
+                      <Icon name={item.icon} color={colors.current[500]} size={24} />
 
-                    <View style={styles.settingText}>
-                      <LakeHeading level={3} variant="h5">
-                        {item.title}
-                      </LakeHeading>
+                      <View style={styles.settingText}>
+                        <LakeHeading level={3} variant="h5">
+                          {item.title}
+                        </LakeHeading>
 
-                      <LakeText variant="smallRegular" color={colors.gray[500]}>
-                        {item.description}
-                      </LakeText>
-                    </View>
-
-                    <Switch
-                      disabled={disabled}
-                      value={item.checked}
-                      onValueChange={item.onChange}
-                    />
-                  </View>
-
-                  {index < arr.length - 1 && <Separator />}
-                </View>
-              ))}
-            </Tile>
-          ) : (
-            <ChoicePicker
-              tileColor="current"
-              large={true}
-              items={["Always" as const, "Monthly" as const]}
-              value={
-                currentSettings.spendingLimit?.mode.type === "rolling"
-                  ? currentSettings.spendingLimit.mode.period
-                  : undefined
-              }
-              onChange={period =>
-                setCurrentSettings(settings => ({
-                  ...settings,
-                  spendingLimit: {
-                    amount: settings.spendingLimit?.amount ?? {
-                      value: dirtyValue ?? "",
-                      currency,
-                    },
-                    mode: { type: "rolling", rollingValue: 1, period },
-                  },
-                }))
-              }
-              disabled={disabled}
-              renderItem={period => {
-                return (
-                  <View style={styles.item}>
-                    <Box alignItems="center">
-                      <Icon
-                        color={
-                          currentSettings.spendingLimit?.mode.type === "rolling" &&
-                          currentSettings.spendingLimit.mode.period === period
-                            ? colors.swan[300]
-                            : colors.swan[200]
-                        }
-                        size={148}
-                        name={period === "Always" ? "lake-card-one-off" : "lake-card-recurring"}
-                      />
-
-                      <Space height={24} />
-
-                      <LakeHeading userSelect="none" level={3} variant="h3">
-                        {period === "Always"
-                          ? t("cards.periodicity.oneOff")
-                          : t("cards.periodicity.recurring")}
-                      </LakeHeading>
-
-                      <Space height={12} />
-
-                      <View style={styles.descriptionContainer}>
-                        <LakeText
-                          userSelect="none"
-                          variant="smallRegular"
-                          align="center"
-                          style={styles.description}
-                        >
-                          {period === "Always"
-                            ? t("cards.periodicity.oneOff.description")
-                            : t("cards.periodicity.recurring.description")}
+                        <LakeText variant="smallRegular" color={colors.gray[500]}>
+                          {item.description}
                         </LakeText>
                       </View>
-                    </Box>
 
-                    <Space height={12} />
+                      <Switch
+                        disabled={disabled}
+                        value={item.checked}
+                        onValueChange={item.onChange}
+                      />
+                    </View>
+
+                    {index < arr.length - 1 && <Separator />}
                   </View>
-                );
-              }}
-            />
+                ))}
+              </Tile>
+              <Space height={24} />
+            </>
           )}
 
-          <Space height={24} />
+          {cardFormat === "SingleUseVirtual" && canEditPeriodicity && (
+            <>
+              <PeriodicityPicker
+                disabled={disabled}
+                value={
+                  currentSettings.spendingLimit?.mode.type === "rolling" &&
+                  (currentSettings.spendingLimit.mode.period === "Always" ||
+                    currentSettings.spendingLimit.mode.period === "Monthly")
+                    ? currentSettings.spendingLimit.mode.period
+                    : undefined
+                }
+                onChange={period =>
+                  setCurrentSettings(settings => ({
+                    ...settings,
+                    spendingLimit: {
+                      amount: settings.spendingLimit?.amount ?? {
+                        value: dirtyValue ?? "",
+                        currency,
+                      },
+                      mode: { type: "rolling", rollingValue: 1, period },
+                    },
+                  }))
+                }
+              />
+              <Space height={24} />
+            </>
+          )}
 
           <Tile>
             <LakeLabel

@@ -29,7 +29,7 @@ export const companyHeadcount: { text: string; value: CompanyHeadcount }[] = [
   { text: "1-10", value: "Between1And10" },
   { text: "11-50", value: "Between11And50" },
   { text: "51-250", value: "Between51And250" },
-  { text: "+250", value: "MoreThan250" },
+  { text: "250+", value: "MoreThan250" },
 ];
 
 export const uboQualificationType: {

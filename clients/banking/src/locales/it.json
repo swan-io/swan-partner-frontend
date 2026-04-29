@@ -361,7 +361,7 @@
   "card.toRenew": "In scadenza a breve",
   "card.tooltipConflict": "Disattivata fino alla risoluzione del conflitto di informazioni",
   "card.yourAddress": "Indirizzo",
-  "cardDetail.insurance.claim": "Presenta una richiesta di risarcimento assicurativo dopo un incidente. <link>Acceda al portale dei reclami</link>",
+  "cardDetail.insurance.claim": "Segnala un sinistro assicurativo",
   "cardDetail.insurance.description.basic": "Copertura assicurativa base",
   "cardDetail.insurance.description.essential": "Copertura assicurativa essenziale",
   "cardDetail.insurance.description.premium": "Copertura assicurativa premium",

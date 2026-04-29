@@ -361,7 +361,7 @@
   "card.toRenew": "Läuft bald ab",
   "card.tooltipConflict": "Deaktiviert, bis Ihr Informationskonflikt gelöst ist",
   "card.yourAddress": "Ihre Adresse",
-  "cardDetail.insurance.claim": "Stellen Sie nach einem Vorfall einen Versicherungsanspruch. <link>Zum Schadensportal gehen</link>",
+  "cardDetail.insurance.claim": "Versicherungsanspruch einreichen",
   "cardDetail.insurance.description.basic": "Grundversicherungsschutz",
   "cardDetail.insurance.description.essential": "Wesentlicher Versicherungsschutz",
   "cardDetail.insurance.description.premium": "Premium-Versicherungsschutz",

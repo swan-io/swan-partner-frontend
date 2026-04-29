@@ -361,7 +361,7 @@
   "card.toRenew": "Verloopt binnenkoort",
   "card.tooltipConflict": "Gedeactiveerd totdat het informatieconflict is opgelost",
   "card.yourAddress": "Jouw adres.",
-  "cardDetail.insurance.claim": "Dien een verzekeringsclaim in na een incident. <link>Ga naar het claimportaal</link>",
+  "cardDetail.insurance.claim": "Dien een verzekeringsclaim in",
   "cardDetail.insurance.description.basic": "Basic-verzekeringsdekking",
   "cardDetail.insurance.description.essential": "Essential-verzekeringsdekking",
   "cardDetail.insurance.description.premium": "Premium-verzekeringsdekking",

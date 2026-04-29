@@ -243,30 +243,18 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
                     </LakeText>
 
                     <Space height={8} />
-                    <Box direction="row" alignItems="center">
-                      <LakeText variant="smallRegular">
-                        {formatNestedMessage("cardDetail.insurance.claim", {
-                          link: text => (
-                            <>
-                              <Link style={styles.link} to={cardInsurance.claimsUrl} target="blank">
-                                <Box direction="row" alignItems="center">
-                                  <LakeText color={colors.current.primary} variant="smallRegular">
-                                    {text}
-                                  </LakeText>
+                    <LakeText variant="smallRegular">
+                      <Link style={styles.link} to={cardInsurance.claimsUrl} target="blank">
+                        <Box direction="row" alignItems="center">
+                          <LakeText color={colors.current.primary} variant="smallRegular">
+                            {t("cardDetail.insurance.claim")}
+                          </LakeText>
 
-                                  <Space width={4} />
-                                  <Icon
-                                    color={colors.current.primary}
-                                    name="open-filled"
-                                    size={16}
-                                  />
-                                </Box>
-                              </Link>
-                            </>
-                          ),
-                        })}
-                      </LakeText>
-                    </Box>
+                          <Space width={4} />
+                          <Icon color={colors.current.primary} name="open-filled" size={16} />
+                        </Box>
+                      </Link>
+                    </LakeText>
                   </>
                 </Box>
               )}

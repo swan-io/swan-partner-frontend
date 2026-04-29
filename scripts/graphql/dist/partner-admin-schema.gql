@@ -178,7 +178,7 @@ type Mutation {
   generateTestCheck(input: GenerateCheckInput!): GenerateCheckPayload!
 
   """Simulate the authorization of a card merchant payment"""
-  simulateIncomingCardAuthorization(input: SimulateIncomingCardAuthorizationInput!): SimulateIncomingCardAuthorizationPayload!
+  simulateIncomingCardAuthorization(input: SimulateIncomingCardAuthorizationInput!): SimulateIncomingCardAuthorizationPayload! @deprecated(reason: "use simulateIncomingOnlineCardAuthorization instead")
 
   """
   Simulate the settlement process for the give in-person card merchant payments
@@ -4832,9 +4832,6 @@ enum CapitalDepositCaseCancellationReasonType {
 
   """Required documents are missing, incorrect, or unanswered."""
   KYCIssue
-
-  """The account holder didn't reply to a re-KYC request."""
-  ReKYCNoReply
 
   """
   The account holder was assigned the wrong IBAN country, or the IBAN country isn't available per the country allowlist.
@@ -10380,6 +10377,10 @@ enum MerchantPaymentRejectedReason {
   CheckReceivedLate
 }
 
+type MerchantPaymentsAlreadySettledRejection {
+  merchantPaymentIds: [ID!]!
+}
+
 """Merchant Payment status"""
 enum MerchantPaymentStatus {
   Initiated
@@ -11204,7 +11205,7 @@ input SimulateIncomingInPersonCardSettlementInput {
   merchantPaymentIds: [ID!]!
 }
 
-union SimulateIncomingInPersonCardSettlementPayload = SimulateIncomingInPersonCardSettlementSuccessPayload | ForbiddenRejection | ValidationRejection | NotFoundRejection | InternalErrorRejection
+union SimulateIncomingInPersonCardSettlementPayload = SimulateIncomingInPersonCardSettlementSuccessPayload | MerchantPaymentsAlreadySettledRejection | ForbiddenRejection | ValidationRejection | NotFoundRejection | InternalErrorRejection
 
 type SimulateIncomingInPersonCardSettlementSuccessPayload {
   merchantPayments: [MerchantPayment!]!

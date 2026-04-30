@@ -1,7 +1,6 @@
 import { Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { InputPhoneNumber } from "@swan-io/lake/src/components/InputPhoneNumber";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
@@ -9,17 +8,17 @@ import { RadioGroup, RadioGroupItem } from "@swan-io/lake/src/components/RadioGr
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
+import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isEmpty } from "@swan-io/lake/src/utils/nullish";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
-import { Flag } from "@swan-io/shared-business/src/components/Flag";
+import { InputPhoneNumber } from "@swan-io/shared-business/src/components/InputPhoneNumber";
 import {
-  allCountries,
   CountryCCA3,
+  allCountries,
   getCountryByCCA3,
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
@@ -34,7 +33,6 @@ import {
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { StyleSheet, View } from "react-native";
 import { Except } from "type-fest";
-import { CountryList } from "../../components/CountryList";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
@@ -292,34 +290,14 @@ export const ChangeAdminNewAdmin = ({
                               value={value.nationalNumber}
                               valid={valid}
                               error={error}
-                              flag={<Flag code={value.country.cca2} width={16} />}
-                              countryList={close => (
-                                <CountryList
-                                  country={value.country}
-                                  onChange={country => {
-                                    onChange({
-                                      country,
-                                      nationalNumber: value.nationalNumber,
-                                    });
-                                    close();
-                                  }}
-                                />
-                              )}
+                              onCountryChange={country =>
+                                onChange({ country, nationalNumber: value.nationalNumber })
+                              }
                               onChangeText={text =>
                                 onChange({ country: value.country, nationalNumber: text })
                               }
                               onBlur={onBlur}
-                              countryButtonAriaLabel={t("inputPhoneNumber.country")}
                             />
-
-                            <Space height={4} />
-
-                            <LakeText
-                              variant="smallRegular"
-                              color={error != null ? colors.negative[500] : colors.gray[500]}
-                            >
-                              {error ?? " "}
-                            </LakeText>
                           </>
                         )}
                       />

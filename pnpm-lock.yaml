@@ -5141,8 +5141,13 @@ packages:
     resolution: {integrity: sha512-XQegIaBTVUjSHliKqcnFqYypAd4S+WCYt5NIeRs6w/UAry7z8Y9j5ZwRRL4kzq9U3sD6v+85er9FvkEaBpji2w==, tarball: https://registry.npmjs.org/uuid/-/uuid-13.0.0.tgz}
     hasBin: true
 
+  uuid@13.0.1:
+    resolution: {integrity: sha512-9ezox2roIft6ExBVTVqibSd5dc5/47Sw/uY6b4SjQUT2TzQ0tltNquWA46y4xPQmdZYqvnio22SgWd41M86+jw==, tarball: https://registry.npmjs.org/uuid/-/uuid-13.0.1.tgz}
+    hasBin: true
+
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==, tarball: https://registry.npmjs.org/uuid/-/uuid-9.0.1.tgz}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   valienv@1.1.0:
@@ -7955,7 +7960,7 @@ snapshots:
       react-native-web: 0.21.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       rifm: 0.12.1(react@19.2.4)
       ts-pattern: 5.9.0
-      uuid: 13.0.0
+      uuid: 13.0.1
     transitivePeerDependencies:
       - encoding
       - typescript
@@ -7981,7 +7986,7 @@ snapshots:
       react-native-web: 0.21.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       rifm: 0.12.1(react@19.2.4)
       ts-pattern: 5.9.0
-      uuid: 13.0.0
+      uuid: 13.0.1
     transitivePeerDependencies:
       - encoding
       - typescript
@@ -10864,6 +10869,8 @@ snapshots:
   util-deprecate@1.0.2: {}
 
   uuid@13.0.0: {}
+
+  uuid@13.0.1: {}
 
   uuid@9.0.1: {}
 

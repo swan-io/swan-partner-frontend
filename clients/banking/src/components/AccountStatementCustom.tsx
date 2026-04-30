@@ -5,7 +5,7 @@ import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Cell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
-import { Icon } from "@swan-io/lake/src/components/Icon";
+import { Icon, IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeScrollView } from "@swan-io/lake/src/components/LakeScrollView";
@@ -18,6 +18,7 @@ import {
 } from "@swan-io/lake/src/components/PlainListView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { Tag } from "@swan-io/lake/src/components/Tag";
 import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
@@ -134,32 +135,54 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
         .otherwise(() => null),
   },
   {
-    title: "notReady",
-    width: 180,
-    id: "notReady",
-    renderTitle: () => null,
-    renderCell: ({ item: { statusInfo } }) =>
-      match(statusInfo)
-        .with({ __typename: P.union("GeneratedStatusInfo", "VoidedStatusInfo") }, () => null)
-        .otherwise(() => (
-          <TextCell
-            align="right"
-            color={colors.gray[300]}
-            variant="smallMedium"
-            text={t("accountStatements.notReady")}
-          />
-        )),
+    title: t("accountStatements.type"),
+    width: 100,
+    id: "type",
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
+    renderCell: ({ item: { format } }) => <TextCell variant="smallMedium" text={format} />,
+  },
+  {
+    title: t("accountStatements.status"),
+    width: 120,
+    id: "status",
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
+    renderCell: ({ item: { statusInfo } }) => (
+      <Cell>
+        {match(statusInfo)
+          .with({ status: "Generated" }, () => (
+            <Tag color="positive">{t("accountStatements.status.available")}</Tag>
+          ))
+          .with({ status: "Failed" }, () => (
+            <Tag color="negative">{t("accountStatements.status.failed")}</Tag>
+          ))
+          .with({ status: "Pending" }, () => (
+            <Tag color="shakespear">{t("accountStatements.status.pending")}</Tag>
+          ))
+          .with({ status: "Voided" }, () => (
+            <Tag color="gray">{t("accountStatements.status.voided")}</Tag>
+          ))
+          .exhaustive()}
+      </Cell>
+    ),
   },
   {
     width: 40,
     id: "actions",
     title: "",
     renderTitle: () => null,
-    renderCell: ({ item: { statusInfo } }) =>
+    renderCell: ({ item: { statusInfo, format } }) =>
       match(statusInfo)
         .with({ __typename: P.union("GeneratedStatusInfo", "VoidedStatusInfo") }, () => (
           <Cell align="center">
-            <Icon name="open-regular" size={16} color={colors.gray[300]} />
+            <Icon
+              name={match(format)
+                .returnType<IconName>()
+                .with("PDF", () => "open-filled")
+                .with("CSV", () => "arrow-download-filled")
+                .exhaustive()}
+              size={16}
+              color={colors.gray[300]}
+            />
           </Cell>
         ))
         .otherwise(() => null),

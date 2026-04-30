@@ -874,6 +874,7 @@ query AccountStatementsPage(
           closingDate
           openingDate
           createdAt
+          format
           statusInfo {
             status
             ... on GeneratedStatusInfo {

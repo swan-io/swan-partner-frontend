@@ -194,8 +194,6 @@
   "accountStatements.action": "Toimenpiteet",
   "accountStatements.empty.subtitle": "Kun mukautettujen tiliotteiden julkaisu alkaa, ne näytetään täällä",
   "accountStatements.empty.title": "Mukautettuja tiliotteita ei vielä ole",
-  "accountStatements.generated": "Luotu",
-  "accountStatements.notReady": "Ei vielä käytettävissä",
   "accountStatements.period": "Ajanjakso",
   "accountStatements.subtitle": "Seuraa tapahtumahistoriaasi. Kaikilla tämän tilin jäsenillä on pääsy tälle sivulle.",
   "accountStatements.tab.custom": "Mukautettu",

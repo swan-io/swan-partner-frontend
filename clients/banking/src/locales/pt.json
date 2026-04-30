@@ -194,8 +194,6 @@
   "accountStatements.action": "Ação",
   "accountStatements.empty.subtitle": "Quando começar a gerar extratos personalizados, eles serão exibidos aqui",
   "accountStatements.empty.title": "Ainda não há extratos de conta personalizados",
-  "accountStatements.generated": "Gerado",
-  "accountStatements.notReady": "Não está pronto",
   "accountStatements.period": "Período",
   "accountStatements.subtitle": "Mantenha-se a par do seu histórico de transacções. Qualquer pessoa com uma inscrição nesta conta tem acesso a esta página.",
   "accountStatements.tab.custom": "Personalizado",

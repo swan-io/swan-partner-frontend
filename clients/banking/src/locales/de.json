@@ -194,8 +194,6 @@
   "accountStatements.action": "Aktion",
   "accountStatements.empty.subtitle": "Sobald Sie individuelle Kontoauszüge erstellen, werden diese hier angezeigt",
   "accountStatements.empty.title": "Noch keine individuellen Kontoauszüge vorhanden",
-  "accountStatements.generated": "Erstellt",
-  "accountStatements.notReady": "Noch nicht verfügbar",
   "accountStatements.period": "Zeitraum",
   "accountStatements.subtitle": "Behalten Sie den Überblick über Ihren Transaktionsverlauf. Jedes Mitglied dieses Kontos hat Zugang zu dieser Seite.",
   "accountStatements.tab.custom": "Individuell",

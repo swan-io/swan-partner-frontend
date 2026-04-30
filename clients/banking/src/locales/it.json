@@ -194,8 +194,6 @@
   "accountStatements.action": "Azione",
   "accountStatements.empty.subtitle": "Una volta che avrà iniziato a generare dichiarazioni personalizzate, queste verranno visualizzate qui",
   "accountStatements.empty.title": "Ancora nessun estratto conto personalizzato",
-  "accountStatements.generated": "Generato",
-  "accountStatements.notReady": "Non ancora disponibile",
   "accountStatements.period": "Periodo",
   "accountStatements.subtitle": "Tenga traccia dello storico delle sue transazioni. Chiunque sia membro di questo conto ha accesso a questa pagina.",
   "accountStatements.tab.custom": "Personalizzato",

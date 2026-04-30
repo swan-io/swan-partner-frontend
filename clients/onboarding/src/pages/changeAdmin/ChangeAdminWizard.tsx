@@ -3,11 +3,7 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FlowStep } from "@swan-io/lake/src/components/FlowPresentation";
 import { IconName } from "@swan-io/lake/src/components/Icon";
-import {
-  LakeStepper,
-  MobileStepTitle,
-  TopLevelStep,
-} from "@swan-io/lake/src/components/LakeStepper";
+import { LakeStepper, MobileStepper, TopLevelStep } from "@swan-io/lake/src/components/LakeStepper";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -191,7 +187,7 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
                         <ResponsiveContainer>
                           {({ small }) =>
                             small ? (
-                              <MobileStepTitle activeStepId={route.name} steps={stepperSteps} />
+                              <MobileStepper activeStepId={route.name} steps={stepperSteps} />
                             ) : (
                               <Box alignItems="center">
                                 <LakeStepper

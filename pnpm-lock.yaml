@@ -156,14 +156,14 @@ importers:
         specifier: 0.8.0
         version: 0.8.0(graphql@16.12.0)(react@19.2.4)(typescript@6.0.2)
       '@swan-io/lake':
-        specifier: 13.9.3
-        version: 13.9.3(typescript@6.0.2)
+        specifier: 13.10.0
+        version: 13.10.0(typescript@6.0.2)
       '@swan-io/request':
         specifier: 3.1.0
         version: 3.1.0(@swan-io/boxed@3.2.1(typescript@6.0.2))
       '@swan-io/shared-business':
-        specifier: 13.9.3
-        version: 13.9.3(@swan-io/lake@13.9.3(typescript@6.0.2))(typescript@6.0.2)
+        specifier: 13.10.0
+        version: 13.10.0(@swan-io/lake@13.10.0(typescript@6.0.2))(typescript@6.0.2)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@19.2.4)(typescript@6.0.2)
@@ -244,14 +244,14 @@ importers:
         specifier: 0.8.0
         version: 0.8.0(graphql@16.12.0)(react@19.2.4)(typescript@6.0.2)
       '@swan-io/lake':
-        specifier: 13.9.3
-        version: 13.9.3(typescript@6.0.2)
+        specifier: 13.10.0
+        version: 13.10.0(typescript@6.0.2)
       '@swan-io/request':
         specifier: 3.1.0
         version: 3.1.0(@swan-io/boxed@3.2.1(typescript@6.0.2))
       '@swan-io/shared-business':
-        specifier: 13.9.3
-        version: 13.9.3(@swan-io/lake@13.9.3(typescript@6.0.2))(typescript@6.0.2)
+        specifier: 13.10.0
+        version: 13.10.0(@swan-io/lake@13.10.0(typescript@6.0.2))(typescript@6.0.2)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@19.2.4)(typescript@6.0.2)
@@ -317,11 +317,11 @@ importers:
         specifier: 0.8.0
         version: 0.8.0(graphql@16.12.0)(react@19.2.4)(typescript@6.0.2)
       '@swan-io/lake':
-        specifier: 13.9.3
-        version: 13.9.3(typescript@6.0.2)
+        specifier: 13.10.0
+        version: 13.10.0(typescript@6.0.2)
       '@swan-io/shared-business':
-        specifier: 13.9.3
-        version: 13.9.3(@swan-io/lake@13.9.3(typescript@6.0.2))(typescript@6.0.2)
+        specifier: 13.10.0
+        version: 13.10.0(@swan-io/lake@13.10.0(typescript@6.0.2))(typescript@6.0.2)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@19.2.4)(typescript@6.0.2)
@@ -2504,8 +2504,8 @@ packages:
     peerDependencies:
       react: '>=18.2.0'
 
-  '@swan-io/lake@13.9.3':
-    resolution: {integrity: sha512-8x7MSIQ3LTGmg96cwM0EzSiTqUxYKr6wl9uXksOI/zV3Md2sXrLLe/P8z+v/pPgbAbSU1wokIiMkq3fiLz5F7w==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-13.9.3.tgz}
+  '@swan-io/lake@13.10.0':
+    resolution: {integrity: sha512-PKngZKmbraYeMm9M4+sDmlcx7xFnOpGKEtR8AwslASSZjsXS5asxVFHyjr9+s9/RN9MEktTQ7FtaoRCndai3yA==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-13.10.0.tgz}
     engines: {node: '>22.12.0'}
 
   '@swan-io/request@3.1.0':
@@ -2514,11 +2514,11 @@ packages:
     peerDependencies:
       '@swan-io/boxed': '>=2.2.1'
 
-  '@swan-io/shared-business@13.9.3':
-    resolution: {integrity: sha512-Xp3t5riWtBetTfaAqpCgzPJ1LisZtco78FGWFLow1fOaiO0l6W1WArZugsEI91+mEwmIzGglF25YihX7FJolAg==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-13.9.3.tgz}
+  '@swan-io/shared-business@13.10.0':
+    resolution: {integrity: sha512-A83+xB5+ViSZECRG74m6xli44QEkszpi97AO6pIpGVn/4NnfAQc48Oz4qeVa5qtnG54Dry1BpB2dNfELF+PZwQ==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-13.10.0.tgz}
     engines: {node: '>22.12.0'}
     peerDependencies:
-      '@swan-io/lake': 13.9.3
+      '@swan-io/lake': 13.10.0
 
   '@swan-io/use-form@3.1.0':
     resolution: {integrity: sha512-X6NpZ7LCeo7eS9RVCZrtpX+3GXZFUfUZpIwtVa2GNmqTLgyDbLhN8N6zBv+dmHL9KAQ+Zng2fTCCQpCZvmDu5A==, tarball: https://registry.npmjs.org/@swan-io/use-form/-/use-form-3.1.0.tgz}
@@ -7947,7 +7947,7 @@ snapshots:
       - graphql
       - typescript
 
-  '@swan-io/lake@13.9.3(typescript@6.0.2)':
+  '@swan-io/lake@13.10.0(typescript@6.0.2)':
     dependencies:
       '@swan-io/boxed': 3.2.1(typescript@6.0.2)
       '@swan-io/chicane': 3.0.0(react@19.2.4)
@@ -7969,12 +7969,12 @@ snapshots:
     dependencies:
       '@swan-io/boxed': 3.2.1(typescript@6.0.2)
 
-  '@swan-io/shared-business@13.9.3(@swan-io/lake@13.9.3(typescript@6.0.2))(typescript@6.0.2)':
+  '@swan-io/shared-business@13.10.0(@swan-io/lake@13.10.0(typescript@6.0.2))(typescript@6.0.2)':
     dependencies:
       '@formatjs/intl': 4.1.2(typescript@6.0.2)
       '@placekit/client-js': 2.3.0
       '@swan-io/boxed': 3.2.1(typescript@6.0.2)
-      '@swan-io/lake': 13.9.3(typescript@6.0.2)
+      '@swan-io/lake': 13.10.0(typescript@6.0.2)
       '@swan-io/request': 3.1.0(@swan-io/boxed@3.2.1(typescript@6.0.2))
       '@swan-io/use-form': 3.1.0(react@19.2.4)(typescript@6.0.2)
       dayjs: 1.11.19

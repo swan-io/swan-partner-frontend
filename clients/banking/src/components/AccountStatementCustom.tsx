@@ -39,6 +39,7 @@ import {
   AccountStatementsPageDocument,
   AccountStatementsPageQuery,
   GenerateAccountStatementDocument,
+  StatementsOrderByInput,
 } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { accountLanguages, languages, locale, rifmDateProps, t } from "../utils/i18n";
@@ -97,7 +98,10 @@ type Props = {
   large: boolean;
 };
 
-type ExtraInfo = { large: boolean };
+type ExtraInfo = {
+  onChangeOrder: (orderBy: StatementsOrderByInput) => void;
+  orderBy?: StatementsOrderByInput;
+};
 type Statement = GetNode<
   NonNullable<NonNullable<AccountStatementsPageQuery["account"]>["statements"]>
 >;
@@ -113,7 +117,19 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
     title: t("accountStatements.period"),
     width: "grow",
     id: "period",
-    renderTitle: ({ title }) => <HeaderCell text={title} />,
+    renderTitle: ({ title, extraInfo }) => (
+      <HeaderCell
+        text={title}
+        onPress={direction => {
+          extraInfo.onChangeOrder({ field: "openingDate", direction });
+        }}
+        sort={
+          extraInfo.orderBy?.field === "openingDate"
+            ? (extraInfo.orderBy.direction ?? undefined)
+            : undefined
+        }
+      />
+    ),
     renderCell: ({ item: { openingDate, closingDate } }) => {
       const openingDateStatement = dayjs.utc(openingDate).add(1, "hour").format("MMM, DD YYYY");
       const closingDateStatement = dayjs.utc(closingDate).add(1, "hour").format("MMM, DD YYYY");
@@ -468,6 +484,8 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
 
   const { canGenerateAccountStatement } = usePermissions();
 
+  const [orderBy, setOrderBy] = useState<StatementsOrderByInput>();
+
   const [displayedView, setDisplayedView] = useState<"list" | "new">("list");
   const [data, { isLoading, reload, setVariables }] = useQuery(AccountStatementsPageDocument, {
     first: PER_PAGE,
@@ -475,7 +493,10 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
     filters: {
       period: "Custom",
     },
+    orderBy,
   });
+
+  const extraInfo = useMemo(() => ({ onChangeOrder: setOrderBy, orderBy }), [orderBy]);
 
   return (
     <>
@@ -549,7 +570,7 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
                                 headerHeight={48}
                                 rowHeight={48}
                                 groupHeaderHeight={48}
-                                extraInfo={{ large }}
+                                extraInfo={extraInfo}
                                 columns={columns}
                                 getRowLink={({ item }) =>
                                   match(item.statusInfo)

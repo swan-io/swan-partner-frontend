@@ -15,9 +15,10 @@ import { isEmpty } from "@swan-io/lake/src/utils/nullish";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
+import { InputPhoneNumber } from "@swan-io/shared-business/src/components/InputPhoneNumber";
 import {
-  allCountries,
   CountryCCA3,
+  allCountries,
   getCountryByCCA3,
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
@@ -32,7 +33,6 @@ import {
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { StyleSheet, View } from "react-native";
 import { Except } from "type-fest";
-import { InputPhoneNumber } from "../../components/InputPhoneNumber";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
@@ -279,14 +279,27 @@ export const ChangeAdminNewAdmin = ({
                 <Field name="phoneNumber">
                   {({ value, onBlur, onChange, valid, error, ref }) => (
                     <View style={styles.inputContainer}>
-                      <InputPhoneNumber
+                      <LakeLabel
                         label={t("changeAdmin.step.requesterInfo.phoneNumber")}
-                        ref={ref}
-                        error={error}
-                        value={value}
-                        valid={valid}
-                        onBlur={onBlur}
-                        onValueChange={onChange}
+                        render={id => (
+                          <>
+                            <InputPhoneNumber
+                              id={id}
+                              ref={ref}
+                              country={value.country}
+                              value={value.nationalNumber}
+                              valid={valid}
+                              error={error}
+                              onCountryChange={country =>
+                                onChange({ country, nationalNumber: value.nationalNumber })
+                              }
+                              onChangeText={text =>
+                                onChange({ country: value.country, nationalNumber: text })
+                              }
+                              onBlur={onBlur}
+                            />
+                          </>
+                        )}
                       />
                     </View>
                   )}

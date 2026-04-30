@@ -14,6 +14,7 @@ import { trim } from "@swan-io/lake/src/utils/string";
 import { Request, badStatusToError } from "@swan-io/request";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
+import { InputPhoneNumber } from "@swan-io/shared-business/src/components/InputPhoneNumber";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import {
@@ -48,7 +49,6 @@ import { parsePhoneNumber, prefixPhoneNumber } from "../utils/phone";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 import { validateAddressLine } from "../utils/validations";
-import { InputPhoneNumber } from "./InputPhoneNumber";
 import { MembershipCancelConfirmationModal } from "./MembershipCancelConfirmationModal";
 import { MembershipInvitationLinkModal } from "./MembershipInvitationLinkModal";
 
@@ -679,14 +679,27 @@ export const MembershipDetailEditor = ({
 
               <Field name="phoneNumber">
                 {({ value, valid, error, onChange, ref, onBlur }) => (
-                  <InputPhoneNumber
+                  <LakeLabel
                     label={t("membershipDetail.edit.phoneNumber")}
-                    ref={ref}
-                    onValueChange={onChange}
-                    error={error}
-                    value={value}
-                    valid={valid}
-                    onBlur={onBlur}
+                    render={id => (
+                      <>
+                        <InputPhoneNumber
+                          id={id}
+                          ref={ref}
+                          country={value.country}
+                          value={value.nationalNumber}
+                          valid={valid}
+                          error={error}
+                          onCountryChange={country =>
+                            onChange({ country, nationalNumber: value.nationalNumber })
+                          }
+                          onChangeText={text =>
+                            onChange({ country: value.country, nationalNumber: text })
+                          }
+                          onBlur={onBlur}
+                        />
+                      </>
+                    )}
                   />
                 )}
               </Field>

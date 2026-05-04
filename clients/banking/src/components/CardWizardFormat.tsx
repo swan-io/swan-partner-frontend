@@ -74,7 +74,7 @@ export const CardWizardFormat = ({ ref, cardProduct, initialCardFormat, onSubmit
           <View style={styles.item}>
             <Box alignItems="center">
               <Icon
-                color={currentFormat === cardFormat ? colors.swan[300] : colors.swan[200]}
+                color={currentFormat === cardFormat ? colors.current[500] : colors.swan[200]}
                 size={148}
                 name={match(cardFormat)
                   .with("Virtual", () => "lake-card-virtual" as const)

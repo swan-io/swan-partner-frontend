@@ -118,7 +118,7 @@ const PeriodicityPicker = ({ value, onChange, disabled }: PeriodicityPickerProps
       <View style={styles.item}>
         <Box alignItems="center">
           <Icon
-            color={value === period ? colors.swan[300] : colors.swan[200]}
+            color={value === period ? colors.current[500] : colors.swan[200]}
             size={148}
             name={period === "Always" ? "lake-card-one-off" : "lake-card-recurring"}
           />
@@ -126,9 +126,7 @@ const PeriodicityPicker = ({ value, onChange, disabled }: PeriodicityPickerProps
           <Space height={24} />
 
           <LakeHeading userSelect="none" level={3} variant="h3">
-            {period === "Always"
-              ? t("cards.periodicity.oneOff")
-              : t("cards.periodicity.recurring")}
+            {period === "Always" ? t("cards.periodicity.oneOff") : t("cards.periodicity.recurring")}
           </LakeHeading>
 
           <Space height={12} />

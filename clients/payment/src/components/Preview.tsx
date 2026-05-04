@@ -166,18 +166,12 @@ export const Preview = ({
 
               {!hasNoPaymentMethods && (
                 <>
-                  {isNotNullish(selectedPaymentMethod) && (
+                  {paymentMethods.length > 1 && isNotNullish(selectedPaymentMethod) && (
                     <LakeLabel
-                      style={
-                        large && paymentMethods.length === 1
-                          ? { maxWidth: "50%" }
-                          : { maxWidth: "100%" }
-                      }
                       label={t("paymentLink.paymentMethod")}
                       render={() => (
                         <SegmentedControl
                           fullWidth={true}
-                          mobileBreakpoint={large && paymentMethods.length === 1 ? 0 : undefined}
                           selected={selectedPaymentMethod.id}
                           items={paymentMethods}
                           onValueChange={id => {

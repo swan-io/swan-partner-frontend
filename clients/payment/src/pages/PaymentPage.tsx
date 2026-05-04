@@ -9,7 +9,6 @@ import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartner
 import { colors, invariantColors } from "@swan-io/lake/src/constants/design";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useState } from "react";
-import { StyleSheet } from "react-native";
 import { match } from "ts-pattern";
 import { formatCurrency } from "../../../banking/src/utils/i18n";
 import { CardPayment } from "../components/CardPayment";
@@ -19,15 +18,6 @@ import { SepaLogo } from "../components/SepaLogo";
 import { GetMerchantPaymentLinkQuery, MerchantPaymentMethodType } from "../graphql/unauthenticated";
 import { env } from "../utils/env";
 import { t } from "../utils/i18n";
-
-const styles = StyleSheet.create({
-  segmentedControlDesktop: {
-    maxWidth: "50%",
-  },
-  segmentedControl: {
-    maxWidth: "100%",
-  },
-});
 
 type SupportedMethodType = "Card" | "DirectDebit";
 
@@ -102,11 +92,6 @@ export const PaymentPage = ({
 
       {paymentMethods.length > 1 && isNotNullish(selectedPaymentMethod) && (
         <LakeLabel
-          style={
-            large && paymentMethods.length === 1
-              ? styles.segmentedControlDesktop
-              : styles.segmentedControl
-          }
           label={t("paymentLink.paymentMethod")}
           render={() => (
             <SegmentedControl

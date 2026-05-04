@@ -413,17 +413,6 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
                       country={companyCountry as CompanyCountryCCA3}
                       isCompany={hasCompanyTaxRules}
                       required={isTaxIdentificationRequired}
-                      label={
-                        // those are hardcoded because it's the only combination making the distinction
-                        accountCountry === "DEU" && companyCountry === "DEU"
-                          ? "Steuernummer"
-                          : undefined
-                      }
-                      placeholder={
-                        accountCountry === "DEU" && companyCountry === "DEU"
-                          ? "Steuernummer des Unternehmens"
-                          : undefined
-                      }
                     />
                   )}
                 </Field>

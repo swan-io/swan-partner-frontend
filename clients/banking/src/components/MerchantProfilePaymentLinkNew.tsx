@@ -703,7 +703,8 @@ export const MerchantProfilePaymentLinkNew = ({
                   <Box style={styles.preview}>
                     <Box style={styles.previewContainer}>
                       <SegmentedControl
-                        minItemWidth={250}
+                        fullWidth={true}
+                        mobileBreakpoint={150}
                         items={previewItems}
                         selected={selectedPreview}
                         onValueChange={id => {

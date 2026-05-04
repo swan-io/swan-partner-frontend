@@ -42,7 +42,6 @@ import { Router } from "../utils/routes";
 
 const styles = StyleSheet.create({
   tabsContainer: {
-    maxWidth: 500,
     width: "100%",
     marginHorizontal: "auto",
   },

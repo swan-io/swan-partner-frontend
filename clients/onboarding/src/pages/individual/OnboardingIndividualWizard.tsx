@@ -1,5 +1,5 @@
 import { Box } from "@swan-io/lake/src/components/Box";
-import { LakeStepper, MobileStepTitle, Step } from "@swan-io/lake/src/components/LakeStepper";
+import { LakeStepper, MobileStepper, Step } from "@swan-io/lake/src/components/LakeStepper";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
@@ -149,7 +149,7 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
           <ResponsiveContainer>
             {({ small }) =>
               small ? (
-                <MobileStepTitle activeStepId={route.name} steps={stepperSteps} />
+                <MobileStepper activeStepId={route.name} steps={stepperSteps} />
               ) : (
                 <Box alignItems="center">
                   <LakeStepper

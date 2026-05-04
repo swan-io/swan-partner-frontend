@@ -63,7 +63,7 @@ export const CardWizardDelivery = ({ ref, initialDeliveryMode, onSubmit }: Props
             <Box alignItems="center">
               <Icon
                 color={
-                  currentDeliveryMode === cardDeliveryMode ? colors.swan[300] : colors.swan[200]
+                  currentDeliveryMode === cardDeliveryMode ? colors.current[500] : colors.swan[200]
                 }
                 size={148}
                 name={match(cardDeliveryMode)

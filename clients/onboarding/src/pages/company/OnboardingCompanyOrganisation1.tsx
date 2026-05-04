@@ -556,17 +556,6 @@ export const OnboardingCompanyOrganisation1 = ({
                           isCompany={hasCompanyTaxRules}
                           required={isTaxIdentificationRequired}
                           disabled={autofillResult.isLoading()}
-                          label={
-                            // those are hardcoded because it's the only combination making the distinction
-                            accountCountry === "DEU" && country === "DEU"
-                              ? "Steuernummer"
-                              : undefined
-                          }
-                          placeholder={
-                            accountCountry === "DEU" && country === "DEU"
-                              ? "Steuernummer des Unternehmens"
-                              : undefined
-                          }
                         />
                       )}
                     </Field>

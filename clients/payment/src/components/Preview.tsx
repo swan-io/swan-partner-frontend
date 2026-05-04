@@ -51,13 +51,6 @@ const styles = StyleSheet.create({
   centered: {
     marginHorizontal: "auto",
   },
-
-  segmentedControlDesktop: {
-    maxWidth: "50%",
-  },
-  segmentedControl: {
-    maxWidth: "100%",
-  },
 });
 
 type Props = {
@@ -84,8 +77,6 @@ export const Preview = ({
     }));
   }, []);
 
-  const hasNoPaymentMethods = sepaDirectDebit == null && card == null;
-
   const paymentMethods = [
     ...(sepaDirectDebit != null
       ? [
@@ -108,6 +99,7 @@ export const Preview = ({
       : []),
   ];
 
+  const hasNoPaymentMethods = paymentMethods.length === 0;
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(paymentMethods[0]);
 
   return (
@@ -177,14 +169,15 @@ export const Preview = ({
                   {isNotNullish(selectedPaymentMethod) && (
                     <LakeLabel
                       style={
-                        large && (card == null || sepaDirectDebit == null)
-                          ? styles.segmentedControlDesktop
-                          : styles.segmentedControl
+                        large && paymentMethods.length === 1
+                          ? { maxWidth: "50%" }
+                          : { maxWidth: "100%" }
                       }
                       label={t("paymentLink.paymentMethod")}
                       render={() => (
                         <SegmentedControl
-                          minItemWidth={250}
+                          fullWidth={true}
+                          mobileBreakpoint={large && paymentMethods.length === 1 ? 0 : undefined}
                           selected={selectedPaymentMethod.id}
                           items={paymentMethods}
                           onValueChange={id => {

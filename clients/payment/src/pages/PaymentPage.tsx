@@ -110,7 +110,7 @@ export const PaymentPage = ({
           label={t("paymentLink.paymentMethod")}
           render={() => (
             <SegmentedControl
-              minItemWidth={250}
+              fullWidth={true}
               selected={selectedPaymentMethod.id}
               items={paymentMethods}
               onValueChange={id => {

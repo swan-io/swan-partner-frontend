@@ -1,9 +1,5 @@
 import { Box } from "@swan-io/lake/src/components/Box";
-import {
-  LakeStepper,
-  MobileStepTitle,
-  TopLevelStep,
-} from "@swan-io/lake/src/components/LakeStepper";
+import { LakeStepper, MobileStepper, TopLevelStep } from "@swan-io/lake/src/components/LakeStepper";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
@@ -116,7 +112,7 @@ export const VerificationRenewalIndividual = ({
           <ResponsiveContainer>
             {({ small }) =>
               small ? (
-                <MobileStepTitle activeStepId={route.name} steps={stepperSteps} />
+                <MobileStepper activeStepId={route.name} steps={stepperSteps} />
               ) : (
                 <Box alignItems="center">
                   <LakeStepper

@@ -45,7 +45,7 @@ import {
   validateRequired,
   validateUsaTaxNumber,
 } from "@swan-io/shared-business/src/utils/validation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { View } from "react-native";
 import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { upsertAccountAdminInRelatedIndividuals } from "../../../utils/onboarding";
@@ -181,9 +181,14 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
     },
   });
 
+  const prefilled = useMemo(
+    () => hasOnboardingPrefilled.get().getOr({ hasAccountAdmin: false }),
+    [],
+  );
+
   useEffect(() => {
     if (isFirstMount) {
-      if (hasOnboardingPrefilled.isSome()) {
+      if (prefilled.hasAccountAdmin === true) {
         submitForm();
       }
       serverValidationErrors.forEach(({ fieldName, code }) => {
@@ -191,7 +196,7 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
         setFieldError(fieldName, message);
       });
     }
-  }, [serverValidationErrors, isFirstMount, setFieldError, submitForm]);
+  }, [serverValidationErrors, isFirstMount, setFieldError, submitForm, prefilled]);
 
   const onPressPrevious = () => {
     Router.push("Root", { onboardingId });

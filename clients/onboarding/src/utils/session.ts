@@ -1,9 +1,10 @@
 import { Option, Result, Serializer } from "@swan-io/boxed";
 
 export type PrefilleldParams = {
-  vatNumber: boolean;
-  registrationNumber: boolean;
-  registrationDate: boolean;
+  vatNumber?: boolean;
+  registrationNumber?: boolean;
+  registrationDate?: boolean;
+  hasAccountAdmin?: boolean;
 };
 
 const createSessionStorage = <T>(name: string) => {
@@ -17,6 +18,10 @@ const createSessionStorage = <T>(name: string) => {
     set(updater(get()));
   };
 
+  const add = (value: Partial<T>) => {
+    update(current => ({ ...current.getOr({} as T), ...value }));
+  };
+
   const get = () =>
     Option.fromNullable(window.sessionStorage.getItem(name)).flatMap(value =>
       Result.fromExecution(() => Serializer.decode(value) as T).toOption(),
@@ -28,7 +33,7 @@ const createSessionStorage = <T>(name: string) => {
     window.sessionStorage.removeItem(name);
   };
 
-  return { set, update, get, isSome, delete: delete_ };
+  return { set, add, update, get, isSome, delete: delete_ };
 };
 
 export const hasOnboardingPrefilled = createSessionStorage<PrefilleldParams>("Onboarding");

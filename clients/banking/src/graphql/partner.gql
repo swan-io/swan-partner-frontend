@@ -849,6 +849,7 @@ query AccountStatementsPage(
   $first: Int!
   $after: String
   $filters: StatementFiltersInput
+  $orderBy: StatementsOrderByInput
 ) {
   account(accountId: $accountId) {
     id
@@ -860,7 +861,7 @@ query AccountStatementsPage(
         name
       }
     }
-    statements(first: $first, after: $after, filters: $filters) {
+    statements(first: $first, after: $after, filters: $filters, orderBy: $orderBy) {
       totalCount
       pageInfo {
         endCursor

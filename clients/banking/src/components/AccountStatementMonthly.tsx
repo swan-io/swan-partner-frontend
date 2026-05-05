@@ -16,10 +16,15 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import dayjs from "dayjs";
+import { useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
-import { AccountStatementsPageDocument, AccountStatementsPageQuery } from "../graphql/partner";
+import {
+  AccountStatementsPageDocument,
+  AccountStatementsPageQuery,
+  StatementsOrderByInput,
+} from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Connection } from "./Connection";
 
@@ -43,7 +48,10 @@ type Props = {
   accountMembershipId: string;
 };
 
-type ExtraInfo = { large: boolean };
+type ExtraInfo = {
+  onChangeOrder: (orderBy: StatementsOrderByInput) => void;
+  orderBy?: StatementsOrderByInput;
+};
 type Statement = GetNode<
   NonNullable<NonNullable<AccountStatementsPageQuery["account"]>["statements"]>
 >;
@@ -53,7 +61,19 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
     title: t("accountStatements.period"),
     width: "grow",
     id: "period",
-    renderTitle: ({ title }) => <HeaderCell text={title} />,
+    renderTitle: ({ title, extraInfo }) => (
+      <HeaderCell
+        text={title}
+        onPress={direction => {
+          extraInfo.onChangeOrder({ field: "openingDate", direction });
+        }}
+        sort={
+          extraInfo.orderBy?.field === "openingDate"
+            ? (extraInfo.orderBy.direction ?? undefined)
+            : undefined
+        }
+      />
+    ),
     renderCell: ({ item: { openingDate } }) => (
       <TextCell variant="medium" text={dayjs(openingDate).format("MMMM YYYY")} />
     ),
@@ -165,11 +185,15 @@ const smallColumns: ColumnConfig<Statement, ExtraInfo>[] = [
 const PER_PAGE = 20;
 
 export const AccountStatementMonthly = ({ accountId, large }: Props) => {
+  const [orderBy, setOrderBy] = useState<StatementsOrderByInput>();
   const [data, { isLoading, setVariables }] = useQuery(AccountStatementsPageDocument, {
     first: PER_PAGE,
     accountId,
     filters: { period: "Monthly" },
+    orderBy,
   });
+
+  const extraInfo = useMemo(() => ({ onChangeOrder: setOrderBy, orderBy }), [orderBy]);
 
   return (
     <>
@@ -196,7 +220,7 @@ export const AccountStatementMonthly = ({ accountId, large }: Props) => {
                           headerHeight={48}
                           rowHeight={48}
                           groupHeaderHeight={48}
-                          extraInfo={{ large }}
+                          extraInfo={extraInfo}
                           columns={columns}
                           getRowLink={({ item }) =>
                             match(item.statusInfo)

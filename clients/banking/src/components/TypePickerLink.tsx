@@ -1,4 +1,3 @@
-import { pushUnsafe } from "@swan-io/chicane";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon, IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
@@ -8,6 +7,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
+import { pushUnsafe } from "@zoontek/chicane";
 import { useCallback } from "react";
 import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 

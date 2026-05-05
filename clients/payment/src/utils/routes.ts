@@ -1,4 +1,4 @@
-import { createGroup, createRouter, InferRoutes } from "@swan-io/chicane";
+import { createGroup, createRouter, InferRoutes } from "@zoontek/chicane";
 
 export const Router = createRouter({
   Preview:

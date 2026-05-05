@@ -183,7 +183,8 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
 
   useEffect(() => {
     if (isFirstMount) {
-      if (hasOnboardingPrefilled.isSome()) {
+      const prefilled = hasOnboardingPrefilled.get().getOr({ hasAccountAdmin: false });
+      if (prefilled.hasAccountAdmin === true) {
         submitForm();
       }
       serverValidationErrors.forEach(({ fieldName, code }) => {

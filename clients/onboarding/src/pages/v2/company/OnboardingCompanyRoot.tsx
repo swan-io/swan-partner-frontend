@@ -25,7 +25,7 @@ import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { isNullish } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { omit } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
 import {
@@ -199,6 +199,10 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
           )
           .toUndefined() as CompanyRelatedIndividual | undefined;
         const cleanedRepresentative = cleanData(selectedRepresentative);
+
+        if (isNotNullish(selectedRepresentative)) {
+          hasOnboardingPrefilled.add({ hasAccountAdmin: true });
+        }
 
         const formMutation = () =>
           updateCompanyOnboarding({

@@ -122,7 +122,8 @@ const styles = StyleSheet.create({
     backgroundColor: backgroundColor.default,
   },
   previewContainer: {
-    margin: spacings[32],
+    marginHorizontal: 64,
+    marginVertical: 32,
     marginBottom: 0,
     flexGrow: 1,
   },

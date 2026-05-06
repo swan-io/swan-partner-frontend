@@ -421,7 +421,7 @@ importers:
         version: 2.0.1(@opentelemetry/api@1.9.0)
       '@swan-io/boxed':
         specifier: 3.2.1
-        version: 3.2.1(typescript@6.0.2)
+        version: 3.2.1
       '@types/escape-html':
         specifier: 1.0.4
         version: 1.0.4
@@ -440,9 +440,6 @@ importers:
       mustache:
         specifier: 4.2.0
         version: 4.2.0
-      node-mailjet:
-        specifier: 6.0.11
-        version: 6.0.11
       pathe:
         specifier: 2.0.3
         version: 2.0.3
@@ -2855,9 +2852,6 @@ packages:
   axios-proxy-builder@0.1.2:
     resolution: {integrity: sha512-6uBVsBZzkB3tCC8iyx59mCjQckhB8+GQrI9Cop8eC7ybIsvs/KtnNgEBfRMSEa7GqK2VBGUzgjNYMdPIfotyPA==, tarball: https://registry.npmjs.org/axios-proxy-builder/-/axios-proxy-builder-0.1.2.tgz}
 
-  axios@1.13.4:
-    resolution: {integrity: sha512-1wVkUaAO6WyaYtCkcYCOx12ZgpGf9Zif+qXa4n+oYzK558YryKqiL6UWwd5DqiH3VRW0GYhTZQ/vlgJrCoNQlg==, tarball: https://registry.npmjs.org/axios/-/axios-1.13.4.tgz}
-
   axios@1.14.0:
     resolution: {integrity: sha512-3Y8yrqLSwjuzpXuZ0oIYZ/XGgLwUIBU3uLvbcpb0pidD9ctpShJd43KSlEEkVQg6DS0G9NKyzOvBfUtDKEyHvQ==, tarball: https://registry.npmjs.org/axios/-/axios-1.14.0.tgz}
 
@@ -4220,10 +4214,6 @@ packages:
   node-int64@0.4.0:
     resolution: {integrity: sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==, tarball: https://registry.npmjs.org/node-int64/-/node-int64-0.4.0.tgz}
 
-  node-mailjet@6.0.11:
-    resolution: {integrity: sha512-5UaawWhpJc1uFxUl9a07jE8a4ZOax5hj7XYC0LFYyWOP8Rp0I8XvjbiQ6gy/ns7KSw0hqmjytP85GQsdVGEx5g==, tarball: https://registry.npmjs.org/node-mailjet/-/node-mailjet-6.0.11.tgz}
-    engines: {node: '>= 12.0.0', npm: '>= 6.9.0'}
-
   node-releases@2.0.36:
     resolution: {integrity: sha512-TdC8FSgHz8Mwtw9g5L4gR/Sh9XhSP/0DEkQxfEFXOpiul5IiHgHan2VhYYb6agDSfp4KuvltmGApc8HMgUrIkA==, tarball: https://registry.npmjs.org/node-releases/-/node-releases-2.0.36.tgz}
 
@@ -4510,9 +4500,6 @@ packages:
   protobufjs@8.0.0:
     resolution: {integrity: sha512-jx6+sE9h/UryaCZhsJWbJtTEy47yXoGNYI4z8ZaRncM0zBKeRqjO2JEcOUYwrYGb1WLhXM1FfMzW3annvFv0rw==, tarball: https://registry.npmjs.org/protobufjs/-/protobufjs-8.0.0.tgz}
     engines: {node: '>=12.0.0'}
-
-  proxy-from-env@1.1.0:
-    resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==, tarball: https://registry.npmjs.org/proxy-from-env/-/proxy-from-env-1.1.0.tgz}
 
   proxy-from-env@2.1.0:
     resolution: {integrity: sha512-cJ+oHTW1VAEa8cJslgmUZrc+sjRKgAKl3Zyse6+PV38hZe/V6Z14TbCuXcan9F9ghlz4QrFr2c92TNF82UkYHA==, tarball: https://registry.npmjs.org/proxy-from-env/-/proxy-from-env-2.1.0.tgz}
@@ -5122,9 +5109,6 @@ packages:
 
   upper-case@2.0.2:
     resolution: {integrity: sha512-KgdgDGJt2TpuwBUIjgG6lzw2GWFRCW9Qkfkiv0DxqHHLYJHmtmdUIKcZd8rHgFSjopVTlw6ggzCm1b8MFQwikg==, tarball: https://registry.npmjs.org/upper-case/-/upper-case-2.0.2.tgz}
-
-  url-join@4.0.1:
-    resolution: {integrity: sha512-jk1+QP6ZJqyOiuEI9AEWQfju/nB2Pw466kbA0LEZljHwKeMgd9WrAEgEGxjPDD2+TNbbb37rTyhEfrCXfuKXnA==, tarball: https://registry.npmjs.org/url-join/-/url-join-4.0.1.tgz}
 
   urlpattern-polyfill@10.1.0:
     resolution: {integrity: sha512-IGjKp/o0NL3Bso1PymYURCJxMPNAf/ILOpendP9f5B6e1rTJgdgiOvgfoT8VxCAdY+Wisb9uhGaJJf3yZ2V9nw==, tarball: https://registry.npmjs.org/urlpattern-polyfill/-/urlpattern-polyfill-10.1.0.tgz}
@@ -7923,6 +7907,8 @@ snapshots:
 
   '@standard-schema/spec@1.1.0': {}
 
+  '@swan-io/boxed@3.2.1': {}
+
   '@swan-io/boxed@3.2.1(typescript@6.0.2)':
     optionalDependencies:
       typescript: 6.0.2
@@ -8309,14 +8295,6 @@ snapshots:
   axios-proxy-builder@0.1.2:
     dependencies:
       tunnel: 0.0.6
-
-  axios@1.13.4:
-    dependencies:
-      follow-redirects: 1.15.11
-      form-data: 4.0.5
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
 
   axios@1.14.0:
     dependencies:
@@ -9900,14 +9878,6 @@ snapshots:
 
   node-int64@0.4.0: {}
 
-  node-mailjet@6.0.11:
-    dependencies:
-      axios: 1.13.4
-      json-bigint: 1.0.0
-      url-join: 4.0.1
-    transitivePeerDependencies:
-      - debug
-
   node-releases@2.0.36: {}
 
   normalize-path@2.1.1:
@@ -10228,8 +10198,6 @@ snapshots:
       '@protobufjs/utf8': 1.1.0
       '@types/node': 25.5.0
       long: 5.3.2
-
-  proxy-from-env@1.1.0: {}
 
   proxy-from-env@2.1.0: {}
 
@@ -10853,8 +10821,6 @@ snapshots:
   upper-case@2.0.2:
     dependencies:
       tslib: 2.6.3
-
-  url-join@4.0.1: {}
 
   urlpattern-polyfill@10.1.0: {}
 

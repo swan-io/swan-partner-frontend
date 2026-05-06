@@ -1,4 +1,4 @@
-import { AsyncData, Option, Result } from "@swan-io/boxed";
+import { Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -11,7 +11,6 @@ import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { pick } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
-import { Request, badStatusToError } from "@swan-io/request";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { InputPhoneNumber } from "@swan-io/shared-business/src/components/InputPhoneNumber";
@@ -33,7 +32,6 @@ import {
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { useFlag } from "react-tggl-client";
 import { P, match } from "ts-pattern";
 import {
   AccountLanguage,
@@ -89,22 +87,20 @@ export const MembershipDetailEditor = ({
 }: Props) => {
   const { canUpdateAccountMembership } = usePermissions();
   const [isCancelConfirmationModalOpen, setIsCancelConfirmationModalOpen] = useState(false);
-  const canUseNotificationStack = useFlag("useNotificationStackToSendNewMembershipEmail", false);
-
   const [updateMembership, membershipUpdate] = useMutation(UpdateAccountMembershipDocument);
   const [suspendMembership, membershipSuspension] = useMutation(SuspendAccountMembershipDocument);
   const [unsuspendMembership, membershipUnsuspension] = useMutation(
     ResumeAccountMembershipDocument,
   );
 
-  const [sendAccountMembershipInviteNotification] = useMutation(
+  const [sendAccountMembershipInviteNotification, inviteNotificationState] = useMutation(
     SendAccountMembershipInviteNotificationDocument,
   );
 
   const isEditingCurrentUserAccountMembership =
     currentUserAccountMembership.id === editingAccountMembership.id;
 
-  const { Field, FieldsListener, getFieldValue, setFieldValue, submitForm } = useForm({
+  const { Field, FieldsListener, setFieldValue, submitForm } = useForm({
     email: {
       initialValue: editingAccountMembership.email,
       sanitize: trim,
@@ -388,68 +384,21 @@ export const MembershipDetailEditor = ({
       });
   };
 
-  const [invitationSending, setInvitationSending] = useState<
-    AsyncData<Result<undefined, undefined>>
-  >(AsyncData.NotAsked());
-
   const sendInvitation = () => {
-    if (canUseNotificationStack) {
-      sendAccountMembershipInviteNotification({
-        input: { accountMembershipId: editingAccountMembershipId },
-      })
-        .mapOk(data => data.sendAccountMembershipInviteNotification)
-        .mapOkToResult(filterRejectionsToResult)
-        .tapOk(() => {
-          showToast({
-            variant: "success",
-            title: t("membershipDetail.resendInvitationSuccessToast"),
-          });
-        })
-        .tapError(error => {
-          showToast({ variant: "error", error, title: translateError(error) });
+    sendAccountMembershipInviteNotification({
+      input: { accountMembershipId: editingAccountMembershipId },
+    })
+      .mapOk(data => data.sendAccountMembershipInviteNotification)
+      .mapOkToResult(filterRejectionsToResult)
+      .tapOk(() => {
+        showToast({
+          variant: "success",
+          title: t("membershipDetail.resendInvitationSuccessToast"),
         });
-    } else {
-      setInvitationSending(AsyncData.Loading());
-
-      const query = new URLSearchParams();
-
-      query.append("inviterAccountMembershipId", currentUserAccountMembershipId);
-      query.append("lang", getFieldValue("language"));
-
-      const url = match(projectConfiguration)
-        .with(
-          Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
-          projectId =>
-            `/api/projects/${projectId}/invitation/${editingAccountMembershipId}/send?${query.toString()}`,
-        )
-        .otherwise(() => `/api/invitation/${editingAccountMembershipId}/send?${query.toString()}`);
-
-      const request = Request.make({
-        url,
-        method: "POST",
-        credentials: "include",
-        type: "json",
-        body: JSON.stringify({
-          inviteeAccountMembershipId: editingAccountMembershipId,
-          inviterAccountMembershipId: currentUserAccountMembershipId,
-        }),
       })
-        .mapOkToResult(badStatusToError)
-        .mapOk(() => undefined)
-        .mapError(() => undefined);
-
-      request
-        .tapError(error => {
-          showToast({ variant: "error", error, title: t("error.generic") });
-        })
-        .onResolve(value => {
-          showToast({
-            variant: "success",
-            title: t("membershipDetail.resendInvitationSuccessToast"),
-          });
-          setInvitationSending(AsyncData.Done(value));
-        });
-    }
+      .tapError(error => {
+        showToast({ variant: "error", error, title: translateError(error) });
+      });
   };
 
   return (
@@ -589,7 +538,7 @@ export const MembershipDetailEditor = ({
                                     value !== editingAccountMembership.email ||
                                     !canUpdateAccountMembership
                                   }
-                                  loading={invitationSending.isLoading()}
+                                  loading={inviteNotificationState.isLoading()}
                                   ariaLabel={t("membershipDetail.edit.resendInvitation")}
                                   icon={large ? undefined : "send-regular"}
                                 >
@@ -611,7 +560,6 @@ export const MembershipDetailEditor = ({
                                     value !== editingAccountMembership.email ||
                                     !canUpdateAccountMembership
                                   }
-                                  loading={invitationSending.isLoading()}
                                   ariaLabel={t("membershipDetail.edit.showLink")}
                                   icon={large ? undefined : "link-filled"}
                                 >

@@ -1,31 +1,12 @@
-import { Future, Result } from "@swan-io/boxed";
+import { Result } from "@swan-io/boxed";
 import { match } from "ts-pattern";
-import { GetAccountMembershipInvitationDataQuery } from "../graphql/partner";
 import { exchangeToken } from "./oauth2.swan";
 import {
   BindAccountMembershipRejectionError,
   FinalizeOnboardingRejectionError,
-  ServerError,
   sdk,
   toFuture,
 } from "./partner";
-
-export const getAccountMembershipInvitationData = ({
-  accessToken,
-  inviterAccountMembershipId,
-  inviteeAccountMembershipId,
-}: {
-  accessToken: string;
-  inviterAccountMembershipId: string;
-  inviteeAccountMembershipId: string;
-}): Future<Result<GetAccountMembershipInvitationDataQuery, ServerError>> => {
-  return toFuture(
-    sdk.GetAccountMembershipInvitationData(
-      { inviterAccountMembershipId, inviteeAccountMembershipId },
-      { "x-swan-token": `Bearer ${accessToken}` },
-    ),
-  );
-};
 
 export const swan__finalizeOnboarding = ({
   onboardingId,

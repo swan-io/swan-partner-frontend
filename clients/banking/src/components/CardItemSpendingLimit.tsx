@@ -327,13 +327,14 @@ export const SpendingLimitForm = ({
                           type: "rolling",
                           rollingValue:
                             value.mode?.type === "rolling" ? value.mode.rollingValue : 1,
+                          period: "Monthly",
                         },
                       });
                     })
                     .with("calendar", () => {
                       onChange({
                         amount: value.amount,
-                        mode: { type: "calendarUnset" },
+                        mode: { type: "calendarMonthMode", startDay: 1, startHour: 0 },
                       });
                     })
                     .exhaustive();
@@ -425,7 +426,6 @@ const SpendingLimitRollingForm = ({
               error={periodError}
               items={ROLLING_PERIODS}
               value={value.period}
-              placeholder={t("cardSettings.spendingLimit.period.placeholder")}
               disabled={disabled}
               onValueChange={period =>
                 onChange({
@@ -511,7 +511,6 @@ const SpendingLimitCalendarForm = ({
                       .with("calendarMonthMode", () => "Monthly")
                       .exhaustive()
               }
-              placeholder={t("cardSettings.spendingLimit.resetFrequency.placeholder")}
               disabled={disabled}
               onValueChange={period =>
                 match(period)

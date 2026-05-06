@@ -1,0 +1,15 @@
+apiVersion: atlas.swan.io/v1
+kind: Service
+metadata:
+  name: swan-partner-frontend
+  teams:
+    - front
+
+spec:
+  type: tool
+  tier: standard
+  language: typescript
+  slack:
+    general: "#team-engineering-front"
+    releases:
+      - "#releases-front"

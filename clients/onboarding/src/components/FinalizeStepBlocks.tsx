@@ -1,4 +1,3 @@
-import { Link } from "@swan-io/chicane";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
@@ -8,6 +7,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { animations, colors, spacings } from "@swan-io/lake/src/constants/design";
+import { Link } from "@zoontek/chicane";
 import { CSSProperties, Fragment } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";

@@ -20,7 +20,7 @@
     "@grafana/faro-web-tracing": "2.2.4",
     "@juggle/resize-observer": "3.4.0",
     "@swan-io/boxed": "3.2.1",
-    "@swan-io/chicane": "3.0.0",
+    "@zoontek/chicane": "3.0.0",
     "@swan-io/graphql-client": "0.8.0",
     "@swan-io/lake": "13.11.1",
     "@swan-io/request": "3.1.0",

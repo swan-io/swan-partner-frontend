@@ -1,4 +1,3 @@
-import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Cell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
@@ -15,6 +14,7 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { GetNode } from "@swan-io/lake/src/utils/types";
+import { Link } from "@zoontek/chicane";
 import dayjs from "dayjs";
 import { useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";

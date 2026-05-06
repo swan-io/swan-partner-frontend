@@ -1,5 +1,4 @@
 import { AsyncData, Result } from "@swan-io/boxed";
-import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
 import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -14,6 +13,7 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { Link } from "@zoontek/chicane";
 import { useMemo, useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";

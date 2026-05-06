@@ -193,10 +193,13 @@ export const CardWizardSettings = ({
       initialSettings?.spendingLimit ??
       (cardFormat === "SingleUseVirtual"
         ? {
-            amount: { value: "", currency },
+            amount: { value: String(spendingLimitMaxValue), currency },
             mode: { type: "rolling", rollingValue: 1, period: "Always" },
           }
-        : undefined),
+        : {
+            amount: { value: String(spendingLimitMaxValue), currency },
+            mode: { type: "rolling", rollingValue: 1, period: "Monthly" },
+          }),
     eCommerce: initialSettings?.eCommerce ?? true,
     withdrawal: initialSettings?.withdrawal ?? true,
     international: initialSettings?.international ?? true,

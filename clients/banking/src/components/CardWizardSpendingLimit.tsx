@@ -78,8 +78,8 @@ export const CardWizardSpendingLimit = ({
   const [spendingLimit, setSpendingLimit] = useState<SpendingLimitFormValue>(
     () =>
       initialSpendingLimit ?? {
-        amount: { value: "", currency },
-        mode: undefined,
+        amount: { value: String(spendingLimitMaxValue), currency },
+        mode: { type: "rolling", rollingValue: 1, period: "Monthly" },
       },
   );
 

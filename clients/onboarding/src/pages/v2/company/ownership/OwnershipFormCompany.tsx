@@ -162,7 +162,13 @@ export const OwnershipFormCompany = ({
           <LakeLabel
             label={t("company.step.ownership.form.roleLabel")}
             render={id => (
-              <LakeTagInput id={id} onValuesChanged={onChange} values={value} error={error} />
+              <LakeTagInput
+                id={id}
+                onValuesChanged={onChange}
+                values={value}
+                error={error}
+                help={t("company.step.ownership.form.roleLabelHelp")}
+              />
             )}
           />
         )}

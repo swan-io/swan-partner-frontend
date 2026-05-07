@@ -179,6 +179,7 @@ export const OwnershipFormIndividualAddress = ({
                         onValuesChanged={onChange}
                         values={value}
                         error={error}
+                        help={t("company.step.ownership.form.roleLabelHelp")}
                       />
                     )}
                   />

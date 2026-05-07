@@ -254,6 +254,7 @@
   "company.step.ownership.form.genderLabel": "Geschlecht",
   "company.step.ownership.form.indirect": "Indirekt",
   "company.step.ownership.form.roleLabel": "Rolle im Unternehmen",
+  "company.step.ownership.form.roleLabelHelp": "Zum Beispiel: CEO, Direktor, gesetzlicher Vertreter",
   "company.step.ownership.form.typeLabel": "Hinzufügen als",
   "company.step.ownership.form.whyUboLabel": "Warum gilt diese Person als wirtschaftlich Berechtigter (UBO)?",
   "company.step.ownership.modal.alertAccountAdmin": "Die Informationen wurden aus den von Ihnen angegebenen persönlichen Daten vorausgefüllt.\nUm sie zu aktualisieren, kehren Sie zum Schritt \"Über Sie\" zurück",

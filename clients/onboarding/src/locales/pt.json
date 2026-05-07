@@ -153,6 +153,7 @@
   "company.step.organisation.notListed": "Empresa não listada?",
   "company.step.organisation.relation.attorney": "Tenho procuração",
   "company.step.organisation.relation.legal": "Sou representante legal",
+  "company.step.organisation.relationAuto": "Com base na sua forma jurídica, é automaticamente o representante legal.",
   "company.step.organisation.relationLabel": "Como está autorizado a abrir esta conta?",
   "company.step.organisation.representative.or": "Ou",
   "company.step.organisation.representative.unlisted": "Não vejo o meu nome na lista",

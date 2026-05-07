@@ -7,7 +7,7 @@ import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { Ref, useEffect, useMemo } from "react";
 import { TextInput } from "react-native";
 import { P, match } from "ts-pattern";
-import { GetLegalFormsDocument, LegalForm } from "../graphql/partner";
+import { GetLegalFormsDocument } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
 
 type Props = {
@@ -16,10 +16,10 @@ type Props = {
   value?: string;
   disabled?: boolean;
   error?: string;
+  help?: string;
   placeholder?: string;
   country?: CountryCCA3;
   onValueChange: (value: string) => void;
-  onSuggestion?: (suggestion: LegalForm) => void;
   onLoadError: (error: unknown) => void;
 };
 
@@ -31,6 +31,7 @@ export const LegalFormsInput = ({
   placeholder,
   disabled,
   error,
+  help,
   onValueChange,
   onLoadError,
 }: Props) => {
@@ -82,6 +83,7 @@ export const LegalFormsInput = ({
       matchReferenceWidth={true}
       hasSearch={true}
       error={error}
+      help={help}
       disabled={disabled}
     />
   );

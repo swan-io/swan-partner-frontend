@@ -16,6 +16,7 @@ type Props = {
   value?: string;
   disabled?: boolean;
   error?: string;
+  help?: string;
   placeholder?: string;
   country?: CountryCCA3;
   onValueChange: (value: string) => void;
@@ -30,6 +31,7 @@ export const LegalFormsInput = ({
   placeholder,
   disabled,
   error,
+  help,
   onValueChange,
   onLoadError,
 }: Props) => {
@@ -81,6 +83,7 @@ export const LegalFormsInput = ({
       matchReferenceWidth={true}
       hasSearch={true}
       error={error}
+      help={help}
       disabled={disabled}
     />
   );

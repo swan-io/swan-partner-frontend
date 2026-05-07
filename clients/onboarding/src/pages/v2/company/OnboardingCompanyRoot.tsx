@@ -405,6 +405,11 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
                                   country={country.value}
                                   placeholder={t("company.step.organisation.legalFormPlaceholder")}
                                   error={error}
+                                  help={
+                                    companyType === "SelfEmployed"
+                                      ? t("company.step.organisation.relationAuto")
+                                      : undefined
+                                  }
                                   onValueChange={code => {
                                     onChange(code);
                                     // Saving the legalFormCode here to update companyType in graphql cache
@@ -431,12 +436,6 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
                           ) : null
                         }
                       </Field>
-
-                      {companyType === "SelfEmployed" && manualMode && (
-                        <LakeText>
-                          Based on your legal form, you're automatically the legal representative.
-                        </LakeText>
-                      )}
 
                       {representatives && (
                         <Field name="currentRepresentative">

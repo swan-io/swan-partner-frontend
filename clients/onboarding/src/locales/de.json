@@ -232,7 +232,7 @@
   "company.step.owners.fillIdentityDocument": "Füllen Sie die Ausweisinformationen aus",
   "company.step.owners.missingInfo": "Info fehlt",
   "company.step.owners.thead.name": "Name der Firma",
-  "company.step.owners.thead.role": "Rolle im Unternehmen",
+  "company.step.owners.thead.role": "Rolle",
   "company.step.owners.title": "Erklären Sie die Eigentümerschaft Ihres Unternehmens",
   "company.step.ownership.addTitle": "Hinzufügen",
   "company.step.ownership.additionalDescription": "• <bold>Gesetzliche Vertreter</bold>: Personen oder Organisationen, die Dokumente im Namen Ihres Unternehmens rechtsgültig unterzeichnen können\n• <bold>Wirtschaftlich Berechtigte (Ultimate Beneficial Owners, UBOs)</bold>: Personen, die 25 % oder mehr Ihres Unternehmens besitzen oder kontrollieren, oder gesetzliche Vertreter, wenn keine anderen Personen diese Voraussetzungen erfüllen",

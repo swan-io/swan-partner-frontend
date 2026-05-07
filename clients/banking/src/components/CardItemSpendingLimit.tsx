@@ -310,7 +310,7 @@ export const SpendingLimitForm = ({
                     amount: value.amount,
                     mode: {
                       type: "rolling",
-                      rollingValue: value.mode?.type === "rolling" ? value.mode.rollingValue : 1,
+                      rollingValue: value.mode.type === "rolling" ? value.mode.rollingValue : 1,
                       period: "Monthly",
                     },
                   });
@@ -341,7 +341,7 @@ export const SpendingLimitForm = ({
       {value.mode.type === "rolling" ? (
         <SpendingLimitRollingForm
           disabled={disabled === true}
-          value={value.mode ?? { type: "rolling", rollingValue: 1 }}
+          value={value.mode}
           onChange={mode => onChange({ ...value, mode })}
         />
       ) : (

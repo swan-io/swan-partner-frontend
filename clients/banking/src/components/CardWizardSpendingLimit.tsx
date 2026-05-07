@@ -84,13 +84,11 @@ export const CardWizardSpendingLimit = ({
   );
 
   const [validation, setValidation] = useState<ValidationError[] | null>(null);
-  const [submitAttempted, setSubmitAttempted] = useState(false);
 
   useImperativeHandle(
     ref,
     () => ({
       submit: () => {
-        setSubmitAttempted(true);
         validate(spendingLimit, spendingLimitMaxValue).match({
           Ok: value => {
             setValidation(null);
@@ -113,11 +111,6 @@ export const CardWizardSpendingLimit = ({
 
   const errorMessage = getSpendingLimitAmountError(validation, spendingLimitMaxValue, currency);
 
-  const modeError =
-    submitAttempted && validation?.includes("InvalidMode") === true
-      ? t("common.form.required")
-      : undefined;
-
   return (
     <ResponsiveContainer breakpoint={breakpoints.medium}>
       {({ large }) => (
@@ -128,7 +121,6 @@ export const CardWizardSpendingLimit = ({
             onChange={onChangeSpendingLimit}
             disabled={disabled}
             error={errorMessage}
-            modeError={modeError}
           />
         </Tile>
       )}

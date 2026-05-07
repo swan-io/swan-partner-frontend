@@ -252,7 +252,6 @@ type SpendingLimitFormProps = {
   value: SpendingLimitFormValue;
   disabled?: boolean;
   error?: string;
-  modeError?: string;
   onChange: (value: SpendingLimitFormValue) => void;
 };
 
@@ -261,7 +260,6 @@ export const SpendingLimitForm = ({
   value,
   disabled,
   error,
-  modeError,
   onChange,
 }: SpendingLimitFormProps) => {
   const [dirtyValue, setDirtyValue] = useState(value.amount.value);
@@ -302,16 +300,9 @@ export const SpendingLimitForm = ({
         render={() => (
           <RadioGroup
             disabled={disabled}
-            hideErrors={value.mode != null || modeError == null}
-            error={value.mode == null ? modeError : undefined}
+            hideErrors={true}
             color="current"
-            value={
-              value.mode == null
-                ? undefined
-                : value.mode.type === "rolling"
-                  ? ("rolling" as const)
-                  : ("calendar" as const)
-            }
+            value={value.mode.type === "rolling" ? ("rolling" as const) : ("calendar" as const)}
             onValueChange={mode => {
               match(mode)
                 .with("rolling", () => {
@@ -351,7 +342,6 @@ export const SpendingLimitForm = ({
         <SpendingLimitRollingForm
           disabled={disabled === true}
           value={value.mode ?? { type: "rolling", rollingValue: 1 }}
-          periodError={value.mode?.period == null ? modeError : undefined}
           onChange={mode => onChange({ ...value, mode })}
         />
       ) : (
@@ -359,7 +349,6 @@ export const SpendingLimitForm = ({
           large={large}
           disabled={disabled === true}
           value={value.mode}
-          frequencyError={value.mode.type === "calendarUnset" ? modeError : undefined}
           onChange={mode => onChange({ ...value, mode })}
         />
       )}
@@ -370,12 +359,10 @@ export const SpendingLimitForm = ({
 const SpendingLimitRollingForm = ({
   disabled,
   value,
-  periodError,
   onChange,
 }: {
   disabled: boolean;
   value: SpendingLimitRollingModePartial;
-  periodError?: string;
   onChange: (value: SpendingLimitRollingModePartial) => void;
 }) => {
   const rollingValueOptions = useMemo(() => {
@@ -409,8 +396,7 @@ const SpendingLimitRollingForm = ({
           <>
             <LakeSelect
               id={id}
-              hideErrors={periodError == null}
-              error={periodError}
+              hideErrors={true}
               items={ROLLING_PERIODS}
               value={value.period}
               disabled={disabled}
@@ -468,13 +454,11 @@ const SpendingLimitCalendarForm = ({
   large,
   disabled,
   value,
-  frequencyError,
   onChange,
 }: {
   large: boolean;
   disabled: boolean;
   value: SpendingLimitCalendarModePartial;
-  frequencyError?: string;
   onChange: (value: SpendingLimitCalendarModePartial) => void;
 }) => {
   return (
@@ -485,8 +469,7 @@ const SpendingLimitCalendarForm = ({
           <>
             <LakeSelect
               id={id}
-              hideErrors={frequencyError == null}
-              error={frequencyError}
+              hideErrors={true}
               items={CALENDAR_PERIODS}
               value={
                 value.type === "calendarUnset"

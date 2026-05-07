@@ -121,14 +121,14 @@ type SpendingLimitFormMode = SpendingLimitRollingModePartial | SpendingLimitCale
 
 export type SpendingLimitFormValue = {
   amount: SpendingLimitValue["amount"];
-  mode?: SpendingLimitFormMode;
+  mode: SpendingLimitFormMode;
 };
 
 export const narrowSpendingLimitValue = (
   value: SpendingLimitFormValue,
 ): SpendingLimitValue | null => {
   const { mode } = value;
-  if (mode == null || mode.type === "calendarUnset") {
+  if (mode.type === "calendarUnset") {
     return null;
   }
   if (mode.type === "rolling") {
@@ -345,27 +345,23 @@ export const SpendingLimitForm = ({
         )}
       />
 
-      {value.mode != null && (
-        <>
-          <Space height={16} />
+      <Space height={16} />
 
-          {value.mode.type === "rolling" ? (
-            <SpendingLimitRollingForm
-              disabled={disabled === true}
-              value={value.mode ?? { type: "rolling", rollingValue: 1 }}
-              periodError={value.mode?.period == null ? modeError : undefined}
-              onChange={mode => onChange({ ...value, mode })}
-            />
-          ) : (
-            <SpendingLimitCalendarForm
-              large={large}
-              disabled={disabled === true}
-              value={value.mode}
-              frequencyError={value.mode.type === "calendarUnset" ? modeError : undefined}
-              onChange={mode => onChange({ ...value, mode })}
-            />
-          )}
-        </>
+      {value.mode.type === "rolling" ? (
+        <SpendingLimitRollingForm
+          disabled={disabled === true}
+          value={value.mode ?? { type: "rolling", rollingValue: 1 }}
+          periodError={value.mode?.period == null ? modeError : undefined}
+          onChange={mode => onChange({ ...value, mode })}
+        />
+      ) : (
+        <SpendingLimitCalendarForm
+          large={large}
+          disabled={disabled === true}
+          value={value.mode}
+          frequencyError={value.mode.type === "calendarUnset" ? modeError : undefined}
+          onChange={mode => onChange({ ...value, mode })}
+        />
       )}
     </>
   );

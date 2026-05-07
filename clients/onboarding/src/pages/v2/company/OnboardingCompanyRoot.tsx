@@ -112,6 +112,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
   const [siren, setSiren] = useState<string | null>(null);
   const [publicData, setPublicData] = useState<CompanyInfo>();
   const [manualMode, setManualMode] = useState<boolean>(initialCountry !== "FRA");
+  const [updateError, setUpdateError] = useState(false);
   const companyType = publicData?.companyType ?? company?.companyType;
   const related = company?.relatedIndividuals ?? [];
   const [representatives, setRepresentatives] = useState(related.length > 0 ? related : undefined);
@@ -412,6 +413,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
                                   }
                                   onValueChange={code => {
                                     onChange(code);
+                                    setUpdateError(false);
                                     // Saving the legalFormCode here to update companyType in graphql cache
                                     updateCompanyOnboarding({
                                       input: {
@@ -421,7 +423,12 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
                                         },
                                       },
                                       language: locale.language,
-                                    });
+                                    })
+                                      .mapOk(
+                                        data => data.updatePublicCompanyAccountHolderOnboarding,
+                                      )
+                                      .mapOkToResult(filterRejectionsToResult)
+                                      .tapError(() => setUpdateError(true));
                                   }}
                                   onLoadError={error =>
                                     showToast({
@@ -453,8 +460,8 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
                       <Field name="typeOfRepresentation">
                         {({ value, onChange }) =>
                           (manualMode || currentRepresentative.value === "") &&
-                          companyType != null &&
-                          companyType !== "SelfEmployed" ? (
+                          (updateError ||
+                            (companyType != null && companyType !== "SelfEmployed")) ? (
                             <LakeLabel
                               label={t("company.step.organisation.relationLabel")}
                               render={() => (

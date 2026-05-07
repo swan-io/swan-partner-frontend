@@ -264,12 +264,10 @@ export const SpendingLimitForm = ({
   modeError,
   onChange,
 }: SpendingLimitFormProps) => {
-  const [dirtyValue, setDirtyValue] = useState(
-    isNullish(value.amount.value) ? undefined : String(value.amount.value),
-  );
+  const [dirtyValue, setDirtyValue] = useState(value.amount.value);
 
   useEffect(() => {
-    setDirtyValue(isNullish(value.amount.value) ? undefined : String(value.amount.value));
+    setDirtyValue(value.amount.value);
   }, [value.amount.value]);
 
   const sanitizeInput = useCallback(() => {

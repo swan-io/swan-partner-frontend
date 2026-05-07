@@ -10,7 +10,6 @@ import { colors } from "@swan-io/lake/src/constants/design";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { useFlag } from "react-tggl-client";
 import { match, P } from "ts-pattern";
 import {
   DayEnum,
@@ -265,7 +264,6 @@ export const SpendingLimitForm = ({
   modeError,
   onChange,
 }: SpendingLimitFormProps) => {
-  const calendarSpendingLimitEnabled = useFlag("activate_calendar_spending_limits", false);
   const [dirtyValue, setDirtyValue] = useState(
     isNullish(value.amount.value) ? undefined : String(value.amount.value),
   );
@@ -299,66 +297,61 @@ export const SpendingLimitForm = ({
         error={error}
       />
 
-      {calendarSpendingLimitEnabled && (
-        <>
-          <Space height={16} />
+      <Space height={16} />
 
-          <LakeLabel
-            label={t("cardSettings.spendingLimit.limitType")}
-            render={() => (
-              <RadioGroup
-                disabled={disabled}
-                hideErrors={value.mode != null || modeError == null}
-                error={value.mode == null ? modeError : undefined}
-                color="current"
-                value={
-                  value.mode == null
-                    ? undefined
-                    : value.mode.type === "rolling"
-                      ? ("rolling" as const)
-                      : ("calendar" as const)
-                }
-                onValueChange={mode => {
-                  match(mode)
-                    .with("rolling", () => {
-                      onChange({
-                        amount: value.amount,
-                        mode: {
-                          type: "rolling",
-                          rollingValue:
-                            value.mode?.type === "rolling" ? value.mode.rollingValue : 1,
-                          period: "Monthly",
-                        },
-                      });
-                    })
-                    .with("calendar", () => {
-                      onChange({
-                        amount: value.amount,
-                        mode: { type: "calendarMonthMode", startDay: 1, startHour: 0 },
-                      });
-                    })
-                    .exhaustive();
-                }}
-                items={LIMIT_TYPES.map(item => ({
-                  value: item.value,
-                  name: (
-                    <>
-                      {item.name}
-                      <LakeText color={colors.gray[500]}>{`: ${item.description}`}</LakeText>
-                    </>
-                  ),
-                }))}
-              />
-            )}
+      <LakeLabel
+        label={t("cardSettings.spendingLimit.limitType")}
+        render={() => (
+          <RadioGroup
+            disabled={disabled}
+            hideErrors={value.mode != null || modeError == null}
+            error={value.mode == null ? modeError : undefined}
+            color="current"
+            value={
+              value.mode == null
+                ? undefined
+                : value.mode.type === "rolling"
+                  ? ("rolling" as const)
+                  : ("calendar" as const)
+            }
+            onValueChange={mode => {
+              match(mode)
+                .with("rolling", () => {
+                  onChange({
+                    amount: value.amount,
+                    mode: {
+                      type: "rolling",
+                      rollingValue: value.mode?.type === "rolling" ? value.mode.rollingValue : 1,
+                      period: "Monthly",
+                    },
+                  });
+                })
+                .with("calendar", () => {
+                  onChange({
+                    amount: value.amount,
+                    mode: { type: "calendarMonthMode", startDay: 1, startHour: 0 },
+                  });
+                })
+                .exhaustive();
+            }}
+            items={LIMIT_TYPES.map(item => ({
+              value: item.value,
+              name: (
+                <>
+                  {item.name}
+                  <LakeText color={colors.gray[500]}>{`: ${item.description}`}</LakeText>
+                </>
+              ),
+            }))}
           />
-        </>
-      )}
+        )}
+      />
 
-      {(value.mode == null ? !calendarSpendingLimitEnabled : true) && (
+      {value.mode != null && (
         <>
           <Space height={16} />
 
-          {value.mode == null || value.mode.type === "rolling" ? (
+          {value.mode.type === "rolling" ? (
             <SpendingLimitRollingForm
               disabled={disabled === true}
               value={value.mode ?? { type: "rolling", rollingValue: 1 }}

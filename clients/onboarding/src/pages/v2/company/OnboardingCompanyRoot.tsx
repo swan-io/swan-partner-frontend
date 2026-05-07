@@ -11,7 +11,6 @@ import {
   CompanyOnboardingFragment,
   CompanyRelatedIndividual,
   GetPublicCompamyInfoRegistryDataDocument,
-  LegalForm,
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { locale, t } from "../../../utils/i18n";
@@ -113,6 +112,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
   const [siren, setSiren] = useState<string | null>(null);
   const [publicData, setPublicData] = useState<CompanyInfo>();
   const [manualMode, setManualMode] = useState<boolean>(initialCountry !== "FRA");
+  const companyType = publicData?.companyType ?? company?.companyType;
   const related = company?.relatedIndividuals ?? [];
   const [representatives, setRepresentatives] = useState(related.length > 0 ? related : undefined);
 
@@ -174,6 +174,8 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
         }
         const currentValues = option.get();
         const { country, typeOfRepresentation, ...input } = currentValues;
+        const representation =
+          companyType === "SelfEmployed" ? "LegalRepresentative" : typeOfRepresentation;
 
         if (isNullish(currentValues.legalFormCode)) {
           setManualMode(true);
@@ -219,7 +221,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
                 birthInfo: cleanedRepresentative?.birthInfo,
                 nationality: cleanedRepresentative?.nationality,
                 email: cleanedRepresentative?.email,
-                typeOfRepresentation,
+                typeOfRepresentation: representation,
               },
             },
             language: locale.language,
@@ -313,13 +315,6 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
     [setFieldValue],
   );
 
-  const onSelectLegalFormCode = useCallback(
-    ({ code }: LegalForm) => {
-      setFieldValue("legalFormCode", code);
-    },
-    [setFieldValue],
-  );
-
   return (
     <>
       <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.gap}>
@@ -409,9 +404,20 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
                                   value={value}
                                   country={country.value}
                                   placeholder={t("company.step.organisation.legalFormPlaceholder")}
-                                  onSuggestion={onSelectLegalFormCode}
                                   error={error}
-                                  onValueChange={onChange}
+                                  onValueChange={code => {
+                                    onChange(code);
+                                    // Saving the legalFormCode here to update companyType in graphql cache
+                                    updateCompanyOnboarding({
+                                      input: {
+                                        onboardingId,
+                                        company: {
+                                          legalFormCode: code,
+                                        },
+                                      },
+                                      language: locale.language,
+                                    });
+                                  }}
                                   onLoadError={error =>
                                     showToast({
                                       variant: "error",
@@ -425,6 +431,12 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
                           ) : null
                         }
                       </Field>
+
+                      {companyType === "SelfEmployed" && manualMode && (
+                        <LakeText>
+                          Based on your legal form, you're automatically the legal representative.
+                        </LakeText>
+                      )}
 
                       {representatives && (
                         <Field name="currentRepresentative">
@@ -441,7 +453,9 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
 
                       <Field name="typeOfRepresentation">
                         {({ value, onChange }) =>
-                          manualMode || currentRepresentative.value === "" ? (
+                          (manualMode || currentRepresentative.value === "") &&
+                          companyType != null &&
+                          companyType !== "SelfEmployed" ? (
                             <LakeLabel
                               label={t("company.step.organisation.relationLabel")}
                               render={() => (

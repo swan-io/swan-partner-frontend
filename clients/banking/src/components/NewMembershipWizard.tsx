@@ -440,12 +440,9 @@ export const NewMembershipWizard = ({
                   ({ statusInfo: { consent } }) => Option.Some(consent.consentUrl),
                 )
                 .otherwise(data => {
-                  match(__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE)
-                    .with("EMAIL", () => {
-                      sendInvitation({ editingAccountMembershipId: data.id });
-                    })
-                    .otherwise(() => {});
-
+                  if (__env.IS_SWAN_MODE) {
+                    sendInvitation({ editingAccountMembershipId: data.id });
+                  }
                   onSuccess(data.id);
                   return Option.None();
                 }),

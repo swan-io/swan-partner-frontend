@@ -528,8 +528,8 @@ export const MembershipDetailEditor = ({
                           <>
                             <Space width={12} />
 
-                            {match(__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE)
-                              .with("EMAIL", () => (
+                            {match(__env.IS_SWAN_MODE)
+                              .with(true, () => (
                                 <LakeButton
                                   mode="secondary"
                                   size="small"
@@ -545,7 +545,7 @@ export const MembershipDetailEditor = ({
                                   {large ? t("membershipDetail.edit.resendInvitation") : null}
                                 </LakeButton>
                               ))
-                              .with("LINK", () => (
+                              .otherwise(() => (
                                 <LakeButton
                                   mode="secondary"
                                   size="small"
@@ -565,8 +565,7 @@ export const MembershipDetailEditor = ({
                                 >
                                   {large ? t("membershipDetail.edit.showLink") : null}
                                 </LakeButton>
-                              ))
-                              .exhaustive()}
+                              ))}
                           </>
                         )}
                       </Box>

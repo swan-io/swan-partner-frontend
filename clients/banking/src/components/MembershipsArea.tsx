@@ -128,29 +128,17 @@ export const MembershipsArea = ({
     [],
   );
 
-  const invitationToShow = match({
-    params,
-    accountMembershipInvitationMode: __env.ACCOUNT_MEMBERSHIP_INVITATION_MODE,
-  })
+  const invitationToShow = match({ params, isSwanMode: __env.IS_SWAN_MODE })
     .with(
-      {
-        params: { resourceId: P.string, status: "Accepted" },
-        accountMembershipInvitationMode: "LINK",
-      },
+      { params: { resourceId: P.string, status: "Accepted" }, isSwanMode: false },
       ({ params: { resourceId } }) => resourceId,
     )
     .otherwise(() => undefined);
 
   useEffect(() => {
-    match({
-      params,
-      accountMembershipInvitationMode: __env.ACCOUNT_MEMBERSHIP_INVITATION_MODE,
-    })
+    match({ params, isSwanMode: __env.IS_SWAN_MODE })
       .with(
-        {
-          params: { resourceId: P.string, status: "Accepted" },
-          accountMembershipInvitationMode: "EMAIL",
-        },
+        { params: { resourceId: P.string, status: "Accepted" }, isSwanMode: true },
         ({ params: { resourceId } }) => {
           sendAccountMembershipInviteNotification({
             input: { accountMembershipId: resourceId },
@@ -339,8 +327,7 @@ export const MembershipsArea = ({
                 Router.push("AccountMembersDetailsRoot", {
                   accountMembershipId,
                   editingAccountMembershipId,
-                  showInvitationLink:
-                    __env.ACCOUNT_MEMBERSHIP_INVITATION_MODE === "LINK" ? "true" : undefined,
+                  showInvitationLink: !__env.IS_SWAN_MODE ? "true" : undefined,
                   ...params,
                   new: undefined,
                 });

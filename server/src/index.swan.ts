@@ -60,7 +60,6 @@ if (env.NODE_ENV === "development") {
 
 start({
   allowedCorsOrigins: [partnerPickerUrl.origin],
-  invitationMode: "EMAIL",
 }).then(
   ({ app, ports }) => {
     app.post<{ Params: { projectId: string } }>(

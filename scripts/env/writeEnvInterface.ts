@@ -17,7 +17,6 @@ const file = `declare const __env: {
   SWAN_PROJECT_ID?: string;
   TGGL_API_KEY?: string;
   SWAN_ENVIRONMENT: "SANDBOX" | "LIVE";
-  ACCOUNT_MEMBERSHIP_INVITATION_MODE: "LINK" | "EMAIL";
   BANKING_URL: string;
   PAYMENT_URL: string;
   IS_SWAN_MODE: boolean;

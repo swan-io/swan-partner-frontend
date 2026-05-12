@@ -63,7 +63,6 @@ const OAUTH_STATE_COOKIE_MAX_AGE = 900; // 15 minutes
 
 type AppConfig = {
   allowedCorsOrigins?: string[];
-  invitationMode?: "EMAIL" | "LINK";
 };
 
 declare module "@fastify/secure-session" {
@@ -129,7 +128,6 @@ const assertIsBoundToLocalhost = (host: string) => {
 };
 
 export const start = async ({
-  invitationMode = "LINK",
   allowedCorsOrigins = [],
 }: AppConfig) => {
   if (env.NODE_ENV === "development") {
@@ -927,7 +925,6 @@ export const start = async ({
       SWAN_ENVIRONMENT:
         process.env.SWAN_ENVIRONMENT ??
         (env.OAUTH_CLIENT_ID.startsWith("LIVE_") ? "LIVE" : "SANDBOX"),
-      ACCOUNT_MEMBERSHIP_INVITATION_MODE: invitationMode,
       TGGL_API_KEY: process.env.TGGL_API_KEY,
       BANKING_URL: env.BANKING_URL,
       PAYMENT_URL: env.PAYMENT_URL,

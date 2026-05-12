@@ -373,6 +373,8 @@ export const NewMembershipWizard = ({
   }) => {
     sendAccountMembershipInviteNotification({
       input: { accountMembershipId: editingAccountMembershipId },
+    }).tapError(error => {
+      showToast({ variant: "error", error, title: translateError(error) });
     });
   };
 

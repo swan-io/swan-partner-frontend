@@ -390,6 +390,14 @@ mutation UpdateAccountAdminChange($input: PublicUpdateAccountAdminChangeInput!) 
         ...AccountAdminChangeInfo
       }
     }
+    ... on ValidationRejection {
+      message
+      fields {
+        path
+        message
+        code
+      }
+    }
     ... on Rejection {
       message
     }

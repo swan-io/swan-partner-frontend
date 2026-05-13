@@ -22,6 +22,10 @@ if (environment != null) {
       version: env.VERSION,
       environment,
     },
+    sessionTracking: {
+      enabled: true,
+      persistent: true,
+    },
 
     instrumentations: [...getWebInstrumentations(), new TracingInstrumentation()],
   });

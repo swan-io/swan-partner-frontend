@@ -16,6 +16,9 @@
   "organizeImports": {
     "enabled": false
   },
+  "javascript": {
+    "globals": ["__env", "React", "ILocale", "WizardStep"]
+  },
   "linter": {
     "enabled": true,
     "rules": {
@@ -37,7 +40,8 @@
         "noVoidTypeReturn": "off",
         "useArrayLiterals": "error",
         "useHookAtTopLevel": "warn",
-        "useJsxKeyInIterable": "off"
+        "useJsxKeyInIterable": "off",
+        "noUndeclaredVariables": "error"
       },
       "nursery": {
         "noCommonJs": "error"

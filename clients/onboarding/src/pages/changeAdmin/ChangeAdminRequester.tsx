@@ -128,8 +128,8 @@ export const ChangeAdminRequester = ({
                         lastName: values.lastName,
                         email: values.email,
                         phoneNumber: values.phoneNumber,
-                        birthCountry: admin?.birthCountry,
-                        birthDate: admin?.birthDate,
+                        birthCountry: admin?.birthCountry ?? undefined,
+                        birthDate: admin?.birthDate ?? undefined,
                       },
                     }
                   : {}),

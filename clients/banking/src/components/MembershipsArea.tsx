@@ -1,4 +1,3 @@
-import { Option } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { useDeferredQuery, useMutation, useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -12,11 +11,9 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
-import { Request } from "@swan-io/request";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { StyleSheet, View } from "react-native";
-import { useFlag } from "react-tggl-client";
 import { P, isMatching, match } from "ts-pattern";
 import { Except } from "type-fest";
 import {
@@ -27,8 +24,7 @@ import {
   SendAccountMembershipInviteNotificationDocument,
 } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
-import { locale, t } from "../utils/i18n";
-import { projectConfiguration } from "../utils/projectId";
+import { t } from "../utils/i18n";
 import { RouteParams, Router, membershipsRoutes } from "../utils/routes";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
@@ -81,8 +77,6 @@ export const MembershipsArea = ({
   const { canAddAccountMembership } = usePermissions();
   const [, { query: queryLastCreatedMembership }] = useDeferredQuery(MembershipDetailDocument);
   const route = Router.useRoute(membershipsRoutes);
-
-  const canUseNotificationStack = useFlag("useNotificationStackToSendNewMembershipEmail", false);
 
   const [sendAccountMembershipInviteNotification] = useMutation(
     SendAccountMembershipInviteNotificationDocument,
@@ -160,48 +154,15 @@ export const MembershipsArea = ({
           accountMembershipInvitationMode: "EMAIL",
         },
         ({ params: { resourceId } }) => {
-          queryLastCreatedMembership({ accountMembershipId: resourceId }).tapOk(membership => {
-            if (canUseNotificationStack) {
-              sendAccountMembershipInviteNotification({
-                input: { accountMembershipId: resourceId },
-              });
-            } else {
-              const query = new URLSearchParams();
-              query.append("inviterAccountMembershipId", accountMembershipId);
-              query.append("lang", membership.accountMembership?.language ?? locale.language);
-
-              const url = match(projectConfiguration)
-                .with(
-                  Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
-                  projectId =>
-                    `/api/projects/${projectId}/invitation/${resourceId}/send?${query.toString()}`,
-                )
-                .otherwise(() => `/api/invitation/${resourceId}/send?${query.toString()}`);
-
-              Request.make({
-                url,
-                method: "POST",
-                type: "text",
-              }).tap(() => {
-                Router.replace("AccountMembersList", {
-                  ...params,
-                  accountMembershipId,
-                  resourceId: undefined,
-                  status: undefined,
-                });
-              });
-            }
+          queryLastCreatedMembership({ accountMembershipId: resourceId }).tapOk(() => {
+            sendAccountMembershipInviteNotification({
+              input: { accountMembershipId: resourceId },
+            });
           });
         },
       )
       .otherwise(() => {});
-  }, [
-    params,
-    accountMembershipId,
-    queryLastCreatedMembership,
-    canUseNotificationStack,
-    sendAccountMembershipInviteNotification,
-  ]);
+  }, [params, queryLastCreatedMembership, sendAccountMembershipInviteNotification]);
 
   return (
     <ResponsiveContainer breakpoint={breakpoints.large} style={styles.root}>

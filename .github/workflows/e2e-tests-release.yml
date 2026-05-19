@@ -11,7 +11,7 @@ concurrency:
 jobs:
   test:
     name: E2E tests (release)
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     if: ${{ github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release-v') }}
     env:

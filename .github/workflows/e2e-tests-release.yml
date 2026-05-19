@@ -13,6 +13,8 @@ jobs:
     name: E2E tests (release)
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 60
+    permissions:
+      packages: read # This is required for npm.pkg.github.com
     if: ${{ github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release-v') }}
     env:
       REF_BRANCH: ${{ github.event.pull_request.head.ref }}
@@ -25,6 +27,7 @@ jobs:
         with:
           node-version: lts/*
           cache: pnpm
+          registry-url: https://npm.pkg.github.com
 
       - name: Edit /etc/hosts
         run: |
@@ -55,6 +58,8 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
 
       - name: Get playwright version
         run: |

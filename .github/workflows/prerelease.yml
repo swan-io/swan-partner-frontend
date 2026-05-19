@@ -7,7 +7,7 @@ on:
 jobs:
   prerelease:
     name: Prerelease
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     if: ${{ github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release-v') }}
     env:
       GH_TOKEN: ${{ github.token }}

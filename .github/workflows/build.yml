@@ -8,7 +8,7 @@ on:
 jobs:
   test-and-build:
     name: Test & build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     permissions:
       contents: read # This is required for actions/checkout
       id-token: write # This is required for requesting the JWT

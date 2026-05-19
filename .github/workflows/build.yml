@@ -21,9 +21,12 @@ jobs:
         with:
           node-version: lts/*
           cache: pnpm
+          registry-url: https://npm.pkg.github.com
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
 
       - name: Check licenses
         run: pnpm license-check

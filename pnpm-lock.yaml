@@ -2566,42 +2566,45 @@ packages:
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==, tarball: https://registry.npmjs.org/@standard-schema/spec/-/spec-1.1.0.tgz}
 
   '@swan-io/boxed@3.2.1':
-    resolution: {integrity: sha512-+FKLC+otoXrbcf+wTGM8kBp57buuIlaSw8VEkRd4WpTlB7P8nMYbe8uADf85VfSb9wP9wgI9pkj2VIzUWWI0Kg==, tarball: https://npm.pkg.github.com/download/@swan-io/boxed/3.2.1/c4ebe8d3a53e07fb69e7ee20cdfafcdcb089c6fc}
+    resolution: {integrity: sha512-MQqSpe09PdjDjTR4HCPpUxO9XsacNguCkce1C2wm1eIb6ycWXQoV+biYvLEuI/LiMqB31KySdgY2YFwrVucLCw==, tarball: https://registry.npmjs.org/@swan-io/boxed/-/boxed-3.2.1.tgz}
     deprecated: This package has been transferred to @bloodyowl/boxed
     peerDependencies:
       typescript: '>=5.0.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   '@swan-io/chicane@3.0.0':
-    resolution: {integrity: sha512-A/k8e0MXeLBTT71P8i52/Fn0+3CftQiVPDyCK6vfrS/cEDsBfWz+IvwhuhC1EFfAYm9O4ystvpOgEP5fraFfVA==, tarball: https://npm.pkg.github.com/download/@swan-io/chicane/3.0.0/714dc7f0b20b77e4c831babbf48d4efdcb8974f4}
+    resolution: {integrity: sha512-ELguiTjrK2+wYqiUfguusOXaAXUBdizGJjXM6pg5Jvye0Yefp18coVmSCpGJLdJY4hCaWXis/ct4i/DyV2FIuw==, tarball: https://registry.npmjs.org/@swan-io/chicane/-/chicane-3.0.0.tgz}
     deprecated: This package has been transferred to @zoontek/chicane
     peerDependencies:
       react: '>=19.0.0'
 
   '@swan-io/graphql-client@0.8.0':
-    resolution: {integrity: sha512-UlCtXUMpyBoL96qDijCasSYuwrH2b/8utR51OEIHJ1DWm6Bn7gLLlaF7WmtBcCw8M6ZqzUP5pTjhWqazQVTLPw==, tarball: https://npm.pkg.github.com/download/@swan-io/graphql-client/0.8.0/5b4f9cded2b6b8bb051ec384369fea01812b0bd3}
+    resolution: {integrity: sha512-+7cQV9NKUc5plt4hYt8nNz16gotnzGEGKcU2/xKaj1pjWjzSagKNoBt/ymLAy0d+U7wGLCgf0hF0yZyKLfYyaw==, tarball: https://registry.npmjs.org/@swan-io/graphql-client/-/graphql-client-0.8.0.tgz}
     deprecated: This package has been transferred to @bloodyowl/graphql-client
     hasBin: true
     peerDependencies:
       react: '>=18.2.0'
 
   '@swan-io/lake@13.11.2':
-    resolution: {integrity: sha512-qgaG/8d74nXaXbF9ti8vgcrhlKnh8tALWFC7PigoS8YSz3kl18yraN3EgrmjBSF2oozrl5LZM8OS3BBXY5HLGg==, tarball: https://npm.pkg.github.com/download/@swan-io/lake/13.11.2/2212260f676e4a3cb1d05b0b247311251b216a75}
+    resolution: {integrity: sha512-qgaG/8d74nXaXbF9ti8vgcrhlKnh8tALWFC7PigoS8YSz3kl18yraN3EgrmjBSF2oozrl5LZM8OS3BBXY5HLGg==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-13.11.2.tgz}
     engines: {node: '>22.12.0'}
 
   '@swan-io/request@3.1.0':
-    resolution: {integrity: sha512-Lg5K8BVwY5k/YyjXHMclmvjPmuVa8jKP/K065PyLsu869+hZu3ENe7DBiNIimrzdwyHSNuGIZaQiDfzEnD32kQ==, tarball: https://npm.pkg.github.com/download/@swan-io/request/3.1.0/b4aef0cb88159d9731ae4a5edef13037026f987b}
+    resolution: {integrity: sha512-3NDXdNuew5+aEURpWg8aNIqPlYVNU6BZCD1rWptNemfNw9frTUBj8DmV+idOp9M5/4tVxncX7bxV7jBNtS6Cbg==, tarball: https://registry.npmjs.org/@swan-io/request/-/request-3.1.0.tgz}
     deprecated: This package has been transferred to @bloodyowl/request
     peerDependencies:
       '@swan-io/boxed': '>=2.2.1'
 
   '@swan-io/shared-business@13.11.2':
-    resolution: {integrity: sha512-MKIO73V71Trv9ex35jLNMqjw4yqiKnBWyLlwfIzhcHScNpP9iFC8segOh33vaHgclxftk9EZuNfJRkYIRqROug==, tarball: https://npm.pkg.github.com/download/@swan-io/shared-business/13.11.2/2710e3fe98994c5069249f8c5d46d6c1a5e8f228}
+    resolution: {integrity: sha512-MKIO73V71Trv9ex35jLNMqjw4yqiKnBWyLlwfIzhcHScNpP9iFC8segOh33vaHgclxftk9EZuNfJRkYIRqROug==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-13.11.2.tgz}
     engines: {node: '>22.12.0'}
     peerDependencies:
       '@swan-io/lake': 13.11.2
 
   '@swan-io/use-form@3.1.0':
-    resolution: {integrity: sha512-m4LR7acxQy3sVRy5JFULKB6nKZB6DPmqNP4XsKvnL6W8u6ou+iaSi86bRfE4wUnl/I74mKLij30b7bSMr1C6tQ==, tarball: https://npm.pkg.github.com/download/@swan-io/use-form/3.1.0/f242dbf8d9fe0a163cfd69ae94061757d79d93d5}
+    resolution: {integrity: sha512-X6NpZ7LCeo7eS9RVCZrtpX+3GXZFUfUZpIwtVa2GNmqTLgyDbLhN8N6zBv+dmHL9KAQ+Zng2fTCCQpCZvmDu5A==, tarball: https://registry.npmjs.org/@swan-io/use-form/-/use-form-3.1.0.tgz}
     peerDependencies:
       react: '>=18.0.0'
 

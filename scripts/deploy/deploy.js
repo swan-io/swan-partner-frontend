@@ -5,7 +5,7 @@ const { Octokit } = require("@octokit/rest");
 
 const OWNER = "swan-io";
 const REPO = "deploy-swan";
-const BRANCH = "enp-4322-update-deploy-script";
+const BRANCH = "master";
 
 assert(process.env.TAG, "TAG is required");
 assert(process.env.DEPLOY_SWAN_APP_ID, "DEPLOY_SWAN_APP_ID is required");

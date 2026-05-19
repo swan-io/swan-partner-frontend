@@ -16,6 +16,7 @@ jobs:
       contents: write # This is required for checkout and gh release
       id-token: write # This is required for requesting the JWT
       pull-requests: read
+      packages: read # This is required for npm.pkg.github.com
     steps:
       - uses: actions/checkout@v4
 

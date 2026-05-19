@@ -123,5 +123,9 @@
     "valienv": "1.1.0",
     "vite": "7.3.1",
     "vitest": "4.0.18"
+  },
+  "dependencies": {
+    "@octokit/auth-app": "8.2.0",
+    "@octokit/rest": "22.0.1"
   }
 }

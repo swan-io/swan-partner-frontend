@@ -12,14 +12,14 @@ permissions:
 jobs:
   download-translations:
     name: Download translations
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: lts/*
           cache: pnpm
@@ -28,21 +28,21 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Download onboarding translation keys
-        uses: localazy/download@v1
+        uses: localazy/download@0a79880fb66150601e3b43606fab69c88123c087 # v1.1.0
         with:
           read_key: ${{ secrets.LOCALAZY_ONBOARDING_READ_KEY }}
           write_key: ${{ secrets.LOCALAZY_ONBOARDING_WRITE_KEY }}
           groups: onboarding
 
       - name: Download banking translation keys
-        uses: localazy/download@v1
+        uses: localazy/download@0a79880fb66150601e3b43606fab69c88123c087 # v1.1.0
         with:
           read_key: ${{ secrets.LOCALAZY_BANKING_READ_KEY }}
           write_key: ${{ secrets.LOCALAZY_BANKING_WRITE_KEY }}
           groups: banking
 
       - name: Download payment translation keys
-        uses: localazy/download@v1
+        uses: localazy/download@0a79880fb66150601e3b43606fab69c88123c087 # v1.1.0
         with:
           read_key: ${{ secrets.LOCALAZY_PAYMENT_READ_KEY }}
           write_key: ${{ secrets.LOCALAZY_PAYMENT_WRITE_KEY }}
@@ -51,7 +51,7 @@ jobs:
       - name: Sort locales
         run: pnpm format-locales
 
-      - uses: peter-evans/create-pull-request@v7
+      - uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7.0.11
         with:
           title: Update translations
           branch: update-translations

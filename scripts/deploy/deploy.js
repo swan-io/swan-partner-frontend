@@ -1,71 +1,131 @@
 const assert = require("node:assert");
-const { execSync } = require("node:child_process");
-const fs = require("node:fs");
-const os = require("node:os");
-const path = require("node:path");
 
-const tmp = os.tmpdir();
-const repoName = "deploy";
+const { createAppAuth } = require("@octokit/auth-app");
+const { Octokit } = require("@octokit/rest");
 
-assert(process.env.TAG);
-assert(process.env.DEPLOY_SWAN_TOKEN);
-assert(process.env.DEPLOY_SWAN_REPOSITORY);
-assert(process.env.DEPLOY_ENVIRONMENT);
-assert(process.env.DEPLOY_APP_NAME);
-assert(process.env.DEPLOY_GIT_USER);
-assert(process.env.DEPLOY_GIT_EMAIL);
+const OWNER = "swan-io";
+const REPO = "deploy-swan";
+const BRANCH = "master";
 
-execSync(`git config --global user.name ${process.env.DEPLOY_GIT_USER}`);
-execSync(`git config --global user.email ${process.env.DEPLOY_GIT_EMAIL}`);
+assert(process.env.TAG, "TAG is required");
+assert(process.env.DEPLOY_SWAN_APP_ID, "DEPLOY_SWAN_APP_ID is required");
+assert(process.env.DEPLOY_SWAN_APP_SECRET, "DEPLOY_SWAN_APP_SECRET is required");
+assert(process.env.DEPLOY_ENVIRONMENT, "DEPLOY_ENVIRONMENT is required");
+assert(process.env.DEPLOY_APP_NAME, "DEPLOY_APP_NAME is required");
 
-execSync(`rm -fr ${tmp}/${repoName}`);
+async function getInstallationToken(appId, privateKey) {
+  const auth = createAppAuth({ appId: parseInt(appId, 10), privateKey });
 
-execSync(
-  `cd ${tmp} && git clone --single-branch --branch master https://projects:${process.env.DEPLOY_SWAN_TOKEN}@${process.env.DEPLOY_SWAN_REPOSITORY} ${repoName}`,
-);
+  const { token: jwtToken } = await auth({ type: "app" });
+  const appOctokit = new Octokit({ auth: jwtToken });
 
-const file = fs.readFileSync(
-  path.join(
-    tmp,
-    repoName,
-    process.env.DEPLOY_ENVIRONMENT,
-    `${process.env.DEPLOY_APP_NAME}-values.yaml`,
-  ),
-  "utf-8",
-);
+  const { data: installation } = await appOctokit.rest.apps.getRepoInstallation({
+    owner: OWNER,
+    repo: REPO,
+  });
 
-const updatedFile = file.replaceAll(/\btag: .+/g, `tag: ${process.env.TAG}`);
+  const { token } = await auth({ type: "installation", installationId: installation.id });
+  return token;
+}
 
-fs.writeFileSync(
-  path.join(
-    tmp,
-    repoName,
-    process.env.DEPLOY_ENVIRONMENT,
-    `${process.env.DEPLOY_APP_NAME}-values.yaml`,
-  ),
-  updatedFile,
-  "utf-8",
-);
-
-execSync(
-  `cd ${tmp}/${repoName} && git commit --allow-empty -am "Update with tag: ${process.env.TAG}, image(s): ${process.env.DEPLOY_APP_NAME}"`,
-);
-
-const push = () =>
-  execSync(`cd ${tmp}/${repoName} && git pull --rebase origin master && git push origin master`);
-
-let remainingAttempts = 3;
-let lastError;
-while (remainingAttempts-- > 0) {
+async function fetchFile(octokit, filePath) {
   try {
-    push();
-    break;
+    const { data } = await octokit.rest.repos.getContent({
+      owner: OWNER,
+      repo: REPO,
+      path: filePath,
+      ref: BRANCH,
+    });
+    if (Array.isArray(data) || data.type !== "file") return null;
+    return { content: Buffer.from(data.content, "base64").toString("utf-8") };
   } catch (err) {
-    lastError = err;
+    if (err.status === 404) return null;
+    throw err;
   }
 }
 
-if (remainingAttempts === 0 && lastError != null) {
-  console.error(lastError);
-  process.exit(1);
+async function commitViaGitHubAPI(octokit, message, files, maxRetries = 3) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const { data: ref } = await octokit.rest.git.getRef({
+        owner: OWNER,
+        repo: REPO,
+        ref: `heads/${BRANCH}`,
+      });
+      const latestCommitSha = ref.object.sha;
+
+      const { data: latestCommit } = await octokit.rest.git.getCommit({
+        owner: OWNER,
+        repo: REPO,
+        commit_sha: latestCommitSha,
+      });
+
+      const treeItems = await Promise.all(
+        Array.from(files.entries()).map(async ([filePath, content]) => {
+          const { data: blob } = await octokit.rest.git.createBlob({
+            owner: OWNER,
+            repo: REPO,
+            content: Buffer.from(content).toString("base64"),
+            encoding: "base64",
+          });
+          return { path: filePath, mode: "100644", type: "blob", sha: blob.sha };
+        }),
+      );
+
+      const { data: tree } = await octokit.rest.git.createTree({
+        owner: OWNER,
+        repo: REPO,
+        base_tree: latestCommit.tree.sha,
+        tree: treeItems,
+      });
+
+      const { data: newCommit } = await octokit.rest.git.createCommit({
+        owner: OWNER,
+        repo: REPO,
+        message,
+        tree: tree.sha,
+        parents: [latestCommitSha],
+      });
+
+      await octokit.rest.git.updateRef({
+        owner: OWNER,
+        repo: REPO,
+        ref: `heads/${BRANCH}`,
+        sha: newCommit.sha,
+      });
+
+      console.log(`Git: ✅ Committed ${newCommit.sha}`);
+      return;
+    } catch (err) {
+      if (attempt < maxRetries - 1 && (err.status === 422 || err.status === 409)) {
+        console.warn(`Ref update conflict, retrying (${attempt + 2}/${maxRetries})...`);
+        await new Promise(resolve => setTimeout(resolve, 2000 * (attempt + 1)));
+        continue;
+      }
+      throw err;
+    }
+  }
 }
+
+(async () => {
+  const privateKey = process.env.DEPLOY_SWAN_APP_SECRET.replace(/\\n/g, "\n");
+  const token = await getInstallationToken(process.env.DEPLOY_SWAN_APP_ID, privateKey);
+  const octokit = new Octokit({ auth: token });
+
+  const filePath = `open-frontend/argocd/${process.env.DEPLOY_ENVIRONMENT}/${process.env.DEPLOY_APP_NAME}-values.yaml`;
+
+  const file = await fetchFile(octokit, filePath);
+  if (!file) {
+    throw new Error(`File not found: ${filePath}`);
+  }
+
+  const updatedContent = file.content.replaceAll(/\btag: .+/g, `tag: ${process.env.TAG}`);
+
+  if (updatedContent === file.content) {
+    console.log("No changes to commit");
+    return;
+  }
+
+  const message = `[Update Deploy Swan] App: ${process.env.DEPLOY_APP_NAME} new tag ${process.env.TAG}, ECR: swan-${process.env.DEPLOY_APP_NAME}`;
+  await commitViaGitHubAPI(octokit, message, new Map([[filePath, updatedContent]]));
+})();

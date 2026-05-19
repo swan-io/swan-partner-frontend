@@ -16,7 +16,6 @@ jobs:
       contents: write # This is required for checkout and gh release
       id-token: write # This is required for requesting the JWT
       pull-requests: read
-      packages: read # This is required for npm.pkg.github.com
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
@@ -26,12 +25,9 @@ jobs:
         with:
           node-version: lts/*
           cache: pnpm
-          registry-url: https://npm.pkg.github.com
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        env:
-          NODE_AUTH_TOKEN: ${{ github.token }}
 
       - name: Check licenses
         run: pnpm license-check

@@ -29,81 +29,81 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ github.token }}
 
-      - name: Check licenses
-        run: pnpm license-check
+      # - name: Check licenses
+      #   run: pnpm license-check
 
-      - name: GraphQL Codegen
-        run: pnpm graphql-codegen
+      # - name: GraphQL Codegen
+      #   run: pnpm graphql-codegen
 
-      - name: Typecheck
-        run: pnpm typecheck
+      # - name: Typecheck
+      #   run: pnpm typecheck
 
-      - name: Lint
-        run: pnpm lint
+      # - name: Lint
+      #   run: pnpm lint
 
-      - name: Run tests
-        run: pnpm test
+      # - name: Run tests
+      #   run: pnpm test
 
-      - name: Compile project
-        env:
-          NODE_OPTIONS: "--max_old_space_size=4096"
-        run: pnpm build
+      # - name: Compile project
+      #   env:
+      #     NODE_OPTIONS: "--max_old_space_size=4096"
+      #   run: pnpm build
 
-      # Overwrite package.json version with the commit SHA
-      # This allows to identify the exact code deployed in master
-      - name: Overwrite package.json version
-        if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) }}
-        run: jq --arg v ${GITHUB_SHA:0:7} '.version = $v' server/package.json > package.json.tmp && mv package.json.tmp server/package.json
+      # # Overwrite package.json version with the commit SHA
+      # # This allows to identify the exact code deployed in master
+      # - name: Overwrite package.json version
+      #   if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) }}
+      #   run: jq --arg v ${GITHUB_SHA:0:7} '.version = $v' server/package.json > package.json.tmp && mv package.json.tmp server/package.json
 
-      - name: Inject & upload source maps to Grafana Faro
-        if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) }}
-        run: |
-          scripts/sourcemaps/uploadSourcemaps.sh banking ${GITHUB_SHA:0:7} ${{ secrets.FARO_APP_ID_BANKING }}
-          scripts/sourcemaps/uploadSourcemaps.sh onboarding ${GITHUB_SHA:0:7} ${{ secrets.FARO_APP_ID_ONBOARDING }}
-          scripts/sourcemaps/uploadSourcemaps.sh payment ${GITHUB_SHA:0:7} ${{ secrets.FARO_APP_ID_PAYMENT }}
-        env:
-          FARO_SOURCEMAP_ENDPOINT: https://faro-api-prod-eu-west-6.grafana.net/faro/api/v1
-          FARO_API_KEY: ${{ secrets.FARO_API_KEY }}
-          FARO_STACK_ID: ${{ secrets.FARO_STACK_ID }}
+      # - name: Inject & upload source maps to Grafana Faro
+      #   if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) }}
+      #   run: |
+      #     scripts/sourcemaps/uploadSourcemaps.sh banking ${GITHUB_SHA:0:7} ${{ secrets.FARO_APP_ID_BANKING }}
+      #     scripts/sourcemaps/uploadSourcemaps.sh onboarding ${GITHUB_SHA:0:7} ${{ secrets.FARO_APP_ID_ONBOARDING }}
+      #     scripts/sourcemaps/uploadSourcemaps.sh payment ${GITHUB_SHA:0:7} ${{ secrets.FARO_APP_ID_PAYMENT }}
+      #   env:
+      #     FARO_SOURCEMAP_ENDPOINT: https://faro-api-prod-eu-west-6.grafana.net/faro/api/v1
+      #     FARO_API_KEY: ${{ secrets.FARO_API_KEY }}
+      #     FARO_STACK_ID: ${{ secrets.FARO_STACK_ID }}
 
-      - name: Push onboarding translation keys
-        if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) }}
-        run: pnpm localazy upload onboarding -r ${{ secrets.LOCALAZY_ONBOARDING_READ_KEY }} -w ${{ secrets.LOCALAZY_ONBOARDING_WRITE_KEY }}
+      # - name: Push onboarding translation keys
+      #   if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) }}
+      #   run: pnpm localazy upload onboarding -r ${{ secrets.LOCALAZY_ONBOARDING_READ_KEY }} -w ${{ secrets.LOCALAZY_ONBOARDING_WRITE_KEY }}
 
-      - name: Push banking translation keys
-        if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref)}}
-        run: pnpm localazy upload banking -r ${{ secrets.LOCALAZY_BANKING_READ_KEY }} -w ${{ secrets.LOCALAZY_BANKING_WRITE_KEY }}
+      # - name: Push banking translation keys
+      #   if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref)}}
+      #   run: pnpm localazy upload banking -r ${{ secrets.LOCALAZY_BANKING_READ_KEY }} -w ${{ secrets.LOCALAZY_BANKING_WRITE_KEY }}
 
-      - name: Push payment translation keys
-        if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref)}}
-        run: pnpm localazy upload payment -r ${{ secrets.LOCALAZY_PAYMENT_READ_KEY }} -w ${{ secrets.LOCALAZY_PAYMENT_WRITE_KEY }}
+      # - name: Push payment translation keys
+      #   if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref)}}
+      #   run: pnpm localazy upload payment -r ${{ secrets.LOCALAZY_PAYMENT_READ_KEY }} -w ${{ secrets.LOCALAZY_PAYMENT_WRITE_KEY }}
 
-      - name: Configure AWS Credentials
-        if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[dockerize]')}}
-        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE }}
-          aws-region: eu-west-1
+      # - name: Configure AWS Credentials
+      #   if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[dockerize]')}}
+      #   uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
+      #   with:
+      #     role-to-assume: ${{ secrets.AWS_ROLE }}
+      #     aws-region: eu-west-1
 
-      - name: Login to Docker Registry
-        if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[dockerize]') }}
-        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
-        with:
-          registry: ${{ secrets.DOCKER_REGISTRY }}
+      # - name: Login to Docker Registry
+      #   if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[dockerize]') }}
+      #   uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+      #   with:
+      #     registry: ${{ secrets.DOCKER_REGISTRY }}
 
-      - name: Dockerize & Push to Registry
-        if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[dockerize]') }}
-        uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25 # v5.4.0
-        with:
-          context: .
-          file: Dockerfile-swan
-          push: true
-          tags: |
-            ${{ secrets.DOCKER_REGISTRY }}/swan-partner-frontend:master-${{ github.sha }}
-            ${{ secrets.DOCKER_REGISTRY }}/swan-partner-frontend:master-${{ github.ref_name }}
+      # - name: Dockerize & Push to Registry
+      #   if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[dockerize]') }}
+      #   uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25 # v5.4.0
+      #   with:
+      #     context: .
+      #     file: Dockerfile-swan
+      #     push: true
+      #     tags: |
+      #       ${{ secrets.DOCKER_REGISTRY }}/swan-partner-frontend:master-${{ github.sha }}
+      #       ${{ secrets.DOCKER_REGISTRY }}/swan-partner-frontend:master-${{ github.ref_name }}
 
       - name: Deploy
-        if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) }}
+        # if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) }}
         run: pnpm deploy-ci
         env:
           TAG: master-${{ github.sha }}

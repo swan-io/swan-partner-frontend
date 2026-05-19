@@ -13,7 +13,7 @@ jobs:
     name: E2E tests
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 60
-    if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[E2E]') }}
+    # if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[E2E]') }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 

@@ -13,7 +13,7 @@ jobs:
     name: E2E tests (release)
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 60
-    # if: ${{ github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release-v') }}
+    if: ${{ github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release-v') }}
     env:
       REF_BRANCH: ${{ github.event.pull_request.head.ref }}
     steps:

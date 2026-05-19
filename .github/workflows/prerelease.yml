@@ -81,6 +81,14 @@ jobs:
         id: version
         run: echo version="$REF_BRANCH" | sed -e 's/release-//g' >> $GITHUB_OUTPUT
 
+      - name: Set up QEMU
+        if: ${{ github.repository == 'swan-io/swan-partner-frontend' }}
+        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
+
+      - name: Set up Docker Buildx
+        if: ${{ github.repository == 'swan-io/swan-partner-frontend' }}
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+
       - name: Dockerize & Push to Registry
         if: ${{ github.repository == 'swan-io/swan-partner-frontend' }}
         uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25 # v5.4.0

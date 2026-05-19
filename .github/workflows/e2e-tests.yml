@@ -23,6 +23,7 @@ jobs:
         with:
           node-version: lts/*
           cache: pnpm
+          registry-url: https://npm.pkg.github.com
 
       - name: Edit /etc/hosts
         run: |
@@ -54,6 +55,8 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
 
       - name: Get playwright version
         run: |

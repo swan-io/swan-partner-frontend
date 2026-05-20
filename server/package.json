@@ -26,7 +26,7 @@
     "@fastify/reply-from": "12.3.1",
     "@fastify/secure-session": "8.2.0",
     "@fastify/sensible": "6.0.3",
-    "@fastify/static": "8.2.0",
+    "@fastify/static": "9.1.3",
     "@fastify/view": "10.0.2",
     "@opentelemetry/auto-instrumentations-node": "0.62.1",
     "@opentelemetry/core": "2.0.1",

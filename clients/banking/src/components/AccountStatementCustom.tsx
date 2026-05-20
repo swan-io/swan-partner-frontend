@@ -1,5 +1,4 @@
 import { Option, Result } from "@swan-io/boxed";
-import { Link } from "@swan-io/chicane";
 import { useMutation, useQuery } from "@swan-io/graphql-client";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -28,6 +27,7 @@ import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
+import { Link } from "@zoontek/chicane";
 import dayjs from "dayjs";
 import { useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";

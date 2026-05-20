@@ -1,4 +1,3 @@
-import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
@@ -9,6 +8,7 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { Link } from "@zoontek/chicane";
 import { useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { isMatching, P } from "ts-pattern";

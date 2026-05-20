@@ -1,8 +1,8 @@
 import { Dict } from "@swan-io/boxed";
-import { Location, encodeSearch, getLocation, subscribeToLocation } from "@swan-io/chicane";
 import { emptyToUndefined, isNullish, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { capitalize } from "@swan-io/lake/src/utils/string";
 import { windowSize } from "@swan-io/lake/src/utils/windowSize";
+import { Location, encodeSearch, getLocation, subscribeToLocation } from "@zoontek/chicane";
 import { ReactNode, createContext, useContext, useEffect, useMemo, useRef } from "react";
 import { P, match } from "ts-pattern";
 import { env } from "./env";

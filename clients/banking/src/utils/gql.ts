@@ -1,5 +1,4 @@
 import { Future, Option, Result } from "@swan-io/boxed";
-import { getLocation } from "@swan-io/chicane";
 import {
   Client,
   ClientError,
@@ -11,6 +10,7 @@ import {
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { Request, badStatusToError, emptyToError } from "@swan-io/request";
 import { registerErrorToRequestId } from "@swan-io/shared-business/src/state/toasts";
+import { getLocation } from "@zoontek/chicane";
 import { GraphQLError } from "graphql";
 import { customAlphabet } from "nanoid";
 import { P, match } from "ts-pattern";

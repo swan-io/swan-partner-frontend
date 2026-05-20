@@ -1,10 +1,10 @@
 import { AsyncData } from "@swan-io/boxed";
-import { getLocation } from "@swan-io/chicane";
 import { ClientContext, useQuery } from "@swan-io/graphql-client";
 import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { ToastStack } from "@swan-io/shared-business/src/components/ToastStack";
+import { getLocation } from "@zoontek/chicane";
 import { StyleSheet } from "react-native";
 import { TgglProvider, useFlag } from "react-tggl-client";
 import { P, match } from "ts-pattern";

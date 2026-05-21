@@ -1,5 +1,4 @@
 import { Option } from "@swan-io/boxed";
-import { Link } from "@swan-io/chicane";
 import { useDeferredQuery, useMutation, useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
@@ -14,6 +13,7 @@ import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/desig
 import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { Request } from "@swan-io/request";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
+import { Link } from "@zoontek/chicane";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { StyleSheet, View } from "react-native";
 import { useFlag } from "react-tggl-client";

@@ -28,7 +28,7 @@ export const startDevServer = async (app: FastifyInstance, corsOptions: CorsOpti
       );
 
       const dedupDependencies = [
-        "@swan-io/chicane",
+        "@zoontek/chicane",
         "@swan-io/graphql-client",
         "react",
         "react-dom",

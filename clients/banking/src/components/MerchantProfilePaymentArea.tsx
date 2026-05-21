@@ -1,5 +1,4 @@
 import { AsyncData, Result } from "@swan-io/boxed";
-import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
 import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
@@ -21,6 +20,7 @@ import {
   isNotNullishOrEmpty,
   nullishOrEmptyToUndefined,
 } from "@swan-io/lake/src/utils/nullish";
+import { Link } from "@zoontek/chicane";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";

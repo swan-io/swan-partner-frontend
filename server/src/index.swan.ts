@@ -381,7 +381,12 @@ start({
       async (request, reply) => {
         const accountCountry = parseAccountCountry(request.query.accountCountry);
         const projectId = request.params.projectId;
-        const isOnboardingV2 = request.query.v2 === "true";
+        const allowNoCodeOnboardingV1 = getTgglClient(projectId).get(
+          "allowNoCodeOnboardingV1",
+          false,
+        );
+        // partner allowed to keep v1 still on v1 by default, others defaults to v2 onboarding
+        const isOnboardingV2 = allowNoCodeOnboardingV1 ? request.query.v2 === "true" : true;
 
         return Future.value(accountCountry)
           .flatMapOk(accountCountry => {
@@ -418,14 +423,19 @@ start({
 
     /**
      * Starts a new company onboarding and redirects to the onboarding URL
-     * e.g. /onboarding/individual/start?accountCountry=FRA
+     * e.g. /onboarding/company/start?accountCountry=FRA
      */
     app.get<{ Params: { projectId: string }; Querystring: Record<string, string> }>(
       "/projects/:projectId/onboarding/company/start",
       async (request, reply) => {
         const accountCountry = parseAccountCountry(request.query.accountCountry);
         const projectId = request.params.projectId;
-        const isOnboardingV2 = request.query.v2 === "true";
+        const allowNoCodeOnboardingV1 = getTgglClient(projectId).get(
+          "allowNoCodeOnboardingV1",
+          false,
+        );
+        // partner allowed to keep v1 still on v1 by default, others defaults to v2 onboarding
+        const isOnboardingV2 = allowNoCodeOnboardingV1 ? request.query.v2 === "true" : true;
 
         return Future.value(accountCountry)
           .flatMapOk(accountCountry => {

@@ -18,11 +18,14 @@ declare module "react-tggl-client" {
     email: string;
     environment: "development" | "master" | "preprod" | "prod";
     environmentType: "admin" | "live" | "sandbox";
+    existingUser: boolean;
     iban: string;
     ip?: string;
     ipAddressCountry: string;
     ipAndPhoneCountryMismatch: boolean;
     label: string;
+    merchantId: string;
+    oAuthClientId: string;
     phoneCountryCode: string;
     phoneNumber: string;
     projectId: string;
@@ -32,6 +35,7 @@ declare module "react-tggl-client" {
     serviceName: string;
     smsOtpInitiator: string;
     timestamp: string | number;
+    transactionId: string;
     userId: string;
   }
 
@@ -42,13 +46,13 @@ declare module "react-tggl-client" {
     accountContractActivateRPCAgent: boolean;
     accountContractFetchAccountMembershipsByUserDataLoaded: boolean;
     accountContractPartnersCanOpenAdditionalAccounts: boolean;
-    activate_calendar_spending_limits: boolean;
     activate_card_package_on_card_product: boolean;
     activate_digital_card_use_case: boolean;
     activate_satd_manual_seizure_in_payment: boolean;
     activatePhysicalCardNotificationEnabledGlobally: boolean;
     add_default_expiration_for_suvc_one_of_at_creation: boolean;
     adminAuthThroughBFF: boolean;
+    allowNoCodeOnboardingV1: boolean;
     allowServerToServerConsent: boolean;
     arbirtray: 1 | 2;
     aria_enabled: boolean;
@@ -66,6 +70,7 @@ declare module "react-tggl-client" {
     billing_kafka_consumers_enabled: boolean;
     billing_sms_notification: boolean;
     billing_tap_to_pay_configuration_enabled: boolean;
+    billing_usage_event_enabled: boolean;
     block_reupload_register_extract: boolean;
     blockOtpRequestIfAntibotTokenIsInvalid: true;
     "bnp-mock-mode-sct-instant":
@@ -79,6 +84,9 @@ declare module "react-tggl-client" {
       | "RJCT-FF01";
     can_manage_beneficiary_for_untrusted_beneficiary: boolean;
     canHandleBulkPayment: boolean;
+    card_out_partner_control_blocked_merchant_ids:
+      | "2000000014,2250820,526567000264379,526567000264304"
+      | '""';
     cardExpirationNotificationEnabledGlobally: boolean;
     cardInsufficientFundsNotificationEnabledGlobally: boolean;
     cardInsuranceActivation: boolean;
@@ -93,7 +101,6 @@ declare module "react-tggl-client" {
     ciao_es_enabled: boolean;
     cms_call_cema_carte_for_choose_pin: true;
     cms_choose_pin_token_always_valid: true;
-    create_card_delivery_method_id: boolean;
     create_verification_renewal_cron: boolean;
     createFraudPreventionCampaign: boolean;
     createVerificationRenewalFlowChart: boolean;
@@ -120,18 +127,27 @@ declare module "react-tggl-client" {
     disable_qes_identification_level: true;
     disableWebBanking: boolean;
     displaySsoButton: boolean;
+    documentMigrationRead: boolean;
+    documentMigrationWrite: boolean;
     dont_change_default_expiration_for_suvc_one_off_at_update: boolean;
+    emi_banking_rpc_agent: boolean;
     emi_tax_rpc_agent: boolean;
+    "emi-banking-bnp-balance-computation-strategy": boolean;
+    emiBankingActivateRPCAgent: boolean;
     enable_automatic_identity_documents_upload: boolean;
+    enable_available_balance_request_sardine: boolean;
+    enable_card_link_risk_assessment: boolean;
     enable_card_risk_assessment: boolean;
     enable_card_risk_backfill: boolean;
     enable_credit_zero_amount_author_public_api: boolean;
     enable_document_convertor_from_csv_generation: boolean;
     enable_document_convertor_generation: boolean;
     enable_document_generation_by_document_convertor: boolean;
+    enable_immediate_release_on_fuel_dispenser_capture: boolean;
     enable_mastercard_presettlement: true;
     enable_mastercard_presettlement_reconciliation: true;
     enable_new_account_statement_file_name: boolean;
+    enable_optimized_monthly_statement_generation: boolean;
     enable_transaction_enrichment_from_origin_transaction: boolean;
     enable_transaction_risk_backfill: boolean;
     enableBouyguesFraudPreventionPage: boolean;
@@ -177,38 +193,25 @@ declare module "react-tggl-client" {
     kycActivateRPCAgent: boolean;
     la_poste_tracked_international_active: boolean;
     lago_partner_event_use_billing_periods: boolean;
-    ledgerSpendingMigrationDoubleRun: boolean;
-    ledgerSpendingMigrationDryRun: boolean;
-    ledgerSpendingMigrationEnabled: boolean;
-    ledgerSpendingMigrationInconsistentAccounts: {
-      accounts: Array<
-        | "298904e8-9b09-4c51-8b15-0b42e99e8acd"
-        | "31a685e6-184b-4483-862b-7fb85c42b190"
-        | "517b28e1-35a1-4e4d-8763-c243d2286286"
-        | "813e29c3-bc66-4eda-a2b4-8c1c300271cf"
-        | "9eece781-14c3-4891-bb00-b3f715f4876b"
-        | "fb8baa30-a989-4d30-942f-26749eb24449"
-        | "fc4f1e61-31c9-4a5a-87ae-af871854c3c7"
-      >;
-    };
-    ledgerSpendingMigrationLimit: 0 | 1 | 10 | 100 | 1000 | 10000;
     lockRecomputeEnableB2B: true;
     "mcd-process-auto-retry": boolean;
     merchantWebBanking: boolean;
-    name_matching_use_valid_names_enabled: boolean;
     newGqlGateway: boolean;
     OnboardingV2NoCode: boolean;
     OTPLinkForIdentifications: boolean;
     outboundFundsTransferRejectedNotificationEnabledGlobally: boolean;
     outboundFundsTransferSuccessfulNotificationEnabledGlobally: boolean;
-    packageSpendingLimit: { Essential: 40000 | 60000; Premium: 100000; Standard: 10000 | 20000 };
+    packageSpendingLimit: { Essential: 40000 | 60000; Premium: 100000; Standard: 10000 | 30000 };
     partner_billing_v1_5_enabled: boolean;
     passcodeResetEmailVerification: boolean;
     passcodeResetFaceAuthVerification: boolean;
     passcodeResetIdentificationVerification: boolean;
     passcodeResetNoVerification: boolean;
+    paymentSpendingAcprLimitedAccountsLevel: "NO_SPENDING" | "SPENDING_READONLY" | "SPENDING_USE";
     pennylane_specific_spending_limits_on_card_package: boolean;
     pexTcuEventKillSwitch: boolean;
+    processSardineWebhookAlerts: boolean;
+    ProcessTopographWebhooks: boolean;
     recurring_suvc_fee_enabled: boolean;
     refundFeesActivateFixOnInvertedAccountIds: boolean;
     reKYCRequestIdentityProof: boolean;
@@ -229,26 +232,29 @@ declare module "react-tggl-client" {
     scaIsLoginChallengeCheckEnabled: boolean;
     scaIsNotificationManagerEnabled: boolean;
     scaIsPhoneCountryCodeBlocked: boolean;
+    scaIsSingleDeviceAuthEnabled: boolean;
     scaIsWebBankingBrandlessLoginChallengeCheckEnabled: boolean;
     scale_merchant_onboarding_bo: boolean;
     scaleMerchantOnboarding: boolean;
     scaShouldIncludeCustomSubdomainInConsentUrl: boolean;
     scaShouldPassSessionIdToConsentable: boolean;
+    scaSsoPostLogoutRedirectUrl: "authorize" | "dashboard" | "login" | "prelogin";
     scaV1ToV2IdsConversionBatchSize: 0 | 10 | 100 | 20 | 200 | 3 | 5 | 50 | 75;
     scoreThresholdHCaptcha: 0.75 | 0.8 | 0.9 | 1.5;
-    scoring_mode: "risk_assessment_first" | "scoring_and_risk_assessment_dry_run" | "scoring_only";
-    scoring_mode_sct_in:
-      | "risk_assessment_first"
+    scoring_mode_fct_in: "risk_assessment" | "scoring_and_risk_assessment_dry_run" | "scoring_only";
+    scoring_mode_fct_out:
+      | "risk_assessment"
       | "scoring_and_risk_assessment_dry_run"
       | "scoring_only";
+    scoring_mode_sct_in: "risk_assessment" | "scoring_and_risk_assessment_dry_run" | "scoring_only";
     scoring_mode_sct_out:
-      | "risk_assessment_first"
+      | "risk_assessment"
       | "scoring_and_risk_assessment_dry_run"
       | "scoring_only";
-    screeningSctInAndFctInWithNats: boolean;
     sctInstEnabled: boolean;
     send_account_invoice_generated_event: boolean;
     send_activate_physical_card_notification: boolean;
+    send_otp_from_xpay_reporting_pwm_token: boolean;
     sendBusinessAndCustomerDataToSardine: boolean;
     sendCreditAndZeroAmountAuthorization: boolean;
     sendValidationInsteadOfForbiddenRejection: boolean;
@@ -258,14 +264,16 @@ declare module "react-tggl-client" {
     SepaDirectDebitV2ActivationFlag: true;
     setIssuingProcessorCardProductOnRenewFeature: boolean;
     setUpAdminRole: boolean;
+    shareholderMigrationRead: boolean;
     shareholderMigrationWrite: boolean;
     should_use_new_closing_reasons: boolean;
     shouldHistorizeIncomingVOPRequest: boolean;
     shouldIncludeAllAccountStatusesForMultiAccountLimit: boolean;
     shouldRestrictMultiAccountCreationWhenSuspensionExists: boolean;
-    sms_otp_5_min_duration: boolean;
     storeMonextAuthenticationRequest: boolean;
     supportingDocumentsUseBucketV2: boolean;
+    suspend_digital_card_on_cancel_physical_card_saga_enabled: boolean;
+    suspend_resume_digital_cards_on_account_suspension_ipc: boolean;
     swan_generate_missing_bank_details: true;
     swan_supports_local_belgian_iban: boolean;
     swan_supports_local_belgian_iban_dashboard: boolean;
@@ -289,12 +297,8 @@ declare module "react-tggl-client" {
     updateBusinessAndCustomerDataToSardine: boolean;
     use_mailjet_subaccount_for_mass_emailing: true;
     use_notification_manager: boolean;
-    "use-outbox-pattern-for-sepa-commands": boolean;
-    useNotificationStackToSendAccountOpenedEmail: boolean;
-    useNotificationStackToSendFirstTransferRequestEmail: boolean;
-    useNotificationStackToSendNewAccountTcuEmail: boolean;
+    "use-outbox-pattern": boolean;
     useNotificationStackToSendNewMembershipEmail: boolean;
-    useNotificationStackToSendSupportingDocumentRequestEmail: boolean;
     useNotificationStackToSendTCUUpdates: boolean;
     useOutboxTableForBankDetailsGeneration: boolean;
     usePaymentV2FlowForAccountFunding: boolean;
@@ -307,6 +311,6 @@ declare module "react-tggl-client" {
     webhookSendWebhookTokenHeader: boolean;
     webhookSubscriptionLimit: boolean;
     xpay_provisioning_eligibility_v2_enabled: boolean;
-    xpay_wrong_expiration_cvx_failed: boolean;
+    xpay_provisioning_high_risk_yellow_without_idv_enabled: boolean;
   }
 }

@@ -124,9 +124,9 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
     .with({ accountCountry: P.union("DEU", "ESP", "ITA") }, () => true)
     .otherwise(() => false);
 
-  //Italian company with a status self employed use the same tax validation rules as individual
+  //ITA & ESP company with a status self employed use the same tax validation rules as individual
   const hasCompanyTaxRules = match({ companyType, companyCountry })
-    .with({ companyType: "SelfEmployed", companyCountry: "ITA" }, () => false)
+    .with({ companyType: "SelfEmployed", companyCountry: P.union("ESP", "ITA") }, () => false)
     .otherwise(() => true);
 
   const validateTaxNumber = hasCompanyTaxRules

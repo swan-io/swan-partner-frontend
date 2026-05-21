@@ -1,5 +1,6 @@
 {
   "enabledPlugins": {
-    "engineering-frontend@swan": true
+    "engineering-frontend@swan": true,
+    "engineering-security@swan": true
   }
 }

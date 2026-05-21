@@ -92,6 +92,7 @@ jobs:
           context: .
           file: Dockerfile-swan
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: |
             ${{ secrets.DOCKER_REGISTRY }}/swan-partner-frontend:preprod-${{ github.sha }}
             ${{ secrets.DOCKER_REGISTRY }}/swan-partner-frontend:preprod-${{ steps.version.outputs.version }}

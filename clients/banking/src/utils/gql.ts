@@ -20,6 +20,7 @@ import { env } from "./env";
 import { locale } from "./i18n";
 import { projectConfiguration } from "./projectId";
 import { Router } from "./routes";
+import { logFrontendError } from "./tracing";
 
 const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
 const nanoid = customAlphabet(alphabet, 8);
@@ -98,14 +99,9 @@ const makeRequest: MakeRequest = ({ url, headers, operationName, document, varia
     .tapError(errors => {
       ClientError.forEach(errors, error => {
         try {
-          navigator.sendBeacon(
-            "/api/errors/report",
-            JSON.stringify({
-              clientRequestId: requestId,
-              clientErrorName: error.name,
-              clientErrorMessage: error.message,
-            }),
-          );
+          logFrontendError(error, {
+            extra: { requestId },
+          });
         } catch {}
 
         errorToRequestId.set(error, requestId);

@@ -1,4 +1,4 @@
-import { Faro, getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
+import { Faro, getWebInstrumentations, initializeFaro, LogLevel } from "@grafana/faro-web-sdk";
 import { TracingInstrumentation } from "@grafana/faro-web-tracing";
 import { match, P } from "ts-pattern";
 import { env } from "./env";
@@ -31,6 +31,18 @@ if (environment != null) {
   });
 }
 
-export const logFrontendError = (exception: Error) => {
-  faro?.api.pushError(exception);
+type Context = {
+  level?: LogLevel;
+  tag?: string;
+  extra?: Record<string, string>;
+};
+
+export const logFrontendError = (exception: Error, context?: Context) => {
+  faro?.api.pushError(exception, {
+    context: {
+      ...(context?.level != null ? { level: context.level } : null),
+      ...(context?.tag != null ? { tag: context.tag } : null),
+      ...context?.extra,
+    },
+  });
 };

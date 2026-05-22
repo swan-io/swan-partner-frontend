@@ -15,6 +15,7 @@ import {
   Document,
   SupportingDocumentCollection,
   SupportingDocumentCollectionRef,
+  toDocumentPurposes,
 } from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
 import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
 import { ReactNode, useCallback, useRef } from "react";
@@ -34,7 +35,6 @@ import {
 } from "../../graphql/unauthenticated";
 import { locale, t } from "../../utils/i18n";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
-import { toRequiredDocumentPurposes } from "../../utils/supportingDocuments";
 
 const styles = StyleSheet.create({
   fill: {
@@ -160,7 +160,7 @@ export const OnboardingCompanyDocuments = ({
       )
       .with({ statusInfo: { __typename: "SupportingDocumentValidatedStatusInfo" } }, document =>
         Option.Some({
-          purpose: document.supportingDocumentPurpose,
+          purpose: document.purpose.name,
           file: {
             id: document.id,
             name: document.statusInfo.filename,
@@ -170,7 +170,7 @@ export const OnboardingCompanyDocuments = ({
       )
       .with({ statusInfo: { __typename: "SupportingDocumentRefusedStatusInfo" } }, document =>
         Option.Some({
-          purpose: document.supportingDocumentPurpose,
+          purpose: document.purpose.name,
           file: {
             id: document.id,
             name: document.statusInfo.filename,
@@ -184,7 +184,7 @@ export const OnboardingCompanyDocuments = ({
       )
       .with({ statusInfo: { __typename: "SupportingDocumentUploadedStatusInfo" } }, document =>
         Option.Some({
-          purpose: document.supportingDocumentPurpose,
+          purpose: document.purpose.name,
           file: {
             id: document.id,
             name: document.statusInfo.filename,
@@ -210,7 +210,7 @@ export const OnboardingCompanyDocuments = ({
                 <SupportingDocumentCollection
                   ref={supportingDocumentCollectionRef}
                   documents={docs}
-                  requiredDocumentPurposes={toRequiredDocumentPurposes(requiredDocumentsPurposes)}
+                  documentPurposes={toDocumentPurposes(requiredDocumentsPurposes, documents)}
                   generateUpload={generateUpload}
                   status={supportingDocumentCollectionStatus}
                   templateLanguage={templateLanguage}

@@ -6,7 +6,11 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { SupportingDocumentCollection } from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
+import {
+  Document,
+  SupportingDocumentCollection,
+  toDocumentPurposes,
+} from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
 import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
 import { useCallback, useState } from "react";
 import { match, P } from "ts-pattern";
@@ -19,15 +23,9 @@ import {
 } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
-import { toRequiredDocumentPurposes } from "../../utils/supportingDocuments";
 import { RenewalStep } from "../../utils/verificationRenewal";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 import { VerificationRenewalStepContent } from "./VerificationRenewalStepContent";
-
-export type Document<Purpose extends string> = {
-  purpose: Purpose;
-  file: SwanFile;
-};
 
 type Props = {
   verificationRenewalId: string;
@@ -112,9 +110,9 @@ export const VerificationRenewalDocuments = ({
           Option.None(),
         )
         .with({ statusInfo: { __typename: "SupportingDocumentRefusedStatusInfo" } }, document =>
-          requiredPurposes.has(document.supportingDocumentPurpose)
+          requiredPurposes.has(document.purpose.name)
             ? Option.Some({
-                purpose: document.supportingDocumentPurpose,
+                purpose: document.purpose.name,
                 file: {
                   id: document.id,
                   name: document.statusInfo.filename,
@@ -128,9 +126,9 @@ export const VerificationRenewalDocuments = ({
             : Option.None(),
         )
         .with({ statusInfo: { __typename: "SupportingDocumentUploadedStatusInfo" } }, document =>
-          requiredPurposes.has(document.supportingDocumentPurpose)
+          requiredPurposes.has(document.purpose.name)
             ? Option.Some({
-                purpose: document.supportingDocumentPurpose,
+                purpose: document.purpose.name,
                 file: {
                   id: document.id,
                   name: document.statusInfo.filename,
@@ -163,8 +161,9 @@ export const VerificationRenewalDocuments = ({
             ) : (
               <SupportingDocumentCollection
                 generateUpload={generateUpload}
-                requiredDocumentPurposes={toRequiredDocumentPurposes(
+                documentPurposes={toDocumentPurposes(
                   supportingDocumentCollection.requiredSupportingDocumentPurposes,
+                  supportingDocumentCollection.supportingDocuments,
                 )}
                 status={supportingDocumentCollection.statusInfo.status}
                 documents={docs}

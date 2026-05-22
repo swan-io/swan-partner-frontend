@@ -9,6 +9,7 @@ import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import {
   Document,
   SupportingDocumentCollection,
+  toDocumentPurposes,
 } from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
 import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
 import { ReactNode, useCallback, useState } from "react";
@@ -24,7 +25,6 @@ import {
 } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
-import { toRequiredDocumentPurposes } from "../../utils/supportingDocuments";
 
 type Props = {
   supportingDocumentCollection: AccountAdminChangeInfoFragment["supportingDocumentCollection"];
@@ -106,7 +106,7 @@ export const ChangeAdminDocuments = ({
         )
         .with({ statusInfo: { __typename: "SupportingDocumentValidatedStatusInfo" } }, document =>
           Option.Some({
-            purpose: document.supportingDocumentPurpose,
+            purpose: document.purpose.name,
             file: {
               id: document.id,
               name: document.statusInfo.filename,
@@ -116,7 +116,7 @@ export const ChangeAdminDocuments = ({
         )
         .with({ statusInfo: { __typename: "SupportingDocumentRefusedStatusInfo" } }, document =>
           Option.Some({
-            purpose: document.supportingDocumentPurpose,
+            purpose: document.purpose.name,
             file: {
               id: document.id,
               name: document.statusInfo.filename,
@@ -130,7 +130,7 @@ export const ChangeAdminDocuments = ({
         )
         .with({ statusInfo: { __typename: "SupportingDocumentUploadedStatusInfo" } }, document =>
           Option.Some({
-            purpose: document.supportingDocumentPurpose,
+            purpose: document.purpose.name,
             file: {
               id: document.id,
               name: document.statusInfo.filename,
@@ -163,8 +163,9 @@ export const ChangeAdminDocuments = ({
             <DocumentsStepTile small={small}>
               <SupportingDocumentCollection
                 documents={docs}
-                requiredDocumentPurposes={toRequiredDocumentPurposes(
+                documentPurposes={toDocumentPurposes(
                   supportingDocumentCollection.requiredSupportingDocumentPurposes,
+                  supportingDocumentCollection.supportingDocuments,
                 )}
                 generateUpload={generateUpload}
                 status={supportingDocumentCollectionStatus}

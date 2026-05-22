@@ -100,7 +100,12 @@ fragment OnboardingInvalidInfo on OnboardingStatusInfo {
 
 fragment SupportingDocument on SupportingDocument {
   id
-  supportingDocumentPurpose
+  purpose {
+    name
+    label
+    description
+    purposeDetails
+  }
   supportingDocumentType
   updatedAt
   statusInfo {

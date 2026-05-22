@@ -13,6 +13,7 @@ import {
   Document,
   SupportingDocumentCollection,
   SupportingDocumentCollectionRef,
+  toDocumentPurposes,
 } from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { locale } from "@swan-io/shared-business/src/utils/i18n";
@@ -32,7 +33,6 @@ import {
 } from "../../../graphql/unauthenticated";
 import { t } from "../../../utils/i18n";
 import { CompanyOnboardingRouteV2, Router } from "../../../utils/routes";
-import { toRequiredDocumentPurposes } from "../../../utils/supportingDocuments";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 import { extractServerInvalidFields } from "../../../utils/validation";
 
@@ -192,7 +192,7 @@ export const OnboardingCompanyDocuments = ({
       )
       .with({ statusInfo: { __typename: "SupportingDocumentValidatedStatusInfo" } }, document =>
         Option.Some({
-          purpose: document.supportingDocumentPurpose,
+          purpose: document.purpose.name,
           file: {
             id: document.id,
             name: document.statusInfo.filename,
@@ -202,7 +202,7 @@ export const OnboardingCompanyDocuments = ({
       )
       .with({ statusInfo: { __typename: "SupportingDocumentRefusedStatusInfo" } }, document =>
         Option.Some({
-          purpose: document.supportingDocumentPurpose,
+          purpose: document.purpose.name,
           file: {
             id: document.id,
             name: document.statusInfo.filename,
@@ -216,7 +216,7 @@ export const OnboardingCompanyDocuments = ({
       )
       .with({ statusInfo: { __typename: "SupportingDocumentUploadedStatusInfo" } }, document =>
         Option.Some({
-          purpose: document.supportingDocumentPurpose,
+          purpose: document.purpose.name,
           file: {
             id: document.id,
             name: document.statusInfo.filename,
@@ -255,8 +255,9 @@ export const OnboardingCompanyDocuments = ({
               <SupportingDocumentCollection
                 ref={supportingDocumentCollectionRef}
                 documents={docs}
-                requiredDocumentPurposes={toRequiredDocumentPurposes(
+                documentPurposes={toDocumentPurposes(
                   requiredSupportingDocumentPurposes,
+                  documents,
                 )}
                 generateUpload={generateUpload}
                 status={supportingDocumentCollection.statusInfo.status}

@@ -14,6 +14,7 @@ import {
   Document,
   SupportingDocumentCollection,
   SupportingDocumentCollectionRef,
+  toDocumentPurposes,
 } from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
@@ -29,7 +30,6 @@ import {
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { locale, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { toRequiredDocumentPurposes } from "../utils/supportingDocuments";
 import { ErrorView } from "./ErrorView";
 import { OnboardingFooter } from "./OnboardingFooter";
 import { OnboardingHeader } from "./OnboardingHeader";
@@ -155,9 +155,9 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
             .with(
               { statusInfo: { __typename: "SupportingDocumentRefusedStatusInfo" } },
               document =>
-                requiredPurposes.has(document.supportingDocumentPurpose)
+                requiredPurposes.has(document.purpose.name)
                   ? Option.Some({
-                      purpose: document.supportingDocumentPurpose,
+                      purpose: document.purpose.name,
                       file: {
                         id: document.id,
                         name: document.statusInfo.filename,
@@ -173,9 +173,9 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
             .with(
               { statusInfo: { __typename: "SupportingDocumentUploadedStatusInfo" } },
               document =>
-                requiredPurposes.has(document.supportingDocumentPurpose)
+                requiredPurposes.has(document.purpose.name)
                   ? Option.Some({
-                      purpose: document.supportingDocumentPurpose,
+                      purpose: document.purpose.name,
                       file: {
                         id: document.id,
                         name: document.statusInfo.filename,
@@ -289,8 +289,9 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
                               <SupportingDocumentCollection
                                 ref={supportingDocumentCollectionRef}
                                 documents={docs}
-                                requiredDocumentPurposes={toRequiredDocumentPurposes(
+                                documentPurposes={toDocumentPurposes(
                                   supportingDocumentCollection.requiredSupportingDocumentPurposes,
+                                  supportingDocumentCollection.supportingDocuments,
                                 )}
                                 generateUpload={generateUpload}
                                 status={supportingDocumentCollection.statusInfo.status}

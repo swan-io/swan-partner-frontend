@@ -14,6 +14,7 @@ import { P, match } from "ts-pattern";
 import schemaConfig from "../../../../scripts/graphql/dist/unauthenticated-schema-config.json";
 import { env } from "./env";
 import { locale } from "./i18n";
+import { logFrontendError } from "./tracing";
 
 const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
 const nanoid = customAlphabet(alphabet, 8);
@@ -61,14 +62,9 @@ export const client = new Client({
       .tapError(errors => {
         ClientError.forEach(errors, error => {
           try {
-            navigator.sendBeacon(
-              "/api/errors/report",
-              JSON.stringify({
-                clientRequestId: requestId,
-                clientErrorName: error.name,
-                clientErrorMessage: error.message,
-              }),
-            );
+            logFrontendError(error, {
+              extra: { requestId },
+            });
           } catch {}
 
           errorToRequestId.set(error, requestId);

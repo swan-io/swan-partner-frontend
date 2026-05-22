@@ -8,6 +8,7 @@ import {
   Document,
   SupportingDocumentCollection,
   SupportingDocumentCollectionRef,
+  toDocumentPurposes,
 } from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
@@ -20,7 +21,6 @@ import {
   SupportingDocumentPurposeEnum,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { toRequiredDocumentPurposes } from "../utils/supportingDocuments";
 
 type Collection = GetNode<
   NonNullable<
@@ -115,7 +115,7 @@ export const SupportingDocumentsForm = ({
       )
       .with({ statusInfo: { __typename: "SupportingDocumentValidatedStatusInfo" } }, document =>
         Option.Some({
-          purpose: document.supportingDocumentPurpose,
+          purpose: document.purpose.name,
           file: {
             id: document.id,
             name: document.statusInfo.filename,
@@ -125,7 +125,7 @@ export const SupportingDocumentsForm = ({
       )
       .with({ statusInfo: { __typename: "SupportingDocumentRefusedStatusInfo" } }, document =>
         Option.Some({
-          purpose: document.supportingDocumentPurpose,
+          purpose: document.purpose.name,
           file: {
             id: document.id,
             name: document.statusInfo.filename,
@@ -139,7 +139,7 @@ export const SupportingDocumentsForm = ({
       )
       .with({ statusInfo: { __typename: "SupportingDocumentUploadedStatusInfo" } }, document =>
         Option.Some({
-          purpose: document.supportingDocumentPurpose,
+          purpose: document.purpose.name,
           file: {
             id: document.id,
             name: document.statusInfo.filename,
@@ -155,8 +155,9 @@ export const SupportingDocumentsForm = ({
       <SupportingDocumentCollection
         ref={supportingDocumentCollectionRef}
         documents={docs}
-        requiredDocumentPurposes={toRequiredDocumentPurposes(
+        documentPurposes={toDocumentPurposes(
           collection.requiredSupportingDocumentPurposes,
+          collection.supportingDocuments,
         )}
         generateUpload={generateUpload}
         status={collection.statusInfo.status}

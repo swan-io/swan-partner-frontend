@@ -1408,7 +1408,7 @@ type Account {
     orderBy: AccountMembershipOrderByInput
   ): AccountMembershipConnection!
 
-  """`true`if a consent is required to fetch new transactions"""
+  """`true` if a consent is required to fetch new transactions"""
   requiredConsentToFetchNewTransactions: Boolean!
 
   """Language used for account statements"""
@@ -1828,7 +1828,7 @@ type AccountClosedStatus implements AccountStatusInfo {
   """Account status (always Closed for type AccountClosedStatus)"""
   status: AccountStatus!
 
-  """Reason why the account is suspended"""
+  """Reason why the account was closed"""
   reason: String! @deprecated(reason: "Use `reasonInfo` instead.")
 
   """Reason why the account is currently closed"""
@@ -1842,7 +1842,7 @@ type AccountClosingStatus implements AccountStatusInfo {
   """Account status (always Closing for type AccountClosingStatus)"""
   status: AccountStatus!
 
-  """Reason why the account is suspended"""
+  """Reason why the account is closing"""
   reason: String! @deprecated(reason: "Use `reasonInfo` instead.")
 
   """Reason why the account is currently in closing"""
@@ -2106,7 +2106,7 @@ type AccountHolderCanceledStatusInfo implements AccountHolderStatusInfo {
   """Status of the account holder."""
   status: AccountHolderStatus!
 
-  """Reason why the account holder is suspended."""
+  """Reason why the account holder was canceled."""
   reason: String!
 }
 
@@ -2341,6 +2341,8 @@ interface AccountHolderOnboardingBase {
   Redirect the legal representative of a new account holder to this URL to start the onboarding process
   """
   onboardingUrl: String
+
+  """Account opened after the onboarding is finalized"""
   account: Account
 
   """Swan Terms and Conditions URL"""
@@ -2370,9 +2372,7 @@ type AccountHolderOnboardingEdge implements Edge {
   node: AccountHolderOnboarding!
 }
 
-"""
-Field we can use when ordering that can be applied when listing account holders
-"""
+"""Fields that can be used when ordering account holders"""
 enum AccountHolderOrderByFieldInput {
   createdAt
   updatedAt
@@ -2485,15 +2485,21 @@ type AccountHolderVerifiedVerificationStatusInfo implements AccountHolderVerific
 type AccountHolderWaitingForInformationVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
   """Verification Status of the account holder."""
   status: VerificationStatus!
+
+  """List of verification requirements that need to be fulfilled"""
   verificationRequirements: [VerificationRequirement!]!
 
-  """@deprecated(reason: "Use `waitingForInformationAt` instead")"""
+  """
+  ISO date at which the account holder status was set to WaitingForInformation
+  """
   WaitingForInformationAt: DateTime! @deprecated(reason: "Use `waitingForInformationAt` instead")
 
   """
-  ISO Date string at which the account holder status was set to WaitingForInformation
+  ISO date at which the account holder status was set to WaitingForInformation
   """
   waitingForInformationAt: DateTime!
+
+  """Unique identifier of the account holder"""
   accountHolderId: String!
 }
 
@@ -2518,10 +2524,10 @@ type AccountMembership {
   """Unique identifier of an account membership"""
   id: ID!
 
-  """email"""
+  """Email address associated with this account membership"""
   email: String!
 
-  """user of this account membership"""
+  """User bound to this account membership"""
   user: User
 
   """
@@ -2534,7 +2540,7 @@ type AccountMembership {
   """
   canViewAccount: Boolean!
 
-  """`true` if this account membership can add or canceled beneficiaries"""
+  """`true` if this account membership can add or cancel beneficiaries"""
   canManageBeneficiaries: Boolean!
 
   """`true` if this account membership can initiate credit transfers"""
@@ -2569,7 +2575,7 @@ type AccountMembership {
   updatedAt: DateTime!
 
   """
-  version of the account membership started from '1' and incremented at every updates
+  Version of the account membership, starting from '1' and incremented on every update
   """
   version: String!
 
@@ -2766,9 +2772,7 @@ type AccountMembershipNotReadyToBeUpdatedRejection {
   message: String!
 }
 
-"""
-Field we can use when ordering that can be applied when listing account memberships
-"""
+"""Fields that can be used when ordering account memberships"""
 enum AccountMembershipOrderByFieldInput {
   createdAt
   updatedAt
@@ -2834,7 +2838,7 @@ input AccountMembershipsFilterInput {
   accountId: ID
 }
 
-"""AccountMembership enabled"""
+"""Possible statuses for an account membership"""
 enum AccountMembershipStatus {
   """when the consent to invite the account membership is pending"""
   ConsentPending
@@ -2855,7 +2859,7 @@ enum AccountMembershipStatus {
   Disabled
 }
 
-"""here are the different account membership status:"""
+"""Status information for an account membership"""
 interface AccountMembershipStatusInfo {
   """AccountMembership status"""
   status: AccountMembershipStatus!
@@ -2906,9 +2910,10 @@ input AccountOrderByInput {
   direction: OrderByDirection
 }
 
+"""Account-level configuration settings"""
 type AccountSettings {
   """
-  Wether or not the account is allowed to initiate bulk payment transfers without the beneficiary verification
+  Whether or not the account is allowed to initiate bulk payment transfers without beneficiary verification
   """
   allowBulkCreditTransfersWithoutBeneficiaryVerification: Boolean
 }
@@ -2940,7 +2945,7 @@ type AccountSuspendedStatus implements AccountStatusInfo {
   """Reason why the account is suspended"""
   reason: String! @deprecated(reason: "Use `reasonInfo` instead.")
 
-  """Reason why the account is currently suspend"""
+  """Reason why the account is currently suspended"""
   reasonInfo: SuspendAccountStatusReason!
 }
 
@@ -3560,7 +3565,7 @@ enum CloseAccountReasonType {
   """The notary refused the capital deposit case."""
   CapitalDepositRefusedByNotary
 
-  """Capital Deposit Reason"""
+  """Generic closure reason related to capital deposit operations."""
   CapitalDepositReason
 
   """Closure required for compliance reasons not covered by other values."""
@@ -3583,7 +3588,7 @@ enum CloseAccountReasonType {
   """The account holder operates in a prohibited business sector."""
   ForbiddenActivity
 
-  """Inactivity"""
+  """Account closed due to inactivity."""
   Inactivity
 
   """Required documents are missing, incorrect, or unanswered."""
@@ -3595,7 +3600,7 @@ enum CloseAccountReasonType {
   """The Partner is no longer working with Swan."""
   PartnerChurn
 
-  """Partner Reason"""
+  """Generic closure reason initiated by the partner."""
   PartnerReason
 
   """
@@ -3684,6 +3689,8 @@ type CompanyAccountHolderOnboarding implements AccountHolderOnboardingBase {
   Redirect the legal representative of a new account holder to this URL to start the onboarding process
   """
   onboardingUrl: String
+
+  """Account opened after the onboarding is finalized"""
   account: Account
 
   """Swan Terms and Conditions URL"""
@@ -3695,7 +3702,7 @@ type CompanyAccountHolderOnboardingAccount {
   """
   Name for the account
   
-  - Maximum 100 characters
+  - Maximum 255 characters
   - No special characters like HTML tags
   """
   name: String
@@ -3890,7 +3897,7 @@ input CompanyAccountHolderOnboardingAccountInput {
   """
   Name for the account
   
-  - Maximum 100 characters
+  - Maximum 255 characters
   - No special characters like HTML tags
   """
   name: String
@@ -3906,7 +3913,7 @@ input CompanyAccountHolderOnboardingAccountUpdateInput {
   """
   Name for the account
   
-  - Maximum 100 characters
+  - Maximum 255 characters
   - No special characters like HTML tags
   """
   name: String
@@ -3930,7 +3937,7 @@ type CompanyInfo {
   """
   Company legal name
   
-  - Maximum 100 characters
+  - Maximum 255 characters
   - Allowed characters: letters (including international characters), numbers, punctuation, and special symbols (¿, ¡, @, [, ], |, ', ', ?, =)
   """
   name: String
@@ -3938,7 +3945,7 @@ type CompanyInfo {
   """
   Trade name (if different from legal name)
   
-  - Maximum 100 characters
+  - Maximum 255 characters
   - Same character restrictions as company name (no URLs or HTML special characters)
   """
   tradeName: String
@@ -4051,7 +4058,8 @@ input CompanyInfoInput {
   """
   Company legal name
   
-  - Maximum 100 characters
+  - Minimum 1 character
+  - Maximum 255 characters
   - Allowed characters: letters (including international characters), numbers, punctuation, and special symbols (¿, ¡, @, [, ], |, ', ', ?, =)
   """
   name: String
@@ -4059,8 +4067,9 @@ input CompanyInfoInput {
   """
   Trade name (if different from legal name)
   
-  - Maximum 100 characters
-  - Same character restrictions as company name (no URLs or HTML special characters)
+  - Minimum 1 character
+  - Maximum 255 characters
+  - Same character restrictions as company name
   """
   tradeName: String
 
@@ -4159,7 +4168,7 @@ input CompanyInfoUpdateInput {
   """
   Company legal name
   
-  - Maximum 100 characters
+  - Maximum 255 characters
   - Allowed characters: letters (including international characters), numbers, punctuation, and special symbols (¿, ¡, @, [, ], |, ', ', ?, =)
   """
   name: String
@@ -4167,7 +4176,7 @@ input CompanyInfoUpdateInput {
   """
   Trade name (if different from legal name)
   
-  - Maximum 100 characters
+  - Maximum 255 characters
   - Same character restrictions as company name (no URLs or HTML special characters)
   """
   tradeName: String
@@ -4646,13 +4655,13 @@ input CreateCompanyAccountHolderOnboardingInput {
   accountInfo: CompanyAccountHolderOnboardingAccountInput!
 
   """Account admin information for the company account holder"""
-  accountAdmin: CompanyAccountHolderOnboardingAccountAdminInput!
+  accountAdmin: CompanyAccountHolderOnboardingAccountAdminInput
 
   """OAuth redirect parameters for the onboarding flow"""
   oAuthRedirectParameters: OAuthRedirectParametersInput
 
   """Company information"""
-  company: CompanyInfoInput!
+  company: CompanyInfoInput
 }
 
 """Payload for creating a company account holder onboarding"""
@@ -4670,7 +4679,7 @@ input CreateIndividualAccountHolderOnboardingInput {
   accountInfo: IndividualAccountHolderOnboardingAccountInput!
 
   """Account admin information for the individual account holder"""
-  accountAdmin: IndividualAccountHolderOnboardingAccountAdminInput!
+  accountAdmin: IndividualAccountHolderOnboardingAccountAdminInput
 
   """OAuth redirect parameters for the onboarding flow"""
   oAuthRedirectParameters: OAuthRedirectParametersInput
@@ -4694,10 +4703,10 @@ input CreatePublicCompanyAccountHolderOnboardingInput {
   accountInfo: CompanyAccountHolderOnboardingAccountInput!
 
   """Account admin information for the company account holder"""
-  accountAdmin: CompanyAccountHolderOnboardingAccountAdminInput!
+  accountAdmin: CompanyAccountHolderOnboardingAccountAdminInput
 
   """Company information"""
-  company: CompanyInfoInput!
+  company: CompanyInfoInput
 }
 
 """Payload for creating a company account holder onboarding"""
@@ -4718,7 +4727,7 @@ input CreatePublicIndividualAccountHolderOnboardingInput {
   accountInfo: PublicIndividualAccountHolderOnboardingAccountInput!
 
   """Account admin information for the individual account holder"""
-  accountAdmin: PublicIndividualAccountHolderOnboardingAccountAdminInput!
+  accountAdmin: PublicIndividualAccountHolderOnboardingAccountAdminInput
 }
 
 """Payload for creating a public individual account holder onboarding"""
@@ -5327,13 +5336,13 @@ type IBANNotValidRejection implements Rejection {
 
 """Virtual IBAN Status"""
 enum IBANStatus {
-  """When the virtual IBAN accept to receive Sepa payments"""
+  """When the virtual IBAN accepts incoming SEPA payments"""
   Enabled
 
-  """When the virtual IBAN refuse definitely to receive Sepa payments"""
+  """When the virtual IBAN permanently refuses incoming SEPA payments"""
   Canceled
 
-  """When the virtual IBAN refuse temporarily to receive Sepa payments"""
+  """When the virtual IBAN temporarily refuses incoming SEPA payments"""
   Suspended
 }
 
@@ -5406,6 +5415,8 @@ type IndividualAccountHolderOnboarding implements AccountHolderOnboardingBase {
   Redirect the legal representative of a new account holder to this URL to start the onboarding process
   """
   onboardingUrl: String
+
+  """Account opened after the onboarding is finalized"""
   account: Account
 
   """Swan Terms and Conditions URL"""
@@ -5417,7 +5428,7 @@ type IndividualAccountHolderOnboardingAccount {
   """
   Name for the account
   
-  - Maximum 100 characters
+  - Maximum 255 characters
   - No special characters like HTML tags
   """
   name: String
@@ -5570,7 +5581,7 @@ input IndividualAccountHolderOnboardingAccountInput {
   """
   Name for the account
   
-  - Maximum 100 characters
+  - Maximum 255 characters
   - No special characters like HTML tags
   """
   name: String
@@ -5631,8 +5642,8 @@ type IndividualRepresentative {
 
 """
 Individual Ultimate Beneficial Owner
-You need to describe the natural person (s) who hold, directly or indirectly, more than 25% of the capital or the rights of vote of the reporting company.
-Please describe the company (s) that owns the company that wishes to open an account, when an individual holds in fine more than 25%
+You need to describe the natural persons who hold, directly or indirectly, more than 25% of the capital or the voting rights of the reporting company.
+Please describe the companies that own the company wishing to open an account, when an individual ultimately holds more than 25%.
 """
 type IndividualUltimateBeneficialOwner {
   """individual first name"""
@@ -5703,10 +5714,10 @@ input IndividualUltimateBeneficialOwnerInput {
   """Individual birth country code"""
   birthCountryCode: CCA3
 
-  """Define UBO is an Indirect Owner"""
+  """Indicates whether the UBO holds indirect ownership"""
   indirect: Boolean
 
-  """Define UBO is a Direct Owner"""
+  """Indicates whether the UBO holds direct ownership"""
   direct: Boolean
 
   """
@@ -5714,7 +5725,7 @@ input IndividualUltimateBeneficialOwnerInput {
   """
   totalCapitalPercentage: Float
 
-  """Define UBO is a Legal Representative"""
+  """Indicates whether the UBO is a legal representative of the company"""
   type: IndividualUltimateBeneficialOwnerTypeEnum
 
   """Individual beneficial owner Tax or Identification Number"""
@@ -5729,10 +5740,10 @@ input IndividualUltimateBeneficialOwnerInput {
 
 """Individual Ultimate beneficial owner nature"""
 enum IndividualUltimateBeneficialOwnerTypeEnum {
-  """The Beneficial Owner is the representant legal"""
+  """The beneficial owner is the company's legal representative"""
   LegalRepresentative
 
-  """The Beneficial Owner have shares"""
+  """The beneficial owner holds shares in the company"""
   HasCapital
 
   """Other"""
@@ -5744,10 +5755,10 @@ type IndividualUltimateBeneficialOwnerTypeHasCapital implements IndividualUltima
   """Individual type"""
   type: IndividualUltimateBeneficialOwnerTypeEnum!
 
-  """Define UBO is an Indirect Owner"""
+  """Indicates whether the UBO holds indirect ownership"""
   indirect: Boolean
 
-  """Define UBO is an Direct Owner"""
+  """Indicates whether the UBO holds direct ownership"""
   direct: Boolean
 
   """Total of capital (in percentage, ex: 50 = 50%)"""
@@ -6607,7 +6618,7 @@ type Onboarding {
   """List of supporting document collection owned by the account holder."""
   supportingDocumentCollection: SupportingDocumentCollection!
 
-  """Creation date"""
+  """Last update date"""
   updatedAt: DateTime!
 
   """Account opened after the onboarding finalization"""
@@ -6801,7 +6812,7 @@ type OnboardingInfo {
   """
   acquisitionChannel: AcquisitionChannel
 
-  """email"""
+  """Email address of the account holder being onboarded"""
   email: String
 
   """
@@ -6818,7 +6829,7 @@ type OnboardingInfo {
   """
   onboardingUrl: String!
 
-  """Project infos you set in the dashboard"""
+  """Project information set in the dashboard"""
   projectInfo: ProjectInfo
 
   """Extra parameters provided by partner"""
@@ -6837,7 +6848,9 @@ type OnboardingInfo {
   tcuUrl: String!
 }
 
-"""StatusInfo when onboarding has still at least one incorrect field"""
+"""
+StatusInfo when at least one required onboarding field is missing or invalid
+"""
 type OnboardingInvalidStatusInfo implements OnboardingStatusInfo {
   status: OnboardingStatus!
   validationVersion: OnboardingValidationVersion!
@@ -6911,9 +6924,7 @@ enum OnboardingValidationVersion {
   V2
 }
 
-"""
-StatusInfo when onboarding has all onboarding fields are correctly filled
-"""
+"""StatusInfo when all onboarding fields are correctly filled"""
 type OnboardingValidStatusInfo implements OnboardingStatusInfo {
   status: OnboardingStatus!
   validationVersion: OnboardingValidationVersion!
@@ -7033,7 +7044,7 @@ interface PartnershipStatusInfo {
 }
 
 enum PaymentAccountType {
-  """When the account holder if the account hasn't met KYC requirements"""
+  """When the account holder hasn't met KYC requirements"""
   EMoney
 
   """When all KYC requirements are met"""
@@ -7281,7 +7292,7 @@ input PublicIndividualAccountHolderOnboardingAccountInput {
   """
   Name for the account
   
-  - Maximum 100 characters
+  - Maximum 255 characters
   - No special characters like HTML tags
   """
   name: String
@@ -7553,6 +7564,7 @@ input RelatedIndividualUltimateBeneficialOwnerInput {
   identityDocumentInfo: UltimateBeneficialOwnerIdentityDocumentInfoInput
 }
 
+"""A company representative, either an individual or a legal entity"""
 union Representative = IndividualRepresentative | CompanyRepresentative
 
 """
@@ -7620,8 +7632,12 @@ input RepresentativeInput {
   residencyAddress: ResidencyAddressInput
 }
 
+"""Type of representative associated with a company"""
 enum RepresentativeType {
+  """The representative is a natural person"""
   Individual
+
+  """The representative is a legal entity (company)"""
   Company
 }
 
@@ -7911,7 +7927,10 @@ type SupportingDocument {
   supportingDocumentType: SupportingDocumentType
 
   """Purpose of supporting document"""
-  supportingDocumentPurpose: SupportingDocumentPurposeEnum!
+  purpose: SupportingDocumentPurpose!
+
+  """Purpose of supporting document"""
+  supportingDocumentPurpose: SupportingDocumentPurposeEnum! @deprecated(reason: "Use `purpose` instead")
 
   """Created date"""
   createdAt: DateTime!
@@ -7920,6 +7939,9 @@ type SupportingDocument {
   updatedAt: DateTime!
 }
 
+"""
+Account holder reference associated with a supporting document collection
+"""
 type SupportingDocumentAccountHolder {
   id: ID
   name: String
@@ -7952,12 +7974,20 @@ type SupportingDocumentCollection {
   List of required supporting document purposes for this supporting document collection
   """
   requiredSupportingDocumentPurposes: [SupportingDocumentPurpose!]!
+
+  """Account holder associated with this collection"""
   accountHolder: SupportingDocumentAccountHolder!
+
+  """Onboarding associated with this collection, if applicable"""
   onboarding: SupportingDocumentOnboarding!
+
+  """Project information for this collection"""
   projectInfo: ProjectInfo!
 
-  """SupportingDocumentCollection URL to Swan portal"""
+  """URL to view this collection in the Swan portal"""
   supportingDocumentCollectionUrl: String!
+
+  """Type of process that triggered this collection"""
   type: SupportingDocumentCollectionType!
   transaction: SupportingDocumentTransaction!
 
@@ -8089,7 +8119,7 @@ interface SupportingDocumentCollectionRelatedInfo {
 
 """Verification status of a supporting document collection"""
 enum SupportingDocumentCollectionStatus {
-  """When the supporting document collection is created and on going"""
+  """When the supporting document collection is created and ongoing"""
   WaitingForDocument
 
   """
@@ -8144,11 +8174,21 @@ type SupportingDocumentCollectionTransactionRelatedInfo implements SupportingDoc
   transaction: Transaction!
 }
 
+"""Type of process that triggered the supporting document collection"""
 enum SupportingDocumentCollectionType {
+  """Collection created during the account holder onboarding process"""
   Onboarding
+
+  """Collection created for an account admin change request"""
   AccountAdminChange
+
+  """Collection created for an account holder verification renewal"""
   AccountHolderVerificationRenewal
+
+  """Collection created in the context of a transaction review"""
   Transaction
+
+  """Collection created for a merchant profile review"""
   Merchant
 }
 
@@ -8178,10 +8218,11 @@ type SupportingDocumentNotFoundRejection implements Rejection {
 
 """Supporting document with NotUploaded status."""
 type SupportingDocumentNotUploadedStatusInfo implements SupportingDocumentStatusInfo {
-  """When the document has not been updated on time."""
+  """When the document has not been uploaded on time."""
   status: SupportingDocumentStatus!
 }
 
+"""Onboarding reference associated with a supporting document collection"""
 type SupportingDocumentOnboarding {
   id: ID
 }
@@ -8347,7 +8388,7 @@ enum SupportingDocumentReasonCode {
   InvalidDocument
 
   """
-  The name of shareholder is not clearly visible or some fields are not duely completed.
+  The shareholder name is not clearly visible or some fields are not duly completed.
   """
   InvalidOrMissingData
 
@@ -8472,6 +8513,7 @@ type SupportingDocumentStatusNotAllowedRejection implements Rejection {
   message: String!
 }
 
+"""Transaction reference associated with a supporting document collection"""
 type SupportingDocumentTransaction {
   id: ID
 }
@@ -8673,16 +8715,22 @@ type SuspendAccountMembershipSuccessPayload {
 }
 
 """
-Define a reason with a message and a specific type for suspend account action
+Reason for suspending an account, including a type and an optional message
 """
 type SuspendAccountReason implements Reason {
+  """Type of suspension reason"""
   type: SuspendAccountReasonType!
+
+  """Optional message providing additional context for the suspension"""
   message: String
 }
 
-"""Input version"""
+"""Input to provide the reason for suspending an account"""
 input SuspendAccountReasonInput {
+  """Type of suspension reason"""
   type: SuspendAccountReasonType!
+
+  """Optional message providing additional context for the suspension"""
   message: String
 }
 
@@ -8823,7 +8871,9 @@ type TransactionNotFoundRejection implements Rejection {
   message: String!
 }
 
-"""Quality of the account holder doing the onboarding"""
+"""
+Role of the person performing the onboarding on behalf of the account holder
+"""
 enum TypeOfRepresentation {
   """The account holder is the legal representative"""
   LegalRepresentative
@@ -9453,7 +9503,7 @@ input UpdateIndividualAccountHolderOnboardingAccountInput {
   """
   Name for the account
   
-  - Maximum 100 characters
+  - Maximum 255 characters
   - No special characters like HTML tags
   """
   name: String
@@ -13649,9 +13699,6 @@ input PaymentOrderByInput {
 
 """Payment product"""
 enum PaymentProduct {
-  """When the payment is an Internal Credit Transfer operation"""
-  InternalCreditTransfer @deprecated(reason: "not a feature")
-
   """When the payment is a Sepa Credit Transfer operation"""
   SEPACreditTransfer
 

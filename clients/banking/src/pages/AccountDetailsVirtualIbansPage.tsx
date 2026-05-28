@@ -120,14 +120,14 @@ const columns: ColumnConfig<Edge, ExtraInfo>[] = [
     id: "actions",
     title: "",
     renderTitle: () => null,
-    renderCell: ({ item: { node }, extraInfo: { reload, canCancelVirtualIBAN } }) =>
-      node.status === "Enabled" && canCancelVirtualIBAN ? (
-        <Actions
-          virtualIbanId={node.id}
-          onCancel={reload}
-          bankDetails={Option.fromNullable(node.bankDetails)}
-        />
-      ) : null,
+    renderCell: ({ item: { node }, extraInfo: { reload, canCancelVirtualIBAN } }) => (
+      <Actions
+        virtualIbanId={node.id}
+        onCancel={reload}
+        bankDetails={Option.fromNullable(node.bankDetails)}
+        canCancel={node.status === "Enabled" && canCancelVirtualIBAN}
+      />
+    ),
   },
 ];
 
@@ -177,14 +177,14 @@ const smallColumns: ColumnConfig<Edge, ExtraInfo>[] = [
     id: "actions",
     title: "",
     renderTitle: () => null,
-    renderCell: ({ item: { node }, extraInfo: { reload } }) =>
-      node.status === "Enabled" ? (
-        <Actions
-          virtualIbanId={node.id}
-          onCancel={reload}
-          bankDetails={Option.fromNullable(node.bankDetails)}
-        />
-      ) : null,
+    renderCell: ({ item: { node }, extraInfo: { reload, canCancelVirtualIBAN } }) => (
+      <Actions
+        virtualIbanId={node.id}
+        onCancel={reload}
+        bankDetails={Option.fromNullable(node.bankDetails)}
+        canCancel={node.status === "Enabled" && canCancelVirtualIBAN}
+      />
+    ),
   },
 ];
 
@@ -192,10 +192,12 @@ const Actions = ({
   onCancel,
   virtualIbanId,
   bankDetails,
+  canCancel,
 }: {
   onCancel: () => void;
   virtualIbanId: string;
   bankDetails: Option<string>;
+  canCancel: boolean;
 }) => {
   const [modalVisible, setModalVisible] = useBoolean(false);
   const [cancelVirtualIban, virtualIbanCancelation] = useMutation(CancelVirtualIbanDocument);
@@ -228,35 +230,39 @@ const Actions = ({
         ))
         .getOr(<Space width={40} />)}
 
-      <LakeButton
-        icon="subtract-circle-regular"
-        size="small"
-        mode="tertiary"
-        ariaLabel={t("accountDetails.virtualIbans.cancelVirtualIban")}
-        onPress={setModalVisible.on}
-      />
-
-      <LakeModal
-        title={t("accountDetails.virtualIbans.cancel.title")}
-        icon="subtract-circle-regular"
-        visible={modalVisible}
-        onPressClose={setModalVisible.off}
-        color="negative"
-      >
-        <LakeText>{t("accountDetails.virtualIbans.cancel.text")}</LakeText>
-        <Space height={16} />
-
-        <LakeButtonGroup paddingBottom={0}>
+      {canCancel ? (
+        <>
           <LakeButton
-            loading={virtualIbanCancelation.isLoading()}
-            grow={true}
+            icon="subtract-circle-regular"
+            size="small"
+            mode="tertiary"
+            ariaLabel={t("accountDetails.virtualIbans.cancelVirtualIban")}
+            onPress={setModalVisible.on}
+          />
+
+          <LakeModal
+            title={t("accountDetails.virtualIbans.cancel.title")}
+            icon="subtract-circle-regular"
+            visible={modalVisible}
+            onPressClose={setModalVisible.off}
             color="negative"
-            onPress={onPressCancel}
           >
-            {t("accountDetails.virtualIbans.cancelVirtualIban")}
-          </LakeButton>
-        </LakeButtonGroup>
-      </LakeModal>
+            <LakeText>{t("accountDetails.virtualIbans.cancel.text")}</LakeText>
+            <Space height={16} />
+
+            <LakeButtonGroup paddingBottom={0}>
+              <LakeButton
+                loading={virtualIbanCancelation.isLoading()}
+                grow={true}
+                color="negative"
+                onPress={onPressCancel}
+              >
+                {t("accountDetails.virtualIbans.cancelVirtualIban")}
+              </LakeButton>
+            </LakeButtonGroup>
+          </LakeModal>
+        </>
+      ) : null}
     </>
   );
 };
@@ -284,6 +290,18 @@ export const AccountDetailsVirtualIbansPage = ({
     },
   );
 
+  const hasItems = data.match({
+    NotAsked: () => false,
+    Loading: () => false,
+    Done: result =>
+      result.match({
+        Error: () => false,
+        Ok: data => (data.account?.virtualIbanEntries.totalCount ?? 0) > 0,
+      }),
+  });
+
+  const showFilter = hasItems || statusParam !== undefined;
+
   const onPressNew = () => {
     addVirtualIban({ accountId })
       .mapOkToResult(data => Option.fromNullable(data.addVirtualIbanEntry).toResult(undefined))
@@ -296,30 +314,32 @@ export const AccountDetailsVirtualIbansPage = ({
 
   return (
     <>
-      <View style={[styles.header, large && styles.headerDesktop]}>
-        <VirtualIbanListFilter
-          large={large}
-          status={status}
-          onChangeStatus={newStatus =>
-            Router.replace("AccountDetailsVirtualIbans", {
-              accountMembershipId,
-              status: newStatus,
-            })
-          }
-        >
-          {canCreateVirtualIBAN ? (
-            <LakeButton
-              loading={virtualIbanAddition.isLoading()}
-              icon="add-circle-filled"
-              size="small"
-              color="current"
-              onPress={onPressNew}
-            >
-              {t("common.new")}
-            </LakeButton>
-          ) : null}
-        </VirtualIbanListFilter>
-      </View>
+      {showFilter && (
+        <View style={[styles.header, large && styles.headerDesktop]}>
+          <VirtualIbanListFilter
+            large={large}
+            status={status}
+            onChangeStatus={newStatus =>
+              Router.replace("AccountDetailsVirtualIbans", {
+                accountMembershipId,
+                status: newStatus,
+              })
+            }
+          >
+            {canCreateVirtualIBAN ? (
+              <LakeButton
+                loading={virtualIbanAddition.isLoading()}
+                icon="add-circle-filled"
+                size="small"
+                color="current"
+                onPress={onPressNew}
+              >
+                {t("common.new")}
+              </LakeButton>
+            ) : null}
+          </VirtualIbanListFilter>
+        </View>
+      )}
 
       {data.match({
         NotAsked: () => null,
@@ -354,7 +374,11 @@ export const AccountDetailsVirtualIbansPage = ({
                       renderEmptyList={() => (
                         <EmptyView
                           icon="add-circle-regular"
-                          title={t("accountDetails.virtualIbans.emptyTitle")}
+                          title={
+                            status === "Canceled"
+                              ? t("common.list.noResults")
+                              : t("accountDetails.virtualIbans.emptyTitle")
+                          }
                           subtitle={
                             status === "Canceled"
                               ? t("common.list.noResultsSuggestion")

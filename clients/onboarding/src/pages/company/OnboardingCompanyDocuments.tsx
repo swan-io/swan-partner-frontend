@@ -210,7 +210,7 @@ export const OnboardingCompanyDocuments = ({
                 <SupportingDocumentCollection
                   ref={supportingDocumentCollectionRef}
                   documents={docs}
-                  documentPurposes={toDocumentPurposes(requiredDocumentsPurposes, documents)}
+                  documentPurposes={toDocumentPurposes(requiredDocumentsPurposes)}
                   generateUpload={generateUpload}
                   status={supportingDocumentCollectionStatus}
                   templateLanguage={templateLanguage}

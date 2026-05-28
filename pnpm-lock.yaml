@@ -163,14 +163,14 @@ importers:
         specifier: 0.8.0
         version: 0.8.0(graphql@16.12.0)(react@19.2.6)(typescript@6.0.2)
       '@swan-io/lake':
-        specifier: 13.12.0
-        version: 13.12.0(typescript@6.0.2)
+        specifier: 15.0.0
+        version: 15.0.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)
       '@swan-io/request':
         specifier: 3.1.0
         version: 3.1.0(@swan-io/boxed@3.2.1(typescript@6.0.2))
       '@swan-io/shared-business':
-        specifier: 13.12.0
-        version: 13.12.0(@swan-io/lake@13.12.0(typescript@6.0.2))(typescript@6.0.2)
+        specifier: 15.0.0
+        version: 15.0.0(@swan-io/lake@15.0.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@19.2.6)(typescript@6.0.2)
@@ -251,14 +251,14 @@ importers:
         specifier: 0.8.0
         version: 0.8.0(graphql@16.12.0)(react@19.2.6)(typescript@6.0.2)
       '@swan-io/lake':
-        specifier: 13.12.0
-        version: 13.12.0(typescript@6.0.2)
+        specifier: 15.0.0
+        version: 15.0.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)
       '@swan-io/request':
         specifier: 3.1.0
         version: 3.1.0(@swan-io/boxed@3.2.1(typescript@6.0.2))
       '@swan-io/shared-business':
-        specifier: 13.12.0
-        version: 13.12.0(@swan-io/lake@13.12.0(typescript@6.0.2))(typescript@6.0.2)
+        specifier: 15.0.0
+        version: 15.0.0(@swan-io/lake@15.0.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@19.2.6)(typescript@6.0.2)
@@ -324,11 +324,11 @@ importers:
         specifier: 0.8.0
         version: 0.8.0(graphql@16.12.0)(react@19.2.6)(typescript@6.0.2)
       '@swan-io/lake':
-        specifier: 13.12.0
-        version: 13.12.0(typescript@6.0.2)
+        specifier: 15.0.0
+        version: 15.0.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)
       '@swan-io/shared-business':
-        specifier: 13.12.0
-        version: 13.12.0(@swan-io/lake@13.12.0(typescript@6.0.2))(typescript@6.0.2)
+        specifier: 15.0.0
+        version: 15.0.0(@swan-io/lake@15.0.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@19.2.6)(typescript@6.0.2)
@@ -786,8 +786,8 @@ packages:
     resolution: {integrity: sha512-05WQkdpL9COIMz4LjTxGpPNCdlpyimKppYNoJ5Di5EUObifl8t4tuLuUBBZEpoLYOmfvIWrsp9fCl0HoPRVTdA==, tarball: https://registry.npmjs.org/@babel/runtime/-/runtime-7.28.6.tgz}
     engines: {node: '>=6.9.0'}
 
-  '@babel/runtime@7.29.2':
-    resolution: {integrity: sha512-JiDShH45zKHWyGe4ZNVRrCjBz8Nh9TMmZG1kh4QTK8hCBTWBi8Da+i7s1fJw7/lYpM4ccepSNfqzZ/QvABBi5g==, tarball: https://registry.npmjs.org/@babel/runtime/-/runtime-7.29.2.tgz}
+  '@babel/runtime@7.29.7':
+    resolution: {integrity: sha512-Nq8OhGWiZIZGV6hLHoyAKLLcJihP/xFeBMGJoUrxTX2psI8dCifzLhZISFb+VWS3wFMRDmCGw5R+dOySCqPLhw==, tarball: https://registry.npmjs.org/@babel/runtime/-/runtime-7.29.7.tgz}
     engines: {node: '>=6.9.0'}
 
   '@babel/template@7.28.6':
@@ -2587,9 +2587,13 @@ packages:
     peerDependencies:
       react: '>=18.2.0'
 
-  '@swan-io/lake@13.12.0':
-    resolution: {integrity: sha512-lxZb490fM+3+TOat3X0TP0sJ4xBo/BS36Z8LX5vGZFmV3ANxni6ezNWgXQYOseR2GbYStcqwKgmUiaYOzP0a9Q==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-13.12.0.tgz}
+  '@swan-io/lake@15.0.0':
+    resolution: {integrity: sha512-XmtVOQJTTcIfNv5Kwf0kU1V4ZG4MKkPpAHvK7SSUY4jXfqa3KSUmljA+oxnndGHTxy6G4gJJFcTkgrtdTguXFg==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-15.0.0.tgz}
     engines: {node: '>22.12.0'}
+    peerDependencies:
+      react: '>=19.0.0'
+      react-dom: '>=19.0.0'
+      react-native-web: '>=0.21.2'
 
   '@swan-io/request@3.1.0':
     resolution: {integrity: sha512-3NDXdNuew5+aEURpWg8aNIqPlYVNU6BZCD1rWptNemfNw9frTUBj8DmV+idOp9M5/4tVxncX7bxV7jBNtS6Cbg==, tarball: https://registry.npmjs.org/@swan-io/request/-/request-3.1.0.tgz}
@@ -2597,11 +2601,14 @@ packages:
     peerDependencies:
       '@swan-io/boxed': '>=2.2.1'
 
-  '@swan-io/shared-business@13.12.0':
-    resolution: {integrity: sha512-l+ySUkIetUjIeerknHg0WUx2nXIkGQNvPLd5f7a1AiGCASJbUtW27gTbmq3qEu6nJ7K45yt9FPfKeTe37y6nkA==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-13.12.0.tgz}
+  '@swan-io/shared-business@15.0.0':
+    resolution: {integrity: sha512-kTwHeyAqqV/4qmTrN87X/HzgvvhVuCpbrAobya857aHaQ8zCt9NbpG5fK2eF3JtFaCKDhQo7/HalWNTcXLLJDA==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-15.0.0.tgz}
     engines: {node: '>22.12.0'}
     peerDependencies:
-      '@swan-io/lake': 13.12.0
+      '@swan-io/lake': 15.0.0
+      react: '>=19.0.0'
+      react-dom: '>=19.0.0'
+      react-native-web: '>=0.21.2'
 
   '@swan-io/use-form@3.1.0':
     resolution: {integrity: sha512-X6NpZ7LCeo7eS9RVCZrtpX+3GXZFUfUZpIwtVa2GNmqTLgyDbLhN8N6zBv+dmHL9KAQ+Zng2fTCCQpCZvmDu5A==, tarball: https://registry.npmjs.org/@swan-io/use-form/-/use-form-3.1.0.tgz}
@@ -3245,8 +3252,8 @@ packages:
   dayjs@1.11.19:
     resolution: {integrity: sha512-t5EcLVS6QPBNqM2z8fakk/NKel+Xzshgt8FFKAn+qwlD1pzZWxh0nVCrvFK7ZDb6XucZeF9z8C7CBWTRIVApAw==, tarball: https://registry.npmjs.org/dayjs/-/dayjs-1.11.19.tgz}
 
-  dayjs@1.11.20:
-    resolution: {integrity: sha512-YbwwqR/uYpeoP4pu043q+LTDLFBLApUP6VxRihdfNTqu4ubqMlGDLd6ErXhEgsyvY0K6nCs7nggYumAN+9uEuQ==, tarball: https://registry.npmjs.org/dayjs/-/dayjs-1.11.20.tgz}
+  dayjs@1.11.21:
+    resolution: {integrity: sha512-98IT+HOahAisibz/yjKbzuOBwYcjJ7BCLPzARyHiyEBmRz4fatF+KPJszEHXsGYjUG234aH/cOjW1wwTbKUZlA==, tarball: https://registry.npmjs.org/dayjs/-/dayjs-1.11.21.tgz}
 
   debounce@1.2.1:
     resolution: {integrity: sha512-XRRe6Glud4rd/ZGQfiV1ruXSfbvfJedlV9Y6zOlP+2K04vBYiJEte6stfFkCP03aMnY5tsipamumUjL14fofug==, tarball: https://registry.npmjs.org/debounce/-/debounce-1.2.1.tgz}
@@ -5495,7 +5502,7 @@ snapshots:
       '@babel/core': 7.29.0
       '@babel/generator': 7.29.1
       '@babel/parser': 7.29.2
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       '@babel/traverse': 7.29.0
       '@babel/types': 7.29.0
       babel-preset-fbjs: 3.4.0(@babel/core@7.29.0)
@@ -5516,7 +5523,7 @@ snapshots:
 
   '@ardatan/relay-compiler@13.0.0(graphql@16.12.0)':
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       graphql: 16.12.0
       immutable: 5.1.5
       invariant: 2.2.4
@@ -5840,7 +5847,7 @@ snapshots:
 
   '@babel/runtime@7.28.6': {}
 
-  '@babel/runtime@7.29.2': {}
+  '@babel/runtime@7.29.7': {}
 
   '@babel/template@7.28.6':
     dependencies:
@@ -8114,12 +8121,12 @@ snapshots:
       - graphql
       - typescript
 
-  '@swan-io/lake@13.12.0(typescript@6.0.2)':
+  '@swan-io/lake@15.0.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)':
     dependencies:
       '@swan-io/boxed': 3.2.1(typescript@6.0.2)
       '@swan-io/chicane': 3.0.0(react@19.2.6)
       '@swan-io/use-form': 3.1.0(react@19.2.6)(typescript@6.0.2)
-      dayjs: 1.11.20
+      dayjs: 1.11.21
       polished: 4.3.1
       prism-react-renderer: 2.4.1(react@19.2.6)
       react: 19.2.6
@@ -8129,22 +8136,21 @@ snapshots:
       ts-pattern: 5.9.0
       uuid: 14.0.0
     transitivePeerDependencies:
-      - encoding
       - typescript
 
   '@swan-io/request@3.1.0(@swan-io/boxed@3.2.1(typescript@6.0.2))':
     dependencies:
       '@swan-io/boxed': 3.2.1(typescript@6.0.2)
 
-  '@swan-io/shared-business@13.12.0(@swan-io/lake@13.12.0(typescript@6.0.2))(typescript@6.0.2)':
+  '@swan-io/shared-business@15.0.0(@swan-io/lake@15.0.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)':
     dependencies:
       '@formatjs/intl': 4.1.12
       '@placekit/client-js': 2.3.0
       '@swan-io/boxed': 3.2.1(typescript@6.0.2)
-      '@swan-io/lake': 13.12.0(typescript@6.0.2)
+      '@swan-io/lake': 15.0.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)
       '@swan-io/request': 3.1.0(@swan-io/boxed@3.2.1(typescript@6.0.2))
       '@swan-io/use-form': 3.1.0(react@19.2.6)(typescript@6.0.2)
-      dayjs: 1.11.20
+      dayjs: 1.11.21
       iban: 0.0.14
       react: 19.2.6
       react-atomic-state: 2.1.0(react@19.2.6)
@@ -8155,7 +8161,6 @@ snapshots:
       ts-pattern: 5.9.0
       uuid: 14.0.0
     transitivePeerDependencies:
-      - encoding
       - typescript
 
   '@swan-io/use-form@3.1.0(react@19.2.6)(typescript@6.0.2)':
@@ -8822,7 +8827,7 @@ snapshots:
 
   dayjs@1.11.19: {}
 
-  dayjs@1.11.20: {}
+  dayjs@1.11.21: {}
 
   debounce@1.2.1: {}
 
@@ -10276,7 +10281,7 @@ snapshots:
 
   polished@4.3.1:
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
 
   postcss-value-parser@4.2.0: {}
 
@@ -10451,7 +10456,7 @@ snapshots:
 
   relay-runtime@12.0.0:
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       fbjs: 3.0.5
       invariant: 2.2.4
     transitivePeerDependencies:

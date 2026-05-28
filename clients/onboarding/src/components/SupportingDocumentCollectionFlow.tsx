@@ -291,7 +291,6 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
                                 documents={docs}
                                 documentPurposes={toDocumentPurposes(
                                   supportingDocumentCollection.requiredSupportingDocumentPurposes,
-                                  supportingDocumentCollection.supportingDocuments,
                                 )}
                                 generateUpload={generateUpload}
                                 status={supportingDocumentCollection.statusInfo.status}

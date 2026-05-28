@@ -1630,9 +1630,6 @@ query AccountActivationPage($accountMembershipId: ID!) {
                 id
                 purpose {
                   name
-                  label
-                  description
-                  purposeDetails
                 }
 
                 statusInfo {
@@ -3618,9 +3615,6 @@ fragment SupportingDocumentRenewal on SupportingDocumentCollection {
     }
     purpose {
       name
-      label
-      description
-      purposeDetails
     }
   }
   requiredSupportingDocumentPurposes {

@@ -2,14 +2,5 @@
   "enabledPlugins": {
     "engineering-frontend@swan": true,
     "engineering-security@swan": true
-  },
-  "extraKnownMarketplaces": {
-    "swan": {
-      "source": {
-        "source": "github",
-        "repo": "swan-io/swan-claude-marketplace"
-      },
-      "autoUpdate": true
-    }
   }
 }

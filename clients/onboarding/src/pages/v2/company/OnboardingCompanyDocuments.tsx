@@ -255,10 +255,7 @@ export const OnboardingCompanyDocuments = ({
               <SupportingDocumentCollection
                 ref={supportingDocumentCollectionRef}
                 documents={docs}
-                documentPurposes={toDocumentPurposes(
-                  requiredSupportingDocumentPurposes,
-                  documents,
-                )}
+                documentPurposes={toDocumentPurposes(requiredSupportingDocumentPurposes)}
                 generateUpload={generateUpload}
                 status={supportingDocumentCollection.statusInfo.status}
                 templateLanguage={templateLanguage}

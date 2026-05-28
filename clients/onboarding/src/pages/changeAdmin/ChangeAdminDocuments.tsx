@@ -165,7 +165,6 @@ export const ChangeAdminDocuments = ({
                 documents={docs}
                 documentPurposes={toDocumentPurposes(
                   supportingDocumentCollection.requiredSupportingDocumentPurposes,
-                  supportingDocumentCollection.supportingDocuments,
                 )}
                 generateUpload={generateUpload}
                 status={supportingDocumentCollectionStatus}

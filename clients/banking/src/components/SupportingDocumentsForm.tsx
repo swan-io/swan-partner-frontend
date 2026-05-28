@@ -155,10 +155,7 @@ export const SupportingDocumentsForm = ({
       <SupportingDocumentCollection
         ref={supportingDocumentCollectionRef}
         documents={docs}
-        documentPurposes={toDocumentPurposes(
-          collection.requiredSupportingDocumentPurposes,
-          collection.supportingDocuments,
-        )}
+        documentPurposes={toDocumentPurposes(collection.requiredSupportingDocumentPurposes)}
         generateUpload={generateUpload}
         status={collection.statusInfo.status}
         templateLanguage={templateLanguage}

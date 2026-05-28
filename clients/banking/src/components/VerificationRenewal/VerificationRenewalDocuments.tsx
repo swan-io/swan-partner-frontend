@@ -163,7 +163,6 @@ export const VerificationRenewalDocuments = ({
                 generateUpload={generateUpload}
                 documentPurposes={toDocumentPurposes(
                   supportingDocumentCollection.requiredSupportingDocumentPurposes,
-                  supportingDocumentCollection.supportingDocuments,
                 )}
                 status={supportingDocumentCollection.statusInfo.status}
                 documents={docs}

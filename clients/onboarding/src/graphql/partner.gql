@@ -66,9 +66,6 @@ fragment SupportingDocument on SupportingDocument {
   id
   purpose {
     name
-    label
-    description
-    purposeDetails
   }
   supportingDocumentType
   updatedAt

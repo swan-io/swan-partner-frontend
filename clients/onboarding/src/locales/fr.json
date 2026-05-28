@@ -354,6 +354,7 @@
   "form.placeOfBirth.title": "Lieu de naissance",
   "form.rangePlaceholder": "Sélectionnez une fourchette",
   "form.residence.title": "Votre adresse de résidence actuelle",
+  "form.residence.tax.title": "Résidence fiscale",
   "gender.female": "Femme",
   "gender.male": "Homme",
   "gender.unknown": "Inconnu",

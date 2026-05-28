@@ -39,7 +39,7 @@ const routes = {
     ...createGroup("Details", "/details", {
       Area: "/*",
       Iban: "/iban",
-      VirtualIbans: "/virtual-ibans",
+      VirtualIbans: "/virtual-ibans?:status{Enabled|Canceled}",
       ...createGroup("CreditLimit", "/credit-limit", {
         Area: "/*",
         Root: "/",

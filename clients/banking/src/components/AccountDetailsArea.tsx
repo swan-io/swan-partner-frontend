@@ -106,10 +106,15 @@ export const AccountDetailsArea = ({
             .with({ name: "AccountDetailsIban" }, () => (
               <AccountDetailsIbanPage accountId={accountId} largeBreakpoint={large} />
             ))
-            .with({ name: "AccountDetailsVirtualIbans" }, () => (
+            .with({ name: "AccountDetailsVirtualIbans" }, ({ params: { status } }) => (
               <>
                 <Space height={40} />
-                <AccountDetailsVirtualIbansPage accountId={accountId} large={large} />
+                <AccountDetailsVirtualIbansPage
+                  accountId={accountId}
+                  accountMembershipId={accountMembershipId}
+                  large={large}
+                  status={status}
+                />
               </>
             ))
             .with({ name: "AccountDetailsCreditLimitArea" }, () =>

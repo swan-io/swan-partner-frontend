@@ -3723,7 +3723,7 @@ type CompanyAccountHolderOnboardingAccountAdmin {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
+  - Following this pattern: `/^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i`
   - Disposable email domains are not allowed
   """
   email: String
@@ -3783,7 +3783,7 @@ input CompanyAccountHolderOnboardingAccountAdminInput {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
+  - Following this pattern: `/^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i`
   - Disposable email domains are not allowed
   """
   email: String
@@ -3844,7 +3844,7 @@ input CompanyAccountHolderOnboardingAccountAdminUpdateInput {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
+  - Following this pattern: `/^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i`
   - Disposable email domains are not allowed
   """
   email: String
@@ -5449,7 +5449,7 @@ type IndividualAccountHolderOnboardingAccountAdmin {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
+  - Following this pattern: `/^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i`
   - Disposable email domains are not allowed
   """
   email: String
@@ -5516,7 +5516,7 @@ input IndividualAccountHolderOnboardingAccountAdminInput {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Following this pattern: `/^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i`
   - Disposable email domains are not allowed
   """
   email: String
@@ -7233,7 +7233,7 @@ input PublicIndividualAccountHolderOnboardingAccountAdminInput {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Following this pattern: `/^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i`
   - Disposable email domains are not allowed
   """
   email: String
@@ -7455,7 +7455,7 @@ input RelatedIndividualInput {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
+  - Following this pattern: `/^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i`
   - Disposable email domains are not allowed
   """
   email: String
@@ -9444,7 +9444,7 @@ input UpdateIndividualAccountHolderOnboardingAccountAdminInput {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
+  - Following this pattern: `/^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i`
   - Disposable email domains are not allowed
   """
   email: String
@@ -10150,6 +10150,9 @@ enum VerificationStatus {
 input VirtualIbanEntriesFilterInput {
   """unique identifiers of the virtual IBAN entries to fetch"""
   ids: [ID!]
+
+  """status of the Iban Entry"""
+  status: [IBANStatus!]
 }
 
 """
@@ -23409,6 +23412,7 @@ type MerchantProfileEdge implements Edge {
 
 """Filters that can be applied when listing Funding Sources"""
 input MerchantProfileFiltersInput {
+  id: [ID!]
   status: [MerchantProfileStatus!]
 }
 

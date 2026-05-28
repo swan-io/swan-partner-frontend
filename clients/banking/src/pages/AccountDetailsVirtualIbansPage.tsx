@@ -25,6 +25,7 @@ import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { Connection } from "../components/Connection";
 import { ErrorView } from "../components/ErrorView";
+import { VirtualIbanListFilter } from "../components/VirtualIbanListFilter";
 import {
   AccountDetailsVirtualIbansPageDocument,
   AccountDetailsVirtualIbansPageQuery,
@@ -33,6 +34,7 @@ import {
 } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
+import { Router } from "../utils/routes";
 
 const styles = StyleSheet.create({
   header: {
@@ -47,8 +49,13 @@ const styles = StyleSheet.create({
 
 type Props = {
   accountId: string;
+  accountMembershipId: string;
   large: boolean;
+  status: "Enabled" | "Canceled" | undefined;
 };
+
+const ENABLED_STATUSES = ["Enabled" as const];
+const CANCELED_STATUSES = ["Canceled" as const, "Suspended" as const];
 
 type Account = NonNullable<AccountDetailsVirtualIbansPageQuery["account"]>;
 type Edge = GetEdge<Account["virtualIbanEntries"]>;
@@ -256,13 +263,25 @@ const Actions = ({
 
 const keyExtractor = ({ node: { id } }: Edge) => id;
 
-export const AccountDetailsVirtualIbansPage = ({ accountId, large }: Props) => {
+export const AccountDetailsVirtualIbansPage = ({
+  accountId,
+  accountMembershipId,
+  large,
+  status: statusParam,
+}: Props) => {
+  const status = statusParam ?? "Enabled";
   const { canCreateVirtualIBAN, canCancelVirtualIBAN } = usePermissions();
   const [addVirtualIban, virtualIbanAddition] = useMutation(AddVirtualIbanDocument);
 
   const [data, { isLoading, reload, setVariables }] = useQuery(
     AccountDetailsVirtualIbansPageDocument,
-    { first: 20, accountId },
+    {
+      first: 20,
+      accountId,
+      filters: {
+        status: status === "Enabled" ? ENABLED_STATUSES : CANCELED_STATUSES,
+      },
+    },
   );
 
   const onPressNew = () => {
@@ -275,79 +294,95 @@ export const AccountDetailsVirtualIbansPage = ({ accountId, large }: Props) => {
       });
   };
 
-  return data.match({
-    NotAsked: () => null,
-    Loading: () => <PlainListViewPlaceholder headerHeight={48} rowHeight={56} count={20} />,
-    Done: result =>
-      result.match({
-        Error: error => <ErrorView error={error} />,
-        Ok: data => (
-          <Connection connection={data.account?.virtualIbanEntries}>
-            {virtualIbanEntries => {
-              const edges = virtualIbanEntries?.edges ?? [];
-              const totalCount = virtualIbanEntries?.totalCount ?? 0;
+  return (
+    <>
+      <View style={[styles.header, large && styles.headerDesktop]}>
+        <VirtualIbanListFilter
+          large={large}
+          status={status}
+          onChangeStatus={newStatus =>
+            Router.replace("AccountDetailsVirtualIbans", {
+              accountMembershipId,
+              status: newStatus,
+            })
+          }
+        >
+          {canCreateVirtualIBAN ? (
+            <LakeButton
+              loading={virtualIbanAddition.isLoading()}
+              icon="add-circle-filled"
+              size="small"
+              color="current"
+              onPress={onPressNew}
+            >
+              {t("common.new")}
+            </LakeButton>
+          ) : null}
+        </VirtualIbanListFilter>
+      </View>
 
-              return (
-                <>
-                  {canCreateVirtualIBAN && totalCount > 0 && (
-                    <View style={[styles.header, large && styles.headerDesktop]}>
-                      <LakeButton
-                        loading={virtualIbanAddition.isLoading()}
-                        icon="add-circle-filled"
-                        size="small"
-                        color="current"
-                        onPress={onPressNew}
-                      >
-                        {t("common.new")}
-                      </LakeButton>
-                    </View>
-                  )}
+      {data.match({
+        NotAsked: () => null,
+        Loading: () => <PlainListViewPlaceholder headerHeight={48} rowHeight={56} count={20} />,
+        Done: result =>
+          result.match({
+            Error: error => <ErrorView error={error} />,
+            Ok: data => (
+              <Connection connection={data.account?.virtualIbanEntries}>
+                {virtualIbanEntries => {
+                  const edges = virtualIbanEntries?.edges ?? [];
 
-                  <PlainListView
-                    withoutScroll={!large}
-                    data={edges}
-                    extraInfo={{ reload, canCancelVirtualIBAN }}
-                    columns={columns}
-                    smallColumns={smallColumns}
-                    keyExtractor={keyExtractor}
-                    onEndReached={() => {
-                      if (virtualIbanEntries?.pageInfo.hasNextPage === true) {
-                        setVariables({
-                          after: virtualIbanEntries?.pageInfo.endCursor ?? undefined,
-                        });
-                      }
-                    }}
-                    headerHeight={48}
-                    groupHeaderHeight={48}
-                    rowHeight={56}
-                    loading={{ isLoading, count: 20 }}
-                    renderEmptyList={() => (
-                      <EmptyView
-                        icon="add-circle-regular"
-                        title={t("accountDetails.virtualIbans.emptyTitle")}
-                        subtitle={t("accountDetails.virtualIbans.emptyDescription")}
-                      >
-                        {canCreateVirtualIBAN ? (
-                          <LakeButtonGroup justifyContent="center">
-                            <LakeButton
-                              loading={virtualIbanAddition.isLoading()}
-                              icon="add-circle-filled"
-                              size="small"
-                              color="current"
-                              onPress={onPressNew}
-                            >
-                              {t("common.new")}
-                            </LakeButton>
-                          </LakeButtonGroup>
-                        ) : null}
-                      </EmptyView>
-                    )}
-                  />
-                </>
-              );
-            }}
-          </Connection>
-        ),
-      }),
-  });
+                  return (
+                    <PlainListView
+                      withoutScroll={!large}
+                      data={edges}
+                      extraInfo={{ reload, canCancelVirtualIBAN }}
+                      columns={columns}
+                      smallColumns={smallColumns}
+                      keyExtractor={keyExtractor}
+                      onEndReached={() => {
+                        if (virtualIbanEntries?.pageInfo.hasNextPage === true) {
+                          setVariables({
+                            after: virtualIbanEntries?.pageInfo.endCursor ?? undefined,
+                          });
+                        }
+                      }}
+                      headerHeight={48}
+                      groupHeaderHeight={48}
+                      rowHeight={56}
+                      loading={{ isLoading, count: 20 }}
+                      renderEmptyList={() => (
+                        <EmptyView
+                          icon="add-circle-regular"
+                          title={t("accountDetails.virtualIbans.emptyTitle")}
+                          subtitle={
+                            status === "Canceled"
+                              ? t("common.list.noResultsSuggestion")
+                              : t("accountDetails.virtualIbans.emptyDescription")
+                          }
+                        >
+                          {status !== "Canceled" && canCreateVirtualIBAN ? (
+                            <LakeButtonGroup justifyContent="center">
+                              <LakeButton
+                                loading={virtualIbanAddition.isLoading()}
+                                icon="add-circle-filled"
+                                size="small"
+                                color="current"
+                                onPress={onPressNew}
+                              >
+                                {t("common.new")}
+                              </LakeButton>
+                            </LakeButtonGroup>
+                          ) : null}
+                        </EmptyView>
+                      )}
+                    />
+                  );
+                }}
+              </Connection>
+            ),
+          }),
+      })}
+    </>
+  );
 };

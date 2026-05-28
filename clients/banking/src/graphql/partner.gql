@@ -552,10 +552,15 @@ query AccountDetailsIbanPage($accountId: ID!) {
   }
 }
 
-query AccountDetailsVirtualIbansPage($accountId: ID!, $first: Int!, $after: String) {
+query AccountDetailsVirtualIbansPage(
+  $accountId: ID!
+  $first: Int!
+  $after: String
+  $filters: VirtualIbanEntriesFilterInput
+) {
   account(accountId: $accountId) {
     id
-    virtualIbanEntries(first: $first, after: $after) {
+    virtualIbanEntries(first: $first, after: $after, filters: $filters) {
       totalCount
       pageInfo {
         endCursor

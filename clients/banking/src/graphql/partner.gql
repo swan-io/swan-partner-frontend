@@ -560,6 +560,9 @@ query AccountDetailsVirtualIbansPage(
 ) {
   account(accountId: $accountId) {
     id
+    totalVirtualIbans: virtualIbanEntries(first: 0) {
+      totalCount
+    }
     virtualIbanEntries(first: $first, after: $after, filters: $filters) {
       totalCount
       pageInfo {

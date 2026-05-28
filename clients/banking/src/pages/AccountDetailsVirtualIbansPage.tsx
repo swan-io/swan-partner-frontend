@@ -296,7 +296,7 @@ export const AccountDetailsVirtualIbansPage = ({
     Done: result =>
       result.match({
         Error: () => false,
-        Ok: data => (data.account?.virtualIbanEntries.totalCount ?? 0) > 0,
+        Ok: data => (data.account?.totalVirtualIbans.totalCount ?? 0) > 0,
       }),
   });
 

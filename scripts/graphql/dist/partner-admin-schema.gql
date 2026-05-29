@@ -4378,6 +4378,9 @@ enum VerificationStatus {
 input VirtualIbanEntriesFilterInput {
   """unique identifiers of the virtual IBAN entries to fetch"""
   ids: [ID!]
+
+  """status of the Iban Entry"""
+  status: [IBANStatus!]
 }
 
 """
@@ -6959,7 +6962,13 @@ type Authenticator {
 
   """The phone number used for the creation of the authenticator"""
   otpPhoneNumber: String @deprecated
+
+  """Unique identifier for the authenticator"""
+  id: ID!
   status: AuthenticatorStatus!
+
+  """ID of the related phone number modification, if any"""
+  phoneNumberModificationId: String
 }
 
 enum AuthenticatorStatus {

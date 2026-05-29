@@ -306,7 +306,16 @@ export const AccountDetailsVirtualIbansPage = ({
     addVirtualIban({ accountId })
       .mapOkToResult(data => Option.fromNullable(data.addVirtualIbanEntry).toResult(undefined))
       .mapOkToResult(filterRejectionsToResult)
-      .tapOk(reload)
+      .tapOk(() => {
+        if (status !== "Enabled") {
+          Router.replace("AccountDetailsVirtualIbans", {
+            accountMembershipId,
+            status: "Enabled",
+          });
+        } else {
+          reload();
+        }
+      })
       .tapError((error: unknown) => {
         showToast({ variant: "error", error, title: translateError(error) });
       });
@@ -375,17 +384,17 @@ export const AccountDetailsVirtualIbansPage = ({
                         <EmptyView
                           icon="add-circle-regular"
                           title={
-                            status === "Canceled"
+                            hasItems
                               ? t("common.list.noResults")
                               : t("accountDetails.virtualIbans.emptyTitle")
                           }
                           subtitle={
-                            status === "Canceled"
+                            hasItems
                               ? t("common.list.noResultsSuggestion")
                               : t("accountDetails.virtualIbans.emptyDescription")
                           }
                         >
-                          {status !== "Canceled" && canCreateVirtualIBAN ? (
+                          {!hasItems && canCreateVirtualIBAN ? (
                             <LakeButtonGroup justifyContent="center">
                               <LakeButton
                                 loading={virtualIbanAddition.isLoading()}

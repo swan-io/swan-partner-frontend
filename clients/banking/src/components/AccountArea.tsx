@@ -47,7 +47,7 @@ import { getIdentificationLevelStatusInfo } from "../utils/identification";
 import { projectConfiguration } from "../utils/projectId";
 import { accountRoutes, Router } from "../utils/routes";
 import { signout } from "../utils/signout";
-import { logFrontendError, setTrackingUser } from "../utils/tracing";
+import { logger, setTrackingUser } from "../utils/tracing";
 import { AccountDetailsArea } from "./AccountDetailsArea";
 import { AccountNavigation, Menu } from "./AccountNavigation";
 import { AccountActivationTag, AccountPicker, AccountPickerButton } from "./AccountPicker";
@@ -461,7 +461,9 @@ export const AccountArea = ({
                     <View style={styles.content} id={CONTENT_ID} tabIndex={0}>
                       <ErrorBoundary
                         key={route?.name}
-                        onError={error => logFrontendError(error)}
+                        onError={error =>
+                          logger.error(error, { source: "AccountArea.ErrorBoundary" })
+                        }
                         fallback={() => <ErrorView />}
                       >
                         {holder?.verificationStatus === "Refused" ? (

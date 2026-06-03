@@ -20,7 +20,7 @@ import { env } from "./env";
 import { locale } from "./i18n";
 import { projectConfiguration } from "./projectId";
 import { Router } from "./routes";
-import { logFrontendError } from "./tracing";
+import { logger } from "./tracing";
 
 const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
 const nanoid = customAlphabet(alphabet, 8);
@@ -97,13 +97,9 @@ const makeRequest: MakeRequest = ({ url, headers, operationName, document, varia
     )
     .flatMapError(error => filterOutUnauthorizedError(operationName, error))
     .tapError(errors => {
-      ClientError.forEach(errors, error => {
-        try {
-          logFrontendError(error, {
-            extra: { requestId },
-          });
-        } catch {}
+      logger.error(errors, { source: "GraphQL.Client", requestId });
 
+      ClientError.forEach(errors, error => {
         errorToRequestId.set(error, requestId);
       });
     });

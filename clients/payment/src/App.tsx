@@ -11,13 +11,16 @@ import { Preview } from "./components/Preview";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { client } from "./utils/gql";
 import { Router } from "./utils/routes";
-import { logFrontendError } from "./utils/tracing";
+import { logger } from "./utils/tracing";
 
 export const App = () => {
   const route = Router.useRoute(["PaymentArea", "Preview"]);
 
   return (
-    <ErrorBoundary onError={error => logFrontendError(error)} fallback={() => <ErrorView />}>
+    <ErrorBoundary
+      onError={error => logger.error(error, { source: "App.ErrorBoundary" })}
+      fallback={() => <ErrorView />}
+    >
       <Suspense fallback={<LoadingView color={colors.gray[100]} />}>
         <ClientContext.Provider value={client}>
           {match(route)

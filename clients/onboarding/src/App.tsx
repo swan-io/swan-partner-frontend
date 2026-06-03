@@ -37,7 +37,7 @@ import { registerOnboardingInfo } from "./utils/logger";
 import { TrackingProvider, useSessionTracking } from "./utils/matomo";
 import { Router } from "./utils/routes";
 import { tgglClient } from "./utils/tggl";
-import { logFrontendError } from "./utils/tracing";
+import { logger } from "./utils/tracing";
 
 type Props = {
   onboardingId: string;
@@ -331,7 +331,7 @@ export const Routing = () => {
   return (
     <ErrorBoundary
       key={route?.name}
-      onError={error => logFrontendError(error)}
+      onError={error => logger.error(error, { source: "Routing.ErrorBoundary" })}
       fallback={() => <ErrorView />}
     >
       {match(route)

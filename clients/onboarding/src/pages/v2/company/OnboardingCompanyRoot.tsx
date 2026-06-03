@@ -52,7 +52,7 @@ import { CompanySuggestion } from "../../../utils/Pappers";
 import { Router } from "../../../utils/routes";
 import { hasOnboardingPrefilled } from "../../../utils/session";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
-import { logFrontendError } from "../../../utils/tracing";
+import { logger } from "../../../utils/tracing";
 import {
   badUserInputErrorPattern,
   extractServerValidationFields,
@@ -282,8 +282,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
               });
             })
             .tapError(error => {
-              const err = error instanceof Error ? error : new Error(JSON.stringify(error));
-              logFrontendError(err);
+              logger.error(error, { source: "UpdateCompanyOnboarding" });
               hasOnboardingPrefilled.delete();
             })
             .then(() => {

@@ -155,6 +155,8 @@
   "company.step.organisation.relation.legal": "Ik ben wettelijk vertegenwoordiger",
   "company.step.organisation.relationAuto": "Op basis van uw rechtsvorm bent u automatisch de wettelijke vertegenwoordiger.",
   "company.step.organisation.relationLabel": "Hoe ben je gemachtigd om deze rekening te openen?",
+  "company.step.organisation.powerOfAttorney.helper": "Download onze sjabloon en laat deze ondertekenen door de wettelijke vertegenwoordiger. U uploadt het in de documentenstap.",
+  "company.step.organisation.powerOfAttorney.downloadTemplate": "Sjabloon downloaden",
   "company.step.organisation.representative.or": "Of",
   "company.step.organisation.representative.unlisted": "Ik zie mijn naam niet in de lijst",
   "company.step.organisation.representativeLabel": "Wie ben je?",

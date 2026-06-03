@@ -52,6 +52,7 @@ import { CompanySuggestion } from "../../../utils/Pappers";
 import { Router } from "../../../utils/routes";
 import { hasOnboardingPrefilled } from "../../../utils/session";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
+import { logFrontendError } from "../../../utils/tracing";
 import {
   badUserInputErrorPattern,
   extractServerValidationFields,
@@ -272,7 +273,22 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
               },
             },
             language: locale.language,
-          }).tap(formMutation);
+          })
+            .tapOk(() => {
+              hasOnboardingPrefilled.set({
+                registrationNumber: Boolean(companyInfo.registrationNumber),
+                vatNumber: Boolean(companyInfo.vatNumber),
+                registrationDate: Boolean(companyInfo.registrationDate),
+              });
+            })
+            .tapError(error => {
+              const err = error instanceof Error ? error : new Error(JSON.stringify(error));
+              logFrontendError(err);
+              hasOnboardingPrefilled.delete();
+            })
+            .then(() => {
+              formMutation();
+            });
         } else {
           formMutation();
         }
@@ -293,11 +309,6 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
               setFieldValue("legalFormCode", legalFormCode ?? undefined);
               setFieldValue("currentRepresentative", undefined);
               setRepresentatives(companyInfo.relatedIndividuals ?? []);
-              hasOnboardingPrefilled.set({
-                registrationNumber: true,
-                vatNumber: Boolean(info.vatNumber),
-                registrationDate: Boolean(info.registrationDate),
-              });
             })
             .otherwise(noop);
         })

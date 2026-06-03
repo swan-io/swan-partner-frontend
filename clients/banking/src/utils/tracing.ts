@@ -29,7 +29,14 @@ if (environment != null) {
       persistent: true,
     },
 
-    instrumentations: [...getWebInstrumentations(), new TracingInstrumentation()],
+    instrumentations: [
+      ...getWebInstrumentations({
+        // disable capture console to control logs we send to Faro with logger.info/warn/error
+        // this avoid to send info and warn triggered by 3rd party scripts which are not actionable for us
+        captureConsole: false,
+      }),
+      new TracingInstrumentation(),
+    ],
   });
 }
 

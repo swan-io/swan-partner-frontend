@@ -23,7 +23,7 @@ import { partnerClient, unauthenticatedClient } from "./utils/gql";
 import { projectConfiguration } from "./utils/projectId";
 import { Router } from "./utils/routes";
 import { tgglClient } from "./utils/tggl";
-import { logFrontendError } from "./utils/tracing";
+import { logger } from "./utils/tracing";
 
 const styles = StyleSheet.create({
   base: {
@@ -137,7 +137,7 @@ const AppContainer = () => {
 export const App = () => {
   return (
     <ErrorBoundary
-      onError={error => logFrontendError(error)}
+      onError={error => logger.error(error, { source: "App.ErrorBoundary" })}
       fallback={() => <ErrorView style={styles.base} />}
     >
       <TgglProvider client={tgglClient}>

@@ -27,22 +27,47 @@ if (environment != null) {
       persistent: true,
     },
 
-    instrumentations: [...getWebInstrumentations(), new TracingInstrumentation()],
+    instrumentations: [
+      ...getWebInstrumentations({
+        // disable capture console to control logs we send to Faro with logger.info/warn/error
+        // this avoid to send info and warn triggered by 3rd party scripts which are not actionable for us
+        captureConsole: false,
+      }),
+      new TracingInstrumentation(),
+    ],
   });
 }
 
-type Context = {
-  level?: LogLevel;
-  tag?: string;
-  extra?: Record<string, string>;
-};
+export const logger = {
+  info: (message: string, context?: Record<string, string>) => {
+    console.log("INFO", message, context);
+    faro?.api.pushLog([message], { level: LogLevel.INFO, context });
+  },
 
-export const logFrontendError = (exception: Error, context?: Context) => {
-  faro?.api.pushError(exception, {
-    context: {
-      ...(context?.level != null ? { level: context.level } : null),
-      ...(context?.tag != null ? { tag: context.tag } : null),
-      ...context?.extra,
-    },
-  });
+  warn: (message: string, context?: Record<string, string>) => {
+    console.warn("WARN", message, context);
+    faro?.api.pushLog([message], { level: LogLevel.WARN, context });
+  },
+
+  error: (error: unknown, context?: Record<string, string>) => {
+    console.error("ERROR", error, context);
+
+    match(error)
+      .with(P.instanceOf(Error), error => {
+        faro?.api.pushError(error, { context });
+      })
+      .with(P.array(P.instanceOf(Error)), errors => {
+        errors.forEach(error => {
+          faro?.api.pushError(error, { context });
+        });
+      })
+      .with({ __typename: P.string, message: P.string }, ({ __typename, message }) => {
+        const error = new Error(`${__typename}: ${message}`);
+        faro?.api.pushError(error, { context });
+      })
+      .otherwise(error => {
+        const err = new Error(`Unknown error format: ${JSON.stringify(error)}`);
+        faro?.api.pushError(err, { context });
+      });
+  },
 };

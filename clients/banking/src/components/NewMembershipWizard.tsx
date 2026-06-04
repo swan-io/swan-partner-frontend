@@ -373,7 +373,7 @@ export const NewMembershipWizard = ({
     language,
   }: {
     editingAccountMembershipId: string;
-    language?: string;
+    language: AccountLanguage;
   }) => {
     if (__env.IS_SWAN_MODE) {
       sendAccountMembershipInviteNotification({
@@ -384,9 +384,7 @@ export const NewMembershipWizard = ({
     } else {
       const query = new URLSearchParams();
       query.append("inviterAccountMembershipId", currentUserAccountMembership.id);
-      if (language != null) {
-        query.append("lang", language);
-      }
+      query.append("lang", language);
 
       const url = match(projectConfiguration)
         .with(

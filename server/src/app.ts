@@ -136,8 +136,8 @@ const assertIsBoundToLocalhost = (host: string) => {
 };
 
 export const start = async ({
-  allowedCorsOrigins = [],
   sendAccountMembershipInvitation,
+  allowedCorsOrigins = [],
 }: AppConfig) => {
   if (env.NODE_ENV === "development") {
     try {
@@ -503,45 +503,45 @@ export const start = async ({
   );
 
   /**
-   * Send an account membership invitation via the fork-provided callback.
-   * Only registered when `sendAccountMembershipInvitation` is passed to `start()`.
+   * Send an account membership invitation
    * e.g. /api/invitation/:inviteeAccountMembershipId/send?inviterAccountMembershipId=1234&lang=en
    */
-  if (sendAccountMembershipInvitation != null) {
-    app.post<{
-      Params: { inviteeAccountMembershipId: string };
-      Querystring: Record<string, string>;
-    }>("/api/invitation/:inviteeAccountMembershipId/send", async (request, reply) => {
-      const accessToken = request.accessToken;
+  app.post<{
+    Params: { inviteeAccountMembershipId: string };
+    Querystring: Record<string, string>;
+  }>("/api/invitation/:inviteeAccountMembershipId/send", async (request, reply) => {
+    const accessToken = request.accessToken;
 
-      if (accessToken == null) {
-        return reply.status(401).send("Unauthorized");
-      }
+    if (accessToken == null) {
+      return reply.status(401).send("Unauthorized");
+    }
+    if (sendAccountMembershipInvitation == null) {
+      return reply.status(400).send("Not implemented");
+    }
 
-      const { inviterAccountMembershipId, lang = "en" } = request.query;
+    const { inviterAccountMembershipId, lang = "en" } = request.query;
 
-      if (inviterAccountMembershipId == null) {
-        return reply.status(400).send("Missing inviterAccountMembershipId");
-      }
+    if (inviterAccountMembershipId == null) {
+      return reply.status(400).send("Missing inviterAccountMembershipId");
+    }
 
-      try {
-        const result = await sendAccountMembershipInvitation({
-          accessToken,
-          inviteeAccountMembershipId: request.params.inviteeAccountMembershipId,
-          inviterAccountMembershipId,
-          language: lang,
-        });
-        return reply.send({ success: result });
-      } catch (err) {
-        request.log.error(err, "Failed to send account membership invitation");
+    try {
+      const result = await sendAccountMembershipInvitation({
+        accessToken,
+        inviteeAccountMembershipId: request.params.inviteeAccountMembershipId,
+        inviterAccountMembershipId,
+        language: lang,
+      });
+      return reply.send({ success: result });
+    } catch (err) {
+      request.log.error(err, "Failed to send account membership invitation");
 
-        return replyWithError(app, request, reply, {
-          status: 400,
-          requestId: String(request.id),
-        });
-      }
-    });
-  }
+      return replyWithError(app, request, reply, {
+        status: 400,
+        requestId: String(request.id),
+      });
+    }
+  });
 
   /**
    * Builds a OAuth2 auth link and redirects to it.

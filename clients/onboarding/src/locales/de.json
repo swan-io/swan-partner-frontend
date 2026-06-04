@@ -155,6 +155,8 @@
   "company.step.organisation.relation.legal": "Ich bin ein gesetzlicher Vertreter",
   "company.step.organisation.relationAuto": "Aufgrund Ihrer Rechtsform sind Sie automatisch der gesetzliche Vertreter.",
   "company.step.organisation.relationLabel": "Wie sind Sie zur Eröffnung dieses Kontos bevollmächtigt?",
+  "company.step.organisation.powerOfAttorney.helper": "Laden Sie unsere Vorlage herunter und lassen Sie sie vom gesetzlichen Vertreter unterzeichnen. Sie laden sie im Dokumentenschritt hoch.",
+  "company.step.organisation.powerOfAttorney.downloadTemplate": "Vorlage herunterladen",
   "company.step.organisation.representative.or": "Oder",
   "company.step.organisation.representative.unlisted": "Mein Name ist nicht aufgeführt.",
   "company.step.organisation.representativeLabel": "Wer sind Sie?",

@@ -155,6 +155,8 @@
   "company.step.organisation.relation.legal": "Olen laillinen edustaja",
   "company.step.organisation.relationAuto": "Oikeudellisen muotosi perusteella olet automaattisesti laillinen edustaja.",
   "company.step.organisation.relationLabel": "Millä perusteella olet valtuutettu avaamaan tämän tilin?",
+  "company.step.organisation.powerOfAttorney.helper": "Lataa mallimme ja pyydä laillista edustajaa allekirjoittamaan se. Voit ladata sen asiakirjavaiheessa.",
+  "company.step.organisation.powerOfAttorney.downloadTemplate": "Lataa malli",
   "company.step.organisation.representative.or": "Tai",
   "company.step.organisation.representative.unlisted": "En löydä nimeäni listalta",
   "company.step.organisation.representativeLabel": "Kuka olet?",

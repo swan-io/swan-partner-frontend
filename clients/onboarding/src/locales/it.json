@@ -155,6 +155,8 @@
   "company.step.organisation.relation.legal": "Sono un rappresentante legale",
   "company.step.organisation.relationAuto": "In base alla tua forma giuridica, sei automaticamente il rappresentante legale.",
   "company.step.organisation.relationLabel": "In che modo è autorizzato ad aprire questo conto?",
+  "company.step.organisation.powerOfAttorney.helper": "Scarica il nostro modello e fallo firmare dal rappresentante legale. Lo caricherai nel passaggio dei documenti.",
+  "company.step.organisation.powerOfAttorney.downloadTemplate": "Scarica il modello",
   "company.step.organisation.representative.or": "O",
   "company.step.organisation.representative.unlisted": "Non vedo il mio nome nell'elenco",
   "company.step.organisation.representativeLabel": "Chi è lei?",

@@ -1,7 +1,9 @@
 import { useDeferredQuery, useMutation } from "@swan-io/graphql-client";
+import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
+import { breakpoints, colors, radii } from "@swan-io/lake/src/constants/design";
 import { useForm } from "@swan-io/use-form";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
@@ -92,12 +94,27 @@ const styles = StyleSheet.create({
   linkHover: {
     opacity: 0.8,
   },
+  info: {
+    display: "block",
+    backgroundColor: colors.gray[50],
+    borderRadius: radii[8],
+    borderWidth: 1,
+    borderColor: colors.gray[100],
+    padding: 24,
+  },
 });
 
 export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Props) => {
   const onboardingId = onboarding.id;
   const { accountAdmin, accountInfo, company } = onboarding;
   const isFirstMount = useFirstMountState();
+
+  const poaTemplateUrl = `/power-of-attorney-template/${match(locale.language)
+    .with("fr", () => "fr")
+    .with("de", () => "de")
+    .with("es", () => "es")
+    .with("it", () => "it")
+    .otherwise(() => "en")}.pdf`;
 
   const initialCountry = match([company?.address?.country, accountInfo?.country])
     .returnType<CountryCCA3>()
@@ -472,26 +489,47 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
                           (manualMode || currentRepresentative.value === "") &&
                           (updateError ||
                             (companyType != null && companyType !== "SelfEmployed")) ? (
-                            <LakeLabel
-                              label={t("company.step.organisation.relationLabel")}
-                              render={() => (
-                                <RadioGroup
-                                  direction="row"
-                                  items={[
-                                    {
-                                      name: t("company.step.organisation.relation.legal"),
-                                      value: "LegalRepresentative",
-                                    },
-                                    {
-                                      name: t("company.step.organisation.relation.attorney"),
-                                      value: "PowerOfAttorney",
-                                    },
-                                  ]}
-                                  value={value}
-                                  onValueChange={onChange}
-                                />
+                            <>
+                              <LakeLabel
+                                label={t("company.step.organisation.relationLabel")}
+                                render={() => (
+                                  <RadioGroup
+                                    direction="row"
+                                    items={[
+                                      {
+                                        name: t("company.step.organisation.relation.legal"),
+                                        value: "LegalRepresentative",
+                                      },
+                                      {
+                                        name: t("company.step.organisation.relation.attorney"),
+                                        value: "PowerOfAttorney",
+                                      },
+                                    ]}
+                                    value={value}
+                                    onValueChange={onChange}
+                                  />
+                                )}
+                              />
+
+                              {value === "PowerOfAttorney" && (
+                                <View style={styles.info}>
+                                  <LakeText variant="smallRegular">
+                                    {t("company.step.organisation.powerOfAttorney.helper")}
+                                  </LakeText>
+                                  <Space height={12} />
+                                  <LakeButton
+                                    mode="secondary"
+                                    size="small"
+                                    icon="arrow-download-filled"
+                                    onPress={() => window.open(poaTemplateUrl, "_blank")}
+                                  >
+                                    {t(
+                                      "company.step.organisation.powerOfAttorney.downloadTemplate",
+                                    )}
+                                  </LakeButton>
+                                </View>
                               )}
-                            />
+                            </>
                           ) : null
                         }
                       </Field>

@@ -155,6 +155,8 @@
   "company.step.organisation.relation.legal": "I'm a legal representative",
   "company.step.organisation.relationAuto": "Based on your legal form, you're automatically the legal representative.",
   "company.step.organisation.relationLabel": "How are you authorized to open this account?",
+  "company.step.organisation.powerOfAttorney.helper": "Download our template and have it signed by the legal representative. You'll upload it in the documents step.",
+  "company.step.organisation.powerOfAttorney.downloadTemplate": "Download template",
   "company.step.organisation.representative.or": "Or",
   "company.step.organisation.representative.unlisted": "I don't see my name listed",
   "company.step.organisation.representativeLabel": "Who are you?",

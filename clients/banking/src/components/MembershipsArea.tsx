@@ -162,38 +162,42 @@ export const MembershipsArea = ({
               input: { accountMembershipId: resourceId },
             });
           } else {
-            queryLastCreatedMembership({ accountMembershipId: resourceId })
-              .tapOk(membership => {
-                const query = new URLSearchParams();
-                query.append("inviterAccountMembershipId", accountMembershipId);
-                query.append("lang", membership.accountMembership?.language ?? locale.language);
+            queryLastCreatedMembership({ accountMembershipId: resourceId }).tapOk(membership => {
+              const query = new URLSearchParams();
+              query.append("inviterAccountMembershipId", accountMembershipId);
+              query.append("lang", membership.accountMembership?.language ?? locale.language);
 
-                const url = match(projectConfiguration)
-                  .with(
-                    Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
-                    projectId =>
-                      `/api/projects/${projectId}/invitation/${resourceId}/send?${query.toString()}`,
-                  )
-                  .otherwise(() => `/api/invitation/${resourceId}/send?${query.toString()}`);
+              const url = match(projectConfiguration)
+                .with(
+                  Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
+                  projectId =>
+                    `/api/projects/${projectId}/invitation/${resourceId}/send?${query.toString()}`,
+                )
+                .otherwise(() => `/api/invitation/${resourceId}/send?${query.toString()}`);
 
-                Request.make({
-                  url,
-                  method: "POST",
-                  type: "text",
-                }).tap(() => {
-                  Router.replace("AccountMembersList", {
-                    ...params,
-                    accountMembershipId,
-                    resourceId: undefined,
-                    status: undefined,
-                  });
+              Request.make({
+                url,
+                method: "POST",
+                type: "text",
+              }).tap(() => {
+                Router.replace("AccountMembersList", {
+                  ...params,
+                  accountMembershipId,
+                  resourceId: undefined,
+                  status: undefined,
                 });
               });
+            });
           }
-        }
+        },
       )
       .otherwise(() => {});
-  }, [params, accountMembershipId, queryLastCreatedMembership, sendAccountMembershipInviteNotification]);
+  }, [
+    params,
+    accountMembershipId,
+    queryLastCreatedMembership,
+    sendAccountMembershipInviteNotification,
+  ]);
 
   return (
     <ResponsiveContainer breakpoint={breakpoints.large} style={styles.root}>

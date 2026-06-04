@@ -385,7 +385,7 @@ export const MembershipDetailEditor = ({
       });
   };
 
-   const [invitationSending, setInvitationSending] = useState<
+  const [invitationSending, setInvitationSending] = useState<
     AsyncData<Result<undefined, undefined>>
   >(AsyncData.NotAsked());
 

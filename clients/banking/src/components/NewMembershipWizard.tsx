@@ -411,7 +411,7 @@ export const NewMembershipWizard = ({
         .mapError(() => undefined)
         .tapError(error => {
           showToast({ variant: "error", error, title: t("error.generic") });
-      });
+        });
     }
   };
 

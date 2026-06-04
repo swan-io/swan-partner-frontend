@@ -1,4 +1,4 @@
-import { Option } from "@swan-io/boxed";
+import { AsyncData, Option, Result } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -11,6 +11,7 @@ import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { pick } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
+import { Request, badStatusToError } from "@swan-io/request";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { InputPhoneNumber } from "@swan-io/shared-business/src/components/InputPhoneNumber";
@@ -100,7 +101,7 @@ export const MembershipDetailEditor = ({
   const isEditingCurrentUserAccountMembership =
     currentUserAccountMembership.id === editingAccountMembership.id;
 
-  const { Field, FieldsListener, setFieldValue, submitForm } = useForm({
+  const { Field, FieldsListener, getFieldValue, setFieldValue, submitForm } = useForm({
     email: {
       initialValue: editingAccountMembership.email,
       sanitize: trim,
@@ -384,21 +385,68 @@ export const MembershipDetailEditor = ({
       });
   };
 
+   const [invitationSending, setInvitationSending] = useState<
+    AsyncData<Result<undefined, undefined>>
+  >(AsyncData.NotAsked());
+
   const sendInvitation = () => {
-    sendAccountMembershipInviteNotification({
-      input: { accountMembershipId: editingAccountMembershipId },
-    })
-      .mapOk(data => data.sendAccountMembershipInviteNotification)
-      .mapOkToResult(filterRejectionsToResult)
-      .tapOk(() => {
-        showToast({
-          variant: "success",
-          title: t("membershipDetail.resendInvitationSuccessToast"),
-        });
+    if (__env.IS_SWAN_MODE) {
+      sendAccountMembershipInviteNotification({
+        input: { accountMembershipId: editingAccountMembershipId },
       })
-      .tapError(error => {
-        showToast({ variant: "error", error, title: translateError(error) });
-      });
+        .mapOk(data => data.sendAccountMembershipInviteNotification)
+        .mapOkToResult(filterRejectionsToResult)
+        .tapOk(() => {
+          showToast({
+            variant: "success",
+            title: t("membershipDetail.resendInvitationSuccessToast"),
+          });
+        })
+        .tapError(error => {
+          showToast({ variant: "error", error, title: translateError(error) });
+        });
+    } else {
+      setInvitationSending(AsyncData.Loading());
+
+      const query = new URLSearchParams();
+
+      query.append("inviterAccountMembershipId", currentUserAccountMembershipId);
+      query.append("lang", getFieldValue("language"));
+
+      const url = match(projectConfiguration)
+        .with(
+          Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
+          projectId =>
+            `/api/projects/${projectId}/invitation/${editingAccountMembershipId}/send?${query.toString()}`,
+        )
+        .otherwise(() => `/api/invitation/${editingAccountMembershipId}/send?${query.toString()}`);
+
+      const request = Request.make({
+        url,
+        method: "POST",
+        credentials: "include",
+        type: "json",
+        body: JSON.stringify({
+          inviteeAccountMembershipId: editingAccountMembershipId,
+          inviterAccountMembershipId: currentUserAccountMembershipId,
+        }),
+      })
+        .mapOkToResult(badStatusToError)
+        .mapOk(() => undefined)
+        .mapError(() => undefined);
+
+      request
+        .tapError(error => {
+          showToast({ variant: "error", error, title: t("error.generic") });
+        })
+        .onResolve(value => {
+          showToast({
+            variant: "success",
+            title: t("membershipDetail.resendInvitationSuccessToast"),
+          });
+          setInvitationSending(AsyncData.Done(value));
+        });
+    }
   };
 
   return (
@@ -538,7 +586,11 @@ export const MembershipDetailEditor = ({
                                     value !== editingAccountMembership.email ||
                                     !canUpdateAccountMembership
                                   }
-                                  loading={inviteNotificationState.isLoading()}
+                                  loading={
+                                    __env.IS_SWAN_MODE
+                                      ? inviteNotificationState.isLoading()
+                                      : invitationSending.isLoading()
+                                  }
                                   ariaLabel={t("membershipDetail.edit.resendInvitation")}
                                   icon={large ? undefined : "send-regular"}
                                 >

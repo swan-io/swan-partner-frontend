@@ -61,9 +61,16 @@ const keys = {
 const COOKIE_MAX_AGE = 60 * (env.NODE_ENV !== "test" ? 5 : 60); // 5 minutes (except for tests)
 const OAUTH_STATE_COOKIE_MAX_AGE = 900; // 15 minutes
 
+export type InvitationConfig = {
+  accessToken: string;
+  inviteeAccountMembershipId: string;
+  inviterAccountMembershipId: string;
+  language: string;
+};
+
 type AppConfig = {
   allowedCorsOrigins?: string[];
-  invitationMode?: "EMAIL" | "LINK";
+  sendAccountMembershipInvitation?: (config: InvitationConfig) => Promise<unknown>;
 };
 
 declare module "@fastify/secure-session" {
@@ -129,8 +136,8 @@ const assertIsBoundToLocalhost = (host: string) => {
 };
 
 export const start = async ({
-  invitationMode = "LINK",
   allowedCorsOrigins = [],
+  sendAccountMembershipInvitation,
 }: AppConfig) => {
   if (env.NODE_ENV === "development") {
     try {
@@ -494,6 +501,47 @@ export const start = async ({
       return reply.redirect(`/auth/login?${queryString.toString()}`);
     },
   );
+
+  /**
+   * Send an account membership invitation via the fork-provided callback.
+   * Only registered when `sendAccountMembershipInvitation` is passed to `start()`.
+   * e.g. /api/invitation/:inviteeAccountMembershipId/send?inviterAccountMembershipId=1234&lang=en
+   */
+  if (sendAccountMembershipInvitation != null) {
+    app.post<{
+      Params: { inviteeAccountMembershipId: string };
+      Querystring: Record<string, string>;
+    }>("/api/invitation/:inviteeAccountMembershipId/send", async (request, reply) => {
+      const accessToken = request.accessToken;
+
+      if (accessToken == null) {
+        return reply.status(401).send("Unauthorized");
+      }
+
+      const { inviterAccountMembershipId, lang = "en" } = request.query;
+
+      if (inviterAccountMembershipId == null) {
+        return reply.status(400).send("Missing inviterAccountMembershipId");
+      }
+
+      try {
+        const result = await sendAccountMembershipInvitation({
+          accessToken,
+          inviteeAccountMembershipId: request.params.inviteeAccountMembershipId,
+          inviterAccountMembershipId,
+          language: lang,
+        });
+        return reply.send({ success: result });
+      } catch (err) {
+        request.log.error(err, "Failed to send account membership invitation");
+
+        return replyWithError(app, request, reply, {
+          status: 400,
+          requestId: String(request.id),
+        });
+      }
+    });
+  }
 
   /**
    * Builds a OAuth2 auth link and redirects to it.
@@ -927,7 +975,9 @@ export const start = async ({
       SWAN_ENVIRONMENT:
         process.env.SWAN_ENVIRONMENT ??
         (env.OAUTH_CLIENT_ID.startsWith("LIVE_") ? "LIVE" : "SANDBOX"),
-      ACCOUNT_MEMBERSHIP_INVITATION_MODE: invitationMode,
+      ACCOUNT_MEMBERSHIP_INVITATION_MODE: match(sendAccountMembershipInvitation)
+        .with(P.nullish, () => "LINK")
+        .otherwise(() => "EMAIL"),
       TGGL_API_KEY: process.env.TGGL_API_KEY,
       BANKING_URL: env.BANKING_URL,
       PAYMENT_URL: env.PAYMENT_URL,

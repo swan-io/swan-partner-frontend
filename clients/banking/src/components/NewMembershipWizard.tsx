@@ -12,6 +12,7 @@ import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/desig
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { emptyToUndefined, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { trim } from "@swan-io/lake/src/utils/string";
+import { Request, badStatusToError } from "@swan-io/request";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { InputPhoneNumber } from "@swan-io/shared-business/src/components/InputPhoneNumber";
@@ -45,6 +46,7 @@ import {
 } from "../graphql/partner";
 import { accountLanguages, locale, t } from "../utils/i18n";
 import { prefixPhoneNumber } from "../utils/phone";
+import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 import { validateAddressLine } from "../utils/validations";
 
@@ -368,14 +370,49 @@ export const NewMembershipWizard = ({
 
   const sendInvitation = ({
     editingAccountMembershipId,
+    language,
   }: {
     editingAccountMembershipId: string;
+    language?: string;
   }) => {
-    sendAccountMembershipInviteNotification({
-      input: { accountMembershipId: editingAccountMembershipId },
-    }).tapError(error => {
-      showToast({ variant: "error", error, title: translateError(error) });
-    });
+    if (__env.IS_SWAN_MODE) {
+      sendAccountMembershipInviteNotification({
+        input: { accountMembershipId: editingAccountMembershipId },
+      }).tapError(error => {
+        showToast({ variant: "error", error, title: translateError(error) });
+      });
+    } else {
+      const query = new URLSearchParams();
+      query.append("inviterAccountMembershipId", currentUserAccountMembership.id);
+      if (language != null) {
+        query.append("lang", language);
+      }
+
+      const url = match(projectConfiguration)
+        .with(
+          Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
+          projectId =>
+            `/api/projects/${projectId}/invitation/${editingAccountMembershipId}/send?${query.toString()}`,
+        )
+        .otherwise(() => `/api/invitation/${editingAccountMembershipId}/send?${query.toString()}`);
+
+      return Request.make({
+        url,
+        method: "POST",
+        credentials: "include",
+        type: "json",
+        body: JSON.stringify({
+          inviteeAccountMembershipId: editingAccountMembershipId,
+          inviterAccountMembershipId: currentUserAccountMembership.id,
+        }),
+      })
+        .mapOkToResult(badStatusToError)
+        .mapOk(() => undefined)
+        .mapError(() => undefined)
+        .tapError(error => {
+          showToast({ variant: "error", error, title: t("error.generic") });
+      });
+    }
   };
 
   const onPressSubmit = () => {
@@ -442,7 +479,7 @@ export const NewMembershipWizard = ({
                 .otherwise(data => {
                   match(__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE)
                     .with("EMAIL", () => {
-                      sendInvitation({ editingAccountMembershipId: data.id });
+                      sendInvitation({ editingAccountMembershipId: data.id, language });
                     })
                     .otherwise(() => {});
 

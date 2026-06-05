@@ -33,7 +33,6 @@ import {
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { useFlag } from "react-tggl-client";
 import { P, match } from "ts-pattern";
 import {
   AccountLanguage,
@@ -89,15 +88,13 @@ export const MembershipDetailEditor = ({
 }: Props) => {
   const { canUpdateAccountMembership } = usePermissions();
   const [isCancelConfirmationModalOpen, setIsCancelConfirmationModalOpen] = useState(false);
-  const canUseNotificationStack = useFlag("useNotificationStackToSendNewMembershipEmail", false);
-
   const [updateMembership, membershipUpdate] = useMutation(UpdateAccountMembershipDocument);
   const [suspendMembership, membershipSuspension] = useMutation(SuspendAccountMembershipDocument);
   const [unsuspendMembership, membershipUnsuspension] = useMutation(
     ResumeAccountMembershipDocument,
   );
 
-  const [sendAccountMembershipInviteNotification] = useMutation(
+  const [sendAccountMembershipInviteNotification, inviteNotificationState] = useMutation(
     SendAccountMembershipInviteNotificationDocument,
   );
 
@@ -393,7 +390,7 @@ export const MembershipDetailEditor = ({
   >(AsyncData.NotAsked());
 
   const sendInvitation = () => {
-    if (canUseNotificationStack) {
+    if (__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE === "SWAN_EMAIL") {
       sendAccountMembershipInviteNotification({
         input: { accountMembershipId: editingAccountMembershipId },
       })
@@ -580,7 +577,7 @@ export const MembershipDetailEditor = ({
                             <Space width={12} />
 
                             {match(__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE)
-                              .with("EMAIL", () => (
+                              .with(P.union("SWAN_EMAIL", "CUSTOM_EMAIL"), () => (
                                 <LakeButton
                                   mode="secondary"
                                   size="small"
@@ -589,7 +586,11 @@ export const MembershipDetailEditor = ({
                                     value !== editingAccountMembership.email ||
                                     !canUpdateAccountMembership
                                   }
-                                  loading={invitationSending.isLoading()}
+                                  loading={
+                                    __env.ACCOUNT_MEMBERSHIP_INVITATION_MODE === "SWAN_EMAIL"
+                                      ? inviteNotificationState.isLoading()
+                                      : invitationSending.isLoading()
+                                  }
                                   ariaLabel={t("membershipDetail.edit.resendInvitation")}
                                   icon={large ? undefined : "send-regular"}
                                 >
@@ -611,7 +612,6 @@ export const MembershipDetailEditor = ({
                                     value !== editingAccountMembership.email ||
                                     !canUpdateAccountMembership
                                   }
-                                  loading={invitationSending.isLoading()}
                                   ariaLabel={t("membershipDetail.edit.showLink")}
                                   icon={large ? undefined : "link-filled"}
                                 >

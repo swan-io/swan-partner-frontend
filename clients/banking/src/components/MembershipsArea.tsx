@@ -14,9 +14,10 @@ import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/desig
 import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { Request } from "@swan-io/request";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { StyleSheet, View } from "react-native";
-import { useFlag } from "react-tggl-client";
 import { P, isMatching, match } from "ts-pattern";
 import { Except } from "type-fest";
 import {
@@ -81,8 +82,6 @@ export const MembershipsArea = ({
   const { canAddAccountMembership } = usePermissions();
   const [, { query: queryLastCreatedMembership }] = useDeferredQuery(MembershipDetailDocument);
   const route = Router.useRoute(membershipsRoutes);
-
-  const canUseNotificationStack = useFlag("useNotificationStackToSendNewMembershipEmail", false);
 
   const [sendAccountMembershipInviteNotification] = useMutation(
     SendAccountMembershipInviteNotificationDocument,
@@ -157,40 +156,47 @@ export const MembershipsArea = ({
       .with(
         {
           params: { resourceId: P.string, status: "Accepted" },
-          accountMembershipInvitationMode: "EMAIL",
+          accountMembershipInvitationMode: "SWAN_EMAIL",
+        },
+        ({ params: { resourceId } }) => {
+          sendAccountMembershipInviteNotification({
+            input: { accountMembershipId: resourceId },
+          }).tapError(error => {
+            showToast({ variant: "error", error, title: translateError(error) });
+          });
+        },
+      )
+      .with(
+        {
+          params: { resourceId: P.string, status: "Accepted" },
+          accountMembershipInvitationMode: "CUSTOM_EMAIL",
         },
         ({ params: { resourceId } }) => {
           queryLastCreatedMembership({ accountMembershipId: resourceId }).tapOk(membership => {
-            if (canUseNotificationStack) {
-              sendAccountMembershipInviteNotification({
-                input: { accountMembershipId: resourceId },
-              });
-            } else {
-              const query = new URLSearchParams();
-              query.append("inviterAccountMembershipId", accountMembershipId);
-              query.append("lang", membership.accountMembership?.language ?? locale.language);
+            const query = new URLSearchParams();
+            query.append("inviterAccountMembershipId", accountMembershipId);
+            query.append("lang", membership.accountMembership?.language ?? locale.language);
 
-              const url = match(projectConfiguration)
-                .with(
-                  Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
-                  projectId =>
-                    `/api/projects/${projectId}/invitation/${resourceId}/send?${query.toString()}`,
-                )
-                .otherwise(() => `/api/invitation/${resourceId}/send?${query.toString()}`);
+            const url = match(projectConfiguration)
+              .with(
+                Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
+                projectId =>
+                  `/api/projects/${projectId}/invitation/${resourceId}/send?${query.toString()}`,
+              )
+              .otherwise(() => `/api/invitation/${resourceId}/send?${query.toString()}`);
 
-              Request.make({
-                url,
-                method: "POST",
-                type: "text",
-              }).tap(() => {
-                Router.replace("AccountMembersList", {
-                  ...params,
-                  accountMembershipId,
-                  resourceId: undefined,
-                  status: undefined,
-                });
+            Request.make({
+              url,
+              method: "POST",
+              type: "text",
+            }).tap(() => {
+              Router.replace("AccountMembersList", {
+                ...params,
+                accountMembershipId,
+                resourceId: undefined,
+                status: undefined,
               });
-            }
+            });
           });
         },
       )
@@ -199,7 +205,6 @@ export const MembershipsArea = ({
     params,
     accountMembershipId,
     queryLastCreatedMembership,
-    canUseNotificationStack,
     sendAccountMembershipInviteNotification,
   ]);
 

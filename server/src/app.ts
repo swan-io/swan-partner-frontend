@@ -68,10 +68,14 @@ export type InvitationConfig = {
   language: string;
 };
 
-type AppConfig = {
-  allowedCorsOrigins?: string[];
-  sendAccountMembershipInvitation?: (config: InvitationConfig) => Promise<unknown>;
-};
+type AppConfig =
+  | { invitationMode: "SWAN_EMAIL"; allowedCorsOrigins?: string[] }
+  | { invitationMode: "LINK"; allowedCorsOrigins?: string[] }
+  | {
+      invitationMode: "CUSTOM_EMAIL";
+      allowedCorsOrigins?: string[];
+      sendAccountMembershipInvitation: (config: InvitationConfig) => Promise<unknown>;
+    };
 
 declare module "@fastify/secure-session" {
   interface SessionData {
@@ -135,10 +139,12 @@ const assertIsBoundToLocalhost = (host: string) => {
   });
 };
 
-export const start = async ({
-  sendAccountMembershipInvitation,
-  allowedCorsOrigins = [],
-}: AppConfig) => {
+export const start = async (config: AppConfig) => {
+  const { invitationMode, allowedCorsOrigins = [] } = config;
+  const sendAccountMembershipInvitation =
+    config.invitationMode === "CUSTOM_EMAIL"
+      ? config.sendAccountMembershipInvitation
+      : undefined;
   if (env.NODE_ENV === "development") {
     try {
       await Promise.all([
@@ -975,9 +981,7 @@ export const start = async ({
       SWAN_ENVIRONMENT:
         process.env.SWAN_ENVIRONMENT ??
         (env.OAUTH_CLIENT_ID.startsWith("LIVE_") ? "LIVE" : "SANDBOX"),
-      ACCOUNT_MEMBERSHIP_INVITATION_MODE: match(sendAccountMembershipInvitation)
-        .with(P.nullish, () => "LINK")
-        .otherwise(() => "EMAIL"),
+      ACCOUNT_MEMBERSHIP_INVITATION_MODE: invitationMode,
       TGGL_API_KEY: process.env.TGGL_API_KEY,
       BANKING_URL: env.BANKING_URL,
       PAYMENT_URL: env.PAYMENT_URL,

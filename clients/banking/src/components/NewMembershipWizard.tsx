@@ -36,7 +36,6 @@ import {
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { useFlag } from "react-tggl-client";
 import { P, match } from "ts-pattern";
 import {
   AccountCountry,
@@ -123,8 +122,6 @@ export const NewMembershipWizard = ({
   onSuccess,
   onPressCancel,
 }: Props) => {
-  const canUseNotificationStack = useFlag("useNotificationStackToSendNewMembershipEmail", false);
-
   const [sendAccountMembershipInviteNotification] = useMutation(
     SendAccountMembershipInviteNotificationDocument,
   );
@@ -378,16 +375,17 @@ export const NewMembershipWizard = ({
     editingAccountMembershipId: string;
     language: AccountLanguage;
   }) => {
-    const query = new URLSearchParams();
-
-    query.append("inviterAccountMembershipId", currentUserAccountMembership.id);
-    query.append("lang", language);
-
-    if (canUseNotificationStack) {
+    if (__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE === "SWAN_EMAIL") {
       sendAccountMembershipInviteNotification({
         input: { accountMembershipId: editingAccountMembershipId },
+      }).tapError(error => {
+        showToast({ variant: "error", error, title: translateError(error) });
       });
     } else {
+      const query = new URLSearchParams();
+      query.append("inviterAccountMembershipId", currentUserAccountMembership.id);
+      query.append("lang", language);
+
       const url = match(projectConfiguration)
         .with(
           Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
@@ -478,7 +476,7 @@ export const NewMembershipWizard = ({
                 )
                 .otherwise(data => {
                   match(__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE)
-                    .with("EMAIL", () => {
+                    .with(P.union("SWAN_EMAIL", "CUSTOM_EMAIL"), () => {
                       sendInvitation({ editingAccountMembershipId: data.id, language });
                     })
                     .otherwise(() => {});

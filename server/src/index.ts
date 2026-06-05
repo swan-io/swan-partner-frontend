@@ -21,7 +21,7 @@ const onboardingCountries = accountCountries
   }))
   .sort((a, b) => a.name.localeCompare(b.name));
 
-start({}).then(
+start({ invitationMode: "LINK" }).then(
   ({ app, ports }) => {
     const listenPort = async (port: string) => {
       // Expose 8080 so that we don't need `sudo` to listen to the port

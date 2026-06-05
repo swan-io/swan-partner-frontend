@@ -70,6 +70,7 @@ export type InvitationConfig = {
 
 type AppConfig = {
   allowedCorsOrigins?: string[];
+  invitationMode?: "LINK" | "EMAIL";
   sendAccountMembershipInvitation?: (config: InvitationConfig) => Promise<unknown>;
 };
 

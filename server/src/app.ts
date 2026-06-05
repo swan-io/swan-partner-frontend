@@ -138,6 +138,7 @@ const assertIsBoundToLocalhost = (host: string) => {
 
 export const start = async ({
   sendAccountMembershipInvitation,
+  invitationMode,
   allowedCorsOrigins = [],
 }: AppConfig) => {
   if (env.NODE_ENV === "development") {
@@ -976,9 +977,11 @@ export const start = async ({
       SWAN_ENVIRONMENT:
         process.env.SWAN_ENVIRONMENT ??
         (env.OAUTH_CLIENT_ID.startsWith("LIVE_") ? "LIVE" : "SANDBOX"),
-      ACCOUNT_MEMBERSHIP_INVITATION_MODE: match(sendAccountMembershipInvitation)
-        .with(P.nullish, () => "LINK")
-        .otherwise(() => "EMAIL"),
+      ACCOUNT_MEMBERSHIP_INVITATION_MODE:
+        invitationMode ??
+        match(sendAccountMembershipInvitation)
+          .with(P.nullish, () => "LINK")
+          .otherwise(() => "EMAIL"),
       TGGL_API_KEY: process.env.TGGL_API_KEY,
       BANKING_URL: env.BANKING_URL,
       PAYMENT_URL: env.PAYMENT_URL,

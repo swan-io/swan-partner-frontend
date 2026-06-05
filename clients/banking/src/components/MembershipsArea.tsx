@@ -14,6 +14,8 @@ import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/desig
 import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { Request } from "@swan-io/request";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, isMatching, match } from "ts-pattern";
@@ -160,6 +162,8 @@ export const MembershipsArea = ({
           if (__env.IS_SWAN_MODE) {
             sendAccountMembershipInviteNotification({
               input: { accountMembershipId: resourceId },
+            }).tapError(error => {
+              showToast({ variant: "error", error, title: translateError(error) });
             });
           } else {
             queryLastCreatedMembership({ accountMembershipId: resourceId }).tapOk(membership => {

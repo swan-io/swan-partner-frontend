@@ -375,7 +375,7 @@ export const NewMembershipWizard = ({
     editingAccountMembershipId: string;
     language: AccountLanguage;
   }) => {
-    if (__env.IS_SWAN_MODE) {
+    if (__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE === "SWAN_EMAIL") {
       sendAccountMembershipInviteNotification({
         input: { accountMembershipId: editingAccountMembershipId },
       }).tapError(error => {
@@ -476,7 +476,7 @@ export const NewMembershipWizard = ({
                 )
                 .otherwise(data => {
                   match(__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE)
-                    .with("EMAIL", () => {
+                    .with(P.union("SWAN_EMAIL", "CUSTOM_EMAIL"), () => {
                       sendInvitation({ editingAccountMembershipId: data.id, language });
                     })
                     .otherwise(() => {});

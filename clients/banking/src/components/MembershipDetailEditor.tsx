@@ -390,7 +390,7 @@ export const MembershipDetailEditor = ({
   >(AsyncData.NotAsked());
 
   const sendInvitation = () => {
-    if (__env.IS_SWAN_MODE) {
+    if (__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE === "SWAN_EMAIL") {
       sendAccountMembershipInviteNotification({
         input: { accountMembershipId: editingAccountMembershipId },
       })
@@ -577,7 +577,7 @@ export const MembershipDetailEditor = ({
                             <Space width={12} />
 
                             {match(__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE)
-                              .with("EMAIL", () => (
+                              .with(P.union("SWAN_EMAIL", "CUSTOM_EMAIL"), () => (
                                 <LakeButton
                                   mode="secondary"
                                   size="small"
@@ -587,7 +587,7 @@ export const MembershipDetailEditor = ({
                                     !canUpdateAccountMembership
                                   }
                                   loading={
-                                    __env.IS_SWAN_MODE
+                                    __env.ACCOUNT_MEMBERSHIP_INVITATION_MODE === "SWAN_EMAIL"
                                       ? inviteNotificationState.isLoading()
                                       : invitationSending.isLoading()
                                   }

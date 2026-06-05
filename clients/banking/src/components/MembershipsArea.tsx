@@ -156,43 +156,48 @@ export const MembershipsArea = ({
       .with(
         {
           params: { resourceId: P.string, status: "Accepted" },
-          accountMembershipInvitationMode: "EMAIL",
+          accountMembershipInvitationMode: "SWAN_EMAIL",
         },
         ({ params: { resourceId } }) => {
-          if (__env.IS_SWAN_MODE) {
-            sendAccountMembershipInviteNotification({
-              input: { accountMembershipId: resourceId },
-            }).tapError(error => {
-              showToast({ variant: "error", error, title: translateError(error) });
-            });
-          } else {
-            queryLastCreatedMembership({ accountMembershipId: resourceId }).tapOk(membership => {
-              const query = new URLSearchParams();
-              query.append("inviterAccountMembershipId", accountMembershipId);
-              query.append("lang", membership.accountMembership?.language ?? locale.language);
+          sendAccountMembershipInviteNotification({
+            input: { accountMembershipId: resourceId },
+          }).tapError(error => {
+            showToast({ variant: "error", error, title: translateError(error) });
+          });
+        },
+      )
+      .with(
+        {
+          params: { resourceId: P.string, status: "Accepted" },
+          accountMembershipInvitationMode: "CUSTOM_EMAIL",
+        },
+        ({ params: { resourceId } }) => {
+          queryLastCreatedMembership({ accountMembershipId: resourceId }).tapOk(membership => {
+            const query = new URLSearchParams();
+            query.append("inviterAccountMembershipId", accountMembershipId);
+            query.append("lang", membership.accountMembership?.language ?? locale.language);
 
-              const url = match(projectConfiguration)
-                .with(
-                  Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
-                  projectId =>
-                    `/api/projects/${projectId}/invitation/${resourceId}/send?${query.toString()}`,
-                )
-                .otherwise(() => `/api/invitation/${resourceId}/send?${query.toString()}`);
+            const url = match(projectConfiguration)
+              .with(
+                Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
+                projectId =>
+                  `/api/projects/${projectId}/invitation/${resourceId}/send?${query.toString()}`,
+              )
+              .otherwise(() => `/api/invitation/${resourceId}/send?${query.toString()}`);
 
-              Request.make({
-                url,
-                method: "POST",
-                type: "text",
-              }).tap(() => {
-                Router.replace("AccountMembersList", {
-                  ...params,
-                  accountMembershipId,
-                  resourceId: undefined,
-                  status: undefined,
-                });
+            Request.make({
+              url,
+              method: "POST",
+              type: "text",
+            }).tap(() => {
+              Router.replace("AccountMembersList", {
+                ...params,
+                accountMembershipId,
+                resourceId: undefined,
+                status: undefined,
               });
             });
-          }
+          });
         },
       )
       .otherwise(() => {});

@@ -41,9 +41,6 @@ const validate = (
 ): Result<SpendingLimitValue, ValidationError[]> => {
   const numericValue = Number(value.amount.value);
   const errors: ValidationError[] = [];
-  if (!(numericValue > 0)) {
-    errors.push("InvalidAmount");
-  }
   if (numericValue > maxValue) {
     errors.push("ExceedsMaxAmount");
   }

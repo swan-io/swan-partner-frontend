@@ -37,7 +37,6 @@ import { CompanyCountryCCA3 } from "@swan-io/shared-business/src/constants/count
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import {
   validateCompanyTaxNumber,
-  validateIndividualTaxNumber,
   validateNullableRequired,
   validateRequired,
   validateVatNumber,
@@ -119,19 +118,16 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
     .with({ companyCountry: "DEU" }, () => false)
     .otherwise(() => true);
 
-  const isTaxIdentificationRequired = match({ companyCountry, accountCountry })
+  const isTaxIdentificationRequired = match({ companyCountry, accountCountry, companyType })
+    .with({ companyType: "SelfEmployed", companyCountry: P.union("ESP", "ITA") }, () => false)
     .with({ companyCountry: P.not(accountCountry) }, () => true)
     .with({ accountCountry: P.union("DEU", "ESP", "ITA") }, () => true)
     .otherwise(() => false);
 
   //ITA & ESP company with a status self employed use the same tax validation rules as individual
-  const hasCompanyTaxRules = match({ companyType, companyCountry })
+  const isTaxIdentificationVisible = match({ companyType, companyCountry })
     .with({ companyType: "SelfEmployed", companyCountry: P.union("ESP", "ITA") }, () => false)
     .otherwise(() => true);
-
-  const validateTaxNumber = hasCompanyTaxRules
-    ? validateCompanyTaxNumber
-    : validateIndividualTaxNumber;
 
   const prefilled = useMemo(
     () =>
@@ -170,7 +166,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
       validate: isTaxIdentificationRequired
         ? combineValidators(
             validateRequired,
-            validateTaxNumber(companyCountry as CompanyCountryCCA3),
+            validateCompanyTaxNumber(companyCountry as CompanyCountryCCA3),
           )
         : undefined,
     },
@@ -402,19 +398,21 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
                 </Field>
 
                 <Field name="taxIdentificationNumber">
-                  {({ value, valid, error, onChange, onBlur, ref }) => (
-                    <TaxIdentificationNumberInput
-                      ref={ref}
-                      value={value}
-                      error={error}
-                      valid={valid}
-                      onChange={onChange}
-                      onBlur={onBlur}
-                      country={companyCountry as CompanyCountryCCA3}
-                      isCompany={hasCompanyTaxRules}
-                      required={isTaxIdentificationRequired}
-                    />
-                  )}
+                  {({ value, valid, error, onChange, onBlur, ref }) =>
+                    isTaxIdentificationVisible ? (
+                      <TaxIdentificationNumberInput
+                        ref={ref}
+                        value={value}
+                        error={error}
+                        valid={valid}
+                        onChange={onChange}
+                        onBlur={onBlur}
+                        country={companyCountry as CompanyCountryCCA3}
+                        isCompany={true}
+                        required={isTaxIdentificationRequired}
+                      />
+                    ) : null
+                  }
                 </Field>
 
                 <Field name="vatNumber">

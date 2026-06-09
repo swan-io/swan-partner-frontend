@@ -356,6 +356,7 @@
   "form.placeOfBirth.title": "Lugar de nacimiento",
   "form.rangePlaceholder": "Selecciona un rango",
   "form.residence.title": "Su dirección de residencia actual",
+  "form.residence.tax.title": "Residencia fiscal",
   "gender.female": "Femenino",
   "gender.male": "Masculino",
   "gender.unknown": "Desconocido",

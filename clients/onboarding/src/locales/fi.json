@@ -356,6 +356,7 @@
   "form.placeOfBirth.title": "Syntymäpaikka",
   "form.rangePlaceholder": "Valitse alue",
   "form.residence.title": "Nykyinen asuinosoitteesi",
+  "form.residence.tax.title": "Verotuksellinen asuinpaikka",
   "gender.female": "Nainen",
   "gender.male": "Mies",
   "gender.unknown": "Tuntematon",

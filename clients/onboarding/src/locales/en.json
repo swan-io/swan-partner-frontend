@@ -356,6 +356,7 @@
   "form.placeOfBirth.title": "Place of birth",
   "form.rangePlaceholder": "Select range",
   "form.residence.title": "Your current residency address",
+  "form.residence.tax.title": "Tax residency",
   "gender.female": "Female",
   "gender.male": "Male",
   "gender.unknown": "Unknown",

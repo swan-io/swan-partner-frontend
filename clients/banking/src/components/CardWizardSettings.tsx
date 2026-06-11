@@ -159,7 +159,7 @@ const validate = (
 ): Result<CardSettings, ValidationError[]> => {
   const { spendingLimit, ...rest } = input;
   const numericValue = Number(spendingLimit?.amount.value);
-  if (spendingLimit == null || !(numericValue > 0)) {
+  if (spendingLimit == null || !(numericValue >= 0)) {
     return Result.Error(["InvalidAmount"]);
   }
   if (numericValue > maxValue) {

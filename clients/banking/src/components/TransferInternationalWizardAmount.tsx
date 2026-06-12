@@ -46,6 +46,9 @@ const styles = StyleSheet.create({
   },
 });
 
+const WARNING_THRESHOLD = 90_000;
+const MAX_AMOUNT = 100_000;
+
 export type Amount = {
   value: string;
   currency: Currency;
@@ -140,14 +143,26 @@ export const TransferInternationalWizardAmount = ({
   const metadata = match(quote)
     .with(
       AsyncData.P.Done(Result.P.Ok({ internationalCreditTransferQuote: P.select(P.nonNullable) })),
-      quote => ({
-        rate: quote.exchangeRate,
-        total: quote.sourceAmount as Amount,
-        out: {
-          value: `${Number.parseFloat(quote.feesAmount.value) + Number.parseFloat(quote.sourceAmount.value)}`,
-          currency: quote.sourceAmount.currency,
-        } as Amount,
-      }),
+      quote => {
+        const sourceAmount = Number(quote.sourceAmount.value);
+        const feesAmount = Number(quote.feesAmount.value);
+        const totalAmount = sourceAmount + feesAmount;
+
+        const amountInfo = match(totalAmount)
+          .with(P.number.gt(MAX_AMOUNT), () => "exceedsMax" as const)
+          .with(P.number.gte(WARNING_THRESHOLD), () => "closeToMax" as const)
+          .otherwise(() => null);
+
+        return {
+          rate: quote.exchangeRate,
+          total: quote.sourceAmount as Amount,
+          amountInfo,
+          out: {
+            value: totalAmount.toString(),
+            currency: quote.sourceAmount.currency,
+          } as Amount,
+        };
+      },
     )
     .otherwise(() => undefined);
 
@@ -242,7 +257,7 @@ export const TransferInternationalWizardAmount = ({
                 AsyncData.P.Done(
                   Result.P.Ok({ internationalCreditTransferQuote: P.select(P.nonNullable) }),
                 ),
-                quote => <QuoteDetails quote={quote} />,
+                quote => <QuoteDetails quote={quote} amountInfo={metadata?.amountInfo ?? null} />,
               )
               .with(AsyncData.P.Done(Result.P.Error(P.select())), error => (
                 <ErrorView error={error} />
@@ -261,6 +276,7 @@ export const TransferInternationalWizardAmount = ({
 
             <LakeButton
               color="current"
+              disabled={metadata?.amountInfo === "exceedsMax" || errors.length > 0}
               onPress={() =>
                 errors?.length === 0 &&
                 submitForm({
@@ -325,8 +341,10 @@ export const TransferInternationalWizardAmountSummary = ({
 
 const QuoteDetails = ({
   quote,
+  amountInfo,
 }: {
   quote: NonNullable<GetInternationalCreditTransferQuoteQuery["internationalCreditTransferQuote"]>;
+  amountInfo: "closeToMax" | "exceedsMax" | null;
 }) => {
   return (
     <>
@@ -362,7 +380,7 @@ const QuoteDetails = ({
       <LakeText color={colors.gray[700]} variant="smallRegular">
         {formatNestedMessage("transfer.new.internationalTransfer.amount.converted", {
           amount: formatCurrency(
-            Number.parseFloat(quote.feesAmount.value) + Number.parseFloat(quote.sourceAmount.value),
+            Number(quote.feesAmount.value) + Number(quote.sourceAmount.value),
             quote.sourceAmount.currency,
           ),
           colored: str => (
@@ -372,6 +390,32 @@ const QuoteDetails = ({
           ),
         })}
       </LakeText>
+
+      {match(amountInfo)
+        .with("exceedsMax", () => (
+          <>
+            <Space height={24} />
+            <LakeAlert
+              variant="error"
+              title={t("transfer.new.internationalTransfer.amount.exceedsMax", {
+                maxAmount: formatCurrency(MAX_AMOUNT, quote.sourceAmount.currency),
+              })}
+            />
+          </>
+        ))
+        .with("closeToMax", () => (
+          <>
+            <Space height={24} />
+            <LakeAlert
+              variant="info"
+              title={t("transfer.new.internationalTransfer.amount.closeToMax", {
+                maxAmount: formatCurrency(MAX_AMOUNT, quote.sourceAmount.currency),
+              })}
+            />
+          </>
+        ))
+        .with(null, () => null)
+        .exhaustive()}
     </>
   );
 };

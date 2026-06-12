@@ -3801,6 +3801,13 @@ mutation UpdateCompanyVerificationRenewal($input: UpdateCompanyVerificationRenew
         }
       }
     }
+    ... on ValidationRejection {
+      message
+      fields {
+        code
+        message
+      }
+    }
     ... on Rejection {
       message
     }

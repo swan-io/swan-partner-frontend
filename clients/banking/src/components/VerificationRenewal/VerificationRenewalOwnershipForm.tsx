@@ -204,29 +204,15 @@ export const validateUbo = (
     editorState.country ?? "",
   ]);
 
-  // birthCountryCode always defaults to the company/account country, so it can't signal
-  // user intent to fill in birth info — only the user-entered fields can trigger the partial check
-  const hasPartialBirthInfo = isPartiallyFilled([
-    editorState.birthCity ?? "",
-    editorState.birthCityPostalCode ?? "",
-  ]);
-
   return {
     firstName: validateRequired(editorState.firstName ?? ""),
     lastName: validateRequired(editorState.lastName ?? ""),
     birthDate: isBirthInfoRequired ? validateRequired(editorState.birthDate ?? "") : undefined,
-    birthCountryCode:
-      isBirthInfoRequired || hasPartialBirthInfo
-        ? validateCca3CountryCode(editorState.birthCountryCode)
-        : undefined,
-    birthCity:
-      isBirthInfoRequired || hasPartialBirthInfo
-        ? validateRequired(editorState.birthCity ?? "")
-        : undefined,
-    birthCityPostalCode:
-      isBirthInfoRequired || hasPartialBirthInfo
-        ? validateRequired(editorState.birthCityPostalCode ?? "")
-        : undefined,
+    birthCountryCode: validateCca3CountryCode(editorState.birthCountryCode),
+    birthCity: isBirthInfoRequired ? validateRequired(editorState.birthCity ?? "") : undefined,
+    birthCityPostalCode: isBirthInfoRequired
+      ? validateRequired(editorState.birthCityPostalCode ?? "")
+      : undefined,
     totalPercentage:
       editorState.qualificationType === "Ownership"
         ? validateRequired(editorState.totalPercentage?.toString() ?? "")

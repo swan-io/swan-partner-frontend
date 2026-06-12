@@ -35,12 +35,13 @@ import { StyleSheet, View } from "react-native";
 import { Except } from "type-fest";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
+import { PowerOfAttorneyDownloadDocument } from "../../components/PowerOfAttorneyDownloadDocument";
 import { StepTitle } from "../../components/StepTitle";
 import {
   AccountAdminChangeInfoFragment,
   UpdateAccountAdminChangeDocument,
 } from "../../graphql/partner";
-import { t } from "../../utils/i18n";
+import { locale, t } from "../../utils/i18n";
 import { prefixPhoneNumber } from "../../utils/phone";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
 
@@ -190,15 +191,28 @@ export const ChangeAdminNewAdmin = ({
                 render={() => (
                   <Field name="isLegalRepresentative">
                     {({ value, onChange }) => (
-                      <View style={{ width: "100%" }}>
-                        <RadioGroup
-                          direction={small ? "column" : "row"}
-                          items={isNewAdminItems}
-                          value={value}
-                          hideErrors={true}
-                          onValueChange={onChange}
-                        />
-                      </View>
+                      <>
+                        <View style={{ width: "100%" }}>
+                          <RadioGroup
+                            direction={small ? "column" : "row"}
+                            items={isNewAdminItems}
+                            value={value}
+                            hideErrors={true}
+                            onValueChange={onChange}
+                          />
+                        </View>
+                        {value === false && (
+                          <>
+                            <Space height={8} />
+                            <PowerOfAttorneyDownloadDocument
+                              title={t(
+                                "changeAdmin.step.newAdminInfo.isLegalRepresentative.downloadTitle",
+                              )}
+                              language={locale.language}
+                            />
+                          </>
+                        )}
+                      </>
                     )}
                   </Field>
                 )}

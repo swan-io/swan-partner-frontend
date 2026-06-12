@@ -1,5 +1,5 @@
-import { Option } from "@swan-io/boxed";
-import { useMutation, useQuery } from "@swan-io/graphql-client";
+import { Future, Option } from "@swan-io/boxed";
+import { useDeferredQuery, useMutation, useQuery } from "@swan-io/graphql-client";
 import { Cell, CopyableTextCell, HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -12,7 +12,7 @@ import {
 } from "@swan-io/lake/src/components/PlainListView";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
-import { spacings } from "@swan-io/lake/src/constants/design";
+import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { GetEdge } from "@swan-io/lake/src/utils/types";
@@ -20,8 +20,8 @@ import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { printIbanFormat } from "@swan-io/shared-business/src/utils/validation";
-import { useMemo } from "react";
-import { StyleSheet, View } from "react-native";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { Connection } from "../components/Connection";
 import { ErrorView } from "../components/ErrorView";
@@ -31,9 +31,11 @@ import {
   AccountDetailsVirtualIbansPageQuery,
   AddVirtualIbanDocument,
   CancelVirtualIbanDocument,
+  VirtualIbanBankDetailsDocument,
 } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
+import { pollUntilOk } from "../utils/polling";
 import { Router } from "../utils/routes";
 
 const styles = StyleSheet.create({
@@ -44,6 +46,11 @@ const styles = StyleSheet.create({
   },
   headerDesktop: {
     paddingHorizontal: spacings[40],
+  },
+  bankDetailsLoader: {
+    width: 40,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 
@@ -59,7 +66,11 @@ const CANCELED_STATUSES = ["Canceled" as const, "Suspended" as const];
 
 type Account = NonNullable<AccountDetailsVirtualIbansPageQuery["account"]>;
 type Edge = GetEdge<Account["virtualIbanEntries"]>;
-type ExtraInfo = { reload: () => void; canCancelVirtualIBAN: boolean };
+type ExtraInfo = {
+  reload: () => void;
+  canCancelVirtualIBAN: boolean;
+  pendingBankDetailsIds: ReadonlySet<string>;
+};
 
 const IbanCell = ({ IBAN }: { IBAN: string }) => {
   const formattedIban = useMemo(() => printIbanFormat(IBAN), [IBAN]);
@@ -120,12 +131,16 @@ const columns: ColumnConfig<Edge, ExtraInfo>[] = [
     id: "actions",
     title: "",
     renderTitle: () => null,
-    renderCell: ({ item: { node }, extraInfo: { reload, canCancelVirtualIBAN } }) => (
+    renderCell: ({
+      item: { node },
+      extraInfo: { reload, canCancelVirtualIBAN, pendingBankDetailsIds },
+    }) => (
       <Actions
         virtualIbanId={node.id}
         onCancel={reload}
-        bankDetails={Option.fromNullable(node.bankDetails)}
+        bankDetails={Option.fromNullable(node.bankDetails).filter(b => b.length > 0)}
         canCancel={node.status === "Enabled" && canCancelVirtualIBAN}
+        isAwaitingBankDetails={pendingBankDetailsIds.has(node.id)}
       />
     ),
   },
@@ -177,12 +192,16 @@ const smallColumns: ColumnConfig<Edge, ExtraInfo>[] = [
     id: "actions",
     title: "",
     renderTitle: () => null,
-    renderCell: ({ item: { node }, extraInfo: { reload, canCancelVirtualIBAN } }) => (
+    renderCell: ({
+      item: { node },
+      extraInfo: { reload, canCancelVirtualIBAN, pendingBankDetailsIds },
+    }) => (
       <Actions
         virtualIbanId={node.id}
         onCancel={reload}
-        bankDetails={Option.fromNullable(node.bankDetails)}
+        bankDetails={Option.fromNullable(node.bankDetails).filter(b => b.length > 0)}
         canCancel={node.status === "Enabled" && canCancelVirtualIBAN}
+        isAwaitingBankDetails={pendingBankDetailsIds.has(node.id)}
       />
     ),
   },
@@ -193,11 +212,13 @@ const Actions = ({
   virtualIbanId,
   bankDetails,
   canCancel,
+  isAwaitingBankDetails,
 }: {
   onCancel: () => void;
   virtualIbanId: string;
   bankDetails: Option<string>;
   canCancel: boolean;
+  isAwaitingBankDetails: boolean;
 }) => {
   const [modalVisible, setModalVisible] = useBoolean(false);
   const [cancelVirtualIban, virtualIbanCancelation] = useMutation(CancelVirtualIbanDocument);
@@ -228,7 +249,17 @@ const Actions = ({
             />
           </LakeTooltip>
         ))
-        .getOr(<Space width={40} />)}
+        .getOr(
+          isAwaitingBankDetails ? (
+            <LakeTooltip content={t("accountDetails.virtualIbans.generatingBankDetails")}>
+              <View style={styles.bankDetailsLoader}>
+                <ActivityIndicator color={colors.gray[400]} size="small" />
+              </View>
+            </LakeTooltip>
+          ) : (
+            <Space width={40} />
+          ),
+        )}
 
       {canCancel ? (
         <>
@@ -277,7 +308,7 @@ export const AccountDetailsVirtualIbansPage = ({
 }: Props) => {
   const status = statusParam ?? "Enabled";
   const { canCreateVirtualIBAN, canCancelVirtualIBAN } = usePermissions();
-  const [addVirtualIban, virtualIbanAddition] = useMutation(AddVirtualIbanDocument);
+  const [addVirtualIban] = useMutation(AddVirtualIbanDocument);
 
   const [data, { isLoading, reload, setVariables }] = useQuery(
     AccountDetailsVirtualIbansPageDocument,
@@ -288,6 +319,25 @@ export const AccountDetailsVirtualIbansPage = ({
         status: status === "Enabled" ? ENABLED_STATUSES : CANCELED_STATUSES,
       },
     },
+  );
+
+  const [, { query: queryVirtualIbanBankDetails }] = useDeferredQuery(
+    VirtualIbanBankDetailsDocument,
+  );
+  const [isCreating, setIsCreating] = useState(false);
+  // Bank details are generated asynchronously by the backend after creation. Several
+  // rows can be awaiting their PDF url at once.
+  const [pendingBankDetailsIds, setPendingBankDetailsIds] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
+
+  const pollingFuturesRef = useRef<Set<Future<unknown>>>(new Set());
+  useEffect(
+    () => () => {
+      pollingFuturesRef.current.forEach(future => future.cancel());
+      pollingFuturesRef.current.clear();
+    },
+    [],
   );
 
   const hasItems = data.match({
@@ -303,10 +353,14 @@ export const AccountDetailsVirtualIbansPage = ({
   const showFilter = hasItems || statusParam !== undefined;
 
   const onPressNew = () => {
+    setIsCreating(true);
     addVirtualIban({ accountId })
       .mapOkToResult(data => Option.fromNullable(data.addVirtualIbanEntry).toResult(undefined))
       .mapOkToResult(filterRejectionsToResult)
-      .tapOk(() => {
+      .mapOkToResult(data => Option.fromNullable(data.virtualIbanEntry).toResult(undefined))
+      .tapOk(({ id }) => {
+        setPendingBankDetailsIds(prev => new Set(prev).add(id));
+
         if (status !== "Enabled") {
           Router.replace("AccountDetailsVirtualIbans", {
             accountMembershipId,
@@ -315,7 +369,29 @@ export const AccountDetailsVirtualIbansPage = ({
         } else {
           reload();
         }
+
+        // The backend generates the bank details PDF url asynchronously (it is null in the
+        // creation response), so poll until it lands.
+        const pollFuture: Future<unknown> = pollUntilOk(
+          () =>
+            queryVirtualIbanBankDetails({ accountId, id }).mapOkToResult(data =>
+              Option.fromNullable(data.account?.virtualIbanEntries.edges[0]?.node?.bankDetails)
+                .filter(value => value.length > 0)
+                .toResult(undefined),
+            ),
+          { maxAttempts: 20 },
+        ).tap(() => {
+          pollingFuturesRef.current.delete(pollFuture);
+          setPendingBankDetailsIds(prev => {
+            const next = new Set(prev);
+            next.delete(id);
+            return next;
+          });
+        });
+
+        pollingFuturesRef.current.add(pollFuture);
       })
+      .tap(() => setIsCreating(false))
       .tapError((error: unknown) => {
         showToast({ variant: "error", error, title: translateError(error) });
       });
@@ -337,7 +413,7 @@ export const AccountDetailsVirtualIbansPage = ({
           >
             {canCreateVirtualIBAN ? (
               <LakeButton
-                loading={virtualIbanAddition.isLoading()}
+                loading={isCreating}
                 icon="add-circle-filled"
                 size="small"
                 color="current"
@@ -365,7 +441,7 @@ export const AccountDetailsVirtualIbansPage = ({
                     <PlainListView
                       withoutScroll={!large}
                       data={edges}
-                      extraInfo={{ reload, canCancelVirtualIBAN }}
+                      extraInfo={{ reload, canCancelVirtualIBAN, pendingBankDetailsIds }}
                       columns={columns}
                       smallColumns={smallColumns}
                       keyExtractor={keyExtractor}
@@ -397,7 +473,7 @@ export const AccountDetailsVirtualIbansPage = ({
                           {!hasItems && canCreateVirtualIBAN ? (
                             <LakeButtonGroup justifyContent="center">
                               <LakeButton
-                                loading={virtualIbanAddition.isLoading()}
+                                loading={isCreating}
                                 icon="add-circle-filled"
                                 size="small"
                                 color="current"

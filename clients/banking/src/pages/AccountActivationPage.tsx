@@ -580,6 +580,7 @@ const styles = StyleSheet.create({
   },
   errorContainer: {
     ...commonStyles.fill,
+    paddingHorizontal: spacings[24],
   },
   rightPanelTiles: {
     boxShadow: "0",

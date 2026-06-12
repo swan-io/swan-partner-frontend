@@ -169,6 +169,11 @@ export const NavigationTabBar = ({
   const activeMenuItem =
     entries.find(item => item.matchRoutes.some(name => name === route?.name)) ?? entries[0];
 
+  const hasActiveSection =
+    route?.name === "AccountActivationArea" ||
+    route?.name === "AccountProfile" ||
+    isNotNullish(activeMenuItem);
+
   const signout = () => {
     Request.make({ url: "/auth/logout", method: "POST", credentials: "include", type: "text" })
       .mapOkToResult(badStatusToError)
@@ -177,10 +182,6 @@ export const NavigationTabBar = ({
         showToast({ variant: "error", error, title: translateError(error) });
       });
   };
-
-  if (!activeMenuItem) {
-    return null;
-  }
 
   return (
     <View style={styles.tabBarContainer}>
@@ -218,18 +219,22 @@ export const NavigationTabBar = ({
                 </LakeText>
               </>
             ))
-            .otherwise(() => (
-              <>
-                <Icon name={activeMenuItem.icon} size={22} color={colors.current[500]} />
-                <Space width={12} />
+            .otherwise(() =>
+              isNotNullish(activeMenuItem) ? (
+                <>
+                  <Icon name={activeMenuItem.icon} size={22} color={colors.current[500]} />
+                  <Space width={12} />
 
-                <LakeText numberOfLines={1} variant="regular" color={colors.gray[700]}>
-                  {activeMenuItem.name}
-                </LakeText>
-              </>
-            ))}
+                  <LakeText numberOfLines={1} variant="regular" color={colors.gray[700]}>
+                    {activeMenuItem.name}
+                  </LakeText>
+                </>
+              ) : (
+                <Icon name="lake-menu" size={22} color={colors.gray[700]} />
+              ),
+            )}
 
-          <Icon name="lake-menu" size={22} style={styles.menuIcon} />
+          {hasActiveSection && <Icon name="lake-menu" size={22} style={styles.menuIcon} />}
 
           {shouldDisplayIdVerification && hasRequiredIdentificationLevel === false
             ? match({
@@ -290,19 +295,23 @@ export const NavigationTabBar = ({
                     </LakeButton>
                   )}
 
-                  <Space height={24} />
+                  {entries.some(item => item.visible) && (
+                    <>
+                      <Space height={24} />
 
-                  <LakeHeading level={2} variant="h3">
-                    {t("navigation.menu")}
-                  </LakeHeading>
+                      <LakeHeading level={2} variant="h3">
+                        {t("navigation.menu")}
+                      </LakeHeading>
 
-                  <Space height={16} />
+                      <Space height={16} />
 
-                  <AccountNavigation
-                    menu={entries}
-                    desktop={false}
-                    onPressLink={() => setScreen(null)}
-                  />
+                      <AccountNavigation
+                        menu={entries}
+                        desktop={false}
+                        onPressLink={() => setScreen(null)}
+                      />
+                    </>
+                  )}
 
                   <Separator space={16} />
 

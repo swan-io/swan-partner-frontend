@@ -198,7 +198,7 @@
   "accountStatements.period": "Período",
   "accountStatements.status": "Estado",
   "accountStatements.status.available": "Disponível",
-  "accountStatements.status.failed": "Falha",
+  "accountStatements.status.failed": "Falhou",
   "accountStatements.status.pending": "Pendente",
   "accountStatements.status.voided": "Anulado",
   "accountStatements.subtitle": "Mantenha-se a par do seu histórico de transacções. Qualquer pessoa com uma inscrição nesta conta tem acesso a esta página.",

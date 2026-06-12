@@ -593,6 +593,20 @@ mutation AddVirtualIban($accountId: ID!) {
   }
 }
 
+query VirtualIbanBankDetails($accountId: ID!, $id: ID!) {
+  account(accountId: $accountId) {
+    id
+    virtualIbanEntries(first: 1, filters: { ids: [$id] }) {
+      edges {
+        node {
+          id
+          bankDetails
+        }
+      }
+    }
+  }
+}
+
 mutation CancelVirtualIban($virtualIbanId: ID!) {
   cancelVirtualIbanEntry(input: { virtualIbanEntryId: $virtualIbanId }) {
     __typename

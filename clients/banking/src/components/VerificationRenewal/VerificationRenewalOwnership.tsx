@@ -514,7 +514,14 @@ export const VerificationRenewalOwnership = ({
         setPageState({ type: "list" });
       })
       .tapError(error => {
-        showToast({ variant: "error", error, title: translateError(error) });
+        const errorMessage = match(error)
+          .with({ __typename: "ValidationRejection" }, rejection => {
+            const fieldErrors = rejection.fields.map(field => field.message);
+            return fieldErrors.join("\n");
+          })
+          .otherwise(() => translateError(error));
+
+        showToast({ variant: "error", error, title: errorMessage });
       });
   };
 

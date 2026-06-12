@@ -162,6 +162,10 @@ export const VerificationRenewalOwnershipForm = ({
   );
 };
 
+// Used to surface "missing information" when a user starts a section without completing it.
+const isPartiallyFilled = (values: string[]) =>
+  values.some(value => value.length > 0) && values.some(value => value.length === 0);
+
 const validateCca3CountryCode: Validator<string | undefined> = value => {
   if (value == null) {
     return t("common.form.required");
@@ -193,26 +197,54 @@ export const validateUbo = (
     ? combineValidators(validateRequired, validateIndividualTaxNumber(accountCountry))
     : validateIndividualTaxNumber(accountCountry);
 
+  const hasPartialAddress = isPartiallyFilled([
+    editorState.addressLine1 ?? "",
+    editorState.city ?? "",
+    editorState.postalCode ?? "",
+    editorState.country ?? "",
+  ]);
+
+  // birthCountryCode always defaults to the company/account country, so it can't signal
+  // user intent to fill in birth info — only the user-entered fields can trigger the partial check
+  const hasPartialBirthInfo = isPartiallyFilled([
+    editorState.birthCity ?? "",
+    editorState.birthCityPostalCode ?? "",
+  ]);
+
   return {
     firstName: validateRequired(editorState.firstName ?? ""),
     lastName: validateRequired(editorState.lastName ?? ""),
     birthDate: isBirthInfoRequired ? validateRequired(editorState.birthDate ?? "") : undefined,
-    birthCountryCode: validateCca3CountryCode(editorState.birthCountryCode),
-    birthCity: isBirthInfoRequired ? validateRequired(editorState.birthCity ?? "") : undefined,
-    birthCityPostalCode: isBirthInfoRequired
-      ? validateRequired(editorState.birthCityPostalCode ?? "")
-      : undefined,
+    birthCountryCode:
+      isBirthInfoRequired || hasPartialBirthInfo
+        ? validateCca3CountryCode(editorState.birthCountryCode)
+        : undefined,
+    birthCity:
+      isBirthInfoRequired || hasPartialBirthInfo
+        ? validateRequired(editorState.birthCity ?? "")
+        : undefined,
+    birthCityPostalCode:
+      isBirthInfoRequired || hasPartialBirthInfo
+        ? validateRequired(editorState.birthCityPostalCode ?? "")
+        : undefined,
     totalPercentage:
       editorState.qualificationType === "Ownership"
         ? validateRequired(editorState.totalPercentage?.toString() ?? "")
         : undefined,
-    addressLine1: isAddressRequired ? validateRequired(editorState.addressLine1 ?? "") : undefined,
-    city: isAddressRequired ? validateRequired(editorState.city ?? "") : undefined,
+    addressLine1:
+      isAddressRequired || hasPartialAddress
+        ? validateRequired(editorState.addressLine1 ?? "")
+        : undefined,
+    city:
+      isAddressRequired || hasPartialAddress ? validateRequired(editorState.city ?? "") : undefined,
     country:
-      isAddressRequired || isAddressCountryRequired
+      isAddressRequired || isAddressCountryRequired || hasPartialAddress
         ? validateRequired(editorState.country ?? "")
         : undefined,
-    postalCode: isAddressRequired ? validateRequired(editorState.postalCode ?? "") : undefined,
+    postalCode:
+      isAddressRequired || hasPartialAddress
+        ? validateRequired(editorState.postalCode ?? "")
+        : undefined,
     taxIdentificationNumber: validateTaxNumber(editorState.taxIdentificationNumber ?? ""),
     indirect:
       editorState.qualificationType !== "Ownership" || editorState.direct === true

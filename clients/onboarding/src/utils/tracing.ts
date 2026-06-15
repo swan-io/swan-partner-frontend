@@ -41,7 +41,6 @@ if (environment != null) {
 }
 
 subscribeToLocation(location => {
-  console.log("Location changed", location);
   const pathname = location.path
     .map(segment => {
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(

@@ -120,11 +120,12 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
   const [representatives, setRepresentatives] = useState(related.length > 0 ? related : undefined);
 
   const resetToManualMode = useCallback(() => {
+    logger.event("set_manual_mode", { onboardingId, from: "search_company_dropdown" });
     setManualMode(true);
     setRepresentatives(undefined);
     hasOnboardingPrefilled.delete();
     setPublicData(undefined);
-  }, []);
+  }, [onboardingId]);
 
   const { Field, FieldsListener, setFieldValue, setFieldError, submitForm } = useForm({
     name: {
@@ -182,6 +183,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
 
         if (isNullish(currentValues.legalFormCode)) {
           setManualMode(true);
+          logger.event("set_manual_mode", { onboardingId, from: "submit_without_legalFormCode" });
           return;
         }
 
@@ -373,6 +375,9 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
                                   onLoadError={_error => {
                                     // @todo track paper error in grafana
                                     // If papers not working, switching to manual mode
+                                    logger.warn("Pappers API error, switching to manual mode", {
+                                      onboardingId,
+                                    });
                                     resetToManualMode();
                                   }}
                                   emptyResult={

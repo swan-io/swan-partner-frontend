@@ -29,20 +29,12 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  templateLanguage: string;
-  projectName: string;
   changeAdminRequestId: string;
   steps: FlowStep[];
   nextStep: ChangeAdminRoute;
 };
 
-export const ChangeAdminFlowPresentation = ({
-  templateLanguage,
-  projectName,
-  changeAdminRequestId,
-  steps,
-  nextStep,
-}: Props) => {
+export const ChangeAdminFlowPresentation = ({ changeAdminRequestId, steps, nextStep }: Props) => {
   const onPressNext = () => {
     Router.push(nextStep, { requestId: changeAdminRequestId });
   };

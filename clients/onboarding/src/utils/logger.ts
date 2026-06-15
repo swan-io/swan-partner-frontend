@@ -72,3 +72,9 @@ export const initPostHog = () => {
     posthog.register({ application: "onboarding" });
   }
 };
+
+export const posthogLogger = {
+  event: (name: string, properties?: Record<string, string>) => {
+    posthog.capture(name, properties);
+  },
+};

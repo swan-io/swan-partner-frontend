@@ -1,5 +1,6 @@
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -144,6 +145,12 @@ export const ChangeAdminConfirm = ({
           </>
         )}
       </ResponsiveContainer>
+
+      <Space height={32} />
+
+      <LakeAlert title={t("changeAdmin.step.confirm.alert.title")} variant="info">
+        <LakeText>{t("changeAdmin.step.confirm.alert.content")}</LakeText>
+      </LakeAlert>
 
       <OnboardingFooter
         nextLabel="changeAdmin.step.confirm.submit"

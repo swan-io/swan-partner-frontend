@@ -9,6 +9,7 @@ import { t } from "../utils/i18n";
 const styles = StyleSheet.create({
   container: {
     display: "block",
+    width: "100%",
     backgroundColor: colors.gray[50],
     borderRadius: radii[8],
     borderWidth: 1,

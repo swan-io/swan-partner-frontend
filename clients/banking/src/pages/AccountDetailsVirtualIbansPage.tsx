@@ -234,8 +234,8 @@ const BankDetailsButton = ({
     // reused for another IBAN — re-running rebinds the poll.
   }, [shouldGenerate, accountId, virtualIbanId, queryBankDetails]);
 
-  return bankDetails
-    .map(bankDetails => (
+  return bankDetails.match({
+    Some: bankDetails => (
       <LakeTooltip content={t("accountDetails.virtualIbans.downloadBankDetails")}>
         <LakeButton
           mode="tertiary"
@@ -246,8 +246,8 @@ const BankDetailsButton = ({
           hrefAttrs={{ download: true, target: "blank" }}
         />
       </LakeTooltip>
-    ))
-    .getOr(
+    ),
+    None: () =>
       generationState.match({
         NotAsked: () => <Space width={40} />,
         Loading: () => (
@@ -265,7 +265,7 @@ const BankDetailsButton = ({
           </LakeTooltip>
         ),
       }),
-    );
+  });
 };
 
 const Actions = ({

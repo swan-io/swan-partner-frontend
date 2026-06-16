@@ -176,6 +176,7 @@
   "accountDetails.title.contracts": "Contracts",
   "accountDetails.title.details": "Details",
   "accountDetails.updateEmailMention": "To update this information, <link>contact support</link>",
+  "accountDetails.virtualIbans.bankDetailsUnavailable": "Bank details unavailable, refresh to retry",
   "accountDetails.virtualIbans.bic": "BIC",
   "accountDetails.virtualIbans.cancel.text": "Any payments made to a canceled virtual IBAN will be rejected.",
   "accountDetails.virtualIbans.cancel.title": "Are you sure you want to cancel this virtual IBAN?",

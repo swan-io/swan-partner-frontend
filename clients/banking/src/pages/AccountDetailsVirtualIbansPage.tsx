@@ -1,7 +1,8 @@
-import { Option } from "@swan-io/boxed";
-import { useMutation, useQuery } from "@swan-io/graphql-client";
+import { AsyncData, Option } from "@swan-io/boxed";
+import { useDeferredQuery, useMutation, useQuery } from "@swan-io/graphql-client";
 import { Cell, CopyableTextCell, HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
+import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTooltip } from "@swan-io/lake/src/components/LakeTooltip";
@@ -12,7 +13,7 @@ import {
 } from "@swan-io/lake/src/components/PlainListView";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
-import { spacings } from "@swan-io/lake/src/constants/design";
+import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { GetEdge } from "@swan-io/lake/src/utils/types";
@@ -20,8 +21,8 @@ import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { printIbanFormat } from "@swan-io/shared-business/src/utils/validation";
-import { useMemo } from "react";
-import { StyleSheet, View } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { Connection } from "../components/Connection";
 import { ErrorView } from "../components/ErrorView";
@@ -31,9 +32,11 @@ import {
   AccountDetailsVirtualIbansPageQuery,
   AddVirtualIbanDocument,
   CancelVirtualIbanDocument,
+  VirtualIbanBankDetailsDocument,
 } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
+import { pollUntilOk } from "../utils/polling";
 import { Router } from "../utils/routes";
 
 const styles = StyleSheet.create({
@@ -44,6 +47,11 @@ const styles = StyleSheet.create({
   },
   headerDesktop: {
     paddingHorizontal: spacings[40],
+  },
+  bankDetailsLoader: {
+    width: 40,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 
@@ -59,7 +67,11 @@ const CANCELED_STATUSES = ["Canceled" as const, "Suspended" as const];
 
 type Account = NonNullable<AccountDetailsVirtualIbansPageQuery["account"]>;
 type Edge = GetEdge<Account["virtualIbanEntries"]>;
-type ExtraInfo = { reload: () => void; canCancelVirtualIBAN: boolean };
+type ExtraInfo = {
+  reload: () => void;
+  canCancelVirtualIBAN: boolean;
+  accountId: string;
+};
 
 const IbanCell = ({ IBAN }: { IBAN: string }) => {
   const formattedIban = useMemo(() => printIbanFormat(IBAN), [IBAN]);
@@ -71,6 +83,23 @@ const IbanCell = ({ IBAN }: { IBAN: string }) => {
       copiedWording={t("copyButton.copiedTooltip")}
     />
   );
+};
+
+const actionsColumn: ColumnConfig<Edge, ExtraInfo> = {
+  width: 80,
+  id: "actions",
+  title: "",
+  renderTitle: () => null,
+  renderCell: ({ item: { node }, extraInfo: { reload, canCancelVirtualIBAN, accountId } }) => (
+    <Actions
+      accountId={accountId}
+      virtualIbanId={node.id}
+      onCancel={reload}
+      bankDetails={Option.fromNullable(node.bankDetails).filter(b => b.length > 0)}
+      canCancel={node.status === "Enabled" && canCancelVirtualIBAN}
+      isEnabled={node.status === "Enabled"}
+    />
+  ),
 };
 
 const columns: ColumnConfig<Edge, ExtraInfo>[] = [
@@ -115,20 +144,7 @@ const columns: ColumnConfig<Edge, ExtraInfo>[] = [
       </Cell>
     ),
   },
-  {
-    width: 80,
-    id: "actions",
-    title: "",
-    renderTitle: () => null,
-    renderCell: ({ item: { node }, extraInfo: { reload, canCancelVirtualIBAN } }) => (
-      <Actions
-        virtualIbanId={node.id}
-        onCancel={reload}
-        bankDetails={Option.fromNullable(node.bankDetails)}
-        canCancel={node.status === "Enabled" && canCancelVirtualIBAN}
-      />
-    ),
-  },
+  actionsColumn,
 ];
 
 const smallColumns: ColumnConfig<Edge, ExtraInfo>[] = [
@@ -172,32 +188,100 @@ const smallColumns: ColumnConfig<Edge, ExtraInfo>[] = [
       </Cell>
     ),
   },
-  {
-    width: 80,
-    id: "actions",
-    title: "",
-    renderTitle: () => null,
-    renderCell: ({ item: { node }, extraInfo: { reload, canCancelVirtualIBAN } }) => (
-      <Actions
-        virtualIbanId={node.id}
-        onCancel={reload}
-        bankDetails={Option.fromNullable(node.bankDetails)}
-        canCancel={node.status === "Enabled" && canCancelVirtualIBAN}
-      />
-    ),
-  },
+  actionsColumn,
 ];
 
+// Polls for the bank details url, which the backend generates asynchronously after creation.
+const BankDetailsButton = ({
+  accountId,
+  virtualIbanId,
+  bankDetails,
+  isEnabled,
+}: {
+  accountId: string;
+  virtualIbanId: string;
+  bankDetails: Option<string>;
+  isEnabled: boolean;
+}) => {
+  const [, { query: queryBankDetails }] = useDeferredQuery(VirtualIbanBankDetailsDocument);
+  const shouldGenerate = isEnabled && bankDetails.isNone();
+  // NotAsked = not polling, Loading = polling, Done = settled. On Done without a url,
+  // generation gave up.
+  const [generationState, setGenerationState] = useState<AsyncData<undefined>>(
+    shouldGenerate ? AsyncData.Loading() : AsyncData.NotAsked(),
+  );
+
+  useEffect(() => {
+    if (!shouldGenerate) {
+      setGenerationState(AsyncData.NotAsked());
+      return;
+    }
+
+    setGenerationState(AsyncData.Loading());
+
+    const future = pollUntilOk(
+      () =>
+        queryBankDetails({ accountId, id: virtualIbanId }).mapOkToResult(data =>
+          Option.fromNullable(data.account?.virtualIbanEntries.edges[0]?.node?.bankDetails)
+            .filter(value => value.length > 0)
+            .toResult(undefined),
+        ),
+      { maxAttempts: 20 },
+    ).tap(() => setGenerationState(AsyncData.Done(undefined)));
+
+    return () => future.cancel();
+    // Keep virtualIbanId in deps: PlainListView keys rows by index, so on reorder this instance is
+    // reused for another IBAN — re-running rebinds the poll.
+  }, [shouldGenerate, accountId, virtualIbanId, queryBankDetails]);
+
+  return bankDetails.match({
+    Some: bankDetails => (
+      <LakeTooltip content={t("accountDetails.virtualIbans.downloadBankDetails")}>
+        <LakeButton
+          mode="tertiary"
+          size="small"
+          icon="arrow-download-filled"
+          ariaLabel={t("accountDetails.virtualIbans.downloadBankDetails")}
+          href={bankDetails}
+          hrefAttrs={{ download: true, target: "blank" }}
+        />
+      </LakeTooltip>
+    ),
+    None: () =>
+      generationState.match({
+        NotAsked: () => <Space width={40} />,
+        Loading: () => (
+          <LakeTooltip content={t("accountDetails.virtualIbans.generatingBankDetails")}>
+            <View style={styles.bankDetailsLoader}>
+              <ActivityIndicator color={colors.gray[400]} size="small" />
+            </View>
+          </LakeTooltip>
+        ),
+        Done: () => (
+          <LakeTooltip content={t("accountDetails.virtualIbans.bankDetailsUnavailable")}>
+            <View style={styles.bankDetailsLoader}>
+              <Icon name="warning-regular" size={16} color={colors.gray[400]} />
+            </View>
+          </LakeTooltip>
+        ),
+      }),
+  });
+};
+
 const Actions = ({
+  accountId,
   onCancel,
   virtualIbanId,
   bankDetails,
   canCancel,
+  isEnabled,
 }: {
+  accountId: string;
   onCancel: () => void;
   virtualIbanId: string;
   bankDetails: Option<string>;
   canCancel: boolean;
+  isEnabled: boolean;
 }) => {
   const [modalVisible, setModalVisible] = useBoolean(false);
   const [cancelVirtualIban, virtualIbanCancelation] = useMutation(CancelVirtualIbanDocument);
@@ -215,20 +299,12 @@ const Actions = ({
 
   return (
     <>
-      {bankDetails
-        .map(bankDetails => (
-          <LakeTooltip content={t("accountDetails.virtualIbans.downloadBankDetails")}>
-            <LakeButton
-              mode="tertiary"
-              size="small"
-              icon="arrow-download-filled"
-              ariaLabel={t("accountDetails.virtualIbans.downloadBankDetails")}
-              href={bankDetails}
-              hrefAttrs={{ download: true, target: "blank" }}
-            />
-          </LakeTooltip>
-        ))
-        .getOr(<Space width={40} />)}
+      <BankDetailsButton
+        accountId={accountId}
+        virtualIbanId={virtualIbanId}
+        bankDetails={bankDetails}
+        isEnabled={isEnabled}
+      />
 
       {canCancel ? (
         <>
@@ -365,7 +441,7 @@ export const AccountDetailsVirtualIbansPage = ({
                     <PlainListView
                       withoutScroll={!large}
                       data={edges}
-                      extraInfo={{ reload, canCancelVirtualIBAN }}
+                      extraInfo={{ reload, canCancelVirtualIBAN, accountId }}
                       columns={columns}
                       smallColumns={smallColumns}
                       keyExtractor={keyExtractor}

@@ -1,4 +1,4 @@
-import { Option } from "@swan-io/boxed";
+import { AsyncData, Option } from "@swan-io/boxed";
 import { useDeferredQuery, useMutation, useQuery } from "@swan-io/graphql-client";
 import { Cell, CopyableTextCell, HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
@@ -205,18 +205,19 @@ const BankDetailsButton = ({
 }) => {
   const [, { query: queryBankDetails }] = useDeferredQuery(VirtualIbanBankDetailsDocument);
   const shouldGenerate = isEnabled && bankDetails.isNone();
-  // "generating" while polling, "unavailable" once it gives up; the effect resets it.
-  const [generationState, setGenerationState] = useState<"idle" | "generating" | "unavailable">(
-    shouldGenerate ? "generating" : "idle",
+  // NotAsked = not polling, Loading = polling, Done = settled. On Done without a url,
+  // generation gave up.
+  const [generationState, setGenerationState] = useState<AsyncData<undefined>>(
+    shouldGenerate ? AsyncData.Loading() : AsyncData.NotAsked(),
   );
 
   useEffect(() => {
     if (!shouldGenerate) {
-      setGenerationState("idle");
+      setGenerationState(AsyncData.NotAsked());
       return;
     }
 
-    setGenerationState("generating");
+    setGenerationState(AsyncData.Loading());
 
     const future = pollUntilOk(
       () =>
@@ -226,9 +227,7 @@ const BankDetailsButton = ({
             .toResult(undefined),
         ),
       { maxAttempts: 20 },
-    )
-      .tapOk(() => setGenerationState("idle"))
-      .tapError(() => setGenerationState("unavailable"));
+    ).tap(() => setGenerationState(AsyncData.Done(undefined)));
 
     return () => future.cancel();
     // Keep virtualIbanId in deps: PlainListView keys rows by index, so on reorder this instance is
@@ -249,23 +248,23 @@ const BankDetailsButton = ({
       </LakeTooltip>
     ))
     .getOr(
-      match(generationState)
-        .with("generating", () => (
+      generationState.match({
+        NotAsked: () => <Space width={40} />,
+        Loading: () => (
           <LakeTooltip content={t("accountDetails.virtualIbans.generatingBankDetails")}>
             <View style={styles.bankDetailsLoader}>
               <ActivityIndicator color={colors.gray[400]} size="small" />
             </View>
           </LakeTooltip>
-        ))
-        .with("unavailable", () => (
+        ),
+        Done: () => (
           <LakeTooltip content={t("accountDetails.virtualIbans.bankDetailsUnavailable")}>
             <View style={styles.bankDetailsLoader}>
               <Icon name="warning-regular" size={16} color={colors.gray[400]} />
             </View>
           </LakeTooltip>
-        ))
-        .with("idle", () => <Space width={40} />)
-        .exhaustive(),
+        ),
+      }),
     );
 };
 

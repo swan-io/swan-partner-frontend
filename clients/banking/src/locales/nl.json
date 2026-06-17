@@ -176,6 +176,7 @@
   "accountDetails.title.contracts": "Contracten",
   "accountDetails.title.details": "Gegevens",
   "accountDetails.updateEmailMention": "Als je deze informatie wilt bijwerken, <link>neem contact op met de ondersteuning</link>",
+  "accountDetails.virtualIbans.bankDetailsUnavailable": "Bank details unavailable, refresh to retry",
   "accountDetails.virtualIbans.bic": "BIC",
   "accountDetails.virtualIbans.cancel.text": "Alle betalingen naar deze IBAN worden geweigerd.",
   "accountDetails.virtualIbans.cancel.title": "Weet je zeker dat je deze virtuele IBAN wilt annuleren?",

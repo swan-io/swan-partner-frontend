@@ -176,6 +176,7 @@
   "accountDetails.title.contracts": "Sopimukset",
   "accountDetails.title.details": "Tiedot",
   "accountDetails.updateEmailMention": "Päivittääksesi nämä tiedot, <link>ota yhteyttä tukeen</link>",
+  "accountDetails.virtualIbans.bankDetailsUnavailable": "Bank details unavailable, refresh to retry",
   "accountDetails.virtualIbans.bic": "BIC-koodi",
   "accountDetails.virtualIbans.cancel.text": "Kaikki peruutetulle virtuaaliselle IBAN-tilille tehdyt maksut hylätään.",
   "accountDetails.virtualIbans.cancel.title": "Haluatko varmasti peruuttaa tämän virtuaalisen IBAN-tilin?",

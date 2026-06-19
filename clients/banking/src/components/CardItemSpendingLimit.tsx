@@ -284,7 +284,7 @@ export const SpendingLimitForm = ({
       <Space height={4} />
 
       <LakeTextInput
-        unit={"€"}
+        unit="EUR"
         value={dirtyValue}
         onChangeText={setDirtyValue}
         onBlur={sanitizeInput}

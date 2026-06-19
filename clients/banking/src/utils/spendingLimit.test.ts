@@ -1,6 +1,24 @@
 import dayjs from "dayjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { getMonthlySpendingDate } from "./spendingLimit";
+import { getMonthlySpendingDate, validateSpendingLimitAmount } from "./spendingLimit";
+
+describe("validateSpendingLimitAmount", () => {
+  it("accepts a valid amount within the max", () => {
+    expect(validateSpendingLimitAmount("100", 500)).toBeUndefined();
+    expect(validateSpendingLimitAmount("0", 500)).toBeUndefined();
+    expect(validateSpendingLimitAmount("500", 500)).toBeUndefined();
+  });
+
+  it("rejects a missing, non-numeric or negative amount as InvalidAmount", () => {
+    expect(validateSpendingLimitAmount(undefined, 500)).toBe("InvalidAmount");
+    expect(validateSpendingLimitAmount("abc", 500)).toBe("InvalidAmount");
+    expect(validateSpendingLimitAmount("-1", 500)).toBe("InvalidAmount");
+  });
+
+  it("rejects an amount above the max as ExceedsMaxAmount", () => {
+    expect(validateSpendingLimitAmount("501", 500)).toBe("ExceedsMaxAmount");
+  });
+});
 
 describe("getMonthlySpendingDate", () => {
   beforeEach(() => {

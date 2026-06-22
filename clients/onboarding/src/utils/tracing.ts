@@ -9,7 +9,7 @@ import { posthogLogger } from "./logger";
 let faro: Faro | null = null;
 
 const environment = match(env.BANKING_URL)
-  .with(P.string.includes("local"), () => "master")
+  .with(P.string.includes("local"), () => null)
   .with(P.string.includes("master"), () => "master")
   .with(P.string.includes("preprod"), () => "preprod")
   .otherwise(() => "production");

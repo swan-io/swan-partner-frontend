@@ -7,7 +7,7 @@ import { colors, invariantColors } from "@swan-io/lake/src/constants/design";
 import { ToastStack } from "@swan-io/shared-business/src/components/ToastStack";
 import { useEffect } from "react";
 import { TgglProvider, useTggl } from "react-tggl-client";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { ErrorView } from "./components/ErrorView";
 import { Redirect } from "./components/Redirect";
 import { SupportingDocumentCollectionFlow } from "./components/SupportingDocumentCollectionFlow";
@@ -33,11 +33,10 @@ import { OnboardingIndividualWizard as OnboardingIndividualWizardV2 } from "./pa
 import { env } from "./utils/env";
 import { client, partnerClient } from "./utils/gql";
 import { locale } from "./utils/i18n";
-import { registerOnboardingInfo } from "./utils/logger";
 import { TrackingProvider, useSessionTracking } from "./utils/matomo";
 import { Router } from "./utils/routes";
 import { tgglClient } from "./utils/tggl";
-import { logger } from "./utils/tracing";
+import { logger, logPageView } from "./utils/tracing";
 
 type Props = {
   onboardingId: string;
@@ -81,6 +80,7 @@ const FlowPicker = ({ onboardingId }: Props) => {
         }
 
         const projectId = onboardingInfo.projectInfo?.id;
+        const onboardingId = onboardingInfo.id;
         const accountCountry = onboardingInfo.accountCountry;
         const onboardingType = match(onboardingInfo.info.__typename)
           .returnType<"Company" | "Individual" | undefined>()
@@ -89,7 +89,14 @@ const FlowPicker = ({ onboardingId }: Props) => {
           .exhaustive(() => undefined);
 
         if (projectId != null && accountCountry != null && onboardingType != null) {
-          registerOnboardingInfo({ accountCountry, projectId, onboardingType });
+          logger.setContext({
+            onboardingVersion: "v1",
+            accountCountry,
+            projectId,
+            onboardingId,
+            onboardingType,
+          });
+          logPageView(); // log initial pageview just after setting the context
         }
       })
       .otherwise(() => {});
@@ -208,6 +215,19 @@ const FlowPickerV2 = ({ onboardingId }: Props) => {
       ({ publicAccountHolderOnboarding }) => {
         match(publicAccountHolderOnboarding)
           .with(P.nonNullable, onboarding => {
+            logger.setContext({
+              onboardingVersion: "v2",
+              accountCountry: onboarding.accountInfo?.country ?? "FRA",
+              onboardingId: onboarding.id,
+              projectId: onboarding.projectInfo.id,
+              onboardingType: match(onboarding.__typename)
+                .returnType<"Company" | "Individual">()
+                .with("CompanyAccountHolderOnboarding", () => "Company")
+                .with("IndividualAccountHolderOnboarding", () => "Individual")
+                .exhaustive(),
+            });
+            logPageView(); // log initial pageview just after setting the context
+
             if (onboarding.accountAdmin?.preferredLanguage === locale.language) {
               return;
             }

@@ -1,20 +1,5 @@
 import posthog from "posthog-js";
-import { AccountCountry } from "../graphql/unauthenticated";
 import { env } from "./env";
-
-type OnboardingInfo = {
-  accountCountry: AccountCountry;
-  projectId: string;
-  onboardingType: "Company" | "Individual";
-};
-
-export const registerOnboardingInfo = ({
-  accountCountry,
-  projectId,
-  onboardingType,
-}: OnboardingInfo) => {
-  posthog.register({ accountCountry, projectId, onboardingType });
-};
 
 const replaceIdInPath = (path: string) => {
   return path
@@ -74,6 +59,9 @@ export const initPostHog = () => {
 };
 
 export const posthogLogger = {
+  setContext: (context: Record<string, string>) => {
+    posthog.register(context);
+  },
   event: (name: string, properties?: Record<string, string>) => {
     posthog.capture(name, properties);
   },

@@ -2,6 +2,7 @@ import { Faro, getWebInstrumentations, initializeFaro, LogLevel } from "@grafana
 import { TracingInstrumentation } from "@grafana/faro-web-tracing";
 import { subscribeToLocation } from "@swan-io/chicane";
 import { match, P } from "ts-pattern";
+import { AccountCountry } from "../graphql/partner";
 import { env } from "./env";
 import { posthogLogger } from "./logger";
 
@@ -40,8 +41,9 @@ if (environment != null) {
   });
 }
 
-subscribeToLocation(location => {
-  const pathname = location.path
+export const logPageView = () => {
+  const pathname = window.location.pathname
+    .split("/")
     .map(segment => {
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
         segment,
@@ -51,11 +53,26 @@ subscribeToLocation(location => {
     .join("/");
 
   logger.event("pageview", { pathname });
+};
+
+subscribeToLocation(() => {
+  logPageView();
 });
 
+type TrackingContext = {
+  onboardingVersion: "v1" | "v2";
+  onboardingId: string;
+  projectId: string;
+  accountCountry: AccountCountry;
+  onboardingType: "Company" | "Individual";
+};
+
 export const logger = {
+  setContext: (context: TrackingContext) => {
+    faro?.api.setUser({ attributes: context });
+    posthogLogger.setContext(context);
+  },
   event: (name: string, properties?: Record<string, string>) => {
-    console.log("EVENT", name, properties);
     faro?.api.pushEvent(name, properties);
 
     // Don't send pageview to posthog because their sdk automatically captures pageview
@@ -64,7 +81,6 @@ export const logger = {
     }
   },
   info: (message: string, context?: Record<string, string>) => {
-    console.log("INFO", message, context);
     faro?.api.pushLog([message], { level: LogLevel.INFO, context });
   },
 

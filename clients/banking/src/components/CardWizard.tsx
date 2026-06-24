@@ -772,18 +772,16 @@ export const CardWizard = ({
                                       Router.AccountCardsList({
                                         accountMembershipId: accountMembership.id,
                                       }),
-                                    cards: memberships.map(membership => {
-                                      return {
-                                        accountMembershipId: membership.id,
-                                        spendingLimit: deriveSpendingLimitInput(spendingLimit),
-                                        name: cardSettings.cardName,
-                                        eCommerce: cardSettings.eCommerce,
-                                        withdrawal: cardSettings.withdrawal,
-                                        international: cardSettings.international,
-                                        nonMainCurrencyTransactions:
-                                          cardSettings.nonMainCurrencyTransactions,
-                                      };
-                                    }),
+                                    cards: memberships.map(membership => ({
+                                      accountMembershipId: membership.id,
+                                      spendingLimit: deriveSpendingLimitInput(spendingLimit),
+                                      name: cardSettings.cardName,
+                                      eCommerce: cardSettings.eCommerce,
+                                      withdrawal: cardSettings.withdrawal,
+                                      international: cardSettings.international,
+                                      nonMainCurrencyTransactions:
+                                        cardSettings.nonMainCurrencyTransactions,
+                                    })),
                                   });
                                 }
                               }

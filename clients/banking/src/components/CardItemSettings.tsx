@@ -8,13 +8,14 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Link } from "@swan-io/lake/src/components/Link";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { getCCA2forCCA3, isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { CardPageQuery, UpdateCardDocument } from "../graphql/partner";
@@ -23,21 +24,24 @@ import { formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
   deriveSingleUseSpendingLimitValue,
-  SingleUseSpendingLimitValue,
   singleUseToSpendingLimitValue,
+  validateSingleUseSpendingLimit,
 } from "../utils/singleUseSpendingLimit";
+import { deriveSpendingLimitContext, getSpendingLimitAmountError } from "../utils/spendingLimit";
 import { CardCancelConfirmationModal } from "./CardCancelConfirmationModal";
 import {
   deriveSpendingLimitInput,
   deriveSpendingLimitValue,
+  SpendingLimitForm,
+  SpendingLimitFormValue,
   SpendingLimitValue,
+  validateSpendingLimit,
 } from "./CardItemSpendingLimit";
-import { CardSettings, CardWizardSettings, CardWizardSettingsRef } from "./CardWizardSettings";
+import { CardSettings, CardSettingsFields } from "./CardSettingsFields";
 import {
-  CardWizardSingleUseSpendingLimit,
-  CardWizardSingleUseSpendingLimitRef,
-} from "./CardWizardSingleUseSpendingLimit";
-import { CardWizardSpendingLimit, CardWizardSpendingLimitRef } from "./CardWizardSpendingLimit";
+  SingleUseSpendingLimitFields,
+  SingleUseSpendingLimitFieldsValue,
+} from "./SingleUseSpendingLimitFields";
 
 const styles = StyleSheet.create({
   link: {
@@ -73,14 +77,39 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
     international: card.international ?? false,
     nonMainCurrencyTransactions: card.nonMainCurrencyTransactions ?? false,
   };
-  const spendingLimitRef = useRef<CardWizardSpendingLimitRef>(null);
-  const singleUseSpendingLimitRef = useRef<CardWizardSingleUseSpendingLimitRef>(null);
-  const settingsRef = useRef<CardWizardSettingsRef>(null);
-  const pendingSpendingLimitRef = useRef<SpendingLimitValue | null>(null);
   const cardInsurance = card.insuranceSubscription;
   const cardHolderType = card.accountMembership.account?.holder.info.type;
 
   const { canUpdateCard } = usePermissions();
+
+  const { maxValue, currency } = deriveSpendingLimitContext(
+    card.cardProduct,
+    accountHolder,
+    maxSpendingLimit,
+  );
+
+  // Draft state owned here; the form children are fully controlled (value/onChange only).
+  const [spendingLimit, setSpendingLimit] = useState<SpendingLimitFormValue>(
+    () =>
+      initialSpendingLimit ?? {
+        amount: { value: String(maxValue), currency },
+        mode: { type: "rolling", rollingValue: 1, period: "Monthly" },
+      },
+  );
+  const [settings, setSettings] = useState<CardSettings>(() => ({
+    cardName: card.name ?? "",
+    ...cardToggles,
+  }));
+  const [singleUse, setSingleUse] = useState<SingleUseSpendingLimitFieldsValue>(() => ({
+    spendingLimit: deriveSingleUseSpendingLimitValue(spendingLimits) ?? {
+      amount: { value: String(maxValue), currency },
+      period: "Always",
+    },
+    cardName: card.name ?? "",
+  }));
+  const [validation, setValidation] = useState<string[] | null>(null);
+
+  const spendingLimitError = getSpendingLimitAmountError(validation, maxValue, currency);
 
   const submitUpdate = (
     spendingLimit: SpendingLimitValue,
@@ -116,48 +145,29 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
       });
   };
 
-  // Regular cards edit the spending limit in a dedicated form and the feature toggles in the
-  // settings form; both validated values are combined into a single update.
-  const onRegularSpendingLimitSubmit = (spendingLimit: SpendingLimitValue) => {
-    pendingSpendingLimitRef.current = spendingLimit;
-    settingsRef.current?.submit();
-  };
-
-  const onSettingsSubmit = ({
-    eCommerce,
-    cardName,
-    withdrawal,
-    international,
-    nonMainCurrencyTransactions,
-  }: CardSettings) => {
-    const spendingLimit = pendingSpendingLimitRef.current;
-    pendingSpendingLimitRef.current = null;
-    if (spendingLimit == null) {
-      return;
-    }
-    submitUpdate(spendingLimit, cardName, {
-      eCommerce,
-      withdrawal,
-      international,
-      nonMainCurrencyTransactions,
-    });
-  };
-
-  const onSingleUseSubmit = ({
-    spendingLimit,
-    cardName,
-  }: {
-    spendingLimit: SingleUseSpendingLimitValue;
-    cardName?: string;
-  }) => {
-    submitUpdate(singleUseToSpendingLimitValue(spendingLimit), cardName, cardToggles);
-  };
-
+  // Single Save: validate the relevant form, then fire one update. No ref chaining.
   const onPressSubmit = () => {
     if (card.type === "SingleUseVirtual") {
-      singleUseSpendingLimitRef.current?.submit();
+      validateSingleUseSpendingLimit(singleUse.spendingLimit, maxValue).match({
+        Ok: value => {
+          setValidation(null);
+          submitUpdate(singleUseToSpendingLimitValue(value), singleUse.cardName, cardToggles);
+        },
+        Error: errors => setValidation(errors),
+      });
     } else {
-      spendingLimitRef.current?.submit();
+      validateSpendingLimit(spendingLimit, maxValue).match({
+        Ok: value => {
+          setValidation(null);
+          submitUpdate(value, settings.cardName, {
+            eCommerce: settings.eCommerce,
+            withdrawal: settings.withdrawal,
+            international: settings.international,
+            nonMainCurrencyTransactions: settings.nonMainCurrencyTransactions,
+          });
+        },
+        Error: errors => setValidation(errors),
+      });
     }
   };
 
@@ -173,39 +183,45 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
           )}
 
           {card.type === "SingleUseVirtual" ? (
-            <CardWizardSingleUseSpendingLimit
-              ref={singleUseSpendingLimitRef}
-              cardProduct={card.cardProduct}
-              accountHolder={accountHolder}
-              initialSpendingLimit={deriveSingleUseSpendingLimitValue(spendingLimits)}
-              initialCardName={card.name ?? ""}
-              maxSpendingLimit={maxSpendingLimit}
+            <SingleUseSpendingLimitFields
+              value={singleUse}
+              onChange={next => {
+                setSingleUse(next);
+                if (validation != null) {
+                  validateSingleUseSpendingLimit(next.spendingLimit, maxValue).match({
+                    Ok: () => setValidation(null),
+                    Error: errors => setValidation(errors),
+                  });
+                }
+              }}
+              error={spendingLimitError}
               canEditPeriodicity={false}
               disabled={!canUpdateCard}
-              onSubmit={onSingleUseSubmit}
             />
           ) : (
             <>
-              <CardWizardSpendingLimit
-                ref={spendingLimitRef}
-                cardProduct={card.cardProduct}
-                initialSpendingLimit={initialSpendingLimit}
-                maxSpendingLimit={maxSpendingLimit}
-                accountHolder={accountHolder}
-                disabled={!canUpdateCard}
-                onSubmit={onRegularSpendingLimitSubmit}
-              />
+              <Tile title={large ? t("card.settings.spendingLimit") : undefined}>
+                <SpendingLimitForm
+                  large={large}
+                  value={spendingLimit}
+                  onChange={next => {
+                    setSpendingLimit(next);
+                    validateSpendingLimit(next, maxValue).match({
+                      Ok: () => setValidation(null),
+                      Error: errors => setValidation(errors),
+                    });
+                  }}
+                  disabled={!canUpdateCard}
+                  error={spendingLimitError}
+                />
+              </Tile>
 
               <Space height={24} />
 
-              <CardWizardSettings
-                ref={settingsRef}
+              <CardSettingsFields
+                value={settings}
+                onChange={setSettings}
                 disabled={!canUpdateCard}
-                initialSettings={{
-                  cardName: card.name ?? "",
-                  ...cardToggles,
-                }}
-                onSubmit={onSettingsSubmit}
               />
             </>
           )}

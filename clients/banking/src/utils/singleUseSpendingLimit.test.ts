@@ -5,6 +5,7 @@ import {
   deriveSingleUseSpendingLimitValue,
   singleUseToSpendingLimitValue,
   spendingLimitValueToSingleUse,
+  validateSingleUseSpendingLimit,
 } from "./singleUseSpendingLimit";
 
 const fragment = (
@@ -106,5 +107,29 @@ describe("single-use ⇄ shared round-trip", () => {
     for (const value of values) {
       expect(spendingLimitValueToSingleUse(singleUseToSpendingLimitValue(value))).toEqual(value);
     }
+  });
+});
+
+describe("validateSingleUseSpendingLimit", () => {
+  const value = (amount: string): SingleUseSpendingLimitValue => ({
+    amount: { value: amount, currency: "EUR" },
+    period: "Always",
+  });
+
+  const errorsOf = (result: ReturnType<typeof validateSingleUseSpendingLimit>) =>
+    result.match({ Ok: () => null, Error: errors => errors });
+
+  it("accepts an amount within the max", () => {
+    expect(validateSingleUseSpendingLimit(value("100"), 500).isOk()).toBe(true);
+  });
+
+  it("rejects an amount above the max as ExceedsMaxAmount", () => {
+    expect(errorsOf(validateSingleUseSpendingLimit(value("501"), 500))).toEqual([
+      "ExceedsMaxAmount",
+    ]);
+  });
+
+  it("rejects a non-numeric/negative amount as InvalidAmount", () => {
+    expect(errorsOf(validateSingleUseSpendingLimit(value("-1"), 500))).toEqual(["InvalidAmount"]);
   });
 });

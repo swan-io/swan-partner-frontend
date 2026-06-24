@@ -1,5 +1,7 @@
+import { Result } from "@swan-io/boxed";
 import { SpendingLimitValue } from "../components/CardItemSpendingLimit";
 import { SpendingLimitFragment } from "../graphql/partner";
+import { SpendingLimitAmountError, validateSpendingLimitAmount } from "./spendingLimit";
 
 /**
  * Single-use cards are just an amount + a one-off (`Always`) / recurring (`Monthly`) choice, so a
@@ -37,3 +39,11 @@ export const spendingLimitValueToSingleUse = (
   amount: value.amount,
   period: value.mode.type === "rolling" && value.mode.period === "Monthly" ? "Monthly" : "Always",
 });
+
+export const validateSingleUseSpendingLimit = (
+  spendingLimit: SingleUseSpendingLimitValue,
+  maxValue: number,
+): Result<SingleUseSpendingLimitValue, SpendingLimitAmountError[]> => {
+  const error = validateSpendingLimitAmount(spendingLimit.amount.value, maxValue);
+  return error != null ? Result.Error([error]) : Result.Ok(spendingLimit);
+};

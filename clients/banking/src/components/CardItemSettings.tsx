@@ -34,6 +34,7 @@ import {
   deriveSpendingLimitValue,
   SpendingLimitForm,
   SpendingLimitFormValue,
+  SpendingLimitValidationError,
   SpendingLimitValue,
   validateSpendingLimit,
 } from "./CardItemSpendingLimit";
@@ -107,7 +108,7 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
     },
     cardName: card.name ?? "",
   }));
-  const [validation, setValidation] = useState<string[] | null>(null);
+  const [validation, setValidation] = useState<SpendingLimitValidationError[]>([]);
 
   const spendingLimitError = getSpendingLimitAmountError(validation, maxValue, currency);
 
@@ -150,7 +151,7 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
     if (card.type === "SingleUseVirtual") {
       validateSingleUseSpendingLimit(singleUse.spendingLimit, maxValue).match({
         Ok: value => {
-          setValidation(null);
+          setValidation([]);
           submitUpdate(singleUseToSpendingLimitValue(value), singleUse.cardName, cardToggles);
         },
         Error: errors => setValidation(errors),
@@ -158,7 +159,7 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
     } else {
       validateSpendingLimit(spendingLimit, maxValue).match({
         Ok: value => {
-          setValidation(null);
+          setValidation([]);
           submitUpdate(value, settings.cardName, {
             eCommerce: settings.eCommerce,
             withdrawal: settings.withdrawal,
@@ -187,9 +188,9 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
               value={singleUse}
               onChange={next => {
                 setSingleUse(next);
-                if (validation != null) {
+                if (validation.length > 0) {
                   validateSingleUseSpendingLimit(next.spendingLimit, maxValue).match({
-                    Ok: () => setValidation(null),
+                    Ok: () => setValidation([]),
                     Error: errors => setValidation(errors),
                   });
                 }
@@ -207,7 +208,7 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
                   onChange={next => {
                     setSpendingLimit(next);
                     validateSpendingLimit(next, maxValue).match({
-                      Ok: () => setValidation(null),
+                      Ok: () => setValidation([]),
                       Error: errors => setValidation(errors),
                     });
                   }}

@@ -34,6 +34,10 @@ import {
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
+import {
+  singleUseToSpendingLimitValue,
+  spendingLimitValueToSingleUse,
+} from "../utils/singleUseSpendingLimit";
 import { deriveSpendingLimitInput, SpendingLimitValue } from "./CardItemSpendingLimit";
 import { CardWizardDelivery, CardWizardDeliveryRef } from "./CardWizardDelivery";
 import { CardFormat, CardWizardFormat, CardWizardFormatRef } from "./CardWizardFormat";
@@ -48,6 +52,10 @@ import {
 import { CardWizardMembers, CardWizardMembersRef, Member } from "./CardWizardMembers";
 import { CardWizardProduct, CardWizardProductRef } from "./CardWizardProduct";
 import { CardWizardSettings, CardWizardSettingsRef } from "./CardWizardSettings";
+import {
+  CardWizardSingleUseSpendingLimit,
+  CardWizardSingleUseSpendingLimitRef,
+} from "./CardWizardSingleUseSpendingLimit";
 import { CardWizardSpendingLimit, CardWizardSpendingLimitRef } from "./CardWizardSpendingLimit";
 import { ErrorView } from "./ErrorView";
 
@@ -70,7 +78,17 @@ type Step = StepDefault &
     | { name: "CardProductType" }
     | { name: "CardProductFormat"; cardProduct: CardProduct }
     | { name: "CardProductSpendingLimit"; cardProduct: CardProduct; cardFormat: CardFormat }
-    | { name: "CardProductSettings"; cardProduct: CardProduct; cardFormat: CardFormat }
+    | {
+        name: "CardProductSingleUseSpendingLimit";
+        cardProduct: CardProduct;
+        cardFormat: CardFormat;
+      }
+    | {
+        name: "CardProductSettings";
+        cardProduct: CardProduct;
+        cardFormat: CardFormat;
+        spendingLimit: SpendingLimitValue;
+      }
     | {
         name: "CardProductMembers";
         cardProduct: CardProduct;
@@ -337,6 +355,23 @@ export const CardWizard = ({
     }
   };
 
+  const buildSingleUseCardsInput = (
+    cardProduct: CardProduct,
+    memberships: readonly { id: string }[],
+    spendingLimit: SpendingLimitValue,
+    cardName: string | undefined,
+  ): AddSingleUseVirtualCardsInput => ({
+    cardProductId: cardProduct.id,
+    consentRedirectUrl:
+      window.location.origin +
+      Router.AccountCardsList({ accountMembershipId: accountMembership.id }),
+    cards: memberships.map(membership => ({
+      name: cardName,
+      accountMembershipId: membership.id,
+      spendingLimit: deriveSpendingLimitInput(spendingLimit),
+    })),
+  });
+
   const generateMultiConsent = (cards: CardFragment[]) => {
     const cardsRequiringConsent = [
       ...new Set(
@@ -383,6 +418,7 @@ export const CardWizard = ({
   const cardWizardProductRef = useRef<CardWizardProductRef>(null);
   const cardWizardFormatRef = useRef<CardWizardFormatRef>(null);
   const cardWizardSpendingLimitRef = useRef<CardWizardSpendingLimitRef>(null);
+  const cardWizardSingleUseSpendingLimitRef = useRef<CardWizardSingleUseSpendingLimitRef>(null);
   const cardWizardSettingsRef = useRef<CardWizardSettingsRef>(null);
   const cardWizardMembersRef = useRef<CardWizardMembersRef>(null);
   const cardWizardDeliveryRef = useRef<CardWizardDeliveryRef>(null);
@@ -451,6 +487,10 @@ export const CardWizard = ({
                     </Title>
 
                     <Title visible={step.name === "CardProductSpendingLimit"}>
+                      {t("card.settings.spendingLimit")}
+                    </Title>
+
+                    <Title visible={step.name === "CardProductSingleUseSpendingLimit"}>
                       {t("card.settings.spendingLimit")}
                     </Title>
 
@@ -533,22 +573,14 @@ export const CardWizard = ({
                             }
                           } else {
                             if (cardFormat === "SingleUseVirtual") {
-                              addSingleUseCardsWrapper({
-                                cardProductId: cardProduct.id,
-                                consentRedirectUrl:
-                                  window.location.origin +
-                                  Router.AccountCardsList({
-                                    accountMembershipId: accountMembership.id,
-                                  }),
-
-                                cards: memberships.map(member => {
-                                  return {
-                                    name: cardName,
-                                    accountMembershipId: member.id,
-                                    spendingLimit: deriveSpendingLimitInput(spendingLimit),
-                                  };
-                                }),
-                              });
+                              addSingleUseCardsWrapper(
+                                buildSingleUseCardsInput(
+                                  cardProduct,
+                                  memberships,
+                                  spendingLimit,
+                                  cardName,
+                                ),
+                              );
                             } else {
                               addCardsWrapper({
                                 cardProductId: cardProduct.id,
@@ -603,13 +635,21 @@ export const CardWizard = ({
                           cardProduct={cardProduct}
                           initialCardFormat={cardFormat}
                           onSubmit={cardFormat =>
-                            cardFormat === "SingleUseVirtual"
-                              ? setStep({ name: "CardProductSettings", cardProduct, cardFormat })
-                              : setStep({
+                            match(cardFormat)
+                              .with("SingleUseVirtual", () =>
+                                setStep({
+                                  name: "CardProductSingleUseSpendingLimit",
+                                  cardProduct,
+                                  cardFormat,
+                                }),
+                              )
+                              .otherwise(() =>
+                                setStep({
                                   name: "CardProductSpendingLimit",
                                   cardProduct,
                                   cardFormat,
-                                })
+                                }),
+                              )
                           }
                         />
                       ))
@@ -633,6 +673,53 @@ export const CardWizard = ({
                         ),
                       )
                       .with(
+                        { name: "CardProductSingleUseSpendingLimit" },
+                        ({ cardProduct, cardFormat, spendingLimit, cardName }) => (
+                          <CardWizardSingleUseSpendingLimit
+                            ref={cardWizardSingleUseSpendingLimitRef}
+                            cardProduct={cardProduct}
+                            accountHolder={accountMembership.account?.holder}
+                            initialSpendingLimit={
+                              spendingLimit != null
+                                ? spendingLimitValueToSingleUse(spendingLimit)
+                                : undefined
+                            }
+                            initialCardName={cardName}
+                            onSubmit={({ spendingLimit, cardName }) => {
+                              const spendingLimitValue =
+                                singleUseToSpendingLimitValue(spendingLimit);
+                              if (hasMoreThanOneMember) {
+                                setStep({
+                                  name: "CardProductMembers",
+                                  cardProduct,
+                                  cardFormat,
+                                  spendingLimit: spendingLimitValue,
+                                  cardName,
+                                  eCommerce: true,
+                                  withdrawal: true,
+                                  international: true,
+                                  nonMainCurrencyTransactions: true,
+                                });
+                              } else {
+                                const memberships =
+                                  preselectedAccountMembership != null
+                                    ? [preselectedAccountMembership]
+                                    : [accountMembership];
+
+                                addSingleUseCardsWrapper(
+                                  buildSingleUseCardsInput(
+                                    cardProduct,
+                                    memberships,
+                                    spendingLimitValue,
+                                    cardName,
+                                  ),
+                                );
+                              }
+                            }}
+                          />
+                        ),
+                      )
+                      .with(
                         { name: "CardProductSettings" },
                         ({
                           cardName,
@@ -646,35 +733,27 @@ export const CardWizard = ({
                         }) => (
                           <CardWizardSettings
                             ref={cardWizardSettingsRef}
-                            cardProduct={cardProduct}
-                            cardFormat={cardFormat}
                             initialSettings={{
                               cardName,
-                              spendingLimit,
                               eCommerce,
                               withdrawal,
                               international,
                               nonMainCurrencyTransactions,
                             }}
-                            accountHolder={accountMembership.account?.holder}
                             onSubmit={cardSettings => {
-                              const { spendingLimit, ...restCardSettings } = cardSettings;
-
                               if (hasMoreThanOneMember) {
                                 setStep({
                                   name: "CardProductMembers",
                                   cardProduct,
                                   cardFormat,
                                   spendingLimit,
-                                  ...restCardSettings,
+                                  ...cardSettings,
                                 });
                               } else {
                                 const memberships =
                                   preselectedAccountMembership != null
                                     ? [preselectedAccountMembership]
-                                    : hasMoreThanOneMember
-                                      ? (accountMemberships.edges.map(({ node }) => node) ?? [])
-                                      : [accountMembership];
+                                    : [accountMembership];
 
                                 if (canOrderPhysicalCard) {
                                   setStep({
@@ -683,47 +762,27 @@ export const CardWizard = ({
                                     cardFormat,
                                     memberships,
                                     spendingLimit,
-                                    ...restCardSettings,
+                                    ...cardSettings,
                                   });
                                 } else {
-                                  if (cardFormat === "SingleUseVirtual") {
-                                    addSingleUseCardsWrapper({
-                                      cardProductId: cardProduct.id,
-                                      consentRedirectUrl:
-                                        window.location.origin +
-                                        Router.AccountCardsList({
-                                          accountMembershipId: accountMembership.id,
-                                        }),
-                                      cards: memberships.map(accountMembership => {
-                                        return {
-                                          name: cardSettings.cardName,
-                                          accountMembershipId: accountMembership.id,
-                                          spendingLimit: deriveSpendingLimitInput(spendingLimit),
-                                        };
+                                  addCardsWrapper({
+                                    cardProductId: cardProduct.id,
+                                    consentRedirectUrl:
+                                      window.location.origin +
+                                      Router.AccountCardsList({
+                                        accountMembershipId: accountMembership.id,
                                       }),
-                                    });
-                                  } else {
-                                    addCardsWrapper({
-                                      cardProductId: cardProduct.id,
-                                      consentRedirectUrl:
-                                        window.location.origin +
-                                        Router.AccountCardsList({
-                                          accountMembershipId: accountMembership.id,
-                                        }),
-                                      cards: memberships.map(membership => {
-                                        return {
-                                          accountMembershipId: membership.id,
-                                          spendingLimit: deriveSpendingLimitInput(spendingLimit),
-                                          name: cardSettings.cardName,
-                                          eCommerce: cardSettings.eCommerce,
-                                          withdrawal: cardSettings.withdrawal,
-                                          international: cardSettings.international,
-                                          nonMainCurrencyTransactions:
-                                            cardSettings.nonMainCurrencyTransactions,
-                                        };
-                                      }),
-                                    });
-                                  }
+                                    cards: memberships.map(membership => ({
+                                      accountMembershipId: membership.id,
+                                      spendingLimit: deriveSpendingLimitInput(spendingLimit),
+                                      name: cardSettings.cardName,
+                                      eCommerce: cardSettings.eCommerce,
+                                      withdrawal: cardSettings.withdrawal,
+                                      international: cardSettings.international,
+                                      nonMainCurrencyTransactions:
+                                        cardSettings.nonMainCurrencyTransactions,
+                                    })),
+                                  });
                                 }
                               }
                             }}
@@ -988,19 +1047,24 @@ export const CardWizard = ({
                               setStep({ name: "CardProductFormat", cardProduct, ...rest }),
                           )
                           .with(
+                            { name: "CardProductSingleUseSpendingLimit" },
+                            ({ cardProduct, name, ...rest }) =>
+                              setStep({ name: "CardProductFormat", cardProduct, ...rest }),
+                          )
+                          .with(
                             { name: "CardProductSettings" },
                             ({ cardProduct, cardFormat, name, ...rest }) =>
-                              cardFormat === "SingleUseVirtual"
-                                ? setStep({ name: "CardProductFormat", cardProduct, ...rest })
-                                : setStep({
-                                    name: "CardProductSpendingLimit",
-                                    cardProduct,
-                                    cardFormat,
-                                    ...rest,
-                                  }),
+                              setStep({
+                                name: "CardProductSpendingLimit",
+                                cardProduct,
+                                cardFormat,
+                                ...rest,
+                              }),
                           )
                           .with({ name: "CardProductMembers" }, ({ name, ...rest }) =>
-                            setStep({ name: "CardProductSettings", ...rest }),
+                            rest.cardFormat === "SingleUseVirtual"
+                              ? setStep({ name: "CardProductSingleUseSpendingLimit", ...rest })
+                              : setStep({ name: "CardProductSettings", ...rest }),
                           )
                           .with({ name: "CardProductDelivery" }, ({ name, ...rest }) =>
                             setStep({ name: "CardProductMembers", ...rest }),
@@ -1046,6 +1110,9 @@ export const CardWizard = ({
                           })
                           .with("CardProductSpendingLimit", () => {
                             cardWizardSpendingLimitRef.current?.submit();
+                          })
+                          .with("CardProductSingleUseSpendingLimit", () => {
+                            cardWizardSingleUseSpendingLimitRef.current?.submit();
                           })
                           .with("CardProductSettings", () => {
                             cardWizardSettingsRef.current?.submit();

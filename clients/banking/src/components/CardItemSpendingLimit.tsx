@@ -1,3 +1,4 @@
+import { Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -143,6 +144,27 @@ export const narrowSpendingLimitValue = (
   return { amount: value.amount, mode };
 };
 
+export type SpendingLimitValidationError = "InvalidAmount" | "ExceedsMaxAmount" | "InvalidMode";
+
+export const validateSpendingLimit = (
+  value: SpendingLimitFormValue,
+  maxValue: number,
+): Result<SpendingLimitValue, SpendingLimitValidationError[]> => {
+  const numericValue = Number(value.amount.value);
+  const errors: SpendingLimitValidationError[] = [];
+  if (numericValue > maxValue) {
+    errors.push("ExceedsMaxAmount");
+  }
+  const narrowed = narrowSpendingLimitValue(value);
+  if (narrowed == null) {
+    errors.push("InvalidMode");
+  }
+  if (narrowed == null) {
+    return Result.Error(errors.length > 0 ? errors : ["InvalidMode"]);
+  }
+  return errors.length > 0 ? Result.Error(errors) : Result.Ok(narrowed);
+};
+
 export const deriveSpendingLimitValue = (
   spendingLimits: SpendingLimitFragment[],
 ): SpendingLimitValue | undefined => {
@@ -284,7 +306,7 @@ export const SpendingLimitForm = ({
       <Space height={4} />
 
       <LakeTextInput
-        unit={"€"}
+        unit="EUR"
         value={dirtyValue}
         onChangeText={setDirtyValue}
         onBlur={sanitizeInput}

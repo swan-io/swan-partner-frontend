@@ -43,7 +43,7 @@ void (async () => {
           // always be invalidated due to credentials being sent (i.e. Cookies)
           polyfillModulePreload: false,
           sourcemap: true,
-          target: ["es2019", "edge80", "firefox72", "chrome80", "safari12"],
+          target: ["es2019", "edge80", "firefox72", "chrome80", "safari14.1"],
           assetsDir: `assets/${version}`,
         },
       });

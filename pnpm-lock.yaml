@@ -394,6 +394,9 @@ importers:
       '@fastify/middie':
         specifier: 9.3.2
         version: 9.3.2
+      '@fastify/otel':
+        specifier: 0.19.0
+        version: 0.19.0(@opentelemetry/api@1.9.0)
       '@fastify/reply-from':
         specifier: 12.6.2
         version: 12.6.2
@@ -1109,6 +1112,11 @@ packages:
   '@fastify/middie@9.3.2':
     resolution: {integrity: sha512-5C3xMHJxpfqoHd+xZSHPBI71fpzkoF6wMsYtgzXRyQUNvsIAxJm2yY4r2fUjF0h3rS9MXlo/aXLaXv3s4TL+JQ==, tarball: https://registry.npmjs.org/@fastify/middie/-/middie-9.3.2.tgz}
 
+  '@fastify/otel@0.19.0':
+    resolution: {integrity: sha512-gf2S5IhN72Jqi/09wOmWAsKscG/AwXSq9rrESnTVBIkMKl8Y+7FqA7bzf9OEa5/H8oxugc7belJOTURb5tZXuQ==, tarball: https://registry.npmjs.org/@fastify/otel/-/otel-0.19.0.tgz}
+    peerDependencies:
+      '@opentelemetry/api': ^1.9.0
+
   '@fastify/proxy-addr@5.0.0':
     resolution: {integrity: sha512-37qVVA1qZ5sgH7KpHkkC4z9SK6StIsIcOmpjvMPXNb3vx2GQxhZocogVYbr2PbbeLCQxYIPDok307xEvRZOzGA==, tarball: https://registry.npmjs.org/@fastify/proxy-addr/-/proxy-addr-5.0.0.tgz}
 
@@ -1703,6 +1711,10 @@ packages:
     resolution: {integrity: sha512-zRM5/Qj6G84Ej3F1yt33xBVY/3tnMxtL1fiDIxYbDWYaZ/eudVw3/PBiZ8G7JwUxXxjW8gU4g6LnOyfGKYHYgw==, tarball: https://registry.npmjs.org/@opentelemetry/api-logs/-/api-logs-0.213.0.tgz}
     engines: {node: '>=8.0.0'}
 
+  '@opentelemetry/api-logs@0.218.0':
+    resolution: {integrity: sha512-fmEWp5kXlGEc3i/lR698Hz41DfGyN4Tbe4g7L1AxSc7fF8Xeh/FQ9Quqpa9dVA413Q1Ad43QOLzU4JoXgbFPWw==, tarball: https://registry.npmjs.org/@opentelemetry/api-logs/-/api-logs-0.218.0.tgz}
+    engines: {node: '>=8.0.0'}
+
   '@opentelemetry/api-logs@0.219.0':
     resolution: {integrity: sha512-FFx7YnaYJlIjqWW/AG/yAZ0L/NEY724PipXXXQLdtZPbLwBGbUMTGL1i/esI56TWfTUXxhLfpgrnWJCG8aUJyg==, tarball: https://registry.npmjs.org/@opentelemetry/api-logs/-/api-logs-0.219.0.tgz}
     engines: {node: '>=8.0.0'}
@@ -2110,6 +2122,12 @@ packages:
 
   '@opentelemetry/instrumentation@0.212.0':
     resolution: {integrity: sha512-IyXmpNnifNouMOe0I/gX7ENfv2ZCNdYTF0FpCsoBcpbIHzk81Ww9rQTYTnvghszCg7qGrIhNvWC8dhEifgX9Jg==, tarball: https://registry.npmjs.org/@opentelemetry/instrumentation/-/instrumentation-0.212.0.tgz}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation@0.218.0':
+    resolution: {integrity: sha512-mIZil8Es+sYDK5m+DQiwAwF57F14TF2YlEqvIjZ/RQWcxDBwRGsKfdK2Tv65OU9meQKCMzSIFS9mxAcnAb6Bkg==, tarball: https://registry.npmjs.org/@opentelemetry/instrumentation/-/instrumentation-0.218.0.tgz}
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
@@ -6136,6 +6154,16 @@ snapshots:
       path-to-regexp: 8.4.2
       reusify: 1.1.0
 
+  '@fastify/otel@0.19.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.218.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.39.0
+      minimatch: 10.2.5
+    transitivePeerDependencies:
+      - supports-color
+
   '@fastify/proxy-addr@5.0.0':
     dependencies:
       '@fastify/forwarded': 3.0.0
@@ -7110,6 +7138,10 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.9.0
 
+  '@opentelemetry/api-logs@0.218.0':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+
   '@opentelemetry/api-logs@0.219.0':
     dependencies:
       '@opentelemetry/api': 1.9.0
@@ -7717,6 +7749,15 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/api-logs': 0.212.0
       import-in-the-middle: 2.0.6
+      require-in-the-middle: 8.0.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation@0.218.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/api-logs': 0.218.0
+      import-in-the-middle: 3.2.0
       require-in-the-middle: 8.0.1
     transitivePeerDependencies:
       - supports-color

@@ -222,6 +222,33 @@ export const start = async (config: AppConfig) => {
     },
   });
 
+  const contentSecurityPolicyDirectives: Record<string, string[]> = {
+    "default-src": ["'self'"],
+    "base-uri": ["'self'"],
+    "object-src": ["'none'"],
+    "script-src": ["'self'", "https://*.checkout.com", "https://*.posthog.com"],
+    "style-src": ["'self'", "'unsafe-inline'"],
+    "img-src": ["'self'", "data:", "blob:", "https:"],
+    "font-src": ["'self'", "data:"],
+    "connect-src": [
+      "'self'",
+      env.IDENTITY_URL,
+      "https://*.posthog.com",
+      "https://faro-collector-prod-eu-west-6.grafana.net",
+      "https://suggestions.pappers.fr",
+      "https://api.tggl.io",
+      "https://api.placekit.co",
+      "https://*.checkout.com",
+    ],
+    "frame-src": ["'self'", env.IDENTITY_URL, env.PAYMENT_URL, "https://*.checkout.com"],
+    "frame-ancestors": ["'self'", env.BANKING_URL],
+    "report-uri": ["/api/report"],
+  };
+
+  const contentSecurityPolicyReportOnly = Object.entries(contentSecurityPolicyDirectives)
+    .map(([directive, sources]) => `${directive} ${sources.join(" ")}`)
+    .join("; ");
+
   await app.register(fastifyHelmet, {
     crossOriginOpenerPolicy: {
       policy: "unsafe-none",
@@ -229,10 +256,33 @@ export const start = async (config: AppConfig) => {
     contentSecurityPolicy: {
       useDefaults: false,
       directives: {
-        defaultSrc: ["*", "data:", "blob:", "'unsafe-inline'"],
+        defaultSrc: fastifyHelmet.contentSecurityPolicy.dangerouslyDisableDefaultSrc,
         frameAncestors: ["'self'", env.BANKING_URL],
       },
     },
+  });
+
+
+  app.addHook("onSend", (_request, reply, _payload, done) => {
+    reply.header("Content-Security-Policy-Report-Only", contentSecurityPolicyReportOnly);
+    done();
+  });
+
+  app.addContentTypeParser(
+    ["application/csp-report", "application/reports+json"],
+    { parseAs: "string" },
+    (_request, body, done) => {
+      try {
+        done(null, typeof body === "string" && body.length > 0 ? JSON.parse(body) : {});
+      } catch {
+        done(null, {});
+      }
+    },
+  );
+
+  app.post("/api/report", (request, reply) => {
+    request.log.warn(request.body, "csp-violation");
+    return reply.status(204).send();
   });
 
   const corsOptions = {

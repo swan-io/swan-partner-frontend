@@ -262,22 +262,12 @@ export const start = async (config: AppConfig) => {
     },
   });
 
-  /**
-   * Emit the full target policy in report-only mode alongside Helmet's enforced
-   * `frame-ancestors`. Browsers report violations to `/csp-report` (see below)
-   * without blocking anything, so we can validate the allowlist against real
-   * traffic before promoting these directives to the enforced policy above.
-   */
+
   app.addHook("onSend", (_request, reply, _payload, done) => {
     reply.header("Content-Security-Policy-Report-Only", contentSecurityPolicyReportOnly);
     done();
   });
 
-  /**
-   * Collects Content-Security-Policy violation reports while the policy runs in
-   * report-only mode. Browsers post these as `application/csp-report`, which
-   * Fastify doesn't parse out of the box.
-   */
   app.addContentTypeParser(
     ["application/csp-report", "application/reports+json"],
     { parseAs: "string" },

@@ -226,7 +226,7 @@ export const start = async (config: AppConfig) => {
     "default-src": ["'self'"],
     "base-uri": ["'self'"],
     "object-src": ["'none'"],
-    "script-src": ["'self'", "https://*.checkout.com", "https://*.posthog.com"],
+    "script-src": ["'self'", "https://*.checkout.com", "https://*.posthog.com", "https://static.zdassets.com"],
     "style-src": ["'self'", "'unsafe-inline'"],
     "img-src": ["'self'", "data:", "blob:", "https:"],
     "font-src": ["'self'", "data:"],
@@ -239,6 +239,9 @@ export const start = async (config: AppConfig) => {
       "https://api.tggl.io",
       "https://api.placekit.co",
       "https://*.checkout.com",
+      "https://*.swan.io",
+      "https://*.zdassets.com",
+      "https://*.zendesk.com"
     ],
     "frame-src": ["'self'", env.IDENTITY_URL, env.PAYMENT_URL, "https://*.checkout.com"],
     "frame-ancestors": ["'self'", env.BANKING_URL],

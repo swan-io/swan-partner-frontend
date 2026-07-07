@@ -41,7 +41,10 @@ const isUnauthorizedLikeString = (value: string) => {
 const isUserNotFoundError = (clientError: ClientError) =>
   ClientError.toArray(clientError).some(error =>
     match(error)
-      .with({ extensions: { code: "Identity_NotFound" } }, () => true)
+      .with(
+        { extensions: { code: "Identity_NotFound", meta: { fieldName: "id", fieldValue: "" } } },
+        () => true,
+      )
       .otherwise(() => false),
   );
 

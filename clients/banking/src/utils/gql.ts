@@ -38,6 +38,17 @@ const isUnauthorizedLikeString = (value: string) => {
   return lowerCased.includes("unauthenticated") || lowerCased.includes("unauthorized");
 };
 
+const isUserNotFoundError = (clientError: ClientError) =>
+  ClientError.toArray(clientError).some(error =>
+    match(error)
+      .with({ extensions: { code: "Identity_NotFound" } }, () => true)
+      .otherwise(() => false),
+  );
+
+// Expected when logged out: AuthStatus checks `user` with no id, which the API rejects.
+const isExpectedAuthStatusError = (operationName: string, clientError: ClientError) =>
+  operationName === "AuthStatus" && isUserNotFoundError(clientError);
+
 export const filterOutUnauthorizedError = (operationName: string, clientError: ClientError) => {
   if (
     isNullish(Router.getRoute(["ProjectLogin"])) && // We are not on the project login page
@@ -97,7 +108,9 @@ const makeRequest: MakeRequest = ({ url, headers, operationName, document, varia
     )
     .flatMapError(error => filterOutUnauthorizedError(operationName, error))
     .tapError(errors => {
-      logger.error(errors, { source: "GraphQL.Client", requestId });
+      if (!isExpectedAuthStatusError(operationName, errors)) {
+        logger.error(errors, { source: "GraphQL.Client", requestId });
+      }
 
       ClientError.forEach(errors, error => {
         errorToRequestId.set(error, requestId);

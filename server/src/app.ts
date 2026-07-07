@@ -241,7 +241,10 @@ export const start = async (config: AppConfig) => {
       "https://*.checkout.com",
       "https://*.swan.io",
       "https://*.zdassets.com",
-      "https://*.zendesk.com"
+      "https://*.zendesk.com",
+      "https://swan.matomo.cloud", //@todo to remove when onboarding v1 is deleted
+      "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-live", //@todo fragile, see if with infra if we can use a custom domain swan.io
+      "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-sandbox"
     ],
     "frame-src": ["'self'", env.IDENTITY_URL, env.PAYMENT_URL, "https://*.checkout.com"],
     "frame-ancestors": ["'self'", env.BANKING_URL],

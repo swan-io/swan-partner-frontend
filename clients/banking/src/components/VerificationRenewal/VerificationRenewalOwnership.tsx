@@ -129,6 +129,11 @@ const convertFetchUboToInput = (
       ? (getCCA3forCCA2(fetchedUbo.birthInfo?.country) ?? accountCountry)
       : accountCountry;
 
+  // Normalize CCA2 country codes to CCA3, which the API expects
+  const addressCountry = isCountryCCA2(fetchedUbo.address?.country)
+    ? getCCA3forCCA2(fetchedUbo.address?.country)
+    : fetchedUbo.address?.country;
+
   const ubo = {
     [REFERENCE_SYMBOL]: uuid(),
     firstName: fetchedUbo.firstName ?? "",
@@ -143,7 +148,7 @@ const convertFetchUboToInput = (
     totalPercentage: totalPercentage ?? undefined,
     addressLine1: fetchedUbo.address?.addressLine1 ?? "",
     city: fetchedUbo.address?.city ?? "",
-    country: fetchedUbo.address?.country as CountryCCA3,
+    country: addressCountry as CountryCCA3,
     postalCode: fetchedUbo.address?.postalCode ?? "",
     taxIdentificationNumber: fetchedUbo.taxIdentificationNumber ?? undefined,
   } satisfies Partial<Input>;

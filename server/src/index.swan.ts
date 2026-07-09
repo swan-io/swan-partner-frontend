@@ -68,10 +68,9 @@ start({
       async (request, reply) => {
         const isLive = env.OAUTH_CLIENT_ID.startsWith("LIVE_");
         if (isLive) {
-          const disabled = await evaluateFlag(
+          const disabled = evaluateFlag(
             "disableWebBanking",
             getFlagContext(request.params.projectId),
-            request.log,
           );
           if (disabled) {
             request.log.warn(
@@ -150,10 +149,9 @@ start({
       async (request, reply) => {
         const isLive = env.OAUTH_CLIENT_ID.startsWith("LIVE_");
         if (isLive) {
-          const disabled = await evaluateFlag(
+          const disabled = evaluateFlag(
             "disableWebBanking",
             getFlagContext(request.params.projectId),
-            request.log,
           );
           if (disabled) {
             request.log.warn(
@@ -211,10 +209,9 @@ start({
       async (request, reply) => {
         const accountCountry = parseAccountCountry(request.query.accountCountry);
         const projectId = request.params.projectId;
-        const allowNoCodeOnboardingV1 = await evaluateFlag(
+        const allowNoCodeOnboardingV1 = evaluateFlag(
           "allowNoCodeOnboardingV1",
           getFlagContext(projectId),
-          request.log,
         );
         // partner allowed to keep v1 still on v1 by default, others defaults to v2 onboarding
         const isOnboardingV2 = allowNoCodeOnboardingV1 ? request.query.v2 === "true" : true;
@@ -261,10 +258,9 @@ start({
       async (request, reply) => {
         const accountCountry = parseAccountCountry(request.query.accountCountry);
         const projectId = request.params.projectId;
-        const allowNoCodeOnboardingV1 = await evaluateFlag(
+        const allowNoCodeOnboardingV1 = evaluateFlag(
           "allowNoCodeOnboardingV1",
           getFlagContext(projectId),
-          request.log,
         );
         // partner allowed to keep v1 still on v1 by default, others defaults to v2 onboarding
         const isOnboardingV2 = allowNoCodeOnboardingV1 ? request.query.v2 === "true" : true;

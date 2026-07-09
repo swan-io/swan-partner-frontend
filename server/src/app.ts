@@ -1031,8 +1031,8 @@ export const start = async (config: AppConfig) => {
     return reply.send({ success });
   });
 
-  app.get("/api/flags", async (request, reply) => {
-    const flags = await evaluateFlags(request.query as Partial<FlagContext>, request.log);
+  app.get("/api/flags", (request, reply) => {
+    const flags = evaluateFlags(request.query as Partial<FlagContext>);
     reply.send(flags);
   });
 

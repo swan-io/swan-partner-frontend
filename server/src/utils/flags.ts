@@ -1,8 +1,17 @@
-import { Result } from "@swan-io/boxed";
-import { FastifyBaseLogger } from "fastify";
+import { TgglLocalClient } from "tggl-client";
 import { match, P } from "ts-pattern";
 import { FlagContext, flagDefaults, Flags } from "../common/flags";
 import { env } from "../env";
+
+/**
+ * TgglLocalClient fetches the Tggl config from the Tggl server and caches it in memory.
+ * Making possible to evaluate flags without making a network request each time.
+ * The Tggl config is reloaded every 5 seconds in background to keep flags up to date when updating them in the Tggl dashboard.
+ */
+const client = new TgglLocalClient({
+  apiKey: env.TGGL_SERVER_KEY,
+  pollingIntervalMs: 5_000, // reload Tggl config every 5 seconds in background
+});
 
 export const getFlagContext = (projectId: string): Partial<FlagContext> => {
   return {
@@ -19,45 +28,21 @@ export const getFlagContext = (projectId: string): Partial<FlagContext> => {
   };
 };
 
-export const evaluateFlags = async (
-  context: Partial<FlagContext>,
-  log: FastifyBaseLogger,
-): Promise<Flags> => {
-  const flagsResult = await Result.fromPromise(
-    fetch("https://api.tggl.io/flags", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-tggl-api-key": env.TGGL_SERVER_KEY,
-      },
-      body: JSON.stringify(context),
-    }).then(async res => {
-      if (!res.ok) {
-        const text = await res.text();
-        log.error(`Failed to fetch flags from TGGL API: ${res.status} - ${text}`);
-        throw new Error(`Failed to fetch flags from TGGL API: ${res.status}`);
-      } else {
-        return res.json();
-      }
-    }),
-  );
-
-  const flagsData = flagsResult.toOption().getOr({});
+export const evaluateFlags = (context: Partial<FlagContext>): Flags => {
+  const flags: Record<string, unknown> = client.getAll(context);
 
   // Ensure only allowed flags are returned, and apply defaults for missing flags
-  const flagsResponse = Object.entries(flagDefaults).map(([key, defaultValue]) => {
-    const value = flagsData[key] ?? defaultValue;
+  const filteredFlags = Object.entries(flagDefaults).map(([key, defaultValue]) => {
+    const value = flags[key] ?? defaultValue;
     return [key, value];
   });
 
-  return Object.fromEntries(flagsResponse);
+  return Object.fromEntries(filteredFlags);
 };
 
-export const evaluateFlag = async <K extends keyof Flags>(
+export const evaluateFlag = <K extends keyof Flags>(
   flagName: K,
   context: Partial<FlagContext>,
-  log: FastifyBaseLogger,
-): Promise<Flags[K]> => {
-  const flags = await evaluateFlags(context, log);
-  return flags[flagName];
+): Flags[K] => {
+  return client.get(context, flagName, flagDefaults[flagName]);
 };

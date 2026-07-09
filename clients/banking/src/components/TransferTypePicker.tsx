@@ -6,9 +6,9 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useCallback, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
-import { useFlag } from "react-tggl-client";
 import { AccountCountry } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
+import { useFlag } from "../utils/flags";
 import { t } from "../utils/i18n";
 import { RouteParams, Router } from "../utils/routes";
 import { TransferBulkWizard } from "./TransferBulkWizard";
@@ -51,7 +51,7 @@ export const TransferTypePicker = ({
   accountCountry,
   params,
 }: Props) => {
-  const ictEnabled = useFlag("initiate_international_credit_transfer_outgoing", false);
+  const ictEnabled = useFlag("initiate_international_credit_transfer_outgoing");
   const permissions = usePermissions();
 
   useCrumb(

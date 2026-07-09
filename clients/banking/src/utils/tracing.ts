@@ -2,8 +2,8 @@ import { Faro, getWebInstrumentations, initializeFaro, LogLevel } from "@grafana
 import { TracingInstrumentation } from "@grafana/faro-web-tracing";
 import { match, P } from "ts-pattern";
 import { env } from "./env";
+import { flagsClient } from "./flags";
 import { setPostHogUser } from "./logger";
-import { updateTgglContext } from "./tggl";
 
 let faro: Faro | null = null;
 
@@ -50,7 +50,7 @@ type User = {
 export const setTrackingUser = (user: User) => {
   faro?.api.setUser({ id: user.id });
   setPostHogUser(user);
-  updateTgglContext({ userId: user.id });
+  flagsClient.setContext({ userId: user.id });
 };
 
 export const logger = {

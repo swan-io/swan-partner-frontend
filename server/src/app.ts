@@ -45,8 +45,10 @@ import {
 } from "./api/unauthenticated";
 import { startDevServer } from "./client/devServer";
 import { getProductionRequestHandler } from "./client/prodServer";
+import { FlagContext } from "./common/flags";
 import { env } from "./env";
 import { replyWithAuthError, replyWithError } from "./error";
+import { evaluateFlags } from "./utils/flags";
 const packageJson = JSON.parse(
   fs.readFileSync(path.join(__dirname, "../package.json"), "utf-8"),
 ) as { version: string };
@@ -142,9 +144,7 @@ const assertIsBoundToLocalhost = (host: string) => {
 export const start = async (config: AppConfig) => {
   const { invitationMode, allowedCorsOrigins = [] } = config;
   const sendAccountMembershipInvitation =
-    config.invitationMode === "CUSTOM_EMAIL"
-      ? config.sendAccountMembershipInvitation
-      : undefined;
+    config.invitationMode === "CUSTOM_EMAIL" ? config.sendAccountMembershipInvitation : undefined;
   if (env.NODE_ENV === "development") {
     try {
       await Promise.all([
@@ -226,7 +226,12 @@ export const start = async (config: AppConfig) => {
     "default-src": ["'self'"],
     "base-uri": ["'self'"],
     "object-src": ["'none'"],
-    "script-src": ["'self'", "https://*.checkout.com", "https://*.posthog.com", "https://static.zdassets.com"],
+    "script-src": [
+      "'self'",
+      "https://*.checkout.com",
+      "https://*.posthog.com",
+      "https://static.zdassets.com",
+    ],
     "style-src": ["'self'", "'unsafe-inline'"],
     "img-src": ["'self'", "data:", "blob:", "https:"],
     "font-src": ["'self'", "data:"],
@@ -236,7 +241,6 @@ export const start = async (config: AppConfig) => {
       "https://*.posthog.com",
       "https://faro-collector-prod-eu-west-6.grafana.net",
       "https://suggestions.pappers.fr",
-      "https://api.tggl.io",
       "https://api.placekit.co",
       "https://*.checkout.com",
       "https://*.swan.io",
@@ -269,7 +273,6 @@ export const start = async (config: AppConfig) => {
       },
     },
   });
-
 
   app.addHook("onSend", (_request, reply, _payload, done) => {
     reply.header("Content-Security-Policy-Report-Only", contentSecurityPolicyReportOnly);
@@ -1028,6 +1031,11 @@ export const start = async (config: AppConfig) => {
     return reply.send({ success });
   });
 
+  app.get("/api/flags", (request, reply) => {
+    const flags = evaluateFlags(request.query as Partial<FlagContext>);
+    reply.send(flags);
+  });
+
   /**
    * Exposes environement variables to the client apps at runtime.
    * The client simply has to load `<script src="/env.js"></script>`
@@ -1040,7 +1048,6 @@ export const start = async (config: AppConfig) => {
         process.env.SWAN_ENVIRONMENT ??
         (env.OAUTH_CLIENT_ID.startsWith("LIVE_") ? "LIVE" : "SANDBOX"),
       ACCOUNT_MEMBERSHIP_INVITATION_MODE: invitationMode,
-      TGGL_API_KEY: process.env.TGGL_API_KEY,
       BANKING_URL: env.BANKING_URL,
       PAYMENT_URL: env.PAYMENT_URL,
       IDENTITY_URL: env.IDENTITY_URL,

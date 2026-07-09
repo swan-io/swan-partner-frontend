@@ -32,7 +32,6 @@ import { CONTENT_ID, SkipToContent } from "@swan-io/shared-business/src/componen
 import { AdditionalInfo } from "@swan-io/shared-business/src/components/SupportChat";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NativeScrollEvent, NativeSyntheticEvent, Pressable, StyleSheet, View } from "react-native";
-import { useFlag, useTggl } from "react-tggl-client";
 import { match, P } from "ts-pattern";
 import logoSwan from "../assets/images/logo-swan.svg";
 import { AccountAreaQuery, AccountLanguage, IdentificationFragment } from "../graphql/partner";
@@ -41,6 +40,7 @@ import { AccountActivationPage } from "../pages/AccountActivationPage";
 import { AccountNotFoundPage, NotFoundPage } from "../pages/NotFoundPage";
 import { ProfilePage } from "../pages/ProfilePage";
 import { env } from "../utils/env";
+import { flagsClient, useFlag } from "../utils/flags";
 import { partnerAdminClient } from "../utils/gql";
 import { t } from "../utils/i18n";
 import { getIdentificationLevelStatusInfo } from "../utils/identification";
@@ -223,7 +223,7 @@ export const AccountArea = ({
   const projectLogo = projectInfo.logoUri ?? undefined;
 
   const permissions = usePermissions();
-  const isMerchantFlagActive = useFlag("merchantWebBanking", false);
+  const isMerchantFlagActive = useFlag("merchantWebBanking");
 
   const menu: Menu =
     holder?.verificationStatus === "Refused"
@@ -290,14 +290,13 @@ export const AccountArea = ({
         ];
 
   const route = Router.useRoute(accountRoutes);
-  const { updateContext } = useTggl();
 
   const email = accountMembership.email;
   const hasRequiredIdentificationLevel = accountMembership.hasRequiredIdentificationLevel ?? false;
 
   useEffect(() => {
-    updateContext({ accountCountry, userId, email });
-  }, [updateContext, accountCountry, userId, email]);
+    flagsClient.setContext({ accountCountry, userId, email });
+  }, [accountCountry, userId, email]);
 
   const additionalInfo = useMemo<AdditionalInfo>(
     () => ({

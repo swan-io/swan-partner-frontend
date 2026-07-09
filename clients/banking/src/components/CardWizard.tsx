@@ -16,7 +16,6 @@ import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { useFlag } from "react-tggl-client";
 import { match, P } from "ts-pattern";
 import {
   AccountMembershipFragment,
@@ -32,6 +31,7 @@ import {
   GetCardProductsDocument,
   GetCardProductsQuery,
 } from "../graphql/partner";
+import { useFlag } from "../utils/flags";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
@@ -232,7 +232,7 @@ export const CardWizard = ({
 
   // Feature flag used only during deferred debit card development
   // Should be removed once the feature is fully developed
-  const showDeferredDebitCard = useFlag("deferredDebitCard", false);
+  const showDeferredDebitCard = useFlag("deferredDebitCard");
 
   const [step, setStep] = useState<Step>(INITIAL_STEP);
 

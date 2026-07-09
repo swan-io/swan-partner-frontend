@@ -6,7 +6,6 @@ import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { ToastStack } from "@swan-io/shared-business/src/components/ToastStack";
 import { StyleSheet } from "react-native";
-import { TgglProvider, useFlag } from "react-tggl-client";
 import { P, match } from "ts-pattern";
 import { AccountClose } from "./components/AccountClose";
 import { AccountMembershipArea } from "./components/AccountMembershipArea";
@@ -19,10 +18,10 @@ import { VerificationRenewalArea } from "./components/VerificationRenewal/Verifi
 import { AuthStatusDocument } from "./graphql/partner";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { ProjectLoginPage } from "./pages/ProjectLoginPage";
+import { FlagsProvider, useFlag } from "./utils/flags";
 import { partnerClient, unauthenticatedClient } from "./utils/gql";
 import { projectConfiguration } from "./utils/projectId";
 import { Router } from "./utils/routes";
-import { tgglClient } from "./utils/tggl";
 import { logger } from "./utils/tracing";
 
 const styles = StyleSheet.create({
@@ -46,7 +45,7 @@ const AppContainer = () => {
 
   // Feature flag used only during deferred debit card development
   // Should be removed once the feature is fully developed
-  const showDeferredDebitCard = useFlag("deferredDebitCard", false);
+  const showDeferredDebitCard = useFlag("deferredDebitCard");
 
   const loginInfo = authStatus
     .mapOk(data => data.user?.id != null)
@@ -140,13 +139,13 @@ export const App = () => {
       onError={error => logger.error(error, { source: "App.ErrorBoundary" })}
       fallback={() => <ErrorView style={styles.base} />}
     >
-      <TgglProvider client={tgglClient}>
+      <FlagsProvider>
         <ClientContext.Provider value={partnerClient}>
           <AppContainer />
           <ToastStack />
         </ClientContext.Provider>
         <ToastStack />
-      </TgglProvider>
+      </FlagsProvider>
     </ErrorBoundary>
   );
 };

@@ -164,14 +164,14 @@ importers:
         specifier: 0.8.0
         version: 0.8.0(graphql@16.12.0)(react@19.2.6)(typescript@6.0.2)
       '@swan-io/lake':
-        specifier: 15.1.1
-        version: 15.1.1(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)
+        specifier: 15.2.0
+        version: 15.2.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)
       '@swan-io/request':
         specifier: 3.1.0
         version: 3.1.0(@swan-io/boxed@3.2.1(typescript@6.0.2))
       '@swan-io/shared-business':
-        specifier: 15.1.1
-        version: 15.1.1(@swan-io/lake@15.1.1(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)
+        specifier: 15.2.0
+        version: 15.2.0(@swan-io/lake@15.2.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@19.2.6)(typescript@6.0.2)
@@ -202,9 +202,6 @@ importers:
       react-native-web:
         specifier: 0.21.2
         version: 0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
-      react-tggl-client:
-        specifier: 4.0.1
-        version: 4.0.1
       rifm:
         specifier: 0.12.1
         version: 0.12.1(react@19.2.6)
@@ -252,14 +249,14 @@ importers:
         specifier: 0.8.0
         version: 0.8.0(graphql@16.12.0)(react@19.2.6)(typescript@6.0.2)
       '@swan-io/lake':
-        specifier: 15.1.1
-        version: 15.1.1(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)
+        specifier: 15.2.0
+        version: 15.2.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)
       '@swan-io/request':
         specifier: 3.1.0
         version: 3.1.0(@swan-io/boxed@3.2.1(typescript@6.0.2))
       '@swan-io/shared-business':
-        specifier: 15.1.1
-        version: 15.1.1(@swan-io/lake@15.1.1(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)
+        specifier: 15.2.0
+        version: 15.2.0(@swan-io/lake@15.2.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@19.2.6)(typescript@6.0.2)
@@ -284,9 +281,6 @@ importers:
       react-native-web:
         specifier: 0.21.2
         version: 0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
-      react-tggl-client:
-        specifier: 4.0.1
-        version: 4.0.1
       ts-pattern:
         specifier: 5.9.0
         version: 5.9.0
@@ -325,11 +319,11 @@ importers:
         specifier: 0.8.0
         version: 0.8.0(graphql@16.12.0)(react@19.2.6)(typescript@6.0.2)
       '@swan-io/lake':
-        specifier: 15.1.1
-        version: 15.1.1(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)
+        specifier: 15.2.0
+        version: 15.2.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)
       '@swan-io/shared-business':
-        specifier: 15.1.1
-        version: 15.1.1(@swan-io/lake@15.1.1(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)
+        specifier: 15.2.0
+        version: 15.2.0(@swan-io/lake@15.2.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@19.2.6)(typescript@6.0.2)
@@ -460,9 +454,6 @@ importers:
       pino-pretty:
         specifier: 13.1.3
         version: 13.1.3
-      tggl-client:
-        specifier: 3.2.1
-        version: 3.2.1
       ts-pattern:
         specifier: 5.9.0
         version: 5.9.0
@@ -1151,8 +1142,8 @@ packages:
   '@formatjs/icu-messageformat-parser@3.5.1':
     resolution: {integrity: sha512-sSDmSvmmoVQ92XqWb499KrIhv/vLisJU8ITFrx7T7NZHUmMY7EL9xgRowAosaljhqnj/5iufG24QrdzB6X3ItA==, tarball: https://registry.npmjs.org/@formatjs/icu-messageformat-parser/-/icu-messageformat-parser-3.5.1.tgz}
 
-  '@formatjs/icu-messageformat-parser@3.5.11':
-    resolution: {integrity: sha512-NVsuNsc2dUVG9+4HBJ/srScxtA/18LqGgwtop/tuN/OIBjVl6QA+0KhfZQddDD9sEh2LeVjLFPGVU3ixa3blcA==, tarball: https://registry.npmjs.org/@formatjs/icu-messageformat-parser/-/icu-messageformat-parser-3.5.11.tgz}
+  '@formatjs/icu-messageformat-parser@3.5.13':
+    resolution: {integrity: sha512-Y50dQ09tjkv9cCTSGaQYo9Rgx5COBCqBhXuU7b8ZMAec+oA6ePZv7prycY3iYz9iD0J2LjB8/Eys1so4Xguptg==, tarball: https://registry.npmjs.org/@formatjs/icu-messageformat-parser/-/icu-messageformat-parser-3.5.13.tgz}
 
   '@formatjs/icu-skeleton-parser@2.1.1':
     resolution: {integrity: sha512-PSFABlcNefjI6yyk8f7nyX1DC7NHmq6WaCHZLySEXBrXuLOB2f935YsnzuPjlz+ibhb9yWTdPeVX1OVcj24w2Q==, tarball: https://registry.npmjs.org/@formatjs/icu-skeleton-parser/-/icu-skeleton-parser-2.1.1.tgz}
@@ -1163,8 +1154,8 @@ packages:
   '@formatjs/intl-localematcher@0.8.1':
     resolution: {integrity: sha512-xwEuwQFdtSq1UKtQnyTZWC+eHdv7Uygoa+H2k/9uzBVQjDyp9r20LNDNKedWXll7FssT3GRHvqsdJGYSUWqYFA==, tarball: https://registry.npmjs.org/@formatjs/intl-localematcher/-/intl-localematcher-0.8.1.tgz}
 
-  '@formatjs/intl@4.1.13':
-    resolution: {integrity: sha512-dufOl09iREq8V+laVdlGuyoqNmuzqDvyeA3O3k+0XQfvKJgK8bBWFKqYYWejFMKeOij/4LuPKJA+LsshpXQ4sw==, tarball: https://registry.npmjs.org/@formatjs/intl/-/intl-4.1.13.tgz}
+  '@formatjs/intl@4.1.15':
+    resolution: {integrity: sha512-YN4CmJuqBC4CwiebhXz2EJDWXo8sdXA5WT+DbeaBaps7umJ5p5h5cVZeuhhTyVlNsPe9GkRNGKCQiBNzsbXotw==, tarball: https://registry.npmjs.org/@formatjs/intl/-/intl-4.1.15.tgz}
 
   '@formatjs/intl@4.1.2':
     resolution: {integrity: sha512-V60fNY/X/7zqmRffr7qPwscGmVGYDmlKF069mSQ2a/7fE22q602NtIfOQY8vzRA63Gr/O/U6vjRVBHMabrnA9A==, tarball: https://registry.npmjs.org/@formatjs/intl/-/intl-4.1.2.tgz}
@@ -2614,8 +2605,8 @@ packages:
     peerDependencies:
       react: '>=18.2.0'
 
-  '@swan-io/lake@15.1.1':
-    resolution: {integrity: sha512-pT3E/ulZI9fAv6Ta8UjoGSrp6BITK/7SMl7L2OowVkcjCqvpt0YJal4aLzhAqeYsfUCmERUzNx1HUUSwU/RNWw==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-15.1.1.tgz}
+  '@swan-io/lake@15.2.0':
+    resolution: {integrity: sha512-OAXi+BRQs9363nYafZA4B9Z1wC20YmzAJa28L9UGFvOz+Gs8qWcYGLDAwhJWBZSoyOC1CnHYOEg3yAIod76Iuw==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-15.2.0.tgz}
     engines: {node: '>22.12.0'}
     peerDependencies:
       react: '>=19.0.0'
@@ -2628,11 +2619,11 @@ packages:
     peerDependencies:
       '@swan-io/boxed': '>=2.2.1'
 
-  '@swan-io/shared-business@15.1.1':
-    resolution: {integrity: sha512-5LcuCdWHQNKVhnS9rbMO3nBFnFk8as+y2pIAQxk7Ds4Ro+1QQeegeh1SiUt01mkDKgksCxkGWUzdke0qqf7egQ==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-15.1.1.tgz}
+  '@swan-io/shared-business@15.2.0':
+    resolution: {integrity: sha512-zdPSAaPoRUIdTKHmkZ+Y14dSOK0Qht1Q7TpLzHqAqcnnHV0nbsMHqx/IgXGa/aIZXhcG7E/qbYaUt9DBdUWamg==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-15.2.0.tgz}
     engines: {node: '>22.12.0'}
     peerDependencies:
-      '@swan-io/lake': 15.1.1
+      '@swan-io/lake': 15.2.0
       react: '>=19.0.0'
       react-dom: '>=19.0.0'
       react-native-web: '>=0.21.2'
@@ -3260,9 +3251,6 @@ packages:
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==, tarball: https://registry.npmjs.org/csstype/-/csstype-3.2.3.tgz}
 
-  cuint@0.2.2:
-    resolution: {integrity: sha512-d4ZVpCW31eWwCMe1YT3ur7mUDnTXbgwyzaL320DrcRT45rfjYxkt5QWLrmOJ+/UEAI2+fQgKe/fCjR8l4TpRgw==, tarball: https://registry.npmjs.org/cuint/-/cuint-0.2.2.tgz}
-
   data-uri-to-buffer@4.0.1:
     resolution: {integrity: sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==, tarball: https://registry.npmjs.org/data-uri-to-buffer/-/data-uri-to-buffer-4.0.1.tgz}
     engines: {node: '>= 12'}
@@ -3844,8 +3832,8 @@ packages:
   intl-messageformat@11.1.2:
     resolution: {integrity: sha512-ucSrQmZGAxfiBHfBRXW/k7UC8MaGFlEj4Ry1tKiDcmgwQm1y3EDl40u+4VNHYomxJQMJi9NEI3riDRlth96jKg==, tarball: https://registry.npmjs.org/intl-messageformat/-/intl-messageformat-11.1.2.tgz}
 
-  intl-messageformat@11.2.8:
-    resolution: {integrity: sha512-l323RCl3qJDVQ8U9j74ut/hVMdg3VPsOHpVMDvFfz9qiq4dPO5ooVYFNVUzzrpgG39a+RLzcXyJb8VFgIU+tUA==, tarball: https://registry.npmjs.org/intl-messageformat/-/intl-messageformat-11.2.8.tgz}
+  intl-messageformat@11.2.10:
+    resolution: {integrity: sha512-SxsSKKqsXBfibu8erV2R5tsrSALvkarJo72EVjPgLbp9Bc/+5f/UDbSpdiRbUtvNLiy/xb9NyNzFHFzSEoZtrA==, tarball: https://registry.npmjs.org/intl-messageformat/-/intl-messageformat-11.2.10.tgz}
 
   invariant@2.2.4:
     resolution: {integrity: sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==, tarball: https://registry.npmjs.org/invariant/-/invariant-2.2.4.tgz}
@@ -4015,10 +4003,6 @@ packages:
   kleur@3.0.3:
     resolution: {integrity: sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==, tarball: https://registry.npmjs.org/kleur/-/kleur-3.0.3.tgz}
     engines: {node: '>=6'}
-
-  ky@1.14.1:
-    resolution: {integrity: sha512-hYje4L9JCmpEQBtudo+v52X5X8tgWXUYyPcxKSuxQNboqufecl9VMWjGiucAFH060AwPXHZuH+WB2rrqfkmafw==, tarball: https://registry.npmjs.org/ky/-/ky-1.14.1.tgz}
-    engines: {node: '>=18'}
 
   libphonenumber-js@1.12.36:
     resolution: {integrity: sha512-woWhKMAVx1fzzUnMCyOzglgSgf6/AFHLASdOBcchYCyvWSGWt12imw3iu2hdI5d4dGZRsNWAmWiz37sDKUPaRQ==, tarball: https://registry.npmjs.org/libphonenumber-js/-/libphonenumber-js-1.12.36.tgz}
@@ -4691,9 +4675,6 @@ packages:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
 
-  react-tggl-client@4.0.1:
-    resolution: {integrity: sha512-TcgFWa7ohXsBNGJj3/3Ka4CVY95bNq4XiWQOPB/Q7ZLoDy4GNH0rekLWyPWvEmNUQ9XBb3qVwkRKDzePU3IHFg==, tarball: https://registry.npmjs.org/react-tggl-client/-/react-tggl-client-4.0.1.tgz}
-
   react@19.2.6:
     resolution: {integrity: sha512-sfWGGfavi0xr8Pg0sVsyHMAOziVYKgPLNrS7ig+ivMNb3wbCBw3KxtflsGBAwD3gYQlE/AEZsTLgToRrSCjb0Q==, tarball: https://registry.npmjs.org/react/-/react-19.2.6.tgz}
     engines: {node: '>=0.10.0'}
@@ -5074,24 +5055,6 @@ packages:
   tggl-cli@1.4.0:
     resolution: {integrity: sha512-KqgE5DaRztGSrmpASqvII3BGF+0BWOPB92pleDVgl50gT3LH6THmQHmCNKhuxfLDgzhg14vAhPOu45Meti5TZA==, tarball: https://registry.npmjs.org/tggl-cli/-/tggl-cli-1.4.0.tgz}
     hasBin: true
-
-  tggl-client@3.2.1:
-    resolution: {integrity: sha512-V3tSOVv6ykxpHKIYvDPOXotlMCx6mnadBjrg5PjBTQU7mwwt5Aun5RKvBiMm8pLrBgzGS2Qz2xX5fmSe1ffZAA==, tarball: https://registry.npmjs.org/tggl-client/-/tggl-client-3.2.1.tgz}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      '@aws-sdk/client-s3': ^3.0.0
-      pg: ^8.0.0
-      redis: ^5.0.0
-    peerDependenciesMeta:
-      '@aws-sdk/client-s3':
-        optional: true
-      pg:
-        optional: true
-      redis:
-        optional: true
-
-  tggl-core@1.4.0:
-    resolution: {integrity: sha512-vegyDJIK1A12T+uYkxgGGfoJNWmpCcBYQEiyK2yCxaUd6ndcgUkxuJ5tF5QWnObNVgSSPqhzS0ZIvgENW5otdw==, tarball: https://registry.npmjs.org/tggl-core/-/tggl-core-1.4.0.tgz}
 
   thread-stream@3.1.0:
     resolution: {integrity: sha512-OqyPZ9u96VohAyMfJykzmivOrY2wfMSf3C5TtFJVgN+Hm6aj+voFhlK+kZEIv2FBh1X6Xp3DlnCOfEQ3B2J86A==, tarball: https://registry.npmjs.org/thread-stream/-/thread-stream-3.1.0.tgz}
@@ -5486,9 +5449,6 @@ packages:
   xtend@4.0.2:
     resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==, tarball: https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz}
     engines: {node: '>=0.4'}
-
-  xxhashjs@0.2.2:
-    resolution: {integrity: sha512-AkTuIuVTET12tpsVIQo+ZU6f/qDmKuRUcjaqR+OIvm+aCBsZ95i7UVY5WJ9TMsSaZ0DA2WxoZ4acu0sPH+OKAw==, tarball: https://registry.npmjs.org/xxhashjs/-/xxhashjs-0.2.2.tgz}
 
   y18n@4.0.3:
     resolution: {integrity: sha512-JKhqTOwSrqNA1NY5lSztJ1GrBiUodLMmIZuLiDaMRJ+itFd+ABVE8XBjOvIWL+rSqNDC74LCSFmlb/U4UZ4hJQ==, tarball: https://registry.npmjs.org/y18n/-/y18n-4.0.3.tgz}
@@ -6238,7 +6198,7 @@ snapshots:
       '@formatjs/icu-skeleton-parser': 2.1.1
       tslib: 2.8.1
 
-  '@formatjs/icu-messageformat-parser@3.5.11':
+  '@formatjs/icu-messageformat-parser@3.5.13':
     dependencies:
       '@formatjs/icu-skeleton-parser': 2.1.10
 
@@ -6254,11 +6214,11 @@ snapshots:
       '@formatjs/fast-memoize': 3.1.0
       tslib: 2.8.1
 
-  '@formatjs/intl@4.1.13':
+  '@formatjs/intl@4.1.15':
     dependencies:
       '@formatjs/fast-memoize': 3.1.6
-      '@formatjs/icu-messageformat-parser': 3.5.11
-      intl-messageformat: 11.2.8
+      '@formatjs/icu-messageformat-parser': 3.5.13
+      intl-messageformat: 11.2.10
 
   '@formatjs/intl@4.1.2(typescript@6.0.2)':
     dependencies:
@@ -8237,7 +8197,7 @@ snapshots:
       - graphql
       - typescript
 
-  '@swan-io/lake@15.1.1(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)':
+  '@swan-io/lake@15.2.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)':
     dependencies:
       '@swan-io/boxed': 3.2.1(typescript@6.0.2)
       '@swan-io/chicane': 3.0.0(react@19.2.6)
@@ -8258,16 +8218,17 @@ snapshots:
     dependencies:
       '@swan-io/boxed': 3.2.1(typescript@6.0.2)
 
-  '@swan-io/shared-business@15.1.1(@swan-io/lake@15.1.1(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)':
+  '@swan-io/shared-business@15.2.0(@swan-io/lake@15.2.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)':
     dependencies:
-      '@formatjs/intl': 4.1.13
+      '@formatjs/intl': 4.1.15
       '@placekit/client-js': 2.3.0
       '@swan-io/boxed': 3.2.1(typescript@6.0.2)
-      '@swan-io/lake': 15.1.1(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)
+      '@swan-io/lake': 15.2.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@6.0.2)
       '@swan-io/request': 3.1.0(@swan-io/boxed@3.2.1(typescript@6.0.2))
       '@swan-io/use-form': 3.1.0(react@19.2.6)(typescript@6.0.2)
       dayjs: 1.11.21
       iban: 0.0.14
+      prism-react-renderer: 2.4.1(react@19.2.6)
       react: 19.2.6
       react-atomic-state: 2.1.0(react@19.2.6)
       react-dom: 19.2.6(react@19.2.6)
@@ -8928,8 +8889,6 @@ snapshots:
 
   csstype@3.2.3: {}
 
-  cuint@0.2.2: {}
-
   data-uri-to-buffer@4.0.1: {}
 
   data-urls@7.0.0:
@@ -9573,10 +9532,10 @@ snapshots:
       '@formatjs/icu-messageformat-parser': 3.5.1
       tslib: 2.8.1
 
-  intl-messageformat@11.2.8:
+  intl-messageformat@11.2.10:
     dependencies:
       '@formatjs/fast-memoize': 3.1.6
-      '@formatjs/icu-messageformat-parser': 3.5.11
+      '@formatjs/icu-messageformat-parser': 3.5.13
 
   invariant@2.2.4:
     dependencies:
@@ -9729,8 +9688,6 @@ snapshots:
       graceful-fs: 4.2.11
 
   kleur@3.0.3: {}
-
-  ky@1.14.1: {}
 
   libphonenumber-js@1.12.36: {}
 
@@ -10574,14 +10531,6 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  react-tggl-client@4.0.1:
-    dependencies:
-      tggl-client: 3.2.1
-    transitivePeerDependencies:
-      - '@aws-sdk/client-s3'
-      - pg
-      - redis
-
   react@19.2.6: {}
 
   readable-stream@3.6.2:
@@ -10986,15 +10935,6 @@ snapshots:
       - debug
       - supports-color
 
-  tggl-client@3.2.1:
-    dependencies:
-      ky: 1.14.1
-      tggl-core: 1.4.0
-
-  tggl-core@1.4.0:
-    dependencies:
-      xxhashjs: 0.2.2
-
   thread-stream@3.1.0:
     dependencies:
       real-require: 0.2.0
@@ -11320,10 +11260,6 @@ snapshots:
   xmlchars@2.2.0: {}
 
   xtend@4.0.2: {}
-
-  xxhashjs@0.2.2:
-    dependencies:
-      cuint: 0.2.2
 
   y18n@4.0.3: {}
 

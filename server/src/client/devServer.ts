@@ -81,6 +81,7 @@ export const startDevServer = async (app: FastifyInstance, corsOptions: CorsOpti
         allow: [
           path.join(workspaceRoot, "node_modules"),
           path.join(workspaceRoot, "clients"),
+          path.join(workspaceRoot, "common"),
           path.join(workspaceRoot, "scripts", "graphql", "dist"),
           ...extraConfig.allow,
         ],

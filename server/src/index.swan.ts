@@ -26,12 +26,12 @@ import { start } from "./app";
 import { env } from "./env";
 import { replyWithError } from "./error";
 import { AccountCountry } from "./graphql/partner";
+import { evaluateFlag, getFlagContext } from "./utils/flags";
 import { getCalledMutations } from "./utils/gql";
 import {
   isMutationAuthorizedInWebBanking,
   isMutationRestrictedByWebBankingSettings,
 } from "./utils/permissions";
-import { getTgglClient } from "./utils/tggl";
 
 const countryTranslations: Record<AccountCountry, string> = {
   DEU: "German",
@@ -68,7 +68,11 @@ start({
       async (request, reply) => {
         const isLive = env.OAUTH_CLIENT_ID.startsWith("LIVE_");
         if (isLive) {
-          const disabled = getTgglClient(request.params.projectId).get("disableWebBanking", false);
+          const disabled = await evaluateFlag(
+            "disableWebBanking",
+            getFlagContext(request.params.projectId),
+            request.log,
+          );
           if (disabled) {
             request.log.warn(
               `User from project ${request.params.projectId} attempted to access web-banking partner API`,
@@ -146,7 +150,11 @@ start({
       async (request, reply) => {
         const isLive = env.OAUTH_CLIENT_ID.startsWith("LIVE_");
         if (isLive) {
-          const disabled = getTgglClient(request.params.projectId).get("disableWebBanking", false);
+          const disabled = await evaluateFlag(
+            "disableWebBanking",
+            getFlagContext(request.params.projectId),
+            request.log,
+          );
           if (disabled) {
             request.log.warn(
               `User from project ${request.params.projectId} attempted to access web-banking partner-admin API`,
@@ -203,9 +211,10 @@ start({
       async (request, reply) => {
         const accountCountry = parseAccountCountry(request.query.accountCountry);
         const projectId = request.params.projectId;
-        const allowNoCodeOnboardingV1 = getTgglClient(projectId).get(
+        const allowNoCodeOnboardingV1 = await evaluateFlag(
           "allowNoCodeOnboardingV1",
-          false,
+          getFlagContext(projectId),
+          request.log,
         );
         // partner allowed to keep v1 still on v1 by default, others defaults to v2 onboarding
         const isOnboardingV2 = allowNoCodeOnboardingV1 ? request.query.v2 === "true" : true;
@@ -252,9 +261,10 @@ start({
       async (request, reply) => {
         const accountCountry = parseAccountCountry(request.query.accountCountry);
         const projectId = request.params.projectId;
-        const allowNoCodeOnboardingV1 = getTgglClient(projectId).get(
+        const allowNoCodeOnboardingV1 = await evaluateFlag(
           "allowNoCodeOnboardingV1",
-          false,
+          getFlagContext(projectId),
+          request.log,
         );
         // partner allowed to keep v1 still on v1 by default, others defaults to v2 onboarding
         const isOnboardingV2 = allowNoCodeOnboardingV1 ? request.query.v2 === "true" : true;

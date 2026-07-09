@@ -6,5 +6,4 @@ export const env = {
   IDENTITY_URL: __env.IDENTITY_URL,
   APP_TYPE: __env.SWAN_ENVIRONMENT,
   PLACEKIT_API_KEY: __env.CLIENT_PLACEKIT_API_KEY,
-  TGGL_API_KEY: __env.TGGL_API_KEY,
 };

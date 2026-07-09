@@ -6,7 +6,6 @@ import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartner
 import { colors, invariantColors } from "@swan-io/lake/src/constants/design";
 import { ToastStack } from "@swan-io/shared-business/src/components/ToastStack";
 import { useEffect } from "react";
-import { TgglProvider, useTggl } from "react-tggl-client";
 import { match, P } from "ts-pattern";
 import { ErrorView } from "./components/ErrorView";
 import { Redirect } from "./components/Redirect";
@@ -31,11 +30,11 @@ import { OnboardingIndividualWizard } from "./pages/individual/OnboardingIndivid
 import { OnboardingCompanyWizard as OnboardingCompanyWizardV2 } from "./pages/v2/company/OnboardingCompanyWizard";
 import { OnboardingIndividualWizard as OnboardingIndividualWizardV2 } from "./pages/v2/individual/OnboardingIndividualWizard";
 import { env } from "./utils/env";
+import { flagsClient, FlagsProvider } from "./utils/flags";
 import { client, partnerClient } from "./utils/gql";
 import { locale } from "./utils/i18n";
 import { TrackingProvider, useSessionTracking } from "./utils/matomo";
 import { Router } from "./utils/routes";
-import { tgglClient } from "./utils/tggl";
 import { logger, logPageView } from "./utils/tracing";
 
 type Props = {
@@ -51,11 +50,9 @@ const PageMetadata = ({
   projectName?: string;
   projectId?: string;
 }) => {
-  const { updateContext } = useTggl();
-
   useEffect(() => {
-    updateContext({ accountCountry });
-  }, [updateContext, accountCountry]);
+    flagsClient.setContext({ accountCountry });
+  }, [accountCountry]);
 
   useTitle((projectName ?? "Swan") + " onboarding");
   useSessionTracking(projectId);
@@ -383,9 +380,9 @@ export const Routing = () => {
 
 export const App = () => {
   return (
-    <TgglProvider client={tgglClient}>
+    <FlagsProvider>
       <Routing />
       <ToastStack />
-    </TgglProvider>
+    </FlagsProvider>
   );
 };

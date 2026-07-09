@@ -16,6 +16,7 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { pollUntilOk } from "@swan-io/lake/src/utils/polling";
 import { GetEdge } from "@swan-io/lake/src/utils/types";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
@@ -36,7 +37,6 @@ import {
 } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
-import { pollUntilOk } from "../utils/polling";
 import { Router } from "../utils/routes";
 
 const styles = StyleSheet.create({

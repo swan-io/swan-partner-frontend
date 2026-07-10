@@ -226,6 +226,7 @@ export const start = async (config: AppConfig) => {
     "default-src": ["'self'"],
     "base-uri": ["'self'"],
     "object-src": ["'none'"],
+    "form-action": ["'self'"],
     "script-src": [
       "'self'",
       "https://*.checkout.com",
@@ -247,10 +248,20 @@ export const start = async (config: AppConfig) => {
       "https://*.zdassets.com",
       "https://*.zendesk.com",
       "https://swan.matomo.cloud", //@todo to remove when onboarding v1 is deleted
-      "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-live", //@todo fragile, see if with infra if we can use a custom domain swan.io
-      "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-sandbox",
-      "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-live-v2",
-      "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-sandbox-v2",
+      ...match({ url: env.BANKING_URL })
+        .with(
+          { url: P.string.includes("local") },
+          { url: P.string.includes("master") },
+          { url: P.string.includes("preprod") },
+          () => ["https://s3.eu-west-1.amazonaws.com"],
+        )
+        .otherwise(() => [
+          //@todo fragile, see if with infra if we can use a custom domain swan.io
+          "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-live",
+          "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-sandbox",
+          "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-live-v2",
+          "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-sandbox-v2",
+        ]),
     ],
     "frame-src": ["'self'", env.IDENTITY_URL, env.PAYMENT_URL, "https://*.checkout.com"],
     "frame-ancestors": ["'self'", env.BANKING_URL],

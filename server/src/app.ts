@@ -1061,7 +1061,6 @@ export const start = async (config: AppConfig) => {
       ACCOUNT_MEMBERSHIP_INVITATION_MODE: invitationMode,
       BANKING_URL: env.BANKING_URL,
       PAYMENT_URL: env.PAYMENT_URL,
-      IDENTITY_URL: env.IDENTITY_URL,
       SWAN_PROJECT_ID: projectId.match({
         Ok: projectId => projectId,
         Error: () => undefined,

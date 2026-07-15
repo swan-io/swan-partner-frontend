@@ -23,7 +23,6 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { backgroundColor, breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish, isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
-import { capitalize, lowerCase } from "@swan-io/lake/src/utils/string";
 import { AdditionalInfo, SupportChat } from "@swan-io/shared-business/src/components/SupportChat";
 import dayjs from "dayjs";
 import { ReactNode, useCallback, useRef, useState } from "react";
@@ -704,7 +703,6 @@ type Props = {
   accountMembershipId: string;
   additionalInfo: AdditionalInfo;
   projectName: string;
-  projectLogo: string | undefined;
   refetchAccountAreaQuery: () => void;
   hasRequiredIdentificationLevel: boolean | undefined;
   lastIdentification: Option<IdentificationFragment>;
@@ -716,14 +714,11 @@ export const AccountActivationPage = ({
   accountMembershipId,
   additionalInfo,
   projectName,
-  projectLogo,
   refetchAccountAreaQuery,
   hasRequiredIdentificationLevel,
   lastIdentification,
   largeViewport,
 }: Props) => {
-  const desktopToMobileIdentification = false;
-  // const desktopToMobileIdentification = useFlag("frontDesktopToMobileIdentification", false);
   const [data, { reload }] = useQuery(AccountActivationPageDocument, { accountMembershipId });
 
   const route = Router.useRoute(accountActivationRoutes);
@@ -778,42 +773,16 @@ export const AccountActivationPage = ({
           .otherwise(() => null);
 
         const handleProveIdentity = () => {
-          if (desktopToMobileIdentification) {
-            const params = new URLSearchParams();
+          const params = new URLSearchParams();
 
-            match(projectConfiguration.map(({ projectId }) => projectId))
-              .with(Option.P.Some(P.select()), projectId => params.set("projectId", projectId))
-              .otherwise(() => {});
+          match(projectConfiguration.map(({ projectId }) => projectId))
+            .with(Option.P.Some(P.select()), projectId => params.set("projectId", projectId))
+            .otherwise(() => {});
 
-            params.set("partnerName", projectName);
-            params.set("accentColor", accentColor);
-            if (projectLogo != null) {
-              params.set("logoUri", projectLogo);
-            }
+          params.set("identificationLevel", "Auto");
+          params.set("redirectTo", Router.AccountActivationRoot({ accountMembershipId }));
 
-            params.set("identificationLevel", "Auto");
-            params.set(
-              "nextUrl",
-              window.location.origin + Router.AccountActivationRoot({ accountMembershipId }),
-            );
-            params.set("env", capitalize(lowerCase(env.APP_TYPE)));
-            params.set("accountMembershipId", accountMembershipId);
-
-            window.location.assign(
-              `${env.IDENTITY_URL}/authenticator/identification?${params.toString()}`,
-            );
-          } else {
-            const params = new URLSearchParams();
-
-            match(projectConfiguration.map(({ projectId }) => projectId))
-              .with(Option.P.Some(P.select()), projectId => params.set("projectId", projectId))
-              .otherwise(() => {});
-
-            params.set("identificationLevel", "Auto");
-            params.set("redirectTo", Router.AccountActivationRoot({ accountMembershipId }));
-
-            window.location.assign(`/auth/login?${params.toString()}`);
-          }
+          window.location.assign(`/auth/login?${params.toString()}`);
         };
 
         if (holder?.verificationStatus === "Refused") {

@@ -50,7 +50,7 @@ export const initPostHog = () => {
       capture_dead_clicks: false,
       capture_exceptions: false,
       capture_performance: false,
-      capture_pageview: true,
+      capture_pageview: "history_change",
       capture_pageleave: true,
     });
 

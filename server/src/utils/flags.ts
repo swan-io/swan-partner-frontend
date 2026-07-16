@@ -13,23 +13,25 @@ const client = new TgglLocalClient({
   pollingIntervalMs: 5_000, // reload Tggl config every 5 seconds in background
 });
 
+const commonFlagContext: Partial<FlagContext> = {
+  environment: match(env.BANKING_URL)
+    .returnType<FlagContext["environment"]>()
+    .with(P.string.includes("local"), () => "development")
+    .with(P.string.includes("master"), () => "master")
+    .with(P.string.includes("preprod"), () => "preprod")
+    .otherwise(() => "prod"),
+  environmentType: env.OAUTH_CLIENT_ID.startsWith("LIVE_") ? "live" : "sandbox",
+};
+
 export const getFlagContext = (projectId: string): Partial<FlagContext> => {
   return {
-    environment: match({
-      url: env.BANKING_URL,
-    })
-      .returnType<FlagContext["environment"]>()
-      .with({ url: P.string.includes("local") }, () => "development")
-      .with({ url: P.string.includes("master") }, () => "master")
-      .with({ url: P.string.includes("preprod") }, () => "preprod")
-      .otherwise(() => "prod"),
     projectId,
-    environmentType: env.OAUTH_CLIENT_ID.startsWith("LIVE_") ? "live" : "sandbox",
+    ...commonFlagContext,
   };
 };
 
 export const evaluateFlags = (context: Partial<FlagContext>): Flags => {
-  const flags: Record<string, unknown> = client.getAll(context);
+  const flags: Record<string, unknown> = client.getAll({ ...context, ...commonFlagContext });
 
   // Ensure only allowed flags are returned, and apply defaults for missing flags
   const filteredFlags = Object.entries(flagDefaults).map(([key, defaultValue]) => {

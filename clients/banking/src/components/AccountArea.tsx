@@ -295,7 +295,8 @@ export const AccountArea = ({
   const hasRequiredIdentificationLevel = accountMembership.hasRequiredIdentificationLevel ?? false;
 
   useEffect(() => {
-    flagsClient.setContext({ accountCountry, userId, email });
+    const projectId = projectConfiguration.map(({ projectId }) => projectId).toUndefined();
+    flagsClient.setContext({ accountCountry, userId, email, projectId });
   }, [accountCountry, userId, email]);
 
   const additionalInfo = useMemo<AdditionalInfo>(

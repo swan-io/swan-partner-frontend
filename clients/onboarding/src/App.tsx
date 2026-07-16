@@ -51,8 +51,8 @@ const PageMetadata = ({
   projectId?: string;
 }) => {
   useEffect(() => {
-    flagsClient.setContext({ accountCountry });
-  }, [accountCountry]);
+    flagsClient.setContext({ accountCountry, projectId });
+  }, [accountCountry, projectId]);
 
   useTitle((projectName ?? "Swan") + " onboarding");
   useSessionTracking(projectId);

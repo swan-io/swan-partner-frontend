@@ -125,6 +125,11 @@ type Mutation {
   simulateOutgoingCardDebitReverse(input: SimulateOutgoingCardDebitReverseInput!): SimulateOutgoingCardDebitReversePayload!
 
   """
+  Simulate a card debit on a Swan account without a prior card authorization.
+  """
+  simulateOutgoingCardDebitWithoutAuthorization(input: SimulateOutgoingCardDebitWithoutAuthorizationInput!): SimulateOutgoingCardDebitWithoutAuthorizationPayload!
+
+  """
   Simulate a card debit being received on a previously authorized card transaction.
   """
   simulateOutgoingCardDebit(input: SimulateOutgoingCardDebitInput!): SimulateOutgoingCardDebitPayload!
@@ -692,7 +697,7 @@ type AccountHolder {
   ): FundingLimitSettingsChangeRequestConnection!
 
   """Account holder onboarding"""
-  onboarding: Onboarding
+  onboarding: Onboarding @deprecated(reason: "Use `accountHolderOnboarding` instead")
 
   """Account holder risk info"""
   riskInfo: AccountHolderRiskInfo
@@ -1720,7 +1725,7 @@ enum CloseAccountReasonType {
   """
   Prolonged inactivity according to local regulatory definitions or internal policy.
   """
-  DormantAccount
+  DormantAccount @deprecated(reason: "use `Inactivity` instead")
 
   """A duplicate account was created by mistake."""
   DuplicateOnboarding
@@ -1728,7 +1733,9 @@ enum CloseAccountReasonType {
   """The account holder operates in a prohibited business sector."""
   ForbiddenActivity
 
-  """Account closed due to inactivity."""
+  """
+  Prolonged inactivity according to local regulatory definitions or internal policy.
+  """
   Inactivity
 
   """Required documents are missing, incorrect, or unanswered."""
@@ -3545,6 +3552,16 @@ type SupportingDocumentCollectionWaitingForDocumentStatusInfo implements Support
   status: SupportingDocumentCollectionStatus!
 }
 
+"""
+Rejection returned when the supporting document status does not allow the requested operation
+"""
+type SupportingDocumentInvalidStatusRejection implements Rejection {
+  message: String!
+
+  """Current status of the supporting document"""
+  currentStatus: SupportingDocumentStatus!
+}
+
 """Rejection returned if the supporting document was not found"""
 type SupportingDocumentNotFoundRejection implements Rejection {
   id: String!
@@ -4273,7 +4290,13 @@ type User {
   """Last update date of the user"""
   updatedAt: DateTime!
 
-  """The last name that the user prefers to use"""
+  """
+  The last name that the user prefers to use.
+  
+  Set automatically when the user completes identification. Swan compares the last name entered during sign-up with the birth last name returned by the identification provider:
+  - If they match, `preferredLastName` is set to the birth last name.
+  - If they don't match, `preferredLastName` defaults to the last name entered during sign-up.
+  """
   preferredLastName: String
 }
 
@@ -6008,6 +6031,27 @@ input Merchant {
   postalCode: String = "75010"
 }
 
+"""Debit clearing operation type."""
+enum OutgoingCardDebitOperationType {
+  """ATM cash withdrawal."""
+  AtmWithdrawal
+
+  """Contactless POS debit."""
+  ContactlessProximityDebit
+
+  """Over-the-counter cash withdrawal."""
+  OtcWithdrawal
+
+  """Chip/PIN (proximity) debit."""
+  ProximityDebit
+
+  """Remote debit (e-commerce / MOTO)."""
+  RemoteDebit
+
+  """Remote debit with 3DS / SCA."""
+  SecureRemoteDebit
+}
+
 """Sepa beneficiary account"""
 input SepaBeneficiaryInput {
   """International Bank Account Number"""
@@ -6239,6 +6283,46 @@ type SimulateOutgoingCardDebitSuccessPayload {
   transactionId: ID!
 }
 
+"""Simulate a card debit without authorization input."""
+input SimulateOutgoingCardDebitWithoutAuthorizationInput {
+  """Card id (format: `card_...`)."""
+  cardId: String!
+
+  """Amount booked on the account (must be <= `max_amount`)."""
+  amount: AmountInput!
+
+  """
+  Original amount (for FX and DCC-like scenarios). When same currency, must equal `amount`.
+  """
+  originalAmount: AmountInput
+
+  """Optional simulation card type, aligned with other card simulations."""
+  cardType: SimulationCardType
+
+  """
+  Operation type for the debit clearing.
+  
+  This is a new enum aligned in naming with `simulateOutgoingCardAuthorization`
+  (`operationType` / `CardAuthorizationOperationType`), but with debit-specific values.
+  `simulateOutgoingCardDebit` does not expose an operation type.
+  """
+  operationType: OutgoingCardDebitOperationType
+
+  """
+  Optional merchant details (same nested input as `simulateOutgoingCardAuthorization`).
+  """
+  merchant: Merchant
+}
+
+"""Result of a debit without authorization simulation."""
+union SimulateOutgoingCardDebitWithoutAuthorizationPayload = SimulateOutgoingCardDebitWithoutAuthorizationSuccessPayload | CardNotFoundRejection | ForbiddenRejection
+
+"""Successful debit without authorization simulation."""
+type SimulateOutgoingCardDebitWithoutAuthorizationSuccessPayload {
+  """Created debit transaction id."""
+  transactionId: ID!
+}
+
 enum SimulationCardType {
   Physical
   Virtual
@@ -6300,6 +6384,9 @@ enum ConsentPurpose {
 
   """when adding a digital card"""
   AddDigitalCard
+
+  """when adding multiple digital cards"""
+  AddDigitalCards
 
   """when activating a physical card"""
   ActivatePhysicalCard
@@ -6952,7 +7039,7 @@ type Authenticator {
   model: String
 
   """Type of authenticator"""
-  type: AuthenticatorType!
+  type: AuthenticatorType! @deprecated(reason: "Authenticators are always of type 'SwanWeb', this field is meaningless")
 
   """Raw user agent"""
   userAgent: String
@@ -7010,10 +7097,10 @@ enum AuthenticatorStatus {
 
 enum AuthenticatorType {
   """A Swan web authenticator"""
-  SwanWeb
+  SwanWeb @deprecated(reason: "Only remaining value; the enum is meaningless")
 
   """Deprecated: swan authenticator"""
-  Swan
+  Swan @deprecated(reason: "Legacy mobile authenticator, no longer supported")
 }
 
 type Branding {
@@ -7170,6 +7257,7 @@ enum ConsentOperationPropertyName {
   MandateSequenceType
   Merchant
   MerchantIdentifier
+  Name
   Option
   Permissions
   PhoneNumber
@@ -7188,9 +7276,9 @@ type ConsentResponse {
   originIdentityId: ID!
   authenticatorId: ID!
   idVerified: Boolean!
-  provider: AuthenticatorType!
+  provider: AuthenticatorType! @deprecated(reason: "Authenticators are always of type 'SwanWeb', this field is meaningless")
   credentialTypeUsed: CredentialType!
-  macAddress: String!
+  macAddress: String! @deprecated(reason: "`macAddress` is no longer collected on authenticators")
   ipAddress: String!
   respondedAt: DateTime
 }
@@ -7320,6 +7408,9 @@ enum DetailedConsentPurpose {
 
   """when adding a digital card"""
   AddDigitalCard
+
+  """when adding multiple digital cards"""
+  AddDigitalCards
 
   """when activating a physical card"""
   ActivatePhysicalCard
@@ -9302,6 +9393,9 @@ enum AdditionalInformationType {
   NumberOfProperties
 }
 
+"""
+@deprecated Use InPersonCardMerchantPayment or OnlineCardMerchantPayment instead.
+"""
 type CardMerchantPayment implements MerchantPayment {
   """unique identifier of a merchant payment"""
   id: ID!

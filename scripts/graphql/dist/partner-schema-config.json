@@ -67,6 +67,7 @@
       "SupportingDocumentCollectionStatusDoesNotAllowDeletionRejection",
       "SupportingDocumentCollectionStatusDoesNotAllowUpdateRejection",
       "SupportingDocumentCollectionStatusNotAllowedRejection",
+      "SupportingDocumentInvalidStatusRejection",
       "SupportingDocumentNotFoundRejection",
       "SupportingDocumentStatusDoesNotAllowDeletionRejection",
       "SupportingDocumentStatusDoesNotAllowUpdateRejection",

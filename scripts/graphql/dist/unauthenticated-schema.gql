@@ -507,7 +507,7 @@ type AccountHolder {
   ): FundingLimitSettingsChangeRequestConnection!
 
   """Account holder onboarding"""
-  onboarding: Onboarding
+  onboarding: Onboarding @deprecated(reason: "Use `accountHolderOnboarding` instead")
 }
 
 """Account Holder Canceled Status Information"""
@@ -1645,7 +1645,7 @@ enum CloseAccountReasonType {
   """
   Prolonged inactivity according to local regulatory definitions or internal policy.
   """
-  DormantAccount
+  DormantAccount @deprecated(reason: "use `Inactivity` instead")
 
   """A duplicate account was created by mistake."""
   DuplicateOnboarding
@@ -1653,7 +1653,9 @@ enum CloseAccountReasonType {
   """The account holder operates in a prohibited business sector."""
   ForbiddenActivity
 
-  """Account closed due to inactivity."""
+  """
+  Prolonged inactivity according to local regulatory definitions or internal policy.
+  """
   Inactivity
 
   """Required documents are missing, incorrect, or unanswered."""
@@ -4588,6 +4590,16 @@ enum SupportingDocumentCommunicationLanguageSettings {
   fr
 }
 
+"""
+Rejection returned when the supporting document status does not allow the requested operation
+"""
+type SupportingDocumentInvalidStatusRejection implements Rejection {
+  message: String!
+
+  """Current status of the supporting document"""
+  currentStatus: SupportingDocumentStatus!
+}
+
 """Rejection returned if the supporting document was not found"""
 type SupportingDocumentNotFoundRejection implements Rejection {
   id: String!
@@ -5696,7 +5708,13 @@ type User {
   """Last update date of the user"""
   updatedAt: DateTime!
 
-  """The last name that the user prefers to use"""
+  """
+  The last name that the user prefers to use.
+  
+  Set automatically when the user completes identification. Swan compares the last name entered during sign-up with the birth last name returned by the identification provider:
+  - If they match, `preferredLastName` is set to the birth last name.
+  - If they don't match, `preferredLastName` defaults to the last name entered during sign-up.
+  """
   preferredLastName: String
 }
 
@@ -7448,7 +7466,7 @@ type Authenticator {
   model: String
 
   """Type of authenticator"""
-  type: AuthenticatorType!
+  type: AuthenticatorType! @deprecated(reason: "Authenticators are always of type 'SwanWeb', this field is meaningless")
 
   """Raw user agent"""
   userAgent: String
@@ -7462,10 +7480,10 @@ type Authenticator {
 
 enum AuthenticatorType {
   """A Swan web authenticator"""
-  SwanWeb
+  SwanWeb @deprecated(reason: "Only remaining value; the enum is meaningless")
 
   """Deprecated: swan authenticator"""
-  Swan
+  Swan @deprecated(reason: "Legacy mobile authenticator, no longer supported")
 }
 
 """
@@ -7515,6 +7533,9 @@ enum ConsentPurpose {
 
   """when adding a digital card"""
   AddDigitalCard
+
+  """when adding multiple digital cards"""
+  AddDigitalCards
 
   """when activating a physical card"""
   ActivatePhysicalCard
@@ -7841,6 +7862,9 @@ type AlreadyCompletedPaymentLinkRejection implements Rejection {
   message: String!
 }
 
+"""
+@deprecated Use InPersonCardMerchantPayment or OnlineCardMerchantPayment instead.
+"""
 type CardMerchantPayment implements MerchantPayment {
   """unique identifier of a merchant payment"""
   id: ID!

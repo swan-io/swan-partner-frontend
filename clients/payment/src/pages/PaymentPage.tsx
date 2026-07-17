@@ -41,7 +41,7 @@ export const PaymentPage = ({
   const methodIds = merchantPaymentMethods.reduce<Partial<Record<SupportedMethodType, string>>>(
     (acc, { type, id }) => {
       return match(type)
-        .with("Card", () => {
+        .with("Card", "OnlineCard", () => {
           acc["Card"] = id;
           return acc;
         })

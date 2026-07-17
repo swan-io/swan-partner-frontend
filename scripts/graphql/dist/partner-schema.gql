@@ -945,6 +945,19 @@ type Mutation {
   """
   addDigitalCard(input: AddDigitalCardInput): AddDigitalCardPayload!
 
+  """
+  Add several digital cards to push to Apple Pay or Google Pay
+  
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.
+  
+  The user must be the cardholder for each card.
+  
+  All cards must belong to the same account.
+  
+  Digital cards will only be valid for 1 hour after consent validation
+  """
+  addDigitalCards(input: AddDigitalCardsInput!): AddDigitalCardsPayload!
+
   """Add a new Single Use Virtual Card to an account membership."""
   addSingleUseVirtualCard(input: AddSingleUseVirtualCardInput!): AddSingleUseVirtualCardPayload!
 
@@ -959,6 +972,12 @@ type Mutation {
 
   """Cancel a Digital Card"""
   cancelDigitalCard(input: CancelDigitalCardInput): CancelDigitalCardPayload!
+
+  """
+  Prevent the automatic renewal of a physical card without cancelling it.
+  The card stays valid until its natural expiration date.
+  """
+  cancelPhysicalCardRenewal(input: CancelPhysicalCardRenewalInput!): CancelPhysicalCardRenewalPayload!
 
   """Confirm Physical Card Renewal"""
   confirmPhysicalCardRenewal(input: ConfirmPhysicalCardRenewalInput!): ConfirmPhysicalCardRenewalPayload!
@@ -2024,7 +2043,7 @@ type AccountHolder {
   ): FundingLimitSettingsChangeRequestConnection!
 
   """Account holder onboarding"""
-  onboarding: Onboarding
+  onboarding: Onboarding @deprecated(reason: "Use `accountHolderOnboarding` instead")
 
   """Account holder risk info"""
   riskInfo: AccountHolderRiskInfo
@@ -2048,6 +2067,9 @@ type AccountHolder {
     """
     after: String
   ): ExternalAccountConnection!
+
+  """Account holder onboarding"""
+  accountHolderOnboarding: AccountHolderOnboarding
 
   """
   A list of Payment Mandates for an account holder.
@@ -3580,7 +3602,7 @@ enum CloseAccountReasonType {
   """
   Prolonged inactivity according to local regulatory definitions or internal policy.
   """
-  DormantAccount
+  DormantAccount @deprecated(reason: "use `Inactivity` instead")
 
   """A duplicate account was created by mistake."""
   DuplicateOnboarding
@@ -3588,7 +3610,9 @@ enum CloseAccountReasonType {
   """The account holder operates in a prohibited business sector."""
   ForbiddenActivity
 
-  """Account closed due to inactivity."""
+  """
+  Prolonged inactivity according to local regulatory definitions or internal policy.
+  """
   Inactivity
 
   """Required documents are missing, incorrect, or unanswered."""
@@ -8210,6 +8234,16 @@ enum SupportingDocumentCommunicationLanguageSettings {
   fr
 }
 
+"""
+Rejection returned when the supporting document status does not allow the requested operation
+"""
+type SupportingDocumentInvalidStatusRejection implements Rejection {
+  message: String!
+
+  """Current status of the supporting document"""
+  currentStatus: SupportingDocumentStatus!
+}
+
 """Rejection returned if the supporting document was not found"""
 type SupportingDocumentNotFoundRejection implements Rejection {
   id: String!
@@ -9769,7 +9803,13 @@ type User {
   """Last update date of the user"""
   updatedAt: DateTime!
 
-  """The last name that the user prefers to use"""
+  """
+  The last name that the user prefers to use.
+  
+  Set automatically when the user completes identification. Swan compares the last name entered during sign-up with the birth last name returned by the identification provider:
+  - If they match, `preferredLastName` is set to the birth last name.
+  - If they don't match, `preferredLastName` defaults to the last name entered during sign-up.
+  """
   preferredLastName: String
 
   """
@@ -10465,6 +10505,9 @@ type CardInMerchant {
 
 union CardMerchant = CardInMerchant | CardOutMerchant
 
+"""
+@deprecated Use InPersonCardMerchantPayment or OnlineCardMerchantPayment instead.
+"""
 type CardMerchantPayment implements MerchantPayment {
   """unique identifier of a merchant payment"""
   id: ID!
@@ -11385,6 +11428,9 @@ enum FeesTypeEnum {
 
   """Document issuance"""
   DocumentIssuance
+
+  """Fee for any SEPA Transfer"""
+  SepaTransfer
 
   """Account inactive within the past 12 months"""
   InactiveAccount
@@ -16687,7 +16733,10 @@ type CompanyShareholder {
   name: String!
 }
 
-"""Inputs to create a capital deposit case."""
+"""
+Inputs to create a capital deposit case.
+At least one shareholder is required.
+"""
 input CreateCapitalDepositCaseInput {
   """
   Name ("Dénomination sociale") of the company being registered and for which the capital is being deposited.
@@ -17129,6 +17178,30 @@ input AddDigitalCardInput {
 """Payload returned on mutation completion"""
 union AddDigitalCardPayload = AddDigitalCardSuccessPayload | CardNotFoundRejection | CardCanNotBeDigitalizedRejection | ApplePayNotAllowedForProjectRejection | BadAccountStatusRejection | AccountMembershipNotAllowedRejection | UserNotCardHolderRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection
 
+"""Inputs to add new digital cards"""
+input AddDigitalCardsInput {
+  """Unique identifiers of the cards to digitalize"""
+  cardIds: [ID!]!
+
+  """Provider for which to generate digital cards"""
+  walletProvider: WalletProviderType!
+
+  """URL the user is redirected to after consent has been given"""
+  consentRedirectUrl: String!
+}
+
+"""Payload returned on mutation completion"""
+union AddDigitalCardsPayload = AddDigitalCardsSuccessPayload | AddingCardsToDifferentAccountsRejection | CardNotFoundRejection | CardCanNotBeDigitalizedRejection | ApplePayNotAllowedForProjectRejection | BadAccountStatusRejection | AccountMembershipNotAllowedRejection | UserNotCardHolderRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | ForbiddenRejection | MissingMandatoryFieldRejection | ValidationRejection
+
+type AddDigitalCardsSuccessPayload {
+  """
+  Digital cards for use with Apple Pay or Google Pay
+  
+  The consent can be found in each digital card status information.
+  """
+  digitalCards: [PendingDigitalCard!]!
+}
+
 type AddDigitalCardSuccessPayload {
   """
   Digital card for use with Apple Pay or Google Pay
@@ -17290,6 +17363,19 @@ enum CancelPhysicalCardReason {
 
   """When the cardholder wants to block his card"""
   Blocked
+}
+
+"""Inputs to cancel a physical card renewal"""
+input CancelPhysicalCardRenewalInput {
+  """Unique identifier of a card"""
+  cardId: ID!
+}
+
+union CancelPhysicalCardRenewalPayload = CancelPhysicalCardRenewalSuccessPayload | ForbiddenRejection | CardNotFoundRejection | PhysicalCardNotFoundRejection | PhysicalCardWrongStatusRejection
+
+type CancelPhysicalCardRenewalSuccessPayload {
+  """Physical card whose renewal has been cancelled"""
+  physicalCard: PhysicalCard!
 }
 
 type CancelPhysicalCardSuccessPayload {
@@ -18933,6 +19019,9 @@ enum ConsentPurpose {
   """when adding a digital card"""
   AddDigitalCard
 
+  """when adding multiple digital cards"""
+  AddDigitalCards
+
   """when activating a physical card"""
   ActivatePhysicalCard
 
@@ -20035,7 +20124,7 @@ type Authenticator {
   model: String
 
   """Type of authenticator"""
-  type: AuthenticatorType!
+  type: AuthenticatorType! @deprecated(reason: "Authenticators are always of type 'SwanWeb', this field is meaningless")
 
   """Raw user agent"""
   userAgent: String
@@ -20049,14 +20138,15 @@ type Authenticator {
 
 enum AuthenticatorType {
   """A Swan web authenticator"""
-  SwanWeb
+  SwanWeb @deprecated(reason: "Only remaining value; the enum is meaningless")
 
   """Deprecated: swan authenticator"""
-  Swan
+  Swan @deprecated(reason: "Legacy mobile authenticator, no longer supported")
 }
 
+"""Deprecated: use `BlocklistedPhoneNumberRejection` (with an O) instead."""
 type BlacklistedPhoneNumberRejection implements Rejection {
-  message: String! @deprecated(reason: "Use 'BlocklistedPhoneNumberRejection' instead")
+  message: String!
 }
 
 type BlocklistedPhoneNumberRejection implements Rejection {

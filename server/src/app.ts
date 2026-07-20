@@ -309,7 +309,7 @@ export const start = async (config: AppConfig) => {
         ],
         frameSrc: ["'self'", env.IDENTITY_URL, env.PAYMENT_URL, "https://*.checkout.com"],
         frameAncestors: ["'self'", env.BANKING_URL],
-        // ...(env.NODE_ENV === "development" && { workerSrc: ["'self'", "blob:"] }), // Used by vite in development
+        ...(env.NODE_ENV === "development" && { workerSrc: ["'self'", "blob:"] }), // Used by vite in development
         ...(env.NODE_ENV !== "development" && { reportUri: ["/api/report"] }),
       },
     },

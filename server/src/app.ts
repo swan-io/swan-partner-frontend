@@ -223,7 +223,6 @@ export const start = async (config: AppConfig) => {
   });
 
   const contentSecurityPolicyDirectives: Record<string, string[]> = {
-    "style-src": env.NODE_ENV === "development" ? ["'self'", "'unsafe-inline'"] : ["'self'"],
     "img-src": [
       "'self'",
       "data:",
@@ -233,7 +232,7 @@ export const start = async (config: AppConfig) => {
           { url: P.string.includes("local") },
           { url: P.string.includes("master") },
           { url: P.string.includes("preprod") },
-          () => ["https://s3.eu-west-1.amazonaws.com"],
+          () => ["https:"],
         )
         .otherwise(() => ["https://s3.eu-west-1.amazonaws.com/data.swan.io"]),
     ],

@@ -2,7 +2,11 @@ import { countries } from "@swan-io/shared-business/src/constants/countries";
 import { describe, expect, it } from "vitest";
 import { maskPhoneNumber, parsePhoneNumber, prefixPhoneNumber } from "../phone";
 
-const franceCountry = countries.find(country => country.cca3 === "FRA")!;
+const franceCountry = countries.find(country => country.cca3 === "FRA");
+
+if (franceCountry == null) {
+  throw new Error("FRA not found in countries");
+}
 
 describe("parsePhoneNumber", () => {
   it("returns the country and national number for a valid international number", () => {

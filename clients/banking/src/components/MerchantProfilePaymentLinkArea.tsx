@@ -52,6 +52,7 @@ const styles = StyleSheet.create({
 const PER_PAGE = 20;
 
 const ALLOWED_PAYMENT_METHODS = new Set<MerchantPaymentMethodType>([
+  "Card",
   "OnlineCard",
   "InPersonCard",
   "SepaDirectDebitB2b",

@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { getMonthlySpendingDate, validateSpendingLimitAmount } from "./spendingLimit";
+import { getMonthlySpendingDate, validateSpendingLimitAmount } from "../spendingLimit";
 
 describe("validateSpendingLimitAmount", () => {
   it("accepts a valid amount within the max", () => {

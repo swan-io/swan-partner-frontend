@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { SpendingLimitFragment } from "../graphql/partner";
+import { SpendingLimitFragment } from "../../graphql/partner";
 import {
   SingleUseSpendingLimitValue,
   deriveSingleUseSpendingLimitValue,
   singleUseToSpendingLimitValue,
   spendingLimitValueToSingleUse,
   validateSingleUseSpendingLimit,
-} from "./singleUseSpendingLimit";
+} from "../singleUseSpendingLimit";
 
 const fragment = (
   period: SpendingLimitFragment["period"],

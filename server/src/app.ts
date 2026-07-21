@@ -223,19 +223,20 @@ export const start = async (config: AppConfig) => {
   });
 
   const contentSecurityPolicyDirectives: Record<string, string[]> = {
-    "default-src": ["'self'"],
-    "base-uri": ["'self'"],
-    "object-src": ["'none'"],
-    "form-action": ["'self'"],
-    "script-src": [
+    "style-src": env.NODE_ENV === "development" ? ["'self'", "'unsafe-inline'"] : ["'self'"],
+    "img-src": [
       "'self'",
-      "https://*.checkout.com",
-      "https://*.posthog.com",
-      "https://static.zdassets.com",
+      "data:",
+      "blob:",
+      ...match({ url: env.BANKING_URL })
+        .with(
+          { url: P.string.includes("local") },
+          { url: P.string.includes("master") },
+          { url: P.string.includes("preprod") },
+          () => ["https://s3.eu-west-1.amazonaws.com"],
+        )
+        .otherwise(() => ["https://s3.eu-west-1.amazonaws.com/data.swan.io"]),
     ],
-    "style-src": ["'self'", "'unsafe-inline'"],
-    "img-src": ["'self'", "data:", "blob:", "https:"],
-    "font-src": ["'self'", "data:"],
     "connect-src": [
       "'self'",
       env.IDENTITY_URL,
@@ -261,10 +262,9 @@ export const start = async (config: AppConfig) => {
           "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-sandbox",
           "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-live-v2",
           "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-sandbox-v2",
+          "https://s3.eu-west-1.amazonaws.com/data.swan.io",
         ]),
     ],
-    "frame-src": ["'self'", env.IDENTITY_URL, env.PAYMENT_URL, "https://*.checkout.com"],
-    "frame-ancestors": ["'self'", env.BANKING_URL],
     "report-uri": ["/api/report"],
   };
 
@@ -279,8 +279,38 @@ export const start = async (config: AppConfig) => {
     contentSecurityPolicy: {
       useDefaults: false,
       directives: {
-        defaultSrc: fastifyHelmet.contentSecurityPolicy.dangerouslyDisableDefaultSrc,
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          ...(env.NODE_ENV === "development" ? ["'unsafe-inline'"] : []), // Add unsafe-inline to allow vite hot reloading in develpment
+          "https://*.checkout.com",
+          "https://*.posthog.com",
+          "https://static.zdassets.com",
+        ],
+        baseUri: ["'self'"],
+        objectSrc: ["'none'"],
+        formAction: ["'self'"],
+        fontSrc: ["'self'", "data:"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "blob:", "https:"],
+        connectSrc: [
+          "'self'",
+          env.IDENTITY_URL,
+          "https://*.posthog.com",
+          "https://faro-collector-prod-eu-west-6.grafana.net",
+          "https://suggestions.pappers.fr",
+          "https://api.placekit.co",
+          "https://*.checkout.com",
+          "https://*.swan.io",
+          "https://*.zdassets.com",
+          "https://*.zendesk.com",
+          "https://swan.matomo.cloud",
+          "https://s3.eu-west-1.amazonaws.com", //@todo fragile, see if with infra if we can use a custom domain swan.io
+        ],
+        frameSrc: ["'self'", env.IDENTITY_URL, env.PAYMENT_URL, "https://*.checkout.com"],
         frameAncestors: ["'self'", env.BANKING_URL],
+        ...(env.NODE_ENV === "development" && { workerSrc: ["'self'", "blob:"] }), // Used by vite in development
+        ...(env.NODE_ENV !== "development" && { reportUri: ["/api/report"] }),
       },
     },
   });

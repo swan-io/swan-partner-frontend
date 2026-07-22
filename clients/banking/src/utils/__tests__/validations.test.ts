@@ -40,6 +40,14 @@ describe("validateMandateCreditorName", () => {
     expect(validateMandateCreditorName("John Doe")).toBeUndefined();
   });
 
+  it("accepts a valid name with digit", () => {
+    expect(validateMandateCreditorName("Porsche 911")).toBeUndefined();
+  });
+
+  it("reject non Latin/Cyrillic charactere", () => {
+    expect(validateMandateCreditorName("Porsche 田中")).toBeDefined();
+  });
+
   it("rejects an empty, too long, or out-of-range value", () => {
     expect(validateMandateCreditorName("")).toBeDefined();
     expect(validateMandateCreditorName("a".repeat(71))).toBeDefined();
@@ -48,6 +56,10 @@ describe("validateMandateCreditorName", () => {
 });
 
 describe("validateBeneficiaryName", () => {
+  it("accepts a valid name", () => {
+    expect(validateBeneficiaryName("John Doe")).toBeUndefined();
+  });
+
   it("accepts a valid name containing digits", () => {
     expect(validateBeneficiaryName("John Doe 123")).toBeUndefined();
   });
@@ -116,6 +128,10 @@ describe("validateBirthdate", () => {
 });
 
 describe("validateTodayOrAfter", () => {
+  it("accepts today", () => {
+    expect(validateTodayOrAfter(dayjs.utc().format(dateFormat))).toBeUndefined();
+  });
+
   it("accepts tomorrow", () => {
     expect(validateTodayOrAfter(dayjs.utc().add(1, "day").format(dateFormat))).toBeUndefined();
   });
@@ -137,6 +153,9 @@ describe("validateDateWithinNextYear", () => {
   it("rejects empty, invalid, or dates beyond one year", () => {
     expect(validateDateWithinNextYear("")).toBeDefined();
     expect(validateDateWithinNextYear("not a date")).toBeDefined();
+    expect(
+      validateDateWithinNextYear(dayjs.utc().add(1, "year").add(1, "day").format(dateFormat)),
+    ).toBeDefined();
     expect(validateDateWithinNextYear(dayjs.utc().add(2, "year").format(dateFormat))).toBeDefined();
   });
 });

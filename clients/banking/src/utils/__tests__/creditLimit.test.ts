@@ -8,7 +8,7 @@ import {
 
 type Status = CreditLimitSettingsRequestFragment["statusInfo"]["__typename"];
 
-const makeRequest = ({
+const makeCreditLimitRequest = ({
   id,
   updatedAt,
   status,
@@ -31,13 +31,13 @@ const makeRequest = ({
 describe("getPendingCreditLimitAmount", () => {
   it("returns the amount of the most recent pending request", () => {
     const requests = [
-      makeRequest({
+      makeCreditLimitRequest({
         id: "1",
         updatedAt: "2024-01-01T00:00:00.000Z",
         status: "CreditLimitSettingsRequestPendingReviewStatusInfo",
         value: "1000",
       }),
-      makeRequest({
+      makeCreditLimitRequest({
         id: "2",
         updatedAt: "2024-03-01T00:00:00.000Z",
         status: "CreditLimitSettingsRequestPendingReviewStatusInfo",
@@ -50,13 +50,13 @@ describe("getPendingCreditLimitAmount", () => {
 
   it("ignores requests that are not pending", () => {
     const requests = [
-      makeRequest({
+      makeCreditLimitRequest({
         id: "1",
         updatedAt: "2024-05-01T00:00:00.000Z",
         status: "CreditLimitSettingsRequestRefusedStatusInfo",
         value: "5000",
       }),
-      makeRequest({
+      makeCreditLimitRequest({
         id: "2",
         updatedAt: "2024-01-01T00:00:00.000Z",
         status: "CreditLimitSettingsRequestPendingReviewStatusInfo",
@@ -70,7 +70,7 @@ describe("getPendingCreditLimitAmount", () => {
     expect(getPendingCreditLimitAmount([])).toEqual({ value: 0, currency: "EUR" });
     expect(
       getPendingCreditLimitAmount([
-        makeRequest({
+        makeCreditLimitRequest({
           id: "1",
           updatedAt: "2024-01-01T00:00:00.000Z",
           status: "CreditLimitSettingsRequestApprovedStatusInfo",
@@ -83,13 +83,13 @@ describe("getPendingCreditLimitAmount", () => {
 describe("getRefusedCreditLimitAmount", () => {
   it("returns the amount of the most recent refused request", () => {
     const requests = [
-      makeRequest({
+      makeCreditLimitRequest({
         id: "1",
         updatedAt: "2024-01-01T00:00:00.000Z",
         status: "CreditLimitSettingsRequestRefusedStatusInfo",
         value: "1000",
       }),
-      makeRequest({
+      makeCreditLimitRequest({
         id: "2",
         updatedAt: "2024-03-01T00:00:00.000Z",
         status: "CreditLimitSettingsRequestRefusedStatusInfo",
@@ -103,7 +103,7 @@ describe("getRefusedCreditLimitAmount", () => {
     expect(getRefusedCreditLimitAmount([])).toEqual({ value: 0, currency: "EUR" });
     expect(
       getRefusedCreditLimitAmount([
-        makeRequest({
+        makeCreditLimitRequest({
           id: "1",
           updatedAt: "2024-05-01T00:00:00.000Z",
           status: "CreditLimitSettingsRequestPendingReviewStatusInfo",
@@ -117,12 +117,12 @@ describe("getRefusedCreditLimitAmount", () => {
 describe("hasPendingCreditLimitRequest", () => {
   it("returns true when the most recent request is pending", () => {
     const requests = [
-      makeRequest({
+      makeCreditLimitRequest({
         id: "1",
         updatedAt: "2024-01-01T00:00:00.000Z",
         status: "CreditLimitSettingsRequestRefusedStatusInfo",
       }),
-      makeRequest({
+      makeCreditLimitRequest({
         id: "2",
         updatedAt: "2024-03-01T00:00:00.000Z",
         status: "CreditLimitSettingsRequestPendingReviewStatusInfo",
@@ -135,12 +135,12 @@ describe("hasPendingCreditLimitRequest", () => {
     expect(hasPendingCreditLimitRequest([])).toBe(false);
     expect(
       hasPendingCreditLimitRequest([
-        makeRequest({
+        makeCreditLimitRequest({
           id: "1",
           updatedAt: "2024-01-01T00:00:00.000Z",
           status: "CreditLimitSettingsRequestPendingReviewStatusInfo",
         }),
-        makeRequest({
+        makeCreditLimitRequest({
           id: "2",
           updatedAt: "2024-03-01T00:00:00.000Z",
           status: "CreditLimitSettingsRequestApprovedStatusInfo",

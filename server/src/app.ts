@@ -234,7 +234,10 @@ export const start = async (config: AppConfig) => {
           { url: P.string.includes("preprod") },
           () => ["https:"],
         )
-        .otherwise(() => ["https://s3.eu-west-1.amazonaws.com/data.swan.io"]),
+        .otherwise(() => [
+          "https://s3.eu-west-1.amazonaws.com/data.swan.io/",
+          "https://data.swan.io/",
+        ]),
     ],
     "connect-src": [
       "'self'",

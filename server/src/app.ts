@@ -222,58 +222,6 @@ export const start = async (config: AppConfig) => {
     },
   });
 
-  const contentSecurityPolicyDirectives: Record<string, string[]> = {
-    "img-src": [
-      "'self'",
-      "data:",
-      "blob:",
-      ...match({ url: env.BANKING_URL })
-        .with(
-          { url: P.string.includes("local") },
-          { url: P.string.includes("master") },
-          { url: P.string.includes("preprod") },
-          () => ["https:"],
-        )
-        .otherwise(() => [
-          "https://s3.eu-west-1.amazonaws.com/data.swan.io/",
-          "https://data.swan.io/",
-        ]),
-    ],
-    "connect-src": [
-      "'self'",
-      env.IDENTITY_URL,
-      "https://*.posthog.com",
-      "https://faro-collector-prod-eu-west-6.grafana.net",
-      "https://suggestions.pappers.fr",
-      "https://api.placekit.co",
-      "https://*.checkout.com",
-      "https://*.swan.io",
-      "https://*.zdassets.com",
-      "https://*.zendesk.com",
-      "https://swan.matomo.cloud", //@todo to remove when onboarding v1 is deleted
-      ...match({ url: env.BANKING_URL })
-        .with(
-          { url: P.string.includes("local") },
-          { url: P.string.includes("master") },
-          { url: P.string.includes("preprod") },
-          () => ["https://s3.eu-west-1.amazonaws.com"],
-        )
-        .otherwise(() => [
-          //@todo fragile, see if with infra if we can use a custom domain swan.io
-          "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-live",
-          "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-sandbox",
-          "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-live-v2",
-          "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-sandbox-v2",
-          "https://s3.eu-west-1.amazonaws.com/data.swan.io",
-        ]),
-    ],
-    "report-uri": ["/api/report"],
-  };
-
-  const contentSecurityPolicyReportOnly = Object.entries(contentSecurityPolicyDirectives)
-    .map(([directive, sources]) => `${directive} ${sources.join(" ")}`)
-    .join("; ");
-
   await app.register(fastifyHelmet, {
     crossOriginOpenerPolicy: {
       policy: "unsafe-none",
@@ -289,12 +237,26 @@ export const start = async (config: AppConfig) => {
           "https://*.posthog.com",
           "https://static.zdassets.com",
         ],
-        baseUri: ["'self'"],
         objectSrc: ["'none'"],
-        formAction: ["'self'"],
         fontSrc: ["'self'", "data:"],
         styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", "data:", "blob:", "https:"],
+        imgSrc: [
+          "'self'",
+          "data:",
+          "blob:",
+          ...match({ url: env.BANKING_URL })
+            .with(
+              { url: P.string.includes("local") },
+              { url: P.string.includes("master") },
+              { url: P.string.includes("preprod") },
+              () => ["https:"],
+            )
+            .otherwise(() => [
+              "https://s3.eu-west-1.amazonaws.com/data.swan.io/",
+              "https://data.swan.io/",
+              "https://support.swan.io/",
+            ]),
+        ],
         connectSrc: [
           "'self'",
           env.IDENTITY_URL,
@@ -307,7 +269,21 @@ export const start = async (config: AppConfig) => {
           "https://*.zdassets.com",
           "https://*.zendesk.com",
           "https://swan.matomo.cloud",
-          "https://s3.eu-west-1.amazonaws.com", //@todo fragile, see if with infra if we can use a custom domain swan.io
+          ...match({ url: env.BANKING_URL })
+            .with(
+              { url: P.string.includes("local") },
+              { url: P.string.includes("master") },
+              { url: P.string.includes("preprod") },
+              () => ["https://s3.eu-west-1.amazonaws.com"],
+            )
+            .otherwise(() => [
+              //@todo fragile, see if with infra if we can use a custom domain swan.io
+              "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-live",
+              "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-sandbox",
+              "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-live-v2",
+              "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-sandbox-v2",
+              "https://s3.eu-west-1.amazonaws.com/data.swan.io",
+            ]),
         ],
         frameSrc: ["'self'", env.IDENTITY_URL, env.PAYMENT_URL, "https://*.checkout.com"],
         frameAncestors: ["'self'", env.BANKING_URL],
@@ -315,11 +291,6 @@ export const start = async (config: AppConfig) => {
         ...(env.NODE_ENV !== "development" && { reportUri: ["/api/report"] }),
       },
     },
-  });
-
-  app.addHook("onSend", (_request, reply, _payload, done) => {
-    reply.header("Content-Security-Policy-Report-Only", contentSecurityPolicyReportOnly);
-    done();
   });
 
   app.addContentTypeParser(

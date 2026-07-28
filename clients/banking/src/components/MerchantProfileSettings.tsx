@@ -38,6 +38,7 @@ import {
   ExpectedMonthlyMerchantProcessingVolume,
   MerchantPaymentMethodFragment,
   MerchantProfileFragment,
+  MerchantProfileStatus,
   MerchantRequirementType,
   RequestMerchantPaymentMethodsDocument,
   SupportingDocumentPurposeEnum,
@@ -241,6 +242,7 @@ const MerchantProfileSettingsPaymentMethodTile = ({
   icon,
   iconLarge,
   paymentMethod,
+  merchantStatus,
   renderRequestEditor,
   renderUpdateEditor,
   onDisable,
@@ -251,6 +253,7 @@ const MerchantProfileSettingsPaymentMethodTile = ({
   iconLarge: ReactNode;
   rollingReserve: Option<{ percentage: number; rollingDays: number }>;
   paymentMethod: MerchantPaymentMethodFragment | undefined;
+  merchantStatus: MerchantProfileStatus;
   renderRequestEditor: (config: { visible: boolean; onPressClose: () => void }) => ReactNode;
   renderUpdateEditor?: (config: { visible: boolean; onPressClose: () => void }) => ReactNode;
   onDisable: () => Future<Result<unknown, unknown>>;
@@ -260,6 +263,8 @@ const MerchantProfileSettingsPaymentMethodTile = ({
   const [isUpdateEditorOpen, setIsUpdateEditorOpen] = useState(false);
   const [isDisableModalOpen, setIsDisableModalOpen] = useState(false);
   const [isDisabling, setIsDisabling] = useState(false);
+
+  const canRequestOrUpdate = merchantStatus === "Enabled" || merchantStatus === "PendingReview";
 
   const onConfirmDisable = () => {
     setIsDisabling(true);
@@ -316,53 +321,37 @@ const MerchantProfileSettingsPaymentMethodTile = ({
 
           <Fill minWidth={8} />
 
-          {match(status)
-            .with(P.nonNullable, () => (
-              <LakeButton
-                mode="tertiary"
-                color="gray"
-                icon="info-regular"
-                ariaLabel={t("common.details")}
-                onPress={() => setIsDetailsModalOpen(true)}
-              />
-            ))
-            .otherwise(() => null)}
+          {canRequestOrUpdate && status != null && (
+            <LakeButton
+              mode="tertiary"
+              color="gray"
+              icon="info-regular"
+              ariaLabel={t("common.details")}
+              onPress={() => setIsDetailsModalOpen(true)}
+            />
+          )}
 
-          {/*
-          Commenting for now, as the mutation doesn't work with a user token yet
-
-          match({ status, renderUpdateEditor })
-            .with({ status: "Enabled", renderUpdateEditor: P.nonNullable }, () => (
-              <LakeButton
-                mode="tertiary"
-                color="gray"
-                icon="edit-regular"
-                ariaLabel={t("common.edit")}
-                onPress={() => setIsUpdateEditorOpen(true)}
-              />
-            ))
-            .otherwise(() => null) */}
-
-          {match(status)
-            .with(P.nullish, "Disabled", "Rejected", () => (
-              <LakeButton
-                mode="tertiary"
-                color="gray"
-                icon="add-circle-regular"
-                ariaLabel={t("common.new")}
-                onPress={() => setIsRequestEditorOpen(true)}
-              />
-            ))
-            .with("Enabled", "PendingReview", "WaitingForInformation", () => (
-              <LakeButton
-                mode="tertiary"
-                color="negative"
-                icon="subtract-circle-regular"
-                ariaLabel={t("common.disable")}
-                onPress={() => setIsDisableModalOpen(true)}
-              />
-            ))
-            .otherwise(() => null)}
+          {canRequestOrUpdate &&
+            match(status)
+              .with(P.nullish, "Disabled", "Rejected", () => (
+                <LakeButton
+                  mode="tertiary"
+                  color="gray"
+                  icon="add-circle-regular"
+                  ariaLabel={t("common.new")}
+                  onPress={() => setIsRequestEditorOpen(true)}
+                />
+              ))
+              .with("Enabled", "PendingReview", "WaitingForInformation", () => (
+                <LakeButton
+                  mode="tertiary"
+                  color="negative"
+                  icon="subtract-circle-regular"
+                  ariaLabel={t("common.disable")}
+                  onPress={() => setIsDisableModalOpen(true)}
+                />
+              ))
+              .otherwise(() => null)}
         </Box>
 
         <Space height={4} />
@@ -1001,6 +990,7 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
                     Option.fromNullable(paymentMethod.rollingReserve),
                   )}
                   paymentMethod={paymentMethod.map(paymentMethod => paymentMethod).toUndefined()}
+                  merchantStatus={merchantProfile.statusInfo.status}
                   renderRequestEditor={({ visible, onPressClose }) => (
                     <MerchantProfilePaymentMethodCardRequestModal
                       merchantProfileId={merchantProfile.id}
@@ -1042,6 +1032,7 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
                     Option.fromNullable(paymentMethod.rollingReserve),
                   )}
                   paymentMethod={paymentMethod.map(paymentMethod => paymentMethod).toUndefined()}
+                  merchantStatus={merchantProfile.statusInfo.status}
                   renderRequestEditor={({ visible, onPressClose }) => (
                     <MerchantProfilePaymentMethodInPersonCardRequestModal
                       merchantProfileId={merchantProfile.id}
@@ -1086,6 +1077,7 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
                   icon={<SwanLogo style={styles.swanLogo} />}
                   iconLarge={<SwanLogo style={styles.swanLogoLarge} />}
                   paymentMethod={paymentMethod.map(paymentMethod => paymentMethod).toUndefined()}
+                  merchantStatus={merchantProfile.statusInfo.status}
                   renderRequestEditor={({ visible, onPressClose }) => (
                     <MerchantProfilePaymentMethodInternalDirectDebitB2BRequestModal
                       merchantProfileId={merchantProfile.id}
@@ -1132,6 +1124,7 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
                   icon={<SwanLogo style={styles.swanLogo} />}
                   iconLarge={<SwanLogo style={styles.swanLogoLarge} />}
                   paymentMethod={paymentMethod.map(paymentMethod => paymentMethod).toUndefined()}
+                  merchantStatus={merchantProfile.statusInfo.status}
                   renderRequestEditor={({ visible, onPressClose }) => (
                     <MerchantProfilePaymentMethodInternalDirectDebitStandardRequestModal
                       merchantProfileId={merchantProfile.id}
@@ -1180,6 +1173,7 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
                   }
                   iconLarge={<SepaLogo height={24} />}
                   paymentMethod={paymentMethod.map(paymentMethod => paymentMethod).toUndefined()}
+                  merchantStatus={merchantProfile.statusInfo.status}
                   renderRequestEditor={({ visible, onPressClose }) => (
                     <MerchantProfilePaymentMethodSepaDirectDebitB2BRequestModal
                       merchantProfileId={merchantProfile.id}
@@ -1255,6 +1249,7 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
                   }
                   iconLarge={<SepaLogo height={24} />}
                   paymentMethod={paymentMethod.map(paymentMethod => paymentMethod).toUndefined()}
+                  merchantStatus={merchantProfile.statusInfo.status}
                   renderRequestEditor={({ visible, onPressClose }) => (
                     <MerchantProfilePaymentMethodSepaDirectDebitCoreRequestModal
                       merchantProfileId={merchantProfile.id}
@@ -1324,6 +1319,7 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
                   icon={<Icon name="check-regular" color={colors.gray[900]} size={24} />}
                   iconLarge={<Icon name="check-regular" color={colors.gray[900]} size={42} />}
                   paymentMethod={paymentMethod.map(paymentMethod => paymentMethod).toUndefined()}
+                  merchantStatus={merchantProfile.statusInfo.status}
                   renderRequestEditor={({ visible, onPressClose }) => (
                     <MerchantProfilePaymentMethodCheckRequestModal
                       merchantProfileId={merchantProfile.id}

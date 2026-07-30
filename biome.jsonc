@@ -64,6 +64,7 @@
   "files": {
     "ignoreUnknown": true,
     "includes": [
+      "scripts/**/*.ts",
       "common/*.ts",
       "clients/*/src/**/*.ts",
       "!clients/*/src/graphql/*.ts",

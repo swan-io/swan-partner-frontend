@@ -1,5 +1,5 @@
-import dotenv from "dotenv";
 import { EOL } from "node:os";
+import dotenv from "dotenv";
 import path from "pathe";
 import pc from "picocolors";
 

@@ -1,6 +1,6 @@
 import { Future, Result } from "@swan-io/boxed";
 import { GraphQLClient } from "graphql-request";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { env } from "../env";
 import { AccountCountry, getSdk } from "../graphql/unauthenticated";
 import { fetchWithTimeout } from "../utils/fetch";

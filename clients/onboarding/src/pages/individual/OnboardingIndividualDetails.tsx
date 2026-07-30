@@ -109,7 +109,7 @@ export const OnboardingIndividualDetails = ({
     },
     taxIdentificationNumber: {
       initialValue: initialTaxIdentificationNumber,
-      sanitize: value => value.replace(/[-_. \/]/g, ""),
+      sanitize: value => value.replace(/[-_. /]/g, ""),
       validate: canSetTaxIdentification
         ? combineValidators(
             isTaxIdentificationRequired && validateRequired,
@@ -168,97 +168,95 @@ export const OnboardingIndividualDetails = ({
   };
 
   return (
-    <>
-      <OnboardingStepContent>
-        <ResponsiveContainer breakpoint={breakpoints.medium}>
-          {({ small }) => (
-            <>
-              <StepTitle>{t("individual.step.details.title")}</StepTitle>
-              <Space height={small ? 24 : 32} />
+    <OnboardingStepContent>
+      <ResponsiveContainer breakpoint={breakpoints.medium}>
+        {({ small }) => (
+          <>
+            <StepTitle>{t("individual.step.details.title")}</StepTitle>
+            <Space height={small ? 24 : 32} />
 
-              <Tile
-                footer={
-                  accountCountry === "DEU" && country === "DEU" ? (
-                    <LakeAlert
-                      variant="info"
-                      anchored={true}
-                      title={t("taxIdentificationNumber.germanInfo")}
-                    />
-                  ) : undefined
-                }
-              >
-                <Field name="employmentStatus">
-                  {({ value, onChange, ref }) => (
-                    <LakeLabel
-                      label={t("occupationPage.statusLabel")}
-                      render={id => (
-                        <LakeSelect
-                          id={id}
-                          ref={ref}
-                          items={employmentStatuses}
-                          value={value}
-                          disabled={updateResult.isLoading()}
-                          onValueChange={onChange}
-                        />
-                      )}
-                    />
-                  )}
-                </Field>
-
-                <Space height={12} />
-
-                <Field name="monthlyIncome">
-                  {({ value, onChange }) => (
-                    <LakeLabel
-                      label={t("occupationPage.incomeLabel")}
-                      type="radioGroup"
-                      render={() => (
-                        <RadioGroup
-                          items={monthlyIncomes}
-                          value={value}
-                          disabled={updateResult.isLoading()}
-                          onValueChange={onChange}
-                        />
-                      )}
-                    />
-                  )}
-                </Field>
-
-                {canSetTaxIdentification && (
-                  <>
-                    <Space height={32} />
-
-                    <Field name="taxIdentificationNumber">
-                      {({ value, valid, error, onChange, onBlur, ref }) => (
-                        <TaxIdentificationNumberInput
-                          ref={ref}
-                          value={value}
-                          error={error}
-                          valid={valid}
-                          onChange={onChange}
-                          onBlur={onBlur}
-                          country={country as IndividualCountryCCA3}
-                          isCompany={false}
-                          required={isTaxIdentificationRequired}
-                        />
-                      )}
-                    </Field>
-                  </>
+            <Tile
+              footer={
+                accountCountry === "DEU" && country === "DEU" ? (
+                  <LakeAlert
+                    variant="info"
+                    anchored={true}
+                    title={t("taxIdentificationNumber.germanInfo")}
+                  />
+                ) : undefined
+              }
+            >
+              <Field name="employmentStatus">
+                {({ value, onChange, ref }) => (
+                  <LakeLabel
+                    label={t("occupationPage.statusLabel")}
+                    render={id => (
+                      <LakeSelect
+                        id={id}
+                        ref={ref}
+                        items={employmentStatuses}
+                        value={value}
+                        disabled={updateResult.isLoading()}
+                        onValueChange={onChange}
+                      />
+                    )}
+                  />
                 )}
-              </Tile>
+              </Field>
 
-              <Space height={small ? 24 : 32} />
-              <LakeText align="center">{t("individual.step.details.description")}</LakeText>
-            </>
-          )}
-        </ResponsiveContainer>
+              <Space height={12} />
 
-        <OnboardingFooter
-          onPrevious={onPressPrevious}
-          onNext={onPressNext}
-          loading={updateResult.isLoading()}
-        />
-      </OnboardingStepContent>
-    </>
+              <Field name="monthlyIncome">
+                {({ value, onChange }) => (
+                  <LakeLabel
+                    label={t("occupationPage.incomeLabel")}
+                    type="radioGroup"
+                    render={() => (
+                      <RadioGroup
+                        items={monthlyIncomes}
+                        value={value}
+                        disabled={updateResult.isLoading()}
+                        onValueChange={onChange}
+                      />
+                    )}
+                  />
+                )}
+              </Field>
+
+              {canSetTaxIdentification && (
+                <>
+                  <Space height={32} />
+
+                  <Field name="taxIdentificationNumber">
+                    {({ value, valid, error, onChange, onBlur, ref }) => (
+                      <TaxIdentificationNumberInput
+                        ref={ref}
+                        value={value}
+                        error={error}
+                        valid={valid}
+                        onChange={onChange}
+                        onBlur={onBlur}
+                        country={country as IndividualCountryCCA3}
+                        isCompany={false}
+                        required={isTaxIdentificationRequired}
+                      />
+                    )}
+                  </Field>
+                </>
+              )}
+            </Tile>
+
+            <Space height={small ? 24 : 32} />
+            <LakeText align="center">{t("individual.step.details.description")}</LakeText>
+          </>
+        )}
+      </ResponsiveContainer>
+
+      <OnboardingFooter
+        onPrevious={onPressPrevious}
+        onNext={onPressNext}
+        loading={updateResult.isLoading()}
+      />
+    </OnboardingStepContent>
   );
 };

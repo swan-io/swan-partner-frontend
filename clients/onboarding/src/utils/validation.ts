@@ -129,7 +129,7 @@ export const validateRegistrationNumber: Validator<string> = value => {
 
 // check url with prefix https:// optional
 export const isValidUrl = (value: string) => {
-  return /^(?:https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/.test(
+  return /^(?:https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$/.test(
     value,
   );
 };

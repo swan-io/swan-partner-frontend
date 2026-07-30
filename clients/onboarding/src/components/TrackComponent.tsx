@@ -1,4 +1,4 @@
-import { ReactElement, Ref, cloneElement } from "react";
+import { cloneElement, ReactElement, Ref } from "react";
 import { sendMatomoEvent, useTrackingCategory } from "../utils/matomo";
 
 type Props = {

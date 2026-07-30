@@ -166,83 +166,77 @@ export const OnboardingCompanyBasicInfo = ({ nextStep, onboardingId, initialValu
   };
 
   return (
-    <>
-      <OnboardingStepContent>
-        <ResponsiveContainer breakpoint={breakpoints.medium}>
-          {({ small }) => (
-            <>
-              <LakeHeading
-                level={1}
-                variant={small ? "h3" : "h1"}
-                align={small ? "center" : "left"}
-              >
-                {t("company.step.basicInfo.title")}
-              </LakeHeading>
+    <OnboardingStepContent>
+      <ResponsiveContainer breakpoint={breakpoints.medium}>
+        {({ small }) => (
+          <>
+            <LakeHeading level={1} variant={small ? "h3" : "h1"} align={small ? "center" : "left"}>
+              {t("company.step.basicInfo.title")}
+            </LakeHeading>
 
-              <Space height={small ? 8 : 12} />
+            <Space height={small ? 8 : 12} />
 
-              <LakeText align={small ? "center" : "left"}>
-                {t("company.step.basicInfo.description")}
-              </LakeText>
+            <LakeText align={small ? "center" : "left"}>
+              {t("company.step.basicInfo.description")}
+            </LakeText>
+
+            <Space height={small ? 24 : 32} />
+
+            <Tile>
+              <Field name="country">
+                {({ value, onChange }) => (
+                  <OnboardingCountryPicker
+                    label={t("company.step.basicInfo.countryLabel")}
+                    countries={companyCountries}
+                    value={value}
+                    onValueChange={onChange}
+                    holderType="company"
+                    onlyIconHelp={small}
+                    hideError={true}
+                  />
+                )}
+              </Field>
 
               <Space height={small ? 24 : 32} />
 
-              <Tile>
-                <Field name="country">
-                  {({ value, onChange }) => (
-                    <OnboardingCountryPicker
-                      label={t("company.step.basicInfo.countryLabel")}
-                      countries={companyCountries}
-                      value={value}
-                      onValueChange={onChange}
-                      holderType="company"
-                      onlyIconHelp={small}
-                      hideError={true}
-                    />
-                  )}
-                </Field>
+              <Field name="typeOfRepresentation">
+                {({ value, onChange }) => (
+                  <LakeLabel
+                    label={t("company.step.basicInfo.legalRepresentativeLabel")}
+                    type="radioGroup"
+                    render={() => (
+                      <RadioGroup
+                        direction={small ? "column" : "row"}
+                        items={typeOfRepresentationItems}
+                        value={value}
+                        onValueChange={onChange}
+                      />
+                    )}
+                  />
+                )}
+              </Field>
 
-                <Space height={small ? 24 : 32} />
+              {/* use 12 instead of 24 for large screen because RadioGroup with row direction has 12px margin bottom */}
+              <Space height={small ? 24 : 12} />
 
-                <Field name="typeOfRepresentation">
-                  {({ value, onChange }) => (
-                    <LakeLabel
-                      label={t("company.step.basicInfo.legalRepresentativeLabel")}
-                      type="radioGroup"
-                      render={() => (
-                        <RadioGroup
-                          direction={small ? "column" : "row"}
-                          items={typeOfRepresentationItems}
-                          value={value}
-                          onValueChange={onChange}
-                        />
-                      )}
-                    />
-                  )}
-                </Field>
+              <Field name="companyType">
+                {({ value, onChange }) => (
+                  <LakeLabel
+                    label={t("company.step.basicInfo.organisationTypeLabel")}
+                    type="radioGroup"
+                    optionalLabel={t("company.step.basicInfo.organisationTypeOptional")}
+                    render={() => (
+                      <RadioGroup items={companyTypes} value={value} onValueChange={onChange} />
+                    )}
+                  />
+                )}
+              </Field>
+            </Tile>
+          </>
+        )}
+      </ResponsiveContainer>
 
-                {/* use 12 instead of 24 for large screen because RadioGroup with row direction has 12px margin bottom */}
-                <Space height={small ? 24 : 12} />
-
-                <Field name="companyType">
-                  {({ value, onChange }) => (
-                    <LakeLabel
-                      label={t("company.step.basicInfo.organisationTypeLabel")}
-                      type="radioGroup"
-                      optionalLabel={t("company.step.basicInfo.organisationTypeOptional")}
-                      render={() => (
-                        <RadioGroup items={companyTypes} value={value} onValueChange={onChange} />
-                      )}
-                    />
-                  )}
-                </Field>
-              </Tile>
-            </>
-          )}
-        </ResponsiveContainer>
-
-        <OnboardingFooter onNext={onPressNext} loading={updateResult.isLoading()} />
-      </OnboardingStepContent>
-    </>
+      <OnboardingFooter onNext={onPressNext} loading={updateResult.isLoading()} />
+    </OnboardingStepContent>
   );
 };

@@ -16,7 +16,7 @@ import { FileInput } from "@swan-io/shared-business/src/components/FileInput";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { electronicFormat, isValid } from "iban";
 import { useCallback, useEffect, useState } from "react";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   CreditTransferInput,
   VerifyBeneficiaryDocument,

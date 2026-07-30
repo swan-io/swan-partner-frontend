@@ -1,5 +1,5 @@
 import { createFlagsProvider, FlagClient } from "@swan-io/shared-business/src/utils/flags";
-import { FlagContext, flagDefaults, Flags } from "../../../../common/flags";
+import { FlagContext, Flags, flagDefaults } from "../../../../common/flags";
 import { projectConfiguration } from "./projectId";
 
 const initialContext: Partial<FlagContext> = {

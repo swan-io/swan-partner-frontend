@@ -21,7 +21,7 @@ import { electronicFormat } from "iban";
 import { useEffect } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { Rifm } from "rifm";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { GetIbanValidationDocument } from "../graphql/partner";
 import { isToday } from "../utils/date";
 import { locale, rifmTimeProps, t } from "../utils/i18n";

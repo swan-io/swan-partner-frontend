@@ -1,15 +1,33 @@
 import { Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
+import { LakeTagInput } from "@swan-io/lake/src/components/LakeTagInput";
+import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
+import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
+import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { trim } from "@swan-io/lake/src/utils/string";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
+import {
+  validateNullableRequired,
+  validateRequired,
+} from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
-import { StyleSheet } from "react-native";
+import { useEffect } from "react";
+import { StyleSheet, View } from "react-native";
+import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import { StepTitle } from "../../../components/StepTitle";
+import {
+  businessActivityCategories,
+  companyHeadcount,
+  forecastYearlyIncome,
+  monthlyPaymentVolumes,
+} from "../../../constants/business";
 import {
   BusinessActivityCategory,
   CompanyHeadcount,
@@ -19,26 +37,6 @@ import {
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { locale, t } from "../../../utils/i18n";
-
-import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
-import { LakeTagInput } from "@swan-io/lake/src/components/LakeTagInput";
-import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
-import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
-import { noop } from "@swan-io/lake/src/utils/function";
-import { showToast } from "@swan-io/shared-business/src/state/toasts";
-import {
-  validateNullableRequired,
-  validateRequired,
-} from "@swan-io/shared-business/src/utils/validation";
-import { useEffect } from "react";
-import { View } from "react-native";
-import { match } from "ts-pattern";
-import {
-  businessActivityCategories,
-  companyHeadcount,
-  forecastYearlyIncome,
-  monthlyPaymentVolumes,
-} from "../../../constants/business";
 import { Router } from "../../../utils/routes";
 import { hasOnboardingPrefilled } from "../../../utils/session";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";

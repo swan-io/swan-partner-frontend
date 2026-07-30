@@ -27,14 +27,12 @@ export const ForbiddenView = ({ title, subtitle }: Props) => {
         {title}
       </LakeHeading>
 
-      <>
-        <Space height={8} />
-        {subtitle && (
-          <LakeText variant="smallRegular" align="center">
-            {subtitle}
-          </LakeText>
-        )}
-      </>
+      <Space height={8} />
+      {subtitle && (
+        <LakeText variant="smallRegular" align="center">
+          {subtitle}
+        </LakeText>
+      )}
     </Box>
   );
 };

@@ -84,7 +84,7 @@ const config: CodegenConfig = {
   overwrite: true,
 
   hooks: {
-    afterAllFileWrite: "prettier --write",
+    afterAllFileWrite: "biome format --write",
   },
 
   generates: {

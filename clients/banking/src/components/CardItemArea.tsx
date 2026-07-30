@@ -10,7 +10,7 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { Suspense, useMemo } from "react";
 import { StyleSheet } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { CardPageDocument } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { getMemberName } from "../utils/accountMembership";

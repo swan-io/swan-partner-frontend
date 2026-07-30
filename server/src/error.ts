@@ -1,8 +1,8 @@
+import fs from "node:fs";
 import { HttpErrorCodes } from "@fastify/sensible/lib/httpError";
 import { Accepts } from "accepts";
 import escapeHtml from "escape-html";
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import fs from "node:fs";
 import path from "pathe";
 import { match } from "ts-pattern";
 

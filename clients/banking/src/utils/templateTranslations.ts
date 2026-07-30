@@ -1,4 +1,4 @@
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { FeesTypeEnum, RejectedReasonCode } from "../graphql/partner";
 import { isTranslationKey, t } from "./i18n";
 

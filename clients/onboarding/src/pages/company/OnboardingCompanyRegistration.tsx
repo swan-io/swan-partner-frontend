@@ -21,8 +21,9 @@ import {
   AddressDetail,
   PlacekitAddressSearchInput,
 } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
-import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
+import { allCountries, CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
+import { validateEmail, validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useCallback, useEffect } from "react";
 import { StyleSheet } from "react-native";
@@ -40,12 +41,10 @@ import { formatNestedMessage, locale, t } from "../../utils/i18n";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 import {
-  ServerInvalidFieldCode,
   extractServerValidationErrors,
   getValidationErrorMessage,
+  ServerInvalidFieldCode,
 } from "../../utils/validation";
-
-import { validateEmail, validateRequired } from "@swan-io/shared-business/src/utils/validation";
 
 // exclude USA from country list because we can't open account for American citizens
 // https://support.swan.io/hc/en-150/articles/5767279299741
@@ -249,230 +248,224 @@ export const OnboardingCompanyRegistration = ({
   );
 
   return (
-    <>
-      <OnboardingStepContent>
-        <ResponsiveContainer breakpoint={breakpoints.medium}>
-          {({ small }) => (
-            <>
-              <StepTitle>{t("company.step.registration.title")}</StepTitle>
-              <Space height={small ? 8 : 12} />
-              <LakeText>{t("company.step.registration.description")}</LakeText>
-              <Space height={small ? 24 : 32} />
+    <OnboardingStepContent>
+      <ResponsiveContainer breakpoint={breakpoints.medium}>
+        {({ small }) => (
+          <>
+            <StepTitle>{t("company.step.registration.title")}</StepTitle>
+            <Space height={small ? 8 : 12} />
+            <LakeText>{t("company.step.registration.description")}</LakeText>
+            <Space height={small ? 24 : 32} />
 
-              <Tile>
-                <Field name="email">
-                  {({ value, valid, onChange, error, ref }) => (
-                    <LakeLabel
-                      label={t("company.step.registration.emailLabel")}
-                      render={id => (
-                        <LakeTextInput
-                          id={id}
+            <Tile>
+              <Field name="email">
+                {({ value, valid, onChange, error, ref }) => (
+                  <LakeLabel
+                    label={t("company.step.registration.emailLabel")}
+                    render={id => (
+                      <LakeTextInput
+                        id={id}
+                        ref={ref}
+                        placeholder="example@gmail.com"
+                        value={value}
+                        onChangeText={onChange}
+                        valid={valid}
+                        error={error}
+                      />
+                    )}
+                  />
+                )}
+              </Field>
+            </Tile>
+
+            <Space height={small ? 24 : 32} />
+
+            {isAddressRequired && (
+              <>
+                <StepTitle>{t("company.step.registration.locationTitle")}</StepTitle>
+
+                <Space height={small ? 24 : 32} />
+
+                <Tile>
+                  <Field name="country">
+                    {({ value, onChange }) => (
+                      <OnboardingCountryPicker
+                        label={t("company.step.registration.countryLabel")}
+                        value={value}
+                        countries={countryItems.get()}
+                        holderType="company"
+                        onlyIconHelp={small}
+                        onValueChange={onChange}
+                      />
+                    )}
+                  </Field>
+
+                  <Space height={12} />
+
+                  <FieldsListener names={["country"]}>
+                    {({ country }) => (
+                      <>
+                        <Field name="address">
+                          {({ ref, value, onChange, error }) => (
+                            <LakeLabel
+                              label={t("company.step.registration.searchAddressLabel")}
+                              optionalLabel={t(
+                                "company.step.registration.searchAddressLabelDetail",
+                              )}
+                              render={id => (
+                                <PlacekitAddressSearchInput
+                                  inputRef={ref}
+                                  apiKey={__env.CLIENT_PLACEKIT_API_KEY}
+                                  emptyResult={t("common.noResult")}
+                                  placeholder={t(
+                                    "company.step.registration.searchAddressPlaceholder",
+                                  )}
+                                  language={locale.language}
+                                  id={id}
+                                  country={country.value}
+                                  value={value}
+                                  error={error}
+                                  onValueChange={onChange}
+                                  onSuggestion={onSuggestion}
+                                />
+                              )}
+                            />
+                          )}
+                        </Field>
+
+                        <Space height={12} />
+
+                        <Field name="city">
+                          {({ ref, value, valid, error, onChange }) => (
+                            <LakeLabel
+                              label={t("company.step.registration.cityLabel")}
+                              render={id => (
+                                <LakeTextInput
+                                  ref={ref}
+                                  id={id}
+                                  value={value}
+                                  valid={valid}
+                                  error={error}
+                                  onChangeText={onChange}
+                                />
+                              )}
+                            />
+                          )}
+                        </Field>
+
+                        <Space height={12} />
+
+                        <Field name="postalCode">
+                          {({ ref, value, valid, error, onChange }) => (
+                            <LakeLabel
+                              label={t("company.step.registration.postalCodeLabel")}
+                              render={id => (
+                                <LakeTextInput
+                                  ref={ref}
+                                  id={id}
+                                  value={value}
+                                  valid={valid}
+                                  error={error}
+                                  onChangeText={onChange}
+                                />
+                              )}
+                            />
+                          )}
+                        </Field>
+                      </>
+                    )}
+                  </FieldsListener>
+                </Tile>
+
+                <Space height={small ? 24 : 32} />
+              </>
+            )}
+
+            <Box alignItems="start">
+              <Box>
+                {haveToAcceptTcu && (
+                  <>
+                    <Field name="tcuAccepted">
+                      {({ value, error, onChange, ref }) => (
+                        <Pressable
                           ref={ref}
-                          placeholder="example@gmail.com"
-                          value={value}
-                          onChangeText={onChange}
-                          valid={valid}
-                          error={error}
-                        />
-                      )}
-                    />
-                  )}
-                </Field>
-              </Tile>
+                          role="checkbox"
+                          aria-checked={value}
+                          onPress={() => onChange(!value)}
+                          style={styles.tcuCheckbox}
+                        >
+                          <LakeCheckbox value={value} isError={isNotNullish(error)} />
+                          <Space width={8} />
 
-              <Space height={small ? 24 : 32} />
+                          <LakeText>
+                            {formatNestedMessage("step.finalize.terms", {
+                              firstLink: (
+                                <Link target="blank" to={tcuUrl} style={styles.link}>
+                                  {t("emailPage.firstLink")}
 
-              {isAddressRequired && (
-                <>
-                  <StepTitle>{t("company.step.registration.locationTitle")}</StepTitle>
+                                  <Icon name="open-filled" size={16} style={styles.linkIcon} />
+                                </Link>
+                              ),
+                              secondLink: (
+                                <Link target="blank" to={tcuDocumentUri ?? "#"} style={styles.link}>
+                                  {t("emailPage.secondLink", { partner: projectName })}
 
-                  <Space height={small ? 24 : 32} />
-
-                  <Tile>
-                    <Field name="country">
-                      {({ value, onChange }) => (
-                        <OnboardingCountryPicker
-                          label={t("company.step.registration.countryLabel")}
-                          value={value}
-                          countries={countryItems.get()}
-                          holderType="company"
-                          onlyIconHelp={small}
-                          onValueChange={onChange}
-                        />
+                                  <Icon name="open-filled" size={16} style={styles.linkIcon} />
+                                </Link>
+                              ),
+                            })}
+                          </LakeText>
+                        </Pressable>
                       )}
                     </Field>
 
-                    <Space height={12} />
-
-                    <FieldsListener names={["country"]}>
-                      {({ country }) => (
-                        <>
-                          <Field name="address">
-                            {({ ref, value, onChange, error }) => (
-                              <LakeLabel
-                                label={t("company.step.registration.searchAddressLabel")}
-                                optionalLabel={t(
-                                  "company.step.registration.searchAddressLabelDetail",
-                                )}
-                                render={id => (
-                                  <PlacekitAddressSearchInput
-                                    inputRef={ref}
-                                    apiKey={__env.CLIENT_PLACEKIT_API_KEY}
-                                    emptyResult={t("common.noResult")}
-                                    placeholder={t(
-                                      "company.step.registration.searchAddressPlaceholder",
-                                    )}
-                                    language={locale.language}
-                                    id={id}
-                                    country={country.value}
-                                    value={value}
-                                    error={error}
-                                    onValueChange={onChange}
-                                    onSuggestion={onSuggestion}
-                                  />
-                                )}
-                              />
-                            )}
-                          </Field>
-
-                          <Space height={12} />
-
-                          <Field name="city">
-                            {({ ref, value, valid, error, onChange }) => (
-                              <LakeLabel
-                                label={t("company.step.registration.cityLabel")}
-                                render={id => (
-                                  <LakeTextInput
-                                    ref={ref}
-                                    id={id}
-                                    value={value}
-                                    valid={valid}
-                                    error={error}
-                                    onChangeText={onChange}
-                                  />
-                                )}
-                              />
-                            )}
-                          </Field>
-
-                          <Space height={12} />
-
-                          <Field name="postalCode">
-                            {({ ref, value, valid, error, onChange }) => (
-                              <LakeLabel
-                                label={t("company.step.registration.postalCodeLabel")}
-                                render={id => (
-                                  <LakeTextInput
-                                    ref={ref}
-                                    id={id}
-                                    value={value}
-                                    valid={valid}
-                                    error={error}
-                                    onChangeText={onChange}
-                                  />
-                                )}
-                              />
-                            )}
-                          </Field>
-                        </>
-                      )}
-                    </FieldsListener>
-                  </Tile>
-
-                  <Space height={small ? 24 : 32} />
-                </>
-              )}
-
-              <Box alignItems="start">
-                <Box>
-                  {haveToAcceptTcu && (
-                    <>
-                      <Field name="tcuAccepted">
-                        {({ value, error, onChange, ref }) => (
-                          <Pressable
-                            ref={ref}
-                            role="checkbox"
-                            aria-checked={value}
-                            onPress={() => onChange(!value)}
-                            style={styles.tcuCheckbox}
-                          >
-                            <LakeCheckbox value={value} isError={isNotNullish(error)} />
-                            <Space width={8} />
-
-                            <LakeText>
-                              {formatNestedMessage("step.finalize.terms", {
-                                firstLink: (
-                                  <Link target="blank" to={tcuUrl} style={styles.link}>
-                                    {t("emailPage.firstLink")}
-
-                                    <Icon name="open-filled" size={16} style={styles.linkIcon} />
-                                  </Link>
-                                ),
-                                secondLink: (
-                                  <Link
-                                    target="blank"
-                                    to={tcuDocumentUri ?? "#"}
-                                    style={styles.link}
-                                  >
-                                    {t("emailPage.secondLink", { partner: projectName })}
-
-                                    <Icon name="open-filled" size={16} style={styles.linkIcon} />
-                                  </Link>
-                                ),
-                              })}
-                            </LakeText>
-                          </Pressable>
-                        )}
-                      </Field>
-
-                      <Space width={12} />
-                    </>
-                  )}
-
-                  {!haveToAcceptTcu && (
-                    <LakeText>
-                      {formatNestedMessage("emailPage.terms", {
-                        firstLink: (
-                          <Link target="blank" to={tcuUrl} style={styles.link}>
-                            {t("emailPage.firstLink")}
-
-                            <Icon name="open-filled" size={16} style={styles.linkIcon} />
-                          </Link>
-                        ),
-                        secondLink: (
-                          <Link target="blank" to={tcuDocumentUri ?? "#"} style={styles.link}>
-                            {t("emailPage.secondLink", { partner: projectName })}
-
-                            <Icon name="open-filled" size={16} style={styles.linkIcon} />
-                          </Link>
-                        ),
-                      })}
-                    </LakeText>
-                  )}
-                </Box>
-
-                {haveToAcceptTcu && (
-                  <>
-                    <Space height={4} />
-
-                    <FieldsListener names={["tcuAccepted"]}>
-                      {({ tcuAccepted }) => (
-                        <LakeText color={colors.negative[500]}>{tcuAccepted.error ?? " "}</LakeText>
-                      )}
-                    </FieldsListener>
+                    <Space width={12} />
                   </>
                 )}
-              </Box>
-            </>
-          )}
-        </ResponsiveContainer>
 
-        <OnboardingFooter
-          onPrevious={onPressPrevious}
-          onNext={onPressNext}
-          loading={updateResult.isLoading()}
-        />
-      </OnboardingStepContent>
-    </>
+                {!haveToAcceptTcu && (
+                  <LakeText>
+                    {formatNestedMessage("emailPage.terms", {
+                      firstLink: (
+                        <Link target="blank" to={tcuUrl} style={styles.link}>
+                          {t("emailPage.firstLink")}
+
+                          <Icon name="open-filled" size={16} style={styles.linkIcon} />
+                        </Link>
+                      ),
+                      secondLink: (
+                        <Link target="blank" to={tcuDocumentUri ?? "#"} style={styles.link}>
+                          {t("emailPage.secondLink", { partner: projectName })}
+
+                          <Icon name="open-filled" size={16} style={styles.linkIcon} />
+                        </Link>
+                      ),
+                    })}
+                  </LakeText>
+                )}
+              </Box>
+
+              {haveToAcceptTcu && (
+                <>
+                  <Space height={4} />
+
+                  <FieldsListener names={["tcuAccepted"]}>
+                    {({ tcuAccepted }) => (
+                      <LakeText color={colors.negative[500]}>{tcuAccepted.error ?? " "}</LakeText>
+                    )}
+                  </FieldsListener>
+                </>
+              )}
+            </Box>
+          </>
+        )}
+      </ResponsiveContainer>
+
+      <OnboardingFooter
+        onPrevious={onPressPrevious}
+        onNext={onPressNext}
+        loading={updateResult.isLoading()}
+      />
+    </OnboardingStepContent>
   );
 };

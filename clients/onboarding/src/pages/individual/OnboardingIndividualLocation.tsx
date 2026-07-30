@@ -26,9 +26,9 @@ import { locale, t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 import {
-  ServerInvalidFieldCode,
   extractServerValidationErrors,
   getValidationErrorMessage,
+  ServerInvalidFieldCode,
 } from "../../utils/validation";
 
 export type LocationFieldName = "country" | "city" | "address" | "postalCode";
@@ -144,110 +144,108 @@ export const OnboardingIndividualLocation = ({
   };
 
   return (
-    <>
-      <OnboardingStepContent>
-        <ResponsiveContainer breakpoint={breakpoints.medium}>
-          {({ small }) => (
-            <>
-              <StepTitle>{t("individual.step.location.title")}</StepTitle>
-              <Space height={small ? 24 : 32} />
+    <OnboardingStepContent>
+      <ResponsiveContainer breakpoint={breakpoints.medium}>
+        {({ small }) => (
+          <>
+            <StepTitle>{t("individual.step.location.title")}</StepTitle>
+            <Space height={small ? 24 : 32} />
 
-              <Tile>
-                <Field name="country">
-                  {({ value, onChange }) => (
-                    <OnboardingCountryPicker
-                      label={t("individual.step.location.countryLabel")}
-                      value={value}
-                      countries={individualCountries}
-                      holderType="individual"
-                      onlyIconHelp={small}
-                      onValueChange={onChange}
-                    />
-                  )}
-                </Field>
+            <Tile>
+              <Field name="country">
+                {({ value, onChange }) => (
+                  <OnboardingCountryPicker
+                    label={t("individual.step.location.countryLabel")}
+                    value={value}
+                    countries={individualCountries}
+                    holderType="individual"
+                    onlyIconHelp={small}
+                    onValueChange={onChange}
+                  />
+                )}
+              </Field>
 
-                <Space height={12} />
+              <Space height={12} />
 
-                <FieldsListener names={["country"]}>
-                  {({ country }) => (
-                    <Field name="address">
-                      {({ value, onChange, error }) => (
-                        <LakeLabel
-                          label={t("individual.step.location.addressLabel")}
-                          render={id => (
-                            <PlacekitAddressSearchInput
-                              id={id}
-                              apiKey={__env.CLIENT_PLACEKIT_API_KEY}
-                              country={country.value}
-                              value={value}
-                              onValueChange={onChange}
-                              onSuggestion={suggestion => {
-                                setFieldValue("address", suggestion.completeAddress);
-                                setFieldValue("city", suggestion.city);
-                                setFieldValue("postalCode", suggestion.postalCode ?? "");
-                              }}
-                              language={locale.language}
-                              placeholder={t("addressInput.placeholder")}
-                              emptyResult={t("common.noResult")}
-                              error={error}
-                            />
-                          )}
-                        />
-                      )}
-                    </Field>
-                  )}
-                </FieldsListener>
+              <FieldsListener names={["country"]}>
+                {({ country }) => (
+                  <Field name="address">
+                    {({ value, onChange, error }) => (
+                      <LakeLabel
+                        label={t("individual.step.location.addressLabel")}
+                        render={id => (
+                          <PlacekitAddressSearchInput
+                            id={id}
+                            apiKey={__env.CLIENT_PLACEKIT_API_KEY}
+                            country={country.value}
+                            value={value}
+                            onValueChange={onChange}
+                            onSuggestion={suggestion => {
+                              setFieldValue("address", suggestion.completeAddress);
+                              setFieldValue("city", suggestion.city);
+                              setFieldValue("postalCode", suggestion.postalCode ?? "");
+                            }}
+                            language={locale.language}
+                            placeholder={t("addressInput.placeholder")}
+                            emptyResult={t("common.noResult")}
+                            error={error}
+                          />
+                        )}
+                      />
+                    )}
+                  </Field>
+                )}
+              </FieldsListener>
 
-                <Space height={12} />
+              <Space height={12} />
 
-                <Field name="city">
-                  {({ value, valid, error, onChange, ref }) => (
-                    <LakeLabel
-                      label={t("individual.step.location.cityLabel")}
-                      render={id => (
-                        <LakeTextInput
-                          id={id}
-                          ref={ref}
-                          value={value}
-                          valid={valid}
-                          error={error}
-                          onChangeText={onChange}
-                        />
-                      )}
-                    />
-                  )}
-                </Field>
+              <Field name="city">
+                {({ value, valid, error, onChange, ref }) => (
+                  <LakeLabel
+                    label={t("individual.step.location.cityLabel")}
+                    render={id => (
+                      <LakeTextInput
+                        id={id}
+                        ref={ref}
+                        value={value}
+                        valid={valid}
+                        error={error}
+                        onChangeText={onChange}
+                      />
+                    )}
+                  />
+                )}
+              </Field>
 
-                <Space height={12} />
+              <Space height={12} />
 
-                <Field name="postalCode">
-                  {({ value, valid, error, onChange, ref }) => (
-                    <LakeLabel
-                      label={t("individual.step.location.postCodeLabel")}
-                      render={id => (
-                        <LakeTextInput
-                          id={id}
-                          ref={ref}
-                          value={value}
-                          valid={valid}
-                          error={error}
-                          onChangeText={onChange}
-                        />
-                      )}
-                    />
-                  )}
-                </Field>
-              </Tile>
-            </>
-          )}
-        </ResponsiveContainer>
+              <Field name="postalCode">
+                {({ value, valid, error, onChange, ref }) => (
+                  <LakeLabel
+                    label={t("individual.step.location.postCodeLabel")}
+                    render={id => (
+                      <LakeTextInput
+                        id={id}
+                        ref={ref}
+                        value={value}
+                        valid={valid}
+                        error={error}
+                        onChangeText={onChange}
+                      />
+                    )}
+                  />
+                )}
+              </Field>
+            </Tile>
+          </>
+        )}
+      </ResponsiveContainer>
 
-        <OnboardingFooter
-          onPrevious={onPressPrevious}
-          onNext={onPressNext}
-          loading={updateResult.isLoading()}
-        />
-      </OnboardingStepContent>
-    </>
+      <OnboardingFooter
+        onPrevious={onPressPrevious}
+        onNext={onPressNext}
+        loading={updateResult.isLoading()}
+      />
+    </OnboardingStepContent>
   );
 };

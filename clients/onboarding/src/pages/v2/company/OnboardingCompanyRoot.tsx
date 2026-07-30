@@ -1,26 +1,13 @@
-import { useDeferredQuery, useMutation } from "@swan-io/graphql-client";
-import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
-import { Tile } from "@swan-io/lake/src/components/Tile";
-import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
-import { useForm } from "@swan-io/use-form";
-import { StyleSheet } from "react-native";
-import { match, P } from "ts-pattern";
-import { OnboardingFooter } from "../../../components/OnboardingFooter";
-import {
-  CompanyInfo,
-  CompanyOnboardingFragment,
-  CompanyRelatedIndividual,
-  GetPublicCompamyInfoRegistryDataDocument,
-  UpdatePublicCompanyAccountHolderOnboardingDocument,
-} from "../../../graphql/partner";
-import { locale, t } from "../../../utils/i18n";
-
 import { Option } from "@swan-io/boxed";
+import { useDeferredQuery, useMutation } from "@swan-io/graphql-client";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
+import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import { Tile } from "@swan-io/lake/src/components/Tile";
+import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
@@ -28,8 +15,8 @@ import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { omit } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
 import {
-  companyCountries,
   CountryCCA3,
+  companyCountries,
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
@@ -38,16 +25,27 @@ import {
   validateNullableRequired,
   validateRequired,
 } from "@swan-io/shared-business/src/utils/validation";
+import { useForm } from "@swan-io/use-form";
 import { useCallback, useEffect, useState } from "react";
-import { Pressable, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
+import { match, P } from "ts-pattern";
 import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { LakeCompanyInput } from "../../../components/LakeCompanyInput";
 import { LegalFormsInput } from "../../../components/LegalFormsInput";
+import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import { PowerOfAttorneyDownloadDocument } from "../../../components/PowerOfAttorneyDownloadDocument";
 import {
   formatValueRepresentative,
   RepresentativeFormsInput,
 } from "../../../components/RepresentativeFormInput";
+import {
+  CompanyInfo,
+  CompanyOnboardingFragment,
+  CompanyRelatedIndividual,
+  GetPublicCompamyInfoRegistryDataDocument,
+  UpdatePublicCompanyAccountHolderOnboardingDocument,
+} from "../../../graphql/partner";
+import { locale, t } from "../../../utils/i18n";
 import { cleanData, transformRelatedIndividualsToInput } from "../../../utils/onboarding";
 import { CompanySuggestion } from "../../../utils/Pappers";
 import { Router } from "../../../utils/routes";

@@ -1,35 +1,16 @@
 import { Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints, colors, radii } from "@swan-io/lake/src/constants/design";
+import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { trim } from "@swan-io/lake/src/utils/string";
-import { combineValidators, useForm } from "@swan-io/use-form";
-import { StyleSheet } from "react-native";
-import { match, P } from "ts-pattern";
-import { OnboardingFooter } from "../../../components/OnboardingFooter";
-import { OnboardingTcu } from "../../../components/OnboardingTcu";
-import { StepTitle } from "../../../components/StepTitle";
-import {
-  CompanyOnboardingFragment,
-  UpdatePublicCompanyAccountHolderOnboardingDocument,
-} from "../../../graphql/partner";
-import { t } from "../../../utils/i18n";
-import {
-  badUserInputErrorPattern,
-  extractServerValidationFields,
-  getValidationErrorMessage,
-  ServerInvalidFieldCode,
-  validateRegistrationNumber,
-} from "../../../utils/validation";
-
-import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { omit } from "@swan-io/lake/src/utils/object";
+import { trim } from "@swan-io/lake/src/utils/string";
 import { InlineDatePicker } from "@swan-io/shared-business/src/components/InlineDatePicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
@@ -42,15 +23,31 @@ import {
   validateRequired,
   validateVatNumber,
 } from "@swan-io/shared-business/src/utils/validation";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import { useEffect, useMemo, useState } from "react";
-import { View } from "react-native";
-import { locale } from "../../../utils/i18n";
+import { StyleSheet, View } from "react-native";
+import { match, P } from "ts-pattern";
+import { OnboardingFooter } from "../../../components/OnboardingFooter";
+import { OnboardingTcu } from "../../../components/OnboardingTcu";
+import { StepTitle } from "../../../components/StepTitle";
+import {
+  CompanyOnboardingFragment,
+  UpdatePublicCompanyAccountHolderOnboardingDocument,
+} from "../../../graphql/partner";
+import { locale, t } from "../../../utils/i18n";
 import { Router } from "../../../utils/routes";
 import { hasOnboardingPrefilled } from "../../../utils/session";
 import {
   getRegistrationNumberName,
   getUpdateOnboardingError,
 } from "../../../utils/templateTranslations";
+import {
+  badUserInputErrorPattern,
+  extractServerValidationFields,
+  getValidationErrorMessage,
+  ServerInvalidFieldCode,
+  validateRegistrationNumber,
+} from "../../../utils/validation";
 
 export type OrganisationFieldApiRequired =
   | "address"
@@ -166,7 +163,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
     },
     taxIdentificationNumber: {
       initialValue: company?.taxIdentificationNumber ?? "",
-      sanitize: value => value.replace(/[-_. \/]/g, ""),
+      sanitize: value => value.replace(/[-_. /]/g, ""),
       validate: isTaxIdentificationRequired
         ? combineValidators(
             validateRequired,

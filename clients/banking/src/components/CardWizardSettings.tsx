@@ -1,6 +1,6 @@
 import { Result } from "@swan-io/boxed";
 import { Ref } from "react";
-import { WizardStepRef, useWizardStep } from "../hooks/useWizardStep";
+import { useWizardStep, WizardStepRef } from "../hooks/useWizardStep";
 import { CardSettings, CardSettingsFields } from "./CardSettingsFields";
 
 export type CardWizardSettingsRef = WizardStepRef;

@@ -22,7 +22,7 @@ import { AdditionalInfo, SupportChat } from "@swan-io/shared-business/src/compon
 import dayjs from "dayjs";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
 import { ProfilePageDocument } from "../graphql/partner";
 import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";

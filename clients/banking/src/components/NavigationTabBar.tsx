@@ -25,17 +25,17 @@ import {
 } from "@swan-io/lake/src/constants/design";
 import { insets } from "@swan-io/lake/src/constants/insets";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
-import { Request, badStatusToError } from "@swan-io/request";
+import { badStatusToError, Request } from "@swan-io/request";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { AccountAreaQuery, IdentificationLevelFragment } from "../graphql/partner";
 import { env } from "../utils/env";
 import { partnerAdminClient } from "../utils/gql";
 import { t } from "../utils/i18n";
-import { Router, accountRoutes } from "../utils/routes";
+import { accountRoutes, Router } from "../utils/routes";
 import { AccountNavigation, Menu } from "./AccountNavigation";
 import { AccountActivationTag, AccountPicker, AccountPickerButton } from "./AccountPicker";
 import { SandboxUserPickerContents, SandboxUserTag } from "./SandboxUserPicker";
@@ -368,6 +368,7 @@ export const NavigationTabBar = ({
               ))
               .with("memberships", () => (
                 <TransitionView {...animations.fadeAndSlideInFromRight}>
+                  {/** biome-ignore lint/complexity/noUselessFragments: we need to keep fragment for transition view */}
                   <>
                     <LakeHeading level={2} variant="h3">
                       {t("navigation.accounts")}
@@ -399,6 +400,7 @@ export const NavigationTabBar = ({
               ))
               .with("sandboxUsers", () => (
                 <TransitionView {...animations.fadeAndSlideInFromRight}>
+                  {/** biome-ignore lint/complexity/noUselessFragments: we need to keep fragment for transition view */}
                   <>
                     <LakeHeading level={2} variant="h3">
                       {t("sandboxUser.impersonatedAs")}

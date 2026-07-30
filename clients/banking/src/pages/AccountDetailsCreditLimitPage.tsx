@@ -65,6 +65,7 @@ import {
 import { formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { validateNumeric } from "../utils/validations";
+
 const styles = StyleSheet.create({
   container: {
     flexShrink: 1,

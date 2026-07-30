@@ -32,7 +32,7 @@ import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { ReactNode, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   AdditionalInformationType,
   ExpectedMonthlyMerchantProcessingVolume,

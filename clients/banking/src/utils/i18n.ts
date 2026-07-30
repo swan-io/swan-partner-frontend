@@ -5,8 +5,8 @@ import { getRifmProps } from "@swan-io/lake/src/utils/rifm";
 import { FlagCode } from "@swan-io/shared-business/src/components/Flag";
 import { DateFormat } from "@swan-io/shared-business/src/utils/i18n";
 import {
-  LANGUAGE_FALLBACK,
   getLanguagesHelpers,
+  LANGUAGE_FALLBACK,
 } from "@swan-io/shared-business/src/utils/languages";
 import dayjs from "dayjs";
 import dayjsLocaleDE from "dayjs/locale/de";
@@ -22,7 +22,7 @@ import localeData from "dayjs/plugin/localeData";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
-import { ReactElement, ReactNode, cloneElement, isValidElement } from "react";
+import { cloneElement, isValidElement, ReactElement, ReactNode } from "react";
 import { AccountLanguage, DayEnum } from "../graphql/partner";
 import translationDE from "../locales/de.json";
 import translationEN from "../locales/en.json";

@@ -6,7 +6,7 @@ import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { ToastStack } from "@swan-io/shared-business/src/components/ToastStack";
 import { StyleSheet } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { AccountClose } from "./components/AccountClose";
 import { AccountMembershipArea } from "./components/AccountMembershipArea";
 import { AddReceivedSepaDirectDebitB2bMandate } from "./components/AddReceivedSepaDirectDebitB2bMandate";

@@ -1,5 +1,5 @@
-import { FastifyInstance, RouteHandlerMethod } from "fastify";
 import fs from "node:fs/promises";
+import { FastifyInstance, RouteHandlerMethod } from "fastify";
 import path from "pathe";
 import { match, P } from "ts-pattern";
 import { CorsOptions } from "vite";

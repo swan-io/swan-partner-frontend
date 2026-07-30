@@ -6,9 +6,9 @@ import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { trim } from "@swan-io/lake/src/utils/string";
 import {
-  companyCountries,
   CompanyCountryCCA3,
   CountryCCA3,
+  companyCountries,
 } from "@swan-io/shared-business/src/constants/countries";
 import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { useForm } from "@swan-io/use-form";

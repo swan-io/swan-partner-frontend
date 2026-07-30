@@ -35,7 +35,7 @@ import { printIbanFormat } from "@swan-io/shared-business/src/utils/validation";
 import { printFormat } from "iban";
 import { useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   GenerateTransactionStatementDocument,
   TransactionDocument,

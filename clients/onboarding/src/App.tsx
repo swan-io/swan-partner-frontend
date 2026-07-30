@@ -23,14 +23,14 @@ import {
   UpdateIndividualOnboardingDocument,
 } from "./graphql/unauthenticated";
 import { useTitle } from "./hooks/useTitle";
-import { NotFoundPage } from "./pages/NotFoundPage";
 import { ChangeAdminWizard } from "./pages/changeAdmin/ChangeAdminWizard";
 import { OnboardingCompanyWizard } from "./pages/company/CompanyOnboardingWizard";
 import { OnboardingIndividualWizard } from "./pages/individual/OnboardingIndividualWizard";
+import { NotFoundPage } from "./pages/NotFoundPage";
 import { OnboardingCompanyWizard as OnboardingCompanyWizardV2 } from "./pages/v2/company/OnboardingCompanyWizard";
 import { OnboardingIndividualWizard as OnboardingIndividualWizardV2 } from "./pages/v2/individual/OnboardingIndividualWizard";
 import { env } from "./utils/env";
-import { flagsClient, FlagsProvider } from "./utils/flags";
+import { FlagsProvider, flagsClient } from "./utils/flags";
 import { client, partnerClient } from "./utils/gql";
 import { locale } from "./utils/i18n";
 import { TrackingProvider, useSessionTracking } from "./utils/matomo";

@@ -7,15 +7,15 @@
  */
 import { Future, Option, Result } from "@swan-io/boxed";
 import pc from "picocolors";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { exchangeToken } from "./api/oauth2.swan";
 import {
-  UnsupportedAccountCountryError,
   createPublicCompanyAccountHolderOnboarding,
   createPublicIndividualAccountHolderOnboarding,
   parseAccountCountry,
   sdk,
   toFuture,
+  UnsupportedAccountCountryError,
 } from "./api/partner";
 import {
   OnboardingRejectionError,

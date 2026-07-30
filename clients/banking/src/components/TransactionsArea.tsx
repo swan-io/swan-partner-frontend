@@ -24,13 +24,13 @@ import {
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { GetAccountBalanceDocument } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { TransactionListPage } from "../pages/TransactionListPage";
 import { UpcomingTransactionListPage } from "../pages/UpcomingTransactionListPage";
 import { formatCurrency, t } from "../utils/i18n";
-import { Router, accountTransactionsRoutes } from "../utils/routes";
+import { accountTransactionsRoutes, Router } from "../utils/routes";
 import { AccountStatementsList } from "./AccountStatementList";
 import { ErrorView } from "./ErrorView";
 

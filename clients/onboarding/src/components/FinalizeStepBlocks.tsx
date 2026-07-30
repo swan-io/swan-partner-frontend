@@ -10,7 +10,7 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { animations, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { CSSProperties, Fragment } from "react";
 import { StyleSheet } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { t } from "../utils/i18n";
 import {
   CompanyOnboardingRoute,

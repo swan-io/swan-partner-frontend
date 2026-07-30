@@ -1,6 +1,6 @@
 import { Future, Result } from "@swan-io/boxed";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
-import { Request, badStatusToError, emptyToError } from "@swan-io/request";
+import { badStatusToError, emptyToError, Request } from "@swan-io/request";
 
 // We set all fields optional because values comes from a free external service we can't trust at 100%
 // https://www.pappers.fr/api/documentation

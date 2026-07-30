@@ -25,6 +25,7 @@ import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { AccountCountry, UltimateBeneficialOwnerQualificationType } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
+
 const styles = StyleSheet.create({
   inputContainer: {
     flex: 1,

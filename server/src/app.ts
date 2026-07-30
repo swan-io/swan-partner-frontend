@@ -1,3 +1,6 @@
+import { randomUUID } from "node:crypto";
+import { lookup } from "node:dns";
+import fs from "node:fs";
 import accepts from "@fastify/accepts";
 import cors from "@fastify/cors";
 import fastifyHelmet from "@fastify/helmet";
@@ -10,20 +13,16 @@ import fastifyView from "@fastify/view";
 import { Array, Future, Option, Result } from "@swan-io/boxed";
 import fastify, { FastifyReply } from "fastify";
 import mustache from "mustache";
-import { randomUUID } from "node:crypto";
-import { lookup } from "node:dns";
-import fs from "node:fs";
 import path from "pathe";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
-  OAuth2State,
   createAuthUrl,
   getOAuth2StatePattern,
   getTokenFromCode,
+  OAuth2State,
   refreshAccessToken,
 } from "./api/oauth2";
 import {
-  UnsupportedAccountCountryError,
   bindAccountMembership,
   createPublicCompanyAccountHolderOnboarding,
   createPublicIndividualAccountHolderOnboarding,
@@ -31,6 +30,7 @@ import {
   finalizeOnboardingV2,
   getProjectId,
   parseAccountCountry,
+  UnsupportedAccountCountryError,
 } from "./api/partner";
 import {
   swan__bindAccountMembership,
@@ -38,8 +38,8 @@ import {
   swan__finalizeOnboardingV2,
 } from "./api/partner.swan";
 import {
-  OnboardingRejectionError,
   getOnboardingOAuthClientId,
+  OnboardingRejectionError,
   onboardCompanyAccountHolder,
   onboardIndividualAccountHolder,
 } from "./api/unauthenticated";
@@ -49,6 +49,7 @@ import { FlagContext } from "./common/flags";
 import { env } from "./env";
 import { replyWithAuthError, replyWithError } from "./error";
 import { evaluateFlags } from "./utils/flags";
+
 const packageJson = JSON.parse(
   fs.readFileSync(path.join(__dirname, "../package.json"), "utf-8"),
 ) as { version: string };

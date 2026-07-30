@@ -1,19 +1,18 @@
-import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
-import { Tile } from "@swan-io/lake/src/components/Tile";
-import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
-import { OnboardingFooter } from "../../../components/OnboardingFooter";
-import { IndividualOnboardingFragment } from "../../../graphql/partner";
-import { t } from "../../../utils/i18n";
-
 import { Option } from "@swan-io/boxed";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { Tile } from "@swan-io/lake/src/components/Tile";
+import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { match, P } from "ts-pattern";
 import { FinalizeInvalidSteps } from "../../../components/FinalizeStepBlocks";
+import { OnboardingFooter } from "../../../components/OnboardingFooter";
+import { IndividualOnboardingFragment } from "../../../graphql/partner";
 import { env } from "../../../utils/env";
+import { t } from "../../../utils/i18n";
 import { projectConfiguration } from "../../../utils/projectId";
 import { IndividualOnboardingRouteV2, Router } from "../../../utils/routes";
 

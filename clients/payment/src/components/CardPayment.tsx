@@ -12,7 +12,7 @@ import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { FrameCardTokenizedEvent, Frames } from "frames-react";
 import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   AddCardPaymentMandateDocument,
   GetMerchantPaymentLinkQuery,

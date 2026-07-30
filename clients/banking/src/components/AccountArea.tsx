@@ -434,28 +434,26 @@ export const AccountArea = ({
                     }
                   >
                     {largeViewport ? null : (
-                      <>
-                        <Box
-                          role="banner"
-                          direction="row"
-                          alignItems="center"
-                          style={styles.headerMobile}
-                        >
-                          <AutoWidthImage
-                            ariaLabel={projectName}
-                            sourceUri={projectLogo ?? logoSwan}
-                            height={32}
-                            resizeMode="contain"
-                          />
+                      <Box
+                        role="banner"
+                        direction="row"
+                        alignItems="center"
+                        style={styles.headerMobile}
+                      >
+                        <AutoWidthImage
+                          ariaLabel={projectName}
+                          sourceUri={projectLogo ?? logoSwan}
+                          height={32}
+                          resizeMode="contain"
+                        />
 
-                          {env.APP_TYPE === "SANDBOX" && (
-                            <>
-                              <Space width={12} />
-                              <Tag color="sandbox" ariaLabel="Sandbox" icon="beaker-regular" />
-                            </>
-                          )}
-                        </Box>
-                      </>
+                        {env.APP_TYPE === "SANDBOX" && (
+                          <>
+                            <Space width={12} />
+                            <Tag color="sandbox" ariaLabel="Sandbox" icon="beaker-regular" />
+                          </>
+                        )}
+                      </Box>
                     )}
 
                     <View style={styles.content} id={CONTENT_ID} tabIndex={0}>

@@ -1,6 +1,6 @@
 import { TgglLocalClient } from "tggl-client";
 import { match, P } from "ts-pattern";
-import { FlagContext, flagDefaults, Flags } from "../common/flags";
+import { FlagContext, Flags, flagDefaults } from "../common/flags";
 import { env } from "../env";
 
 /**

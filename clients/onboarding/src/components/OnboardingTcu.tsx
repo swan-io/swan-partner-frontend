@@ -37,41 +37,49 @@ type Props = {
   partnerName: string | undefined;
 };
 
-export const OnboardingTcu = ({ ref, value, error, onChange, tcuUrl, tcuDocumentUri, partnerName = "" }: Props) => (
-    <Box>
-      <Space height={32} />
+export const OnboardingTcu = ({
+  ref,
+  value,
+  error,
+  onChange,
+  tcuUrl,
+  tcuDocumentUri,
+  partnerName = "",
+}: Props) => (
+  <Box>
+    <Space height={32} />
 
-      <Pressable
-        ref={ref}
-        role="checkbox"
-        aria-checked={value}
-        onPress={() => onChange(!value)}
-        style={styles.tcuCheckbox}
-      >
-        <LakeCheckbox value={value} isError={isNotNullish(error)} />
-        <Space width={8} />
+    <Pressable
+      ref={ref}
+      role="checkbox"
+      aria-checked={value}
+      onPress={() => onChange(!value)}
+      style={styles.tcuCheckbox}
+    >
+      <LakeCheckbox value={value} isError={isNotNullish(error)} />
+      <Space width={8} />
 
-        <LakeText>
-          {formatNestedMessage("step.finalize.terms", {
-            firstLink: (
-              <Link target="blank" to={tcuUrl} style={styles.link}>
-                {t("emailPage.firstLink")}
+      <LakeText>
+        {formatNestedMessage("step.finalize.terms", {
+          firstLink: (
+            <Link target="blank" to={tcuUrl} style={styles.link}>
+              {t("emailPage.firstLink")}
 
-                <Icon name="open-filled" size={16} style={styles.linkIcon} />
-              </Link>
-            ),
-            secondLink: (
-              <Link target="blank" to={tcuDocumentUri} style={styles.link}>
-                {t("emailPage.secondLink", { partner: partnerName })}
+              <Icon name="open-filled" size={16} style={styles.linkIcon} />
+            </Link>
+          ),
+          secondLink: (
+            <Link target="blank" to={tcuDocumentUri} style={styles.link}>
+              {t("emailPage.secondLink", { partner: partnerName })}
 
-                <Icon name="open-filled" size={16} style={styles.linkIcon} />
-              </Link>
-            ),
-          })}
-        </LakeText>
-      </Pressable>
+              <Icon name="open-filled" size={16} style={styles.linkIcon} />
+            </Link>
+          ),
+        })}
+      </LakeText>
+    </Pressable>
 
-      <Space height={4} />
-      <LakeText color={colors.negative[500]}>{error ?? " "}</LakeText>
-    </Box>
+    <Space height={4} />
+    <LakeText color={colors.negative[500]}>{error ?? " "}</LakeText>
+  </Box>
 );

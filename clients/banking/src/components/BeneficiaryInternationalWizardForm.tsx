@@ -20,7 +20,7 @@ import { validateRequired } from "@swan-io/shared-business/src/utils/validation"
 import { useForm } from "@swan-io/use-form";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   GetInternationalBeneficiaryDynamicFormsDocument,
   InternationalBeneficiaryDetailsInput,

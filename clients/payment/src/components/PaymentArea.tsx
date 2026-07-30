@@ -17,7 +17,7 @@ import { backgroundColor, breakpoints, colors, spacings } from "@swan-io/lake/sr
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { GetMerchantPaymentLinkDocument } from "../graphql/unauthenticated";
 import { CardErrorPage } from "../pages/CardErrorPage";
 import { ExpiredPage } from "../pages/ExpiredPage";

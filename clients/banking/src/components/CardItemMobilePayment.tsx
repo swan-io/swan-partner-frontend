@@ -17,7 +17,7 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import dayjs from "dayjs";
 import { Fragment, useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import applePayLogo from "../assets/images/apple-pay.svg";
 import googlePayLogo from "../assets/images/google-pay.svg";
 import { CancelDigitalCardDocument, CardPageQuery, DigitalCardFragment } from "../graphql/partner";

@@ -70,6 +70,7 @@
       "!clients/*/src/graphql/*.ts",
       "clients/*/src/**/*.tsx",
       "clients/*/src/**/*.json",
+      "clients/*/src/**/*.gql",
       "server/src/**/*.ts",
       "!server/src/graphql/*.ts"
     ]

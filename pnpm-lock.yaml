@@ -115,9 +115,6 @@ importers:
       sodium-native:
         specifier: 5.0.10
         version: 5.0.10
-      tggl-cli:
-        specifier: 1.4.0
-        version: 1.4.0
       tiktoken:
         specifier: 1.0.22
         version: 1.0.22
@@ -3189,10 +3186,6 @@ packages:
     resolution: {integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==, tarball: https://registry.npmjs.org/combined-stream/-/combined-stream-1.0.8.tgz}
     engines: {node: '>= 0.8'}
 
-  commander@10.0.1:
-    resolution: {integrity: sha512-y4Mg2tXshplEbSGzx7amzPwKKOCGuoSRP/CjEdwwk0FOGlUbq6lKuoyDZTNZkmxHdJtp54hdfY/JUrdL7Xfdug==, tarball: https://registry.npmjs.org/commander/-/commander-10.0.1.tgz}
-    engines: {node: '>=14'}
-
   commander@14.0.3:
     resolution: {integrity: sha512-H+y0Jo/T1RZ9qPP4Eh1pkcQcLRglraJaSLoyOtHxu6AapkjWVCy2Sit1QQ4x3Dng8qDlSsZEet7g5Pq06MvTgw==, tarball: https://registry.npmjs.org/commander/-/commander-14.0.3.tgz}
     engines: {node: '>=20'}
@@ -5092,10 +5085,6 @@ packages:
   tagged-tag@1.0.0:
     resolution: {integrity: sha512-yEFYrVhod+hdNyx7g5Bnkkb0G6si8HJurOoOEgC8B/O0uXLHlaey/65KRv6cuWBNhBgHKAROVpc7QyYqE5gFng==, tarball: https://registry.npmjs.org/tagged-tag/-/tagged-tag-1.0.0.tgz}
     engines: {node: '>=20'}
-
-  tggl-cli@1.4.0:
-    resolution: {integrity: sha512-KqgE5DaRztGSrmpASqvII3BGF+0BWOPB92pleDVgl50gT3LH6THmQHmCNKhuxfLDgzhg14vAhPOu45Meti5TZA==, tarball: https://registry.npmjs.org/tggl-cli/-/tggl-cli-1.4.0.tgz}
-    hasBin: true
 
   tggl-client@3.2.2:
     resolution: {integrity: sha512-A2ZYPZ/8w/55Q9yBD/YiUmrKVqKY3nmIwhAyGYxp8s8IgLFgIX95btPBq4raXn8IcJtfxuIRizzha5sBJc0Biw==, tarball: https://registry.npmjs.org/tggl-client/-/tggl-client-3.2.2.tgz}
@@ -8892,8 +8881,6 @@ snapshots:
     dependencies:
       delayed-stream: 1.0.0
 
-  commander@10.0.1: {}
-
   commander@14.0.3: {}
 
   common-tags@1.8.2: {}
@@ -11036,14 +11023,6 @@ snapshots:
   systeminformation@5.31.11: {}
 
   tagged-tag@1.0.0: {}
-
-  tggl-cli@1.4.0:
-    dependencies:
-      axios: 1.18.1
-      commander: 10.0.1
-    transitivePeerDependencies:
-      - debug
-      - supports-color
 
   tggl-client@3.2.2:
     dependencies:

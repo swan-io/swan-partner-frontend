@@ -16,7 +16,6 @@
       "semicolons": "always"
     },
     "globals": ["__env"]
-    // "globals": ["__env", "React", "ILocale", "WizardStep"]
   },
 
   "linter": {

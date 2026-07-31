@@ -7,7 +7,7 @@ import {
   Amount,
   CardProductFragment,
 } from "../graphql/partner";
-import { WizardStepRef, useWizardStep } from "../hooks/useWizardStep";
+import { useWizardStep, WizardStepRef } from "../hooks/useWizardStep";
 import { t } from "../utils/i18n";
 import { deriveSpendingLimitContext, getSpendingLimitAmountError } from "../utils/spendingLimit";
 import {

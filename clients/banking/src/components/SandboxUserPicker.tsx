@@ -17,7 +17,7 @@ import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useRef, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   EndorseSandboxUserDocument,
   SandboxUserDocument,

@@ -152,191 +152,185 @@ export const AddReceivedSepaDirectDebitB2bMandate = ({ accountId, resourceId, st
                 return (
                   <WithPartnerAccentColor color={accentColor}>
                     <ScrollView contentContainerStyle={styles.content}>
-                      <>
-                        <Box direction="row" alignItems="center">
-                          {state !== "Form" || user.accountMemberships.edges.length === 0 ? null : (
-                            <LakeButton
-                              ariaLabel={t("common.cancel")}
-                              icon="dismiss-regular"
-                              mode="tertiary"
-                              onPress={() => {
-                                setIsCanceled(true);
-                              }}
-                            >
-                              {large ? t("common.cancel") : null}
-                            </LakeButton>
-                          )}
+                      <Box direction="row" alignItems="center">
+                        {state !== "Form" || user.accountMemberships.edges.length === 0 ? null : (
+                          <LakeButton
+                            ariaLabel={t("common.cancel")}
+                            icon="dismiss-regular"
+                            mode="tertiary"
+                            onPress={() => {
+                              setIsCanceled(true);
+                            }}
+                          >
+                            {large ? t("common.cancel") : null}
+                          </LakeButton>
+                        )}
 
-                          <Fill minWidth={16} />
+                        <Fill minWidth={16} />
 
-                          <View style={styles.logo}>
-                            <AutoWidthImage
-                              ariaLabel={projectName}
-                              sourceUri={projectLogo ?? logoSwan}
-                              height={LOGO_MAX_HEIGHT}
-                              maxWidth={LOGO_MAX_WIDTH}
-                              resizeMode="contain"
-                            />
-                          </View>
+                        <View style={styles.logo}>
+                          <AutoWidthImage
+                            ariaLabel={projectName}
+                            sourceUri={projectLogo ?? logoSwan}
+                            height={LOGO_MAX_HEIGHT}
+                            maxWidth={LOGO_MAX_WIDTH}
+                            resizeMode="contain"
+                          />
+                        </View>
 
-                          <Fill minWidth={16} />
+                        <Fill minWidth={16} />
 
-                          <View>
-                            <LakeSelect
-                              value={locale.language}
-                              items={languageOptions}
-                              hideErrors={true}
-                              mode="borderless"
-                              onValueChange={locale => {
-                                setPreferredLanguage(locale);
-                              }}
-                            />
-                          </View>
-                        </Box>
+                        <View>
+                          <LakeSelect
+                            value={locale.language}
+                            items={languageOptions}
+                            hideErrors={true}
+                            mode="borderless"
+                            onValueChange={locale => {
+                              setPreferredLanguage(locale);
+                            }}
+                          />
+                        </View>
+                      </Box>
 
-                        <Space height={24} />
+                      <Space height={24} />
 
-                        {match(user)
-                          .with(
-                            {
-                              accountMemberships: {
-                                edges: [
-                                  {
-                                    node: {
-                                      canInitiatePayments: true,
-                                      canViewAccount: true,
-                                      account: P.select({
-                                        holder: {
-                                          info: {
-                                            __typename: "AccountHolderCompanyInfo",
-                                          },
+                      {match(user)
+                        .with(
+                          {
+                            accountMemberships: {
+                              edges: [
+                                {
+                                  node: {
+                                    canInitiatePayments: true,
+                                    canViewAccount: true,
+                                    account: P.select({
+                                      holder: {
+                                        info: {
+                                          __typename: "AccountHolderCompanyInfo",
                                         },
-                                      }),
-                                    },
+                                      },
+                                    }),
                                   },
-                                ],
-                              },
+                                },
+                              ],
                             },
-                            account =>
-                              match(state)
-                                .with("Canceled", () => <IncompleteRegistrationView />)
-                                .with("Success", () => <SuccessView />)
-                                .with("Form", () => (
-                                  <View>
-                                    <Space height={32} />
+                          },
+                          account =>
+                            match(state)
+                              .with("Canceled", () => <IncompleteRegistrationView />)
+                              .with("Success", () => <SuccessView />)
+                              .with("Form", () => (
+                                <View>
+                                  <Space height={32} />
 
-                                    <LakeHeading level={1} variant="h3">
-                                      {t("addReceivedSepaDirectDebitB2bMandate.title")}
-                                    </LakeHeading>
+                                  <LakeHeading level={1} variant="h3">
+                                    {t("addReceivedSepaDirectDebitB2bMandate.title")}
+                                  </LakeHeading>
 
-                                    <Space height={8} />
+                                  <Space height={8} />
 
-                                    <LakeText>
-                                      {formatNestedMessage(
-                                        "addReceivedSepaDirectDebitB2bMandate.notice",
-                                        {
-                                          bold: text => (
-                                            <LakeText variant="semibold">{text}</LakeText>
-                                          ),
-                                          list: chunk => (
-                                            <View style={styles.flex}>
-                                              <Space height={4} />
-                                              <View role="list">{chunk}</View>
-                                            </View>
-                                          ),
-                                          listitem: chunk =>
-                                            Array.isArray(chunk) &&
-                                            typeof isValidElement(chunk[0]) ? (
-                                              <LakeText role="listitem" key={String(chunk[0])}>
-                                                • {chunk[0]}
-                                              </LakeText>
-                                            ) : null,
-                                          link: chunk =>
-                                            Array.isArray(chunk) && typeof chunk[0] === "string" ? (
-                                              <LakeText
-                                                href="https://support.swan.io/hc/en-150/articles/19637943123101-SEPA-Direct-Debit-mandates"
-                                                hrefAttrs={{ target: "blank" }}
-                                                style={styles.link}
-                                              >
-                                                {chunk[0]}
-                                                <Space width={4} />
-                                                <Icon name="open-regular" size={16} />
-                                              </LakeText>
-                                            ) : null,
-                                        },
+                                  <LakeText>
+                                    {formatNestedMessage(
+                                      "addReceivedSepaDirectDebitB2bMandate.notice",
+                                      {
+                                        bold: text => (
+                                          <LakeText variant="semibold">{text}</LakeText>
+                                        ),
+                                        list: chunk => (
+                                          <View style={styles.flex}>
+                                            <Space height={4} />
+                                            <View role="list">{chunk}</View>
+                                          </View>
+                                        ),
+                                        listitem: chunk =>
+                                          Array.isArray(chunk) &&
+                                          typeof isValidElement(chunk[0]) ? (
+                                            <LakeText role="listitem" key={String(chunk[0])}>
+                                              • {chunk[0]}
+                                            </LakeText>
+                                          ) : null,
+                                        link: chunk =>
+                                          Array.isArray(chunk) && typeof chunk[0] === "string" ? (
+                                            <LakeText
+                                              href="https://support.swan.io/hc/en-150/articles/19637943123101-SEPA-Direct-Debit-mandates"
+                                              hrefAttrs={{ target: "blank" }}
+                                              style={styles.link}
+                                            >
+                                              {chunk[0]}
+                                              <Space width={4} />
+                                              <Icon name="open-regular" size={16} />
+                                            </LakeText>
+                                          ) : null,
+                                      },
+                                    )}
+                                  </LakeText>
+
+                                  <Space height={24} />
+
+                                  <Box direction="row">
+                                    <LakeLabel
+                                      label={t(
+                                        "addReceivedSepaDirectDebitB2bMandate.accountHolder",
                                       )}
-                                    </LakeText>
+                                      render={() => <LakeText>{account.holder.info.name}</LakeText>}
+                                    />
 
-                                    <Space height={24} />
+                                    <Space width={32} />
 
-                                    <Box direction="row">
-                                      <LakeLabel
-                                        label={t(
-                                          "addReceivedSepaDirectDebitB2bMandate.accountHolder",
-                                        )}
-                                        render={() => (
-                                          <LakeText>{account.holder.info.name}</LakeText>
-                                        )}
-                                      />
+                                    <LakeLabel
+                                      label={t("addReceivedSepaDirectDebitB2bMandate.accountName")}
+                                      render={() => <LakeText>{account.name}</LakeText>}
+                                    />
+                                  </Box>
 
-                                      <Space width={32} />
+                                  <Space height={32} />
 
-                                      <LakeLabel
-                                        label={t(
-                                          "addReceivedSepaDirectDebitB2bMandate.accountName",
-                                        )}
-                                        render={() => <LakeText>{account.name}</LakeText>}
-                                      />
-                                    </Box>
-
-                                    <Space height={32} />
-
-                                    <AddReceivedSepaDirectDebitB2bMandateForm
-                                      onSubmit={input =>
-                                        addReceivedSepaDirectDebitB2bMandate({
-                                          input: {
-                                            ...input,
-                                            consentRedirectUrl: window.location.href,
-                                          },
-                                        })
-                                          .mapOk(data => data.addReceivedSepaDirectDebitB2bMandate)
-                                          .mapOkToResult(filterRejectionsToResult)
-                                          .mapOkToResult(value =>
-                                            match(value)
-                                              .with(
-                                                {
-                                                  receivedDirectDebitMandate: {
-                                                    statusInfo: {
-                                                      __typename:
-                                                        "ReceivedDirectDebitMandateStatusInfoConsentPending",
-                                                      consent: { consentUrl: P.select() },
-                                                    },
+                                  <AddReceivedSepaDirectDebitB2bMandateForm
+                                    onSubmit={input =>
+                                      addReceivedSepaDirectDebitB2bMandate({
+                                        input: {
+                                          ...input,
+                                          consentRedirectUrl: window.location.href,
+                                        },
+                                      })
+                                        .mapOk(data => data.addReceivedSepaDirectDebitB2bMandate)
+                                        .mapOkToResult(filterRejectionsToResult)
+                                        .mapOkToResult(value =>
+                                          match(value)
+                                            .with(
+                                              {
+                                                receivedDirectDebitMandate: {
+                                                  statusInfo: {
+                                                    __typename:
+                                                      "ReceivedDirectDebitMandateStatusInfoConsentPending",
+                                                    consent: { consentUrl: P.select() },
                                                   },
                                                 },
-                                                Result.Ok,
-                                              )
-                                              .otherwise(Result.Error),
-                                          )
-                                          .tapOk(consentUrl => {
-                                            window.location.replace(consentUrl);
-                                          })
-                                          .tapError(error =>
-                                            showToast({
-                                              variant: "error",
-                                              error,
-                                              title: translateError(error),
-                                            }),
-                                          )
-                                      }
-                                    />
-                                  </View>
-                                ))
-                                .exhaustive(),
-                          )
-                          .otherwise(() => (
-                            <NoPermissionsView />
-                          ))}
-                      </>
+                                              },
+                                              Result.Ok,
+                                            )
+                                            .otherwise(Result.Error),
+                                        )
+                                        .tapOk(consentUrl => {
+                                          window.location.replace(consentUrl);
+                                        })
+                                        .tapError(error =>
+                                          showToast({
+                                            variant: "error",
+                                            error,
+                                            title: translateError(error),
+                                          }),
+                                        )
+                                    }
+                                  />
+                                </View>
+                              ))
+                              .exhaustive(),
+                        )
+                        .otherwise(() => (
+                          <NoPermissionsView />
+                        ))}
                     </ScrollView>
                   </WithPartnerAccentColor>
                 );

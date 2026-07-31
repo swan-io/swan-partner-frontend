@@ -29,7 +29,7 @@ import { getCountryUbo } from "@swan-io/shared-business/src/constants/ubos";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { v4 as uuid } from "uuid";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
@@ -41,7 +41,7 @@ import {
   UnauthenticatedUpdateCompanyOnboardingInput,
   UpdateCompanyOnboardingDocument,
 } from "../../graphql/unauthenticated";
-import { TranslationKey, locale, t } from "../../utils/i18n";
+import { locale, TranslationKey, t } from "../../utils/i18n";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 import {

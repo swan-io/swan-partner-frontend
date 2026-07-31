@@ -49,9 +49,10 @@ UI is built on the internal **Lake** design system. Import components from `@swa
 
 ### Linting & formatting
 
-- **Biome** handles linting (not formatting). Covers `clients/*/src/**/*.{ts,tsx}` and `server/src/**/*.ts`. Excludes generated GraphQL files.
-- **Prettier** handles formatting with `prettier-plugin-organize-imports`. Print width 100, trailing commas, no arrow parens.
-- Pre-commit hook runs `lint-staged` (both tools).
+- **Biome** handles linting and formatting. Covers `clients/*/src/**/*.{ts,tsx}` and `server/src/**/*.ts`. Excludes generated GraphQL files. Config defined in `biome.jsonc`
+- Pre-commit hook runs `lint-staged`.
+
+> **Prettier** is installed only for `crawlLicenses.ts` script for formatting markdown file
 
 ### Testing
 

@@ -45,7 +45,7 @@ import { currencies, currencyFlags, currencyResolver, isSupportedCurrency, t } f
 import { RouteParams, Router } from "../utils/routes";
 import { BeneficiaryDetail } from "./BeneficiaryDetail";
 import { ErrorView } from "./ErrorView";
-import { filter, Filters, FiltersState } from "./Filters";
+import { Filters, FiltersState, filter } from "./Filters";
 import { FiltersContainer } from "./FiltersMobileContainer";
 import { SearchInput } from "./SearchInput";
 

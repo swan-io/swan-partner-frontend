@@ -43,9 +43,9 @@ import {
   UnauthenticatedUpdateCompanyOnboardingInput,
   UpdateCompanyOnboardingDocument,
 } from "../../graphql/unauthenticated";
-import { CompanySuggestion } from "../../utils/Pappers";
 import { env } from "../../utils/env";
 import { locale, t } from "../../utils/i18n";
+import { CompanySuggestion } from "../../utils/Pappers";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 import {
   getRegistrationNumberName,
@@ -196,7 +196,7 @@ export const OnboardingCompanyOrganisation1 = ({
     },
     taxIdentificationNumber: {
       initialValue: initialTaxIdentificationNumber,
-      sanitize: value => value.replace(/[-_. \/]/g, ""),
+      sanitize: value => value.replace(/[-_. /]/g, ""),
       validate: canSetTaxIdentification
         ? combineValidators(
             isTaxIdentificationRequired && validateRequired,
@@ -373,234 +373,159 @@ export const OnboardingCompanyOrganisation1 = ({
   );
 
   return (
-    <>
-      <OnboardingStepContent>
-        <ResponsiveContainer breakpoint={breakpoints.medium}>
-          {({ small }) => (
-            <>
-              <StepTitle>{t("company.step.organisation1.title")}</StepTitle>
-              <Space height={small ? 24 : 32} />
+    <OnboardingStepContent>
+      <ResponsiveContainer breakpoint={breakpoints.medium}>
+        {({ small }) => (
+          <>
+            <StepTitle>{t("company.step.organisation1.title")}</StepTitle>
+            <Space height={small ? 24 : 32} />
 
-              <Tile
-                footer={
-                  accountCountry === "DEU" && country === "DEU" ? (
-                    <LakeAlert
-                      variant="info"
-                      anchored={true}
-                      title={t("taxIdentificationNumber.germanInfo")}
-                    />
-                  ) : undefined
-                }
-              >
-                {isRegisteredRadioButtonsVisible && (
-                  <Field name="isRegistered">
-                    {({ value, error, onChange, ref }) => (
-                      <LakeLabel
-                        label={
-                          countryRegisterName != null
-                            ? t("company.step.organisation1.isRegisteredWithNameLabel", {
-                                countryRegisterName,
-                              })
-                            : t("company.step.organisation1.isRegisteredLabel")
-                        }
-                        render={() => (
-                          <>
-                            <LakeText variant="smallRegular" style={styles.registrationHelp}>
-                              {t("company.step.organisation1.isRegisteredLabel.description", {
-                                registrationNumberLegalName: getRegistrationNumberName(
-                                  country,
-                                  companyType,
-                                ),
-                              })}
-                            </LakeText>
-
-                            <Space height={8} />
-
-                            <View tabIndex={-1} ref={ref}>
-                              <RadioGroup
-                                direction="row"
-                                error={error}
-                                items={[
-                                  { name: t("common.yes"), value: true },
-                                  { name: t("common.no"), value: false },
-                                ]}
-                                value={value}
-                                onValueChange={onChange}
-                              />
-                            </View>
-                          </>
-                        )}
-                      />
-                    )}
-                  </Field>
-                )}
-
-                <Field name="name">
-                  {({ value, valid, error, onChange, ref }) => (
+            <Tile
+              footer={
+                accountCountry === "DEU" && country === "DEU" ? (
+                  <LakeAlert
+                    variant="info"
+                    anchored={true}
+                    title={t("taxIdentificationNumber.germanInfo")}
+                  />
+                ) : undefined
+              }
+            >
+              {isRegisteredRadioButtonsVisible && (
+                <Field name="isRegistered">
+                  {({ value, error, onChange, ref }) => (
                     <LakeLabel
-                      label={t("company.step.organisation1.organisationLabel")}
-                      render={id =>
-                        country === "FRA" ? (
-                          <LakeCompanyInput
-                            id={id}
-                            ref={ref}
-                            value={value}
-                            placeholder={t("company.step.organisation1.organisationPlaceholder")}
-                            error={error}
-                            onValueChange={onChange}
-                            onSuggestion={onSelectCompany}
-                            onLoadError={noop}
-                            disabled={autofillResult.isLoading()}
-                          />
-                        ) : (
-                          <LakeTextInput
-                            id={id}
-                            ref={ref}
-                            value={value}
-                            placeholder={t("company.step.organisation1.organisationPlaceholder")}
-                            valid={valid}
-                            error={error}
-                            onChangeText={onChange}
-                            disabled={autofillResult.isLoading()}
-                          />
-                        )
+                      label={
+                        countryRegisterName != null
+                          ? t("company.step.organisation1.isRegisteredWithNameLabel", {
+                              countryRegisterName,
+                            })
+                          : t("company.step.organisation1.isRegisteredLabel")
                       }
+                      render={() => (
+                        <>
+                          <LakeText variant="smallRegular" style={styles.registrationHelp}>
+                            {t("company.step.organisation1.isRegisteredLabel.description", {
+                              registrationNumberLegalName: getRegistrationNumberName(
+                                country,
+                                companyType,
+                              ),
+                            })}
+                          </LakeText>
+
+                          <Space height={8} />
+
+                          <View tabIndex={-1} ref={ref}>
+                            <RadioGroup
+                              direction="row"
+                              error={error}
+                              items={[
+                                { name: t("common.yes"), value: true },
+                                { name: t("common.no"), value: false },
+                              ]}
+                              value={value}
+                              onValueChange={onChange}
+                            />
+                          </View>
+                        </>
+                      )}
                     />
                   )}
                 </Field>
+              )}
 
-                <Space height={12} />
-
-                <FieldsListener names={["isRegistered"]}>
-                  {({ isRegistered }) => (
-                    <Field name="registrationNumber">
-                      {({ value, valid, error, onChange, ref, onBlur }) => (
-                        <LakeLabel
-                          label={t("company.step.organisation1.registrationNumberLabel", {
-                            registrationNumberLegalName: getRegistrationNumberName(
-                              country,
-                              companyType,
-                            ),
-                          })}
-                          optionalLabel={
-                            isRegistered.value === true ? undefined : t("common.optional")
-                          }
-                          render={id => (
-                            <LakeTextInput
-                              onBlur={onBlur}
-                              help={
-                                accountCountry === "BEL"
-                                  ? t("common.form.help.nbDigits", { nbDigits: "10" })
-                                  : undefined
-                              }
-                              id={id}
-                              ref={ref}
-                              placeholder={t(
-                                "company.step.organisation1.registrationNumberPlaceholder",
-                              )}
-                              value={value}
-                              valid={valid}
-                              // when we set isRegistered to false, validation on registrationNumber isn't triggered
-                              error={isRegistered.value === true ? error : undefined}
-                              onChangeText={onChange}
-                              disabled={autofillResult.isLoading()}
-                            />
-                          )}
-                        />
-                      )}
-                    </Field>
-                  )}
-                </FieldsListener>
-
-                <Space height={12} />
-
-                {displayVat && (
-                  <Field name="vatNumber">
-                    {({ value, valid, error, onChange, ref, onBlur }) => (
-                      <LakeLabel
-                        label={t("company.step.organisation1.vatLabel")}
-                        optionalLabel={t("common.optional")}
-                        render={id => (
-                          <LakeTextInput
-                            help={t("common.form.help.nbDigits", { nbDigits: "10-12" })}
-                            id={id}
-                            onBlur={onBlur}
-                            ref={ref}
-                            placeholder={t("company.step.organisation1.vatPlaceholder")}
-                            value={value}
-                            valid={valid}
-                            error={error}
-                            onChangeText={onChange}
-                            disabled={autofillResult.isLoading()}
-                          />
-                        )}
-                      />
-                    )}
-                  </Field>
-                )}
-
-                {canSetTaxIdentification && (
-                  <>
-                    <Space height={12} />
-
-                    <Field name="taxIdentificationNumber">
-                      {({ value, valid, error, onChange, onBlur, ref }) => (
-                        <TaxIdentificationNumberInput
+              <Field name="name">
+                {({ value, valid, error, onChange, ref }) => (
+                  <LakeLabel
+                    label={t("company.step.organisation1.organisationLabel")}
+                    render={id =>
+                      country === "FRA" ? (
+                        <LakeCompanyInput
+                          id={id}
                           ref={ref}
                           value={value}
-                          error={error}
-                          valid={valid}
-                          onChange={onChange}
-                          onBlur={onBlur}
-                          country={country as CompanyCountryCCA3}
-                          isCompany={hasCompanyTaxRules}
-                          required={isTaxIdentificationRequired}
-                          disabled={autofillResult.isLoading()}
-                        />
-                      )}
-                    </Field>
-                  </>
-                )}
-              </Tile>
-
-              <Space height={small ? 24 : 32} />
-              <StepTitle>{t("company.step.organisation1.addressTitle")}</StepTitle>
-              <Space height={small ? 24 : 32} />
-
-              <Tile>
-                <Field name="address">
-                  {({ ref, value, onChange, error }) => (
-                    <LakeLabel
-                      label={t("company.step.organisation1.addressLabel")}
-                      render={id => (
-                        <PlacekitAddressSearchInput
-                          inputRef={ref}
-                          apiKey={env.PLACEKIT_API_KEY}
-                          emptyResult={t("common.noResult")}
-                          placeholder={t("company.step.organisation1.addressPlaceholder")}
-                          language={locale.language}
-                          id={id}
-                          country={country}
-                          value={value}
+                          placeholder={t("company.step.organisation1.organisationPlaceholder")}
                           error={error}
                           onValueChange={onChange}
-                          onSuggestion={onSuggestion}
+                          onSuggestion={onSelectCompany}
+                          onLoadError={noop}
+                          disabled={autofillResult.isLoading()}
                         />
-                      )}
-                    />
-                  )}
-                </Field>
+                      ) : (
+                        <LakeTextInput
+                          id={id}
+                          ref={ref}
+                          value={value}
+                          placeholder={t("company.step.organisation1.organisationPlaceholder")}
+                          valid={valid}
+                          error={error}
+                          onChangeText={onChange}
+                          disabled={autofillResult.isLoading()}
+                        />
+                      )
+                    }
+                  />
+                )}
+              </Field>
 
-                <Space height={12} />
+              <Space height={12} />
 
-                <Field name="city">
-                  {({ ref, value, valid, error, onChange }) => (
+              <FieldsListener names={["isRegistered"]}>
+                {({ isRegistered }) => (
+                  <Field name="registrationNumber">
+                    {({ value, valid, error, onChange, ref, onBlur }) => (
+                      <LakeLabel
+                        label={t("company.step.organisation1.registrationNumberLabel", {
+                          registrationNumberLegalName: getRegistrationNumberName(
+                            country,
+                            companyType,
+                          ),
+                        })}
+                        optionalLabel={
+                          isRegistered.value === true ? undefined : t("common.optional")
+                        }
+                        render={id => (
+                          <LakeTextInput
+                            onBlur={onBlur}
+                            help={
+                              accountCountry === "BEL"
+                                ? t("common.form.help.nbDigits", { nbDigits: "10" })
+                                : undefined
+                            }
+                            id={id}
+                            ref={ref}
+                            placeholder={t(
+                              "company.step.organisation1.registrationNumberPlaceholder",
+                            )}
+                            value={value}
+                            valid={valid}
+                            // when we set isRegistered to false, validation on registrationNumber isn't triggered
+                            error={isRegistered.value === true ? error : undefined}
+                            onChangeText={onChange}
+                            disabled={autofillResult.isLoading()}
+                          />
+                        )}
+                      />
+                    )}
+                  </Field>
+                )}
+              </FieldsListener>
+
+              <Space height={12} />
+
+              {displayVat && (
+                <Field name="vatNumber">
+                  {({ value, valid, error, onChange, ref, onBlur }) => (
                     <LakeLabel
-                      label={t("company.step.organisation1.cityLabel")}
+                      label={t("company.step.organisation1.vatLabel")}
+                      optionalLabel={t("common.optional")}
                       render={id => (
                         <LakeTextInput
-                          ref={ref}
+                          help={t("common.form.help.nbDigits", { nbDigits: "10-12" })}
                           id={id}
+                          onBlur={onBlur}
+                          ref={ref}
+                          placeholder={t("company.step.organisation1.vatPlaceholder")}
                           value={value}
                           valid={valid}
                           error={error}
@@ -611,38 +536,111 @@ export const OnboardingCompanyOrganisation1 = ({
                     />
                   )}
                 </Field>
+              )}
 
-                <Space height={12} />
+              {canSetTaxIdentification && (
+                <>
+                  <Space height={12} />
 
-                <Field name="postalCode">
-                  {({ ref, value, valid, error, onChange }) => (
-                    <LakeLabel
-                      label={t("company.step.organisation1.postCodeLabel")}
-                      render={id => (
-                        <LakeTextInput
-                          ref={ref}
-                          id={id}
-                          value={value}
-                          valid={valid}
-                          error={error}
-                          onChangeText={onChange}
-                          disabled={autofillResult.isLoading()}
-                        />
-                      )}
-                    />
-                  )}
-                </Field>
-              </Tile>
-            </>
-          )}
-        </ResponsiveContainer>
+                  <Field name="taxIdentificationNumber">
+                    {({ value, valid, error, onChange, onBlur, ref }) => (
+                      <TaxIdentificationNumberInput
+                        ref={ref}
+                        value={value}
+                        error={error}
+                        valid={valid}
+                        onChange={onChange}
+                        onBlur={onBlur}
+                        country={country as CompanyCountryCCA3}
+                        isCompany={hasCompanyTaxRules}
+                        required={isTaxIdentificationRequired}
+                        disabled={autofillResult.isLoading()}
+                      />
+                    )}
+                  </Field>
+                </>
+              )}
+            </Tile>
 
-        <OnboardingFooter
-          onPrevious={onPressPrevious}
-          onNext={onPressNext}
-          loading={updateResult.isLoading()}
-        />
-      </OnboardingStepContent>
-    </>
+            <Space height={small ? 24 : 32} />
+            <StepTitle>{t("company.step.organisation1.addressTitle")}</StepTitle>
+            <Space height={small ? 24 : 32} />
+
+            <Tile>
+              <Field name="address">
+                {({ ref, value, onChange, error }) => (
+                  <LakeLabel
+                    label={t("company.step.organisation1.addressLabel")}
+                    render={id => (
+                      <PlacekitAddressSearchInput
+                        inputRef={ref}
+                        apiKey={env.PLACEKIT_API_KEY}
+                        emptyResult={t("common.noResult")}
+                        placeholder={t("company.step.organisation1.addressPlaceholder")}
+                        language={locale.language}
+                        id={id}
+                        country={country}
+                        value={value}
+                        error={error}
+                        onValueChange={onChange}
+                        onSuggestion={onSuggestion}
+                      />
+                    )}
+                  />
+                )}
+              </Field>
+
+              <Space height={12} />
+
+              <Field name="city">
+                {({ ref, value, valid, error, onChange }) => (
+                  <LakeLabel
+                    label={t("company.step.organisation1.cityLabel")}
+                    render={id => (
+                      <LakeTextInput
+                        ref={ref}
+                        id={id}
+                        value={value}
+                        valid={valid}
+                        error={error}
+                        onChangeText={onChange}
+                        disabled={autofillResult.isLoading()}
+                      />
+                    )}
+                  />
+                )}
+              </Field>
+
+              <Space height={12} />
+
+              <Field name="postalCode">
+                {({ ref, value, valid, error, onChange }) => (
+                  <LakeLabel
+                    label={t("company.step.organisation1.postCodeLabel")}
+                    render={id => (
+                      <LakeTextInput
+                        ref={ref}
+                        id={id}
+                        value={value}
+                        valid={valid}
+                        error={error}
+                        onChangeText={onChange}
+                        disabled={autofillResult.isLoading()}
+                      />
+                    )}
+                  />
+                )}
+              </Field>
+            </Tile>
+          </>
+        )}
+      </ResponsiveContainer>
+
+      <OnboardingFooter
+        onPrevious={onPressPrevious}
+        onNext={onPressNext}
+        loading={updateResult.isLoading()}
+      />
+    </OnboardingStepContent>
   );
 };

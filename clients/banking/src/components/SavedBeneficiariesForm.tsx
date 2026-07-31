@@ -21,7 +21,7 @@ import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { electronicFormat, printFormat } from "iban";
 import { useLayoutEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { BeneficiariesListDocument, VerifyBeneficiaryDocument } from "../graphql/partner";
 import { Currency, formatNestedMessage, isSupportedCurrency, t } from "../utils/i18n";
 import { concatSepaBeneficiaryAddress } from "./BeneficiaryDetail";

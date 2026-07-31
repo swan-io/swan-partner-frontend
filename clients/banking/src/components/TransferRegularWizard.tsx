@@ -8,7 +8,7 @@ import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { InitiateSepaCreditTransfersDocument } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { encodeDateTime } from "../utils/date";

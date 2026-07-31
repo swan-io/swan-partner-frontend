@@ -98,8 +98,8 @@ export const OwnershipFormIndividualAddress = ({
   const [isAddressFromSuggestion, setIsAddressFromSuggestion] = useState(
     Boolean(
       initialValues?.address?.addressLine1 &&
-      initialValues.address.city &&
-      initialValues.address.postalCode,
+        initialValues.address.city &&
+        initialValues.address.postalCode,
     ),
   );
 

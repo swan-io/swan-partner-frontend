@@ -628,36 +628,29 @@ const StepTile = ({ variant, title, description, footer, large, to, disabled }: 
       <Link to={to} disabled={disabled}>
         {({ hovered, active }) => (
           <Tile hovered={hovered} paddingVertical={24} footer={footer} style={{ width: "100%" }}>
-            <>
-              <>
-                {large && active && <View role="none" style={styles.stepTileActiveIndicator} />}
-                <Box direction="row" justifyContent="spaceBetween">
-                  <LakeHeading level={5} variant="h5">
-                    {title}
-                  </LakeHeading>
+            {large && active && <View role="none" style={styles.stepTileActiveIndicator} />}
+            <Box direction="row" justifyContent="spaceBetween">
+              <LakeHeading level={5} variant="h5">
+                {title}
+              </LakeHeading>
 
-                  <Box>
-                    {match(variant)
-                      .with("todo", () => (
-                        <Tag color="warning">{t("accountActivation.tag.todo")}</Tag>
-                      ))
-                      .with("pending", () => (
-                        <Tag color="shakespear">{t("accountActivation.tag.pending")}</Tag>
-                      ))
-                      .with("done", () => (
-                        <Tag color="positive">{t("accountActivation.tag.done")}</Tag>
-                      ))
-                      .otherwise(() => null)}
+              <Box>
+                {match(variant)
+                  .with("todo", () => <Tag color="warning">{t("accountActivation.tag.todo")}</Tag>)
+                  .with("pending", () => (
+                    <Tag color="shakespear">{t("accountActivation.tag.pending")}</Tag>
+                  ))
+                  .with("done", () => <Tag color="positive">{t("accountActivation.tag.done")}</Tag>)
+                  .otherwise(() => null)}
 
-                    <Space width={20} />
-                  </Box>
-                </Box>
-                <Space height={8} />
+                <Space width={20} />
+              </Box>
+            </Box>
+            <Space height={8} />
 
-                <LakeText>{description}</LakeText>
-              </>
-              <Space width={24} />
-            </>
+            <LakeText>{description}</LakeText>
+
+            <Space width={24} />
           </Tile>
         )}
       </Link>

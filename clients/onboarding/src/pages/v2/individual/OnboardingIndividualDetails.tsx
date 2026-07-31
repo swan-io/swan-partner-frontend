@@ -5,27 +5,10 @@ import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
+import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { identity, noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { trim } from "@swan-io/lake/src/utils/string";
-import { combineValidators, useForm } from "@swan-io/use-form";
-import { StyleSheet } from "react-native";
-import { match, P } from "ts-pattern";
-import { OnboardingFooter } from "../../../components/OnboardingFooter";
-import { StepTitle } from "../../../components/StepTitle";
-import {
-  IndividualOnboardingFragment,
-  UpdatePublicIndividualAccountHolderOnboardingDocument,
-} from "../../../graphql/partner";
-import { locale, t } from "../../../utils/i18n";
-import {
-  badUserInputErrorPattern,
-  extractServerValidationFields,
-  getValidationErrorMessage,
-  ServerInvalidFieldCode,
-} from "../../../utils/validation";
-
-import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
@@ -43,11 +26,26 @@ import {
   validateNullableRequired,
   validateRequired,
 } from "@swan-io/shared-business/src/utils/validation";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import { useEffect, useState } from "react";
-import { View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { match, P } from "ts-pattern";
 import { OnboardingCountryPicker } from "../../../components/CountryPicker";
+import { OnboardingFooter } from "../../../components/OnboardingFooter";
+import { StepTitle } from "../../../components/StepTitle";
+import {
+  IndividualOnboardingFragment,
+  UpdatePublicIndividualAccountHolderOnboardingDocument,
+} from "../../../graphql/partner";
+import { locale, t } from "../../../utils/i18n";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
+import {
+  badUserInputErrorPattern,
+  extractServerValidationFields,
+  getValidationErrorMessage,
+  ServerInvalidFieldCode,
+} from "../../../utils/validation";
 
 type Props = {
   onboarding: NonNullable<IndividualOnboardingFragment>;
@@ -86,8 +84,8 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
   const [isAddressFromSuggestion, setIsAddressFromSuggestion] = useState(
     Boolean(
       accountAdmin?.address?.addressLine1 &&
-      accountAdmin.address.city &&
-      accountAdmin.address.postalCode,
+        accountAdmin.address.city &&
+        accountAdmin.address.postalCode,
     ),
   );
 

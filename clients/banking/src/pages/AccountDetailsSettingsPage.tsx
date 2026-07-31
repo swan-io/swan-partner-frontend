@@ -40,7 +40,7 @@ import {
 import { combineValidators, toOptionalValidator, useForm } from "@swan-io/use-form";
 import { ReactNode, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
 import {
   AccountDetailsSettingsPageDocument,
@@ -138,7 +138,7 @@ const UpdateAccountForm = ({
     },
     taxIdentificationNumber: {
       initialValue: holderInfo?.taxIdentificationNumber ?? "",
-      sanitize: value => value.replace(/[-_. \/]/g, ""),
+      sanitize: value => value.replace(/[-_. /]/g, ""),
       validate: isCompany
         ? validateCompanyTaxNumber(accountCountry)
         : validateIndividualTaxNumber(accountCountry),

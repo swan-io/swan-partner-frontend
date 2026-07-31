@@ -32,7 +32,7 @@ import dayjs from "dayjs";
 import { useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Rifm } from "rifm";
-import { P, isMatching, match } from "ts-pattern";
+import { isMatching, match, P } from "ts-pattern";
 import {
   AccountLanguage,
   AccountStatementFormat,

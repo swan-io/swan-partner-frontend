@@ -17,8 +17,8 @@ import { BirthdatePicker } from "@swan-io/shared-business/src/components/Birthda
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { InputPhoneNumber } from "@swan-io/shared-business/src/components/InputPhoneNumber";
 import {
-  CountryCCA3,
   allCountries,
+  CountryCCA3,
   getCountryByCCA3,
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";

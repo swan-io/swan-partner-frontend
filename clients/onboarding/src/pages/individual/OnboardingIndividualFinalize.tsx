@@ -4,7 +4,7 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { useEffect } from "react";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { FinalizeBlock, FinalizeInvalidSteps } from "../../components/FinalizeStepBlocks";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";

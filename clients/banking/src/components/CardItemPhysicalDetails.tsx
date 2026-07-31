@@ -36,7 +36,7 @@ import { combineValidators, useForm } from "@swan-io/use-form";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { Image, Pressable, StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import cardIdentifier from "../assets/images/card-identifier.svg";
 import physicalCardPlaceholder from "../assets/images/physical-card-placeholder.svg";
 import {
@@ -593,39 +593,37 @@ export const CardItemPhysicalDetails = ({
                           .format("LL"),
                       })}
                     >
-                      <>
-                        <LakeText>
-                          {t("card.physical.toRenewAlert.description", {
-                            deadline: fourWeeksBefore,
-                            address: completeAddress,
-                          })}
-                        </LakeText>
+                      <LakeText>
+                        {t("card.physical.toRenewAlert.description", {
+                          deadline: fourWeeksBefore,
+                          address: completeAddress,
+                        })}
+                      </LakeText>
 
-                        {canOrderPhysicalCard && (
-                          <>
-                            <Space height={12} />
+                      {canOrderPhysicalCard && (
+                        <>
+                          <Space height={12} />
 
-                            <Box>
-                              <LakeButton
-                                ariaLabel={t("card.physical.toRenewAlert.cta")}
-                                size="small"
-                                icon="edit-regular"
-                                mode="secondary"
-                                style={styles.renewAlertCta}
-                                onPress={() => {
-                                  setRenewalModal(
-                                    Option.Some({
-                                      initialShippingAddress: address,
-                                    }),
-                                  );
-                                }}
-                              >
-                                {t("card.physical.toRenewAlert.cta")}
-                              </LakeButton>
-                            </Box>
-                          </>
-                        )}
-                      </>
+                          <Box>
+                            <LakeButton
+                              ariaLabel={t("card.physical.toRenewAlert.cta")}
+                              size="small"
+                              icon="edit-regular"
+                              mode="secondary"
+                              style={styles.renewAlertCta}
+                              onPress={() => {
+                                setRenewalModal(
+                                  Option.Some({
+                                    initialShippingAddress: address,
+                                  }),
+                                );
+                              }}
+                            >
+                              {t("card.physical.toRenewAlert.cta")}
+                            </LakeButton>
+                          </Box>
+                        </>
+                      )}
                     </LakeAlert>
                   </>
                 );

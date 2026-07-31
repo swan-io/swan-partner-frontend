@@ -8,7 +8,7 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useMemo } from "react";
 import { StyleSheet } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { MerchantPaymentMethodType, MerchantProfileDocument } from "../graphql/partner";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { t } from "../utils/i18n";

@@ -10,7 +10,7 @@ import { ReactNode, useState } from "react";
 import { match, P } from "ts-pattern";
 import { AccountMembershipStatus } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { filter, Filters, FiltersState } from "./Filters";
+import { Filters, FiltersState, filter } from "./Filters";
 import { FiltersContainer } from "./FiltersMobileContainer";
 import { SearchInput } from "./SearchInput";
 

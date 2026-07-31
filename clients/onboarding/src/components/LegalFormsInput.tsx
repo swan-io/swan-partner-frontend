@@ -6,7 +6,7 @@ import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { Ref, useEffect, useMemo } from "react";
 import { TextInput } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { GetLegalFormsDocument } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
 

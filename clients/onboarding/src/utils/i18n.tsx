@@ -2,8 +2,8 @@ import { createIntl, createIntlCache } from "@formatjs/intl";
 import { Dict } from "@swan-io/boxed";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import {
-  LANGUAGE_FALLBACK,
   getLanguagesHelpers,
+  LANGUAGE_FALLBACK,
 } from "@swan-io/shared-business/src/utils/languages";
 import dayjs from "dayjs";
 import dayjsLocaleDE from "dayjs/locale/de";
@@ -18,7 +18,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
-import { ReactElement, ReactNode, cloneElement, isValidElement } from "react";
+import { cloneElement, isValidElement, ReactElement, ReactNode } from "react";
 import translationDE from "../locales/de.json";
 import translationEN from "../locales/en.json";
 import translationES from "../locales/es.json";

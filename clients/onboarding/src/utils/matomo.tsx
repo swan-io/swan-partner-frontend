@@ -1,10 +1,10 @@
 import { Dict } from "@swan-io/boxed";
-import { Location, encodeSearch, getLocation, subscribeToLocation } from "@swan-io/chicane";
+import { encodeSearch, getLocation, Location, subscribeToLocation } from "@swan-io/chicane";
 import { emptyToUndefined, isNullish, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { capitalize } from "@swan-io/lake/src/utils/string";
 import { windowSize } from "@swan-io/lake/src/utils/windowSize";
-import { ReactNode, createContext, useContext, useEffect, useMemo, useRef } from "react";
-import { P, match } from "ts-pattern";
+import { createContext, ReactNode, useContext, useEffect, useMemo, useRef } from "react";
+import { match, P } from "ts-pattern";
 import { env } from "./env";
 import { Router, routes } from "./routes";
 
@@ -32,7 +32,7 @@ const finitePaths = Object.fromEntries(
 
 const finiteRouteNames = Dict.keys(finitePaths);
 
-let sessionProjectId: string | undefined = undefined;
+let sessionProjectId: string | undefined;
 
 export const sendMatomoEvent = (
   event: { type: "PageView" } | { type: "Action"; category: string; name: string },

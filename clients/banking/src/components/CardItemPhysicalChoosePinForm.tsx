@@ -46,12 +46,8 @@ export const CardItemPhysicalChoosePinForm = ({ ref, onSubmit }: Props) => {
   }));
 
   return (
-    <>
-      <Field name="choosePin">
-        {({ value, onChange }) => (
-          <RadioGroup items={items} onValueChange={onChange} value={value} />
-        )}
-      </Field>
-    </>
+    <Field name="choosePin">
+      {({ value, onChange }) => <RadioGroup items={items} onValueChange={onChange} value={value} />}
+    </Field>
   );
 };

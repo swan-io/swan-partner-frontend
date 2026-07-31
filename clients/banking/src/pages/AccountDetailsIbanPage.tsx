@@ -20,7 +20,7 @@ import { getCountryName, isCountryCCA3 } from "@swan-io/shared-business/src/cons
 import { printIbanFormat } from "@swan-io/shared-business/src/utils/validation";
 import { useMemo } from "react";
 import { StyleSheet } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
 import { LakeCopyTextLine } from "../components/LakeCopyTextLine";
 import { AccountDetailsIbanPageDocument } from "../graphql/partner";

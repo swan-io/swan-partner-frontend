@@ -17,7 +17,7 @@ import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils
 import { omit } from "@swan-io/lake/src/utils/object";
 import { useCallback, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   TransactionStatus,
   TrustedBeneficiaryDetailsFragment,

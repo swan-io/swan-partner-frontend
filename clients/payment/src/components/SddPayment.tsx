@@ -9,7 +9,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
-import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
+import { allCountries, CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import {
@@ -19,7 +19,7 @@ import {
 } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { StyleSheet } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   AddSepaDirectDebitPaymentMandateFromPaymentLinkDocument,
   GetMerchantPaymentLinkQuery,

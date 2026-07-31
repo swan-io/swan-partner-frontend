@@ -1,4 +1,4 @@
-import { Validator, oneOf, string, url, validate } from "valienv";
+import { oneOf, string, url, Validator, validate } from "valienv";
 
 const buffer: Validator<Buffer> = (value = "") => Buffer.from(value, "hex");
 

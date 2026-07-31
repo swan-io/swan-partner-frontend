@@ -1,5 +1,5 @@
-import { FastifyReply, RouteHandlerMethod } from "fastify";
 import fs, { Stats } from "node:fs";
+import { FastifyReply, RouteHandlerMethod } from "fastify";
 import path from "pathe";
 import { AppName, getAppNameByHostName } from "../app";
 

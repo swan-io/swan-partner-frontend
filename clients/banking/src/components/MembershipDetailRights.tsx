@@ -15,7 +15,7 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useForm } from "@swan-io/use-form";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, isMatching, match } from "ts-pattern";
+import { isMatching, match, P } from "ts-pattern";
 import {
   AccountMembershipFragment,
   ResumeAccountMembershipDocument,

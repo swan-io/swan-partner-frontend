@@ -7,10 +7,10 @@ import { SidebarNavigationTrackerActiveMarker } from "@swan-io/lake/src/componen
 import { Space } from "@swan-io/lake/src/components/Space";
 import { WithCurrentColor } from "@swan-io/lake/src/components/WithCurrentColor";
 import { colors, negativeSpacings, radii, spacings } from "@swan-io/lake/src/constants/design";
-import { StyleSheet, View } from "react-native";
 import { Fragment } from "react/jsx-runtime";
+import { StyleSheet, View } from "react-native";
 import { t } from "../utils/i18n";
-import { RouteName, Router, accountRoutes } from "../utils/routes";
+import { accountRoutes, RouteName, Router } from "../utils/routes";
 
 const TRANSPARENT = "transparent";
 

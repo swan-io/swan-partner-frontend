@@ -1,6 +1,6 @@
+import fs from "node:fs";
 import { Array, Option } from "@swan-io/boxed";
 import { parse } from "dotenv";
-import fs from "node:fs";
 import path from "pathe";
 
 const environmentVariables = Object.keys(

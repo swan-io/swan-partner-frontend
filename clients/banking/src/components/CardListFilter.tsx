@@ -9,7 +9,7 @@ import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { ReactNode, useState } from "react";
 import { CardType } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { filter, Filters, FiltersState } from "./Filters";
+import { Filters, FiltersState, filter } from "./Filters";
 import { SearchInput } from "./SearchInput";
 
 const filtersDefinition = {

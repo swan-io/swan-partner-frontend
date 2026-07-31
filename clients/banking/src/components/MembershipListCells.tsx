@@ -10,7 +10,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { AccountMembershipFragment } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { t } from "../utils/i18n";
@@ -177,69 +177,67 @@ const getRightsTag = ({ accountMembership }: { accountMembership: AccountMembers
       {match({ hasSomeRights, hasSomeCards })
         .with({ hasSomeRights: true }, { hasSomeCards: true }, () => (
           <Tag color="gray">
-            <>
-              {accountMembership.canViewAccount ? (
+            {accountMembership.canViewAccount ? (
+              <Icon
+                name="eye-regular"
+                size={16}
+                color={colors.swan[500]}
+                style={styles.rightsIcon}
+              />
+            ) : null}
+
+            {accountMembership.canInitiatePayments ? (
+              <Icon
+                name="arrow-swap-regular"
+                size={16}
+                color={colors.swan[500]}
+                style={styles.rightsIcon}
+              />
+            ) : null}
+
+            {accountMembership.canManageBeneficiaries ? (
+              <Icon
+                name="person-add-regular"
+                size={16}
+                color={colors.swan[500]}
+                style={styles.rightsIcon}
+              />
+            ) : null}
+
+            {accountMembership.canManageAccountMembership ? (
+              <Icon
+                name="settings-regular"
+                size={16}
+                color={colors.swan[500]}
+                style={styles.rightsIcon}
+              />
+            ) : null}
+
+            {accountMembership.canManageCards ? (
+              <Icon
+                name="lake-card-add"
+                size={16}
+                color={colors.swan[500]}
+                style={styles.rightsIcon}
+              />
+            ) : null}
+
+            {hasSomeRights && hasSomeCards ? <View style={styles.separator} /> : null}
+
+            {hasSomeCards ? (
+              <>
                 <Icon
-                  name="eye-regular"
+                  name="payment-regular"
                   size={16}
                   color={colors.swan[500]}
                   style={styles.rightsIcon}
                 />
-              ) : null}
 
-              {accountMembership.canInitiatePayments ? (
-                <Icon
-                  name="arrow-swap-regular"
-                  size={16}
-                  color={colors.swan[500]}
-                  style={styles.rightsIcon}
-                />
-              ) : null}
-
-              {accountMembership.canManageBeneficiaries ? (
-                <Icon
-                  name="person-add-regular"
-                  size={16}
-                  color={colors.swan[500]}
-                  style={styles.rightsIcon}
-                />
-              ) : null}
-
-              {accountMembership.canManageAccountMembership ? (
-                <Icon
-                  name="settings-regular"
-                  size={16}
-                  color={colors.swan[500]}
-                  style={styles.rightsIcon}
-                />
-              ) : null}
-
-              {accountMembership.canManageCards ? (
-                <Icon
-                  name="lake-card-add"
-                  size={16}
-                  color={colors.swan[500]}
-                  style={styles.rightsIcon}
-                />
-              ) : null}
-
-              {hasSomeRights && hasSomeCards ? <View style={styles.separator} /> : null}
-
-              {hasSomeCards ? (
-                <>
-                  <Icon
-                    name="payment-regular"
-                    size={16}
-                    color={colors.swan[500]}
-                    style={styles.rightsIcon}
-                  />
-
-                  <LakeText color={colors.swan[500]} variant="smallRegular">
-                    {accountMembership.activeCards.totalCount}
-                  </LakeText>
-                </>
-              ) : null}
-            </>
+                <LakeText color={colors.swan[500]} variant="smallRegular">
+                  {accountMembership.activeCards.totalCount}
+                </LakeText>
+              </>
+            ) : null}
           </Tag>
         ))
         .otherwise(() => null)}

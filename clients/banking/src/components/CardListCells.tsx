@@ -11,7 +11,7 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { Image, StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { CardListItemFragment } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { formatCurrency, t } from "../utils/i18n";
@@ -153,23 +153,21 @@ export const FullNameAndCardTypeCell = ({ card }: { card: Card }) => {
                 <Space width={12} />
 
                 <Tag color="shakespear" icon="payment-regular">
-                  <>
-                    <LakeText variant="smallMedium" color={colors.shakespear[700]}>
-                      {t("cards.format.physical")}
-                    </LakeText>
+                  <LakeText variant="smallMedium" color={colors.shakespear[700]}>
+                    {t("cards.format.physical")}
+                  </LakeText>
 
-                    {match(physicalCard?.statusInfo.status)
-                      .with("ToRenew", "Renewed", () => (
-                        <>
-                          <View style={[styles.separator, styles.separatorMargin]} />
+                  {match(physicalCard?.statusInfo.status)
+                    .with("ToRenew", "Renewed", () => (
+                      <>
+                        <View style={[styles.separator, styles.separatorMargin]} />
 
-                          <LakeText variant="smallMedium" color={colors.shakespear[700]}>
-                            {t("cards.expiringSoon")}
-                          </LakeText>
-                        </>
-                      ))
-                      .otherwise(() => null)}
-                  </>
+                        <LakeText variant="smallMedium" color={colors.shakespear[700]}>
+                          {t("cards.expiringSoon")}
+                        </LakeText>
+                      </>
+                    ))
+                    .otherwise(() => null)}
                 </Tag>
 
                 {isNotNullish(insuranceSubscription) && cardHolderType === "Company" && (

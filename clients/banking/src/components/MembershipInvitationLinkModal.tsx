@@ -7,7 +7,7 @@ import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { useEffect } from "react";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { MembershipDetailDocument } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { t } from "../utils/i18n";

@@ -12,7 +12,7 @@ import {
 } from "@swan-io/shared-business/src/constants/countries";
 import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import logoSwan from "../../assets/imgs/logo-swan.svg";
 import { OnboardingHeader } from "../../components/OnboardingHeader";
 import {
@@ -22,7 +22,7 @@ import {
 } from "../../graphql/unauthenticated";
 import { t } from "../../utils/i18n";
 import { TrackingProvider } from "../../utils/matomo";
-import { CompanyOnboardingRoute, Router, companyOnboardingRoutes } from "../../utils/routes";
+import { CompanyOnboardingRoute, companyOnboardingRoutes, Router } from "../../utils/routes";
 import { extractServerInvalidFields } from "../../utils/validation";
 import { NotFoundPage } from "../NotFoundPage";
 import { CompanyFlowPresentation } from "./CompanyFlowPresentation";
@@ -285,7 +285,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
     [onboardingId, steps, finalized],
   );
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies(route?.name):
+  // biome-ignore lint/correctness/useExhaustiveDependencies(route?.name): scroll to top on route change
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [route?.name]);

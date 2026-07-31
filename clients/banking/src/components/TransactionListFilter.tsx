@@ -15,7 +15,7 @@ import {
   validateBeforeUpdatedAt,
   validateNumeric,
 } from "../utils/validations";
-import { filter, Filters, FiltersState } from "./Filters";
+import { Filters, FiltersState, filter } from "./Filters";
 import { FiltersContainer } from "./FiltersMobileContainer";
 import { SearchInput } from "./SearchInput";
 

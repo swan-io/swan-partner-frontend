@@ -13,7 +13,7 @@ import { trim } from "@swan-io/lake/src/utils/string";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitCityInput } from "@swan-io/shared-business/src/components/PlacekitCityInput";
-import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
+import { allCountries, CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import {
   validateName,
   validateNullableRequired,
@@ -22,7 +22,7 @@ import {
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { Ref, useImperativeHandle } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { AccountCountry } from "../../../graphql/unauthenticated";
 import { t } from "../../../utils/i18n";
 

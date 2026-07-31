@@ -8,7 +8,7 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { MerchantRootDocument } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { NotFoundPage } from "../pages/NotFoundPage";

@@ -19,6 +19,7 @@ import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { pick } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
+import { validateEmail, validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
@@ -31,12 +32,10 @@ import { formatNestedMessage, locale, t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 import {
-  ServerInvalidFieldCode,
   extractServerValidationErrors,
   getValidationErrorMessage,
+  ServerInvalidFieldCode,
 } from "../../utils/validation";
-
-import { validateEmail, validateRequired } from "@swan-io/shared-business/src/utils/validation";
 
 const styles = StyleSheet.create({
   tcuCheckbox: {
@@ -149,130 +148,124 @@ export const OnboardingIndividualEmail = ({
   };
 
   return (
-    <>
-      <OnboardingStepContent>
-        <ResponsiveContainer breakpoint={breakpoints.medium}>
-          {({ small }) => (
-            <>
-              <StepTitle>{t("individual.step.email.title")}</StepTitle>
-              <Space height={small ? 8 : 12} />
-              <LakeText>{t("individual.step.email.description")}</LakeText>
-              <Space height={small ? 24 : 32} />
+    <OnboardingStepContent>
+      <ResponsiveContainer breakpoint={breakpoints.medium}>
+        {({ small }) => (
+          <>
+            <StepTitle>{t("individual.step.email.title")}</StepTitle>
+            <Space height={small ? 8 : 12} />
+            <LakeText>{t("individual.step.email.description")}</LakeText>
+            <Space height={small ? 24 : 32} />
 
-              <Tile>
-                <Field name="email">
-                  {({ value, error, valid, onChange, ref }) => (
-                    <LakeLabel
-                      label={t("individual.step.email.label")}
-                      render={id => (
-                        <LakeTextInput
-                          id={id}
-                          ref={ref}
-                          autoFocus={true}
-                          placeholder="example@gmail.com"
-                          value={value}
-                          valid={valid}
-                          onChangeText={onChange}
-                          error={error}
-                        />
-                      )}
-                    />
-                  )}
-                </Field>
-              </Tile>
+            <Tile>
+              <Field name="email">
+                {({ value, error, valid, onChange, ref }) => (
+                  <LakeLabel
+                    label={t("individual.step.email.label")}
+                    render={id => (
+                      <LakeTextInput
+                        id={id}
+                        ref={ref}
+                        autoFocus={true}
+                        placeholder="example@gmail.com"
+                        value={value}
+                        valid={valid}
+                        onChangeText={onChange}
+                        error={error}
+                      />
+                    )}
+                  />
+                )}
+              </Field>
+            </Tile>
 
-              <Space height={small ? 24 : 32} />
+            <Space height={small ? 24 : 32} />
 
-              <Box alignItems="start">
-                <Box direction="row" justifyContent="start">
-                  {haveToAcceptTcu && (
-                    <>
-                      <Field name="tcuAccepted">
-                        {({ value, error, onChange, ref }) => (
-                          <Pressable
-                            ref={ref}
-                            role="checkbox"
-                            aria-checked={value}
-                            onPress={() => onChange(!value)}
-                            style={styles.tcuCheckbox}
-                          >
-                            <LakeCheckbox value={value} isError={isNotNullish(error)} />
-                            <Space width={8} />
-
-                            <LakeText>
-                              {formatNestedMessage("step.finalize.terms", {
-                                firstLink: (
-                                  <Link target="blank" to={tcuUrl} style={styles.link}>
-                                    {t("emailPage.firstLink")}
-
-                                    <Icon name="open-filled" size={16} style={styles.linkIcon} />
-                                  </Link>
-                                ),
-                                secondLink: (
-                                  <Link
-                                    target="blank"
-                                    to={tcuDocumentUri ?? "#"}
-                                    style={styles.link}
-                                  >
-                                    {t("emailPage.secondLink", { partner: projectName })}
-
-                                    <Icon name="open-filled" size={16} style={styles.linkIcon} />
-                                  </Link>
-                                ),
-                              })}
-                            </LakeText>
-                          </Pressable>
-                        )}
-                      </Field>
-
-                      <Space width={12} />
-                    </>
-                  )}
-
-                  {!haveToAcceptTcu && (
-                    <LakeText>
-                      {formatNestedMessage("emailPage.terms", {
-                        firstLink: (
-                          <Link target="blank" to={tcuUrl} style={styles.link}>
-                            {t("emailPage.firstLink")}
-
-                            <Icon name="open-filled" size={16} style={styles.linkIcon} />
-                          </Link>
-                        ),
-                        secondLink: (
-                          <Link target="blank" to={tcuDocumentUri ?? "#"} style={styles.link}>
-                            {t("emailPage.secondLink", { partner: projectName })}
-
-                            <Icon name="open-filled" size={16} style={styles.linkIcon} />
-                          </Link>
-                        ),
-                      })}
-                    </LakeText>
-                  )}
-                </Box>
-
+            <Box alignItems="start">
+              <Box direction="row" justifyContent="start">
                 {haveToAcceptTcu && (
                   <>
-                    <Space height={4} />
+                    <Field name="tcuAccepted">
+                      {({ value, error, onChange, ref }) => (
+                        <Pressable
+                          ref={ref}
+                          role="checkbox"
+                          aria-checked={value}
+                          onPress={() => onChange(!value)}
+                          style={styles.tcuCheckbox}
+                        >
+                          <LakeCheckbox value={value} isError={isNotNullish(error)} />
+                          <Space width={8} />
 
-                    <FieldsListener names={["tcuAccepted"]}>
-                      {({ tcuAccepted }) => (
-                        <LakeText color={colors.negative[500]}>{tcuAccepted.error ?? " "}</LakeText>
+                          <LakeText>
+                            {formatNestedMessage("step.finalize.terms", {
+                              firstLink: (
+                                <Link target="blank" to={tcuUrl} style={styles.link}>
+                                  {t("emailPage.firstLink")}
+
+                                  <Icon name="open-filled" size={16} style={styles.linkIcon} />
+                                </Link>
+                              ),
+                              secondLink: (
+                                <Link target="blank" to={tcuDocumentUri ?? "#"} style={styles.link}>
+                                  {t("emailPage.secondLink", { partner: projectName })}
+
+                                  <Icon name="open-filled" size={16} style={styles.linkIcon} />
+                                </Link>
+                              ),
+                            })}
+                          </LakeText>
+                        </Pressable>
                       )}
-                    </FieldsListener>
+                    </Field>
+
+                    <Space width={12} />
                   </>
                 )}
-              </Box>
-            </>
-          )}
-        </ResponsiveContainer>
 
-        <OnboardingFooter
-          onPrevious={onPressPrevious}
-          onNext={onPressNext}
-          loading={updateResult.isLoading()}
-        />
-      </OnboardingStepContent>
-    </>
+                {!haveToAcceptTcu && (
+                  <LakeText>
+                    {formatNestedMessage("emailPage.terms", {
+                      firstLink: (
+                        <Link target="blank" to={tcuUrl} style={styles.link}>
+                          {t("emailPage.firstLink")}
+
+                          <Icon name="open-filled" size={16} style={styles.linkIcon} />
+                        </Link>
+                      ),
+                      secondLink: (
+                        <Link target="blank" to={tcuDocumentUri ?? "#"} style={styles.link}>
+                          {t("emailPage.secondLink", { partner: projectName })}
+
+                          <Icon name="open-filled" size={16} style={styles.linkIcon} />
+                        </Link>
+                      ),
+                    })}
+                  </LakeText>
+                )}
+              </Box>
+
+              {haveToAcceptTcu && (
+                <>
+                  <Space height={4} />
+
+                  <FieldsListener names={["tcuAccepted"]}>
+                    {({ tcuAccepted }) => (
+                      <LakeText color={colors.negative[500]}>{tcuAccepted.error ?? " "}</LakeText>
+                    )}
+                  </FieldsListener>
+                </>
+              )}
+            </Box>
+          </>
+        )}
+      </ResponsiveContainer>
+
+      <OnboardingFooter
+        onPrevious={onPressPrevious}
+        onNext={onPressNext}
+        loading={updateResult.isLoading()}
+      />
+    </OnboardingStepContent>
   );
 };

@@ -35,11 +35,12 @@ import { locale, t } from "../../utils/i18n";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 import {
-  ServerInvalidFieldCode,
   extractServerValidationErrors,
   getValidationErrorMessage,
+  ServerInvalidFieldCode,
   validateMaxLength,
 } from "../../utils/validation";
+
 const styles = StyleSheet.create({
   textArea: {
     height: 128,
@@ -174,88 +175,86 @@ export const OnboardingCompanyOrganisation2 = ({
   };
 
   return (
-    <>
-      <OnboardingStepContent>
-        <ResponsiveContainer breakpoint={breakpoints.medium}>
-          {({ small }) => (
-            <>
-              <StepTitle>{t("company.step.organisation2.title")}</StepTitle>
-              <Space height={small ? 24 : 32} />
+    <OnboardingStepContent>
+      <ResponsiveContainer breakpoint={breakpoints.medium}>
+        {({ small }) => (
+          <>
+            <StepTitle>{t("company.step.organisation2.title")}</StepTitle>
+            <Space height={small ? 24 : 32} />
 
-              <Tile>
-                <Field name="businessActivity">
-                  {({ value, error, onChange, ref }) => (
-                    <LakeLabel
-                      label={t("company.step.organisation2.activityLabel")}
-                      render={id => (
-                        <LakeSelect
-                          id={id}
-                          placeholder={t("company.step.organisation2.activityPlaceholder")}
-                          value={emptyToUndefined(value)}
-                          items={businessActivitiesItems}
-                          error={error}
-                          onValueChange={onChange}
-                          ref={ref}
-                        />
-                      )}
-                    />
-                  )}
-                </Field>
+            <Tile>
+              <Field name="businessActivity">
+                {({ value, error, onChange, ref }) => (
+                  <LakeLabel
+                    label={t("company.step.organisation2.activityLabel")}
+                    render={id => (
+                      <LakeSelect
+                        id={id}
+                        placeholder={t("company.step.organisation2.activityPlaceholder")}
+                        value={emptyToUndefined(value)}
+                        items={businessActivitiesItems}
+                        error={error}
+                        onValueChange={onChange}
+                        ref={ref}
+                      />
+                    )}
+                  />
+                )}
+              </Field>
 
-                <Space height={12} />
+              <Space height={12} />
 
-                <Field name="businessActivityDescription">
-                  {({ value, valid, error, onChange, onBlur, ref }) => (
-                    <LakeLabel
-                      label={t("company.step.organisation2.descriptionLabel")}
-                      render={id => (
-                        <LakeTextInput
-                          id={id}
-                          ref={ref}
-                          placeholder={t("company.step.organisation2.descriptionPlaceholder")}
-                          value={value}
-                          valid={valid}
-                          error={error}
-                          style={styles.textArea}
-                          multiline={true}
-                          maxCharCount={CHARACTER_LIMITATION}
-                          onChangeText={onChange}
-                          onBlur={onBlur}
-                        />
-                      )}
-                    />
-                  )}
-                </Field>
+              <Field name="businessActivityDescription">
+                {({ value, valid, error, onChange, onBlur, ref }) => (
+                  <LakeLabel
+                    label={t("company.step.organisation2.descriptionLabel")}
+                    render={id => (
+                      <LakeTextInput
+                        id={id}
+                        ref={ref}
+                        placeholder={t("company.step.organisation2.descriptionPlaceholder")}
+                        value={value}
+                        valid={valid}
+                        error={error}
+                        style={styles.textArea}
+                        multiline={true}
+                        maxCharCount={CHARACTER_LIMITATION}
+                        onChangeText={onChange}
+                        onBlur={onBlur}
+                      />
+                    )}
+                  />
+                )}
+              </Field>
 
-                <Space height={12} />
+              <Space height={12} />
 
-                <Field name="monthlyPaymentVolume">
-                  {({ value, onChange, ref }) => (
-                    <LakeLabel
-                      label={t("company.step.organisation2.monthlyPaymentLabel")}
-                      render={id => (
-                        <LakeSelect
-                          id={id}
-                          ref={ref}
-                          value={value}
-                          items={monthlyPaymentVolumeItems}
-                          onValueChange={onChange}
-                        />
-                      )}
-                    />
-                  )}
-                </Field>
-              </Tile>
-            </>
-          )}
-        </ResponsiveContainer>
+              <Field name="monthlyPaymentVolume">
+                {({ value, onChange, ref }) => (
+                  <LakeLabel
+                    label={t("company.step.organisation2.monthlyPaymentLabel")}
+                    render={id => (
+                      <LakeSelect
+                        id={id}
+                        ref={ref}
+                        value={value}
+                        items={monthlyPaymentVolumeItems}
+                        onValueChange={onChange}
+                      />
+                    )}
+                  />
+                )}
+              </Field>
+            </Tile>
+          </>
+        )}
+      </ResponsiveContainer>
 
-        <OnboardingFooter
-          onPrevious={onPressPrevious}
-          onNext={onPressNext}
-          loading={updateResult.isLoading()}
-        />
-      </OnboardingStepContent>
-    </>
+      <OnboardingFooter
+        onPrevious={onPressPrevious}
+        onNext={onPressNext}
+        loading={updateResult.isLoading()}
+      />
+    </OnboardingStepContent>
   );
 };

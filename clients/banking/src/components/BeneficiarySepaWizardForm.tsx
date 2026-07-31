@@ -24,7 +24,7 @@ import { combineValidators, useForm } from "@swan-io/use-form";
 import { electronicFormat } from "iban";
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, isMatching, match } from "ts-pattern";
+import { isMatching, match, P } from "ts-pattern";
 import {
   GetIbanValidationDocument,
   VerifyBeneficiaryDocument,

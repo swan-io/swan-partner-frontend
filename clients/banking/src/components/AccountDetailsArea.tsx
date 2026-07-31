@@ -5,7 +5,7 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useMemo } from "react";
 import { StyleSheet } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { AccountLanguage } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { AccountDetailsBillingPage } from "../pages/AccountDetailsBillingPage";

@@ -11,15 +11,15 @@ import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { pick } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
-import { Request, badStatusToError } from "@swan-io/request";
+import { badStatusToError, Request } from "@swan-io/request";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { InputPhoneNumber } from "@swan-io/shared-business/src/components/InputPhoneNumber";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import {
-  CountryCCA3,
   allCountries,
+  CountryCCA3,
   getCountryByCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
@@ -33,7 +33,7 @@ import {
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   AccountLanguage,
   AccountMembershipFragment,
@@ -242,7 +242,7 @@ export const MembershipDetailEditor = ({
     taxIdentificationNumber: {
       initialValue: editingAccountMembership.taxIdentificationNumber ?? "",
       strategy: "onBlur",
-      sanitize: value => value.replace(/[-_. \/]/g, ""),
+      sanitize: value => value.replace(/[-_. /]/g, ""),
       validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,

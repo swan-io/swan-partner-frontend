@@ -10,8 +10,8 @@ import {
 } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import {
-  CountryCCA3,
   allCountries,
+  CountryCCA3,
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import {
@@ -21,7 +21,7 @@ import {
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { Ref, useCallback, useImperativeHandle } from "react";
 import { View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { AccountCountry } from "../../../graphql/unauthenticated";
 import { locale, t } from "../../../utils/i18n";
 
@@ -87,7 +87,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = ({
     },
     taxIdentificationNumber: {
       initialValue: initialValues.taxIdentificationNumber ?? "",
-      sanitize: value => value.replace(/[-_. \/]/g, ""),
+      sanitize: value => value.replace(/[-_. /]/g, ""),
       validate: (value, { getFieldValue }) => {
         const beneficiaryCountry = getFieldValue("residencyAddressCountry");
 

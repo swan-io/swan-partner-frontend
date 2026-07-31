@@ -1,13 +1,13 @@
+import fs from "node:fs/promises";
+import os from "node:os";
 import { Option, Result } from "@swan-io/boxed";
 import cliSpinners from "cli-spinners";
-import fs from "fs/promises";
 import OpenAI from "openai";
 import ora from "ora";
-import os from "os";
 import path from "pathe";
 import pc from "picocolors";
 import { encoding_for_model } from "tiktoken";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import type { Except } from "type-fest";
 
 /**

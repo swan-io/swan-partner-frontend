@@ -11,7 +11,7 @@ import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/desig
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { Suspense, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { AccountAreaQuery, CardCountDocument } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { CardListPage } from "../pages/CardListPage";

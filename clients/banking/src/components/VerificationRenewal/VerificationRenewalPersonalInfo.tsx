@@ -21,8 +21,8 @@ import {
   PlacekitAddressSearchInput,
 } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import {
-  companyCountries,
   CountryCCA3,
+  companyCountries,
   getCountryName,
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";

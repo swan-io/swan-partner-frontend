@@ -19,7 +19,7 @@ import {
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
 import { ReactNode, useCallback, useRef } from "react";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   DeleteSupportingDocumentDocument,
   GenerateSupportingDocumentUploadUrlDocument,
@@ -194,128 +194,126 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
               invariantColors.defaultAccentColor
             }
           >
-            <>
-              {match(supportingDocumentCollection.projectInfo)
-                .with({ name: P.string }, ({ name, logoUri }) => (
-                  <OnboardingHeader projectName={name} projectLogo={logoUri} />
-                ))
-                .otherwise(() => null)}
+            {match(supportingDocumentCollection.projectInfo)
+              .with({ name: P.string }, ({ name, logoUri }) => (
+                <OnboardingHeader projectName={name} projectLogo={logoUri} />
+              ))
+              .otherwise(() => null)}
 
-              {match(route)
-                .with(Router.P.SupportingDocumentCollectionRoot(P._), () => {
-                  if (supportingDocumentCollection.statusInfo.status === "PendingReview") {
-                    return (
-                      <Box grow={1} alignItems="center" justifyContent="center">
-                        <EmptyView
-                          icon="lake-clock"
-                          borderedIcon={true}
-                          title={t("supportingDocumentCollection.pendingReview")}
-                          subtitle={t("supportingDocumentCollection.pendingReview.subtitle")}
-                        />
-                      </Box>
-                    );
-                  }
-                  if (supportingDocumentCollection.statusInfo.status !== "WaitingForDocument") {
-                    return <NotFoundPage />;
-                  }
+            {match(route)
+              .with(Router.P.SupportingDocumentCollectionRoot(P._), () => {
+                if (supportingDocumentCollection.statusInfo.status === "PendingReview") {
                   return (
-                    <OnboardingStepContent>
-                      <ResponsiveContainer breakpoint={breakpoints.medium}>
-                        {({ small }) => (
-                          <>
-                            {match(supportingDocumentCollection.type)
-                              .with("Onboarding", () => (
-                                <StepTitle>{t("supportingDocumentCollection.title")}</StepTitle>
-                              ))
-                              .with("Merchant", () => (
-                                <StepTitle>
-                                  {t("supportingDocumentCollection.merchant.title")}
-                                </StepTitle>
-                              ))
-                              .otherwise(() => null)}
-
-                            <LakeText>
-                              {match({ supportingDocumentCollection })
-                                .with(
-                                  {
-                                    supportingDocumentCollection: {
-                                      type: "Onboarding",
-                                      accountHolder: { name: P.nonNullable },
-                                    },
-                                  },
-                                  ({
-                                    supportingDocumentCollection: {
-                                      accountHolder: { name },
-                                    },
-                                  }) => (
-                                    <>
-                                      <Space height={small ? 24 : 32} />
-                                      <LakeText>
-                                        {t("supportingDocumentCollection.onboarding.intro", {
-                                          accountHolderName: name,
-                                        })}
-                                      </LakeText>
-                                    </>
-                                  ),
-                                )
-                                .with(
-                                  {
-                                    supportingDocumentCollection: {
-                                      type: "Merchant",
-                                      accountHolder: { name: P.nonNullable },
-                                    },
-                                  },
-                                  ({
-                                    supportingDocumentCollection: {
-                                      accountHolder: { name },
-                                    },
-                                  }) => (
-                                    <>
-                                      <Space height={small ? 24 : 32} />
-                                      <LakeText>
-                                        {t("supportingDocumentCollection.merchant.intro", {
-                                          accountHolderName: name,
-                                        })}
-                                      </LakeText>
-                                    </>
-                                  ),
-                                )
-                                .otherwise(() => null)}
-                            </LakeText>
-
-                            <Space height={small ? 24 : 32} />
-
-                            <DocumentsStepTile small={small}>
-                              <SupportingDocumentCollection
-                                ref={supportingDocumentCollectionRef}
-                                documents={docs}
-                                documentPurposes={toDocumentPurposes(
-                                  supportingDocumentCollection.requiredSupportingDocumentPurposes,
-                                )}
-                                generateUpload={generateUpload}
-                                status={supportingDocumentCollection.statusInfo.status}
-                                templateLanguage={locale.language}
-                                onRemoveFile={onRemoveFile}
-                              />
-                            </DocumentsStepTile>
-                          </>
-                        )}
-                      </ResponsiveContainer>
-
-                      <OnboardingFooter
-                        onNext={onPressNext}
-                        nextLabel="common.submit"
-                        loading={supportingDocumentCollectionReviewDocumentRequest.isLoading()}
+                    <Box grow={1} alignItems="center" justifyContent="center">
+                      <EmptyView
+                        icon="lake-clock"
+                        borderedIcon={true}
+                        title={t("supportingDocumentCollection.pendingReview")}
+                        subtitle={t("supportingDocumentCollection.pendingReview.subtitle")}
                       />
-                    </OnboardingStepContent>
+                    </Box>
                   );
-                })
-                .with(Router.P.SupportingDocumentCollectionSuccess(P._), () => (
-                  <SupportingDocumentCollectionSuccessPage />
-                ))
-                .with(P.nullish, () => <NotFoundPage />)
-                .exhaustive()}
-            </>
+                }
+                if (supportingDocumentCollection.statusInfo.status !== "WaitingForDocument") {
+                  return <NotFoundPage />;
+                }
+                return (
+                  <OnboardingStepContent>
+                    <ResponsiveContainer breakpoint={breakpoints.medium}>
+                      {({ small }) => (
+                        <>
+                          {match(supportingDocumentCollection.type)
+                            .with("Onboarding", () => (
+                              <StepTitle>{t("supportingDocumentCollection.title")}</StepTitle>
+                            ))
+                            .with("Merchant", () => (
+                              <StepTitle>
+                                {t("supportingDocumentCollection.merchant.title")}
+                              </StepTitle>
+                            ))
+                            .otherwise(() => null)}
+
+                          <LakeText>
+                            {match({ supportingDocumentCollection })
+                              .with(
+                                {
+                                  supportingDocumentCollection: {
+                                    type: "Onboarding",
+                                    accountHolder: { name: P.nonNullable },
+                                  },
+                                },
+                                ({
+                                  supportingDocumentCollection: {
+                                    accountHolder: { name },
+                                  },
+                                }) => (
+                                  <>
+                                    <Space height={small ? 24 : 32} />
+                                    <LakeText>
+                                      {t("supportingDocumentCollection.onboarding.intro", {
+                                        accountHolderName: name,
+                                      })}
+                                    </LakeText>
+                                  </>
+                                ),
+                              )
+                              .with(
+                                {
+                                  supportingDocumentCollection: {
+                                    type: "Merchant",
+                                    accountHolder: { name: P.nonNullable },
+                                  },
+                                },
+                                ({
+                                  supportingDocumentCollection: {
+                                    accountHolder: { name },
+                                  },
+                                }) => (
+                                  <>
+                                    <Space height={small ? 24 : 32} />
+                                    <LakeText>
+                                      {t("supportingDocumentCollection.merchant.intro", {
+                                        accountHolderName: name,
+                                      })}
+                                    </LakeText>
+                                  </>
+                                ),
+                              )
+                              .otherwise(() => null)}
+                          </LakeText>
+
+                          <Space height={small ? 24 : 32} />
+
+                          <DocumentsStepTile small={small}>
+                            <SupportingDocumentCollection
+                              ref={supportingDocumentCollectionRef}
+                              documents={docs}
+                              documentPurposes={toDocumentPurposes(
+                                supportingDocumentCollection.requiredSupportingDocumentPurposes,
+                              )}
+                              generateUpload={generateUpload}
+                              status={supportingDocumentCollection.statusInfo.status}
+                              templateLanguage={locale.language}
+                              onRemoveFile={onRemoveFile}
+                            />
+                          </DocumentsStepTile>
+                        </>
+                      )}
+                    </ResponsiveContainer>
+
+                    <OnboardingFooter
+                      onNext={onPressNext}
+                      nextLabel="common.submit"
+                      loading={supportingDocumentCollectionReviewDocumentRequest.isLoading()}
+                    />
+                  </OnboardingStepContent>
+                );
+              })
+              .with(Router.P.SupportingDocumentCollectionSuccess(P._), () => (
+                <SupportingDocumentCollectionSuccessPage />
+              ))
+              .with(P.nullish, () => <NotFoundPage />)
+              .exhaustive()}
           </WithPartnerAccentColor>
         );
       },

@@ -26,7 +26,7 @@ import {
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { useCallback, useEffect, useRef } from "react";
 import { Image, StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
 import { ProjectLoginPageDocument } from "../graphql/unauthenticated";
 import { locale, t } from "../utils/i18n";

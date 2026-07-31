@@ -1,29 +1,15 @@
 import { Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
-import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
-import { Tile } from "@swan-io/lake/src/components/Tile";
-import { breakpoints } from "@swan-io/lake/src/constants/design";
-import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { combineValidators, useForm } from "@swan-io/use-form";
-import { StyleSheet } from "react-native";
-import { OnboardingFooter } from "../../../components/OnboardingFooter";
-import { OnboardingTcu } from "../../../components/OnboardingTcu";
-import { StepTitle } from "../../../components/StepTitle";
-import {
-  EmploymentStatus,
-  IndividualAccountSourceOfFunds,
-  IndividualOnboardingFragment,
-  MonthlyIncome,
-  UpdatePublicIndividualAccountHolderOnboardingDocument,
-} from "../../../graphql/partner";
-import { locale, t } from "../../../utils/i18n";
-
 import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
+import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import { Tile } from "@swan-io/lake/src/components/Tile";
+import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { noop } from "@swan-io/lake/src/utils/function";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { omit } from "@swan-io/lake/src/utils/object";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
@@ -35,9 +21,21 @@ import {
   validateRequired,
   validateUsaTaxNumber,
 } from "@swan-io/shared-business/src/utils/validation";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import { useEffect } from "react";
-import { View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
+import { OnboardingFooter } from "../../../components/OnboardingFooter";
+import { OnboardingTcu } from "../../../components/OnboardingTcu";
+import { StepTitle } from "../../../components/StepTitle";
+import {
+  EmploymentStatus,
+  IndividualAccountSourceOfFunds,
+  IndividualOnboardingFragment,
+  MonthlyIncome,
+  UpdatePublicIndividualAccountHolderOnboardingDocument,
+} from "../../../graphql/partner";
+import { locale, t } from "../../../utils/i18n";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 import {
@@ -147,7 +145,7 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
     },
     taxIdentificationNumber: {
       initialValue: accountAdmin?.taxIdentificationNumber ?? "",
-      sanitize: value => value.replace(/[-_. \/]/g, ""),
+      sanitize: value => value.replace(/[-_. /]/g, ""),
       validate: isTaxIdentificationRequired
         ? combineValidators(
             validateRequired,
@@ -157,7 +155,7 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
     },
     unitedStatesTaxIdentificationNumber: {
       initialValue: accountAdmin?.unitedStatesTaxInfo?.unitedStatesTaxIdentificationNumber ?? "",
-      sanitize: value => value.replace(/[-_. \/]/g, ""),
+      sanitize: value => value.replace(/[-_. /]/g, ""),
       validate: (value, { getFieldValue }) => {
         const isRequired = getFieldValue("isUnitedStatesPerson");
         if (isRequired) {

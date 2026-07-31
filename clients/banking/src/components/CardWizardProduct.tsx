@@ -464,30 +464,28 @@ export const CardWizardProduct = ({
               <Space height={32} />
 
               <CardProductLine>
-                <>
-                  {t("cards.maxSpendingLimit")}
-                  <Space width={4} />
-                  <LakeText align="center" variant="smallSemibold" color={colors.gray[900]}>
-                    {match(accountHolderType)
-                      .with("Company", () =>
-                        t("card.maxSpendingLimits.perMonth", {
-                          value: formatCurrency(
-                            Number(cardProduct.companySpendingLimit.amount.value),
-                            cardProduct.companySpendingLimit.amount.currency,
-                          ),
-                        }),
-                      )
-                      .with("Individual", () =>
-                        t("card.maxSpendingLimits.perMonth", {
-                          value: formatCurrency(
-                            Number(cardProduct.individualSpendingLimit.amount.value),
-                            cardProduct.individualSpendingLimit.amount.currency,
-                          ),
-                        }),
-                      )
-                      .otherwise(() => null)}
-                  </LakeText>
-                </>
+                {t("cards.maxSpendingLimit")}
+                <Space width={4} />
+                <LakeText align="center" variant="smallSemibold" color={colors.gray[900]}>
+                  {match(accountHolderType)
+                    .with("Company", () =>
+                      t("card.maxSpendingLimits.perMonth", {
+                        value: formatCurrency(
+                          Number(cardProduct.companySpendingLimit.amount.value),
+                          cardProduct.companySpendingLimit.amount.currency,
+                        ),
+                      }),
+                    )
+                    .with("Individual", () =>
+                      t("card.maxSpendingLimits.perMonth", {
+                        value: formatCurrency(
+                          Number(cardProduct.individualSpendingLimit.amount.value),
+                          cardProduct.individualSpendingLimit.amount.currency,
+                        ),
+                      }),
+                    )
+                    .otherwise(() => null)}
+                </LakeText>
               </CardProductLine>
 
               {cardProduct.applicableToPhysicalCards ? (

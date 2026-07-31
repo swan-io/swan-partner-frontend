@@ -83,10 +83,6 @@ const config: CodegenConfig = {
   errorsOnly: true,
   overwrite: true,
 
-  hooks: {
-    afterAllFileWrite: "prettier --write",
-  },
-
   generates: {
     [file("../../clients/payment/src/graphql/unauthenticated.ts")]: {
       documents: file("../../clients/payment/src/graphql/unauthenticated.gql"),

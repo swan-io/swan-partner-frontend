@@ -153,7 +153,7 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
     [steps],
   );
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies:
+  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll to top on route change
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [route?.name]);

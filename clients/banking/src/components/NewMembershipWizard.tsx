@@ -12,16 +12,16 @@ import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/desig
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { emptyToUndefined, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { trim } from "@swan-io/lake/src/utils/string";
-import { Request, badStatusToError } from "@swan-io/request";
+import { badStatusToError, Request } from "@swan-io/request";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { InputPhoneNumber } from "@swan-io/shared-business/src/components/InputPhoneNumber";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import {
+  allCountries,
   Country,
   CountryCCA3,
-  allCountries,
   getCountryByCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
@@ -36,7 +36,7 @@ import {
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   AccountCountry,
   AccountLanguage,
@@ -311,7 +311,7 @@ export const NewMembershipWizard = ({
     taxIdentificationNumber: {
       initialValue: partiallySavedValues?.taxIdentificationNumber ?? "",
       strategy: "onBlur",
-      sanitize: value => value.replace(/[-_. \/]/g, ""),
+      sanitize: value => value.replace(/[-_. /]/g, ""),
       validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,

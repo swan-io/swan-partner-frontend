@@ -280,54 +280,52 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
               cardInsurance.package.noticeUrl != null &&
               cardHolderType === "Company" && (
                 <Box style={small ? undefined : styles.box}>
-                  <>
-                    <Box direction="row" alignItems="center">
-                      <Icon name="shield-checkmark-regular" size={16} color={colors.gray[500]} />
-                      <Space width={8} />
+                  <Box direction="row" alignItems="center">
+                    <Icon name="shield-checkmark-regular" size={16} color={colors.gray[500]} />
+                    <Space width={8} />
 
-                      <LakeText align="center" variant="smallSemibold">
-                        {match(cardInsurance.package)
-                          .with({ level: "Basic" }, { level: "Standard" }, () =>
-                            t("cardDetail.insurance.description.basic"),
-                          )
-                          .with({ level: "Essential" }, () =>
-                            t("cardDetail.insurance.description.essential"),
-                          )
-                          .with({ level: "Premium" }, () =>
-                            t("cardDetail.insurance.description.premium"),
-                          )
-                          .otherwise(() => null)}
-                      </LakeText>
-                    </Box>
-                    <Space height={8} />
-
-                    <LakeText variant="smallRegular">
-                      <Link style={styles.link} to={cardInsurance.package.noticeUrl} target="blank">
-                        <Box direction="row" alignItems="center">
-                          <LakeText color={colors.current.primary} variant="smallRegular">
-                            {t("cardDetail.insurance.link")}
-                          </LakeText>
-
-                          <Space width={4} />
-                          <Icon color={colors.current.primary} name="open-filled" size={16} />
-                        </Box>
-                      </Link>
+                    <LakeText align="center" variant="smallSemibold">
+                      {match(cardInsurance.package)
+                        .with({ level: "Basic" }, { level: "Standard" }, () =>
+                          t("cardDetail.insurance.description.basic"),
+                        )
+                        .with({ level: "Essential" }, () =>
+                          t("cardDetail.insurance.description.essential"),
+                        )
+                        .with({ level: "Premium" }, () =>
+                          t("cardDetail.insurance.description.premium"),
+                        )
+                        .otherwise(() => null)}
                     </LakeText>
+                  </Box>
+                  <Space height={8} />
 
-                    <Space height={8} />
-                    <LakeText variant="smallRegular">
-                      <Link style={styles.link} to={cardInsurance.claimsUrl} target="blank">
-                        <Box direction="row" alignItems="center">
-                          <LakeText color={colors.current.primary} variant="smallRegular">
-                            {t("cardDetail.insurance.claim")}
-                          </LakeText>
+                  <LakeText variant="smallRegular">
+                    <Link style={styles.link} to={cardInsurance.package.noticeUrl} target="blank">
+                      <Box direction="row" alignItems="center">
+                        <LakeText color={colors.current.primary} variant="smallRegular">
+                          {t("cardDetail.insurance.link")}
+                        </LakeText>
 
-                          <Space width={4} />
-                          <Icon color={colors.current.primary} name="open-filled" size={16} />
-                        </Box>
-                      </Link>
-                    </LakeText>
-                  </>
+                        <Space width={4} />
+                        <Icon color={colors.current.primary} name="open-filled" size={16} />
+                      </Box>
+                    </Link>
+                  </LakeText>
+
+                  <Space height={8} />
+                  <LakeText variant="smallRegular">
+                    <Link style={styles.link} to={cardInsurance.claimsUrl} target="blank">
+                      <Box direction="row" alignItems="center">
+                        <LakeText color={colors.current.primary} variant="smallRegular">
+                          {t("cardDetail.insurance.claim")}
+                        </LakeText>
+
+                        <Space width={4} />
+                        <Icon color={colors.current.primary} name="open-filled" size={16} />
+                      </Box>
+                    </Link>
+                  </LakeText>
                 </Box>
               )}
 

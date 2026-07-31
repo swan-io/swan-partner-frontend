@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { SpendingLimitFragment } from "../../graphql/partner";
 import {
-  SingleUseSpendingLimitValue,
   deriveSingleUseSpendingLimitValue,
+  SingleUseSpendingLimitValue,
   singleUseToSpendingLimitValue,
   spendingLimitValueToSingleUse,
   validateSingleUseSpendingLimit,

@@ -108,34 +108,33 @@ export const Preview = ({
         {({ large }) => (
           <View style={styles.base}>
             <ScrollView contentContainerStyle={styles.content}>
-              <>
-                <Box direction="row" alignItems="center">
-                  {isNotNullishOrEmpty(cancelUrl) ? (
-                    <LakeButton
-                      ariaLabel={t("common.cancel")}
-                      icon="dismiss-regular"
-                      mode="tertiary"
-                      onPress={() => {}}
-                    >
-                      {large ? t("common.cancel") : null}
-                    </LakeButton>
-                  ) : null}
+              <Box direction="row" alignItems="center">
+                {isNotNullishOrEmpty(cancelUrl) ? (
+                  <LakeButton
+                    ariaLabel={t("common.cancel")}
+                    icon="dismiss-regular"
+                    mode="tertiary"
+                    onPress={() => {}}
+                  >
+                    {large ? t("common.cancel") : null}
+                  </LakeButton>
+                ) : null}
 
-                  <Fill minWidth={16} />
+                <Fill minWidth={16} />
 
-                  <View>
-                    <LakeSelect
-                      value={locale.language}
-                      items={languageOptions}
-                      hideErrors={true}
-                      mode="borderless"
-                      onValueChange={() => {}}
-                    />
-                  </View>
-                </Box>
+                <View>
+                  <LakeSelect
+                    value={locale.language}
+                    items={languageOptions}
+                    hideErrors={true}
+                    mode="borderless"
+                    onValueChange={() => {}}
+                  />
+                </View>
+              </Box>
 
-                <Space height={24} />
-              </>
+              <Space height={24} />
+
               {isNotNullish(logo) ? (
                 <AutoWidthImage
                   height={40}

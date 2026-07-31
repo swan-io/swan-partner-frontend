@@ -43,7 +43,7 @@ import {
   VerificationRenewalUboFragment,
   VerificationRenewalUltimateBeneficialOwnerInput,
 } from "../../graphql/partner";
-import { t, TranslationKey } from "../../utils/i18n";
+import { TranslationKey, t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
 import { getRenewalSteps, RenewalStep, renewalSteps } from "../../utils/verificationRenewal";
 import { getNextStep } from "./VerificationRenewalCompany";
@@ -52,8 +52,8 @@ import {
   Input,
   REFERENCE_SYMBOL,
   SaveValue,
-  validateUbo,
   VerificationRenewalOwnershipForm,
+  validateUbo,
 } from "./VerificationRenewalOwnershipForm";
 import { VerificationRenewalStepContent } from "./VerificationRenewalStepContent";
 

@@ -1,10 +1,30 @@
+import { useMutation } from "@swan-io/graphql-client";
+import { Box } from "@swan-io/lake/src/components/Box";
+import { ContextMenu, ContextMenuItem } from "@swan-io/lake/src/components/ContextMenu";
+import { Icon, IconName } from "@swan-io/lake/src/components/Icon";
+import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
+import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import { Separator } from "@swan-io/lake/src/components/Separator";
+import { Space } from "@swan-io/lake/src/components/Space";
+import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints, colors, radii, texts } from "@swan-io/lake/src/constants/design";
+import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
+import { noop } from "@swan-io/lake/src/utils/function";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { isNullish } from "@swan-io/lake/src/utils/nullish";
+import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
+import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
+import { match, P } from "ts-pattern";
 import { v4 as uuid } from "uuid";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import { StepTitle } from "../../../components/StepTitle";
+import { ownershipText, ownershipTypeText } from "../../../constants/business";
 import {
   CompanyOnboardingFragment,
   CompanyRelatedCompany,
@@ -14,27 +34,6 @@ import {
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { formatNestedMessage, locale, t } from "../../../utils/i18n";
-
-import { useMutation } from "@swan-io/graphql-client";
-import { Box } from "@swan-io/lake/src/components/Box";
-import { ContextMenu, ContextMenuItem } from "@swan-io/lake/src/components/ContextMenu";
-import { Icon, IconName } from "@swan-io/lake/src/components/Icon";
-import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
-import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
-import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { Separator } from "@swan-io/lake/src/components/Separator";
-import { Space } from "@swan-io/lake/src/components/Space";
-import { Tag } from "@swan-io/lake/src/components/Tag";
-import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
-import { noop } from "@swan-io/lake/src/utils/function";
-import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { isNullish } from "@swan-io/lake/src/utils/nullish";
-import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
-import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
-import { showToast } from "@swan-io/shared-business/src/state/toasts";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { match, P } from "ts-pattern";
-import { ownershipText, ownershipTypeText } from "../../../constants/business";
 import {
   cleanData,
   namesMatch,

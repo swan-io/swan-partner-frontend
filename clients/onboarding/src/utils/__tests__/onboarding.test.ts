@@ -6,7 +6,6 @@ import {
 } from "../../graphql/partner";
 import {
   cleanData,
-  isAccountAdminInRelatedIndividuals,
   namesMatch,
   transformRelatedIndividualsToInput,
   upsertAccountAdminInRelatedIndividuals,
@@ -64,36 +63,6 @@ describe("namesMatch", () => {
     expect(namesMatch({ firstName: "", lastName: "Doe" }, { firstName: "", lastName: "Doe" })).toBe(
       false,
     );
-  });
-});
-
-describe("isAccountAdminInRelatedIndividuals", () => {
-  const related = asIndividuals([
-    { firstName: "John", lastName: "Doe" },
-    { firstName: "Jane", lastName: "Smith" },
-  ]);
-
-  it("returns true when the admin matches a related individual", () => {
-    expect(
-      isAccountAdminInRelatedIndividuals(asAdmin({ firstName: "john", lastName: "doe" }), related),
-    ).toBe(true);
-  });
-
-  it("returns false when the admin matches no related individual", () => {
-    expect(
-      isAccountAdminInRelatedIndividuals(asAdmin({ firstName: "Bob", lastName: "Brown" }), related),
-    ).toBe(false);
-  });
-
-  it("returns false when the admin is missing or incomplete", () => {
-    expect(isAccountAdminInRelatedIndividuals(null, related)).toBe(false);
-    expect(isAccountAdminInRelatedIndividuals(asAdmin({ firstName: "John" }), related)).toBe(false);
-  });
-
-  it("returns false when there are no related individuals", () => {
-    expect(
-      isAccountAdminInRelatedIndividuals(asAdmin({ firstName: "John", lastName: "Doe" }), []),
-    ).toBe(false);
   });
 });
 

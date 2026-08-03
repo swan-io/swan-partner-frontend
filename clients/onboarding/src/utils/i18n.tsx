@@ -129,7 +129,7 @@ const locales: Record<SupportedLanguage, () => Locale> = {
   }),
 };
 
-export const { getBestLocale, setPreferredLanguage } = getLanguagesHelpers(supportedLanguages);
+const { getBestLocale } = getLanguagesHelpers(supportedLanguages);
 
 export const locale = getBestLocale(locales);
 

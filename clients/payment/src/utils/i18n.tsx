@@ -126,7 +126,7 @@ const locales: Record<SupportedLanguage, () => Locale> = {
   }),
 };
 
-export const { getBestLocale, setPreferredLanguage } = getLanguagesHelpers(supportedLanguages);
+const { getBestLocale } = getLanguagesHelpers(supportedLanguages);
 
 export const locale = getBestLocale(locales);
 
@@ -149,6 +149,7 @@ const intl = createIntl(
 export const t = (key: TranslationKey, params?: TranslationParams) =>
   intl.formatMessage({ id: key, defaultMessage: translationEN[key] }, params).toString();
 
+/** @public not used today but kept for usage in the future */
 export const formatNestedMessage = (
   key: TranslationKey,
   params: Record<string, string | number | ReactElement | ((children: ReactNode) => ReactNode)>,

@@ -10,4 +10,5 @@ const initialContext: Partial<FlagContext> = {
 
 export const flagsClient = new FlagClient<Flags, FlagContext>("/api/flags", initialContext);
 
+/** @public useFlag isn't used today but we keep it for usage in the future */
 export const { FlagsProvider, useFlag } = createFlagsProvider(flagsClient, flagDefaults);

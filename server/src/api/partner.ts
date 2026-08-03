@@ -166,7 +166,7 @@ export const bindAccountMembership = ({
   });
 };
 
-export class CreateOnboardingRejectionError extends Error {
+class CreateOnboardingRejectionError extends Error {
   tag = "CreateOnboardingRejectionError";
 }
 

@@ -40,9 +40,3 @@ export const prefixPhoneNumber = (country: Country, nationalNumber: string) => {
     return phoneNumber.isValid() ? { valid: true, e164: phoneNumber.number } : { valid: false };
   }).getOr({ valid: false });
 };
-
-export const maskPhoneNumber = (value: string) =>
-  value.replace(
-    /(\d{3})(\d+)(\d{3})/,
-    (_, $1: string, $2: string, $3: string) => `${$1}${"*".repeat($2.length)}${$3}`,
-  );

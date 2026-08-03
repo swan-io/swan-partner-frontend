@@ -1,6 +1,6 @@
 import { countries } from "@swan-io/shared-business/src/constants/countries";
 import { describe, expect, it } from "vitest";
-import { maskPhoneNumber, parsePhoneNumber, prefixPhoneNumber } from "../phone";
+import { parsePhoneNumber, prefixPhoneNumber } from "../phone";
 
 const franceCountry = countries.find(country => country.cca3 === "FRA");
 
@@ -48,19 +48,5 @@ describe("prefixPhoneNumber", () => {
   it("returns invalid for a national number that cannot form a valid phone number", () => {
     expect(prefixPhoneNumber(franceCountry, "0")).toEqual({ valid: false });
     expect(prefixPhoneNumber(franceCountry, "")).toEqual({ valid: false });
-  });
-});
-
-describe("maskPhoneNumber", () => {
-  it("masks the digits between the first three and last three", () => {
-    expect(maskPhoneNumber("0612345678")).toBe("061****678");
-  });
-
-  it("masks the digits between the first three and last three", () => {
-    expect(maskPhoneNumber("+33612345678")).toBe("+336*****678");
-  });
-
-  it("returns the value unchanged when there are fewer than seven digits", () => {
-    expect(maskPhoneNumber("12345")).toBe("12345");
   });
 });

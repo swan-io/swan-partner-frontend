@@ -18,7 +18,7 @@ export type OnboardingCompanyOwnershipFormTypeRef = {
 };
 type RelatedItem = "individual" | "company";
 
-export type Input = {
+type Input = {
   related: RelatedItem;
   type: RelatedIndividualType;
 };

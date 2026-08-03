@@ -178,7 +178,7 @@ type CardInsuranceDetailProps = {
   insuranceLevel: Exclude<CardInsurancePackageLevel, "Custom">;
 };
 
-export const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps) => {
+const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps) => {
   return (
     <>
       <Space height={16} />

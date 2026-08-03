@@ -52,7 +52,7 @@ const isUserNotFoundError = (clientError: ClientError) =>
 const isExpectedAuthStatusError = (operationName: string, clientError: ClientError) =>
   operationName === "AuthStatus" && isUserNotFoundError(clientError);
 
-export const filterOutUnauthorizedError = (operationName: string, clientError: ClientError) => {
+const filterOutUnauthorizedError = (operationName: string, clientError: ClientError) => {
   if (
     isNullish(Router.getRoute(["ProjectLogin"])) && // We are not on the project login page
     operationName !== "AuthStatus" && // The session expire didn't occured after a simple logged in check

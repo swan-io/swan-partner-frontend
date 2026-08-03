@@ -1,0 +1,48 @@
+{
+  // You can uncomment some workspaces to focus only on commented ones.
+  "ignoreWorkspaces": [
+    // "clients/banking",
+    // "clients/onboarding",
+    // "clients/payment",
+    // "server",
+    // ".",
+  ],
+  "workspaces": {
+    "clients/*": {
+      "entry": "src/index.tsx",
+      "project": "src/**/*.{ts,tsx}",
+      "ignoreFiles": ["src/**/*.test.ts"],
+      "ignoreDependencies": ["react-native", "graphql"],
+      "ignoreBinaries": ["tsc"],
+    },
+    "server": {
+      "entry": ["src/index.ts", "src/index.swan.ts", "src/tracing.ts"],
+      "project": "src/**/*.ts",
+      "ignoreFiles": ["src/**/*.test.ts"],
+      "ignoreDependencies": [
+        "pino-pretty", // use dynamically only in dev server on local env
+        "vite", // imported only for dev server on local env
+        "@vitejs/plugin-react-swc", // imported only for dev server on local env
+        "accepts", // installed with @fastify/accepts, imported just to get types
+        "graphql-tag", // required for runtime
+      ],
+      "ignoreBinaries": ["tsc"],
+    },
+    ".": {
+      "entry": "scripts/**/*.{js,ts}",
+      "project": "scripts/**/*.{js,ts}",
+      "ignoreDependencies": [
+        "valienv",
+        "@vitest/coverage-v8",
+        "lint-staged",
+        "rollup",
+        "react-native",
+        "cli-spinners",
+        "@graphql-codegen/plugin-helpers",
+      ],
+      "ignoreBinaries": ["generate-schema-config"],
+
+      "playwright": false, // prevent to load playwright.config.ts which requires .env.e2e file
+    },
+  },
+}

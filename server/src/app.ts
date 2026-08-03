@@ -64,7 +64,7 @@ const keys = {
 const COOKIE_MAX_AGE = 60 * (env.NODE_ENV !== "test" ? 5 : 60); // 5 minutes (except for tests)
 const OAUTH_STATE_COOKIE_MAX_AGE = 900; // 15 minutes
 
-export type InvitationConfig = {
+type InvitationConfig = {
   accessToken: string;
   inviteeAccountMembershipId: string;
   inviterAccountMembershipId: string;
@@ -101,7 +101,7 @@ declare module "fastify" {
   }
 }
 
-export const appNames = ["banking", "onboarding", "payment"] as const;
+const appNames = ["banking", "onboarding", "payment"] as const;
 
 export type AppName = (typeof appNames)[number];
 

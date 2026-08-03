@@ -390,7 +390,7 @@ const defaultPermissionsMatrix = Dict.fromEntries(
   Dict.entries(PERMISSIONS_MATRIX).map(([key]) => [key, false]),
 ) as PermissionMatrix;
 
-export const getPermissionMatrix = (data: {
+const getPermissionMatrix = (data: {
   accountMembership: AccountMembershipPermissionsFragment;
   settings: WebBankingSettingsFragment | null | undefined;
 }) =>
@@ -403,7 +403,7 @@ type Input = Option<{
   settings: WebBankingSettingsFragment | null | undefined;
 }>;
 
-export const PermissionContext = createContext<PermissionMatrix>(defaultPermissionsMatrix);
+const PermissionContext = createContext<PermissionMatrix>(defaultPermissionsMatrix);
 
 export const PermissionProvider = ({ value, children }: { value: Input; children: ReactNode }) => {
   return (

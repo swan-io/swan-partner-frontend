@@ -28,6 +28,7 @@
     "@swan-io/use-form": "3.1.0",
     "core-js": "3.48.0",
     "dayjs": "1.11.19",
+    "libphonenumber-js": "1.12.36",
     "nanoid": "5.1.6",
     "posthog-js": "1.345.2",
     "react": "19.2.6",

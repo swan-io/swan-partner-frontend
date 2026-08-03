@@ -125,9 +125,7 @@ export type SpendingLimitFormValue = {
   mode: SpendingLimitFormMode;
 };
 
-export const narrowSpendingLimitValue = (
-  value: SpendingLimitFormValue,
-): SpendingLimitValue | null => {
+const narrowSpendingLimitValue = (value: SpendingLimitFormValue): SpendingLimitValue | null => {
   const { mode } = value;
   if (mode.type === "calendarUnset") {
     return null;

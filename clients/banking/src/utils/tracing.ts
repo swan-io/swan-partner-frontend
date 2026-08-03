@@ -1,9 +1,10 @@
 import { Faro, getWebInstrumentations, initializeFaro, LogLevel } from "@grafana/faro-web-sdk";
 import { TracingInstrumentation } from "@grafana/faro-web-tracing";
 import { match, P } from "ts-pattern";
+import { AccountCountry, AccountHolderType } from "../graphql/partner";
 import { env } from "./env";
 import { flagsClient } from "./flags";
-import { setPostHogUser } from "./logger";
+import { posthogLogger } from "./logger";
 
 let faro: Faro | null = null;
 
@@ -42,18 +43,25 @@ if (environment != null) {
 
 type User = {
   id: string;
-  firstName: string | undefined;
-  lastName: string | undefined;
-  phoneNumber: string | undefined;
+};
+
+type TrackingContext = {
+  projectId: string;
+  accountCountry: AccountCountry | "";
+  accountType: AccountHolderType | "";
 };
 
 export const setTrackingUser = (user: User) => {
   faro?.api.setUser({ id: user.id });
-  setPostHogUser(user);
+  posthogLogger.setUser(user);
   flagsClient.setContext({ userId: user.id });
 };
 
 export const logger = {
+  setContext: (context: TrackingContext) => {
+    faro?.api.setUser({ attributes: context });
+    posthogLogger.setContext(context);
+  },
   info: (message: string, context?: Record<string, string>) => {
     console.log("INFO", message, context);
     faro?.api.pushLog([message], { level: LogLevel.INFO, context });

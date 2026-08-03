@@ -6,10 +6,13 @@ import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
 import { backgroundColor, colors, invariantColors } from "@swan-io/lake/src/constants/design";
+import { noop } from "@swan-io/lake/src/utils/function";
+import { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { AccountCountry, GetVerificationRenewalDocument } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
+import { logger } from "../../utils/tracing";
 import { ErrorView } from "../ErrorView";
 import { ForbiddenView } from "../ForbiddenView";
 import { VerificationRenewalCompany } from "./VerificationRenewalCompany";
@@ -42,6 +45,10 @@ const styles = StyleSheet.create({
     backdropFilter: "blur(4px)",
     zIndex: 10,
   },
+  errorView: {
+    flex: 1,
+    justifyContent: "center",
+  },
 });
 
 type Props = {
@@ -50,6 +57,22 @@ type Props = {
 
 export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
   const [data] = useQuery(GetVerificationRenewalDocument, { id: verificationRenewalId });
+
+  useEffect(() => {
+    match(data)
+      .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ projectInfo, verificationRenewal }) => {
+        const accountCountry = match(verificationRenewal)
+          .with({ accountCountries: P.nonNullable }, ({ accountCountries }) => accountCountries[0])
+          .otherwise(() => null);
+
+        logger.setContext({
+          accountCountry: accountCountry ?? "",
+          accountType: verificationRenewal?.info.type ?? "",
+          projectId: projectInfo.id,
+        });
+      })
+      .otherwise(noop);
+  });
 
   return match({ data })
     .with({ data: P.union(AsyncData.P.NotAsked, AsyncData.P.Loading) }, () => (
@@ -155,12 +178,7 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
                           () => <VerificationRenewalFinalizeSuccess />,
                         )
                         .otherwise(() => (
-                          <ErrorView
-                            style={{
-                              flex: 1,
-                              justifyContent: "center",
-                            }}
-                          />
+                          <ErrorView style={styles.errorView} />
                         ))}
                     </View>
                   </>

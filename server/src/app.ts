@@ -261,6 +261,7 @@ export const start = async (config: AppConfig) => {
         connectSrc: [
           "'self'",
           env.IDENTITY_URL,
+          env.BANKING_URL,
           "https://*.posthog.com",
           "https://faro-collector-prod-eu-west-6.grafana.net",
           "https://suggestions.pappers.fr",
@@ -288,7 +289,9 @@ export const start = async (config: AppConfig) => {
         ],
         frameSrc: ["'self'", env.IDENTITY_URL, env.PAYMENT_URL, "https://*.checkout.com"],
         frameAncestors: ["'self'", env.BANKING_URL],
-        ...(env.NODE_ENV === "development" && { workerSrc: ["'self'", "blob:"] }), // Used by vite in development
+        ...(env.NODE_ENV === "development" && {
+          workerSrc: ["'self'", "blob:"],
+        }), // Used by vite in development
         ...(env.NODE_ENV !== "development" && { reportUri: ["/api/report"] }),
       },
     },
@@ -544,7 +547,10 @@ export const start = async (config: AppConfig) => {
       return Future.value(Result.allFromDict({ accountCountry, projectId }))
         .flatMapOk(({ accountCountry, projectId }) => {
           if (isOnboardingV2) {
-            return createPublicCompanyAccountHolderOnboarding({ accountCountry, projectId });
+            return createPublicCompanyAccountHolderOnboarding({
+              accountCountry,
+              projectId,
+            });
           }
           return onboardCompanyAccountHolder({ accountCountry, projectId });
         })
@@ -575,14 +581,14 @@ export const start = async (config: AppConfig) => {
    * Accept an account membership invitation
    * e.g. /api/invitation/:id
    */
-  app.get<{ Querystring: Record<string, string>; Params: { accountMembershipId: string } }>(
-    "/api/invitation/:accountMembershipId",
-    async (request, reply) => {
-      const queryString = new URLSearchParams();
-      queryString.append("accountMembershipId", request.params.accountMembershipId);
-      return reply.redirect(`/auth/login?${queryString.toString()}`);
-    },
-  );
+  app.get<{
+    Querystring: Record<string, string>;
+    Params: { accountMembershipId: string };
+  }>("/api/invitation/:accountMembershipId", async (request, reply) => {
+    const queryString = new URLSearchParams();
+    queryString.append("accountMembershipId", request.params.accountMembershipId);
+    return reply.redirect(`/auth/login?${queryString.toString()}`);
+  });
 
   /**
    * Send an account membership invitation
@@ -653,7 +659,12 @@ export const start = async (config: AppConfig) => {
 
     // If provided with an `onboardingId`, it means that the callback should end up
     // finalizing the onboarding, otherwise do a simple redirection
-    const state: OAuth2State = match({ onboardingId, onboardingV2, accountMembershipId, projectId })
+    const state: OAuth2State = match({
+      onboardingId,
+      onboardingV2,
+      accountMembershipId,
+      projectId,
+    })
       // Internal usage only
       .with(
         { onboardingV2: "true", onboardingId: P.string, projectId: P.string },
@@ -771,12 +782,14 @@ export const start = async (config: AppConfig) => {
                     // Finalize the onboarding with the received user token
                     return onboardingOAuthClientId
                       .flatMapOk(({ onboardingInfo }) =>
-                        swan__finalizeOnboardingV2({ onboardingId, accessToken, projectId }).mapOk(
-                          payload => ({
-                            ...payload,
-                            oAuthClientId: onboardingInfo?.projectInfo?.oAuthClientId ?? undefined,
-                          }),
-                        ),
+                        swan__finalizeOnboardingV2({
+                          onboardingId,
+                          accessToken,
+                          projectId,
+                        }).mapOk(payload => ({
+                          ...payload,
+                          oAuthClientId: onboardingInfo?.projectInfo?.oAuthClientId ?? undefined,
+                        })),
                       )
                       .toPromise()
                       .then(result => {
@@ -822,7 +835,10 @@ export const start = async (config: AppConfig) => {
                   })
                   .with({ type: "FinalizeOnboardingV2" }, ({ onboardingId }) => {
                     // Finalize the onboarding with the received user token
-                    return finalizeOnboardingV2({ onboardingId, accessToken })
+                    return finalizeOnboardingV2({
+                      onboardingId,
+                      accessToken,
+                    })
                       .toPromise()
                       .then(result => {
                         return result.match<Reply>({
@@ -859,12 +875,14 @@ export const start = async (config: AppConfig) => {
                     // Finalize the onboarding with the received user token
                     return onboardingOAuthClientId
                       .flatMapOk(({ onboardingInfo }) =>
-                        swan__finalizeOnboarding({ onboardingId, accessToken, projectId }).mapOk(
-                          payload => ({
-                            ...payload,
-                            oAuthClientId: onboardingInfo?.projectInfo?.oAuthClientId ?? undefined,
-                          }),
-                        ),
+                        swan__finalizeOnboarding({
+                          onboardingId,
+                          accessToken,
+                          projectId,
+                        }).mapOk(payload => ({
+                          ...payload,
+                          oAuthClientId: onboardingInfo?.projectInfo?.oAuthClientId ?? undefined,
+                        })),
                       )
                       .toPromise()
                       .then(result => {
@@ -942,7 +960,10 @@ export const start = async (config: AppConfig) => {
                       });
                   })
                   .with({ type: "BindAccountMembership" }, ({ accountMembershipId }) => {
-                    return bindAccountMembership({ accountMembershipId, accessToken })
+                    return bindAccountMembership({
+                      accountMembershipId,
+                      accessToken,
+                    })
                       .toPromise()
                       .then(result => {
                         return result.match<Reply>({

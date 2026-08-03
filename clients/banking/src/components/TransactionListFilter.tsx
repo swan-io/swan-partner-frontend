@@ -62,7 +62,7 @@ const filtersDefinition = {
 };
 
 export type TransactionFilters = FiltersState<typeof filtersDefinition>;
-export type TransactionFilter = keyof TransactionFilters;
+type TransactionFilter = keyof TransactionFilters;
 
 type TransactionListFilterProps = {
   available?: TransactionFilter[];

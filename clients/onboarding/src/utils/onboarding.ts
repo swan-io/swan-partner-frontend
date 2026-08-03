@@ -1,4 +1,4 @@
-import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { match } from "ts-pattern";
 import {
   CompanyAccountHolderOnboardingAccountAdmin,
@@ -79,25 +79,6 @@ export const namesMatch = (
   isNotNullishOrEmpty(b.lastName) &&
   a.firstName.trim().toLowerCase() === b.firstName.trim().toLowerCase() &&
   a.lastName.trim().toLowerCase() === b.lastName.trim().toLowerCase();
-
-export const isAccountAdminInRelatedIndividuals = (
-  accountAdmin: CompanyAccountHolderOnboardingAccountAdmin | null | undefined,
-  relatedIndividuals: CompanyRelatedIndividual[] | null | undefined,
-): boolean => {
-  if (
-    isNullishOrEmpty(accountAdmin) ||
-    isNullishOrEmpty(accountAdmin.firstName) ||
-    isNullishOrEmpty(accountAdmin.lastName)
-  ) {
-    return false;
-  }
-
-  if (!relatedIndividuals || relatedIndividuals.length === 0) {
-    return false;
-  }
-
-  return relatedIndividuals.some(individual => namesMatch(accountAdmin, individual));
-};
 
 export const upsertAccountAdminInRelatedIndividuals = (
   accountAdmin: CompanyAccountHolderOnboardingAccountAdmin | null | undefined,

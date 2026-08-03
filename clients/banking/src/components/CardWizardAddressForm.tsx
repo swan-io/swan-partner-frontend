@@ -27,7 +27,7 @@ export type Address = {
   country: CountryCCA3;
 };
 
-export type CardWizardAddressFormRef = {
+type CardWizardAddressFormRef = {
   submit: () => void;
 };
 

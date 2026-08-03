@@ -42,7 +42,7 @@ if (environment != null) {
   });
 }
 
-export const logPageView = () => {
+const logPageView = () => {
   const pathname = window.location.pathname
     .split("/")
     .map(segment => {

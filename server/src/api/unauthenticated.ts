@@ -5,28 +5,15 @@ import { env } from "../env";
 import { AccountCountry, getSdk } from "../graphql/unauthenticated";
 import { fetchWithTimeout } from "../utils/fetch";
 
-export const sdk = getSdk(
-  new GraphQLClient(env.UNAUTHENTICATED_API_URL, { fetch: fetchWithTimeout }),
-);
+const sdk = getSdk(new GraphQLClient(env.UNAUTHENTICATED_API_URL, { fetch: fetchWithTimeout }));
 
 export class ServerError extends Error {
   tag = "ServerError";
 }
 
-export const toFuture = <T>(promise: Promise<T>): Future<Result<T, ServerError>> => {
+const toFuture = <T>(promise: Promise<T>): Future<Result<T, ServerError>> => {
   return Future.fromPromise(promise).mapError(error => new ServerError(JSON.stringify(error)));
 };
-
-export class UnsupportedAccountCountryError extends Error {
-  tag = "UnsupportedAccountCountryError";
-}
-
-export const parseAccountCountry = (
-  accountCountry: unknown,
-): Result<AccountCountry | undefined, UnsupportedAccountCountryError> =>
-  match(accountCountry)
-    .with("FRA", "DEU", "ESP", "NLD", "BEL", undefined, value => Result.Ok(value))
-    .otherwise(country => Result.Error(new UnsupportedAccountCountryError(String(country))));
 
 export class OnboardingRejectionError extends Error {
   tag = "OnboardingRejectionError";

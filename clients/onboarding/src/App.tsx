@@ -343,7 +343,7 @@ const FlowPickerWizard = ({ onboardingId }: Props) => {
     .exhaustive();
 };
 
-export const Routing = () => {
+const Routing = () => {
   const route = Router.useRoute(["Area", "SupportingDocumentCollectionArea", "ChangeAdminArea"]);
   return (
     <ErrorBoundary

@@ -1,14 +1,12 @@
 import { Array, Option } from "@swan-io/boxed";
 import { isEmpty } from "@swan-io/lake/src/utils/nullish";
-import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
-import { combineValidators, Validator } from "@swan-io/use-form";
-import dayjs from "dayjs";
+import { Validator } from "@swan-io/use-form";
 import { match, P } from "ts-pattern";
 import {
   OnboardingInvalidInfoFragment,
   UpdateValidationErrorsFragment,
 } from "../graphql/unauthenticated";
-import { locale, t } from "./i18n";
+import { t } from "./i18n";
 
 export const validateMaxLength: (maxLength: number) => Validator<string> = maxLength => value => {
   if (!value) {
@@ -110,26 +108,10 @@ export const validateUboPercentage: Validator<string> = value => {
   }
 };
 
-export const validateDate: Validator<string> = combineValidators<string>(
-  validateRequired,
-  value => {
-    if (!dayjs(value, locale.dateFormat, true).isValid()) {
-      return t("common.form.invalidDate");
-    }
-  },
-);
-
 // use for Belgium only
 export const validateRegistrationNumber: Validator<string> = value => {
   // test integer
   if (!/^\d{10}$/.test(value)) {
     return t("common.form.help.nbDigits", { nbDigits: "10" });
   }
-};
-
-// check url with prefix https:// optional
-export const isValidUrl = (value: string) => {
-  return /^(?:https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$/.test(
-    value,
-  );
 };

@@ -67,7 +67,7 @@ export type Input = {
   totalPercentage?: number;
 };
 
-export type VerificationRenewalOwnershipFormCommonRef = {
+type VerificationRenewalOwnershipFormCommonRef = {
   submit: () => void;
 };
 

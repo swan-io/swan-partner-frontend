@@ -31,11 +31,11 @@ export type VerificationRenewalOwnershipFormCommonRef = {
 };
 export type Input = WithReference<CommonInput & AddressInput>;
 
-export type RenewalVerificationBeneficiaryFormStep = "Common" | "Address";
+type RenewalVerificationBeneficiaryFormStep = "Common" | "Address";
 
 export type SaveValue = WithReference<CommonInput & Partial<AddressInput>>;
 
-export type BeneficiaryFormStep = "Common" | "Address";
+type BeneficiaryFormStep = "Common" | "Address";
 
 const formSteps: BeneficiaryFormStep[] = ["Common", "Address"];
 

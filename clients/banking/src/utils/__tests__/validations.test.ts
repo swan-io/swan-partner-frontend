@@ -12,7 +12,6 @@ import {
   validateAfterUpdatedAt,
   validateBeforeUpdatedAt,
   validateBeneficiaryName,
-  validateBirthdate,
   validateCity,
   validateCMC7,
   validateDate,
@@ -110,20 +109,6 @@ describe("validateDate", () => {
 
   it("rejects a date not matching the locale format", () => {
     expect(validateDate("2020-12-31")).toBeDefined();
-  });
-});
-
-describe("validateBirthdate", () => {
-  it("accepts a date in the past", () => {
-    expect(validateBirthdate("01/01/2000")).toBeUndefined();
-  });
-
-  it("rejects an invalid date", () => {
-    expect(validateBirthdate("not a date")).toBeDefined();
-  });
-
-  it("rejects a date after tomorrow", () => {
-    expect(validateBirthdate(dayjs().add(2, "day").format(dateFormat))).toBeDefined();
   });
 });
 

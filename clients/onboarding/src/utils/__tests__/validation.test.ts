@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
   getValidationErrorMessage,
-  isValidUrl,
-  validateDate,
   validateMaxLength,
   validateRegistrationNumber,
   validateUboPercentage,
@@ -57,17 +55,6 @@ describe("validateUboPercentage", () => {
   });
 });
 
-describe("validateDate", () => {
-  it("accepts a valid date in the locale format", () => {
-    expect(validateDate("31/12/2020")).toBeUndefined();
-  });
-
-  it("rejects an empty or malformed date", () => {
-    expect(validateDate("")).toBeDefined();
-    expect(validateDate("2020-12-31")).toBeDefined();
-  });
-});
-
 describe("validateRegistrationNumber", () => {
   it("accepts exactly ten digits", () => {
     expect(validateRegistrationNumber("1234567890")).toBeUndefined();
@@ -77,19 +64,5 @@ describe("validateRegistrationNumber", () => {
     expect(validateRegistrationNumber("123")).toBeDefined();
     expect(validateRegistrationNumber("12345678901")).toBeDefined();
     expect(validateRegistrationNumber("abcdefghij")).toBeDefined();
-  });
-});
-
-describe("isValidUrl", () => {
-  it("accepts urls with or without a protocol", () => {
-    expect(isValidUrl("https://example.com")).toBe(true);
-    expect(isValidUrl("www.example.com")).toBe(true);
-    expect(isValidUrl("example.com")).toBe(true);
-  });
-
-  it("rejects values that are not urls", () => {
-    expect(isValidUrl("")).toBe(false);
-    expect(isValidUrl("example")).toBe(false);
-    expect(isValidUrl("not a url")).toBe(false);
   });
 });

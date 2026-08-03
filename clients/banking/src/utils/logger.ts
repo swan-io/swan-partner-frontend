@@ -3,13 +3,6 @@ import { env } from "./env";
 
 type User = {
   id: string;
-  firstName: string | undefined;
-  lastName: string | undefined;
-  phoneNumber: string | undefined;
-};
-
-export const setPostHogUser = ({ id, ...properties }: User) => {
-  posthog.identify(id, properties);
 };
 
 const replaceIdInPath = (path: string) => {
@@ -67,4 +60,16 @@ export const initPostHog = () => {
 
     posthog.register({ application: "banking" });
   }
+};
+
+export const posthogLogger = {
+  setUser: (user: User) => {
+    posthog.identify(user.id);
+  },
+  setContext: (context: Record<string, string>) => {
+    posthog.register(context);
+  },
+  event: (name: string, properties?: Record<string, string>) => {
+    posthog.capture(name, properties);
+  },
 };

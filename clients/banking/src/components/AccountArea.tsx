@@ -27,7 +27,6 @@ import {
 import { insets } from "@swan-io/lake/src/constants/insets";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { usePersistedState } from "@swan-io/lake/src/hooks/usePersistedState";
-import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { CONTENT_ID, SkipToContent } from "@swan-io/shared-business/src/components/SkipToContent";
 import { AdditionalInfo } from "@swan-io/shared-business/src/components/SupportChat";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -212,11 +211,16 @@ export const AccountArea = ({
   useEffect(() => {
     setTrackingUser({
       id: user.id,
-      firstName: nullishOrEmptyToUndefined(user.firstName),
-      lastName: nullishOrEmptyToUndefined(user.preferredLastName),
-      phoneNumber: nullishOrEmptyToUndefined(user.mobilePhoneNumber),
     });
   }, [user]);
+
+  useEffect(() => {
+    logger.setContext({
+      accountCountry: accountMembership.accountCountry,
+      accountType: accountMembership.account?.holder.info.type ?? "",
+      projectId: projectConfiguration.map(({ projectId }) => projectId).getOr(""),
+    });
+  }, [accountMembership]);
 
   const accentColor = projectInfo.accentColor ?? invariantColors.defaultAccentColor;
   const projectName = projectInfo.name;

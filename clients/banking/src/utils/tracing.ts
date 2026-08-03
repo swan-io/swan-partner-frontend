@@ -1,9 +1,11 @@
 import { Faro, getWebInstrumentations, initializeFaro, LogLevel } from "@grafana/faro-web-sdk";
 import { TracingInstrumentation } from "@grafana/faro-web-tracing";
+import { subscribeToLocation } from "@swan-io/chicane";
 import { match, P } from "ts-pattern";
+import { AccountCountry, AccountHolderType } from "../graphql/partner";
 import { env } from "./env";
 import { flagsClient } from "./flags";
-import { setPostHogUser } from "./logger";
+import { posthogLogger } from "./logger";
 
 let faro: Faro | null = null;
 
@@ -40,20 +42,53 @@ if (environment != null) {
   });
 }
 
+export const logPageView = () => {
+  const pathname = window.location.pathname
+    .split("/")
+    .map(segment => {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        segment,
+      );
+      return isUuid ? "<id>" : segment;
+    })
+    .join("/");
+
+  logger.event("pageview", { pathname });
+};
+
+subscribeToLocation(() => {
+  logPageView();
+});
+
 type User = {
   id: string;
-  firstName: string | undefined;
-  lastName: string | undefined;
-  phoneNumber: string | undefined;
+};
+
+type TrackingContext = {
+  projectId: string;
+  accountCountry: AccountCountry | "";
+  accountType: AccountHolderType | "";
 };
 
 export const setTrackingUser = (user: User) => {
   faro?.api.setUser({ id: user.id });
-  setPostHogUser(user);
+  posthogLogger.setUser(user);
   flagsClient.setContext({ userId: user.id });
 };
 
 export const logger = {
+  setContext: (context: TrackingContext) => {
+    faro?.api.setUser({ attributes: context });
+    posthogLogger.setContext(context);
+  },
+  event: (name: string, properties?: Record<string, string>) => {
+    faro?.api.pushEvent(name, properties);
+
+    // Don't send pageview to posthog because their sdk automatically captures pageview
+    if (name !== "pageview") {
+      posthogLogger.event(name, properties);
+    }
+  },
   info: (message: string, context?: Record<string, string>) => {
     console.log("INFO", message, context);
     faro?.api.pushLog([message], { level: LogLevel.INFO, context });

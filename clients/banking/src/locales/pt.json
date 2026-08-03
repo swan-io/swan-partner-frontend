@@ -176,7 +176,7 @@
   "accountDetails.title.contracts": "Contratos",
   "accountDetails.title.details": "Detalhes",
   "accountDetails.updateEmailMention": "Para atualizar esta informação, <link>contacte a equipa de apoio</link>",
-  "accountDetails.virtualIbans.bankDetailsUnavailable": "Bank details unavailable, refresh to retry",
+  "accountDetails.virtualIbans.bankDetailsUnavailable": "Os dados bancários não estão disponíveis. Atualize a página para tentar novamente",
   "accountDetails.virtualIbans.bic": "BIC",
   "accountDetails.virtualIbans.cancel.text": "Quaisquer pagamentos feitos para um IBAN virtual cancelado serão rejeitados.",
   "accountDetails.virtualIbans.cancel.title": "Tem a certeza de que deseja cancelar este IBAN virtual?",

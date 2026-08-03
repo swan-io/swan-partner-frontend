@@ -45,10 +45,6 @@ const styles = StyleSheet.create({
     backdropFilter: "blur(4px)",
     zIndex: 10,
   },
-  errorView: {
-    flex: 1,
-    justifyContent: "center",
-  },
 });
 
 type Props = {
@@ -178,7 +174,7 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
                           () => <VerificationRenewalFinalizeSuccess />,
                         )
                         .otherwise(() => (
-                          <ErrorView style={styles.errorView} />
+                          <ErrorView />
                         ))}
                     </View>
                   </>

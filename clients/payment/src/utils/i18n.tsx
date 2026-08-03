@@ -126,9 +126,10 @@ const locales: Record<SupportedLanguage, () => Locale> = {
   }),
 };
 
-const { getBestLocale } = getLanguagesHelpers(supportedLanguages);
+const languagesHelpers = getLanguagesHelpers(supportedLanguages);
 
-export const locale = getBestLocale(locales);
+export const setPreferredLanguage = languagesHelpers.setPreferredLanguage;
+export const locale = languagesHelpers.getBestLocale(locales);
 
 // https://day.js.org/docs/en/i18n/loading-into-browser
 dayjs.locale(locale.dayjsLocale);

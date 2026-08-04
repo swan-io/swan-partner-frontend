@@ -3,7 +3,7 @@ import { createGroup, createRouter } from "@swan-io/chicane";
 import { match, P } from "ts-pattern";
 import { projectConfiguration } from "./projectId";
 
-export const routes = {
+const routes = {
   ...createGroup(
     "SupportingDocumentCollection",
     "/supporting-document-collection/:supportingDocumentCollectionId",

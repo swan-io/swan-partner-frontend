@@ -21,7 +21,6 @@ import {
   UnauthenticatedUpdateCompanyOnboardingInput,
 } from "../../graphql/unauthenticated";
 import { t } from "../../utils/i18n";
-import { TrackingProvider } from "../../utils/matomo";
 import { CompanyOnboardingRoute, companyOnboardingRoutes, Router } from "../../utils/routes";
 import { extractServerInvalidFields } from "../../utils/validation";
 import { NotFoundPage } from "../NotFoundPage";
@@ -322,129 +321,113 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
 
       {match(route)
         .with({ name: "Root" }, ({ params }) => (
-          <TrackingProvider category="Basic info">
-            <OnboardingCompanyBasicInfo
-              nextStep="Presentation"
-              onboardingId={params.onboardingId}
-              initialValues={{
-                companyType,
-                country: companyCountry,
-                typeOfRepresentation,
-              }}
-            />
-          </TrackingProvider>
+          <OnboardingCompanyBasicInfo
+            nextStep="Presentation"
+            onboardingId={params.onboardingId}
+            initialValues={{
+              companyType,
+              country: companyCountry,
+              typeOfRepresentation,
+            }}
+          />
         ))
         .with({ name: "Presentation" }, ({ params }) => (
-          <TrackingProvider category="Presentation">
-            <CompanyFlowPresentation
-              previousStep="Root"
-              nextStep="Registration"
-              onboardingId={params.onboardingId}
-              hasOwnershipStep={hasOwnershipStep}
-              hasDocumentsStep={hasDocumentsStep}
-            />
-          </TrackingProvider>
+          <CompanyFlowPresentation
+            previousStep="Root"
+            nextStep="Registration"
+            onboardingId={params.onboardingId}
+            hasOwnershipStep={hasOwnershipStep}
+            hasDocumentsStep={hasDocumentsStep}
+          />
         ))
         .with({ name: "Registration" }, ({ params }) => (
-          <TrackingProvider category="Registration">
-            <OnboardingCompanyRegistration
-              previousStep="Presentation"
-              nextStep="Organisation1"
-              onboardingId={params.onboardingId}
-              initialEmail={onboarding.email ?? ""}
-              initialAddressLine1={legalRepresentativeAddressLine1}
-              initialCity={legalRepresentativeCity}
-              initialPostalCode={legalRepresentativePostalCode}
-              initialCountry={legalRepresentativeCountry}
-              projectName={projectName}
-              accountCountry={accountCountry}
-              serverValidationErrors={finalized ? registrationStepErrors : []}
-              tcuUrl={onboarding.tcuUrl}
-              tcuDocumentUri={onboarding.projectInfo?.tcuDocumentUri}
-              forcedUpdateInputs={forcedUpdateInputs}
-            />
-          </TrackingProvider>
+          <OnboardingCompanyRegistration
+            previousStep="Presentation"
+            nextStep="Organisation1"
+            onboardingId={params.onboardingId}
+            initialEmail={onboarding.email ?? ""}
+            initialAddressLine1={legalRepresentativeAddressLine1}
+            initialCity={legalRepresentativeCity}
+            initialPostalCode={legalRepresentativePostalCode}
+            initialCountry={legalRepresentativeCountry}
+            projectName={projectName}
+            accountCountry={accountCountry}
+            serverValidationErrors={finalized ? registrationStepErrors : []}
+            tcuUrl={onboarding.tcuUrl}
+            tcuDocumentUri={onboarding.projectInfo?.tcuDocumentUri}
+            forcedUpdateInputs={forcedUpdateInputs}
+          />
         ))
         .with({ name: "Organisation1" }, ({ params }) => (
-          <TrackingProvider category="Organisation 1">
-            <OnboardingCompanyOrganisation1
-              previousStep="Registration"
-              nextStep="Organisation2"
-              onboardingId={params.onboardingId}
-              companyType={companyType}
-              initialIsRegistered={isRegistered ?? undefined}
-              initialName={holder.name ?? ""}
-              initialRegistrationNumber={holder.registrationNumber ?? ""}
-              initialVatNumber={holder.vatNumber ?? ""}
-              initialTaxIdentificationNumber={holder.taxIdentificationNumber ?? ""}
-              initialAddressLine1={companyAddressLine1}
-              initialCity={companyCity}
-              initialPostalCode={companyPostalCode}
-              country={companyCountry}
-              accountCountry={accountCountry}
-              serverValidationErrors={finalized ? organisation1StepErrors : []}
-              forcedUpdateInputs={forcedUpdateInputs}
-            />
-          </TrackingProvider>
+          <OnboardingCompanyOrganisation1
+            previousStep="Registration"
+            nextStep="Organisation2"
+            onboardingId={params.onboardingId}
+            companyType={companyType}
+            initialIsRegistered={isRegistered ?? undefined}
+            initialName={holder.name ?? ""}
+            initialRegistrationNumber={holder.registrationNumber ?? ""}
+            initialVatNumber={holder.vatNumber ?? ""}
+            initialTaxIdentificationNumber={holder.taxIdentificationNumber ?? ""}
+            initialAddressLine1={companyAddressLine1}
+            initialCity={companyCity}
+            initialPostalCode={companyPostalCode}
+            country={companyCountry}
+            accountCountry={accountCountry}
+            serverValidationErrors={finalized ? organisation1StepErrors : []}
+            forcedUpdateInputs={forcedUpdateInputs}
+          />
         ))
         .with({ name: "Organisation2" }, ({ params }) => (
-          <TrackingProvider category="Organisation 2">
-            <OnboardingCompanyOrganisation2
-              previousStep="Organisation1"
-              nextStep={getNextStep("Organisation2", steps)}
-              onboardingId={params.onboardingId}
-              initialBusinessActivity={holder.businessActivity ?? ""}
-              initialBusinessActivityDescription={holder.businessActivityDescription ?? ""}
-              initialMonthlyPaymentVolume={holder.monthlyPaymentVolume ?? "LessThan10000"}
-              serverValidationErrors={finalized ? organisation2StepErrors : []}
-              forcedUpdateInputs={forcedUpdateInputs}
-            />
-          </TrackingProvider>
+          <OnboardingCompanyOrganisation2
+            previousStep="Organisation1"
+            nextStep={getNextStep("Organisation2", steps)}
+            onboardingId={params.onboardingId}
+            initialBusinessActivity={holder.businessActivity ?? ""}
+            initialBusinessActivityDescription={holder.businessActivityDescription ?? ""}
+            initialMonthlyPaymentVolume={holder.monthlyPaymentVolume ?? "LessThan10000"}
+            serverValidationErrors={finalized ? organisation2StepErrors : []}
+            forcedUpdateInputs={forcedUpdateInputs}
+          />
         ))
         .with({ name: "Ownership" }, ({ params }) => (
-          <TrackingProvider category="Ownership">
-            <OnboardingCompanyOwnership
-              previousStep="Organisation2"
-              nextStep={getNextStep("Ownership", steps)}
-              onboardingId={params.onboardingId}
-              accountCountry={accountCountry}
-              country={companyCountry}
-              companyName={holder.name ?? ""}
-              ubos={ubos}
-              forcedUpdateInputs={forcedUpdateInputs}
-            />
-          </TrackingProvider>
+          <OnboardingCompanyOwnership
+            previousStep="Organisation2"
+            nextStep={getNextStep("Ownership", steps)}
+            onboardingId={params.onboardingId}
+            accountCountry={accountCountry}
+            country={companyCountry}
+            companyName={holder.name ?? ""}
+            ubos={ubos}
+            forcedUpdateInputs={forcedUpdateInputs}
+          />
         ))
         .with({ name: "Documents" }, ({ params }) => (
-          <TrackingProvider category="Documents">
-            <OnboardingCompanyDocuments
-              previousStep={getPreviousStep("Documents", steps)}
-              nextStep="Finalize"
-              onboardingId={params.onboardingId}
-              documents={Array.filterMap(
-                onboarding?.supportingDocumentCollection.supportingDocuments ?? [],
-                Option.fromNullable,
-              )}
-              requiredDocumentsPurposes={requiredDocumentsPurposes}
-              supportingDocumentCollectionId={onboarding?.supportingDocumentCollection.id}
-              supportingDocumentCollectionStatus={
-                onboarding?.supportingDocumentCollection.statusInfo.status
-              }
-              templateLanguage={onboarding.language ?? "en"}
-              forcedUpdateInputs={forcedUpdateInputs}
-            />
-          </TrackingProvider>
+          <OnboardingCompanyDocuments
+            previousStep={getPreviousStep("Documents", steps)}
+            nextStep="Finalize"
+            onboardingId={params.onboardingId}
+            documents={Array.filterMap(
+              onboarding?.supportingDocumentCollection.supportingDocuments ?? [],
+              Option.fromNullable,
+            )}
+            requiredDocumentsPurposes={requiredDocumentsPurposes}
+            supportingDocumentCollectionId={onboarding?.supportingDocumentCollection.id}
+            supportingDocumentCollectionStatus={
+              onboarding?.supportingDocumentCollection.statusInfo.status
+            }
+            templateLanguage={onboarding.language ?? "en"}
+            forcedUpdateInputs={forcedUpdateInputs}
+          />
         ))
         .with({ name: "Finalize" }, ({ params }) => (
-          <TrackingProvider category="Finalize">
-            <OnboardingCompanyFinalize
-              previousStep={getPreviousStep("Finalize", steps)}
-              onboardingId={params.onboardingId}
-              steps={steps}
-              alreadySubmitted={finalized}
-              onSubmitWithErrors={setFinalized.on}
-            />
-          </TrackingProvider>
+          <OnboardingCompanyFinalize
+            previousStep={getPreviousStep("Finalize", steps)}
+            onboardingId={params.onboardingId}
+            steps={steps}
+            alreadySubmitted={finalized}
+            onSubmitWithErrors={setFinalized.on}
+          />
         ))
         .with(P.nullish, () => <NotFoundPage />)
         .exhaustive()}

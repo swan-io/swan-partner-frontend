@@ -9,6 +9,5 @@ declare const __env: {
   IS_SWAN_MODE: boolean;
   // Client
   CLIENT_PLACEKIT_API_KEY: string;
-  CLIENT_ONBOARDING_MATOMO_SITE_ID: string;
   CLIENT_CHECKOUT_API_KEY: string;
 };

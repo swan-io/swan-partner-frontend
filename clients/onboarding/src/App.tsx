@@ -33,7 +33,6 @@ import { env } from "./utils/env";
 import { FlagsProvider, flagsClient } from "./utils/flags";
 import { client, partnerClient } from "./utils/gql";
 import { locale } from "./utils/i18n";
-import { TrackingProvider, useSessionTracking } from "./utils/matomo";
 import { Router } from "./utils/routes";
 import { logger, logPageView } from "./utils/tracing";
 
@@ -55,7 +54,6 @@ const PageMetadata = ({
   }, [accountCountry, projectId]);
 
   useTitle((projectName ?? "Swan") + " onboarding");
-  useSessionTracking(projectId);
 
   return null;
 };
@@ -171,22 +169,18 @@ const FlowPicker = ({ onboardingId }: Props) => {
           <WithPartnerAccentColor color={projectColor}>
             {match(accountHolder)
               .with({ __typename: "OnboardingIndividualAccountHolderInfo" }, holder => (
-                <TrackingProvider category="Individual">
-                  <OnboardingIndividualWizard
-                    onboarding={onboardingInfo}
-                    onboardingId={onboardingId}
-                    holder={holder}
-                  />
-                </TrackingProvider>
+                <OnboardingIndividualWizard
+                  onboarding={onboardingInfo}
+                  onboardingId={onboardingId}
+                  holder={holder}
+                />
               ))
               .with({ __typename: "OnboardingCompanyAccountHolderInfo" }, holder => (
-                <TrackingProvider category="Company">
-                  <OnboardingCompanyWizard
-                    onboarding={onboardingInfo}
-                    onboardingId={onboardingId}
-                    holder={holder}
-                  />
-                </TrackingProvider>
+                <OnboardingCompanyWizard
+                  onboarding={onboardingInfo}
+                  onboardingId={onboardingId}
+                  holder={holder}
+                />
               ))
               .otherwise(() => (
                 <ErrorView />

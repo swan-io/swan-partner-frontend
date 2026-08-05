@@ -157,7 +157,7 @@ const writeLocaleFile = async (
   const localePath = path.join(appTranslationsPaths[app], `${locale}.json`);
 
   const sorted = Object.keys(json)
-    .sort()
+    .toSorted()
     .reduce<Record<string, string>>((acc, key) => ({ ...acc, [key]: json[key] as string }), {});
 
   try {
@@ -185,7 +185,7 @@ const isRecordOfString = (value: unknown): value is Record<string, string> => {
  * Sort keys by alphabetical order to avoid unnecessary diff
  */
 const sortRecord = <T extends Record<string, unknown>>(record: T): T => {
-  const keys = Object.keys(record).sort();
+  const keys = Object.keys(record).toSorted();
   const sortedRecord: Record<string, unknown> = {};
   for (const key of keys) {
     sortedRecord[key] = record[key];

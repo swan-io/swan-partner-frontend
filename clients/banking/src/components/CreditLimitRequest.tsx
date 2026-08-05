@@ -684,7 +684,7 @@ const CreditLimitRequestResult = ({
     currency: "EUR",
   };
   const lastRequestStatus = creditLimitRequests
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+    .toSorted((a, b) => b.updatedAt.localeCompare(a.updatedAt))
     .at(0)?.statusInfo.__typename;
 
   return (

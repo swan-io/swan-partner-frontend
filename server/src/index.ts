@@ -19,7 +19,7 @@ const onboardingCountries = accountCountries
     cca3: accountCountry,
     name: countryTranslations[accountCountry],
   }))
-  .sort((a, b) => a.name.localeCompare(b.name));
+  .toSorted((a, b) => a.name.localeCompare(b.name));
 
 start({ invitationMode: "LINK" }).then(
   ({ app, ports }) => {

@@ -233,7 +233,7 @@ export const AccountDetailsCreditLimitPage = ({
 
               const lastRequestStatus = creditLimitSettings.creditLimitSettingsRequests.edges
                 .map(edge => edge.node)
-                .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+                .toSorted((a, b) => b.updatedAt.localeCompare(a.updatedAt))
                 .at(0)?.statusInfo.__typename;
 
               return match({ status: creditLimitSettings.statusInfo.status, lastRequestStatus })

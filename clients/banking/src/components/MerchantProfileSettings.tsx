@@ -510,7 +510,7 @@ const MerchantProfileSettingsPaymentMethodTile = ({
                                 </LakeText>
 
                                 <View>
-                                  {[...additionalInformation].sort().map(info => (
+                                  {additionalInformation.toSorted().map(info => (
                                     <Box direction="row">
                                       <LakeText color={colors.gray[700]}>•</LakeText>
                                       <Space width={4} />
@@ -533,7 +533,7 @@ const MerchantProfileSettingsPaymentMethodTile = ({
                               </LakeText>
 
                               <View>
-                                {[...fields].sort().map(info => (
+                                {fields.toSorted().map(info => (
                                   <Box direction="row">
                                     <LakeText color={colors.gray[700]}>•</LakeText>
                                     <Space width={4} />
@@ -557,7 +557,7 @@ const MerchantProfileSettingsPaymentMethodTile = ({
                                 </LakeText>
 
                                 <View>
-                                  {[...otherAdditionalInformation].sort().map(info => (
+                                  {otherAdditionalInformation.toSorted().map(info => (
                                     <Box direction="row">
                                       <LakeText color={colors.gray[700]}>•</LakeText>
                                       <Space width={4} />
@@ -582,7 +582,7 @@ const MerchantProfileSettingsPaymentMethodTile = ({
                                 </LakeText>
 
                                 <View>
-                                  {[...supportingDocumentPurposes].sort().map(info => (
+                                  {supportingDocumentPurposes.toSorted().map(info => (
                                     <Box direction="row">
                                       <LakeText color={colors.gray[700]}>•</LakeText>
                                       <Space width={4} />

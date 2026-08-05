@@ -49,7 +49,7 @@ const onboardingCountries = accountCountries
     cca3: accountCountry,
     name: countryTranslations[accountCountry],
   }))
-  .sort((a, b) => a.name.localeCompare(b.name));
+  .toSorted((a, b) => a.name.localeCompare(b.name));
 
 const partnerPickerUrl = new URL(env.BANKING_URL);
 const [...envHostName] = partnerPickerUrl.hostname.split(".");

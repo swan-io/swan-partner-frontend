@@ -543,7 +543,7 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
 
   """
   Business activity description.
-  This must be 1024 characters long maximum.
+  This must be 10000 characters long maximum.
   """
   businessActivityDescription: String!
 
@@ -1962,7 +1962,7 @@ input CompanyInfoInput {
   """
   Business activity description
   
-  - Maximum 1024 characters
+  - Maximum 10000 characters
   """
   businessActivityDescription: String
 
@@ -3392,7 +3392,7 @@ type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
 
   """
   business activity description
-  This must be 1024 characters long maximum.
+  This must be 10000 characters long maximum.
   """
   businessActivityDescription: String
 
@@ -5388,7 +5388,7 @@ input UnauthenticatedUpdateCompanyOnboardingInput {
 
   """
   Description of the business activity.
-  - Length must be from 0 to 1024 characters.
+  - Length must be from 0 to 10000 characters.
   """
   businessActivityDescription: String
 
@@ -9153,6 +9153,9 @@ enum MerchantProfileRejectionReason {
 
   """Risk alerting popped up for a weird processing pattern"""
   SuspiciousBehavior
+
+  """Account was closed"""
+  AccountClosed
 }
 
 """Merchant Profile Statuses"""

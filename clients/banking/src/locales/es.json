@@ -1627,6 +1627,8 @@
   "transfer.bulk.review": "Revisa los datos de tus transferencias",
   "transfer.bulk.uploadFile": "Carga tu archivo",
   "transfer.bulk.youSendExactly": "Estas enviando exactamente {amount}",
+  "transfer.consent.error.beneficiaryPermission.description": "No puedes realizar una transferencia a beneficiarios que no estén en la lista de beneficiarios de confianza. Contacta con el administrador de la cuenta para actualizar tus permisos en esta cuenta.",
+  "transfer.consent.error.beneficiaryPermission.title": "No tienes permisos suficientes",
   "transfer.consent.error.canceled.title": "Transferencia cancelada.",
   "transfer.consent.error.rejected.description": "Se ha producido un problema técnico de nuestra parte. Espera unos minutos e inténtalo de nuevo.",
   "transfer.consent.error.rejected.title": "Transferencia rechazada.",

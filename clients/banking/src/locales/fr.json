@@ -1627,6 +1627,8 @@
   "transfer.bulk.review": "Vérifiez les détails de vos virements",
   "transfer.bulk.uploadFile": "Téléchargez votre fichier",
   "transfer.bulk.youSendExactly": "Vous envoyez exactement {amount}",
+  "transfer.consent.error.beneficiaryPermission.description": "Vous ne pouvez pas effectuer de virement vers des bénéficiaires qui ne figurent pas sur la liste des bénéficiaires de confiance. Contactez l'administrateur du compte pour mettre à jour vos autorisations pour ce compte.",
+  "transfer.consent.error.beneficiaryPermission.title": "Vous n'avez pas les autorisations nécessaires",
   "transfer.consent.error.canceled.title": "Virement annulé.",
   "transfer.consent.error.rejected.description": "Nous avons rencontré un problème technique. Veuillez attendre quelques minutes et réessayer.",
   "transfer.consent.error.rejected.title": "Virement refusé.",

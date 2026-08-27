@@ -339,6 +339,16 @@ type Query {
   card(cardId: ID!): Card
 
   """
+  Returns a digital card from its id.
+  
+  Typically used to resolve the resource carried by a `DigitalCard.Created`
+  or `DigitalCard.Updated` webhook event.
+  
+  Gated by a feature flag; returns "Feature not yet implemented" when disabled.
+  """
+  digitalCard(digitalCardId: ID!): DigitalCard
+
+  """
   Returns the list of cards.
   
   Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
@@ -847,6 +857,12 @@ type Mutation {
   This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication)).
   """
   createCapitalDepositCase(input: CreateCapitalDepositCaseInput!): CreateCapitalDepositCasePayload!
+
+  """
+  Creates a capital deposit case for a company being formed, along with the bank accounts
+  of its main company and its shareholders. Each account triggers its own onboarding flow.
+  """
+  createCapitalDeposit(input: CreateCapitalDepositInput!): CreateCapitalDepositPayload!
 
   """
   Generate an url allowing the upload of a document which unique identifier is specified in parameters.
@@ -2156,7 +2172,7 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
 
   """
   Business activity description.
-  This must be 1024 characters long maximum.
+  This must be 10000 characters long maximum.
   """
   businessActivityDescription: String!
 
@@ -3430,6 +3446,7 @@ type BirthInfo {
   postalCode: String
 }
 
+"""Birth information (date and place of birth)."""
 input BirthInfoInput {
   """
   Birth city
@@ -4008,7 +4025,7 @@ type CompanyInfo {
   """
   Business activity description
   
-  - Maximum 1024 characters
+  - Maximum 10000 characters
   """
   businessActivityDescription: String
 
@@ -4063,7 +4080,7 @@ input CompanyInfoInput {
   """
   Business activity description
   
-  - Maximum 1024 characters
+  - Maximum 10000 characters
   """
   businessActivityDescription: String
 
@@ -4173,7 +4190,7 @@ input CompanyInfoUpdateInput {
   """
   Business activity description
   
-  - Maximum 1024 characters
+  - Maximum 10000 characters
   """
   businessActivityDescription: String
 
@@ -6405,7 +6422,7 @@ input OnboardCompanyAccountHolderInput {
 
   """
   Description of the business activity.
-  - Length must be from 0 to 1024 characters.
+  - Length must be from 0 to 10000 characters.
   """
   businessActivityDescription: String
 
@@ -6691,7 +6708,7 @@ type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
 
   """
   business activity description
-  This must be 1024 characters long maximum.
+  This must be 10000 characters long maximum.
   """
   businessActivityDescription: String
 
@@ -9120,6 +9137,7 @@ type UnitedStatesTaxInfo {
   unitedStatesTaxIdentificationNumber: String
 }
 
+"""Tax information related to US persons as defined by FATCA."""
 input UnitedStatesTaxInfoInput {
   """
   Is the ultimate beneficial owner a US person as defined by the Foreign Account Tax Compliance Act (FATCA)
@@ -9319,7 +9337,7 @@ input UpdateCompanyOnboardingInput {
 
   """
   Description of the business activity.
-  - Length must be from 0 to 1024 characters.
+  - Length must be from 0 to 10000 characters.
   """
   businessActivityDescription: String
 
@@ -9839,6 +9857,7 @@ type User {
   ): IdentificationConnection
 }
 
+"""User device information for security and fraud detection."""
 input UserDeviceInfoInput {
   """Device coordinates, if available"""
   geoloc: GeolocInput
@@ -11545,6 +11564,9 @@ enum FeesTypeEnum {
   Monthly account membership subscription fee charged on the last day of the month
   """
   AccountMembershipSubscription
+
+  """Additional business account subscription"""
+  AdditionalAccountSubscription
 
   """Monthly card subscription fee charged on the last day of the month"""
   VirtualCardSubscription
@@ -16671,6 +16693,23 @@ type CapitalDepositDocumentValidatedStatusInfo implements CapitalDepositDocument
   status: CapitalDepositDocumentStatus!
 }
 
+type CapitalDepositMainCompanyOnboardingFieldError {
+  message: String!
+
+  """
+  Path to the invalid field in the input, e.g. ["mainCompany", "accountAdmin", "email"].
+  """
+  path: [String!]!
+}
+
+"""
+Rejection returned when the onboarding of the main company fails because of invalid input.
+"""
+type CapitalDepositMainCompanyOnboardingRejection implements Rejection {
+  message: String!
+  fields: [CapitalDepositMainCompanyOnboardingFieldError!]!
+}
+
 """Rejection returned if the shareholder cannot be found"""
 type CapitalDepositShareholderCannotBeFoundRejection implements Rejection {
   id: String!
@@ -16682,6 +16721,30 @@ Rejection returned if the shareholder cannot be updated in its current state
 """
 type CapitalDepositShareholderCanNotBeUpdatedRejection implements Rejection {
   id: String!
+  message: String!
+}
+
+type CapitalDepositShareholderOnboardingFieldError {
+  message: String!
+
+  """
+  Path to the invalid field in the input, e.g. ["shareholders", "0", "accountAdmin", "email"].
+  """
+  path: [String!]!
+}
+
+"""
+Rejection returned when the onboarding of one shareholder fails because of invalid input.
+"""
+type CapitalDepositShareholderOnboardingRejection implements Rejection {
+  message: String!
+  fields: [CapitalDepositShareholderOnboardingFieldError!]!
+}
+
+"""
+Rejection returned if the capital deposit case cannot be created because there are no shareholders
+"""
+type CapitalDepositShareholdersEmptyRejection implements Rejection {
   message: String!
 }
 
@@ -16724,6 +16787,11 @@ enum CapitalDepositStatus {
   Canceled
 }
 
+"""Rejection returned when a feature is not yet available."""
+type ComingSoonRejection implements Rejection {
+  message: String!
+}
+
 """Company shareholder info."""
 type CompanyShareholder {
   """Whether the shareholder is an individual or a company."""
@@ -16731,6 +16799,11 @@ type CompanyShareholder {
 
   """Company name."""
   name: String!
+}
+
+"""Account-level information for a shareholder's bank account."""
+input CreateCapitalDepositAccountInfoInput {
+  name: String
 }
 
 """
@@ -16756,6 +16829,129 @@ input CreateCapitalDepositCaseInput {
 union CreateCapitalDepositCasePayload = CreateCapitalDepositCaseSuccessPayload | ForbiddenRejection | BadRequestRejection | ValidationRejection | InternalErrorRejection
 
 type CreateCapitalDepositCaseSuccessPayload {
+  capitalDepositCase: CapitalDepositCase!
+}
+
+"""
+Information about the individual who administers a company shareholder's account (the account admin).
+"""
+input CreateCapitalDepositCompanyAccountAdminInput {
+  firstName: String
+  lastName: String
+  birthInfo: BirthInfoInput
+
+  """An ISO 3166-1 alpha-3 country code (e.g. `FRA`)."""
+  nationality: CCA3
+  email: String
+  preferredLanguage: AccountLanguage
+  address: ResidencyAddressInput
+  taxIdentificationNumber: String
+  typeOfRepresentation: TypeOfRepresentation
+  unitedStatesTaxInfo: UnitedStatesTaxInfoInput
+  userDeviceInfo: UserDeviceInfoInput
+}
+
+"""Input describing the company being formed."""
+input CreateCapitalDepositCompanyInfoInput {
+  signupDate: Date
+  businessActivity: BusinessActivityCategory
+  businessActivityDescription: String
+  businessActivityCode: String
+  forecastYearlyIncome: ForecastYearlyIncome
+  legalFormCode: String
+  monthlyPaymentVolume: MonthlyPaymentVolume
+  name: String!
+  tradeName: String
+  headcount: CompanyHeadcount
+  registrationDate: Date
+  registrationNumber: String
+  regulatoryClassification: RegulatoryClassification
+  address: ResidencyAddressInput
+  taxIdentificationNumber: String
+  relatedIndividuals: [RelatedIndividualInput!]
+  relatedCompanies: [RelatedCompanyInput!]
+  vatNumber: String
+  websites: [String!]
+}
+
+"""
+Input for a company shareholder, including its contribution, bank account and company details.
+"""
+input CreateCapitalDepositCompanyShareholderInput {
+  capitalDepositAmount: AmountInput!
+  accountInfo: CreateCapitalDepositAccountInfoInput
+  accountAdmin: CreateCapitalDepositCompanyAccountAdminInput!
+  company: CreateCapitalDepositCompanyInfoInput!
+  oAuthRedirectParameters: OAuthRedirectParametersInput!
+}
+
+input CreateCapitalDepositIndividualAccountAdminBirthInfoInput {
+  birthDate: Date!
+  city: String
+  country: CCA3
+  postalCode: String
+}
+
+"""
+Information about the individual shareholder who administers the account (the account admin).
+"""
+input CreateCapitalDepositIndividualAccountAdminInput {
+  firstName: String!
+  lastName: String!
+  birthInfo: CreateCapitalDepositIndividualAccountAdminBirthInfoInput!
+
+  """An ISO 3166-1 alpha-3 country code (e.g. `FRA`)."""
+  nationality: CCA3!
+  email: String
+  preferredLanguage: AccountLanguage
+  address: ResidencyAddressInput
+  employmentStatus: EmploymentStatus
+  monthlyIncome: MonthlyIncome
+  sourcesOfFunds: [IndividualAccountSourceOfFunds!]
+  taxIdentificationNumber: String
+  unitedStatesTaxInfo: UnitedStatesTaxInfoInput
+  signupDate: Date
+  userDeviceInfo: UserDeviceInfoInput
+}
+
+"""
+Input for an individual shareholder, including their contribution and personal bank account.
+"""
+input CreateCapitalDepositIndividualShareholderInput {
+  capitalDepositAmount: AmountInput!
+  accountInfo: CreateCapitalDepositAccountInfoInput
+  accountAdmin: CreateCapitalDepositIndividualAccountAdminInput!
+  oAuthRedirectParameters: OAuthRedirectParametersInput!
+}
+
+"""
+Input to create a capital deposit case with its main company and shareholders.
+"""
+input CreateCapitalDepositInput {
+  acquisitionChannel: AcquisitionChannel!
+  mainCompany: CreateCapitalDepositMainCompanyInput!
+  shareholders: [CreateCapitalDepositShareholderInput!]!
+}
+
+"""Input describing the main company being formed and its bank account."""
+input CreateCapitalDepositMainCompanyInput {
+  accountInfo: CreateCapitalDepositAccountInfoInput
+  accountAdmin: CreateCapitalDepositCompanyAccountAdminInput!
+  company: CreateCapitalDepositCompanyInfoInput!
+  oAuthRedirectParameters: OAuthRedirectParametersInput!
+}
+
+union CreateCapitalDepositPayload = CreateCapitalDepositSuccessPayload | ComingSoonRejection | CapitalDepositShareholdersEmptyRejection | CapitalDepositShareholderOnboardingRejection | CapitalDepositMainCompanyOnboardingRejection
+
+"""
+Input for a single shareholder, either an individual or a company (exactly one must be provided).
+"""
+input CreateCapitalDepositShareholderInput {
+  individual: CreateCapitalDepositIndividualShareholderInput
+  company: CreateCapitalDepositCompanyShareholderInput
+}
+
+type CreateCapitalDepositSuccessPayload {
   capitalDepositCase: CapitalDepositCase!
 }
 
@@ -23553,6 +23749,9 @@ enum MerchantProfileRejectionReason {
 
   """Risk alerting popped up for a weird processing pattern"""
   SuspiciousBehavior
+
+  """Account was closed"""
+  AccountClosed
 }
 
 """Merchant Profile Statuses"""
@@ -24513,7 +24712,7 @@ type AccountVerificationWrongStatusRejection implements Rejection {
 """Input to add a Direct Debit Funding Source"""
 input AddDirectDebitFundingSourceInput {
   """Scheme of the underlying payment mandate"""
-  scheme: SEPADirectDebitScheme!
+  scheme: SEPADirectDebitScheme! = SepaDirectDebitB2b @deprecated(reason: "only SepaDirectDebitB2b is currently allowed. It will be removed soon.")
 
   """
   Id of the account on which to create a funding source.

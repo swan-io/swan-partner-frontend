@@ -1,5 +1,3 @@
-import "./tracing";
-
 import pc from "picocolors";
 import { start } from "./app";
 import { env } from "./env";

@@ -1,14 +1,33 @@
+import fs from "node:fs";
 import FastifyOtelInstrumentation from "@fastify/otel";
+import { metrics } from "@opentelemetry/api";
 import {
   getNodeAutoInstrumentations,
   InstrumentationConfigMap,
 } from "@opentelemetry/auto-instrumentations-node";
 import { CompositePropagator, W3CTraceContextPropagator } from "@opentelemetry/core";
+import { PrometheusExporter } from "@opentelemetry/exporter-prometheus";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
 import { JaegerPropagator } from "@opentelemetry/propagator-jaeger";
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { FastifyRequest } from "fastify";
+import path from "pathe";
+
+const packageJson = JSON.parse(
+  fs.readFileSync(path.join(__dirname, "../package.json"), "utf-8"),
+) as { version: string };
+
+/**
+ * Must be run after `sdk.start()` — that's what registers the global meter provider.
+ * Before it, `getMeter()` returns a no-op meter and nothing is exported.
+ */
+const registerMetrics = () => {
+  metrics
+    .getMeter("swan-internal-frontend")
+    .createGauge("swan_app_build_info", { description: "Build information" })
+    .record(1, { version: packageJson.version });
+};
 
 const sensibleHeaderKeys = new Set(["authorization", "cookie", "x-swan-token"]);
 
@@ -101,6 +120,7 @@ const textMapPropagator = new CompositePropagator({
 });
 
 const serviceName = process.env.TRACING_SERVICE_NAME;
+const METRICS_PORT = Number(process.env.OTEL_EXPORTER_PROMETHEUS_PORT ?? 9464);
 
 if (serviceName != null) {
   const sdk = new NodeSDK({
@@ -109,7 +129,13 @@ if (serviceName != null) {
     spanProcessor,
     textMapPropagator,
     traceExporter,
+    metricReaders: [
+      new PrometheusExporter({ port: METRICS_PORT }, () => {
+        console.log(`Prometheus metrics server started on port ${METRICS_PORT}`);
+      }),
+    ],
   });
 
   sdk.start();
+  registerMetrics();
 }

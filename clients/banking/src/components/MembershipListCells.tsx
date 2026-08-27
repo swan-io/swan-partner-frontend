@@ -8,7 +8,7 @@ import { LakeTooltip } from "@swan-io/lake/src/components/LakeTooltip";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
-import { colors, spacings } from "@swan-io/lake/src/constants/design";
+import { colors, radii, spacings } from "@swan-io/lake/src/constants/design";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { AccountMembershipFragment } from "../graphql/partner";
@@ -39,6 +39,17 @@ const styles = StyleSheet.create({
   },
   permissionsContainer: {
     padding: 4,
+  },
+  permissionsTag: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    borderWidth: 1,
+    backgroundColor: colors.gray[50],
+    borderColor: colors.gray[200],
+    borderRadius: radii[4],
+    paddingVertical: 2,
+    paddingHorizontal: spacings[4],
   },
 });
 
@@ -176,7 +187,7 @@ const getRightsTag = ({ accountMembership }: { accountMembership: AccountMembers
     >
       {match({ hasSomeRights, hasSomeCards })
         .with({ hasSomeRights: true }, { hasSomeCards: true }, () => (
-          <Tag color="gray">
+          <View style={styles.permissionsTag}>
             {accountMembership.canViewAccount ? (
               <Icon
                 name="eye-regular"
@@ -238,7 +249,7 @@ const getRightsTag = ({ accountMembership }: { accountMembership: AccountMembers
                 </LakeText>
               </>
             ) : null}
-          </Tag>
+          </View>
         ))
         .otherwise(() => null)}
     </LakeTooltip>

@@ -3673,7 +3673,6 @@ fragment VerificationRenewalUBO on VerificationRenewalUltimateBeneficialOwner {
     postalCode
   }
   qualificationType
-  taxIdentificationNumber
 }
 
 fragment CompanyRenewalInfo on CompanyVerificationRenewalInfo {
@@ -3736,7 +3735,13 @@ query GetVerificationRenewal($id: ID!) {
   }
   verificationRenewal(id: $id) {
     ... on WaitingForInformationVerificationRenewal {
-      id
+      accountCountries
+      verificationRequirements
+      supportingDocumentCollection {
+        ...SupportingDocumentRenewal
+      }
+    }
+    ... on SuspendedVerificationRenewal {
       accountCountries
       verificationRequirements
       supportingDocumentCollection {
@@ -3764,6 +3769,12 @@ mutation UpdateIndividualVerificationRenewal($input: UpdateIndividualVerificatio
         __typename
         id
         ... on WaitingForInformationVerificationRenewal {
+          verificationRequirements
+          supportingDocumentCollection {
+            ...SupportingDocumentRenewal
+          }
+        }
+        ... on SuspendedVerificationRenewal {
           verificationRequirements
           supportingDocumentCollection {
             ...SupportingDocumentRenewal
@@ -3800,6 +3811,12 @@ mutation UpdateCompanyVerificationRenewal($input: UpdateCompanyVerificationRenew
         __typename
         id
         ... on WaitingForInformationVerificationRenewal {
+          verificationRequirements
+          supportingDocumentCollection {
+            ...SupportingDocumentRenewal
+          }
+        }
+        ... on SuspendedVerificationRenewal {
           verificationRequirements
           supportingDocumentCollection {
             ...SupportingDocumentRenewal

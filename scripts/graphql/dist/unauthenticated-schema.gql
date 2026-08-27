@@ -409,6 +409,11 @@ type AccountEdge implements Edge {
   node: Account!
 }
 
+type AccountHasActiveSuspensionsRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
 """
 The account holder is the person who owns the money stored in the account. The account holder can be one of your customers, whether it is a natural person or a legal person, or quite simply you.
 """
@@ -1280,6 +1285,30 @@ type AccountSuspendedStatus implements AccountStatusInfo {
 
   """Reason why the account is currently suspended"""
   reasonInfo: SuspendAccountStatusReason!
+
+  """Type of suspension reasons"""
+  suspensionReasons: [AccountSuspensionReason!]!
+}
+
+"""Reason why the account is currently suspended"""
+type AccountSuspensionReason {
+  """Type of suspension reason"""
+  type: AccountSuspensionReasonType!
+}
+
+"""Specific reason for suspending an account"""
+enum AccountSuspensionReasonType {
+  """Compliance review required"""
+  ComplianceReview
+
+  """KYC review required"""
+  KYCReview
+
+  """Suspension required by a regulatory obligation"""
+  RegulatoryRequirement
+
+  """Reason not covered by other values"""
+  Other
 }
 
 """The acquisition channel indicates how the account holder was acquired."""

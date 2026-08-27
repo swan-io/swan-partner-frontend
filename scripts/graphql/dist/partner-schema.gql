@@ -1961,6 +1961,11 @@ input AccountFilterInput {
   search: String
 }
 
+type AccountHasActiveSuspensionsRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
 """
 The account holder is the person who owns the money stored in the account. The account holder can be one of your customers, whether it is a natural person or a legal person, or quite simply you.
 """
@@ -2985,6 +2990,30 @@ type AccountSuspendedStatus implements AccountStatusInfo {
 
   """Reason why the account is currently suspended"""
   reasonInfo: SuspendAccountStatusReason!
+
+  """Type of suspension reasons"""
+  suspensionReasons: [AccountSuspensionReason!]!
+}
+
+"""Reason why the account is currently suspended"""
+type AccountSuspensionReason {
+  """Type of suspension reason"""
+  type: AccountSuspensionReasonType!
+}
+
+"""Specific reason for suspending an account"""
+enum AccountSuspensionReasonType {
+  """Compliance review required"""
+  ComplianceReview
+
+  """KYC review required"""
+  KYCReview
+
+  """Suspension required by a regulatory obligation"""
+  RegulatoryRequirement
+
+  """Reason not covered by other values"""
+  Other
 }
 
 type AccountTypeNotEligibleRejection implements Rejection {
@@ -8803,8 +8832,23 @@ type SuspendedVerificationRenewal implements VerificationRenewal {
   supportTicketId: String
   dueDate: DateTime
 
+  """
+  Information the account holder must provide to complete the verification renewal
+  """
+  verificationRequirements: [VerificationRenewalRequirement!]!
+
   """Verification renewal information"""
   info: VerificationRenewalInfo!
+
+  """
+  Collection of supporting documents requested from the account holder for this verification renewal
+  """
+  supportingDocumentCollection: SupportingDocumentCollection
+
+  """
+  Countries of the account holder's accounts, which determine country-specific information to provide (such as the tax identification number format)
+  """
+  accountCountries: [AccountCountry!]
 }
 
 """Rejection returned if too many items are given"""
@@ -10271,11 +10315,23 @@ type WaitingForInformationVerificationRenewal implements VerificationRenewal {
   updatedAt: DateTime!
   supportTicketId: String
   dueDate: DateTime
+
+  """
+  Information the account holder must provide to complete the verification renewal
+  """
   verificationRequirements: [VerificationRenewalRequirement!]!
 
   """Verification renewal information"""
   info: VerificationRenewalInfo!
+
+  """
+  Collection of supporting documents requested from the account holder for this verification renewal
+  """
   supportingDocumentCollection: SupportingDocumentCollection
+
+  """
+  Countries of the account holder's accounts, which determine country-specific information to provide (such as the tax identification number format)
+  """
   accountCountries: [AccountCountry!]
 }
 
@@ -10362,7 +10418,7 @@ type BookedBalanceAfter {
   amount: Amount
 
   """
-  [COMING SOON] Sequence number assigned to each booked transaction. It increments by 1 with every new transaction affecting the account's booked balance, ensuring a chronological record
+  Sequence number assigned to each booked transaction. It increments with every balance movement affecting the account, providing a reliable chronological order of booked transactions.
   """
   sequenceNumber: Int
 }

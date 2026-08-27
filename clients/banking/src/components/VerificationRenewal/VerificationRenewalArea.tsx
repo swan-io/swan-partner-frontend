@@ -99,10 +99,7 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
 
         const renewalSupportingDoc = match(verificationRenewal)
           .with(
-            {
-              __typename: "WaitingForInformationVerificationRenewal",
-              supportingDocumentCollection: P.nonNullable,
-            },
+            { supportingDocumentCollection: P.nonNullable },
             ({ supportingDocumentCollection }) => supportingDocumentCollection,
           )
           .otherwise(() => null);
@@ -110,7 +107,7 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
         const accountCountry = match(verificationRenewal)
           .returnType<Option<AccountCountry>>()
           .with({ accountCountries: P.nonNullable }, ({ accountCountries }) =>
-            Option.fromNullable(accountCountries[0]),
+            Option.fromNullable(accountCountries?.[0]),
           )
           .otherwise(() => Option.None());
 

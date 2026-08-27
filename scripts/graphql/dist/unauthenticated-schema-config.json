@@ -8,6 +8,7 @@
       "AccountAdminChangeExpiredRejection",
       "AccountAdminChangeNotFoundRejection",
       "AccountAdminChangeStatusNotEligibleRejection",
+      "AccountHasActiveSuspensionsRejection",
       "AccountHolderNotFoundRejection",
       "AccountMembershipCannotBeDisabledRejection",
       "AccountMembershipCannotBeUpdatedRejection",

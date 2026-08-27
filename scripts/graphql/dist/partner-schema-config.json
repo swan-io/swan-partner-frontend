@@ -10,6 +10,7 @@
       "AccountAdminChangeMissingInformationRejection",
       "AccountAdminChangeNotFoundRejection",
       "AccountAdminChangeStatusNotEligibleRejection",
+      "AccountHasActiveSuspensionsRejection",
       "AccountHolderAccountsCreationLimitRejection",
       "AccountHolderAccountsStatusNotEligibleRejection",
       "AccountHolderAccountsSuspendedStatusNotEligibleRejection",

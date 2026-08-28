@@ -8,7 +8,6 @@ import {
 import { CompositePropagator, W3CTraceContextPropagator } from "@opentelemetry/core";
 import { PrometheusExporter } from "@opentelemetry/exporter-prometheus";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
-import { JaegerPropagator } from "@opentelemetry/propagator-jaeger";
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { FastifyRequest } from "fastify";
@@ -116,7 +115,7 @@ const traceExporter = new OTLPTraceExporter();
 const spanProcessor = new BatchSpanProcessor(traceExporter);
 
 const textMapPropagator = new CompositePropagator({
-  propagators: [new W3CTraceContextPropagator(), new JaegerPropagator()],
+  propagators: [new W3CTraceContextPropagator()],
 });
 
 const serviceName = process.env.TRACING_SERVICE_NAME;

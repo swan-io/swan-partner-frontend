@@ -40,7 +40,11 @@ import {
   SepaReceivedDirectDebitMandateSequence,
 } from "../graphql/partner";
 import { formatNestedMessage, languages, locale, setPreferredLanguage, t } from "../utils/i18n";
-import { validateMandateCreditorName, validateReference } from "../utils/validations";
+import {
+  validateCreditorIdentifier,
+  validateMandateCreditorName,
+  validateReference,
+} from "../utils/validations";
 import { ErrorView } from "./ErrorView";
 
 const styles = StyleSheet.create({
@@ -374,7 +378,7 @@ const AddReceivedSepaDirectDebitB2bMandateForm = ({ onSubmit }: FormProps) => {
     },
     creditorIdentifier: {
       initialValue: "",
-      validate: validateRequired,
+      validate: combineValidators(validateRequired, validateCreditorIdentifier),
     },
     iban: {
       initialValue: "",

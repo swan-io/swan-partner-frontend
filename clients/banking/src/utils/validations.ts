@@ -351,3 +351,9 @@ export const validateReference = (value: string | undefined) => {
     return t("common.form.invalidReference");
   }
 };
+
+export const validateCreditorIdentifier = (value: string | undefined) => {
+  if (isNotNullishOrEmpty(value) && !/^[a-zA-Z0-9 ]{1,35}$/.test(value)) {
+    return t("common.form.invalidCreditorIdentifier");
+  }
+};

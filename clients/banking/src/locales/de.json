@@ -561,6 +561,7 @@
   "common.form.invalidBulkTooManyTransfersForBeneficiaryVerification.description.individual": "Um Ihre Empfänger zu überprüfen, darf Ihre Datei maximal 20 Überweisungen enthalten. Sie können Ihre Datei in kleinere Dateien aufteilen und erneut hochladen.",
   "common.form.invalidCMC7": "Ungültiges CMC7",
   "common.form.invalidColor": "Ungültige Farbe",
+  "common.form.invalidCreditorIdentifier": "Die maximale Länge beträgt 35 Zeichen und darf nur alphanumerische Zeichen enthalten.",
   "common.form.invalidDate": "Ungültiges Datum",
   "common.form.invalidEmail": "Ungültige E-Mail-Adresse",
   "common.form.invalidFile": "Ungültige Datei",

@@ -561,6 +561,7 @@
   "common.form.invalidBulkTooManyTransfersForBeneficiaryVerification.description.individual": "Per verificare i beneficiari, il file deve contenere al massimo 20 trasferimenti. È possibile suddividere il file in lotti più piccoli e ricaricarlo.",
   "common.form.invalidCMC7": "CMC7 non valido",
   "common.form.invalidColor": "Colore non valido",
+  "common.form.invalidCreditorIdentifier": "La lunghezza massima è di 35 caratteri e può contenere solo caratteri alfanumerici",
   "common.form.invalidDate": "Questa data non è valida",
   "common.form.invalidEmail": "Questo indirizzo email non è valido",
   "common.form.invalidFile": "File non valido",

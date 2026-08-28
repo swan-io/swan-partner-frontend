@@ -561,6 +561,7 @@
   "common.form.invalidBulkTooManyTransfersForBeneficiaryVerification.description.individual": "To verify your beneficiaries, your file must have 20 transfers or fewer. You can split your file into smaller batches and re-upload.",
   "common.form.invalidCMC7": "Invalid CMC7",
   "common.form.invalidColor": "Invalid color",
+  "common.form.invalidCreditorIdentifier": "The maximum length is 35 characters and only contain alphanumeric characters",
   "common.form.invalidDate": "Invalid date",
   "common.form.invalidEmail": "Invalid email",
   "common.form.invalidFile": "Invalid file",

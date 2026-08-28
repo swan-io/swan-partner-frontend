@@ -378,6 +378,7 @@ const AddReceivedSepaDirectDebitB2bMandateForm = ({ onSubmit }: FormProps) => {
     },
     creditorIdentifier: {
       initialValue: "",
+      sanitize: (value: string) => value?.replace(/\s/g, "").toUpperCase(), // Remove spaces and convert to uppercase
       validate: combineValidators(validateRequired, validateCreditorIdentifier),
     },
     iban: {

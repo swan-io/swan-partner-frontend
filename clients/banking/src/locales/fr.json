@@ -561,6 +561,7 @@
   "common.form.invalidBulkTooManyTransfersForBeneficiaryVerification.description.individual": "Pour vérifier vos bénéficiaires, votre fichier doit contenir 20 virements ou moins. Vous pouvez diviser votre fichier en lots plus petits et le télécharger à nouveau.",
   "common.form.invalidCMC7": "CMC7 non valide",
   "common.form.invalidColor": "Couleur non valide",
+  "common.form.invalidCreditorIdentifier": "La longueur maximale est de 35 caractères et ne peut contenir que des caractères alphanumériques",
   "common.form.invalidDate": "Date non valide",
   "common.form.invalidEmail": "E-mail non valide",
   "common.form.invalidFile": "Fichier invalide",

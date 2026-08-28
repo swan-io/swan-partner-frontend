@@ -561,6 +561,7 @@
   "common.form.invalidBulkTooManyTransfersForBeneficiaryVerification.description.individual": "Vastaanottajien vahvistamiseksi tiedostossasi saa olla enintään 20 siirtoa. Voit jakaa tiedostosi pienempiin eriin ja ladata ne uudelleen.",
   "common.form.invalidCMC7": "Virheellinen CMC7",
   "common.form.invalidColor": "Virheellinen väri",
+  "common.form.invalidCreditorIdentifier": "Maksimipituus on 35 merkkiä, ja se saa sisältää vain kirjaimia ja numeroita",
   "common.form.invalidDate": "Päivämäärä on väärässä muodossa",
   "common.form.invalidEmail": "Sähköposti on väärässä muodossa",
   "common.form.invalidFile": "Virheellinen tiedosto",

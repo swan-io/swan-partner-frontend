@@ -561,6 +561,7 @@
   "common.form.invalidBulkTooManyTransfersForBeneficiaryVerification.description.individual": "Para verificar os seus beneficiários, o seu ficheiro deve ter 20 transferências ou menos. Pode dividir o seu ficheiro em lotes mais pequenos e fazer um novo carregamento.",
   "common.form.invalidCMC7": "CMC7 inválido",
   "common.form.invalidColor": "Cor inválida",
+  "common.form.invalidCreditorIdentifier": "O comprimento máximo é de 35 caracteres e deve conter apenas caracteres alfanuméricos",
   "common.form.invalidDate": "Esta data é inválida",
   "common.form.invalidEmail": "Este e-mail é inválido",
   "common.form.invalidFile": "Ficheiro inválido",

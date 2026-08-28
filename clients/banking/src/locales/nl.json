@@ -561,6 +561,7 @@
   "common.form.invalidBulkTooManyTransfersForBeneficiaryVerification.description.individual": "Om je begunstigden te verifiëren, moet je bestand maximaal 20 overschrijvingen bevatten. Je kunt je bestand in kleinere delen splitsen en opnieuw uploaden.",
   "common.form.invalidCMC7": "Ongeldige CMC7",
   "common.form.invalidColor": "Ongeldige kleur",
+  "common.form.invalidCreditorIdentifier": "De maximale lengte is 35 tekens en mag alleen alfanumerieke tekens bevatten",
   "common.form.invalidDate": "Deze datum is ongeldig",
   "common.form.invalidEmail": "Dit e-mailadres is ongeldig",
   "common.form.invalidFile": "Ongeldig bestand",

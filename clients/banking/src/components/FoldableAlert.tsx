@@ -1,7 +1,7 @@
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { ColorVariants } from "@swan-io/lake/src/constants/design";
-import { useDisclosure } from "@swan-io/lake/src/hooks/useDisclosure";
+import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { ComponentProps, ReactNode } from "react";
 import { match } from "ts-pattern";
 import { t } from "../utils/i18n";
@@ -19,7 +19,7 @@ export const FoldableAlert = ({
   more,
   openedAtStart = false,
 }: FoldableAlertProps) => {
-  const [visible, { toggle }] = useDisclosure(openedAtStart);
+  const [visible, { toggle }] = useBoolean(openedAtStart);
 
   return (
     <LakeAlert

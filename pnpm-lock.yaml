@@ -168,14 +168,14 @@ importers:
         specifier: 0.8.0
         version: 0.8.0(graphql@16.12.0)(react@19.2.6)(typescript@7.0.2)
       '@swan-io/lake':
-        specifier: 15.5.2
-        version: 15.5.2(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
+        specifier: 15.5.3
+        version: 15.5.3(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
       '@swan-io/request':
         specifier: 3.1.0
         version: 3.1.0(@swan-io/boxed@3.2.1(typescript@7.0.2))
       '@swan-io/shared-business':
-        specifier: 15.5.2
-        version: 15.5.2(@swan-io/lake@15.5.2(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
+        specifier: 15.5.3
+        version: 15.5.3(@swan-io/lake@15.5.3(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@19.2.6)(typescript@7.0.2)
@@ -256,14 +256,14 @@ importers:
         specifier: 0.8.0
         version: 0.8.0(graphql@16.12.0)(react@19.2.6)(typescript@7.0.2)
       '@swan-io/lake':
-        specifier: 15.5.2
-        version: 15.5.2(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
+        specifier: 15.5.3
+        version: 15.5.3(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
       '@swan-io/request':
         specifier: 3.1.0
         version: 3.1.0(@swan-io/boxed@3.2.1(typescript@7.0.2))
       '@swan-io/shared-business':
-        specifier: 15.5.2
-        version: 15.5.2(@swan-io/lake@15.5.2(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
+        specifier: 15.5.3
+        version: 15.5.3(@swan-io/lake@15.5.3(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@19.2.6)(typescript@7.0.2)
@@ -335,14 +335,14 @@ importers:
         specifier: 0.8.0
         version: 0.8.0(graphql@16.12.0)(react@19.2.6)(typescript@7.0.2)
       '@swan-io/lake':
-        specifier: 15.5.2
-        version: 15.5.2(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
+        specifier: 15.5.3
+        version: 15.5.3(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
       '@swan-io/request':
         specifier: 3.1.0
         version: 3.1.0(@swan-io/boxed@3.2.1(typescript@7.0.2))
       '@swan-io/shared-business':
-        specifier: 15.5.2
-        version: 15.5.2(@swan-io/lake@15.5.2(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
+        specifier: 15.5.3
+        version: 15.5.3(@swan-io/lake@15.5.3(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@19.2.6)(typescript@7.0.2)
@@ -2799,8 +2799,8 @@ packages:
     peerDependencies:
       react: '>=18.2.0'
 
-  '@swan-io/lake@15.5.2':
-    resolution: {integrity: sha512-T+L8cZx1jwF1l7r4wDdjv5f4C1TAX5fi3p3c2gOaXO0WdCtsO/X7qXHWwp2xS941fUAVSMaOVxYGnm8vdQgsSg==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-15.5.2.tgz}
+  '@swan-io/lake@15.5.3':
+    resolution: {integrity: sha512-h7hsuxkTZCoDOI2xngS7VQ67+rF8XzKnh5zINAW7i1cFzp1JDN/tenH6jvn5g8BKaLptzIj03PeplnkrczYmdA==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-15.5.3.tgz}
     engines: {node: '>22.12.0'}
     peerDependencies:
       react: '>=19.0.0'
@@ -2813,11 +2813,11 @@ packages:
     peerDependencies:
       '@swan-io/boxed': '>=2.2.1'
 
-  '@swan-io/shared-business@15.5.2':
-    resolution: {integrity: sha512-QVwj42T+/3NhOontANGxAp2VvTElAQIlECc/un7+gR49y6LM+C4V+xB+Zs3jShhwGb0gYTDhiSkO41RaGKrCZQ==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-15.5.2.tgz}
+  '@swan-io/shared-business@15.5.3':
+    resolution: {integrity: sha512-5GdjUFsr3vPU1Oc+E1C80c+CVBFCy4ZyfBv7UEw/htMoJ3k6fm9nijrDSZPDK5zoEzJ4Zneiz9ZPDVy9YuRf5A==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-15.5.3.tgz}
     engines: {node: '>22.12.0'}
     peerDependencies:
-      '@swan-io/lake': 15.5.2
+      '@swan-io/lake': 15.5.3
       react: '>=19.0.0'
       react-dom: '>=19.0.0'
       react-native-web: '>=0.21.2'
@@ -8540,7 +8540,7 @@ snapshots:
       - graphql
       - typescript
 
-  '@swan-io/lake@15.5.2(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)':
+  '@swan-io/lake@15.5.3(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)':
     dependencies:
       '@swan-io/boxed': 3.2.1(typescript@7.0.2)
       '@swan-io/chicane': 3.0.0(react@19.2.6)
@@ -8560,12 +8560,12 @@ snapshots:
     dependencies:
       '@swan-io/boxed': 3.2.1(typescript@7.0.2)
 
-  '@swan-io/shared-business@15.5.2(@swan-io/lake@15.5.2(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)':
+  '@swan-io/shared-business@15.5.3(@swan-io/lake@15.5.3(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)':
     dependencies:
       '@formatjs/intl': 4.1.19
       '@placekit/client-js': 2.3.0
       '@swan-io/boxed': 3.2.1(typescript@7.0.2)
-      '@swan-io/lake': 15.5.2(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
+      '@swan-io/lake': 15.5.3(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
       '@swan-io/request': 3.1.0(@swan-io/boxed@3.2.1(typescript@7.0.2))
       '@swan-io/use-form': 3.1.0(react@19.2.6)(typescript@7.0.2)
       dayjs: 1.11.23

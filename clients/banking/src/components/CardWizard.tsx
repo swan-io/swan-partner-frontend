@@ -444,9 +444,7 @@ export const CardWizard = ({
             cardProduct => showDeferredDebitCard || cardProduct.fundingType === "Debit",
           )
         : projectCardProducts.filter(
-            cardProduct =>
-              cardProduct.fundingType === "Debit" &&
-              cardProduct.insurance?.defaultInsurancePackage == null,
+            cardProduct => cardProduct.fundingType === "Debit" && cardProduct.cardPackage == null,
           );
 
       const canOrderPhysicalCard = step.cardFormat === "VirtualAndPhysical";

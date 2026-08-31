@@ -8,7 +8,6 @@ import { SegmentedControl } from "@swan-io/lake/src/components/SegmentedControl"
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors, radii, spacings } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
-import { useDisclosure } from "@swan-io/lake/src/hooks/useDisclosure";
 import { ChoicePicker } from "@swan-io/shared-business/src/components/ChoicePicker";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import {
@@ -31,8 +30,7 @@ import {
 import { match } from "ts-pattern";
 import { Except } from "type-fest";
 import {
-  CardInsurancePackage,
-  CardInsurancePackageLevel,
+  CardPackageLevel,
   CardProductFundingType,
   CreditLimitStatus,
   GetCardProductsQuery,
@@ -125,14 +123,11 @@ const IMAGE_STYLE: CSSProperties = {
 // const INSURANCE_DOCS_URL = "https://support.swan.io/hc/en-150/articles/27554041478301-Card-insurance";
 const INSURANCE_DOCS_URL = null; // undefined at the moment until the page is published
 
-const getTitleModal = (insuranceType: CardInsurancePackage) => {
-  return match(insuranceType)
-    .with({ level: "Basic" }, { level: "Standard" }, () =>
-      t("cardProducts.insurance.titleModal.standard"),
-    )
-    .with({ level: "Custom" }, () => t("cardProducts.insurance.titleModal.custom"))
-    .with({ level: "Premium" }, () => t("cardProducts.insurance.titleModal.premium"))
-    .with({ level: "Essential" }, () => t("cardProducts.insurance.titleModal.essential"))
+const getTitleModal = (packageLevel: CardPackageLevel) => {
+  return match(packageLevel)
+    .with("Standard", () => t("cardProducts.insurance.titleModal.standard"))
+    .with("Premium", () => t("cardProducts.insurance.titleModal.premium"))
+    .with("Essential", () => t("cardProducts.insurance.titleModal.essential"))
     .exhaustive();
 };
 type CardProduct = NonNullable<GetCardProductsQuery["projectInfo"]["cardProducts"]>[number];
@@ -175,10 +170,10 @@ const YES_ICON = (
 );
 
 type CardInsuranceDetailProps = {
-  insuranceLevel: Exclude<CardInsurancePackageLevel, "Custom">;
+  packageLevel: CardPackageLevel;
 };
 
-const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps) => {
+const CardInsuranceDetail = ({ packageLevel }: CardInsuranceDetailProps) => {
   return (
     <>
       <Space height={16} />
@@ -191,8 +186,8 @@ const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps) => {
                 <LakeText variant="semibold">{t("cardProducts.insurance.coverage")}</LakeText>
               </Th>
               <Th style={[styles.cell, styles.lastCell]}>
-                {match(insuranceLevel)
-                  .with("Basic", "Standard", () => (
+                {match(packageLevel)
+                  .with("Standard", () => (
                     <LakeText variant="semibold">{t("cardProducts.insurance.Standard")}</LakeText>
                   ))
                   .with("Premium", () => (
@@ -210,8 +205,8 @@ const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps) => {
               <Td style={styles.cell}>
                 <LakeText>{t("cardProducts.insurance.coverage.id")}</LakeText>
               </Td>
-              {match(insuranceLevel)
-                .with("Basic", "Standard", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+              {match(packageLevel)
+                .with("Standard", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .with("Premium", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .with("Essential", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .otherwise(() => null)}
@@ -220,8 +215,8 @@ const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps) => {
               <Td style={styles.cell}>
                 <LakeText>{t("cardProducts.insurance.coverage.eReputation")}</LakeText>
               </Td>
-              {match(insuranceLevel)
-                .with("Basic", "Standard", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+              {match(packageLevel)
+                .with("Standard", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .with("Premium", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .with("Essential", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .otherwise(() => null)}
@@ -230,8 +225,8 @@ const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps) => {
               <Td style={styles.cell}>
                 <LakeText>{t("cardProducts.insurance.coverage.fraudTransaction")}</LakeText>
               </Td>
-              {match(insuranceLevel)
-                .with("Basic", "Standard", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+              {match(packageLevel)
+                .with("Standard", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .with("Premium", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .with("Essential", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .otherwise(() => null)}
@@ -240,8 +235,8 @@ const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps) => {
               <Td style={styles.cell}>
                 <LakeText>{t("cardProducts.insurance.coverage.fraudPhishing")}</LakeText>
               </Td>
-              {match(insuranceLevel)
-                .with("Basic", "Standard", () => <Td style={styles.cell}>{YES_ICON}</Td>)
+              {match(packageLevel)
+                .with("Standard", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .with("Premium", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .with("Essential", () => <Td style={styles.cell}>{YES_ICON}</Td>)
                 .otherwise(() => null)}
@@ -252,8 +247,8 @@ const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps) => {
                   {t("cardProducts.insurance.coverage.travelModificationCancelation")}
                 </LakeText>
               </Td>
-              {match(insuranceLevel)
-                .with("Basic", "Standard", () => (
+              {match(packageLevel)
+                .with("Standard", () => (
                   <Td style={[styles.cell, styles.centered]}>
                     <LakeText color={colors.gray[200]}>—</LakeText>
                   </Td>
@@ -266,8 +261,8 @@ const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps) => {
               <Td style={styles.cell}>
                 <LakeText>{t("cardProducts.insurance.coverage.travelRental")}</LakeText>
               </Td>
-              {match(insuranceLevel)
-                .with("Basic", "Standard", () => (
+              {match(packageLevel)
+                .with("Standard", () => (
                   <Td style={[styles.cell, styles.centered]}>
                     <LakeText color={colors.gray[200]}>—</LakeText>
                   </Td>
@@ -280,8 +275,8 @@ const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps) => {
               <Td style={styles.cell}>
                 <LakeText>{t("cardProducts.insurance.coverage.travelDelay")}</LakeText>
               </Td>
-              {match(insuranceLevel)
-                .with("Basic", "Standard", () => (
+              {match(packageLevel)
+                .with("Standard", () => (
                   <Td style={[styles.cell, styles.centered]}>
                     <LakeText color={colors.gray[200]}>—</LakeText>
                   </Td>
@@ -294,8 +289,8 @@ const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps) => {
               <Td style={styles.cell}>
                 <LakeText>{t("cardProducts.insurance.coverage.travelBagages")}</LakeText>
               </Td>
-              {match(insuranceLevel)
-                .with("Basic", "Standard", () => (
+              {match(packageLevel)
+                .with("Standard", () => (
                   <Td style={[styles.cell, styles.centered]}>
                     <LakeText color={colors.gray[200]}>—</LakeText>
                   </Td>
@@ -312,8 +307,8 @@ const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps) => {
               <Td style={[styles.cell, styles.lastCell]}>
                 <LakeText>{t("cardProducts.insurance.coverage.medicalExpensesAbroad")}</LakeText>
               </Td>
-              {match(insuranceLevel)
-                .with("Basic", "Standard", () => (
+              {match(packageLevel)
+                .with("Standard", () => (
                   <Td style={[styles.cell, styles.centered, styles.lastCell]}>
                     <LakeText color={colors.gray[200]}>—</LakeText>
                   </Td>
@@ -338,8 +333,8 @@ const CardInsuranceDetail = ({ insuranceLevel }: CardInsuranceDetailProps) => {
             <Link style={styles.link} to={INSURANCE_DOCS_URL} target="blank">
               <Box direction="row" alignItems="center">
                 <LakeText color={colors.current.primary}>
-                  {match(insuranceLevel)
-                    .with("Basic", "Standard", () => t("cardDetail.insurance.readMore.basic"))
+                  {match(packageLevel)
+                    .with("Standard", () => t("cardDetail.insurance.readMore.basic"))
                     .with("Premium", () => t("cardDetail.insurance.readMore.premium"))
                     .with("Essential", () => t("cardDetail.insurance.readMore.essential"))
                     .otherwise(() => null)}
@@ -415,8 +410,7 @@ export const CardWizardProduct = ({
     setCurrentCardProduct(defaultCardProduct ?? displayedCardProducts[0]);
   }, [displayedCardProducts]);
 
-  const [opened, setOpened] = useDisclosure(false);
-  const [insuranceType, setInsuranceType] = useState<CardInsurancePackage>();
+  const [openedPackageLevel, setOpenedPackageLevel] = useState<CardPackageLevel | null>(null);
   return (
     <>
       {hasDeferredCardProductsDebit && (
@@ -439,9 +433,7 @@ export const CardWizardProduct = ({
         renderItem={cardProduct => {
           const cardDesign = cardProduct.cardDesigns.find(item => item.status === "Enabled");
           const cardDesignUrl = cardDesign?.cardDesignUrl;
-          const defaultInsurancePackage =
-            cardProduct.insurance?.defaultInsurancePackage ??
-            cardProduct.insurance?.availableInsurancePackages?.[0];
+          const cardPackage = cardProduct.cardPackage ?? null;
 
           return (
             <View style={styles.item}>
@@ -512,7 +504,7 @@ export const CardWizardProduct = ({
                 </>
               ) : null}
 
-              {defaultInsurancePackage != null && accountHolderType === "Company" && (
+              {cardPackage != null && accountHolderType === "Company" && (
                 <>
                   <Space height={12} />
 
@@ -521,27 +513,22 @@ export const CardWizardProduct = ({
                     {": "}
                     <Box direction="row" alignItems="center">
                       <LakeText variant="semibold" color={colors.gray[900]}>
-                        {match(defaultInsurancePackage)
-                          .with({ level: "Basic" }, { level: "Standard" }, () =>
-                            t("cardProducts.insurance.Standard"),
-                          )
-                          .with({ level: "Essential" }, () => t("cardProducts.insurance.Essential"))
-                          .with({ level: "Premium" }, () => t("cardProducts.insurance.Premium"))
+                        {match(cardPackage)
+                          .with("Standard", () => t("cardProducts.insurance.Standard"))
+                          .with("Essential", () => t("cardProducts.insurance.Essential"))
+                          .with("Premium", () => t("cardProducts.insurance.Premium"))
                           .otherwise(() => null)}
                       </LakeText>
 
                       <Space width={4} />
 
-                      {defaultInsurancePackage.level !== "Custom" && (
-                        <Pressable
-                          onPress={() => {
-                            setInsuranceType(defaultInsurancePackage);
-                            setOpened.open();
-                          }}
-                        >
-                          <Icon name="info-regular" size={16} color={colors.gray[600]} />
-                        </Pressable>
-                      )}
+                      <Pressable
+                        onPress={() => {
+                          setOpenedPackageLevel(cardPackage);
+                        }}
+                      >
+                        <Icon name="info-regular" size={16} color={colors.gray[600]} />
+                      </Pressable>
                     </Box>
                   </CardProductLine>
                 </>
@@ -602,15 +589,15 @@ export const CardWizardProduct = ({
         </Box>
       </LakeModal>
 
-      {insuranceType !== undefined && insuranceType.level !== "Custom" && (
+      {openedPackageLevel != null && (
         <LakeModal
-          onPressClose={setOpened.close}
-          visible={opened}
+          onPressClose={() => setOpenedPackageLevel(null)}
+          visible={openedPackageLevel != null}
           icon="shield-checkmark-regular"
-          title={getTitleModal(insuranceType)}
+          title={getTitleModal(openedPackageLevel)}
           maxWidth={800}
         >
-          <CardInsuranceDetail insuranceLevel={insuranceType.level} />
+          <CardInsuranceDetail packageLevel={openedPackageLevel} />
         </LakeModal>
       )}
     </>

@@ -2114,12 +2114,6 @@ query GetCardProducts(
   }
 }
 
-fragment CardInsurancePackage on CardInsurancePackage {
-  id
-  name
-  level
-  noticeUrl
-}
 fragment CardProduct on CardProduct {
   __typename
   id
@@ -2166,14 +2160,7 @@ fragment CardProduct on CardProduct {
       updatedAt
     }
   }
-  insurance {
-    defaultInsurancePackage {
-      ...CardInsurancePackage
-    }
-    availableInsurancePackages {
-      ...CardInsurancePackage
-    }
-  }
+  cardPackage
   defaultCardProduct
 }
 

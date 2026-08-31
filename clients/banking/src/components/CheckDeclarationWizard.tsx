@@ -19,7 +19,7 @@ import {
   radii,
   spacings,
 } from "@swan-io/lake/src/constants/design";
-import { useDisclosure } from "@swan-io/lake/src/hooks/useDisclosure";
+import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { getRifmProps } from "@swan-io/lake/src/utils/rifm";
@@ -168,7 +168,7 @@ const DeclaredCheck = ({
   large: boolean;
   title: string;
 }) => {
-  const [opened, setOpened] = useDisclosure(false);
+  const [opened, setOpened] = useBoolean(false);
 
   return (
     <Tile
@@ -230,7 +230,7 @@ type Props = {
 export const CheckDeclarationWizard = ({ merchantProfileId, params }: Props) => {
   const [declaredChecks, setDeclaredChecks] = useState<DeclaredCheck[]>([]);
   const [fnciError, setFnciError] = useState<FnciInfoFragment>();
-  const [helpModalVisible, setHelpModal] = useDisclosure(false);
+  const [helpModalVisible, setHelpModal] = useBoolean(false);
 
   const hasDeclaredChecks = declaredChecks.length > 0;
 
@@ -440,7 +440,7 @@ export const CheckDeclarationWizard = ({ merchantProfileId, params }: Props) => 
                     size="small"
                     color="gray"
                     icon="question-circle-regular"
-                    onPress={setHelpModal.open}
+                    onPress={setHelpModal.on}
                     ariaLabel={t("common.help.whatIsThis")}
                   />
                 }
@@ -481,7 +481,7 @@ export const CheckDeclarationWizard = ({ merchantProfileId, params }: Props) => 
                     color="gray"
                     icon="question-circle-regular"
                     ariaLabel={t("common.help.whatIsThis")}
-                    onPress={setHelpModal.open}
+                    onPress={setHelpModal.on}
                   />
                 }
                 render={id => (
@@ -547,7 +547,7 @@ export const CheckDeclarationWizard = ({ merchantProfileId, params }: Props) => 
           <LakeModal
             title={t("check.form.modal.title")}
             visible={helpModalVisible}
-            onPressClose={setHelpModal.close}
+            onPressClose={setHelpModal.off}
           >
             <Space height={8} />
 

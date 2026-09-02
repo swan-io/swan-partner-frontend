@@ -118,7 +118,7 @@ const textMapPropagator = new CompositePropagator({
   propagators: [new W3CTraceContextPropagator()],
 });
 
-const serviceName = process.env.TRACING_SERVICE_NAME;
+const serviceName = process.env.OTEL_SERVICE_NAME;
 const METRICS_PORT = Number(process.env.OTEL_EXPORTER_PROMETHEUS_PORT ?? 9464);
 
 if (serviceName != null) {

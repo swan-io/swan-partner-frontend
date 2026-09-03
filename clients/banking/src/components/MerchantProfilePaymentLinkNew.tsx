@@ -231,7 +231,7 @@ export const MerchantProfilePaymentLinkNew = ({
         .with(
           {
             statusInfo: { status: "Enabled" },
-            type: "Card",
+            type: P.union("Card", "OnlineCard"),
           },
           () => Option.Some(paymentMethod),
         )
@@ -393,7 +393,7 @@ export const MerchantProfilePaymentLinkNew = ({
         return;
       }
 
-      if (paymentMethod.type === "Card") {
+      if (paymentMethod.type === "Card" || paymentMethod.type === "OnlineCard") {
         url.searchParams.append("card", "true");
       }
       if (

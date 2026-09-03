@@ -27,6 +27,7 @@ const styles = StyleSheet.create({
 
 const ALLOWED_PAYMENT_METHODS = new Set<MerchantPaymentMethodType>([
   "Card",
+  "OnlineCard",
   "SepaDirectDebitB2b",
   "SepaDirectDebitCore",
 ]);

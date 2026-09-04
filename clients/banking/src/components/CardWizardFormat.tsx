@@ -62,7 +62,7 @@ export const CardWizardFormat = ({ ref, cardProduct, initialCardFormat, onSubmit
     ...(cardProduct.applicableToPhysicalCards && canOrderPhysicalCard
       ? ["VirtualAndPhysical" as const]
       : []),
-    "SingleUseVirtual",
+    ...(cardProduct.cardPackage == null ? ["SingleUseVirtual" as const] : []),
   ];
 
   return (

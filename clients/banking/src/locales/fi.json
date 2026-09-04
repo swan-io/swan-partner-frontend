@@ -1629,6 +1629,8 @@
   "transfer.bulk.review": "Tarkista siirtojesi tiedot",
   "transfer.bulk.uploadFile": "Lataa tiedosto",
   "transfer.bulk.youSendExactly": "Siirrät tarkalleen {amount}",
+  "transfer.consent.error.beneficiaryPermission.description": "Et voi tehdä siirtoa vastaanottajille, jotka eivät ole luotettujen vastaanottajien listalla. Ota yhteyttä tilin ylläpitäjään, jotta hän voi päivittää oikeutesi tälle tilille.",
+  "transfer.consent.error.beneficiaryPermission.title": "Sinulla ei ole riittäviä oikeuksia",
   "transfer.consent.error.canceled.title": "Siirto peruttu.",
   "transfer.consent.error.rejected.description": "Meillä on tekninen virhe. Odota muutama minuutti ja yritä uudelleen.",
   "transfer.consent.error.rejected.title": "Siirto hylätty.",

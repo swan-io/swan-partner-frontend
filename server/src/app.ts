@@ -61,6 +61,7 @@ const keys = {
   cert: path.join(keysPath, "_wildcard.swan.local.pem"),
 };
 
+// Mirrored by `INACTIVITY_LIMIT` in `clients/banking/src/hooks/useSessionKeepAlive.ts`
 const COOKIE_MAX_AGE = 60 * (env.NODE_ENV !== "test" ? 5 : 60); // 5 minutes (except for tests)
 const OAUTH_STATE_COOKIE_MAX_AGE = 900; // 15 minutes
 

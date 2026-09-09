@@ -6,7 +6,8 @@ import { Router } from "../utils/routes";
 
 const PING_INTERVAL = 30000; // 30s
 
-const AUTO_SIGNOUT_INTERVAL = 300000; // 5min
+// Mirrors `COOKIE_MAX_AGE` in `server/src/app.ts`
+const INACTIVITY_LIMIT = 300000; // 5min
 
 const ping = () => {
   Request.make({ url: "/api/ping", method: "POST", credentials: "include", type: "text" });
@@ -38,36 +39,29 @@ export const useSessionKeepAlive = (enabled: boolean) => {
     }
 
     const handleActivity = () => {
-      const now = Date.now();
-      writeLastActivity(now);
+      writeLastActivity(Date.now());
     };
 
     const onInterval = () => {
-      readLastActivity().match({
-        Some: lastActivity => {
-          const now = Date.now();
-          if (now - lastActivity > AUTO_SIGNOUT_INTERVAL) {
-            signout();
-            return;
-          }
-          ping();
-        },
-        None: () => {
-          signout();
-        },
-      });
+      const now = Date.now();
+      const lastActivity = readLastActivity().getOr(now);
+      if (now - lastActivity > INACTIVITY_LIMIT) {
+        signout();
+        return;
+      }
+      ping();
     };
 
     const intervalId = setInterval(onInterval, PING_INTERVAL);
     onInterval();
 
-    window.addEventListener("pointerdown", handleActivity);
-    window.addEventListener("keydown", handleActivity);
+    window.addEventListener("pointerdown", handleActivity, { capture: true, passive: true });
+    window.addEventListener("keydown", handleActivity, { capture: true, passive: true });
 
     return () => {
       clearInterval(intervalId);
-      window.removeEventListener("pointerdown", handleActivity);
-      window.removeEventListener("keydown", handleActivity);
+      window.removeEventListener("pointerdown", handleActivity, { capture: true });
+      window.removeEventListener("keydown", handleActivity, { capture: true });
     };
   }, [enabled]);
 };

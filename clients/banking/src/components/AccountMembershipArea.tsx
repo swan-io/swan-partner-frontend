@@ -1,7 +1,6 @@
 import { AsyncData, Option, Result } from "@swan-io/boxed";
 import { useDeferredQuery, useMutation } from "@swan-io/graphql-client";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
-import { Request } from "@swan-io/request";
 import { useCallback, useEffect, useMemo } from "react";
 import { match, P } from "ts-pattern";
 import {
@@ -10,6 +9,7 @@ import {
   UpdateAccountLanguageDocument,
 } from "../graphql/partner";
 import { PermissionProvider } from "../hooks/usePermissions";
+import { useSessionKeepAlive } from "../hooks/useSessionKeepAlive";
 import { getIdentificationLevelStatusInfo } from "../utils/identification";
 import { Router } from "../utils/routes";
 import { AccountArea } from "./AccountArea";
@@ -19,8 +19,6 @@ import { ErrorView } from "./ErrorView";
 type Props = {
   accountMembershipId: string;
 };
-
-const COOKIE_REFRESH_INTERVAL = 30000; // 30s
 
 export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
   const [data, { query }] = useDeferredQuery(AccountAreaDocument);
@@ -93,16 +91,7 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
     });
   }, [accountMembershipId, query, queryLastIdentification, updateAccountLanguage]);
 
-  // Call API to extend cookie TTL
-  useEffect(() => {
-    const tick = () => {
-      Request.make({ url: "/api/ping", method: "POST", credentials: "include", type: "text" });
-    };
-    const intervalId = setInterval(tick, COOKIE_REFRESH_INTERVAL);
-    // Run the ping directly on mount
-    tick();
-    return () => clearInterval(intervalId);
-  }, []);
+  useSessionKeepAlive();
 
   const info = useMemo(
     () =>

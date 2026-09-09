@@ -41,7 +41,6 @@ import {
   RequestCreditLimitSettingsDocument,
 } from "../graphql/partner";
 import { PermissionProvider } from "../hooks/usePermissions";
-import { useSessionKeepAlive } from "../hooks/useSessionKeepAlive";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { getPendingCreditLimitAmount, getRefusedCreditLimitAmount } from "../utils/creditLimit";
 import { formatCurrency, formatNestedMessage, t } from "../utils/i18n";
@@ -122,8 +121,6 @@ export const CreditLimitRequest = ({ accountId, from, requestAgain }: Props) => 
       })
       .otherwise(() => {});
   }, [accountId, data, setVariables]);
-
-  useSessionKeepAlive();
 
   return match(data)
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView />)

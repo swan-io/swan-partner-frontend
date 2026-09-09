@@ -30,7 +30,6 @@ import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { AccountClosingDocument, CloseAccountDocument } from "../graphql/partner";
 import { PermissionProvider } from "../hooks/usePermissions";
-import { useSessionKeepAlive } from "../hooks/useSessionKeepAlive";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { env } from "../utils/env";
 import { formatNestedMessage, languages, locale, setPreferredLanguage, t } from "../utils/i18n";
@@ -335,8 +334,6 @@ export const AccountClose = ({ accountId, resourceId, status }: Props) => {
       })
       .otherwise(() => {});
   }, [accountId, data, setVariables]);
-
-  useSessionKeepAlive();
 
   return match(data)
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView />)

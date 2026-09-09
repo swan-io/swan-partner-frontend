@@ -7,10 +7,14 @@ const PING_INTERVAL = 30000; // 30s
  * Pings the server periodically to extend the session cookie TTL.
  *
  * Each `/api/*` call resets the `swan_session_id` cookie `maxAge`, so the ping
- * keeps the session alive as long as the page stays mounted.
+ * keeps the session alive as long as `enabled` stays true.
  */
-export const useSessionKeepAlive = () => {
+export const useSessionKeepAlive = (enabled: boolean) => {
   useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
     const ping = () => {
       Request.make({ url: "/api/ping", method: "POST", credentials: "include", type: "text" });
     };
@@ -20,5 +24,5 @@ export const useSessionKeepAlive = () => {
     ping();
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [enabled]);
 };

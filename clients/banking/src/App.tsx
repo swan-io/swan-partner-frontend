@@ -16,6 +16,7 @@ import { ProjectRootRedirect } from "./components/ProjectRootRedirect";
 import { Redirect } from "./components/Redirect";
 import { VerificationRenewalArea } from "./components/VerificationRenewal/VerificationRenewalArea";
 import { AuthStatusDocument } from "./graphql/partner";
+import { useSessionKeepAlive } from "./hooks/useSessionKeepAlive";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { ProjectLoginPage } from "./pages/ProjectLoginPage";
 import { FlagsProvider, useFlag } from "./utils/flags";
@@ -50,6 +51,10 @@ const AppContainer = () => {
   const loginInfo = authStatus
     .mapOk(data => data.user?.id != null)
     .map(result => ({ isLoggedIn: result.getOr(false) }));
+
+  // Extend the session cookie TTL for the whole app, as long as the user is logged in
+  const isLoggedIn = loginInfo.map(({ isLoggedIn }) => isLoggedIn).getOr(false);
+  useSessionKeepAlive(isLoggedIn);
 
   return match(loginInfo)
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => null)

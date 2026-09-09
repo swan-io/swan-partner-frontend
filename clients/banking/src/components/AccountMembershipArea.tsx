@@ -9,7 +9,6 @@ import {
   UpdateAccountLanguageDocument,
 } from "../graphql/partner";
 import { PermissionProvider } from "../hooks/usePermissions";
-import { useSessionKeepAlive } from "../hooks/useSessionKeepAlive";
 import { getIdentificationLevelStatusInfo } from "../utils/identification";
 import { Router } from "../utils/routes";
 import { AccountArea } from "./AccountArea";
@@ -90,8 +89,6 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
       }
     });
   }, [accountMembershipId, query, queryLastIdentification, updateAccountLanguage]);
-
-  useSessionKeepAlive();
 
   const info = useMemo(
     () =>

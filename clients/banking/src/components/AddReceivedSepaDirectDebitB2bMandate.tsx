@@ -38,7 +38,6 @@ import {
   AddReceivedSepaDirectDebitB2bMandateInput,
   SepaReceivedDirectDebitMandateSequence,
 } from "../graphql/partner";
-import { useSessionKeepAlive } from "../hooks/useSessionKeepAlive";
 import { formatNestedMessage, languages, locale, setPreferredLanguage, t } from "../utils/i18n";
 import {
   validateCreditorIdentifier,
@@ -111,8 +110,6 @@ export const AddReceivedSepaDirectDebitB2bMandate = ({ accountId, resourceId, st
   const [addReceivedSepaDirectDebitB2bMandate] = useMutation(
     AddReceivedSepaDirectDebitB2bMandateDocument,
   );
-
-  useSessionKeepAlive();
 
   const [isCanceled, setIsCanceled] = useState(false);
   const state = isCanceled

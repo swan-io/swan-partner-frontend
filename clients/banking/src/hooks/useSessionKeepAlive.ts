@@ -1,7 +1,7 @@
 import { getLocation } from "@swan-io/chicane";
 import { badStatusToError, Request } from "@swan-io/request";
 import { useEffect } from "react";
-import { readLastActivity, writeLastActivity } from "../utils/lastActivity";
+import { clearLastActivity, readLastActivity, writeLastActivity } from "../utils/lastActivity";
 import { Router } from "../utils/routes";
 
 const PING_INTERVAL = 30000; // 30s
@@ -16,14 +16,15 @@ const ping = () => {
 const signout = () => {
   Request.make({ url: "/auth/logout", method: "POST", credentials: "include", type: "text" })
     .mapOkToResult(badStatusToError)
-    .tapOk(() =>
+    .tapOk(() => {
+      clearLastActivity();
       window.location.replace(
         Router.ProjectLogin({
           sessionExpired: "true",
           redirectTo: getLocation().toString(),
         }),
-      ),
-    );
+      );
+    });
 };
 
 /**
@@ -39,19 +40,25 @@ export const useSessionKeepAlive = (enabled: boolean) => {
     }
 
     const handleActivity = () => {
-      writeLastActivity(Date.now());
+      const now = Date.now();
+      writeLastActivity(now);
     };
 
     const onInterval = () => {
       const now = Date.now();
-      const lastActivity = readLastActivity().getOr(now);
-      if (now - lastActivity > INACTIVITY_LIMIT) {
-        signout();
-        return;
-      }
+      readLastActivity().match({
+        Some: lastActivity => {
+          if (now - lastActivity > INACTIVITY_LIMIT) {
+            signout();
+            return;
+          }
+        },
+        None: () => {},
+      });
       ping();
     };
 
+    handleActivity(); // Initialize "last activity" timestamp on mount
     const intervalId = setInterval(onInterval, PING_INTERVAL);
     onInterval();
 

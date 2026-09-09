@@ -1,7 +1,8 @@
-import { Request } from "@swan-io/request";
+import { getLocation } from "@swan-io/chicane";
+import { badStatusToError, Request } from "@swan-io/request";
 import { useEffect } from "react";
-import { readLastActivity, writeLastActivity } from "../utils/lastActivity";
-import { signout } from "../utils/signout";
+import { clearLastActivity, readLastActivity, writeLastActivity } from "../utils/lastActivity";
+import { Router } from "../utils/routes";
 
 const PING_INTERVAL = 30000; // 30s
 
@@ -10,6 +11,17 @@ const INACTIVITY_LIMIT = 300000; // 5min
 
 const ping = () => {
   Request.make({ url: "/api/ping", method: "POST", credentials: "include", type: "text" });
+};
+
+const signout = () => {
+  Request.make({ url: "/auth/logout", method: "POST", credentials: "include", type: "text" })
+    .mapOkToResult(badStatusToError)
+    .tapOk(() => {
+      clearLastActivity();
+      window.location.replace(
+        Router.ProjectLogin({ sessionExpired: "true", redirectTo: getLocation().toString() }),
+      );
+    });
 };
 
 /**
@@ -38,6 +50,8 @@ export const useSessionKeepAlive = (enabled: boolean) => {
             ping();
           }
         },
+        // This could happen only if another tab logged out and cleared the last activity timestamp
+        // Before last activity is set before the interval is started
         None: () => {},
       });
     };

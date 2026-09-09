@@ -7,7 +7,7 @@ import { Router } from "../utils/routes";
 const PING_INTERVAL = 30000; // 30s
 
 // Mirrors `COOKIE_MAX_AGE` in `server/src/app.ts`
-const INACTIVITY_LIMIT = 300000; // 5min
+const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5min
 
 const ping = () => {
   Request.make({ url: "/api/ping", method: "POST", credentials: "include", type: "text" });

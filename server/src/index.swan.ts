@@ -240,9 +240,17 @@ start({
               )
               .otherwise(error => request.log.error(error));
 
+            const errorMessage = match(error as unknown)
+              .with(
+                { payload: { response: { errors: [{ message: P.string.select() }] } } },
+                message => message,
+              )
+              .otherwise(() => undefined);
+
             return replyWithError(app, request, reply, {
               status: 400,
               requestId: request.id,
+              message: errorMessage,
             });
           })
           .map(() => undefined);

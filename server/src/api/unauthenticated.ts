@@ -9,10 +9,20 @@ const sdk = getSdk(new GraphQLClient(env.UNAUTHENTICATED_API_URL, { fetch: fetch
 
 export class ServerError extends Error {
   tag = "ServerError";
+  payload: unknown;
+
+  constructor(payload: unknown) {
+    super("Server error");
+    this.payload = payload;
+  }
+
+  toString() {
+    return `ServerError: ${JSON.stringify(this.payload)}`;
+  }
 }
 
 const toFuture = <T>(promise: Promise<T>): Future<Result<T, ServerError>> => {
-  return Future.fromPromise(promise).mapError(error => new ServerError(JSON.stringify(error)));
+  return Future.fromPromise(promise).mapError(error => new ServerError(error));
 };
 
 export class OnboardingRejectionError extends Error {

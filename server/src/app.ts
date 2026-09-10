@@ -525,9 +525,17 @@ export const start = async (config: AppConfig) => {
             )
             .otherwise(error => request.log.error(error, "Failed to start individual onboarding"));
 
+          const errorMessage = match(error as unknown)
+            .with(
+              { payload: { response: { errors: [{ message: P.string.select() }] } } },
+              message => message,
+            )
+            .otherwise(() => undefined);
+
           return replyWithError(app, request, reply, {
             status: 400,
             requestId: String(request.id),
+            message: errorMessage,
           });
         })
         .map(() => undefined);

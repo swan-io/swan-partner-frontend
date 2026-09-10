@@ -1629,6 +1629,8 @@
   "transfer.bulk.review": "Controleer de details van je overschrijvingen.",
   "transfer.bulk.uploadFile": "Upload je bestand.",
   "transfer.bulk.youSendExactly": "Je verstuurt precies: {amount}",
+  "transfer.consent.error.beneficiaryPermission.description": "Je kunt geen overschrijving doen naar begunstigden die niet op de lijst met vertrouwde begunstigden staan. Neem contact op met de beheerder van je account om je machtigingen voor deze rekening bij te werken.",
+  "transfer.consent.error.beneficiaryPermission.title": "Je hebt niet voldoende machtigingen",
   "transfer.consent.error.canceled.title": "Overschrijving geannuleerd.",
   "transfer.consent.error.rejected.description": "Er was een technisch probleem aan onze kant. Wacht een paar minuten en probeer het opnieuw.",
   "transfer.consent.error.rejected.title": "Overschrijving afgewezen.",

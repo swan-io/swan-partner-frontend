@@ -1,13 +1,19 @@
 import { getLocation } from "@swan-io/chicane";
 import { badStatusToError, Request } from "@swan-io/request";
 import { useEffect } from "react";
-import { clearLastActivity, readLastActivity, writeLastActivity } from "../utils/lastActivity";
+import {
+  clearLastActivity,
+  LAST_ACTIVITY_KEY,
+  readLastActivity,
+  writeLastActivity,
+} from "../utils/lastActivity";
 import { Router } from "../utils/routes";
 
 const PING_INTERVAL = 30000; // 30s
 
 // Mirrors `COOKIE_MAX_AGE` in `server/src/app.ts`
-const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5min
+// const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5min
+const INACTIVITY_LIMIT = 1 * 60 * 1000; // 1min
 
 const ping = () => {
   Request.make({ url: "/api/ping", method: "POST", credentials: "include", type: "text" });
@@ -56,15 +62,26 @@ export const useSessionKeepAlive = (enabled: boolean) => {
       });
     };
 
+    const onStorageChange = (event: StorageEvent) => {
+      // if last activity key is removed from localStorage, it means another tab logged out
+      if (event.key === LAST_ACTIVITY_KEY && event.newValue == null) {
+        window.location.replace(
+          Router.ProjectLogin({ sessionExpired: "true", redirectTo: getLocation().toString() }),
+        );
+      }
+    };
+
     handleActivity(); // Initialize "last activity" timestamp on mount
     const intervalId = setInterval(onInterval, PING_INTERVAL);
     onInterval();
 
+    window.addEventListener("storage", onStorageChange);
     window.addEventListener("pointerdown", handleActivity, { capture: true, passive: true });
     window.addEventListener("keydown", handleActivity, { capture: true, passive: true });
 
     return () => {
       clearInterval(intervalId);
+      window.removeEventListener("storage", onStorageChange);
       window.removeEventListener("pointerdown", handleActivity, { capture: true });
       window.removeEventListener("keydown", handleActivity, { capture: true });
     };

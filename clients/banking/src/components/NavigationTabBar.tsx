@@ -25,9 +25,6 @@ import {
 } from "@swan-io/lake/src/constants/design";
 import { insets } from "@swan-io/lake/src/constants/insets";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
-import { badStatusToError, Request } from "@swan-io/request";
-import { showToast } from "@swan-io/shared-business/src/state/toasts";
-import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
@@ -36,6 +33,7 @@ import { env } from "../utils/env";
 import { partnerAdminClient } from "../utils/gql";
 import { t } from "../utils/i18n";
 import { accountRoutes, Router } from "../utils/routes";
+import { signout } from "../utils/signout";
 import { AccountNavigation, Menu } from "./AccountNavigation";
 import { AccountActivationTag, AccountPicker, AccountPickerButton } from "./AccountPicker";
 import { SandboxUserPickerContents, SandboxUserTag } from "./SandboxUserPicker";
@@ -173,15 +171,6 @@ export const NavigationTabBar = ({
     route?.name === "AccountActivationArea" ||
     route?.name === "AccountProfile" ||
     isNotNullish(activeMenuItem);
-
-  const signout = () => {
-    Request.make({ url: "/auth/logout", method: "POST", credentials: "include", type: "text" })
-      .mapOkToResult(badStatusToError)
-      .tapOk(() => window.location.replace(Router.ProjectLogin()))
-      .tapError(error => {
-        showToast({ variant: "error", error, title: translateError(error) });
-      });
-  };
 
   return (
     <View style={styles.tabBarContainer}>

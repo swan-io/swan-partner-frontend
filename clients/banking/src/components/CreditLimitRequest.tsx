@@ -18,7 +18,6 @@ import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartner
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { backgroundColor, colors, invariantColors } from "@swan-io/lake/src/constants/design";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { Request } from "@swan-io/request";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
@@ -65,8 +64,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 });
-
-const COOKIE_REFRESH_INTERVAL = 30000; // 30s
 
 type ErrorViewProps = {
   title: string;
@@ -124,17 +121,6 @@ export const CreditLimitRequest = ({ accountId, from, requestAgain }: Props) => 
       })
       .otherwise(() => {});
   }, [accountId, data, setVariables]);
-
-  // Call API to extend cookie TTL
-  useEffect(() => {
-    const tick = () => {
-      Request.make({ url: "/api/ping", method: "POST", credentials: "include", type: "text" });
-    };
-    const intervalId = setInterval(tick, COOKIE_REFRESH_INTERVAL);
-    // Run the ping directly on mount
-    tick();
-    return () => clearInterval(intervalId);
-  }, []);
 
   return match(data)
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView />)

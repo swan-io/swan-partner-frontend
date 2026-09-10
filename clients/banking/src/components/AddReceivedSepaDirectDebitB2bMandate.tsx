@@ -22,14 +22,13 @@ import {
   invariantColors,
   spacings,
 } from "@swan-io/lake/src/constants/design";
-import { Request } from "@swan-io/request";
 import {
   validateIban,
   validateNullableRequired,
   validateRequired,
 } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
-import { isValidElement, useCallback, useEffect, useState } from "react";
+import { isValidElement, useCallback, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import logoSwan from "../assets/images/logo-swan.svg";
@@ -92,7 +91,6 @@ const styles = StyleSheet.create({
   },
 });
 
-const COOKIE_REFRESH_INTERVAL = 30000; // 30s
 const LOGO_MAX_HEIGHT = 40;
 const LOGO_MAX_WIDTH = 180;
 
@@ -112,17 +110,6 @@ export const AddReceivedSepaDirectDebitB2bMandate = ({ accountId, resourceId, st
   const [addReceivedSepaDirectDebitB2bMandate] = useMutation(
     AddReceivedSepaDirectDebitB2bMandateDocument,
   );
-
-  // Call API to extend cookie TTL
-  useEffect(() => {
-    const tick = () => {
-      Request.make({ url: "/api/ping", method: "POST", credentials: "include", type: "text" });
-    };
-    const intervalId = setInterval(tick, COOKIE_REFRESH_INTERVAL);
-    // Run the ping directly on mount
-    tick();
-    return () => clearInterval(intervalId);
-  }, []);
 
   const [isCanceled, setIsCanceled] = useState(false);
   const state = isCanceled

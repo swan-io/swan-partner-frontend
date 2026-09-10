@@ -18,7 +18,6 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { backgroundColor, colors, invariantColors } from "@swan-io/lake/src/constants/design";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { trim } from "@swan-io/lake/src/utils/string";
-import { Request } from "@swan-io/request";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import {
@@ -39,8 +38,6 @@ import { validateAccountReasonClose } from "../utils/validations";
 import { ErrorView } from "./ErrorView";
 import { TransferRegularWizard } from "./TransferRegularWizard";
 import { WizardLayout } from "./WizardLayout";
-
-const COOKIE_REFRESH_INTERVAL = 30000; // 30s
 
 const styles = StyleSheet.create({
   container: {
@@ -337,17 +334,6 @@ export const AccountClose = ({ accountId, resourceId, status }: Props) => {
       })
       .otherwise(() => {});
   }, [accountId, data, setVariables]);
-
-  // Call API to extend cookie TTL
-  useEffect(() => {
-    const tick = () => {
-      Request.make({ url: "/api/ping", method: "POST", credentials: "include", type: "text" });
-    };
-    const intervalId = setInterval(tick, COOKIE_REFRESH_INTERVAL);
-    // Run the ping directly on mount
-    tick();
-    return () => clearInterval(intervalId);
-  }, []);
 
   return match(data)
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView />)

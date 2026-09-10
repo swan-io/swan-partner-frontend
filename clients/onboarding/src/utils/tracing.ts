@@ -5,6 +5,7 @@ import { match, P } from "ts-pattern";
 import { AccountCountry } from "../graphql/partner";
 import { env } from "./env";
 import { posthogLogger } from "./logger";
+import { hashIdentifier, sanitizePathname, sanitizeUrl } from "./redaction";
 
 let faro: Faro | null = null;
 
@@ -30,6 +31,22 @@ if (environment != null) {
       persistent: true,
     },
 
+    // Faro re-reads location.href into page meta for every signal, so the
+    // scrubbing done in logPageView is not enough on its own.
+    pageTracking: {
+      generatePageId: location => sanitizePathname(location.pathname),
+    },
+
+    beforeSend: item => ({
+      ...item,
+      meta: {
+        ...item.meta,
+        ...(item.meta.page != null && {
+          page: { ...item.meta.page, url: sanitizeUrl(item.meta.page.url ?? "") },
+        }),
+      },
+    }),
+
     instrumentations: [
       ...getWebInstrumentations({
         // disable capture console to control logs we send to Faro with logger.info/warn/error
@@ -42,17 +59,7 @@ if (environment != null) {
 }
 
 export const logPageView = () => {
-  const pathname = window.location.pathname
-    .split("/")
-    .map(segment => {
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-        segment,
-      );
-      return isUuid ? "<id>" : segment;
-    })
-    .join("/");
-
-  logger.event("pageview", { pathname });
+  logger.event("pageview", { pathname: sanitizePathname(window.location.pathname) });
 };
 
 subscribeToLocation(() => {
@@ -68,9 +75,14 @@ type TrackingContext = {
 };
 
 export const logger = {
-  setContext: (context: TrackingContext) => {
-    faro?.api.setUser({ attributes: context });
-    posthogLogger.setContext(context);
+  // Replace raw onboardingId with hashed onboardingId
+  setContext: async ({ onboardingId, ...context }: TrackingContext) => {
+    const attributes = (await hashIdentifier(onboardingId)).match({
+      Some: onboardingIdHash => ({ ...context, onboardingIdHash }),
+      None: () => context,
+    });
+    faro?.api.setUser({ attributes });
+    posthogLogger.setContext(attributes);
   },
   event: (name: string, properties?: Record<string, string>) => {
     faro?.api.pushEvent(name, properties);

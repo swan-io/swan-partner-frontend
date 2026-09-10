@@ -1,17 +1,6 @@
 import posthog from "posthog-js";
 import { env } from "./env";
-
-const replaceIdInPath = (path: string) => {
-  return path
-    .split("/")
-    .map(segment => {
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-        segment,
-      );
-      return isUuid ? "<id>" : segment;
-    })
-    .join("/");
-};
+import { sanitizeProperties } from "./redaction";
 
 export const initPostHog = () => {
   if (import.meta.env.PROD && env.IS_SWAN_MODE) {
@@ -26,9 +15,12 @@ export const initPostHog = () => {
       api_host: "https://eu.i.posthog.com",
       defaults: "2025-05-24",
       before_send: event => {
-        if (event?.properties.$pathname != null) {
-          event.properties.$pathname = replaceIdInPath(event.properties.$pathname);
+        if (event == null) {
+          return event;
         }
+
+        // PostHog attaches $current_url, $referrer and their $initial_, so scrub the whole property
+        event.properties = sanitizeProperties(event.properties);
 
         return event;
       },

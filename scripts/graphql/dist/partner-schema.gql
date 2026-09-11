@@ -2390,6 +2390,11 @@ interface AccountHolderOnboardingBase {
 
   """Swan Terms and Conditions URL"""
   termsAndConditionsUrl: String!
+
+  """
+  Type of participation of this onboarding in a Capital Deposit case, `null` when the onboarding is not part of one
+  """
+  capitalDepositType: OnboardingCapitalDepositType
 }
 
 """Connection type for paginated AccountHolderOnboarding results"""
@@ -3765,6 +3770,11 @@ type CompanyAccountHolderOnboarding implements AccountHolderOnboardingBase {
 
   """Swan Terms and Conditions URL"""
   termsAndConditionsUrl: String!
+
+  """
+  Type of participation of this onboarding in a Capital Deposit case, `null` when the onboarding is not part of one
+  """
+  capitalDepositType: OnboardingCapitalDepositType
 }
 
 """Company account information for onboarding"""
@@ -5491,6 +5501,11 @@ type IndividualAccountHolderOnboarding implements AccountHolderOnboardingBase {
 
   """Swan Terms and Conditions URL"""
   termsAndConditionsUrl: String!
+
+  """
+  Type of participation of this onboarding in a Capital Deposit case, `null` when the onboarding is not part of one
+  """
+  capitalDepositType: OnboardingCapitalDepositType
 }
 
 """Individual account information for onboarding"""
@@ -6708,6 +6723,22 @@ interface OnboardingAccountHolderInfo {
 type OnboardingAlreadyFinalizedRejection implements Rejection {
   message: String!
   onboardingId: String!
+}
+
+"""
+The type of role an onboarding has within a Capital Deposit case.
+Null when the onboarding is not part of a Capital Deposit.
+"""
+enum OnboardingCapitalDepositType {
+  """
+  This onboarding belongs to the main company being incorporated in the Capital Deposit case.
+  """
+  MainCompanyAccount
+
+  """
+  This onboarding belongs to a shareholder participating in the Capital Deposit case.
+  """
+  ShareholderAccount
 }
 
 """Company Account Holder Information"""
@@ -11965,6 +11996,9 @@ type InPersonCardMerchantPayment implements MerchantPayment {
 
   """Disputed date"""
   disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
+
+  """The information about how the inPersonCard has been presented."""
+  cardPresentReadDetails: CardPresentReadDetails
 }
 
 type InPersonCardTransaction implements Transaction {
@@ -18289,8 +18323,11 @@ type CompleteDigitalCard implements DigitalCard {
   """The project ID"""
   projectId: ID!
 
+  """Unique identifier of the card this digital card belongs to"""
+  cardId: ID!
+
   """The card contract ID"""
-  cardContractId: ID!
+  cardContractId: ID! @deprecated(reason: "Use `cardId` instead.")
 }
 
 """Complete Digital Card Status"""
@@ -18373,8 +18410,11 @@ interface DigitalCard {
   """The project ID"""
   projectId: ID!
 
+  """Unique identifier of the card this digital card belongs to"""
+  cardId: ID!
+
   """The card contract ID"""
-  cardContractId: ID!
+  cardContractId: ID! @deprecated(reason: "Use `cardId` instead.")
 }
 
 """Digital Card Canceled Status Information"""
@@ -18645,8 +18685,11 @@ type PendingDigitalCard implements DigitalCard {
   """The project ID"""
   projectId: ID!
 
+  """Unique identifier of the card this digital card belongs to"""
+  cardId: ID!
+
   """The card contract ID"""
-  cardContractId: ID!
+  cardContractId: ID! @deprecated(reason: "Use `cardId` instead.")
 }
 
 """Pending Digital Card Status"""
@@ -22452,6 +22495,32 @@ type CancelMerchantProfileUpdateRequestSuccessPayload {
   requestUpdateId: ID
 }
 
+enum CardHolderVerificationMethod {
+  """PIN verified online by issuer."""
+  OnlinePin
+
+  """Pin verified offline."""
+  OfflinePin
+
+  """PIN verified offline with a signature."""
+  OfflinePinAndSignature
+
+  """Signature only."""
+  Signature
+
+  """No verification done."""
+  None
+
+  """Approved without specified method."""
+  Approval
+
+  """Verification failed."""
+  Failure
+
+  """The card holder verification method is not provided."""
+  Unknown
+}
+
 type CardMerchantPaymentMethod implements MerchantPaymentMethod {
   """
   Unique identifier tied to every version of a given Merchant Payment Method
@@ -22494,6 +22563,38 @@ type CardMerchantPaymentMethod implements MerchantPaymentMethod {
 input CardPaymentMethodInput {
   """Determine whether the payment method must be activated or not"""
   activate: Boolean = false
+}
+
+type CardPresentReadDetails {
+  """The method used to read the card."""
+  cardReadMethod: CardReadMethod
+
+  """The method used to verify the card holder."""
+  cardHolderVerificationMethod: CardHolderVerificationMethod
+}
+
+enum CardReadMethod {
+  """Inserting a chip card into the card reader."""
+  ContactEmv
+
+  """Tapping a contactless-enabled chip card or mobile wallet."""
+  ContactlessEmv
+
+  """
+  Older standard for contactless payments that emulated a magnetic stripe read.
+  """
+  ContactlessMagneticStripeMode
+
+  """
+  When inserting a chip card fails three times in a row, fallback to a magnetic stripe read.
+  """
+  MagneticStripeFallback
+
+  """Swiping a card using the magnetic stripe reader."""
+  MagneticStripeTrack2
+
+  """The read method used isn't provided."""
+  Unknown
 }
 
 """CheckMerchantPaymentMethod"""

@@ -35,6 +35,7 @@ import {
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { locale, t } from "../../../utils/i18n";
+import { getRegistrationRequirements } from "../../../utils/onboarding";
 import { Router } from "../../../utils/routes";
 import { hasOnboardingPrefilled } from "../../../utils/session";
 import {
@@ -112,9 +113,10 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
     .with({ accountCountry: "ITA" }, () => true)
     .otherwise(() => false);
 
-  const isRegistrationNumberRequired = match({ companyCountry })
-    .with({ companyCountry: "DEU" }, () => false)
-    .otherwise(() => true);
+  const { isRegistrationNumberRequired, isRegistrationDateRequired } = getRegistrationRequirements({
+    companyCountry,
+    capitalDepositType: onboarding.capitalDepositType,
+  });
 
   const isTaxIdentificationRequired = match({ companyCountry, accountCountry })
     .with({ companyCountry: P.not(accountCountry) }, () => true)
@@ -174,14 +176,15 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
     registrationNumber: {
       initialValue: company?.registrationNumber ?? "",
       sanitize: trim,
-      validate: match(companyCountry)
-        .with("BEL", () => combineValidators(validateRequired, validateRegistrationNumber))
-        .with("DEU", () => undefined)
-        .otherwise(() => validateRequired),
+      validate: isRegistrationNumberRequired
+        ? match(companyCountry)
+            .with("BEL", () => combineValidators(validateRequired, validateRegistrationNumber))
+            .otherwise(() => validateRequired)
+        : undefined,
     },
     registrationDate: {
       initialValue: company?.registrationDate ?? undefined,
-      validate: validateNullableRequired,
+      validate: isRegistrationDateRequired ? validateNullableRequired : undefined,
     },
     tcuAccepted: {
       initialValue: false,
@@ -218,7 +221,8 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
         }
         const currentValues = option.get();
 
-        const { address, city, postalCode, vatNumber, ...input } = currentValues;
+        const { address, city, postalCode, vatNumber, registrationNumber, ...input } =
+          currentValues;
 
         updateCompanyOnboarding({
           input: {
@@ -230,6 +234,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
                 postalCode,
               },
               vatNumber: vatNumber === "" ? undefined : vatNumber, // Return undefined if empty otherwise the backend with run a regex on it
+              registrationNumber: registrationNumber === "" ? undefined : registrationNumber, // Same as vatNumber, and a company being incorporated has none yet
               regulatoryClassification: "NonFinancialActive", // Default value as we don't use it yet on product side but required by the api
               ...input,
             },
@@ -390,6 +395,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
                   {({ value, onChange, error }) => (
                     <InlineDatePicker
                       label={t("company.step.legal.registrationDateLabel")}
+                      optionalLabel={isRegistrationDateRequired ? undefined : t("common.optional")}
                       value={value}
                       onValueChange={onChange}
                       error={error}

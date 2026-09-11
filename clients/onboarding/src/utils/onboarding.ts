@@ -4,6 +4,7 @@ import {
   CompanyAccountHolderOnboardingAccountAdmin,
   CompanyLegalRepresentativeAndUltimateBeneficialOwner,
   CompanyRelatedIndividual,
+  OnboardingCapitalDepositType,
   RelatedIndividualInput,
   RelatedIndividualUltimateBeneficialOwner,
   RelatedIndividualUltimateBeneficialOwnerInput,
@@ -19,21 +20,23 @@ const toUltimateBeneficialOwnerInput = (
     return undefined;
   }
 
-  const { qualificationType, identityDocumentInfo, ownership, controlTypes } = ubo;
+  const { qualificationType, identityDocumentInfo, ownership, controlTypes } =
+    ubo;
 
   const raw = match(qualificationType)
-    .with("Ownership", qualificationType => ({
+    .with("Ownership", (qualificationType) => ({
       qualificationType,
       identityDocumentInfo,
       ownership: ownership ?? { type: "Direct" as const },
     }))
-    .with("Control", qualificationType => ({
+    .with("Control", (qualificationType) => ({
       qualificationType,
       identityDocumentInfo,
       controlTypes: controlTypes ?? [],
     }))
     .otherwise(() => ({
-      qualificationType: "LegalRepresentative" as UltimateBeneficialOwnerQualificationType,
+      qualificationType:
+        "LegalRepresentative" as UltimateBeneficialOwnerQualificationType,
       identityDocumentInfo,
     }));
 
@@ -46,7 +49,8 @@ const toUnitedStatesTaxInfoInput = (
   info?.isUnitedStatesPerson != null
     ? {
         isUnitedStatesPerson: info.isUnitedStatesPerson,
-        unitedStatesTaxIdentificationNumber: info.unitedStatesTaxIdentificationNumber ?? undefined,
+        unitedStatesTaxIdentificationNumber:
+          info.unitedStatesTaxIdentificationNumber ?? undefined,
       }
     : undefined;
 
@@ -57,14 +61,16 @@ export const transformRelatedIndividualsToInput = (
     return [];
   }
 
-  return individuals.map(individual => {
+  return individuals.map((individual) => {
     const { unitedStatesTaxInfo, ultimateBeneficialOwner, ...rest } =
       individual as CompanyLegalRepresentativeAndUltimateBeneficialOwner; // Cast for typescript to be able to descruture ultimateBeneficialOwner
 
     return {
       ...cleanData(rest),
       unitedStatesTaxInfo: toUnitedStatesTaxInfoInput(unitedStatesTaxInfo),
-      ultimateBeneficialOwner: toUltimateBeneficialOwnerInput(ultimateBeneficialOwner),
+      ultimateBeneficialOwner: toUltimateBeneficialOwnerInput(
+        ultimateBeneficialOwner,
+      ),
     };
   }) as RelatedIndividualInput[];
 };
@@ -88,7 +94,7 @@ export const upsertAccountAdminInRelatedIndividuals = (
   const inputs = transformRelatedIndividualsToInput(relatedIndividuals);
 
   const matchIndex = inputs.findIndex(
-    individual =>
+    (individual) =>
       accountAdmin?.firstName != null &&
       accountAdmin.lastName != null &&
       namesMatch(accountAdmin, individual),
@@ -126,8 +132,10 @@ export const cleanData = <T>(value: T): CleanData<T> => {
 
   if (Array.isArray(value)) {
     return value
-      .map(item => cleanData(item))
-      .filter((item): item is NonNullable<typeof item> => item !== undefined) as CleanData<T>;
+      .map((item) => cleanData(item))
+      .filter(
+        (item): item is NonNullable<typeof item> => item !== undefined,
+      ) as CleanData<T>;
   }
 
   if (typeof value === "object") {
@@ -150,4 +158,31 @@ export const cleanData = <T>(value: T): CleanData<T> => {
   }
 
   return value as CleanData<T>;
+};
+
+/**
+ * The main company of a capital deposit case is still being incorporated, it has
+ * neither a registration number nor a registration date yet
+ * so the form must not require them either.
+ */
+export const getRegistrationRequirements = ({
+  companyCountry,
+  capitalDepositType,
+}: {
+  companyCountry: string | null | undefined;
+  capitalDepositType: OnboardingCapitalDepositType | null | undefined;
+}) => {
+  if (capitalDepositType === "MainCompanyAccount") {
+    return {
+      isRegistrationNumberRequired: false,
+      isRegistrationDateRequired: false,
+    };
+  }
+
+  return {
+    isRegistrationNumberRequired: match({ companyCountry })
+      .with({ companyCountry: "DEU" }, () => false)
+      .otherwise(() => true),
+    isRegistrationDateRequired: true,
+  };
 };

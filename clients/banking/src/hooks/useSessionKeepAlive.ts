@@ -1,5 +1,5 @@
-import { getLocation } from "@swan-io/chicane";
 import { badStatusToError, Request } from "@swan-io/request";
+import { getLocation } from "@zoontek/chicane";
 import { useEffect } from "react";
 import {
   clearLastActivity,

@@ -1,5 +1,5 @@
 import { Option } from "@swan-io/boxed";
-import { createGroup, createRouter, InferRoutes } from "@swan-io/chicane";
+import { createGroup, createRouter, InferRoutes } from "@zoontek/chicane";
 import { match, P } from "ts-pattern";
 import { projectConfiguration } from "./projectId";
 

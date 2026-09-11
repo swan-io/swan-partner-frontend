@@ -1,5 +1,5 @@
-import { Array, AsyncData, Future, Option, Result } from "@swan-io/boxed";
-import { ClientError, useMutation, useQuery } from "@swan-io/graphql-client";
+import { Array, AsyncData, Future, Option, Result } from "@bloodyowl/boxed";
+import { ClientError, useMutation, useQuery } from "@bloodyowl/graphql-client";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";

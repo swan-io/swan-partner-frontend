@@ -1,4 +1,4 @@
-import { Connection as ConnectionType, useForwardPagination } from "@swan-io/graphql-client";
+import { Connection as ConnectionType, useForwardPagination } from "@bloodyowl/graphql-client";
 import { ReactNode } from "react";
 
 export const Connection = <A extends ConnectionType<unknown>>({

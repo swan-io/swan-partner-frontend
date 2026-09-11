@@ -1,4 +1,4 @@
-import { Result } from "@swan-io/boxed";
+import { Result } from "@bloodyowl/boxed";
 import { Ref } from "react";
 import { useWizardStep, WizardStepRef } from "../hooks/useWizardStep";
 import { CardSettings, CardSettingsFields } from "./CardSettingsFields";

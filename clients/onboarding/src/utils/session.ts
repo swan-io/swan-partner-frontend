@@ -1,4 +1,4 @@
-import { Option, Result, Serializer } from "@swan-io/boxed";
+import { Option, Result, Serializer } from "@bloodyowl/boxed";
 
 export type PrefilleldParams = {
   vatNumber?: boolean;

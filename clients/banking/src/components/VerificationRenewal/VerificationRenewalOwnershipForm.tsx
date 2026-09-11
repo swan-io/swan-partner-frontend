@@ -1,4 +1,4 @@
-import { Option } from "@swan-io/boxed";
+import { Option } from "@bloodyowl/boxed";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { StepDots } from "@swan-io/lake/src/components/StepDots";
 import { CountryCCA3, isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";

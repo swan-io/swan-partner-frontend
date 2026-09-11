@@ -171,6 +171,7 @@ fragment IndividualOrCompanyOnboarding on AccountHolderOnboardingBase {
     tcuDocumentUri(language: $language)
   }
   termsAndConditionsUrl
+  capitalDepositType
 }
 
 fragment CompanyOnboarding on CompanyAccountHolderOnboarding {

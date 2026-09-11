@@ -1,5 +1,5 @@
-import { Future, Option, Result } from "@swan-io/boxed";
-import { useDeferredQuery, useMutation, useQuery } from "@swan-io/graphql-client";
+import { Future, Option, Result } from "@bloodyowl/boxed";
+import { useDeferredQuery, useMutation, useQuery } from "@bloodyowl/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";

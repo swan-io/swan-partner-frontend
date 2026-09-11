@@ -1,5 +1,5 @@
-import { Future, Option } from "@swan-io/boxed";
-import { useMutation } from "@swan-io/graphql-client";
+import { Future, Option } from "@bloodyowl/boxed";
+import { useMutation } from "@bloodyowl/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";

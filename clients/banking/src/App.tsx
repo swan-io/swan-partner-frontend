@@ -1,5 +1,5 @@
-import { AsyncData } from "@swan-io/boxed";
-import { ClientContext, useQuery } from "@swan-io/graphql-client";
+import { AsyncData } from "@bloodyowl/boxed";
+import { ClientContext, useQuery } from "@bloodyowl/graphql-client";
 import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";

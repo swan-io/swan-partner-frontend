@@ -1,4 +1,4 @@
-import { Future, Option } from "@swan-io/boxed";
+import { Future, Option } from "@bloodyowl/boxed";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { identity } from "@swan-io/lake/src/utils/function";

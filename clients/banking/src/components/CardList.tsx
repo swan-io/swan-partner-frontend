@@ -1,4 +1,4 @@
-import { Option } from "@swan-io/boxed";
+import { Option } from "@bloodyowl/boxed";
 import { HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
 import { LinkConfig } from "@swan-io/lake/src/components/VirtualizedList";

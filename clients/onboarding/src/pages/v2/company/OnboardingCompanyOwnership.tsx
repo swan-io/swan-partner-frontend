@@ -1,4 +1,4 @@
-import { useMutation } from "@swan-io/graphql-client";
+import { useMutation } from "@bloodyowl/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { ContextMenu, ContextMenuItem } from "@swan-io/lake/src/components/ContextMenu";
 import { Icon, IconName } from "@swan-io/lake/src/components/Icon";

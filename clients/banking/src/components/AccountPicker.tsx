@@ -1,4 +1,4 @@
-import { useQuery } from "@swan-io/graphql-client";
+import { useQuery } from "@bloodyowl/graphql-client";
 import { FlatList } from "@swan-io/lake/src/components/FlatList";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";

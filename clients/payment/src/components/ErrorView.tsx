@@ -1,5 +1,5 @@
-import { Array, Option } from "@swan-io/boxed";
-import { ClientError } from "@swan-io/graphql-client";
+import { Array, Option } from "@bloodyowl/boxed";
+import { ClientError } from "@bloodyowl/graphql-client";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";

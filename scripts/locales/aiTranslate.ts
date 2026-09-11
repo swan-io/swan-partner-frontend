@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import os from "node:os";
-import { Option, Result } from "@swan-io/boxed";
+import { Option, Result } from "@bloodyowl/boxed";
 import cliSpinners from "cli-spinners";
 import OpenAI from "openai";
 import ora from "ora";

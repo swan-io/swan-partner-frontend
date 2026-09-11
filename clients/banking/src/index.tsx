@@ -14,7 +14,7 @@ import "core-js/proposals/string-replace-all-stage-4";
 // overrides shared-business supported languages
 import "./utils/i18n";
 
-import { Option } from "@swan-io/boxed";
+import { Option } from "@bloodyowl/boxed";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { AppRegistry } from "react-native";
 import { match } from "ts-pattern";

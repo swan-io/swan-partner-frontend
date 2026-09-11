@@ -1,4 +1,4 @@
-import { Option } from "@swan-io/boxed";
+import { Option } from "@bloodyowl/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Cell, CopyableTextCell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";

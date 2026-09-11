@@ -1,4 +1,4 @@
-import { useMutation } from "@swan-io/graphql-client";
+import { useMutation } from "@bloodyowl/graphql-client";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";

@@ -1,4 +1,4 @@
-import { useQuery } from "@swan-io/graphql-client";
+import { useQuery } from "@bloodyowl/graphql-client";
 import { Cell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Icon } from "@swan-io/lake/src/components/Icon";

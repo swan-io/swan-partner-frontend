@@ -1,4 +1,4 @@
-import { Result } from "@swan-io/boxed";
+import { Result } from "@bloodyowl/boxed";
 import { Ref, useImperativeHandle, useState } from "react";
 
 export type WizardStepRef = {

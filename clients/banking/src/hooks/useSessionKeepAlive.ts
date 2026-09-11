@@ -1,4 +1,4 @@
-import { badStatusToError, Request } from "@swan-io/request";
+import { badStatusToError, Request } from "@bloodyowl/request";
 import { getLocation } from "@zoontek/chicane";
 import { useEffect } from "react";
 import {

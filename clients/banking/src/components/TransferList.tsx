@@ -1,5 +1,5 @@
-import { Dict } from "@swan-io/boxed";
-import { useQuery } from "@swan-io/graphql-client";
+import { Dict } from "@bloodyowl/boxed";
+import { useQuery } from "@bloodyowl/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";

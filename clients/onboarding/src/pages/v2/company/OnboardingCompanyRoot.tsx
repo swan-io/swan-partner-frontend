@@ -48,6 +48,7 @@ import {
 import { locale, t } from "../../../utils/i18n";
 import { cleanData, transformRelatedIndividualsToInput } from "../../../utils/onboarding";
 import { CompanySuggestion } from "../../../utils/Pappers";
+import { maskUuid } from "../../../utils/redaction";
 import { Router } from "../../../utils/routes";
 import { hasOnboardingPrefilled } from "../../../utils/session";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
@@ -118,12 +119,15 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
   const [representatives, setRepresentatives] = useState(related.length > 0 ? related : undefined);
 
   const resetToManualMode = useCallback(() => {
-    logger.event("set_manual_mode", { from: "search_company_dropdown" });
+    logger.event("set_manual_mode", {
+      onboardingId: maskUuid(onboardingId),
+      from: "search_company_dropdown",
+    });
     setManualMode(true);
     setRepresentatives(undefined);
     hasOnboardingPrefilled.delete();
     setPublicData(undefined);
-  }, []);
+  }, [onboardingId]);
 
   const { Field, FieldsListener, setFieldValue, setFieldError, submitForm } = useForm({
     name: {
@@ -181,7 +185,10 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
 
         if (isNullish(currentValues.legalFormCode)) {
           setManualMode(true);
-          logger.event("set_manual_mode", { from: "submit_without_legalFormCode" });
+          logger.event("set_manual_mode", {
+            onboardingId: maskUuid(onboardingId),
+            from: "submit_without_legalFormCode",
+          });
           return;
         }
 

@@ -15,13 +15,10 @@ export const initPostHog = () => {
       api_host: "https://eu.i.posthog.com",
       defaults: "2025-05-24",
       before_send: event => {
-        if (event == null) {
-          return event;
+        if (event != null) {
+          // PostHog attaches $current_url, $referrer and their $initial_, so scrub the whole property
+          event.properties = sanitizeProperties(event.properties);
         }
-
-        // PostHog attaches $current_url, $referrer and their $initial_, so scrub the whole property
-        event.properties = sanitizeProperties(event.properties);
-
         return event;
       },
 

@@ -21,7 +21,7 @@
     "dev-lake": "LAKE_PATH=../lake pnpm dev",
     "dev-swan": "tsx -r dotenv/config server/src/index.swan.ts --dev dotenv_config_path=.env.swan",
     "clean": "rm -rf server/dist",
-    "build": "pnpm clean && tsx -r dotenv/config scripts/build/index.ts",
+    "build": "pnpm clean && tsx -r dotenv/config scripts/build/index.mts",
     "typecheck": "tsc --noEmit",
     "license-report": "tsx scripts/license-crawler/crawlLicenses.ts --check --report",
     "license-check": "tsx scripts/license-crawler/crawlLicenses.ts --check",

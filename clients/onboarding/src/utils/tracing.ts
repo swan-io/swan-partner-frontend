@@ -5,7 +5,7 @@ import { match, P } from "ts-pattern";
 import { AccountCountry } from "../graphql/partner";
 import { env } from "./env";
 import { posthogLogger } from "./logger";
-import { hashIdentifier, sanitizePathname, sanitizeUrl } from "./redaction";
+import { maskUuid, sanitizePathname, sanitizeUrl } from "./redaction";
 
 let faro: Faro | null = null;
 
@@ -75,12 +75,10 @@ type TrackingContext = {
 };
 
 export const logger = {
-  // Replace raw onboardingId with hashed onboardingId
-  setContext: async ({ onboardingId, ...context }: TrackingContext) => {
-    const attributes = (await hashIdentifier(onboardingId)).match({
-      Some: onboardingIdHash => ({ ...context, onboardingIdHash }),
-      None: () => context,
-    });
+  // Replace raw onboardingId with masked onboardingId
+  setContext: ({ onboardingId, ...context }: TrackingContext) => {
+    const attributes = { ...context, onboardingId: maskUuid(onboardingId) };
+
     faro?.api.setUser({ attributes });
     posthogLogger.setContext(attributes);
   },

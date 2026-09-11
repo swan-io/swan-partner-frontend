@@ -84,15 +84,14 @@ const FlowPicker = ({ onboardingId }: Props) => {
           .exhaustive(() => undefined);
 
         if (projectId != null && accountCountry != null && onboardingType != null) {
-          void logger
-            .setContext({
-              onboardingVersion: "v1",
-              accountCountry,
-              projectId,
-              onboardingId,
-              onboardingType,
-            })
-            .then(logPageView); // log initial pageview just after setting the context
+          logger.setContext({
+            onboardingVersion: "v1",
+            accountCountry,
+            projectId,
+            onboardingId,
+            onboardingType,
+          });
+          logPageView(); // log initial pageview just after setting the context
         }
       })
       .otherwise(() => {});
@@ -207,19 +206,18 @@ const FlowPickerV2 = ({ onboardingId }: Props) => {
       ({ publicAccountHolderOnboarding }) => {
         match(publicAccountHolderOnboarding)
           .with(P.nonNullable, onboarding => {
-            void logger
-              .setContext({
-                onboardingVersion: "v2",
-                accountCountry: onboarding.accountInfo?.country ?? "FRA",
-                onboardingId: onboarding.id,
-                projectId: onboarding.projectInfo.id,
-                onboardingType: match(onboarding.__typename)
-                  .returnType<"Company" | "Individual">()
-                  .with("CompanyAccountHolderOnboarding", () => "Company")
-                  .with("IndividualAccountHolderOnboarding", () => "Individual")
-                  .exhaustive(),
-              })
-              .then(logPageView); // log initial pageview just after setting the context
+            logger.setContext({
+              onboardingVersion: "v2",
+              accountCountry: onboarding.accountInfo?.country ?? "FRA",
+              onboardingId: onboarding.id,
+              projectId: onboarding.projectInfo.id,
+              onboardingType: match(onboarding.__typename)
+                .returnType<"Company" | "Individual">()
+                .with("CompanyAccountHolderOnboarding", () => "Company")
+                .with("IndividualAccountHolderOnboarding", () => "Individual")
+                .exhaustive(),
+            });
+            logPageView(); // log initial pageview just after setting the context
 
             if (onboarding.accountAdmin?.preferredLanguage === locale.language) {
               return;

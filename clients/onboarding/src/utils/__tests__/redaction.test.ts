@@ -1,9 +1,9 @@
-import { Option } from "@swan-io/boxed";
-import { expect, test, vi } from "vitest";
-import { hashIdentifier, sanitizePathname, sanitizeProperties, sanitizeUrl } from "../redaction";
+import { expect, test } from "vitest";
+import { maskUuid, sanitizePathname, sanitizeProperties, sanitizeUrl } from "../redaction";
 
 const ONBOARDING_ID = "3f2b8c1a-4d5e-4f60-9a7b-1c2d3e4f5a6b";
 const COLLECTION_ID = "9E4B7C2D-1A3F-4B5C-8D6E-7F809A1B2C3D";
+const UUID_SHAPE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 test("sanitizePathname replaces identifier segments", () => {
   expect(sanitizePathname(`/onboardings/${ONBOARDING_ID}/documents`)).toBe(
@@ -71,21 +71,13 @@ test("sanitizeProperties leaves non-string values untouched", () => {
   });
 });
 
-test("hashIdentifier is deterministically", async () => {
-  await expect(hashIdentifier(ONBOARDING_ID)).resolves.toStrictEqual(
-    Option.Some("cdabd615e370b6e48383f8ccd98cd937"),
-  );
-  await expect(hashIdentifier(COLLECTION_ID)).resolves.toStrictEqual(
-    Option.Some("0e3e467ab57494e38822e1860ad5370a"),
-  );
+test("maskUuid keeps only the last group", () => {
+  expect(maskUuid(ONBOARDING_ID)).toBe("********-****-****-****-1c2d3e4f5a6b");
+  expect(maskUuid(COLLECTION_ID)).toBe("********-****-****-****-7F809A1B2C3D");
 });
 
-test("hashIdentifier yields None rather than the raw identifier when crypto is unavailable", async () => {
-  vi.stubGlobal("crypto", {});
-
-  try {
-    await expect(hashIdentifier(ONBOARDING_ID)).resolves.toStrictEqual(Option.None());
-  } finally {
-    vi.unstubAllGlobals();
-  }
+test("maskUuid masks anything that is not a uuid whole", () => {
+  expect(maskUuid("consent-challenge-SECRETVALUE")).toBe("*****************************");
+  expect(maskUuid("abcdef123456")).toBe("************");
+  expect(maskUuid("")).toBe("");
 });

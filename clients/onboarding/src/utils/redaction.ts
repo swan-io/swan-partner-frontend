@@ -1,5 +1,3 @@
-import { Option } from "@swan-io/boxed";
-
 /*
  * Redaction utilty for our logger
  */
@@ -42,20 +40,7 @@ export const sanitizeProperties = <T>(properties: Record<string, T>): Record<str
     }),
   );
 
-// Hash id so telemetry can correlate a funnel without holding the raw id
-export const hashIdentifier = (value: string): Promise<Option<string>> => {
-  if (typeof crypto?.subtle?.digest !== "function") {
-    return Promise.resolve(Option.None());
-  }
-
-  return crypto.subtle
-    .digest("SHA-256", new TextEncoder().encode(value))
-    .then(digest =>
-      Option.Some(
-        Array.from(new Uint8Array(digest).slice(0, 16))
-          .map(byte => byte.toString(16).padStart(2, "0"))
-          .join(""),
-      ),
-    )
-    .catch(() => Option.None());
-};
+// Mask a uuid so telemetry can correlate a funnel without holding the raw id.
+// Anything that isn't a uuid is masked whole: that reasoning only holds here,
+export const maskUuid = (value: string) =>
+  UUID.test(value) ? `********-****-****-****-${value.slice(-12)}` : "*".repeat(value.length);

@@ -1,6 +1,6 @@
 import { Faro, getWebInstrumentations, initializeFaro, LogLevel } from "@grafana/faro-web-sdk";
 import { TracingInstrumentation } from "@grafana/faro-web-tracing";
-import { subscribeToLocation } from "@swan-io/chicane";
+import { subscribeToLocation } from "@zoontek/chicane";
 import { match, P } from "ts-pattern";
 import { AccountCountry, AccountHolderType } from "../graphql/partner";
 import { env } from "./env";

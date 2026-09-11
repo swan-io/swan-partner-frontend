@@ -1,4 +1,4 @@
-import { replaceUnsafe, useLocation } from "@swan-io/chicane";
+import { replaceUnsafe, useLocation } from "@zoontek/chicane";
 import { useLayoutEffect } from "react";
 
 export const Redirect = ({ to }: { to: string }) => {

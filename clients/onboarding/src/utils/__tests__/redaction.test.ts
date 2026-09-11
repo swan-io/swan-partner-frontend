@@ -3,7 +3,6 @@ import { maskUuid, sanitizePathname, sanitizeProperties, sanitizeUrl } from "../
 
 const ONBOARDING_ID = "3f2b8c1a-4d5e-4f60-9a7b-1c2d3e4f5a6b";
 const COLLECTION_ID = "9E4B7C2D-1A3F-4B5C-8D6E-7F809A1B2C3D";
-const UUID_SHAPE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 test("sanitizePathname replaces identifier segments", () => {
   expect(sanitizePathname(`/onboardings/${ONBOARDING_ID}/documents`)).toBe(

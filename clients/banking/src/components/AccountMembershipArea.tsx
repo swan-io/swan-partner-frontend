@@ -1,5 +1,5 @@
-import { AsyncData, Option, Result } from "@swan-io/boxed";
-import { useDeferredQuery, useMutation } from "@swan-io/graphql-client";
+import { AsyncData, Option, Result } from "@bloodyowl/boxed";
+import { useDeferredQuery, useMutation } from "@bloodyowl/graphql-client";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { useCallback, useEffect, useMemo } from "react";
 import { match, P } from "ts-pattern";

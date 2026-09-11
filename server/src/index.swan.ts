@@ -5,7 +5,7 @@
  * including specifics such as the slightly different token logic &
  * invitation emails.
  */
-import { Future, Option, Result } from "@swan-io/boxed";
+import { Future, Option, Result } from "@bloodyowl/boxed";
 import pc from "picocolors";
 import { match, P } from "ts-pattern";
 import { exchangeToken } from "./api/oauth2.swan";

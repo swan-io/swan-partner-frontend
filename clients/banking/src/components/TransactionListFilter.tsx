@@ -1,4 +1,4 @@
-import { Dict, Future } from "@swan-io/boxed";
+import { Dict, Future } from "@bloodyowl/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { Separator } from "@swan-io/lake/src/components/Separator";

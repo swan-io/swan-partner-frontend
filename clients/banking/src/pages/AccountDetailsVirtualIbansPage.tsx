@@ -1,5 +1,5 @@
-import { AsyncData, Option } from "@swan-io/boxed";
-import { useDeferredQuery, useMutation, useQuery } from "@swan-io/graphql-client";
+import { AsyncData, Option } from "@bloodyowl/boxed";
+import { useDeferredQuery, useMutation, useQuery } from "@bloodyowl/graphql-client";
 import { Cell, CopyableTextCell, HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Icon } from "@swan-io/lake/src/components/Icon";

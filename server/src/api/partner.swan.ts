@@ -1,4 +1,4 @@
-import { Result } from "@swan-io/boxed";
+import { Result } from "@bloodyowl/boxed";
 import { match } from "ts-pattern";
 import { exchangeToken } from "./oauth2.swan";
 import {

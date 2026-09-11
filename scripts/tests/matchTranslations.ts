@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from "node:fs";
-import { Result } from "@swan-io/boxed";
+import { Result } from "@bloodyowl/boxed";
 import glob from "fast-glob";
 import path from "pathe";
 import { match } from "ts-pattern";

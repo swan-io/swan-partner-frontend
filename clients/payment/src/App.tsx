@@ -1,4 +1,4 @@
-import { ClientContext } from "@swan-io/graphql-client";
+import { ClientContext } from "@bloodyowl/graphql-client";
 import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { colors } from "@swan-io/lake/src/constants/design";

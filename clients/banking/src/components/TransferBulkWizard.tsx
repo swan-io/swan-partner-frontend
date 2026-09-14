@@ -130,7 +130,23 @@ export const TransferBulkWizard = ({ onPressClose, accountId, accountMembershipI
           .exhaustive();
       })
       .tapError(error => {
-        showToast({ variant: "error", error, title: translateError(error) });
+        match(error)
+          .with(
+            {
+              __typename: "ForbiddenRejection",
+              message: "User is not allowed to manage trusted beneficiaries",
+            },
+            () => {
+              showToast({
+                variant: "error",
+                title: t("transfer.consent.error.beneficiaryPermission.title"),
+                description: t("transfer.consent.error.beneficiaryPermission.description"),
+              });
+            },
+          )
+          .otherwise(() => {
+            showToast({ variant: "error", error, title: translateError(error) });
+          });
       });
   };
 

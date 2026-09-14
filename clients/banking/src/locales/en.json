@@ -1631,6 +1631,8 @@
   "transfer.bulk.youSendExactly": "You send exactly {amount}",
   "transfer.consent.error.canceled.title": "Transfer cancelled.",
   "transfer.consent.error.rejected.description": "There was a technical issue on our end. Please wait a few minutes and try again.",
+  "transfer.consent.error.beneficiaryPermission.description": "You cannot make a transfer to beneficiaries who are not on the list of trusted beneficiaries. Contact your account administrator to update your permissions for this account.",
+  "transfer.consent.error.beneficiaryPermission.title": "You don't have the sufficient permissions",
   "transfer.consent.error.rejected.title": "Transfer rejected.",
   "transfer.consent.success.description": "Your transfer is being processed. It'll show up on your transaction list soon.",
   "transfer.consent.success.title": "Transfer approved",

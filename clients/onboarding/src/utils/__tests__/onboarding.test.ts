@@ -6,6 +6,7 @@ import {
 } from "../../graphql/partner";
 import {
   cleanData,
+  getRegistrationRequirements,
   namesMatch,
   transformRelatedIndividualsToInput,
   upsertAccountAdminInRelatedIndividuals,
@@ -169,5 +170,54 @@ describe("upsertAccountAdminInRelatedIndividuals", () => {
       asUpdatedFields({ firstName: "Jane", lastName: "Smith" }),
     );
     expect(result).toHaveLength(2);
+  });
+});
+
+describe("getRegistrationRequirements", () => {
+  it("exempts the main company of a capital deposit case from both fields", () => {
+    expect(
+      getRegistrationRequirements({
+        companyCountry: "FRA",
+        capitalDepositType: "MainCompanyAccount",
+      }),
+    ).toEqual({ isRegistrationNumberRequired: false, isRegistrationDateRequired: false });
+  });
+
+  it("exempts the main company whatever the company country", () => {
+    for (const companyCountry of ["FRA", "BEL", "DEU"] as const) {
+      expect(
+        getRegistrationRequirements({ companyCountry, capitalDepositType: "MainCompanyAccount" }),
+      ).toEqual({ isRegistrationNumberRequired: false, isRegistrationDateRequired: false });
+    }
+  });
+
+  it("keeps both fields required for a shareholder of a capital deposit case", () => {
+    expect(
+      getRegistrationRequirements({
+        companyCountry: "FRA",
+        capitalDepositType: "ShareholderAccount",
+      }),
+    ).toEqual({ isRegistrationNumberRequired: true, isRegistrationDateRequired: true });
+  });
+
+  it("keeps both fields required outside of a capital deposit case", () => {
+    for (const capitalDepositType of [null, undefined]) {
+      expect(getRegistrationRequirements({ companyCountry: "FRA", capitalDepositType })).toEqual({
+        isRegistrationNumberRequired: true,
+        isRegistrationDateRequired: true,
+      });
+    }
+  });
+
+  it("preserves the German exemption on registration number only", () => {
+    expect(
+      getRegistrationRequirements({ companyCountry: "DEU", capitalDepositType: null }),
+    ).toEqual({ isRegistrationNumberRequired: false, isRegistrationDateRequired: true });
+  });
+
+  it("requires both fields when the company country is unknown", () => {
+    expect(
+      getRegistrationRequirements({ companyCountry: undefined, capitalDepositType: null }),
+    ).toEqual({ isRegistrationNumberRequired: true, isRegistrationDateRequired: true });
   });
 });

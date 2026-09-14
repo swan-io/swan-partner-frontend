@@ -10,9 +10,16 @@ type Props = {
   initialSettings?: Partial<CardSettings>;
   onSubmit: (cardSettings: CardSettings) => void;
   disabled?: boolean;
+  isVirtualCard?: boolean;
 };
 
-export const CardWizardSettings = ({ ref, initialSettings, onSubmit, disabled }: Props) => {
+export const CardWizardSettings = ({
+  ref,
+  initialSettings,
+  onSubmit,
+  disabled,
+  isVirtualCard,
+}: Props) => {
   const { value, onChange } = useWizardStep<CardSettings, CardSettings, never>({
     ref,
     initialValue: () => ({
@@ -26,5 +33,12 @@ export const CardWizardSettings = ({ ref, initialSettings, onSubmit, disabled }:
     onSubmit,
   });
 
-  return <CardSettingsFields value={value} onChange={onChange} disabled={disabled} />;
+  return (
+    <CardSettingsFields
+      value={value}
+      onChange={onChange}
+      disabled={disabled}
+      isVirtualCard={isVirtualCard}
+    />
+  );
 };

@@ -38,9 +38,15 @@ type Props = {
   value: CardSettings;
   onChange: (value: CardSettings) => void;
   disabled?: boolean;
+  isVirtualCard?: boolean;
 };
 
-export const CardSettingsFields = ({ value, onChange, disabled = false }: Props) => {
+export const CardSettingsFields = ({
+  value,
+  onChange,
+  disabled = false,
+  isVirtualCard = false,
+}: Props) => {
   const cardSettingItems = [
     {
       key: "eCommerce",
@@ -77,12 +83,16 @@ export const CardSettingsFields = ({ value, onChange, disabled = false }: Props)
     },
   ] as const;
 
+  const visibleCardSettingItems = cardSettingItems.filter(
+    item => !(isVirtualCard && item.key === "withdrawal"),
+  );
+
   return (
     <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.root}>
       {() => (
         <>
           <Tile title={t("card.settings.title")}>
-            {cardSettingItems.map((item, index, arr) => (
+            {visibleCardSettingItems.map((item, index, arr) => (
               <View key={item.key}>
                 <View style={styles.settingRow}>
                   <Icon name={item.icon} color={colors.current[500]} size={24} />

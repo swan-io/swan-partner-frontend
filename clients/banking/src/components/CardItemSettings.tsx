@@ -223,6 +223,7 @@ export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) =
                 value={settings}
                 onChange={setSettings}
                 disabled={!canUpdateCard}
+                isVirtualCard={card.type === "Virtual"}
               />
             </>
           )}

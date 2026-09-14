@@ -64,7 +64,6 @@ const scalars = {
 
 const frontendPlugins = ["typescript", "typescript-operations", "typed-document-node"];
 const backendPlugins = ["typescript", "typescript-operations", "typescript-graphql-request"];
-const testsPlugins = ["typescript", "typescript-operations", "typed-document-node"];
 
 const frontendConfig = {
   scalars,
@@ -145,22 +144,6 @@ const config: CodegenConfig = {
       schema: file("./dist/unauthenticated-schema.gql"),
       plugins: backendPlugins,
       config: backendConfig,
-      documentTransforms: [{ transform: addTypenames }],
-    },
-
-    [file("../../tests/graphql/partner-admin.ts")]: {
-      documents: file("../../tests/graphql/partner-admin.gql"),
-      schema: file("./dist/partner-admin-schema.gql"),
-      plugins: testsPlugins,
-      config: frontendConfig,
-      documentTransforms: [{ transform: addTypenames }],
-    },
-
-    [file("../../tests/graphql/partner.ts")]: {
-      documents: file("../../tests/graphql/partner.gql"),
-      schema: file("./dist/partner-schema.gql"),
-      plugins: testsPlugins,
-      config: frontendConfig,
       documentTransforms: [{ transform: addTypenames }],
     },
   },

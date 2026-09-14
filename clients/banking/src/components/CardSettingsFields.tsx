@@ -83,36 +83,38 @@ export const CardSettingsFields = ({
     },
   ] as const;
 
-  const visibleCardSettingItems = cardSettingItems.filter(
-    item => !(isVirtualCard && item.key === "withdrawal"),
-  );
-
   return (
     <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.root}>
       {() => (
         <>
           <Tile title={t("card.settings.title")}>
-            {visibleCardSettingItems.map((item, index, arr) => (
-              <View key={item.key}>
-                <View style={styles.settingRow}>
-                  <Icon name={item.icon} color={colors.current[500]} size={24} />
+            {cardSettingItems
+              .filter(item => !(isVirtualCard && item.key === "withdrawal"))
+              .map((item, index, arr) => (
+                <View key={item.key}>
+                  <View style={styles.settingRow}>
+                    <Icon name={item.icon} color={colors.current[500]} size={24} />
 
-                  <View style={styles.settingText}>
-                    <LakeHeading level={3} variant="h5">
-                      {item.title}
-                    </LakeHeading>
+                    <View style={styles.settingText}>
+                      <LakeHeading level={3} variant="h5">
+                        {item.title}
+                      </LakeHeading>
 
-                    <LakeText variant="smallRegular" color={colors.gray[500]}>
-                      {item.description}
-                    </LakeText>
+                      <LakeText variant="smallRegular" color={colors.gray[500]}>
+                        {item.description}
+                      </LakeText>
+                    </View>
+
+                    <Switch
+                      disabled={disabled}
+                      value={item.checked}
+                      onValueChange={item.onChange}
+                    />
                   </View>
 
-                  <Switch disabled={disabled} value={item.checked} onValueChange={item.onChange} />
+                  {index < arr.length - 1 && <Separator />}
                 </View>
-
-                {index < arr.length - 1 && <Separator />}
-              </View>
-            ))}
+              ))}
           </Tile>
 
           <Space height={24} />

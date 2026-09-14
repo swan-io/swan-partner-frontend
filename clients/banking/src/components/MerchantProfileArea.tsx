@@ -1,5 +1,5 @@
-import { AsyncData, Option, Result } from "@swan-io/boxed";
-import { useQuery } from "@swan-io/graphql-client";
+import { AsyncData, Option, Result } from "@bloodyowl/boxed";
+import { useQuery } from "@bloodyowl/graphql-client";
 import { useCrumb } from "@swan-io/lake/src/components/Breadcrumbs";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";

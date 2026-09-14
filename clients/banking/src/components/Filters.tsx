@@ -1,4 +1,4 @@
-import { Array, Option } from "@swan-io/boxed";
+import { Array, Option } from "@bloodyowl/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { FlatList } from "@swan-io/lake/src/components/FlatList";
 import { Icon } from "@swan-io/lake/src/components/Icon";

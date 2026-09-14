@@ -1,4 +1,4 @@
-import { Option, Result } from "@swan-io/boxed";
+import { Option, Result } from "@bloodyowl/boxed";
 
 export const projectConfiguration = Result.fromExecution(() => {
   if (typeof __env.SWAN_PROJECT_ID === "string") {

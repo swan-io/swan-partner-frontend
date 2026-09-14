@@ -1,4 +1,4 @@
-import { Result } from "@swan-io/boxed";
+import { Result } from "@bloodyowl/boxed";
 import { Country } from "@swan-io/shared-business/src/constants/countries";
 import { E164Number, parsePhoneNumberWithError } from "libphonenumber-js";
 

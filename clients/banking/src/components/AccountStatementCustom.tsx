@@ -1,5 +1,5 @@
-import { Option, Result } from "@swan-io/boxed";
-import { useMutation, useQuery } from "@swan-io/graphql-client";
+import { Option, Result } from "@bloodyowl/boxed";
+import { useMutation, useQuery } from "@bloodyowl/graphql-client";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Cell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";

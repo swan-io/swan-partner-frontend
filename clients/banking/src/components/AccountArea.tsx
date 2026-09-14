@@ -1,5 +1,5 @@
-import { Array, Option } from "@swan-io/boxed";
-import { ClientContext } from "@swan-io/graphql-client";
+import { Array, Option } from "@bloodyowl/boxed";
+import { ClientContext } from "@bloodyowl/graphql-client";
 import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";

@@ -1,5 +1,5 @@
-import { AsyncData, Result } from "@swan-io/boxed";
-import { ClientContext, useDeferredQuery, useMutation, useQuery } from "@swan-io/graphql-client";
+import { AsyncData, Result } from "@bloodyowl/boxed";
+import { ClientContext, useDeferredQuery, useMutation, useQuery } from "@bloodyowl/graphql-client";
 import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";

@@ -36,7 +36,7 @@
     "@opentelemetry/exporter-trace-otlp-proto": "0.221.0",
     "@opentelemetry/sdk-node": "0.221.0",
     "@opentelemetry/sdk-trace-base": "2.10.0",
-    "@swan-io/boxed": "3.2.1",
+    "@bloodyowl/boxed": "3.4.0",
     "@types/escape-html": "1.0.4",
     "escape-html": "1.0.3",
     "fastify": "5.5.0",

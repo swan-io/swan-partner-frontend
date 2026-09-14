@@ -1,4 +1,4 @@
-import { Option, Result } from "@swan-io/boxed";
+import { Option, Result } from "@bloodyowl/boxed";
 import {
   Client,
   ClientError,
@@ -6,8 +6,8 @@ import {
   MakeRequest,
   parseGraphQLError,
   print,
-} from "@swan-io/graphql-client";
-import { badStatusToError, emptyToError, Request } from "@swan-io/request";
+} from "@bloodyowl/graphql-client";
+import { badStatusToError, emptyToError, Request } from "@bloodyowl/request";
 import { registerErrorToRequestId } from "@swan-io/shared-business/src/state/toasts";
 import { GraphQLError } from "graphql";
 import { customAlphabet } from "nanoid";

@@ -1,5 +1,5 @@
+import { Dict } from "@bloodyowl/boxed";
 import { createIntl, createIntlCache } from "@formatjs/intl";
-import { Dict } from "@swan-io/boxed";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import {
   getLanguagesHelpers,

@@ -1,4 +1,4 @@
-import { Future, Option, Result } from "@swan-io/boxed";
+import { Future, Option, Result } from "@bloodyowl/boxed";
 import {
   Client,
   ClientError,
@@ -6,9 +6,9 @@ import {
   MakeRequest,
   parseGraphQLError,
   print,
-} from "@swan-io/graphql-client";
+} from "@bloodyowl/graphql-client";
+import { badStatusToError, emptyToError, Request } from "@bloodyowl/request";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
-import { badStatusToError, emptyToError, Request } from "@swan-io/request";
 import { registerErrorToRequestId } from "@swan-io/shared-business/src/state/toasts";
 import { getLocation } from "@zoontek/chicane";
 import { GraphQLError } from "graphql";

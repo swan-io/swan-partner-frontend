@@ -22,7 +22,7 @@
       "ignoreDependencies": [
         "pino-pretty", // use dynamically only in dev server on local env
         "vite", // imported only for dev server on local env
-        "@vitejs/plugin-react-swc", // imported only for dev server on local env
+        "@vitejs/plugin-react", // imported only for dev server on local env
         "accepts", // installed with @fastify/accepts, imported just to get types
         "graphql-tag", // required for runtime
       ],

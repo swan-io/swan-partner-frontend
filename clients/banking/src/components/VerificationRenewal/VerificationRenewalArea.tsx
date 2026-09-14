@@ -1,5 +1,5 @@
-import { AsyncData, Option, Result } from "@swan-io/boxed";
-import { ClientError, parseGraphQLError, useQuery } from "@swan-io/graphql-client";
+import { AsyncData, Option, Result } from "@bloodyowl/boxed";
+import { ClientError, parseGraphQLError, useQuery } from "@bloodyowl/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeScrollView } from "@swan-io/lake/src/components/LakeScrollView";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";

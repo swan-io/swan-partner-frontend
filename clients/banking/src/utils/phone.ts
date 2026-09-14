@@ -1,4 +1,4 @@
-import { Lazy, Result } from "@swan-io/boxed";
+import { Lazy, Result } from "@bloodyowl/boxed";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { Country, countries } from "@swan-io/shared-business/src/constants/countries";
 import { getMostLikelyUserCountry } from "@swan-io/shared-business/src/utils/localization";

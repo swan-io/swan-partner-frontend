@@ -1,4 +1,4 @@
-import { Future } from "@swan-io/boxed";
+import { Future } from "@bloodyowl/boxed";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { StepDots } from "@swan-io/lake/src/components/StepDots";

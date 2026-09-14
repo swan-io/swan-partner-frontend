@@ -1,4 +1,4 @@
-import { badStatusToError, Request } from "@swan-io/request";
+import { badStatusToError, Request } from "@bloodyowl/request";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { clearLastActivity } from "./lastActivity";

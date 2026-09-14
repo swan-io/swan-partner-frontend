@@ -1,4 +1,4 @@
-import { AsyncData, Result } from "@swan-io/boxed";
+import { AsyncData, Result } from "@bloodyowl/boxed";
 import { LakeCombobox } from "@swan-io/lake/src/components/LakeCombobox";
 import { colors, texts } from "@swan-io/lake/src/constants/design";
 import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";

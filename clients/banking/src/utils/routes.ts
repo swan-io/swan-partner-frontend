@@ -1,4 +1,4 @@
-import { Option } from "@swan-io/boxed";
+import { Option } from "@bloodyowl/boxed";
 import { createGroup, createRouter, InferRoutes } from "@zoontek/chicane";
 import { match, P } from "ts-pattern";
 import { projectConfiguration } from "./projectId";

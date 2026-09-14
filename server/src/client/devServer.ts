@@ -8,7 +8,7 @@ import { AppName, getAppNameByHostName } from "../app";
 export const startDevServer = async (app: FastifyInstance, corsOptions: CorsOptions) => {
   const { createServer, searchForWorkspaceRoot } = await import("vite");
   const jsonc = await import("jsonc-parser");
-  const react = await import("@vitejs/plugin-react-swc").then(_ => _.default);
+  const react = await import("@vitejs/plugin-react").then(_ => _.default);
 
   const workspaceRoot = searchForWorkspaceRoot(process.cwd());
   const tsConfigPath = path.join(workspaceRoot, "tsconfig.json");
@@ -29,7 +29,7 @@ export const startDevServer = async (app: FastifyInstance, corsOptions: CorsOpti
 
       const dedupDependencies = [
         "@zoontek/chicane",
-        "@swan-io/graphql-client",
+        "@bloodyowl/graphql-client",
         "react",
         "react-dom",
       ];

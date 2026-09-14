@@ -1,5 +1,5 @@
-import { Dict, Option } from "@swan-io/boxed";
-import { useMutation } from "@swan-io/graphql-client";
+import { Dict, Option } from "@bloodyowl/boxed";
+import { useMutation } from "@bloodyowl/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";

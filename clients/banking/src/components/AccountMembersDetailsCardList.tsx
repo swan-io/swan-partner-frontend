@@ -1,4 +1,4 @@
-import { useQuery } from "@swan-io/graphql-client";
+import { useQuery } from "@bloodyowl/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { FullViewportLayer } from "@swan-io/lake/src/components/FullViewportLayer";

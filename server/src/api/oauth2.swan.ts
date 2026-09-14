@@ -3,7 +3,7 @@
  * ---
  * This file is for Swan's internal usage only
  */
-import { Result } from "@swan-io/boxed";
+import { Result } from "@bloodyowl/boxed";
 import { match, P } from "ts-pattern";
 import { OAuth2Error, query } from "./oauth2";
 

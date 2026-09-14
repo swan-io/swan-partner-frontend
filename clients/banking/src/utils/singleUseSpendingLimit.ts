@@ -1,4 +1,4 @@
-import { Result } from "@swan-io/boxed";
+import { Result } from "@bloodyowl/boxed";
 import { SpendingLimitValue } from "../components/CardItemSpendingLimit";
 import { SpendingLimitFragment } from "../graphql/partner";
 import { SpendingLimitAmountError, validateSpendingLimitAmount } from "./spendingLimit";

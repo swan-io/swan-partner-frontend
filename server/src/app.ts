@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { lookup } from "node:dns";
 import fs from "node:fs";
+import { Array, Future, Option, Result } from "@bloodyowl/boxed";
 import accepts from "@fastify/accepts";
 import cors from "@fastify/cors";
 import fastifyHelmet from "@fastify/helmet";
@@ -10,7 +11,6 @@ import secureSession from "@fastify/secure-session";
 import sensible, { HttpErrorCodes } from "@fastify/sensible";
 import fastifyStatic from "@fastify/static";
 import fastifyView from "@fastify/view";
-import { Array, Future, Option, Result } from "@swan-io/boxed";
 import fastify, { FastifyReply } from "fastify";
 import mustache from "mustache";
 import path from "pathe";

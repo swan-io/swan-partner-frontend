@@ -1,5 +1,5 @@
-import { Lazy } from "@swan-io/boxed";
-import { useMutation } from "@swan-io/graphql-client";
+import { Lazy } from "@bloodyowl/boxed";
+import { useMutation } from "@bloodyowl/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";

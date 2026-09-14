@@ -1,5 +1,5 @@
-import { AsyncData, Dict, Option, Result } from "@swan-io/boxed";
-import { useMutation, useQuery } from "@swan-io/graphql-client";
+import { AsyncData, Dict, Option, Result } from "@bloodyowl/boxed";
+import { useMutation, useQuery } from "@bloodyowl/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon } from "@swan-io/lake/src/components/Icon";

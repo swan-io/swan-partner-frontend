@@ -1,4 +1,4 @@
-import { Array, Option } from "@swan-io/boxed";
+import { Array, Option } from "@bloodyowl/boxed";
 import { isEmpty } from "@swan-io/lake/src/utils/nullish";
 import { Validator } from "@swan-io/use-form";
 import { match, P } from "ts-pattern";

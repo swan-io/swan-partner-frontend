@@ -1,4 +1,4 @@
-import { Dict } from "@swan-io/boxed";
+import { Dict } from "@bloodyowl/boxed";
 import fs from "node:fs/promises";
 import { testResultsDir } from "../../playwright.config";
 

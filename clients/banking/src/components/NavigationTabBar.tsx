@@ -1,5 +1,5 @@
-import { Option } from "@swan-io/boxed";
-import { ClientContext } from "@swan-io/graphql-client";
+import { Option } from "@bloodyowl/boxed";
+import { ClientContext } from "@bloodyowl/graphql-client";
 import { Avatar } from "@swan-io/lake/src/components/Avatar";
 import { BottomPanel } from "@swan-io/lake/src/components/BottomPanel";
 import { Box } from "@swan-io/lake/src/components/Box";

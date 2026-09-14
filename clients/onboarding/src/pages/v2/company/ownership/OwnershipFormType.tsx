@@ -1,4 +1,4 @@
-import { Option } from "@swan-io/boxed";
+import { Option } from "@bloodyowl/boxed";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { Space } from "@swan-io/lake/src/components/Space";

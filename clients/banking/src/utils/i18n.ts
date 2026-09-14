@@ -1,5 +1,5 @@
+import { Dict } from "@bloodyowl/boxed";
 import { createIntl, createIntlCache } from "@formatjs/intl";
-import { Dict } from "@swan-io/boxed";
 import { deriveUnion, memoize } from "@swan-io/lake/src/utils/function";
 import { getRifmProps } from "@swan-io/lake/src/utils/rifm";
 import { FlagCode } from "@swan-io/shared-business/src/components/Flag";

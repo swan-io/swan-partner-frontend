@@ -1,4 +1,4 @@
-import { Lazy } from "@swan-io/boxed";
+import { Lazy } from "@bloodyowl/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Cell } from "@swan-io/lake/src/components/Cells";
 import { Icon } from "@swan-io/lake/src/components/Icon";

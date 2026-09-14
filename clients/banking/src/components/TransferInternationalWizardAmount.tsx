@@ -1,5 +1,5 @@
-import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
-import { ClientError, useDeferredQuery, useQuery } from "@swan-io/graphql-client";
+import { Array, AsyncData, Option, Result } from "@bloodyowl/boxed";
+import { ClientError, useDeferredQuery, useQuery } from "@bloodyowl/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";

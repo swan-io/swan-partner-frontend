@@ -1,4 +1,4 @@
-import { Option } from "@swan-io/boxed";
+import { Option } from "@bloodyowl/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { breakpoints } from "@swan-io/lake/src/constants/design";

@@ -1,4 +1,4 @@
-import { Option, Result } from "@swan-io/boxed";
+import { Option, Result } from "@bloodyowl/boxed";
 
 // Stored in `localStorage` so it is shared between tabs: an idle tab shouldn't
 // consider the session inactive while the user works in another one

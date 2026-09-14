@@ -1,4 +1,4 @@
-import { ClientError } from "@swan-io/graphql-client";
+import { ClientError } from "@bloodyowl/graphql-client";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { match, P } from "ts-pattern";

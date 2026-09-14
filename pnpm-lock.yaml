@@ -168,11 +168,11 @@ importers:
         specifier: 3.4.0
         version: 3.4.0
       '@swan-io/lake':
-        specifier: 18.0.1
-        version: 18.0.1(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
+        specifier: 18.0.2
+        version: 18.0.2(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
       '@swan-io/shared-business':
-        specifier: 18.0.1
-        version: 18.0.1(@swan-io/lake@18.0.1(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
+        specifier: 18.0.2
+        version: 18.0.2(@swan-io/lake@18.0.2(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
       '@swan-io/use-form':
         specifier: 4.0.0
         version: 4.0.0(react@19.2.6)(typescript@7.0.2)
@@ -256,11 +256,11 @@ importers:
         specifier: 3.4.0
         version: 3.4.0
       '@swan-io/lake':
-        specifier: 18.0.1
-        version: 18.0.1(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
+        specifier: 18.0.2
+        version: 18.0.2(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
       '@swan-io/shared-business':
-        specifier: 18.0.1
-        version: 18.0.1(@swan-io/lake@18.0.1(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
+        specifier: 18.0.2
+        version: 18.0.2(@swan-io/lake@18.0.2(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
       '@swan-io/use-form':
         specifier: 4.0.0
         version: 4.0.0(react@19.2.6)(typescript@7.0.2)
@@ -335,11 +335,11 @@ importers:
         specifier: 3.4.0
         version: 3.4.0
       '@swan-io/lake':
-        specifier: 18.0.1
-        version: 18.0.1(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
+        specifier: 18.0.2
+        version: 18.0.2(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
       '@swan-io/shared-business':
-        specifier: 18.0.1
-        version: 18.0.1(@swan-io/lake@18.0.1(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
+        specifier: 18.0.2
+        version: 18.0.2(@swan-io/lake@18.0.2(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
       '@swan-io/use-form':
         specifier: 4.0.0
         version: 4.0.0(react@19.2.6)(typescript@7.0.2)
@@ -1202,9 +1202,6 @@ packages:
   '@formatjs/intl-localematcher@0.8.1':
     resolution: {integrity: sha512-xwEuwQFdtSq1UKtQnyTZWC+eHdv7Uygoa+H2k/9uzBVQjDyp9r20LNDNKedWXll7FssT3GRHvqsdJGYSUWqYFA==, tarball: https://registry.npmjs.org/@formatjs/intl-localematcher/-/intl-localematcher-0.8.1.tgz}
 
-  '@formatjs/intl@4.1.19':
-    resolution: {integrity: sha512-bZMROATl+rzfL8wsDZ53i8XWHx5e6rVr8QlGT5GDvHImEUro4WE9pxUd2dobzmI3CtD+zkt/wkEdqcb+3CK8Fg==, tarball: https://registry.npmjs.org/@formatjs/intl/-/intl-4.1.19.tgz}
-
   '@formatjs/intl@4.1.2':
     resolution: {integrity: sha512-V60fNY/X/7zqmRffr7qPwscGmVGYDmlKF069mSQ2a/7fE22q602NtIfOQY8vzRA63Gr/O/U6vjRVBHMabrnA9A==, tarball: https://registry.npmjs.org/@formatjs/intl/-/intl-4.1.2.tgz}
     peerDependencies:
@@ -1212,6 +1209,9 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
+
+  '@formatjs/intl@4.2.0':
+    resolution: {integrity: sha512-FbiaRjnQjjqo8FzayDEuuFLj+lCrSEDEmeXXGRpBUioaukr/+4djq4TYIpXnsVh2DWqYyOrMu8cLpc/rGmVHlw==, tarball: https://registry.npmjs.org/@formatjs/intl/-/intl-4.2.0.tgz}
 
   '@grafana/faro-core@2.9.0':
     resolution: {integrity: sha512-v7vrNYuoW273hOQ3rQgo3wYYBD8kH5TTfFes0dbsx2/8L+BclIsrsRCUHdlCqme2ZP42iyLkyPgCSDav8S0Niw==, tarball: https://registry.npmjs.org/@grafana/faro-core/-/faro-core-2.9.0.tgz}
@@ -2764,19 +2764,19 @@ packages:
       Deprecated: no longer maintained and no longer used by Sinon packages. See
         https://github.com/sinonjs/nise/issues/243 for replacement details.
 
-  '@swan-io/lake@18.0.1':
-    resolution: {integrity: sha512-JGSWYnQW410BUzqMUXDeTssEvCtXcbOS4C1x0ajWACeAf+y5CLYAR1jNDgrHm6AShdk/xdDaesV76bkYsVbXfw==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-18.0.1.tgz}
+  '@swan-io/lake@18.0.2':
+    resolution: {integrity: sha512-crLP3xQve5nOmk+8BDXt/Pk4UPAYGmWgughtSzESu3TPRZQzDdokzVdRL5d6SQE3YTszWvWlsj5cxEgo1AkxvQ==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-18.0.2.tgz}
     engines: {node: '>22.12.0'}
     peerDependencies:
       react: '>=19.0.0'
       react-dom: '>=19.0.0'
       react-native-web: '>=0.21.2'
 
-  '@swan-io/shared-business@18.0.1':
-    resolution: {integrity: sha512-KCkr3GyOVYZtUZOEtr5MdVgEdnTD0GMoa1m16/01vUEC6fSE7e486ztNvrKX78ieV/14BKygyRAUcYGCGc8o0Q==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-18.0.1.tgz}
+  '@swan-io/shared-business@18.0.2':
+    resolution: {integrity: sha512-eJz8OSK47pQmFf/oBExD5CCqdnRwQ1vRjaQy12lnlC1QAPRASyRK701/+G5YMaUEG3DZEjCJc8fyD7FAzqhG2w==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-18.0.2.tgz}
     engines: {node: '>22.12.0'}
     peerDependencies:
-      '@swan-io/lake': 18.0.1
+      '@swan-io/lake': 18.0.2
       react: '>=19.0.0'
       react-dom: '>=19.0.0'
       react-native-web: '>=0.21.2'
@@ -5451,6 +5451,11 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
+  use-sync-external-store@1.7.0:
+    resolution: {integrity: sha512-6L+EeigHMQhdaIPNIFUKwfWJSwWFQ8gJbJ2DLOs5sDIegTwR9fRxvnM3uciHKjIZhFz+KAv2emhWMRvDmMcY8A==, tarball: https://registry.npmjs.org/use-sync-external-store/-/use-sync-external-store-1.7.0.tgz}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==, tarball: https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz}
 
@@ -6478,12 +6483,6 @@ snapshots:
       '@formatjs/fast-memoize': 3.1.0
       tslib: 2.8.1
 
-  '@formatjs/intl@4.1.19':
-    dependencies:
-      '@formatjs/fast-memoize': 3.1.7
-      '@formatjs/icu-messageformat-parser': 3.5.17
-      intl-messageformat: 11.2.14
-
   '@formatjs/intl@4.1.2(typescript@7.0.2)':
     dependencies:
       '@formatjs/ecma402-abstract': 3.1.1
@@ -6493,6 +6492,12 @@ snapshots:
       tslib: 2.8.1
     optionalDependencies:
       typescript: 7.0.2
+
+  '@formatjs/intl@4.2.0':
+    dependencies:
+      '@formatjs/fast-memoize': 3.1.7
+      '@formatjs/icu-messageformat-parser': 3.5.17
+      intl-messageformat: 11.2.14
 
   '@grafana/faro-core@2.9.0':
     dependencies:
@@ -8456,7 +8461,7 @@ snapshots:
 
   '@sinonjs/text-encoding@0.7.2': {}
 
-  '@swan-io/lake@18.0.1(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)':
+  '@swan-io/lake@18.0.2(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)':
     dependencies:
       '@bloodyowl/boxed': 3.4.0(typescript@7.0.2)
       '@swan-io/use-form': 4.0.0(react@19.2.6)(typescript@7.0.2)
@@ -8472,13 +8477,13 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@swan-io/shared-business@18.0.1(@swan-io/lake@18.0.1(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)':
+  '@swan-io/shared-business@18.0.2(@swan-io/lake@18.0.2(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)':
     dependencies:
       '@bloodyowl/boxed': 3.4.0(typescript@7.0.2)
       '@bloodyowl/request': 3.3.0(@bloodyowl/boxed@3.4.0(typescript@7.0.2))
-      '@formatjs/intl': 4.1.19
+      '@formatjs/intl': 4.2.0
       '@placekit/client-js': 2.3.0
-      '@swan-io/lake': 18.0.1(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
+      '@swan-io/lake': 18.0.2(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
       '@swan-io/use-form': 4.0.0(react@19.2.6)(typescript@7.0.2)
       dayjs: 1.11.23
       iban: 0.0.14
@@ -10761,7 +10766,7 @@ snapshots:
   react-atomic-state@2.1.0(react@19.2.6):
     dependencies:
       react: 19.2.6
-      use-sync-external-store: 1.6.0(react@19.2.6)
+      use-sync-external-store: 1.7.0(react@19.2.6)
 
   react-dom@19.2.6(react@19.2.6):
     dependencies:
@@ -11366,6 +11371,10 @@ snapshots:
   urlpattern-polyfill@10.1.0: {}
 
   use-sync-external-store@1.6.0(react@19.2.6):
+    dependencies:
+      react: 19.2.6
+
+  use-sync-external-store@1.7.0(react@19.2.6):
     dependencies:
       react: 19.2.6
 

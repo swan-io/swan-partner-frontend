@@ -50,6 +50,7 @@ const scalars = {
   EmailAddress: "string",
   HexColorCode: "string",
   IBAN: "string",
+  ID: "string",
   PIN: "string",
   PhoneNumber: "string",
   PostalCode: "string",
@@ -78,75 +79,108 @@ const backendConfig = {
   federation: true,
 };
 
+type Output = {
+  path: string;
+  documents: string;
+  schema: string;
+  plugins: string[];
+  config: object;
+};
+
+const output = ({
+  path,
+  documents,
+  schema,
+  plugins,
+  config,
+}: Output): [string, Types.ConfiguredOutput] => {
+  const outputFile = file(path);
+
+  return [
+    outputFile,
+    {
+      documents: file(documents),
+      schema: file(schema),
+      plugins,
+      // `typescript-operations` v6 re-generates the enums and input objects used by
+      // operations. Pointing it at the output file itself makes it reuse the ones already
+      // emitted by the `typescript` plugin instead of duplicating them.
+      config: { ...config, importSchemaTypesFrom: outputFile },
+      documentTransforms: [{ transform: addTypenames }],
+    },
+  ];
+};
+
 const config: CodegenConfig = {
   errorsOnly: true,
   overwrite: true,
+  importExtension: ".ts",
 
-  generates: {
-    [file("../../clients/payment/src/graphql/unauthenticated.ts")]: {
-      documents: file("../../clients/payment/src/graphql/unauthenticated.gql"),
-      schema: file("./dist/unauthenticated-schema.gql"),
+  generates: Object.fromEntries([
+    output({
+      path: "../../clients/payment/src/graphql/unauthenticated.ts",
+      documents: "../../clients/payment/src/graphql/unauthenticated.gql",
+      schema: "./dist/unauthenticated-schema.gql",
       plugins: frontendPlugins,
       config: frontendConfig,
-      documentTransforms: [{ transform: addTypenames }],
-    },
+    }),
 
-    [file("../../clients/onboarding/src/graphql/unauthenticated.ts")]: {
-      documents: file("../../clients/onboarding/src/graphql/unauthenticated.gql"),
-      schema: file("./dist/unauthenticated-schema.gql"),
+    output({
+      path: "../../clients/onboarding/src/graphql/unauthenticated.ts",
+      documents: "../../clients/onboarding/src/graphql/unauthenticated.gql",
+      schema: "./dist/unauthenticated-schema.gql",
       plugins: frontendPlugins,
       config: frontendConfig,
-      documentTransforms: [{ transform: addTypenames }],
-    },
+    }),
 
-    [file("../../clients/onboarding/src/graphql/partner.ts")]: {
-      documents: file("../../clients/onboarding/src/graphql/partner.gql"),
-      schema: file("./dist/partner-schema.gql"),
+    output({
+      path: "../../clients/onboarding/src/graphql/partner.ts",
+      documents: "../../clients/onboarding/src/graphql/partner.gql",
+      schema: "./dist/partner-schema.gql",
       plugins: frontendPlugins,
       config: frontendConfig,
-      documentTransforms: [{ transform: addTypenames }],
-    },
+    }),
 
-    [file("../../clients/banking/src/graphql/partner.ts")]: {
-      documents: file("../../clients/banking/src/graphql/partner.gql"),
-      schema: file("./dist/partner-schema.gql"),
+    output({
+      path: "../../clients/banking/src/graphql/partner.ts",
+      documents: "../../clients/banking/src/graphql/partner.gql",
+      schema: "./dist/partner-schema.gql",
       plugins: frontendPlugins,
       config: frontendConfig,
-      documentTransforms: [{ transform: addTypenames }],
-    },
+    }),
 
-    [file("../../clients/banking/src/graphql/partner-admin.ts")]: {
-      documents: file("../../clients/banking/src/graphql/partner-admin.gql"),
-      schema: file("./dist/partner-admin-schema.gql"),
+    output({
+      path: "../../clients/banking/src/graphql/partner-admin.ts",
+      documents: "../../clients/banking/src/graphql/partner-admin.gql",
+      schema: "./dist/partner-admin-schema.gql",
       plugins: frontendPlugins,
       config: frontendConfig,
-      documentTransforms: [{ transform: addTypenames }],
-    },
+    }),
 
-    [file("../../clients/banking/src/graphql/unauthenticated.ts")]: {
-      documents: file("../../clients/banking/src/graphql/unauthenticated.gql"),
-      schema: file("./dist/unauthenticated-schema.gql"),
-      config: frontendConfig,
+    output({
+      path: "../../clients/banking/src/graphql/unauthenticated.ts",
+      documents: "../../clients/banking/src/graphql/unauthenticated.gql",
+      schema: "./dist/unauthenticated-schema.gql",
       plugins: frontendPlugins,
-      documentTransforms: [{ transform: addTypenames }],
-    },
+      config: frontendConfig,
+    }),
 
-    [file("../../server/src/graphql/partner.ts")]: {
-      documents: file("../../server/src/graphql/partner.gql"),
-      schema: file("./dist/partner-schema.gql"),
+    output({
+      path: "../../server/src/graphql/partner.ts",
+      documents: "../../server/src/graphql/partner.gql",
+      schema: "./dist/partner-schema.gql",
       plugins: backendPlugins,
       config: backendConfig,
-      documentTransforms: [{ transform: addTypenames }],
-    },
+    }),
 
-    [file("../../server/src/graphql/unauthenticated.ts")]: {
-      documents: file("../../server/src/graphql/unauthenticated.gql"),
-      schema: file("./dist/unauthenticated-schema.gql"),
+    output({
+      path: "../../server/src/graphql/unauthenticated.ts",
+      documents: "../../server/src/graphql/unauthenticated.gql",
+      schema: "./dist/unauthenticated-schema.gql",
       plugins: backendPlugins,
       config: backendConfig,
-      documentTransforms: [{ transform: addTypenames }],
-    },
-  },
+    }),
+  ]),
 };
 
 export default config;

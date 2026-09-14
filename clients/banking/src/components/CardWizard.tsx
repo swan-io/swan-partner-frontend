@@ -731,6 +731,7 @@ export const CardWizard = ({
                         }) => (
                           <CardWizardSettings
                             ref={cardWizardSettingsRef}
+                            isVirtualCard={cardFormat === "Virtual"}
                             initialSettings={{
                               cardName,
                               eCommerce,

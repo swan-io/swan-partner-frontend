@@ -41,8 +41,6 @@
         "@graphql-codegen/plugin-helpers",
       ],
       "ignoreBinaries": ["generate-schema-config"],
-
-      "playwright": false, // prevent to load playwright.config.ts which requires .env.e2e file
     },
   },
 }

@@ -174,16 +174,7 @@ describe("upsertAccountAdminInRelatedIndividuals", () => {
 });
 
 describe("getRegistrationRequirements", () => {
-  it("exempts the main company of a capital deposit case from both fields", () => {
-    expect(
-      getRegistrationRequirements({
-        companyCountry: "FRA",
-        capitalDepositType: "MainCompanyAccount",
-      }),
-    ).toEqual({ isRegistrationNumberRequired: false, isRegistrationDateRequired: false });
-  });
-
-  it("exempts the main company whatever the company country", () => {
+  it("exempts the main company of a capital deposit case whatever the company country", () => {
     for (const companyCountry of ["FRA", "BEL", "DEU"] as const) {
       expect(
         getRegistrationRequirements({ companyCountry, capitalDepositType: "MainCompanyAccount" }),

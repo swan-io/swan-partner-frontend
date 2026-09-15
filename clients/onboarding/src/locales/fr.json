@@ -145,7 +145,7 @@
   "company.step.documents.title": "Documents justificatifs",
   "company.step.legal.prefilled": "Ces champs ont été préremplis en fonction de votre sélection d'entreprise. Pour sélectionner une autre entreprise, recommencez.",
   "company.step.legal.registrationDateLabel": "Date d'inscription",
-  "company.step.legal.registrationNumberLabel": "Numéro d'enregistrement ({registrationNumberLegalName})",
+  "company.step.legal.registrationNumberLabel": "{hasLegalName, select, yes {Numéro d'enregistrement ({registrationNumberLegalName})} other {Numéro d'enregistrement}}",
   "company.step.legal.title": "Informations juridiques",
   "company.step.legal.vatLabel": "Numéro de TVA",
   "company.step.organisation.addDetails": "Ajoutez les détails de votre organisation",

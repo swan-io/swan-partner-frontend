@@ -17,7 +17,6 @@ import { PlacekitCityInput } from "@swan-io/shared-business/src/components/Place
 import {
   allCountries,
   CountryCCA3,
-  companyCountries,
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
@@ -32,7 +31,6 @@ import { combineValidators, useForm } from "@swan-io/use-form";
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
-import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import { StepTitle } from "../../../components/StepTitle";
 import {
@@ -310,7 +308,7 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
   return (
     <>
       <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.gap}>
-        {({ large, small }) => (
+        {({ large }) => (
           <>
             <Tile style={styles.gap}>
               <StepTitle>{t("form.personalInformation.title")}</StepTitle>
@@ -530,19 +528,24 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
             <Tile style={styles.gap}>
               <StepTitle>{t("form.residence.title")}</StepTitle>
               <View style={[styles.grid, large && styles.gridDesktop]}>
-                <Field name="residenceCountry">
-                  {({ value, onChange }) => (
-                    <OnboardingCountryPicker
-                      label={t("form.label.residenceCountry")}
-                      value={value}
-                      countries={companyCountries}
-                      holderType="company"
-                      onlyIconHelp={small}
-                      onValueChange={onChange}
-                      style={styles.inputFull}
-                    />
+                <LakeLabel
+                  label={t("form.label.residenceCountry")}
+                  style={styles.inputFull}
+                  render={id => (
+                    <Field name="residenceCountry">
+                      {({ value, onChange, error, ref }) => (
+                        <CountryPicker
+                          id={id}
+                          ref={ref}
+                          countries={allCountries}
+                          value={value}
+                          error={error}
+                          onValueChange={onChange}
+                        />
+                      )}
+                    </Field>
                   )}
-                </Field>
+                />
 
                 <FieldsListener names={["residenceCountry"]}>
                   {({ residenceCountry }) => (

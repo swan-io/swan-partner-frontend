@@ -145,7 +145,7 @@
   "company.step.documents.title": "Unterstützende Unterlagen",
   "company.step.legal.prefilled": "Diese Felder wurden anhand Ihrer Unternehmensauswahl vorausgefüllt. Um ein anderes Unternehmen auszuwählen, beginnen Sie bitte von vorne.",
   "company.step.legal.registrationDateLabel": "Registrierungsdatum",
-  "company.step.legal.registrationNumberLabel": "Registrierungsnummer ({registrationNumberLegalName})",
+  "company.step.legal.registrationNumberLabel": "{hasLegalName, select, yes {Registrierungsnummer ({registrationNumberLegalName})} other {Registrierungsnummer}}",
   "company.step.legal.title": "Rechtliche Informationen",
   "company.step.legal.vatLabel": "Umsatzsteuer-Identifikationsnummer",
   "company.step.organisation.addDetails": "Fügen Sie Ihre Unternehmensdaten hinzu",

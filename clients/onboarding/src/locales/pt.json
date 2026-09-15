@@ -145,7 +145,7 @@
   "company.step.documents.title": "Documentos de apoio",
   "company.step.legal.prefilled": "Estes campos foram preenchidos automaticamente com base na empresa selecionada. Para selecionar outra empresa, comece de novo.",
   "company.step.legal.registrationDateLabel": "Data de inscrição",
-  "company.step.legal.registrationNumberLabel": "Número de registo ({registrationNumberLegalName})",
+  "company.step.legal.registrationNumberLabel": "{hasLegalName, select, yes {Número de registo ({registrationNumberLegalName})} other {Número de registo}}",
   "company.step.legal.title": "Informação legal",
   "company.step.legal.vatLabel": "Número do IVA",
   "company.step.organisation.addDetails": "Adicione os detalhes da sua organização.",

@@ -5,20 +5,16 @@ import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { trim } from "@swan-io/lake/src/utils/string";
-import {
-  CompanyCountryCCA3,
-  CountryCCA3,
-  companyCountries,
-} from "@swan-io/shared-business/src/constants/countries";
+import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
+import { allCountries, CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { useForm } from "@swan-io/use-form";
 import { Ref, useEffect, useImperativeHandle } from "react";
 import { View } from "react-native";
 import { match, P } from "ts-pattern";
-import { OnboardingCountryPicker } from "../../../../components/CountryPicker";
 import { RelatedCompanyInput } from "../../../../graphql/partner";
 import { t } from "../../../../utils/i18n";
-import { getRegistrationNumberName } from "../../../../utils/templateTranslations";
+import { getRegistrationNumberLabel } from "../../../../utils/templateTranslations";
 import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../../../utils/validation";
 
 export type OnboardingCompanyOwnershipFormCompanyRef = {
@@ -64,7 +60,7 @@ export const OwnershipFormCompany = ({
       validate: validateRequired,
     },
     registrationCountry: {
-      initialValue: (initialValues.registrationCountry as CompanyCountryCCA3) ?? companyCountry,
+      initialValue: (initialValues.registrationCountry as CountryCCA3) ?? companyCountry,
       validate: validateRequired,
     },
     registrationNumber: {
@@ -116,30 +112,30 @@ export const OwnershipFormCompany = ({
         )}
       />
 
-      <Field name="registrationCountry">
-        {({ value, onChange }) => (
-          <OnboardingCountryPicker
-            label={t("company.step.organisation.countryLabel")}
-            value={value}
-            countries={companyCountries}
-            holderType="company"
-            onValueChange={onChange}
-            onlyIconHelp={false}
-          />
+      <LakeLabel
+        label={t("company.step.organisation.countryLabel")}
+        render={id => (
+          <Field name="registrationCountry">
+            {({ value, onChange, error, ref }) => (
+              <CountryPicker
+                id={id}
+                ref={ref}
+                countries={allCountries}
+                value={value}
+                error={error}
+                onValueChange={onChange}
+              />
+            )}
+          </Field>
         )}
-      </Field>
+      />
 
       <FieldsListener names={["registrationCountry"]}>
         {({ registrationCountry }) => (
           <Field name="registrationNumber">
             {({ value, valid, error, onChange, ref, onBlur }) => (
               <LakeLabel
-                label={t("company.step.legal.registrationNumberLabel", {
-                  registrationNumberLegalName: getRegistrationNumberName(
-                    registrationCountry.value,
-                    "Company",
-                  ),
-                })}
+                label={getRegistrationNumberLabel(registrationCountry.value, "Company")}
                 render={id => (
                   <LakeTextInput
                     onBlur={onBlur}

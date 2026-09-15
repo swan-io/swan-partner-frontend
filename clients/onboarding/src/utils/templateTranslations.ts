@@ -100,3 +100,12 @@ export const getRegistrationNumberName = (country: CountryCCA3, companyType: Com
   }
   return `${name}`;
 };
+
+export const getRegistrationNumberLabel = (country: CountryCCA3, companyType: CompanyType) => {
+  const registrationNumberLegalName = getRegistrationNumberName(country, companyType);
+
+  return t("company.step.legal.registrationNumberLabel", {
+    hasLegalName: registrationNumberLegalName === "" ? "no" : "yes",
+    registrationNumberLegalName,
+  });
+};

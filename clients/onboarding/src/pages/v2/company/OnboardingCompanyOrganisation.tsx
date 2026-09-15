@@ -39,7 +39,7 @@ import { getRegistrationRequirements } from "../../../utils/onboarding";
 import { Router } from "../../../utils/routes";
 import { hasOnboardingPrefilled } from "../../../utils/session";
 import {
-  getRegistrationNumberName,
+  getRegistrationNumberLabel,
   getUpdateOnboardingError,
 } from "../../../utils/templateTranslations";
 import {
@@ -361,12 +361,10 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
                 <Field name="registrationNumber">
                   {({ value, valid, error, onChange, ref, onBlur }) => (
                     <LakeLabel
-                      label={t("company.step.legal.registrationNumberLabel", {
-                        registrationNumberLegalName: getRegistrationNumberName(
-                          companyCountry as CompanyCountryCCA3,
-                          companyType ?? "Company",
-                        ),
-                      })}
+                      label={getRegistrationNumberLabel(
+                        companyCountry as CompanyCountryCCA3,
+                        companyType ?? "Company",
+                      )}
                       optionalLabel={
                         isRegistrationNumberRequired ? undefined : t("common.optional")
                       }

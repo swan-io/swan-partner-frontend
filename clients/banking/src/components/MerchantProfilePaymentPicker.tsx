@@ -4,7 +4,7 @@ import { Stack } from "@swan-io/lake/src/components/Stack";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { StyleSheet, View } from "react-native";
-import { MerchantPaymentsQuery } from "../graphql/partner";
+import { MerchantProfileQuery } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { t } from "../utils/i18n";
@@ -37,7 +37,7 @@ type Props = {
   params: RouteParams<"AccountMerchantsProfilePaymentsPicker">;
   shouldEnableCheckTile: boolean;
   shouldEnablePaymentLinkTile: boolean;
-  merchantProfile: NonNullable<MerchantPaymentsQuery["merchantProfile"]>;
+  merchantProfile: NonNullable<MerchantProfileQuery["merchantProfile"]>;
 };
 
 export const MerchantProfilePaymentPicker = ({

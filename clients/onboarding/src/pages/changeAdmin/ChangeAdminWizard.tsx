@@ -247,7 +247,12 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
                       .with("ChangeAdminNewAdmin", () => (
                         <ChangeAdminNewAdmin
                           initialValues={{
-                            ...data.admin,
+                            birthCountry: data.admin?.birthCountry ?? null,
+                            birthDate: data.admin?.birthDate ?? null,
+                            email: data.admin?.email ?? null,
+                            firstName: data.admin?.firstName ?? null,
+                            lastName: data.admin?.lastName ?? null,
+                            phoneNumber: data.admin?.phoneNumber ?? null,
                             isNewAdminLegalRepresentative: data.isNewAdminLegalRepresentative,
                           }}
                           changeAdminRequestId={changeAdminRequestId}

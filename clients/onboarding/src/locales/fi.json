@@ -145,7 +145,7 @@
   "company.step.documents.title": "Muut asiakirjat",
   "company.step.legal.prefilled": "Nämä kentät on täytetty valmiiksi yrityksesi valinnan perusteella. Jos haluat valita toisen yrityksen, aloita alusta.",
   "company.step.legal.registrationDateLabel": "Rekisteröintipäivä",
-  "company.step.legal.registrationNumberLabel": "Rekisteröintinumero ({registrationNumberLegalName})",
+  "company.step.legal.registrationNumberLabel": "{hasLegalName, select, yes {Rekisteröintinumero ({registrationNumberLegalName})} other {Rekisteröintinumero}}",
   "company.step.legal.title": "Oikeudelliset tiedot",
   "company.step.legal.vatLabel": "ALV-numero",
   "company.step.organisation.addDetails": "Lisää organisaatiosi tiedot",

@@ -145,7 +145,7 @@
   "company.step.documents.title": "Documenti di supporto",
   "company.step.legal.prefilled": "Questi campi sono stati compilati automaticamente in base alla sua selezione dell'azienda. Per selezionare un'altra azienda, ricominci da capo.",
   "company.step.legal.registrationDateLabel": "Data di registrazione",
-  "company.step.legal.registrationNumberLabel": "Numero di registrazione ({registrationNumberLegalName})",
+  "company.step.legal.registrationNumberLabel": "{hasLegalName, select, yes {Numero di registrazione ({registrationNumberLegalName})} other {Numero di registrazione}}",
   "company.step.legal.title": "Informazioni legali",
   "company.step.legal.vatLabel": "Partita IVA",
   "company.step.organisation.addDetails": "Aggiunga i dati della sua organizzazione",

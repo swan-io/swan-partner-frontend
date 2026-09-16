@@ -145,7 +145,7 @@
   "company.step.documents.title": "Ondersteunende documenten",
   "company.step.legal.prefilled": "Deze velden zijn al ingevuld op basis van je bedrijfskeuze. Om een ​​ander bedrijf te selecteren, moet je opnieuw beginnen.",
   "company.step.legal.registrationDateLabel": "Datum van oprichting",
-  "company.step.legal.registrationNumberLabel": "Registratienummer ({registrationNumberLegalName})",
+  "company.step.legal.registrationNumberLabel": "{hasLegalName, select, yes {Registratienummer ({registrationNumberLegalName})} other {Registratienummer}}",
   "company.step.legal.title": "Juridische informatie",
   "company.step.legal.vatLabel": "BTW-nummer",
   "company.step.organisation.addDetails": "Voeg de gegevens van je organisatie toe",

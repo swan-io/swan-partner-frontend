@@ -277,26 +277,16 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey, large }: 
     }
   };
 
-  if (isSandbox) {
-    return (
-      <>
-        <LakeAlert variant="info" title={t("paymentLink.alert")} />
-        <Space height={24} />
-
-        <LakeButton
-          color="partner"
-          onPress={onPressSimulate}
-          loading={simulateIncomingOnlineCardAuthorizationData.isLoading()}
-        >
-          {t("paymentLink.button.simulatePayment")}
-        </LakeButton>
-      </>
-    );
-  }
-
   return (
     <>
       <Box>
+        {isSandbox && (
+          <>
+            <LakeAlert variant="info" title={t("paymentLink.alert")} />
+            <Space height={24} />
+          </>
+        )}
+
         <LakeLabel
           label={t("paymentLink.card.cardNumber")}
           render={() => (
@@ -457,9 +447,19 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey, large }: 
 
       <Space height={32} />
 
-      <LakeButton color="partner" onPress={onPressSubmit} loading={isLoading}>
-        {t("button.pay")}
-      </LakeButton>
+      {isSandbox ? (
+        <LakeButton
+          color="partner"
+          onPress={onPressSimulate}
+          loading={simulateIncomingOnlineCardAuthorizationData.isLoading()}
+        >
+          {t("paymentLink.button.simulatePayment")}
+        </LakeButton>
+      ) : (
+        <LakeButton color="partner" onPress={onPressSubmit} loading={isLoading}>
+          {t("button.pay")}
+        </LakeButton>
+      )}
     </>
   );
 };

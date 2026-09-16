@@ -91,6 +91,7 @@
       "CapitalDepositCaseCanNotBeCanceledRejection",
       "CapitalDepositCaseCanNotBeFoundRejection",
       "CapitalDepositCaseCompanyCannotBeUpdatedRejection",
+      "CapitalDepositCaseShareholdersNotReadyRejection",
       "CapitalDepositDocumentCanNotBeUploaded",
       "CapitalDepositDocumentCanNotBeUploadedRejection",
       "CouldNotAccessCapitalDepositDocumentParentRejection",

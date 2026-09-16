@@ -147,8 +147,8 @@ importers:
         specifier: 3.4.0
         version: 3.4.0(typescript@7.0.2)
       '@bloodyowl/graphql-client':
-        specifier: 0.9.0
-        version: 0.9.0(graphql@16.12.0)(react@19.2.6)(typescript@7.0.2)
+        specifier: 0.9.1
+        version: 0.9.1(graphql@16.12.0)(react@19.2.6)(typescript@7.0.2)
       '@bloodyowl/request':
         specifier: 3.3.0
         version: 3.3.0(@bloodyowl/boxed@3.4.0(typescript@7.0.2))
@@ -235,8 +235,8 @@ importers:
         specifier: 3.4.0
         version: 3.4.0(typescript@7.0.2)
       '@bloodyowl/graphql-client':
-        specifier: 0.9.0
-        version: 0.9.0(graphql@16.12.0)(react@19.2.6)(typescript@7.0.2)
+        specifier: 0.9.1
+        version: 0.9.1(graphql@16.12.0)(react@19.2.6)(typescript@7.0.2)
       '@bloodyowl/request':
         specifier: 3.3.0
         version: 3.3.0(@bloodyowl/boxed@3.4.0(typescript@7.0.2))
@@ -314,8 +314,8 @@ importers:
         specifier: 3.4.0
         version: 3.4.0(typescript@7.0.2)
       '@bloodyowl/graphql-client':
-        specifier: 0.9.0
-        version: 0.9.0(graphql@16.12.0)(react@19.2.6)(typescript@7.0.2)
+        specifier: 0.9.1
+        version: 0.9.1(graphql@16.12.0)(react@19.2.6)(typescript@7.0.2)
       '@bloodyowl/request':
         specifier: 3.3.0
         version: 3.3.0(@bloodyowl/boxed@3.4.0(typescript@7.0.2))
@@ -682,8 +682,8 @@ packages:
       typescript:
         optional: true
 
-  '@bloodyowl/graphql-client@0.9.0':
-    resolution: {integrity: sha512-t9ACRBdJoopSIirJX0iv0jTjVavYuhr66vEjnd/nJ/PQ3ffw9TSlwrdx6ZhOtwCokaSgXANZgN5eRQZlSu7/Fg==, tarball: https://registry.npmjs.org/@bloodyowl/graphql-client/-/graphql-client-0.9.0.tgz}
+  '@bloodyowl/graphql-client@0.9.1':
+    resolution: {integrity: sha512-0poeamDkbZ4yuMbamnovSTlzUpggAjWyYQpzDszqkysgcu+0mCZu0Po+Rl8ayS/XltuHz+gzfvdoxUKbeGGkZQ==, tarball: https://registry.npmjs.org/@bloodyowl/graphql-client/-/graphql-client-0.9.1.tgz}
     hasBin: true
     peerDependencies:
       react: '>=18.2.0'
@@ -2635,7 +2635,7 @@ packages:
         https://github.com/sinonjs/nise/issues/243 for replacement details.
 
   '@swan-io/lake@18.0.2':
-    resolution: {integrity: sha512-crLP3xQve5nOmk+8BDXt/Pk4UPAYGmWgughtSzESu3TPRZQzDdokzVdRL5d6SQE3YTszWvWlsj5cxEgo1AkxvQ==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-18.0.2.tgz}
+    resolution: {integrity: sha512-crLP3xQve5nOmk+8BDXt/Pk4UPAYGmWgughtSzESu3TPRZQzDdokzVdRL5d6SQE3YTszWvWlsj5cxEgo1AkxvQ==, tarball: https://npm.pkg.github.com/download/@swan-io/lake/18.0.2/ed6123c5cd17109d292166d91590678cd38e322a}
     engines: {node: '>22.12.0'}
     peerDependencies:
       react: '>=19.0.0'
@@ -2643,7 +2643,7 @@ packages:
       react-native-web: '>=0.21.2'
 
   '@swan-io/shared-business@18.0.2':
-    resolution: {integrity: sha512-eJz8OSK47pQmFf/oBExD5CCqdnRwQ1vRjaQy12lnlC1QAPRASyRK701/+G5YMaUEG3DZEjCJc8fyD7FAzqhG2w==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-18.0.2.tgz}
+    resolution: {integrity: sha512-eJz8OSK47pQmFf/oBExD5CCqdnRwQ1vRjaQy12lnlC1QAPRASyRK701/+G5YMaUEG3DZEjCJc8fyD7FAzqhG2w==, tarball: https://npm.pkg.github.com/download/@swan-io/shared-business/18.0.2/3a5fc305127acccf8b127a9f39557e587c254c08}
     engines: {node: '>22.12.0'}
     peerDependencies:
       '@swan-io/lake': 18.0.2
@@ -2652,7 +2652,7 @@ packages:
       react-native-web: '>=0.21.2'
 
   '@swan-io/use-form@4.0.0':
-    resolution: {integrity: sha512-8ZrqjhNPDtMqGoTJ1VPzZcaJfvCGva6rHQm5TmCdGRUJyx18GQO08v4wgfro4SrY+UY/A0wnoGFZqlmRC4kknQ==, tarball: https://registry.npmjs.org/@swan-io/use-form/-/use-form-4.0.0.tgz}
+    resolution: {integrity: sha512-8ZrqjhNPDtMqGoTJ1VPzZcaJfvCGva6rHQm5TmCdGRUJyx18GQO08v4wgfro4SrY+UY/A0wnoGFZqlmRC4kknQ==, tarball: https://npm.pkg.github.com/download/@swan-io/use-form/4.0.0/ccc497268c7bcebd18e287fbfeeba51490106e0c}
     peerDependencies:
       react: '>=19.0.0'
 
@@ -5567,7 +5567,7 @@ snapshots:
     optionalDependencies:
       typescript: 7.0.2
 
-  '@bloodyowl/graphql-client@0.9.0(graphql@16.12.0)(react@19.2.6)(typescript@7.0.2)':
+  '@bloodyowl/graphql-client@0.9.1(graphql@16.12.0)(react@19.2.6)(typescript@7.0.2)':
     dependencies:
       '@0no-co/graphql.web': 1.2.0(graphql@16.12.0)
       '@bloodyowl/boxed': 3.4.0(typescript@7.0.2)

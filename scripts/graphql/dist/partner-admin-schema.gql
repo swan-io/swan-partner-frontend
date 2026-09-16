@@ -4252,6 +4252,9 @@ type User {
 
     """a filtering table you can apply to your list of connections"""
     filters: AccountMembershipsFilterInput
+
+    """an order you can apply to your list of connections"""
+    orderBy: UserAccountMembershipOrderByInput
   ): AccountMembershipConnection!
 
   """
@@ -4322,6 +4325,29 @@ type User {
   - If they don't match, `preferredLastName` defaults to the last name entered during sign-up.
   """
   preferredLastName: String
+}
+
+"""
+Fields that can be used when ordering the account memberships of a user
+"""
+enum UserAccountMembershipOrderByFieldInput {
+  createdAt
+  updatedAt
+
+  """
+  Name of the account bound to the account membership.
+  
+  Memberships not yet bound to an account are ordered first when ascending.
+  """
+  accountName
+}
+
+"""
+Order that can be applied when listing the account memberships of a user
+"""
+input UserAccountMembershipOrderByInput {
+  field: UserAccountMembershipOrderByFieldInput
+  direction: OrderByDirection
 }
 
 """A detail of a validation error : what field is errored and why"""
@@ -5037,6 +5063,14 @@ type CapitalDepositCasePendingInternalReviewStatusInfo implements CapitalDeposit
 }
 
 """
+Rejection returned if one or more shareholders of the capital deposit case have not transferred their capital or are not funded
+"""
+type CapitalDepositCaseShareholdersNotReadyRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""
 Status of a capital deposit case.
 @deprecated look for enum `CapitalDepositStatus` instead.
 """
@@ -5506,7 +5540,7 @@ input SimulateApproveCapitalDepositCaseInput {
   capitalDepositCaseId: String!
 }
 
-union SimulateApproveCapitalDepositCasePayload = SimulateApproveCapitalDepositCaseSuccessPayload | CouldNotFindCapitalDepositCaseRejection
+union SimulateApproveCapitalDepositCasePayload = SimulateApproveCapitalDepositCaseSuccessPayload | CouldNotFindCapitalDepositCaseRejection | CapitalDepositCaseShareholdersNotReadyRejection
 
 type SimulateApproveCapitalDepositCaseSuccessPayload {
   id: String!

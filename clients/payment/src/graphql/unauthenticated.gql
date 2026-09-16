@@ -123,3 +123,17 @@ mutation InitiateCardMerchantPayment(
     }
   }
 }
+
+mutation SimulateIncomingOnlineCardAuthorization(
+  $input: SimulateIncomingOnlineCardAuthorizationInput!
+) {
+  simulateIncomingOnlineCardAuthorization(input: $input) {
+    __typename
+    ... on SimulateIncomingOnlineCardAuthorizationSuccessPayload {
+      paymentId
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}

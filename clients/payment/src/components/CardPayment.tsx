@@ -9,6 +9,8 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { colors, radii, spacings } from "@swan-io/lake/src/constants/design";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { FrameCardTokenizedEvent, Frames } from "frames-react";
 import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -17,6 +19,7 @@ import {
   AddCardPaymentMandateDocument,
   GetMerchantPaymentLinkQuery,
   InitiateCardMerchantPaymentDocument,
+  SimulateIncomingOnlineCardAuthorizationDocument,
 } from "../graphql/unauthenticated";
 import { env } from "../utils/env";
 import { t } from "../utils/i18n";
@@ -62,6 +65,9 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey, large }: 
   const [addCardPaymentMandate] = useMutation(AddCardPaymentMandateDocument);
 
   const [initiateCardPayment] = useMutation(InitiateCardMerchantPaymentDocument);
+
+  const [simulateIncomingOnlineCardAuthorization, simulateIncomingOnlineCardAuthorizationData] =
+    useMutation(SimulateIncomingOnlineCardAuthorizationDocument);
 
   type FieldState = "untouched" | "empty" | "invalid" | "valid";
   type CardFieldState = FieldState | "cardNotSupported";
@@ -188,6 +194,30 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey, large }: 
         .otherwise(() => {});
     });
   }, [cardNumberState]);
+
+  const onPressSimulate = () => {
+    simulateIncomingOnlineCardAuthorization({
+      input: {
+        paymentLinkId: paymentLink.id,
+        authorization: { status: "Authorized" },
+        threeDS: { status: "Successful" },
+        cardDetails: {
+          scheme: "Visa",
+          category: "Consumer",
+          type: "Credit",
+          country: "FRA",
+        },
+      },
+    })
+      .mapOk(data => data.simulateIncomingOnlineCardAuthorization)
+      .mapOkToResult(filterRejectionsToResult)
+      .tapOk(() => {
+        Router.replace("PaymentSuccess", { paymentLinkId: paymentLink.id });
+      })
+      .tapError(error => {
+        showToast({ variant: "error", error, title: translateError(error) });
+      });
+  };
 
   const onPressSubmit = () => {
     if (cardNumberState === "untouched") {
@@ -410,9 +440,19 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey, large }: 
 
       <Space height={32} />
 
-      <LakeButton color="partner" onPress={onPressSubmit} loading={isLoading} disabled={isSandbox}>
-        {t("button.pay")}
-      </LakeButton>
+      {isSandbox ? (
+        <LakeButton
+          color="partner"
+          onPress={onPressSimulate}
+          loading={simulateIncomingOnlineCardAuthorizationData.isLoading()}
+        >
+          {t("paymentLink.button.simulatePayment")}
+        </LakeButton>
+      ) : (
+        <LakeButton color="partner" onPress={onPressSubmit} loading={isLoading}>
+          {t("button.pay")}
+        </LakeButton>
+      )}
     </>
   );
 };

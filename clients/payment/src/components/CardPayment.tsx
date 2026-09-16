@@ -116,17 +116,10 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey, large }: 
   }, [publicKey]);
 
   useEffect(() => {
-    if (isSandbox) {
-      return;
-    }
     initFramesSession();
-  }, [initFramesSession, isSandbox]);
+  }, [initFramesSession]);
 
   useEffect(() => {
-    if (isSandbox) {
-      return;
-    }
-
     Frames.addEventHandler(
       "paymentMethodChanged",
       // @ts-expect-error addEventHandler isn't typed correctly
@@ -200,7 +193,7 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey, large }: 
         .with({ element: "cvv" }, () => setCvvNumberHasBeenBlurred(true))
         .otherwise(() => {});
     });
-  }, [cardNumberState, isSandbox]);
+  }, [cardNumberState]);
 
   const onPressSimulate = () => {
     simulateIncomingOnlineCardAuthorization({

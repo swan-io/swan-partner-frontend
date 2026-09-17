@@ -7,6 +7,7 @@
   "paymentLink.alert": "Houd er rekening mee dat dit een testomgeving is en dat het niet mogelijk is om testbetalingen te maken op deze pagina. Gebruik in plaats daarvan de handelaarssimulaties in de Explorer API.",
   "paymentLink.button.downloadMandate": "Machtiging downloaden",
   "paymentLink.button.returnToWebsite": "Terug naar de website",
+  "paymentLink.button.simulatePayment": "Simulate payment",
   "paymentLink.card.cardNumber": "Kaartnummer",
   "paymentLink.card.cvv": "CVV",
   "paymentLink.card.expiryDate": "Vervaldatum",

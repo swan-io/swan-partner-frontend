@@ -3812,8 +3812,8 @@ type CompanyAccountHolderOnboardingAccountAdmin {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   firstName: String
 
@@ -3826,8 +3826,8 @@ type CompanyAccountHolderOnboardingAccountAdmin {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   lastName: String
 
@@ -3872,8 +3872,8 @@ input CompanyAccountHolderOnboardingAccountAdminInput {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   firstName: String
 
@@ -3886,8 +3886,8 @@ input CompanyAccountHolderOnboardingAccountAdminInput {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   lastName: String
 
@@ -3933,8 +3933,8 @@ input CompanyAccountHolderOnboardingAccountAdminUpdateInput {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   firstName: String
 
@@ -3947,8 +3947,8 @@ input CompanyAccountHolderOnboardingAccountAdminUpdateInput {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   lastName: String
 
@@ -5546,8 +5546,8 @@ type IndividualAccountHolderOnboardingAccountAdmin {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   firstName: String
 
@@ -5560,8 +5560,8 @@ type IndividualAccountHolderOnboardingAccountAdmin {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   lastName: String
 
@@ -5613,8 +5613,8 @@ input IndividualAccountHolderOnboardingAccountAdminInput {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   firstName: String
 
@@ -5627,8 +5627,8 @@ input IndividualAccountHolderOnboardingAccountAdminInput {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   lastName: String
 
@@ -7346,8 +7346,8 @@ input PublicIndividualAccountHolderOnboardingAccountAdminInput {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   firstName: String
 
@@ -7360,8 +7360,8 @@ input PublicIndividualAccountHolderOnboardingAccountAdminInput {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   lastName: String
 
@@ -7527,8 +7527,8 @@ input RelatedIndividualInput {
   First name of the individual
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   firstName: String
 
@@ -7543,8 +7543,8 @@ input RelatedIndividualInput {
   Last name of the individual
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   lastName: String
 
@@ -9583,8 +9583,8 @@ input UpdateIndividualAccountHolderOnboardingAccountAdminInput {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   firstName: String
 
@@ -9597,8 +9597,8 @@ input UpdateIndividualAccountHolderOnboardingAccountAdminInput {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   lastName: String
 
@@ -9834,6 +9834,9 @@ type User {
 
     """a filtering table you can apply to your list of connections"""
     filters: AccountMembershipsFilterInput
+
+    """an order you can apply to your list of connections"""
+    orderBy: UserAccountMembershipOrderByInput
   ): AccountMembershipConnection!
 
   """
@@ -9930,6 +9933,29 @@ type User {
     """
     orderBy: IdentificationsOrderByInput
   ): IdentificationConnection
+}
+
+"""
+Fields that can be used when ordering the account memberships of a user
+"""
+enum UserAccountMembershipOrderByFieldInput {
+  createdAt
+  updatedAt
+
+  """
+  Name of the account bound to the account membership.
+  
+  Memberships not yet bound to an account are ordered first when ascending.
+  """
+  accountName
+}
+
+"""
+Order that can be applied when listing the account memberships of a user
+"""
+input UserAccountMembershipOrderByInput {
+  field: UserAccountMembershipOrderByFieldInput
+  direction: OrderByDirection
 }
 
 """User device information for security and fraud detection."""

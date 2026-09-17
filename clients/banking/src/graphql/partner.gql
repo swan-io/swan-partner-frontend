@@ -1963,10 +1963,16 @@ query GetAccountMemberships(
   $first: Int!
   $after: String
   $filters: AccountMembershipsFilterInput!
+  $orderBy: UserAccountMembershipOrderByInput
 ) {
   user {
     id
-    accountMemberships(first: $first, after: $after, filters: $filters) {
+    accountMemberships(
+      first: $first
+      after: $after
+      filters: $filters
+      orderBy: $orderBy
+    ) {
       pageInfo {
         endCursor
         hasNextPage

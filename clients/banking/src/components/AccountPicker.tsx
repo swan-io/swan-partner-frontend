@@ -169,6 +169,7 @@ type Props = {
 export const AccountPicker = ({ accountMembershipId, onPressItem }: Props) => {
   const [accountMemberships, { setVariables }] = useQuery(GetAccountMembershipsDocument, {
     first: 10,
+    orderBy: { field: "accountName", direction: "Asc" },
     filters: { status: ["BindingUserError", "ConsentPending", "Enabled", "InvitationSent"] },
   });
 

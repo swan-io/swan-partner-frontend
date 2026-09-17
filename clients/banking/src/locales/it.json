@@ -1629,6 +1629,8 @@
   "transfer.bulk.review": "Verifica i dettagli dei bonifici",
   "transfer.bulk.uploadFile": "Carichi il file",
   "transfer.bulk.youSendExactly": "Stai inviando {amount}",
+  "transfer.consent.error.beneficiaryPermission.description": "Non può effettuare un trasferimento verso beneficiari che non sono nella lista dei beneficiari attendibili. Contatti l'amministratore del conto per aggiornare le autorizzazioni relative a questo conto.",
+  "transfer.consent.error.beneficiaryPermission.title": "Non dispone delle autorizzazioni sufficienti",
   "transfer.consent.error.canceled.title": "Bonifico annullato.",
   "transfer.consent.error.rejected.description": "Si è verificato un problema tecnico da parte nostra. Attenda qualche minuto e riprovi.",
   "transfer.consent.error.rejected.title": "Bonifico rifiutato.",

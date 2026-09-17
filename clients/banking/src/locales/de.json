@@ -1629,6 +1629,8 @@
   "transfer.bulk.review": "Überprüfen Sie die Details Ihrer Überweisung",
   "transfer.bulk.uploadFile": "Laden Sie Ihre Datei hoch",
   "transfer.bulk.youSendExactly": "Sie senden genau {amount}",
+  "transfer.consent.error.beneficiaryPermission.description": "Sie können keine Überweisung an Begünstigte vornehmen, die nicht in der Liste der vertrauenswürdigen Begünstigten stehen. Wenden Sie sich an Ihren Kontoadministrator, um Ihre Berechtigungen für dieses Konto zu aktualisieren.",
+  "transfer.consent.error.beneficiaryPermission.title": "Sie haben nicht die erforderlichen Berechtigungen",
   "transfer.consent.error.canceled.title": "Überweisung annulliert",
   "transfer.consent.error.rejected.description": "Es gab auf unserer Seite ein technisches Problem. Warten Sie bitte einige Minuten und versuchen Sie es dann erneut.",
   "transfer.consent.error.rejected.title": "Überweisung abgelehnt.",

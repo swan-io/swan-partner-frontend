@@ -13,6 +13,7 @@ const yearInMilliseconds = yearInSeconds * 1000;
 // request host.
 const handleRequest = async (reqPath: string, appName: AppName, reply: FastifyReply) => {
   const isStaticAsset = reqPath.startsWith("assets/") || reqPath.includes(".manager.bundle.js");
+  const isHtml = reqPath.endsWith(".html");
   const handleRequest = async (err: NodeJS.ErrnoException | null, stat: Stats) => {
     if (err == null && stat.isFile()) {
       if (isStaticAsset) {
@@ -21,6 +22,10 @@ const handleRequest = async (reqPath: string, appName: AppName, reply: FastifyRe
         const date = new Date();
         date.setTime(date.getTime() + yearInMilliseconds);
         void reply.header("expires", date.toUTCString());
+      } else if (isHtml) {
+        // Prevents having old HTMLs in cache referencing assets that do not longer exist in its files
+        // Used for root url / that match index.html, /accounts/123. has no file and match the else bellow
+        void reply.header("cache-control", "no-cache, no-store, must-revalidate");
       }
       return reply.sendFile(reqPath, path.join(staticPath, appName));
     } else {

@@ -1,3 +1,4 @@
+import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -6,6 +7,7 @@ import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { ComponentProps, ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 import { t } from "../utils/i18n";
@@ -29,6 +31,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacings[24],
     flexGrow: 1,
   },
+  brandCenter: {
+    alignItems: "center",
+  },
   contents: {
     flexShrink: 1,
     flexGrow: 1,
@@ -47,11 +52,12 @@ const styles = StyleSheet.create({
 type Props = {
   children: ReactNode | ComponentProps<typeof ResponsiveContainer>["children"];
   title: string;
+  logoUri?: string | null;
   onPressClose?: () => void;
   headerEnd?: ReactNode | ComponentProps<typeof ResponsiveContainer>["children"];
 };
 
-export const WizardLayout = ({ children, title, onPressClose, headerEnd }: Props) => (
+export const WizardLayout = ({ children, title, logoUri, onPressClose, headerEnd }: Props) => (
   <ResponsiveContainer style={styles.fill} breakpoint={breakpoints.medium}>
     {context => (
       <View style={styles.fill}>
@@ -75,10 +81,19 @@ export const WizardLayout = ({ children, title, onPressClose, headerEnd }: Props
               </>
             )}
 
-            <View style={styles.fill}>
-              <LakeHeading level={2} variant="h3">
-                {title}
-              </LakeHeading>
+            <View style={[styles.fill, isNotNullish(logoUri) && styles.brandCenter]}>
+              {isNotNullish(logoUri) ? (
+                <AutoWidthImage
+                  ariaLabel={title}
+                  sourceUri={logoUri}
+                  height={20}
+                  resizeMode="contain"
+                />
+              ) : (
+                <LakeHeading level={2} variant="h3">
+                  {title}
+                </LakeHeading>
+              )}
             </View>
 
             {typeof headerEnd === "function" ? headerEnd(context) : headerEnd}

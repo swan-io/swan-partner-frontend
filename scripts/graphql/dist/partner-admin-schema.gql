@@ -61,7 +61,7 @@ type Mutation {
   
   This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication)).
   """
-  simulateStartProjectBilling(input: SimulateStartProjectBillingInput!): SimulateStartProjectBillingPayload
+  simulateStartProjectBilling(input: SimulateStartProjectBillingInput!): SimulateStartProjectBillingPayload @deprecated(reason: "No longer has any effect and will be removed. Partner billing starts when a project goes live; there is nothing to simulate in sandbox.")
 
   """Mutation to simulate a capital deposit case approval."""
   simulateApproveCapitalDepositCase(input: SimulateApproveCapitalDepositCaseInput!): SimulateApproveCapitalDepositCasePayload!

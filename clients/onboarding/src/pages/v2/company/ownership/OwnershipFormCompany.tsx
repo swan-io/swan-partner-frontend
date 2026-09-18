@@ -13,7 +13,7 @@ import { Ref, useEffect, useImperativeHandle } from "react";
 import { View } from "react-native";
 import { match, P } from "ts-pattern";
 import { RelatedCompanyInput } from "../../../../graphql/partner";
-import { t } from "../../../../utils/i18n";
+import { locale, t } from "../../../../utils/i18n";
 import { getRegistrationNumberLabel } from "../../../../utils/templateTranslations";
 import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../../../utils/validation";
 
@@ -135,7 +135,11 @@ export const OwnershipFormCompany = ({
           <Field name="registrationNumber">
             {({ value, valid, error, onChange, ref, onBlur }) => (
               <LakeLabel
-                label={getRegistrationNumberLabel(registrationCountry.value, "Company")}
+                label={getRegistrationNumberLabel(
+                  registrationCountry.value,
+                  "Company",
+                  locale.language,
+                )}
                 render={id => (
                   <LakeTextInput
                     onBlur={onBlur}

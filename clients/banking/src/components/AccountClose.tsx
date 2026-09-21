@@ -11,12 +11,14 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { SwanLogo } from "@swan-io/lake/src/components/SwanLogo";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { WithCurrentColor } from "@swan-io/lake/src/components/WithCurrentColor";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { backgroundColor, colors, invariantColors } from "@swan-io/lake/src/constants/design";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
@@ -55,11 +57,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  cancelledContainer: {
+    ...commonStyles.fill,
+  },
   flex: {
     display: "flex",
   },
+  accountInfoRow: {
+    flexDirection: "row",
+  },
   languagesSelect: {
     alignItems: "flex-end",
+  },
+  partnership: {
+    marginHorizontal: "auto",
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "baseline",
+  },
+  swanPartnershipLogo: {
+    height: 9,
   },
 });
 
@@ -73,7 +90,13 @@ const reasons: Item<Reason>[] = [
   { value: "Other", name: t("accountClose.reason.Other") },
 ];
 
-const AccountCloseReasonForm = ({ accountId }: { accountId: string }) => {
+const AccountCloseReasonForm = ({
+  accountId,
+  onCancel,
+}: {
+  accountId: string;
+  onCancel: () => void;
+}) => {
   const [closeAccount, accountClosure] = useMutation(CloseAccountDocument);
 
   const { Field, FieldsListener, submitForm } = useForm<{
@@ -223,6 +246,10 @@ const AccountCloseReasonForm = ({ accountId }: { accountId: string }) => {
         <LakeButton color="negative" onPress={onPressSubmit} loading={accountClosure.isLoading()}>
           {t("accountClose.form.confirm")}
         </LakeButton>
+
+        <LakeButton mode="secondary" onPress={onCancel}>
+          {t("common.cancel")}
+        </LakeButton>
       </LakeButtonGroup>
     </>
   );
@@ -321,17 +348,23 @@ const languageOptions = languages.map(country => ({
 
 export const AccountClose = ({ accountId, resourceId, status }: Props) => {
   const [data, { setVariables }] = useQuery(AccountClosingDocument, { accountId, first: 20 });
+  const [isCancelled, setIsCancelled] = useState(false);
 
   useEffect(() => {
     match(data)
-      .with(AsyncData.P.Done(Result.P.Ok(P.select({ user: P.nonNullable }))), ({ user }) => {
-        if (
-          user.accountMemberships.pageInfo.hasNextPage === true &&
-          !user.accountMemberships.edges.some(membership => membership.node.accountId === accountId)
-        ) {
-          setVariables({ after: user.accountMemberships.pageInfo.endCursor });
-        }
-      })
+      .with(
+        AsyncData.P.Done(Result.P.Ok(P.select({ user: P.nonNullable, holder: P.nonNullable }))),
+        ({ user }) => {
+          if (
+            user.accountMemberships.pageInfo.hasNextPage === true &&
+            !user.accountMemberships.edges.some(
+              membership => membership.node.accountId === accountId,
+            )
+          ) {
+            setVariables({ after: user.accountMemberships.pageInfo.endCursor });
+          }
+        },
+      )
       .otherwise(() => {});
   }, [accountId, data, setVariables]);
 
@@ -370,15 +403,23 @@ export const AccountClose = ({ accountId, resourceId, status }: Props) => {
               {isLegalRepresentative ? (
                 <View style={styles.container}>
                   <WizardLayout
-                    title={t("accountClose.closeAccount")}
-                    onPressClose={userMembershipIdOnCurrentAccount
-                      .map(accountMembershipId => {
-                        return () =>
-                          Router.push("AccountRoot", {
-                            accountMembershipId,
-                          });
-                      })
-                      .toUndefined()}
+                    title={projectInfo.name}
+                    logoUri={projectInfo.logoUri}
+                    onPressClose={
+                      isCancelled
+                        ? undefined
+                        : userMembershipIdOnCurrentAccount
+                            .map(accountMembershipId => {
+                              return () => {
+                                if (account.statusInfo.status === "Opened") {
+                                  setIsCancelled(true);
+                                } else {
+                                  Router.push("AccountRoot", { accountMembershipId });
+                                }
+                              };
+                            })
+                            .toUndefined()
+                    }
                     headerEnd={
                       <View>
                         <LakeSelect
@@ -466,42 +507,99 @@ export const AccountClose = ({ accountId, resourceId, status }: Props) => {
                             ))
                             .exhaustive();
                         })
-                        .with({ accountStatus: "Opened" }, () => (
-                          <>
-                            {balance > 0 ? (
-                              <>
-                                <LakeHeading level={2} variant="h3" color={colors.gray[700]}>
-                                  {t("accountClose.nextSteps")}
-                                </LakeHeading>
-
-                                <Space height={12} />
-                                <LakeText>{t("accountClose.twoSteps")}</LakeText>
-                                <Space height={24} />
-
-                                <FlowPresentation
-                                  mode="mobile"
-                                  steps={[
-                                    {
-                                      label: t("accountClose.steps.letUsKnowWhy"),
-                                      icon: "question-circle-regular",
-                                      isComplete: true,
-                                    },
-                                    {
-                                      label: t("accountClose.steps.transferBalance"),
-                                      icon: "arrow-swap-regular",
-                                      isComplete: account.statusInfo.status === "Closing",
-                                    },
-                                  ]}
+                        .with({ accountStatus: "Opened" }, () =>
+                          isCancelled ? (
+                            <View style={styles.cancelledContainer}>
+                              <WithCurrentColor variant="partner" style={styles.successContainer}>
+                                <EmptyView
+                                  icon="dismiss-circle-regular"
+                                  borderedIcon={true}
+                                  borderedIconPadding={20}
+                                  title={t("accountClose.cancelled.title")}
+                                  subtitle={t("accountClose.cancelled.description")}
                                 />
+                              </WithCurrentColor>
 
-                                <Space height={48} />
-                              </>
-                            ) : null}
+                              {isNotNullish(projectInfo.logoUri) && (
+                                <LakeText variant="smallRegular" style={styles.partnership}>
+                                  {t("login.partnership")}{" "}
+                                  <SwanLogo style={styles.swanPartnershipLogo} />
+                                </LakeText>
+                              )}
+                            </View>
+                          ) : (
+                            <>
+                              <LakeHeading level={2} variant="h3" color={colors.gray[900]}>
+                                {t("accountClose.closeAccount")}
+                              </LakeHeading>
 
-                            <AccountCloseReasonForm accountId={accountId} />
-                            <Space height={24} />
-                          </>
-                        ))
+                              <Space height={12} />
+
+                              <View style={styles.accountInfoRow}>
+                                <View>
+                                  <LakeText variant="smallRegular" color={colors.gray[500]}>
+                                    {t("accountClose.accountHolder")}
+                                  </LakeText>
+
+                                  <LakeText variant="smallMedium" color={colors.gray[700]}>
+                                    {account.holder.info.name}
+                                  </LakeText>
+                                </View>
+
+                                <Space width={32} />
+
+                                <View>
+                                  <LakeText variant="smallRegular" color={colors.gray[500]}>
+                                    {t("accountClose.accountName")}
+                                  </LakeText>
+
+                                  <LakeText variant="smallMedium" color={colors.gray[700]}>
+                                    {account.name}
+                                  </LakeText>
+                                </View>
+                              </View>
+
+                              <Space height={32} />
+
+                              {balance > 0 ? (
+                                <>
+                                  <LakeHeading level={2} variant="h3" color={colors.gray[700]}>
+                                    {t("accountClose.nextSteps")}
+                                  </LakeHeading>
+
+                                  <Space height={12} />
+                                  <LakeText>{t("accountClose.twoSteps")}</LakeText>
+                                  <Space height={24} />
+
+                                  <FlowPresentation
+                                    mode="mobile"
+                                    steps={[
+                                      {
+                                        label: t("accountClose.steps.letUsKnowWhy"),
+                                        icon: "question-circle-regular",
+                                        isComplete: true,
+                                      },
+                                      {
+                                        label: t("accountClose.steps.transferBalance"),
+                                        icon: "arrow-swap-regular",
+                                        isComplete: account.statusInfo.status === "Closing",
+                                      },
+                                    ]}
+                                  />
+
+                                  <Space height={48} />
+                                </>
+                              ) : null}
+
+                              <AccountCloseReasonForm
+                                accountId={accountId}
+                                onCancel={() => setIsCancelled(true)}
+                              />
+
+                              <Space height={24} />
+                            </>
+                          ),
+                        )
                         .with({ accountStatus: "Suspended" }, () => (
                           <WithCurrentColor variant="warning" style={styles.successContainer}>
                             <EmptyView

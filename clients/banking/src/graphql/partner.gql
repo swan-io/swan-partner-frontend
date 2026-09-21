@@ -1967,12 +1967,7 @@ query GetAccountMemberships(
 ) {
   user {
     id
-    accountMemberships(
-      first: $first
-      after: $after
-      filters: $filters
-      orderBy: $orderBy
-    ) {
+    accountMemberships(first: $first, after: $after, filters: $filters, orderBy: $orderBy) {
       pageInfo {
         endCursor
         hasNextPage
@@ -2728,6 +2723,8 @@ query AccountClosing($accountId: ID!, $after: String, $first: Int!) {
   projectInfo {
     id
     accentColor
+    name
+    logoUri
     webBankingSettings {
       ...WebBankingSettings
     }
@@ -2735,6 +2732,12 @@ query AccountClosing($accountId: ID!, $after: String, $first: Int!) {
   account(accountId: $accountId) {
     id
     country
+    name
+    holder {
+      info {
+        name
+      }
+    }
     statusInfo {
       status
     }

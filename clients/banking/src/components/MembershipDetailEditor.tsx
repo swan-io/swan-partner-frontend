@@ -43,6 +43,7 @@ import {
   UpdateAccountMembershipDocument,
 } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
+import { isMembershipTaxIdRequired } from "../utils/accountMembership";
 import { accountLanguages, locale, t } from "../utils/i18n";
 import { parsePhoneNumber, prefixPhoneNumber } from "../utils/phone";
 import { projectConfiguration } from "../utils/projectId";
@@ -244,28 +245,23 @@ export const MembershipDetailEditor = ({
       strategy: "onBlur",
       sanitize: value => value.replace(/[-_. /]/g, ""),
       validate: (value, { getFieldValue }) => {
-        return match({
+        const country = getFieldValue("country");
+
+        const isRequired = isMembershipTaxIdRequired({
           accountCountry,
-          country: getFieldValue("country"),
-          canViewAccount: editingAccountMembership.canViewAccount,
-          canInitiatePayment: editingAccountMembership.canInitiatePayments,
-        })
+          residencyCountry: country,
+          canInitiatePayments: editingAccountMembership.canInitiatePayments,
+        });
+
+        return match({ accountCountry, country })
           .with(
-            P.intersection(
-              { accountCountry: "DEU", country: "DEU" },
-              P.union({ canViewAccount: true }, { canInitiatePayment: true }),
-            ),
+            { accountCountry: "DEU" },
+            { accountCountry: "ITA", country: "ITA" },
             ({ accountCountry }) =>
               combineValidators(
-                validateRequired,
+                isRequired && validateRequired,
                 validateIndividualTaxNumber(accountCountry),
               )(value),
-          )
-          .with({ accountCountry: "DEU" }, ({ accountCountry }) =>
-            validateIndividualTaxNumber(accountCountry)(value),
-          )
-          .with({ accountCountry: "ITA", country: "ITA" }, ({ accountCountry }) =>
-            validateIndividualTaxNumber(accountCountry)(value),
           )
           .otherwise(() => {});
       },
@@ -841,22 +837,11 @@ export const MembershipDetailEditor = ({
                             error={error}
                             onChange={onChange}
                             disabled={!canUpdateAccountMembership}
-                            required={match({
+                            required={isMembershipTaxIdRequired({
                               accountCountry,
-                              country,
-                              canViewAccount: editingAccountMembership.canViewAccount,
-                              canInitiatePayment: editingAccountMembership.canInitiatePayments,
-                            })
-                              .with(
-                                P.intersection(
-                                  { accountCountry: "DEU", country: "DEU" },
-                                  P.union({ canViewAccount: true }, { canInitiatePayment: true }),
-                                ),
-                                { accountCountry: "ITA", country: "ITA", canInitiatePayment: true },
-                                { accountCountry: "BEL", country: "BEL", canInitiatePayment: true },
-                                () => true,
-                              )
-                              .otherwise(() => false)}
+                              residencyCountry: country,
+                              canInitiatePayments: editingAccountMembership.canInitiatePayments,
+                            })}
                           />
                         )}
                       </Field>

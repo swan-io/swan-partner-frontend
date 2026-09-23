@@ -44,6 +44,7 @@ import {
   AddAccountMembershipDocument,
   SendAccountMembershipInviteNotificationDocument,
 } from "../graphql/partner";
+import { isMembershipTaxIdRequired } from "../utils/accountMembership";
 import { accountLanguages, locale, t } from "../utils/i18n";
 import { prefixPhoneNumber } from "../utils/phone";
 import { projectConfiguration } from "../utils/projectId";
@@ -222,7 +223,7 @@ export const NewMembershipWizard = ({
           .with(
             P.union(
               P.intersection(
-                { accountCountry: "NLD" },
+                { accountCountry: P.union("DEU", "NLD") },
                 P.union({ canViewAccount: true }, { canInitiatePayments: true }),
               ),
               { accountCountry: "ITA" },
@@ -249,7 +250,7 @@ export const NewMembershipWizard = ({
           .with(
             P.union(
               P.intersection(
-                { accountCountry: "NLD" },
+                { accountCountry: P.union("DEU", "NLD") },
                 P.union({ canViewAccount: true }, { canInitiatePayments: true }),
               ),
               { accountCountry: "ITA" },
@@ -273,7 +274,7 @@ export const NewMembershipWizard = ({
           .with(
             P.union(
               P.intersection(
-                { accountCountry: "NLD" },
+                { accountCountry: P.union("DEU", "NLD") },
                 P.union({ canViewAccount: true }, { canInitiatePayments: true }),
               ),
               { accountCountry: "ITA" },
@@ -296,7 +297,7 @@ export const NewMembershipWizard = ({
           .with(
             P.union(
               P.intersection(
-                { accountCountry: "NLD" },
+                { accountCountry: P.union("DEU", "NLD") },
                 P.union({ canViewAccount: true }, { canInitiatePayments: true }),
               ),
               { accountCountry: "ITA" },
@@ -313,28 +314,23 @@ export const NewMembershipWizard = ({
       strategy: "onBlur",
       sanitize: value => value.replace(/[-_. /]/g, ""),
       validate: (value, { getFieldValue }) => {
-        return match({
+        const residencyAddressCountry = getFieldValue("country");
+
+        const isRequired = isMembershipTaxIdRequired({
           accountCountry,
-          residencyAddressCountry: getFieldValue("country"),
-          canViewAccount: getFieldValue("canViewAccount"),
+          residencyCountry: residencyAddressCountry,
           canInitiatePayments: getFieldValue("canInitiatePayments"),
-        })
+        });
+
+        return match({ accountCountry, residencyAddressCountry })
           .with(
-            P.union(
-              P.intersection(
-                P.union({ accountCountry: "DEU", residencyAddressCountry: "DEU" }),
-                P.union({ canViewAccount: true }, { canInitiatePayments: true }),
-              ),
-              { accountCountry: "ITA", residencyAddressCountry: "ITA", canInitiatePayments: true },
-            ),
-            ({ accountCountry }) =>
+            { accountCountry: "DEU", residencyAddressCountry: "DEU" },
+            { accountCountry: "ITA", residencyAddressCountry: "ITA" },
+            () =>
               combineValidators(
-                validateRequired,
+                isRequired && validateRequired,
                 validateIndividualTaxNumber(accountCountry),
               )(value),
-          )
-          .with({ accountCountry: "DEU", residencyAddressCountry: "DEU" }, ({ accountCountry }) =>
-            validateIndividualTaxNumber(accountCountry)(value),
           )
           .otherwise(() => undefined);
       },
@@ -871,11 +867,13 @@ export const NewMembershipWizard = ({
                                     valid={valid}
                                     error={error}
                                     onChange={onChange}
-                                    required={
-                                      accountCountry === "ITA" ||
-                                      Boolean(partiallySavedValues?.canViewAccount) ||
-                                      Boolean(partiallySavedValues?.canInitiatePayments)
-                                    }
+                                    required={isMembershipTaxIdRequired({
+                                      accountCountry,
+                                      residencyCountry: country.value,
+                                      canInitiatePayments: Boolean(
+                                        partiallySavedValues?.canInitiatePayments,
+                                      ),
+                                    })}
                                   />
                                 )}
                               </Field>

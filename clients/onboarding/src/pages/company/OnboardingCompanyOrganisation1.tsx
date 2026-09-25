@@ -409,6 +409,7 @@ export const OnboardingCompanyOrganisation1 = ({
                               registrationNumberLegalName: getRegistrationNumberName(
                                 country,
                                 companyType,
+                                locale.language,
                               ),
                             })}
                           </LakeText>
@@ -479,6 +480,7 @@ export const OnboardingCompanyOrganisation1 = ({
                           registrationNumberLegalName: getRegistrationNumberName(
                             country,
                             companyType,
+                            locale.language,
                           ),
                         })}
                         optionalLabel={

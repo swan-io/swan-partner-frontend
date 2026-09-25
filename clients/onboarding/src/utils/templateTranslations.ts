@@ -1,6 +1,6 @@
 import { ClientError } from "@bloodyowl/graphql-client";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
-import { translateError } from "@swan-io/shared-business/src/utils/i18n";
+import { SupportedLanguage, translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { match, P } from "ts-pattern";
 import { CompanyType } from "../graphql/unauthenticated";
 import { isTranslationKey, t } from "./i18n";
@@ -59,10 +59,19 @@ export const getUpdateOnboardingError = (
     });
 };
 
-export const getRegistrationNumberName = (country: CountryCCA3, companyType: CompanyType) => {
+export const getRegistrationNumberName = (
+  country: CountryCCA3,
+  companyType: CompanyType,
+  locale: SupportedLanguage,
+) => {
   const name = match(country)
     .with("AUT", () => "Firmenbuchnummer")
-    .with("BEL", () => "Kruispuntbank van Ondernemingen, Crossroads Bank for Enterprises")
+    .with("BEL", () =>
+      match(locale)
+        .with("fr", () => "numéro BCE")
+        .with("nl", () => "KBO-nummer")
+        .otherwise(() => "KBO number"),
+    )
     .with("HRV", () => "Matični broj poslovnog subjekta [MBS]")
     .with("CYP", () => "Αριθμός Μητρώου Εταιρίας Şirket kayıt numarası")
     .with("CZE", () => "Identifikační číslo")
@@ -101,11 +110,18 @@ export const getRegistrationNumberName = (country: CountryCCA3, companyType: Com
   return `${name}`;
 };
 
-export const getRegistrationNumberLabel = (country: CountryCCA3, companyType: CompanyType) => {
-  const registrationNumberLegalName = getRegistrationNumberName(country, companyType);
-
-  return t("company.step.legal.registrationNumberLabel", {
-    hasLegalName: registrationNumberLegalName === "" ? "no" : "yes",
-    registrationNumberLegalName,
-  });
+export const getRegistrationNumberLabel = (
+  country: CountryCCA3,
+  companyType: CompanyType,
+  locale: SupportedLanguage,
+) => {
+  const registrationNumberLegalName = getRegistrationNumberName(country, companyType, locale);
+  return match({ country, locale })
+    .with({ country: "BEL", locale: "nl" }, () => "Ondernemingsnummer (KBO-nummer)")
+    .otherwise(() =>
+      t("company.step.legal.registrationNumberLabel", {
+        hasLegalName: registrationNumberLegalName === "" ? "no" : "yes",
+        registrationNumberLegalName,
+      }),
+    );
 };

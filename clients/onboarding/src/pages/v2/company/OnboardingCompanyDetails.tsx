@@ -14,14 +14,17 @@ import { BirthdatePicker } from "@swan-io/shared-business/src/components/Birthda
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { PlacekitCityInput } from "@swan-io/shared-business/src/components/PlacekitCityInput";
+import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import {
   allCountries,
   CountryCCA3,
+  IndividualCountryCCA3,
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import {
   validateEmail,
+  validateIndividualTaxNumber,
   validateName,
   validateNullableRequired,
   validateRequired,
@@ -79,6 +82,9 @@ const styles = StyleSheet.create({
 export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }: Props) => {
   const onboardingId = onboarding.id;
   const { accountAdmin, accountInfo, company } = onboarding;
+  const accountCountry = accountInfo?.country;
+  const companyType = company?.companyType;
+
   const isFirstMount = useFirstMountState();
 
   const [updateCompanyOnboarding, updateResult] = useMutation(
@@ -92,6 +98,13 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
         accountAdmin.address.postalCode,
     ),
   );
+
+  const isTaxIdentificationRequired = (addressCountry: CountryCCA3) =>
+    match({ addressCountry, accountCountry, companyType })
+      .with({ addressCountry: "BEL", accountCountry: "BEL" }, () => true)
+      .with({ addressCountry: "ITA", accountCountry: "ITA" }, () => true)
+      .with({ companyType: "SelfEmployed", addressCountry: P.union("ESP", "ITA") }, () => true)
+      .otherwise(() => false);
 
   const { Field, FieldsListener, setFieldValue, setFieldError, submitForm } = useForm({
     email: {
@@ -162,6 +175,19 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
       sanitize: trim,
       validate: validateRequired,
     },
+    taxIdentificationNumber: {
+      initialValue: accountAdmin?.taxIdentificationNumber ?? "",
+      sanitize: value => value.replace(/[-_. /]/g, ""),
+      validate: (value, { getFieldValue }) => {
+        const residenceCountry = getFieldValue("residenceCountry");
+        return isTaxIdentificationRequired(residenceCountry)
+          ? combineValidators(
+              validateRequired,
+              validateIndividualTaxNumber(residenceCountry as IndividualCountryCCA3),
+            )(value)
+          : undefined;
+      },
+    },
     isUnitedStatesPerson: {
       initialValue: accountAdmin?.unitedStatesTaxInfo?.isUnitedStatesPerson ?? false,
     },
@@ -214,11 +240,15 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
           residencePostal,
           isUnitedStatesPerson,
           unitedStatesTaxIdentificationNumber,
+          taxIdentificationNumber,
           ...input
         } = currentValues;
 
         const accountAdminFields = {
           ...input,
+          taxIdentificationNumber: isTaxIdentificationRequired(residenceCountry)
+            ? taxIdentificationNumber
+            : "",
           birthInfo: {
             birthDate,
             country: birthCountry,
@@ -399,58 +429,6 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
                     </Field>
                   )}
                 />
-
-                <LakeLabel
-                  label={t("form.label.usaCitizen")}
-                  render={() => (
-                    <Field name="isUnitedStatesPerson">
-                      {({ value, onChange }) => (
-                        <RadioGroup
-                          direction="row"
-                          items={[
-                            {
-                              name: t("common.yes"),
-                              value: true,
-                            },
-                            {
-                              name: t("common.no"),
-                              value: false,
-                            },
-                          ]}
-                          value={value}
-                          onValueChange={onChange}
-                        />
-                      )}
-                    </Field>
-                  )}
-                />
-
-                <FieldsListener names={["isUnitedStatesPerson"]}>
-                  {({ isUnitedStatesPerson }) => (
-                    <Field name="unitedStatesTaxIdentificationNumber">
-                      {({ value, onBlur, valid, onChange, error, ref }) =>
-                        isUnitedStatesPerson.value ? (
-                          <LakeLabel
-                            label={t("form.label.usaTax")}
-                            render={id => (
-                              <LakeTextInput
-                                id={id}
-                                ref={ref}
-                                value={value}
-                                error={error}
-                                valid={valid}
-                                onBlur={onBlur}
-                                onChangeText={onChange}
-                                placeholder={t("form.label.usaTax.placeholder")}
-                                help={t("form.label.usaTax.help")}
-                              />
-                            )}
-                          />
-                        ) : null
-                      }
-                    </Field>
-                  )}
-                </FieldsListener>
               </View>
             </Tile>
 
@@ -621,6 +599,85 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
                     />
                   )}
                 </Field>
+              </View>
+            </Tile>
+
+            <Tile style={styles.gap}>
+              <StepTitle>{t("form.residence.tax.title")}</StepTitle>
+              <View style={[styles.grid, large && styles.gridDesktop]}>
+                <Field name="taxIdentificationNumber">
+                  {({ value, valid, error, onChange, onBlur, ref }) => (
+                    <FieldsListener names={["residenceCountry"]}>
+                      {({ residenceCountry }) =>
+                        isTaxIdentificationRequired(residenceCountry.value) ? (
+                          <TaxIdentificationNumberInput
+                            ref={ref}
+                            value={value}
+                            error={error}
+                            valid={valid}
+                            onChange={onChange}
+                            onBlur={onBlur}
+                            country={residenceCountry.value as IndividualCountryCCA3}
+                            isCompany={false}
+                            required={true}
+                          />
+                        ) : null
+                      }
+                    </FieldsListener>
+                  )}
+                </Field>
+
+                <LakeLabel
+                  label={t("form.label.usaCitizen")}
+                  render={() => (
+                    <Field name="isUnitedStatesPerson">
+                      {({ value, onChange }) => (
+                        <RadioGroup
+                          direction="row"
+                          items={[
+                            {
+                              name: t("common.yes"),
+                              value: true,
+                            },
+                            {
+                              name: t("common.no"),
+                              value: false,
+                            },
+                          ]}
+                          value={value}
+                          onValueChange={onChange}
+                        />
+                      )}
+                    </Field>
+                  )}
+                />
+
+                <FieldsListener names={["isUnitedStatesPerson"]}>
+                  {({ isUnitedStatesPerson }) => (
+                    <Field name="unitedStatesTaxIdentificationNumber">
+                      {({ value, onBlur, valid, onChange, error, ref }) =>
+                        isUnitedStatesPerson.value ? (
+                          <LakeLabel
+                            label={t("form.label.usaTax")}
+                            render={id => (
+                              <LakeTextInput
+                                id={id}
+                                ref={ref}
+                                value={value}
+                                error={error}
+                                onBlur={onBlur}
+                                valid={valid}
+                                onChangeText={onChange}
+                                placeholder={t("form.label.usaTax.placeholder")}
+                                help={t("form.label.usaTax.help")}
+                              />
+                            )}
+                          />
+                        ) : null
+                      }
+                    </Field>
+                  )}
+                </FieldsListener>
               </View>
             </Tile>
           </>

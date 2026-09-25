@@ -1,4 +1,4 @@
-import { Future } from "@swan-io/boxed";
+import { Future } from "@bloodyowl/boxed";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { useRef, useState } from "react";

@@ -2,16 +2,15 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import { FlowPresentation, FlowStep } from "@swan-io/lake/src/components/FlowPresentation";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { Link } from "@swan-io/lake/src/components/Link";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { StyleSheet } from "react-native";
-import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
-import { formatNestedMessage, t } from "../../utils/i18n";
+import { PowerOfAttorneyDownloadDocument } from "../../components/PowerOfAttorneyDownloadDocument";
+import { formatNestedMessage, locale, t } from "../../utils/i18n";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
 
 const styles = StyleSheet.create({
@@ -30,20 +29,12 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  templateLanguage: string;
-  projectName: string;
   changeAdminRequestId: string;
   steps: FlowStep[];
   nextStep: ChangeAdminRoute;
 };
 
-export const ChangeAdminFlowPresentation = ({
-  templateLanguage,
-  projectName,
-  changeAdminRequestId,
-  steps,
-  nextStep,
-}: Props) => {
+export const ChangeAdminFlowPresentation = ({ changeAdminRequestId, steps, nextStep }: Props) => {
   const onPressNext = () => {
     Router.push(nextStep, { requestId: changeAdminRequestId });
   };
@@ -74,32 +65,16 @@ export const ChangeAdminFlowPresentation = ({
 
             <LakeText align={small ? "center" : "left"}>
               {formatNestedMessage("changeAdmin.presentation.expireNotice", {
-                partner: projectName,
                 bold: text => <LakeText variant="semibold">{text}</LakeText>,
               })}
             </LakeText>
 
             <Space height={small ? 8 : 12} />
 
-            <LakeText align={small ? "center" : "left"}>
-              {formatNestedMessage("changeAdmin.presentation.powerOfAttorneyNotice", {
-                link: text => (
-                  <LakeText variant="semibold" style={styles.underline}>
-                    <Link
-                      target="blank"
-                      to={`/power-of-attorney-template/${match(templateLanguage)
-                        .with("fr", () => "fr")
-                        .with("de", () => "de")
-                        .with("es", () => "es")
-                        .with("it", () => "it")
-                        .otherwise(() => "en")}.pdf`}
-                    >
-                      {text}
-                    </Link>
-                  </LakeText>
-                ),
-              })}
-            </LakeText>
+            <PowerOfAttorneyDownloadDocument
+              title={t("changeAdmin.presentation.powerOfAttorneyNotice.downloadTitle")}
+              language={locale.language}
+            />
           </Box>
         )}
       </ResponsiveContainer>

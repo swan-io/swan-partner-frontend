@@ -1,5 +1,5 @@
-import { AsyncData, Result } from "@swan-io/boxed";
-import { ClientContext, useQuery } from "@swan-io/graphql-client";
+import { AsyncData, Result } from "@bloodyowl/boxed";
+import { ClientContext, useQuery } from "@bloodyowl/graphql-client";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -8,7 +8,7 @@ import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { usePersistedState } from "@swan-io/lake/src/hooks/usePersistedState";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { StyleSheet } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { GetFirstAccountMembershipDocument } from "../graphql/partner";
 import { AccountNotFoundPage } from "../pages/NotFoundPage";
 import { env } from "../utils/env";
@@ -92,12 +92,10 @@ export const ProjectRootRedirect = ({ to, source }: Props) => {
           {({ large }) => (
             <AccountNotFoundPage projectName={projectName} large={large}>
               {env.APP_TYPE === "SANDBOX" ? (
-                <>
-                  <ClientContext.Provider value={partnerAdminClient}>
-                    <SandboxUserPicker />
-                    <Space height={24} />
-                  </ClientContext.Provider>
-                </>
+                <ClientContext.Provider value={partnerAdminClient}>
+                  <SandboxUserPicker />
+                  <Space height={24} />
+                </ClientContext.Provider>
               ) : null}
             </AccountNotFoundPage>
           )}

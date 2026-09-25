@@ -1,4 +1,4 @@
-import { useMutation } from "@swan-io/graphql-client";
+import { useMutation } from "@bloodyowl/graphql-client";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
@@ -8,7 +8,7 @@ import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { ScheduleStandingOrderDocument } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { encodeDateTime } from "../utils/date";

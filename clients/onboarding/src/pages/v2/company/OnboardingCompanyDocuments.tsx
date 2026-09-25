@@ -1,5 +1,5 @@
-import { Array, Future, Option } from "@swan-io/boxed";
-import { useMutation } from "@swan-io/graphql-client";
+import { Array, Future, Option } from "@bloodyowl/boxed";
+import { useMutation } from "@bloodyowl/graphql-client";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -255,10 +255,7 @@ export const OnboardingCompanyDocuments = ({
               <SupportingDocumentCollection
                 ref={supportingDocumentCollectionRef}
                 documents={docs}
-                documentPurposes={toDocumentPurposes(
-                  requiredSupportingDocumentPurposes,
-                  documents,
-                )}
+                documentPurposes={toDocumentPurposes(requiredSupportingDocumentPurposes)}
                 generateUpload={generateUpload}
                 status={supportingDocumentCollection.statusInfo.status}
                 templateLanguage={templateLanguage}

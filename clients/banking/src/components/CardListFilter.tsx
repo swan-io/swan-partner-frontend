@@ -1,4 +1,4 @@
-import { Future } from "@swan-io/boxed";
+import { Future } from "@bloodyowl/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
@@ -9,7 +9,7 @@ import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { ReactNode, useState } from "react";
 import { CardType } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { filter, Filters, FiltersState } from "./Filters";
+import { Filters, FiltersState, filter } from "./Filters";
 import { SearchInput } from "./SearchInput";
 
 const filtersDefinition = {

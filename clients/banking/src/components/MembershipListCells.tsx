@@ -8,9 +8,9 @@ import { LakeTooltip } from "@swan-io/lake/src/components/LakeTooltip";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
-import { colors, spacings } from "@swan-io/lake/src/constants/design";
+import { colors, radii, spacings } from "@swan-io/lake/src/constants/design";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { AccountMembershipFragment } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { t } from "../utils/i18n";
@@ -39,6 +39,17 @@ const styles = StyleSheet.create({
   },
   permissionsContainer: {
     padding: 4,
+  },
+  permissionsTag: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    borderWidth: 1,
+    backgroundColor: colors.gray[50],
+    borderColor: colors.gray[200],
+    borderRadius: radii[4],
+    paddingVertical: 2,
+    paddingHorizontal: spacings[4],
   },
 });
 
@@ -176,71 +187,69 @@ const getRightsTag = ({ accountMembership }: { accountMembership: AccountMembers
     >
       {match({ hasSomeRights, hasSomeCards })
         .with({ hasSomeRights: true }, { hasSomeCards: true }, () => (
-          <Tag color="gray">
-            <>
-              {accountMembership.canViewAccount ? (
+          <View style={styles.permissionsTag}>
+            {accountMembership.canViewAccount ? (
+              <Icon
+                name="eye-regular"
+                size={16}
+                color={colors.swan[500]}
+                style={styles.rightsIcon}
+              />
+            ) : null}
+
+            {accountMembership.canInitiatePayments ? (
+              <Icon
+                name="arrow-swap-regular"
+                size={16}
+                color={colors.swan[500]}
+                style={styles.rightsIcon}
+              />
+            ) : null}
+
+            {accountMembership.canManageBeneficiaries ? (
+              <Icon
+                name="person-add-regular"
+                size={16}
+                color={colors.swan[500]}
+                style={styles.rightsIcon}
+              />
+            ) : null}
+
+            {accountMembership.canManageAccountMembership ? (
+              <Icon
+                name="settings-regular"
+                size={16}
+                color={colors.swan[500]}
+                style={styles.rightsIcon}
+              />
+            ) : null}
+
+            {accountMembership.canManageCards ? (
+              <Icon
+                name="lake-card-add"
+                size={16}
+                color={colors.swan[500]}
+                style={styles.rightsIcon}
+              />
+            ) : null}
+
+            {hasSomeRights && hasSomeCards ? <View style={styles.separator} /> : null}
+
+            {hasSomeCards ? (
+              <>
                 <Icon
-                  name="eye-regular"
+                  name="payment-regular"
                   size={16}
                   color={colors.swan[500]}
                   style={styles.rightsIcon}
                 />
-              ) : null}
 
-              {accountMembership.canInitiatePayments ? (
-                <Icon
-                  name="arrow-swap-regular"
-                  size={16}
-                  color={colors.swan[500]}
-                  style={styles.rightsIcon}
-                />
-              ) : null}
-
-              {accountMembership.canManageBeneficiaries ? (
-                <Icon
-                  name="person-add-regular"
-                  size={16}
-                  color={colors.swan[500]}
-                  style={styles.rightsIcon}
-                />
-              ) : null}
-
-              {accountMembership.canManageAccountMembership ? (
-                <Icon
-                  name="settings-regular"
-                  size={16}
-                  color={colors.swan[500]}
-                  style={styles.rightsIcon}
-                />
-              ) : null}
-
-              {accountMembership.canManageCards ? (
-                <Icon
-                  name="lake-card-add"
-                  size={16}
-                  color={colors.swan[500]}
-                  style={styles.rightsIcon}
-                />
-              ) : null}
-
-              {hasSomeRights && hasSomeCards ? <View style={styles.separator} /> : null}
-
-              {hasSomeCards ? (
-                <>
-                  <Icon
-                    name="payment-regular"
-                    size={16}
-                    color={colors.swan[500]}
-                    style={styles.rightsIcon}
-                  />
-
-                  <LakeText color={colors.swan[500]} variant="smallRegular">
-                    {accountMembership.activeCards.totalCount}
-                  </LakeText>
-                </>
-              ) : null}
-            </>
-          </Tag>
+                <LakeText color={colors.swan[500]} variant="smallRegular">
+                  {accountMembership.activeCards.totalCount}
+                </LakeText>
+              </>
+            ) : null}
+          </View>
         ))
         .otherwise(() => null)}
     </LakeTooltip>

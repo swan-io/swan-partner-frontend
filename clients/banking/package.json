@@ -1,6 +1,6 @@
 {
   "name": "@swan-io/banking",
-  "version": "1.34.5",
+  "version": "1.41.1",
   "private": true,
   "packageManager": "pnpm@10.26.1",
   "engines": {
@@ -15,17 +15,17 @@
     "clean": "tsc --clean"
   },
   "dependencies": {
+    "@bloodyowl/boxed": "3.4.0",
+    "@bloodyowl/graphql-client": "0.9.1",
+    "@bloodyowl/request": "3.3.0",
     "@formatjs/intl": "4.1.2",
-    "@grafana/faro-web-sdk": "2.2.4",
-    "@grafana/faro-web-tracing": "2.2.4",
+    "@grafana/faro-web-sdk": "2.9.0",
+    "@grafana/faro-web-tracing": "2.9.0",
     "@juggle/resize-observer": "3.4.0",
-    "@swan-io/boxed": "3.2.1",
-    "@swan-io/chicane": "3.0.0",
-    "@swan-io/graphql-client": "0.8.0",
-    "@swan-io/lake": "13.12.0",
-    "@swan-io/request": "3.1.0",
-    "@swan-io/shared-business": "13.12.0",
-    "@swan-io/use-form": "3.1.0",
+    "@swan-io/lake": "18.0.2",
+    "@swan-io/shared-business": "18.0.2",
+    "@swan-io/use-form": "4.0.0",
+    "@zoontek/chicane": "3.0.0",
     "core-js": "3.48.0",
     "dayjs": "1.11.19",
     "iban": "0.0.14",
@@ -35,9 +35,9 @@
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "react-native-web": "0.21.2",
-    "react-tggl-client": "4.0.1",
     "rifm": "0.12.1",
-    "ts-pattern": "5.9.0"
+    "ts-pattern": "5.9.0",
+    "uuid": "14.0.1"
   },
   "devDependencies": {
     "@types/iban": "0.0.35",

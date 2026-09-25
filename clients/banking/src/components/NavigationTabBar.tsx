@@ -1,5 +1,5 @@
-import { Option } from "@swan-io/boxed";
-import { ClientContext } from "@swan-io/graphql-client";
+import { Option } from "@bloodyowl/boxed";
+import { ClientContext } from "@bloodyowl/graphql-client";
 import { Avatar } from "@swan-io/lake/src/components/Avatar";
 import { BottomPanel } from "@swan-io/lake/src/components/BottomPanel";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -25,17 +25,15 @@ import {
 } from "@swan-io/lake/src/constants/design";
 import { insets } from "@swan-io/lake/src/constants/insets";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
-import { Request, badStatusToError } from "@swan-io/request";
-import { showToast } from "@swan-io/shared-business/src/state/toasts";
-import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { AccountAreaQuery, IdentificationLevelFragment } from "../graphql/partner";
 import { env } from "../utils/env";
 import { partnerAdminClient } from "../utils/gql";
 import { t } from "../utils/i18n";
-import { Router, accountRoutes } from "../utils/routes";
+import { accountRoutes, Router } from "../utils/routes";
+import { signout } from "../utils/signout";
 import { AccountNavigation, Menu } from "./AccountNavigation";
 import { AccountActivationTag, AccountPicker, AccountPickerButton } from "./AccountPicker";
 import { SandboxUserPickerContents, SandboxUserTag } from "./SandboxUserPicker";
@@ -169,18 +167,10 @@ export const NavigationTabBar = ({
   const activeMenuItem =
     entries.find(item => item.matchRoutes.some(name => name === route?.name)) ?? entries[0];
 
-  const signout = () => {
-    Request.make({ url: "/auth/logout", method: "POST", credentials: "include", type: "text" })
-      .mapOkToResult(badStatusToError)
-      .tapOk(() => window.location.replace(Router.ProjectLogin()))
-      .tapError(error => {
-        showToast({ variant: "error", error, title: translateError(error) });
-      });
-  };
-
-  if (!activeMenuItem) {
-    return null;
-  }
+  const hasActiveSection =
+    route?.name === "AccountActivationArea" ||
+    route?.name === "AccountProfile" ||
+    isNotNullish(activeMenuItem);
 
   return (
     <View style={styles.tabBarContainer}>
@@ -218,18 +208,22 @@ export const NavigationTabBar = ({
                 </LakeText>
               </>
             ))
-            .otherwise(() => (
-              <>
-                <Icon name={activeMenuItem.icon} size={22} color={colors.current[500]} />
-                <Space width={12} />
+            .otherwise(() =>
+              isNotNullish(activeMenuItem) ? (
+                <>
+                  <Icon name={activeMenuItem.icon} size={22} color={colors.current[500]} />
+                  <Space width={12} />
 
-                <LakeText numberOfLines={1} variant="regular" color={colors.gray[700]}>
-                  {activeMenuItem.name}
-                </LakeText>
-              </>
-            ))}
+                  <LakeText numberOfLines={1} variant="regular" color={colors.gray[700]}>
+                    {activeMenuItem.name}
+                  </LakeText>
+                </>
+              ) : (
+                <Icon name="lake-menu" size={22} color={colors.gray[700]} />
+              ),
+            )}
 
-          <Icon name="lake-menu" size={22} style={styles.menuIcon} />
+          {hasActiveSection && <Icon name="lake-menu" size={22} style={styles.menuIcon} />}
 
           {shouldDisplayIdVerification && hasRequiredIdentificationLevel === false
             ? match({
@@ -290,19 +284,23 @@ export const NavigationTabBar = ({
                     </LakeButton>
                   )}
 
-                  <Space height={24} />
+                  {entries.some(item => item.visible) && (
+                    <>
+                      <Space height={24} />
 
-                  <LakeHeading level={2} variant="h3">
-                    {t("navigation.menu")}
-                  </LakeHeading>
+                      <LakeHeading level={2} variant="h3">
+                        {t("navigation.menu")}
+                      </LakeHeading>
 
-                  <Space height={16} />
+                      <Space height={16} />
 
-                  <AccountNavigation
-                    menu={entries}
-                    desktop={false}
-                    onPressLink={() => setScreen(null)}
-                  />
+                      <AccountNavigation
+                        menu={entries}
+                        desktop={false}
+                        onPressLink={() => setScreen(null)}
+                      />
+                    </>
+                  )}
 
                   <Separator space={16} />
 
@@ -359,6 +357,7 @@ export const NavigationTabBar = ({
               ))
               .with("memberships", () => (
                 <TransitionView {...animations.fadeAndSlideInFromRight}>
+                  {/** biome-ignore lint/complexity/noUselessFragments: we need to keep fragment for transition view */}
                   <>
                     <LakeHeading level={2} variant="h3">
                       {t("navigation.accounts")}
@@ -390,6 +389,7 @@ export const NavigationTabBar = ({
               ))
               .with("sandboxUsers", () => (
                 <TransitionView {...animations.fadeAndSlideInFromRight}>
+                  {/** biome-ignore lint/complexity/noUselessFragments: we need to keep fragment for transition view */}
                   <>
                     <LakeHeading level={2} variant="h3">
                       {t("sandboxUser.impersonatedAs")}

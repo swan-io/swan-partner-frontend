@@ -7,6 +7,7 @@
   "paymentLink.alert": "Bitte beachten Sie, dass dies eine Sandbox-Seite ist und es nicht möglich ist, auf dieser Seite Testzahlungen zu erstellen. Verwenden Sie stattdessen die Händlersimulationen in der Explorer-API.",
   "paymentLink.button.downloadMandate": "Mandat herunterladen",
   "paymentLink.button.returnToWebsite": "Zurück zur Website",
+  "paymentLink.button.simulatePayment": "Simulate payment",
   "paymentLink.card.cardNumber": "Kartennummer",
   "paymentLink.card.cvv": "CVV",
   "paymentLink.card.expiryDate": "Verfallsdatum",

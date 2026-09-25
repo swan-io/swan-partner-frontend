@@ -1,8 +1,8 @@
+import fs from "node:fs";
 import { HttpErrorCodes } from "@fastify/sensible/lib/httpError";
 import { Accepts } from "accepts";
 import escapeHtml from "escape-html";
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import fs from "node:fs";
 import path from "pathe";
 import { match } from "ts-pattern";
 
@@ -22,7 +22,11 @@ export const replyWithError = (
   app: FastifyInstance,
   request: FastifyRequest,
   reply: FastifyReply,
-  { status, requestId }: { status: Exclude<HttpErrorCodes, string>; requestId: string },
+  {
+    status,
+    requestId,
+    message,
+  }: { status: Exclude<HttpErrorCodes, string>; requestId: string; message?: string },
 ) => {
   const accept = request.accepts();
 
@@ -41,7 +45,11 @@ export const replyWithError = (
         .header("cache-control", "private, max-age=0")
         .type("text/html")
         .status(status)
-        .send(errorTemplate.replaceAll("{{REQUEST_ID}}", escapeHtml(requestId)));
+        .send(
+          errorTemplate
+            .replaceAll("{{ERROR_MESSAGE}}", escapeHtml(message ?? ""))
+            .replaceAll("{{REQUEST_ID}}", escapeHtml(requestId)),
+        );
     });
 };
 

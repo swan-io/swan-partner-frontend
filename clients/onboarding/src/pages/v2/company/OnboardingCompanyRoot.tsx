@@ -1,26 +1,13 @@
-import { useDeferredQuery, useMutation } from "@swan-io/graphql-client";
-import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
-import { Tile } from "@swan-io/lake/src/components/Tile";
-import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
-import { useForm } from "@swan-io/use-form";
-import { StyleSheet } from "react-native";
-import { match, P } from "ts-pattern";
-import { OnboardingFooter } from "../../../components/OnboardingFooter";
-import {
-  CompanyInfo,
-  CompanyOnboardingFragment,
-  CompanyRelatedIndividual,
-  GetPublicCompamyInfoRegistryDataDocument,
-  UpdatePublicCompanyAccountHolderOnboardingDocument,
-} from "../../../graphql/partner";
-import { locale, t } from "../../../utils/i18n";
-
-import { Option } from "@swan-io/boxed";
+import { Option } from "@bloodyowl/boxed";
+import { useDeferredQuery, useMutation } from "@bloodyowl/graphql-client";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
+import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import { Tile } from "@swan-io/lake/src/components/Tile";
+import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
@@ -28,8 +15,8 @@ import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { omit } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
 import {
-  companyCountries,
   CountryCCA3,
+  companyCountries,
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
@@ -38,20 +25,34 @@ import {
   validateNullableRequired,
   validateRequired,
 } from "@swan-io/shared-business/src/utils/validation";
+import { useForm } from "@swan-io/use-form";
 import { useCallback, useEffect, useState } from "react";
-import { Pressable, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
+import { match, P } from "ts-pattern";
 import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { LakeCompanyInput } from "../../../components/LakeCompanyInput";
 import { LegalFormsInput } from "../../../components/LegalFormsInput";
+import { OnboardingFooter } from "../../../components/OnboardingFooter";
+import { PowerOfAttorneyDownloadDocument } from "../../../components/PowerOfAttorneyDownloadDocument";
 import {
   formatValueRepresentative,
   RepresentativeFormsInput,
 } from "../../../components/RepresentativeFormInput";
+import {
+  CompanyInfo,
+  CompanyOnboardingFragment,
+  CompanyRelatedIndividual,
+  GetPublicCompamyInfoRegistryDataDocument,
+  UpdatePublicCompanyAccountHolderOnboardingDocument,
+} from "../../../graphql/partner";
+import { locale, t } from "../../../utils/i18n";
 import { cleanData, transformRelatedIndividualsToInput } from "../../../utils/onboarding";
 import { CompanySuggestion } from "../../../utils/Pappers";
+import { maskUuid } from "../../../utils/redaction";
 import { Router } from "../../../utils/routes";
 import { hasOnboardingPrefilled } from "../../../utils/session";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
+import { logger } from "../../../utils/tracing";
 import {
   badUserInputErrorPattern,
   extractServerValidationFields,
@@ -118,11 +119,15 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
   const [representatives, setRepresentatives] = useState(related.length > 0 ? related : undefined);
 
   const resetToManualMode = useCallback(() => {
+    logger.event("set_manual_mode", {
+      onboardingId: maskUuid(onboardingId),
+      from: "search_company_dropdown",
+    });
     setManualMode(true);
     setRepresentatives(undefined);
     hasOnboardingPrefilled.delete();
     setPublicData(undefined);
-  }, []);
+  }, [onboardingId]);
 
   const { Field, FieldsListener, setFieldValue, setFieldError, submitForm } = useForm({
     name: {
@@ -180,6 +185,10 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
 
         if (isNullish(currentValues.legalFormCode)) {
           setManualMode(true);
+          logger.event("set_manual_mode", {
+            onboardingId: maskUuid(onboardingId),
+            from: "submit_without_legalFormCode",
+          });
           return;
         }
 
@@ -272,7 +281,21 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
               },
             },
             language: locale.language,
-          }).tap(formMutation);
+          })
+            .tapOk(() => {
+              hasOnboardingPrefilled.set({
+                registrationNumber: Boolean(companyInfo.registrationNumber),
+                vatNumber: Boolean(companyInfo.vatNumber),
+                registrationDate: Boolean(companyInfo.registrationDate),
+              });
+            })
+            .tapError(error => {
+              logger.error(error, { source: "UpdateCompanyOnboarding" });
+              hasOnboardingPrefilled.delete();
+            })
+            .then(() => {
+              formMutation();
+            });
         } else {
           formMutation();
         }
@@ -293,11 +316,6 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
               setFieldValue("legalFormCode", legalFormCode ?? undefined);
               setFieldValue("currentRepresentative", undefined);
               setRepresentatives(companyInfo.relatedIndividuals ?? []);
-              hasOnboardingPrefilled.set({
-                registrationNumber: true,
-                vatNumber: Boolean(info.vatNumber),
-                registrationDate: Boolean(info.registrationDate),
-              });
             })
             .otherwise(noop);
         })
@@ -362,6 +380,9 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
                                   onLoadError={_error => {
                                     // @todo track paper error in grafana
                                     // If papers not working, switching to manual mode
+                                    logger.warn("Pappers API error, switching to manual mode", {
+                                      onboardingId,
+                                    });
                                     resetToManualMode();
                                   }}
                                   emptyResult={
@@ -462,26 +483,35 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
                           (manualMode || currentRepresentative.value === "") &&
                           (updateError ||
                             (companyType != null && companyType !== "SelfEmployed")) ? (
-                            <LakeLabel
-                              label={t("company.step.organisation.relationLabel")}
-                              render={() => (
-                                <RadioGroup
-                                  direction="row"
-                                  items={[
-                                    {
-                                      name: t("company.step.organisation.relation.legal"),
-                                      value: "LegalRepresentative",
-                                    },
-                                    {
-                                      name: t("company.step.organisation.relation.attorney"),
-                                      value: "PowerOfAttorney",
-                                    },
-                                  ]}
-                                  value={value}
-                                  onValueChange={onChange}
+                            <>
+                              <LakeLabel
+                                label={t("company.step.organisation.relationLabel")}
+                                render={() => (
+                                  <RadioGroup
+                                    direction="row"
+                                    items={[
+                                      {
+                                        name: t("company.step.organisation.relation.legal"),
+                                        value: "LegalRepresentative",
+                                      },
+                                      {
+                                        name: t("company.step.organisation.relation.attorney"),
+                                        value: "PowerOfAttorney",
+                                      },
+                                    ]}
+                                    value={value}
+                                    onValueChange={onChange}
+                                  />
+                                )}
+                              />
+
+                              {value === "PowerOfAttorney" && (
+                                <PowerOfAttorneyDownloadDocument
+                                  title={t("company.step.organisation.powerOfAttorney.helper")}
+                                  language={locale.language}
                                 />
                               )}
-                            />
+                            </>
                           ) : null
                         }
                       </Field>

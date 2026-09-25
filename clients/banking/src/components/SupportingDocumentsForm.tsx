@@ -1,5 +1,5 @@
-import { Array, Future, Option } from "@swan-io/boxed";
-import { useMutation } from "@swan-io/graphql-client";
+import { Array, Future, Option } from "@bloodyowl/boxed";
+import { useMutation } from "@bloodyowl/graphql-client";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { GetNode } from "@swan-io/lake/src/utils/types";
@@ -155,10 +155,7 @@ export const SupportingDocumentsForm = ({
       <SupportingDocumentCollection
         ref={supportingDocumentCollectionRef}
         documents={docs}
-        documentPurposes={toDocumentPurposes(
-          collection.requiredSupportingDocumentPurposes,
-          collection.supportingDocuments,
-        )}
+        documentPurposes={toDocumentPurposes(collection.requiredSupportingDocumentPurposes)}
         generateUpload={generateUpload}
         status={collection.statusInfo.status}
         templateLanguage={templateLanguage}

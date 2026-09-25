@@ -1,5 +1,5 @@
-import { Option } from "@swan-io/boxed";
-import { useMutation, useQuery } from "@swan-io/graphql-client";
+import { Option } from "@bloodyowl/boxed";
+import { useMutation, useQuery } from "@bloodyowl/graphql-client";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Cell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
@@ -65,6 +65,7 @@ import {
 import { formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { validateNumeric } from "../utils/validations";
+
 const styles = StyleSheet.create({
   container: {
     flexShrink: 1,
@@ -232,7 +233,7 @@ export const AccountDetailsCreditLimitPage = ({
 
               const lastRequestStatus = creditLimitSettings.creditLimitSettingsRequests.edges
                 .map(edge => edge.node)
-                .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+                .toSorted((a, b) => b.updatedAt.localeCompare(a.updatedAt))
                 .at(0)?.statusInfo.__typename;
 
               return match({ status: creditLimitSettings.statusInfo.status, lastRequestStatus })

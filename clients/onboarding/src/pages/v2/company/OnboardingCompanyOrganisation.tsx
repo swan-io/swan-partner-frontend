@@ -1,35 +1,16 @@
-import { Option } from "@swan-io/boxed";
-import { useMutation } from "@swan-io/graphql-client";
+import { Option } from "@bloodyowl/boxed";
+import { useMutation } from "@bloodyowl/graphql-client";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints, colors, radii } from "@swan-io/lake/src/constants/design";
+import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { trim } from "@swan-io/lake/src/utils/string";
-import { combineValidators, useForm } from "@swan-io/use-form";
-import { StyleSheet } from "react-native";
-import { match, P } from "ts-pattern";
-import { OnboardingFooter } from "../../../components/OnboardingFooter";
-import { OnboardingTcu } from "../../../components/OnboardingTcu";
-import { StepTitle } from "../../../components/StepTitle";
-import {
-  CompanyOnboardingFragment,
-  UpdatePublicCompanyAccountHolderOnboardingDocument,
-} from "../../../graphql/partner";
-import { t } from "../../../utils/i18n";
-import {
-  badUserInputErrorPattern,
-  extractServerValidationFields,
-  getValidationErrorMessage,
-  ServerInvalidFieldCode,
-  validateRegistrationNumber,
-} from "../../../utils/validation";
-
-import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { omit } from "@swan-io/lake/src/utils/object";
+import { trim } from "@swan-io/lake/src/utils/string";
 import { InlineDatePicker } from "@swan-io/shared-business/src/components/InlineDatePicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
@@ -41,15 +22,32 @@ import {
   validateRequired,
   validateVatNumber,
 } from "@swan-io/shared-business/src/utils/validation";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import { useEffect, useMemo, useState } from "react";
-import { View } from "react-native";
-import { locale } from "../../../utils/i18n";
+import { StyleSheet, View } from "react-native";
+import { match, P } from "ts-pattern";
+import { OnboardingFooter } from "../../../components/OnboardingFooter";
+import { OnboardingTcu } from "../../../components/OnboardingTcu";
+import { StepTitle } from "../../../components/StepTitle";
+import {
+  CompanyOnboardingFragment,
+  UpdatePublicCompanyAccountHolderOnboardingDocument,
+} from "../../../graphql/partner";
+import { locale, t } from "../../../utils/i18n";
+import { getRegistrationRequirements } from "../../../utils/onboarding";
 import { Router } from "../../../utils/routes";
 import { hasOnboardingPrefilled } from "../../../utils/session";
 import {
-  getRegistrationNumberName,
+  getRegistrationNumberLabel,
   getUpdateOnboardingError,
 } from "../../../utils/templateTranslations";
+import {
+  badUserInputErrorPattern,
+  extractServerValidationFields,
+  getValidationErrorMessage,
+  ServerInvalidFieldCode,
+  validateRegistrationNumber,
+} from "../../../utils/validation";
 
 export type OrganisationFieldApiRequired =
   | "address"
@@ -114,9 +112,10 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
     .with({ accountCountry: "ITA" }, () => true)
     .otherwise(() => false);
 
-  const isRegistrationNumberRequired = match({ companyCountry })
-    .with({ companyCountry: "DEU" }, () => false)
-    .otherwise(() => true);
+  const { isRegistrationNumberRequired, isRegistrationDateRequired } = getRegistrationRequirements({
+    companyCountry,
+    capitalDepositType: onboarding.capitalDepositType,
+  });
 
   const isTaxIdentificationRequired = match({ companyCountry, accountCountry, companyType })
     .with({ companyType: "SelfEmployed", companyCountry: P.union("ESP", "ITA") }, () => false)
@@ -162,7 +161,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
     },
     taxIdentificationNumber: {
       initialValue: company?.taxIdentificationNumber ?? "",
-      sanitize: value => value.replace(/[-_. \/]/g, ""),
+      sanitize: value => value.replace(/[-_. /]/g, ""),
       validate: isTaxIdentificationRequired
         ? combineValidators(
             validateRequired,
@@ -173,14 +172,15 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
     registrationNumber: {
       initialValue: company?.registrationNumber ?? "",
       sanitize: trim,
-      validate: match(companyCountry)
-        .with("BEL", () => combineValidators(validateRequired, validateRegistrationNumber))
-        .with("DEU", () => undefined)
-        .otherwise(() => validateRequired),
+      validate: isRegistrationNumberRequired
+        ? match(companyCountry)
+            .with("BEL", () => combineValidators(validateRequired, validateRegistrationNumber))
+            .otherwise(() => validateRequired)
+        : undefined,
     },
     registrationDate: {
       initialValue: company?.registrationDate ?? undefined,
-      validate: validateNullableRequired,
+      validate: isRegistrationDateRequired ? validateNullableRequired : undefined,
     },
     tcuAccepted: {
       initialValue: false,
@@ -217,7 +217,8 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
         }
         const currentValues = option.get();
 
-        const { address, city, postalCode, vatNumber, ...input } = currentValues;
+        const { address, city, postalCode, vatNumber, registrationNumber, ...input } =
+          currentValues;
 
         updateCompanyOnboarding({
           input: {
@@ -229,6 +230,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
                 postalCode,
               },
               vatNumber: vatNumber === "" ? undefined : vatNumber, // Return undefined if empty otherwise the backend with run a regex on it
+              registrationNumber: registrationNumber === "" ? undefined : registrationNumber, // Same as vatNumber, and a company being incorporated has none yet
               regulatoryClassification: "NonFinancialActive", // Default value as we don't use it yet on product side but required by the api
               ...input,
             },
@@ -355,12 +357,10 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
                 <Field name="registrationNumber">
                   {({ value, valid, error, onChange, ref, onBlur }) => (
                     <LakeLabel
-                      label={t("company.step.legal.registrationNumberLabel", {
-                        registrationNumberLegalName: getRegistrationNumberName(
-                          companyCountry as CompanyCountryCCA3,
-                          companyType ?? "Company",
-                        ),
-                      })}
+                      label={getRegistrationNumberLabel(
+                        companyCountry as CompanyCountryCCA3,
+                        companyType ?? "Company",
+                      )}
                       optionalLabel={
                         isRegistrationNumberRequired ? undefined : t("common.optional")
                       }
@@ -389,6 +389,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
                   {({ value, onChange, error }) => (
                     <InlineDatePicker
                       label={t("company.step.legal.registrationDateLabel")}
+                      optionalLabel={isRegistrationDateRequired ? undefined : t("common.optional")}
                       value={value}
                       onValueChange={onChange}
                       error={error}

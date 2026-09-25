@@ -1,5 +1,5 @@
-import { AsyncData, Option, Result } from "@swan-io/boxed";
-import { useForwardAsyncDataPagination, useMutation, useQuery } from "@swan-io/graphql-client";
+import { AsyncData, Option, Result } from "@bloodyowl/boxed";
+import { useForwardAsyncDataPagination, useMutation, useQuery } from "@bloodyowl/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { FlatList } from "@swan-io/lake/src/components/FlatList";
@@ -21,7 +21,7 @@ import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { electronicFormat, printFormat } from "iban";
 import { useLayoutEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { BeneficiariesListDocument, VerifyBeneficiaryDocument } from "../graphql/partner";
 import { Currency, formatNestedMessage, isSupportedCurrency, t } from "../utils/i18n";
 import { concatSepaBeneficiaryAddress } from "./BeneficiaryDetail";

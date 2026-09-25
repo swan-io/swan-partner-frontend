@@ -1,5 +1,5 @@
-import { AsyncData, Option, Result } from "@swan-io/boxed";
-import { useQuery } from "@swan-io/graphql-client";
+import { AsyncData, Option, Result } from "@bloodyowl/boxed";
+import { useQuery } from "@bloodyowl/graphql-client";
 import { useCrumb } from "@swan-io/lake/src/components/Breadcrumbs";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
@@ -10,7 +10,7 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { Suspense, useMemo } from "react";
 import { StyleSheet } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { CardPageDocument } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { getMemberName } from "../utils/accountMembership";

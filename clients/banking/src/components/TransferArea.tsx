@@ -1,4 +1,4 @@
-import { Option } from "@swan-io/boxed";
+import { Option } from "@bloodyowl/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { BreadcrumbsRoot } from "@swan-io/lake/src/components/Breadcrumbs";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
@@ -19,7 +19,7 @@ import { usePermissions } from "../hooks/usePermissions";
 import { useTransferToastWithRedirect } from "../hooks/useTransferToastWithRedirect";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { t } from "../utils/i18n";
-import { Router, paymentRoutes } from "../utils/routes";
+import { paymentRoutes, Router } from "../utils/routes";
 import { BeneficiaryTypePicker } from "./BeneficiaryTypePicker";
 import { Redirect } from "./Redirect";
 import { TransferTypePicker } from "./TransferTypePicker";

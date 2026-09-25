@@ -1,5 +1,5 @@
-import { AsyncData, Option, Result } from "@swan-io/boxed";
-import { useQuery } from "@swan-io/graphql-client";
+import { AsyncData, Option, Result } from "@bloodyowl/boxed";
+import { useQuery } from "@bloodyowl/graphql-client";
 import { Breadcrumbs, BreadcrumbsRoot } from "@swan-io/lake/src/components/Breadcrumbs";
 import { FullViewportLayer } from "@swan-io/lake/src/components/FullViewportLayer";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
@@ -8,7 +8,7 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { MerchantRootDocument } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { NotFoundPage } from "../pages/NotFoundPage";

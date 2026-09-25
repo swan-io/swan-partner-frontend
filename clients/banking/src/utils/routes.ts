@@ -1,6 +1,6 @@
-import { Option } from "@swan-io/boxed";
-import { InferRoutes, createGroup, createRouter } from "@swan-io/chicane";
-import { P, match } from "ts-pattern";
+import { Option } from "@bloodyowl/boxed";
+import { createGroup, createRouter, InferRoutes } from "@zoontek/chicane";
+import { match, P } from "ts-pattern";
 import { projectConfiguration } from "./projectId";
 
 const routes = {
@@ -39,7 +39,7 @@ const routes = {
     ...createGroup("Details", "/details", {
       Area: "/*",
       Iban: "/iban",
-      VirtualIbans: "/virtual-ibans",
+      VirtualIbans: "/virtual-ibans?:status{Enabled|Canceled}",
       ...createGroup("CreditLimit", "/credit-limit", {
         Area: "/*",
         Root: "/",

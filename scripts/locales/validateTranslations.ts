@@ -1,5 +1,5 @@
-import { existsSync, readFileSync, readdirSync, statSync } from "fs";
-import { join, normalize, resolve } from "path";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { join, normalize, resolve } from "node:path";
 
 const REFERENCE_FILE = "en.json";
 

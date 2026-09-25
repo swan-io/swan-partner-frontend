@@ -1,5 +1,5 @@
-import { Array, AsyncData, Future, Option, Result } from "@swan-io/boxed";
-import { useMutation } from "@swan-io/graphql-client";
+import { Array, AsyncData, Future, Option, Result } from "@bloodyowl/boxed";
+import { useMutation } from "@bloodyowl/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
@@ -16,7 +16,7 @@ import { FileInput } from "@swan-io/shared-business/src/components/FileInput";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { electronicFormat, isValid } from "iban";
 import { useCallback, useEffect, useState } from "react";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   CreditTransferInput,
   VerifyBeneficiaryDocument,

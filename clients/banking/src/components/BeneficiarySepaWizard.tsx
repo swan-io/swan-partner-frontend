@@ -1,5 +1,5 @@
-import { Option } from "@swan-io/boxed";
-import { useMutation } from "@swan-io/graphql-client";
+import { Option } from "@bloodyowl/boxed";
+import { useMutation } from "@bloodyowl/graphql-client";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";

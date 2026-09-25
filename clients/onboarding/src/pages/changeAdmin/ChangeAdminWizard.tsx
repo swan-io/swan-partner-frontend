@@ -1,4 +1,4 @@
-import { useQuery } from "@swan-io/graphql-client";
+import { useQuery } from "@bloodyowl/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FlowStep } from "@swan-io/lake/src/components/FlowPresentation";
@@ -153,7 +153,7 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
     [steps],
   );
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies:
+  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll to top on route change
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [route?.name]);
@@ -211,8 +211,6 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
                     {match(route?.name)
                       .with("ChangeAdminRoot", () => (
                         <ChangeAdminFlowPresentation
-                          templateLanguage={templateLanguage}
-                          projectName={data.accountHolder.projectInfo.name}
                           steps={flowSteps}
                           changeAdminRequestId={changeAdminRequestId}
                           nextStep="ChangeAdminContext1"
@@ -249,7 +247,12 @@ export const ChangeAdminWizard = ({ changeAdminRequestId }: Props) => {
                       .with("ChangeAdminNewAdmin", () => (
                         <ChangeAdminNewAdmin
                           initialValues={{
-                            ...data.admin,
+                            birthCountry: data.admin?.birthCountry ?? null,
+                            birthDate: data.admin?.birthDate ?? null,
+                            email: data.admin?.email ?? null,
+                            firstName: data.admin?.firstName ?? null,
+                            lastName: data.admin?.lastName ?? null,
+                            phoneNumber: data.admin?.phoneNumber ?? null,
                             isNewAdminLegalRepresentative: data.isNewAdminLegalRepresentative,
                           }}
                           changeAdminRequestId={changeAdminRequestId}

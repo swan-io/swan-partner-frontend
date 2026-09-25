@@ -9,7 +9,7 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { colors, radii, spacings } from "@swan-io/lake/src/constants/design";
 import dayjs from "dayjs";
 import { Image, StyleSheet } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   MerchantCategory,
   MerchantSubCategory,

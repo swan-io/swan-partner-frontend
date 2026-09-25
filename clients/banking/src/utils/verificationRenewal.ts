@@ -50,7 +50,6 @@ export const getRenewalSteps = (
   const requirements = match(data)
     .with(
       {
-        __typename: "WaitingForInformationVerificationRenewal",
         verificationRequirements: P.nonNullable,
       },
       ({ verificationRequirements }) => verificationRequirements,

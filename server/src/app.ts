@@ -1,3 +1,7 @@
+import { randomUUID } from "node:crypto";
+import { lookup } from "node:dns";
+import fs from "node:fs";
+import { Array, Future, Option, Result } from "@bloodyowl/boxed";
 import accepts from "@fastify/accepts";
 import cors from "@fastify/cors";
 import fastifyHelmet from "@fastify/helmet";
@@ -7,23 +11,18 @@ import secureSession from "@fastify/secure-session";
 import sensible, { HttpErrorCodes } from "@fastify/sensible";
 import fastifyStatic from "@fastify/static";
 import fastifyView from "@fastify/view";
-import { Array, Future, Option, Result } from "@swan-io/boxed";
 import fastify, { FastifyReply } from "fastify";
 import mustache from "mustache";
-import { randomUUID } from "node:crypto";
-import { lookup } from "node:dns";
-import fs from "node:fs";
 import path from "pathe";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
-  OAuth2State,
   createAuthUrl,
   getOAuth2StatePattern,
   getTokenFromCode,
+  OAuth2State,
   refreshAccessToken,
 } from "./api/oauth2";
 import {
-  UnsupportedAccountCountryError,
   bindAccountMembership,
   createPublicCompanyAccountHolderOnboarding,
   createPublicIndividualAccountHolderOnboarding,
@@ -31,6 +30,7 @@ import {
   finalizeOnboardingV2,
   getProjectId,
   parseAccountCountry,
+  UnsupportedAccountCountryError,
 } from "./api/partner";
 import {
   swan__bindAccountMembership,
@@ -38,15 +38,18 @@ import {
   swan__finalizeOnboardingV2,
 } from "./api/partner.swan";
 import {
-  OnboardingRejectionError,
   getOnboardingOAuthClientId,
+  OnboardingRejectionError,
   onboardCompanyAccountHolder,
   onboardIndividualAccountHolder,
 } from "./api/unauthenticated";
 import { startDevServer } from "./client/devServer";
 import { getProductionRequestHandler } from "./client/prodServer";
+import { FlagContext } from "./common/flags";
 import { env } from "./env";
 import { replyWithAuthError, replyWithError } from "./error";
+import { evaluateFlags } from "./utils/flags";
+
 const packageJson = JSON.parse(
   fs.readFileSync(path.join(__dirname, "../package.json"), "utf-8"),
 ) as { version: string };
@@ -58,20 +61,25 @@ const keys = {
   cert: path.join(keysPath, "_wildcard.swan.local.pem"),
 };
 
+// Mirrored by `INACTIVITY_LIMIT` in `clients/banking/src/hooks/useSessionKeepAlive.ts`
 const COOKIE_MAX_AGE = 60 * (env.NODE_ENV !== "test" ? 5 : 60); // 5 minutes (except for tests)
 const OAUTH_STATE_COOKIE_MAX_AGE = 900; // 15 minutes
 
-export type InvitationConfig = {
+type InvitationConfig = {
   accessToken: string;
   inviteeAccountMembershipId: string;
   inviterAccountMembershipId: string;
   language: string;
 };
 
-type AppConfig = {
-  allowedCorsOrigins?: string[];
-  sendAccountMembershipInvitation?: (config: InvitationConfig) => Promise<unknown>;
-};
+type AppConfig =
+  | { invitationMode: "SWAN_EMAIL"; allowedCorsOrigins?: string[] }
+  | { invitationMode: "LINK"; allowedCorsOrigins?: string[] }
+  | {
+      invitationMode: "CUSTOM_EMAIL";
+      allowedCorsOrigins?: string[];
+      sendAccountMembershipInvitation: (config: InvitationConfig) => Promise<unknown>;
+    };
 
 declare module "@fastify/secure-session" {
   interface SessionData {
@@ -94,7 +102,7 @@ declare module "fastify" {
   }
 }
 
-export const appNames = ["banking", "onboarding", "payment"] as const;
+const appNames = ["banking", "onboarding", "payment"] as const;
 
 export type AppName = (typeof appNames)[number];
 
@@ -135,10 +143,10 @@ const assertIsBoundToLocalhost = (host: string) => {
   });
 };
 
-export const start = async ({
-  sendAccountMembershipInvitation,
-  allowedCorsOrigins = [],
-}: AppConfig) => {
+export const start = async (config: AppConfig) => {
+  const { invitationMode, allowedCorsOrigins = [] } = config;
+  const sendAccountMembershipInvitation =
+    config.invitationMode === "CUSTOM_EMAIL" ? config.sendAccountMembershipInvitation : undefined;
   if (env.NODE_ENV === "development") {
     try {
       await Promise.all([
@@ -223,10 +231,88 @@ export const start = async ({
     contentSecurityPolicy: {
       useDefaults: false,
       directives: {
-        defaultSrc: ["*", "data:", "blob:", "'unsafe-inline'"],
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          ...(env.NODE_ENV === "development" ? ["'unsafe-inline'"] : []), // Add unsafe-inline to allow vite hot reloading in develpment
+          "https://*.checkout.com",
+          "https://*.posthog.com",
+          "https://static.zdassets.com",
+        ],
+        objectSrc: ["'none'"],
+        fontSrc: ["'self'", "data:"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: [
+          "'self'",
+          "data:",
+          "blob:",
+          ...match({ url: env.BANKING_URL })
+            .with(
+              { url: P.string.includes("local") },
+              { url: P.string.includes("master") },
+              { url: P.string.includes("preprod") },
+              () => ["https:"],
+            )
+            .otherwise(() => [
+              "https://s3.eu-west-1.amazonaws.com/data.swan.io/",
+              "https://data.swan.io/",
+              "https://support.swan.io/",
+            ]),
+        ],
+        connectSrc: [
+          "'self'",
+          env.IDENTITY_URL,
+          env.BANKING_URL,
+          "https://*.posthog.com",
+          "https://faro-collector-prod-eu-west-6.grafana.net",
+          "https://suggestions.pappers.fr",
+          "https://api.placekit.co",
+          "https://*.checkout.com",
+          "https://*.swan.io",
+          "https://*.zdassets.com",
+          "https://*.zendesk.com",
+          "https://swan.matomo.cloud",
+          ...match({ url: env.BANKING_URL })
+            .with(
+              { url: P.string.includes("local") },
+              { url: P.string.includes("master") },
+              { url: P.string.includes("preprod") },
+              () => ["https://s3.eu-west-1.amazonaws.com"],
+            )
+            .otherwise(() => [
+              //@todo fragile, see if with infra if we can use a custom domain swan.io
+              "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-live",
+              "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-sandbox",
+              "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-live-v2",
+              "https://s3.eu-west-1.amazonaws.com/swan-supporting-document-prod-sandbox-v2",
+              "https://s3.eu-west-1.amazonaws.com/data.swan.io",
+            ]),
+        ],
+        frameSrc: ["'self'", env.IDENTITY_URL, env.PAYMENT_URL, "https://*.checkout.com"],
         frameAncestors: ["'self'", env.BANKING_URL],
+        ...(env.NODE_ENV === "development" && {
+          workerSrc: ["'self'", "blob:"],
+        }), // Used by vite in development
+        ...(env.NODE_ENV !== "development" && { reportUri: ["/api/report"] }),
       },
     },
+  });
+
+  app.addContentTypeParser(
+    ["application/csp-report", "application/reports+json"],
+    { parseAs: "string" },
+    (_request, body, done) => {
+      try {
+        done(null, typeof body === "string" && body.length > 0 ? JSON.parse(body) : {});
+      } catch {
+        done(null, {});
+      }
+    },
+  );
+
+  app.post("/api/report", (request, reply) => {
+    request.log.warn(request.body, "csp-violation");
+    return reply.status(204).send();
   });
 
   const corsOptions = {
@@ -439,9 +525,17 @@ export const start = async ({
             )
             .otherwise(error => request.log.error(error, "Failed to start individual onboarding"));
 
+          const errorMessage = match(error as unknown)
+            .with(
+              { payload: { response: { errors: [{ message: P.string.select() }] } } },
+              message => message,
+            )
+            .otherwise(() => undefined);
+
           return replyWithError(app, request, reply, {
             status: 400,
             requestId: String(request.id),
+            message: errorMessage,
           });
         })
         .map(() => undefined);
@@ -462,7 +556,10 @@ export const start = async ({
       return Future.value(Result.allFromDict({ accountCountry, projectId }))
         .flatMapOk(({ accountCountry, projectId }) => {
           if (isOnboardingV2) {
-            return createPublicCompanyAccountHolderOnboarding({ accountCountry, projectId });
+            return createPublicCompanyAccountHolderOnboarding({
+              accountCountry,
+              projectId,
+            });
           }
           return onboardCompanyAccountHolder({ accountCountry, projectId });
         })
@@ -493,14 +590,14 @@ export const start = async ({
    * Accept an account membership invitation
    * e.g. /api/invitation/:id
    */
-  app.get<{ Querystring: Record<string, string>; Params: { accountMembershipId: string } }>(
-    "/api/invitation/:accountMembershipId",
-    async (request, reply) => {
-      const queryString = new URLSearchParams();
-      queryString.append("accountMembershipId", request.params.accountMembershipId);
-      return reply.redirect(`/auth/login?${queryString.toString()}`);
-    },
-  );
+  app.get<{
+    Querystring: Record<string, string>;
+    Params: { accountMembershipId: string };
+  }>("/api/invitation/:accountMembershipId", async (request, reply) => {
+    const queryString = new URLSearchParams();
+    queryString.append("accountMembershipId", request.params.accountMembershipId);
+    return reply.redirect(`/auth/login?${queryString.toString()}`);
+  });
 
   /**
    * Send an account membership invitation
@@ -571,7 +668,12 @@ export const start = async ({
 
     // If provided with an `onboardingId`, it means that the callback should end up
     // finalizing the onboarding, otherwise do a simple redirection
-    const state: OAuth2State = match({ onboardingId, onboardingV2, accountMembershipId, projectId })
+    const state: OAuth2State = match({
+      onboardingId,
+      onboardingV2,
+      accountMembershipId,
+      projectId,
+    })
       // Internal usage only
       .with(
         { onboardingV2: "true", onboardingId: P.string, projectId: P.string },
@@ -689,12 +791,14 @@ export const start = async ({
                     // Finalize the onboarding with the received user token
                     return onboardingOAuthClientId
                       .flatMapOk(({ onboardingInfo }) =>
-                        swan__finalizeOnboardingV2({ onboardingId, accessToken, projectId }).mapOk(
-                          payload => ({
-                            ...payload,
-                            oAuthClientId: onboardingInfo?.projectInfo?.oAuthClientId ?? undefined,
-                          }),
-                        ),
+                        swan__finalizeOnboardingV2({
+                          onboardingId,
+                          accessToken,
+                          projectId,
+                        }).mapOk(payload => ({
+                          ...payload,
+                          oAuthClientId: onboardingInfo?.projectInfo?.oAuthClientId ?? undefined,
+                        })),
                       )
                       .toPromise()
                       .then(result => {
@@ -740,7 +844,10 @@ export const start = async ({
                   })
                   .with({ type: "FinalizeOnboardingV2" }, ({ onboardingId }) => {
                     // Finalize the onboarding with the received user token
-                    return finalizeOnboardingV2({ onboardingId, accessToken })
+                    return finalizeOnboardingV2({
+                      onboardingId,
+                      accessToken,
+                    })
                       .toPromise()
                       .then(result => {
                         return result.match<Reply>({
@@ -777,12 +884,14 @@ export const start = async ({
                     // Finalize the onboarding with the received user token
                     return onboardingOAuthClientId
                       .flatMapOk(({ onboardingInfo }) =>
-                        swan__finalizeOnboarding({ onboardingId, accessToken, projectId }).mapOk(
-                          payload => ({
-                            ...payload,
-                            oAuthClientId: onboardingInfo?.projectInfo?.oAuthClientId ?? undefined,
-                          }),
-                        ),
+                        swan__finalizeOnboarding({
+                          onboardingId,
+                          accessToken,
+                          projectId,
+                        }).mapOk(payload => ({
+                          ...payload,
+                          oAuthClientId: onboardingInfo?.projectInfo?.oAuthClientId ?? undefined,
+                        })),
                       )
                       .toPromise()
                       .then(result => {
@@ -860,7 +969,10 @@ export const start = async ({
                       });
                   })
                   .with({ type: "BindAccountMembership" }, ({ accountMembershipId }) => {
-                    return bindAccountMembership({ accountMembershipId, accessToken })
+                    return bindAccountMembership({
+                      accountMembershipId,
+                      accessToken,
+                    })
                       .toPromise()
                       .then(result => {
                         return result.match<Reply>({
@@ -964,6 +1076,11 @@ export const start = async ({
     return reply.send({ success });
   });
 
+  app.get("/api/flags", (request, reply) => {
+    const flags = evaluateFlags(request.query as Partial<FlagContext>);
+    reply.send(flags);
+  });
+
   /**
    * Exposes environement variables to the client apps at runtime.
    * The client simply has to load `<script src="/env.js"></script>`
@@ -975,13 +1092,9 @@ export const start = async ({
       SWAN_ENVIRONMENT:
         process.env.SWAN_ENVIRONMENT ??
         (env.OAUTH_CLIENT_ID.startsWith("LIVE_") ? "LIVE" : "SANDBOX"),
-      ACCOUNT_MEMBERSHIP_INVITATION_MODE: match(sendAccountMembershipInvitation)
-        .with(P.nullish, () => "LINK")
-        .otherwise(() => "EMAIL"),
-      TGGL_API_KEY: process.env.TGGL_API_KEY,
+      ACCOUNT_MEMBERSHIP_INVITATION_MODE: invitationMode,
       BANKING_URL: env.BANKING_URL,
       PAYMENT_URL: env.PAYMENT_URL,
-      IDENTITY_URL: env.IDENTITY_URL,
       SWAN_PROJECT_ID: projectId.match({
         Ok: projectId => projectId,
         Error: () => undefined,

@@ -1,5 +1,5 @@
-import { FastifyInstance, RouteHandlerMethod } from "fastify";
 import fs from "node:fs/promises";
+import { FastifyInstance, RouteHandlerMethod } from "fastify";
 import path from "pathe";
 import { match, P } from "ts-pattern";
 import { CorsOptions } from "vite";
@@ -8,7 +8,7 @@ import { AppName, getAppNameByHostName } from "../app";
 export const startDevServer = async (app: FastifyInstance, corsOptions: CorsOptions) => {
   const { createServer, searchForWorkspaceRoot } = await import("vite");
   const jsonc = await import("jsonc-parser");
-  const react = await import("@vitejs/plugin-react-swc").then(_ => _.default);
+  const react = await import("@vitejs/plugin-react").then(_ => _.default);
 
   const workspaceRoot = searchForWorkspaceRoot(process.cwd());
   const tsConfigPath = path.join(workspaceRoot, "tsconfig.json");
@@ -28,8 +28,8 @@ export const startDevServer = async (app: FastifyInstance, corsOptions: CorsOpti
       );
 
       const dedupDependencies = [
-        "@swan-io/chicane",
-        "@swan-io/graphql-client",
+        "@zoontek/chicane",
+        "@bloodyowl/graphql-client",
         "react",
         "react-dom",
       ];
@@ -81,6 +81,7 @@ export const startDevServer = async (app: FastifyInstance, corsOptions: CorsOpti
         allow: [
           path.join(workspaceRoot, "node_modules"),
           path.join(workspaceRoot, "clients"),
+          path.join(workspaceRoot, "common"),
           path.join(workspaceRoot, "scripts", "graphql", "dist"),
           ...extraConfig.allow,
         ],

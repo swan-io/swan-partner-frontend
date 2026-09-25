@@ -44,6 +44,22 @@ export const getSpendingLimitAmountError = (
   return undefined;
 };
 
+export type SpendingLimitAmountError = "InvalidAmount" | "ExceedsMaxAmount";
+
+export const validateSpendingLimitAmount = (
+  amountValue: string | undefined,
+  maxValue: number,
+): SpendingLimitAmountError | undefined => {
+  const numericValue = Number(amountValue);
+  if (amountValue == null || !(numericValue >= 0)) {
+    return "InvalidAmount";
+  }
+  if (numericValue > maxValue) {
+    return "ExceedsMaxAmount";
+  }
+  return undefined;
+};
+
 export const getMonthlySpendingDate = (spendingDay: number, hour: number) => {
   const today = dayjs();
 

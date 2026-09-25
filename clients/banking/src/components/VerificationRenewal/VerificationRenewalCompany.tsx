@@ -1,4 +1,4 @@
-import { Option } from "@swan-io/boxed";
+import { Option } from "@bloodyowl/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeStepper, MobileStepper, TopLevelStep } from "@swan-io/lake/src/components/LakeStepper";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -121,7 +121,7 @@ export const VerificationRenewalCompany = ({
     postalCode: Option.fromNullable(info.company.residencyAddress.postalCode),
   });
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies(route?.name):
+  // biome-ignore lint/correctness/useExhaustiveDependencies(route?.name): scroll to top on route change
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [route?.name]);

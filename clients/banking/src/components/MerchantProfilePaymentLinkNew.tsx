@@ -1,5 +1,5 @@
-import { Array, Dict, Option } from "@swan-io/boxed";
-import { useMutation } from "@swan-io/graphql-client";
+import { Array, Dict, Option } from "@bloodyowl/boxed";
+import { useMutation } from "@bloodyowl/graphql-client";
 import { Accordion } from "@swan-io/lake/src/components/Accordion";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Icon } from "@swan-io/lake/src/components/Icon";
@@ -44,7 +44,7 @@ import {
 import { toOptionalValidator, useForm } from "@swan-io/use-form";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   CreatePaymentLinkDocument,
   MerchantPaymentMethod,
@@ -55,6 +55,7 @@ import { env } from "../utils/env";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { validateNumeric, validateReference, validateUrl } from "../utils/validations";
+
 const PREVIEW_CONTAINER_VERTICAL_SPACING = 16;
 const PREVIEW_TOP_BAR_HEIGHT = 16;
 const IFRAME_ORIGINAL_HEIGHT = 1000;
@@ -230,7 +231,7 @@ export const MerchantProfilePaymentLinkNew = ({
         .with(
           {
             statusInfo: { status: "Enabled" },
-            type: "Card",
+            type: P.union("Card", "OnlineCard"),
           },
           () => Option.Some(paymentMethod),
         )
@@ -392,7 +393,7 @@ export const MerchantProfilePaymentLinkNew = ({
         return;
       }
 
-      if (paymentMethod.type === "Card") {
+      if (paymentMethod.type === "Card" || paymentMethod.type === "OnlineCard") {
         url.searchParams.append("card", "true");
       }
       if (

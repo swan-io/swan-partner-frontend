@@ -15,8 +15,8 @@ import {
   spacings,
 } from "@swan-io/lake/src/constants/design";
 import { Image, StyleSheet } from "react-native";
-import merchantProfileDocsImage from "../assets/images/merchant/merchant-profile-docs.jpg";
 import merchantProfileImage from "../assets/images/merchant/merchant-profile.jpg";
+import merchantProfileDocsImage from "../assets/images/merchant/merchant-profile-docs.jpg";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 

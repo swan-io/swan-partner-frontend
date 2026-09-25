@@ -1,5 +1,4 @@
-import { Link } from "@swan-io/chicane";
-import { useQuery } from "@swan-io/graphql-client";
+import { useQuery } from "@bloodyowl/graphql-client";
 import { Cell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Icon } from "@swan-io/lake/src/components/Icon";
@@ -15,6 +14,7 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
+import { Link } from "@zoontek/chicane";
 import dayjs from "dayjs";
 import { StyleSheet } from "react-native";
 import { match } from "ts-pattern";

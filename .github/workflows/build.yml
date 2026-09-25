@@ -87,10 +87,6 @@ jobs:
         with:
           registry: ${{ secrets.DOCKER_REGISTRY }}
 
-      - name: Set up QEMU
-        if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[dockerize]') }}
-        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
-
       - name: Set up Docker Buildx
         if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[dockerize]') }}
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
@@ -102,7 +98,7 @@ jobs:
           context: .
           file: Dockerfile-swan
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64
           tags: |
             ${{ secrets.DOCKER_REGISTRY }}/swan-partner-frontend:master-${{ github.sha }}
             ${{ secrets.DOCKER_REGISTRY }}/swan-partner-frontend:master-${{ github.ref_name }}

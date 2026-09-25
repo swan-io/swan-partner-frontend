@@ -1,6 +1,5 @@
-import { AsyncData, Option, Result } from "@swan-io/boxed";
-import { Link } from "@swan-io/chicane";
-import { useQuery } from "@swan-io/graphql-client";
+import { AsyncData, Option, Result } from "@bloodyowl/boxed";
+import { useQuery } from "@bloodyowl/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
@@ -15,9 +14,10 @@ import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { LinkConfig } from "@swan-io/lake/src/components/VirtualizedList";
 import { spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { Link } from "@zoontek/chicane";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   MerchantPaymentLinkFiltersInput,
   MerchantPaymentLinksDocument,
@@ -53,6 +53,7 @@ const PER_PAGE = 20;
 
 const ALLOWED_PAYMENT_METHODS = new Set<MerchantPaymentMethodType>([
   "Card",
+  "OnlineCard",
   "SepaDirectDebitB2b",
   "SepaDirectDebitCore",
 ]);

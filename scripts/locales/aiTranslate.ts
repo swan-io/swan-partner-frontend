@@ -1,13 +1,13 @@
-import { Option, Result } from "@swan-io/boxed";
+import fs from "node:fs/promises";
+import os from "node:os";
+import { Option, Result } from "@bloodyowl/boxed";
 import cliSpinners from "cli-spinners";
-import fs from "fs/promises";
 import OpenAI from "openai";
 import ora from "ora";
-import os from "os";
 import path from "pathe";
 import pc from "picocolors";
 import { encoding_for_model } from "tiktoken";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import type { Except } from "type-fest";
 
 /**
@@ -157,7 +157,7 @@ const writeLocaleFile = async (
   const localePath = path.join(appTranslationsPaths[app], `${locale}.json`);
 
   const sorted = Object.keys(json)
-    .sort()
+    .toSorted()
     .reduce<Record<string, string>>((acc, key) => ({ ...acc, [key]: json[key] as string }), {});
 
   try {
@@ -185,7 +185,7 @@ const isRecordOfString = (value: unknown): value is Record<string, string> => {
  * Sort keys by alphabetical order to avoid unnecessary diff
  */
 const sortRecord = <T extends Record<string, unknown>>(record: T): T => {
-  const keys = Object.keys(record).sort();
+  const keys = Object.keys(record).toSorted();
   const sortedRecord: Record<string, unknown> = {};
   for (const key of keys) {
     sortedRecord[key] = record[key];

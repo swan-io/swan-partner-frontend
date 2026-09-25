@@ -1,32 +1,15 @@
-import { Option } from "@swan-io/boxed";
-import { useMutation } from "@swan-io/graphql-client";
+import { Option } from "@bloodyowl/boxed";
+import { useMutation } from "@bloodyowl/graphql-client";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
+import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
+import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { identity, noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { trim } from "@swan-io/lake/src/utils/string";
-import { combineValidators, useForm } from "@swan-io/use-form";
-import { StyleSheet } from "react-native";
-import { match, P } from "ts-pattern";
-import { OnboardingFooter } from "../../../components/OnboardingFooter";
-import { StepTitle } from "../../../components/StepTitle";
-import {
-  CompanyOnboardingFragment,
-  UpdatePublicCompanyAccountHolderOnboardingDocument,
-} from "../../../graphql/partner";
-import { locale, t } from "../../../utils/i18n";
-import {
-  badUserInputErrorPattern,
-  extractServerValidationFields,
-  getValidationErrorMessage,
-  ServerInvalidFieldCode,
-} from "../../../utils/validation";
-
-import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
-import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
@@ -34,7 +17,6 @@ import { PlacekitCityInput } from "@swan-io/shared-business/src/components/Place
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import {
   allCountries,
-  companyCountries,
   CountryCCA3,
   IndividualCountryCCA3,
   isCountryCCA3,
@@ -48,13 +30,27 @@ import {
   validateRequired,
   validateUsaTaxNumber,
 } from "@swan-io/shared-business/src/utils/validation";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import { useEffect, useState } from "react";
-import { View } from "react-native";
-import { OnboardingCountryPicker } from "../../../components/CountryPicker";
+import { StyleSheet, View } from "react-native";
+import { match, P } from "ts-pattern";
+import { OnboardingFooter } from "../../../components/OnboardingFooter";
+import { StepTitle } from "../../../components/StepTitle";
+import {
+  CompanyOnboardingFragment,
+  UpdatePublicCompanyAccountHolderOnboardingDocument,
+} from "../../../graphql/partner";
+import { locale, t } from "../../../utils/i18n";
 import { upsertAccountAdminInRelatedIndividuals } from "../../../utils/onboarding";
 import { Router } from "../../../utils/routes";
 import { hasOnboardingPrefilled } from "../../../utils/session";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
+import {
+  badUserInputErrorPattern,
+  extractServerValidationFields,
+  getValidationErrorMessage,
+  ServerInvalidFieldCode,
+} from "../../../utils/validation";
 
 export type DetailsFieldApiRequired = "email";
 
@@ -98,8 +94,8 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
   const [isAddressFromSuggestion, setIsAddressFromSuggestion] = useState(
     Boolean(
       accountAdmin?.address?.addressLine1 &&
-      accountAdmin.address.city &&
-      accountAdmin.address.postalCode,
+        accountAdmin.address.city &&
+        accountAdmin.address.postalCode,
     ),
   );
 
@@ -181,7 +177,7 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
     },
     taxIdentificationNumber: {
       initialValue: accountAdmin?.taxIdentificationNumber ?? "",
-      sanitize: value => value.replace(/[-_. \/]/g, ""),
+      sanitize: value => value.replace(/[-_. /]/g, ""),
       validate: (value, { getFieldValue }) => {
         const residenceCountry = getFieldValue("residenceCountry");
         return isTaxIdentificationRequired(residenceCountry)
@@ -342,7 +338,7 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
   return (
     <>
       <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.gap}>
-        {({ large, small }) => (
+        {({ large }) => (
           <>
             <Tile style={styles.gap}>
               <StepTitle>{t("form.personalInformation.title")}</StepTitle>
@@ -510,19 +506,24 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
             <Tile style={styles.gap}>
               <StepTitle>{t("form.residence.title")}</StepTitle>
               <View style={[styles.grid, large && styles.gridDesktop]}>
-                <Field name="residenceCountry">
-                  {({ value, onChange }) => (
-                    <OnboardingCountryPicker
-                      label={t("form.label.residenceCountry")}
-                      value={value}
-                      countries={companyCountries}
-                      holderType="company"
-                      onlyIconHelp={small}
-                      onValueChange={onChange}
-                      style={styles.inputFull}
-                    />
+                <LakeLabel
+                  label={t("form.label.residenceCountry")}
+                  style={styles.inputFull}
+                  render={id => (
+                    <Field name="residenceCountry">
+                      {({ value, onChange, error, ref }) => (
+                        <CountryPicker
+                          id={id}
+                          ref={ref}
+                          countries={allCountries}
+                          value={value}
+                          error={error}
+                          onValueChange={onChange}
+                        />
+                      )}
+                    </Field>
                   )}
-                </Field>
+                />
 
                 <FieldsListener names={["residenceCountry"]}>
                   {({ residenceCountry }) => (

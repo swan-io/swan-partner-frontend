@@ -1,5 +1,4 @@
-import { Future, Option, Result } from "@swan-io/boxed";
-import { getLocation } from "@swan-io/chicane";
+import { Future, Option, Result } from "@bloodyowl/boxed";
 import {
   Client,
   ClientError,
@@ -7,20 +6,21 @@ import {
   MakeRequest,
   parseGraphQLError,
   print,
-} from "@swan-io/graphql-client";
+} from "@bloodyowl/graphql-client";
+import { badStatusToError, emptyToError, Request } from "@bloodyowl/request";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
-import { Request, badStatusToError, emptyToError } from "@swan-io/request";
 import { registerErrorToRequestId } from "@swan-io/shared-business/src/state/toasts";
+import { getLocation } from "@zoontek/chicane";
 import { GraphQLError } from "graphql";
 import { customAlphabet } from "nanoid";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import partnerSchemaConfig from "../../../../scripts/graphql/dist/partner-schema-config.json";
 import unauthenticatedSchemaConfig from "../../../../scripts/graphql/dist/unauthenticated-schema-config.json";
 import { env } from "./env";
 import { locale } from "./i18n";
 import { projectConfiguration } from "./projectId";
 import { Router } from "./routes";
-import { logFrontendError } from "./tracing";
+import { logger } from "./tracing";
 
 const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
 const nanoid = customAlphabet(alphabet, 8);
@@ -38,7 +38,21 @@ const isUnauthorizedLikeString = (value: string) => {
   return lowerCased.includes("unauthenticated") || lowerCased.includes("unauthorized");
 };
 
-export const filterOutUnauthorizedError = (operationName: string, clientError: ClientError) => {
+const isUserNotFoundError = (clientError: ClientError) =>
+  ClientError.toArray(clientError).some(error =>
+    match(error)
+      .with(
+        { extensions: { code: "Identity_NotFound", meta: { fieldName: "id", fieldValue: "" } } },
+        () => true,
+      )
+      .otherwise(() => false),
+  );
+
+// Expected when logged out: AuthStatus checks `user` with no id, which the API rejects.
+const isExpectedAuthStatusError = (operationName: string, clientError: ClientError) =>
+  operationName === "AuthStatus" && isUserNotFoundError(clientError);
+
+const filterOutUnauthorizedError = (operationName: string, clientError: ClientError) => {
   if (
     isNullish(Router.getRoute(["ProjectLogin"])) && // We are not on the project login page
     operationName !== "AuthStatus" && // The session expire didn't occured after a simple logged in check
@@ -97,13 +111,11 @@ const makeRequest: MakeRequest = ({ url, headers, operationName, document, varia
     )
     .flatMapError(error => filterOutUnauthorizedError(operationName, error))
     .tapError(errors => {
-      ClientError.forEach(errors, error => {
-        try {
-          logFrontendError(error, {
-            extra: { requestId },
-          });
-        } catch {}
+      if (!isExpectedAuthStatusError(operationName, errors)) {
+        logger.error(errors, { source: "GraphQL.Client", requestId });
+      }
 
+      ClientError.forEach(errors, error => {
         errorToRequestId.set(error, requestId);
       });
     });

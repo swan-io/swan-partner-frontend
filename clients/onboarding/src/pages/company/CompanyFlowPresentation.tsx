@@ -82,39 +82,33 @@ export const CompanyFlowPresentation = ({
   }, [hasOwnershipStep, hasDocumentsStep]);
 
   return (
-    <>
-      <OnboardingStepContent>
-        <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fill}>
-          {({ small }) => (
-            <Box
-              alignItems={small ? "center" : "start"}
-              style={[commonStyles.fill, small && styles.containerMobile]}
-            >
-              <LakeHeading
-                level={1}
-                variant={small ? "h3" : "h1"}
-                align={small ? "center" : "left"}
-              >
-                {t("company.step.presentation.title", { count: steps.length })}
-              </LakeHeading>
+    <OnboardingStepContent>
+      <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fill}>
+        {({ small }) => (
+          <Box
+            alignItems={small ? "center" : "start"}
+            style={[commonStyles.fill, small && styles.containerMobile]}
+          >
+            <LakeHeading level={1} variant={small ? "h3" : "h1"} align={small ? "center" : "left"}>
+              {t("company.step.presentation.title", { count: steps.length })}
+            </LakeHeading>
 
-              <Space height={small ? 8 : 12} />
+            <Space height={small ? 8 : 12} />
 
-              <LakeText align={small ? "center" : "left"}>
-                {t("company.step.presentation.description")}
-              </LakeText>
+            <LakeText align={small ? "center" : "left"}>
+              {t("company.step.presentation.description")}
+            </LakeText>
 
-              <Box justifyContent="center" alignItems="center" style={styles.stepsContainer}>
-                <Space height={small ? 16 : 24} />
-                <FlowPresentation mode={small ? "mobile" : "desktop"} steps={steps} />
-                <Space height={small ? 16 : 24} />
-              </Box>
+            <Box justifyContent="center" alignItems="center" style={styles.stepsContainer}>
+              <Space height={small ? 16 : 24} />
+              <FlowPresentation mode={small ? "mobile" : "desktop"} steps={steps} />
+              <Space height={small ? 16 : 24} />
             </Box>
-          )}
-        </ResponsiveContainer>
+          </Box>
+        )}
+      </ResponsiveContainer>
 
-        <OnboardingFooter onPrevious={onPressPrevious} onNext={onPressNext} />
-      </OnboardingStepContent>
-    </>
+      <OnboardingFooter onPrevious={onPressPrevious} onNext={onPressNext} />
+    </OnboardingStepContent>
   );
 };

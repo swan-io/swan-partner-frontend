@@ -1,9 +1,9 @@
 import { isNotNullish, isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { DatePickerDate } from "@swan-io/shared-business/src/components/DatePicker";
 import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
-import { Validator, combineValidators } from "@swan-io/use-form";
+import { combineValidators, Validator } from "@swan-io/use-form";
 import dayjs from "dayjs";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { CompleteAddressWithContactInput } from "../graphql/partner";
 import { locale, t } from "./i18n";
 
@@ -81,20 +81,6 @@ export const validateAccountNameLength: Validator<string> = value => {
 export const validateDate: Validator<string> = value => {
   if (!dayjs(value, locale.dateFormat, true).isValid()) {
     return t("common.form.invalidDate");
-  }
-};
-
-// birthdate can be only in the past, today or tomorrow (to allow timezones)
-export const validateBirthdate: Validator<string> = value => {
-  const date = dayjs(value, locale.dateFormat);
-  if (!date.isValid()) {
-    return t("common.form.invalidDate");
-  }
-
-  const tomorrow = dayjs().startOf("day").add(1, "day");
-
-  if (date.isAfter(tomorrow)) {
-    return t("common.form.birthdateCannotBeFuture");
   }
 };
 
@@ -353,7 +339,7 @@ export const validateRLMC = (cmc7: string) => (rlmc: string) => {
 
   const remainder = `${cmc7}${rlmc}`
     .split("")
-    .reduce((remainder, char) => (remainder * 10 + Number.parseInt(char)) % 97, 0);
+    .reduce((remainder, char) => (remainder * 10 + Number.parseInt(char, 10)) % 97, 0);
 
   if (remainder !== 0) {
     return t("common.form.invalidRLMC");
@@ -361,7 +347,13 @@ export const validateRLMC = (cmc7: string) => (rlmc: string) => {
 };
 
 export const validateReference = (value: string | undefined) => {
-  if (isNotNullishOrEmpty(value) && !/^[a-zA-Z0-9-?.+,\/':() ]{1,35}$/.test(value)) {
+  if (isNotNullishOrEmpty(value) && !/^[a-zA-Z0-9-?.+,/':() ]{1,35}$/.test(value)) {
     return t("common.form.invalidReference");
+  }
+};
+
+export const validateCreditorIdentifier = (value: string | undefined) => {
+  if (isNotNullishOrEmpty(value) && !/^[a-zA-Z0-9 ]{1,35}$/.test(value)) {
+    return t("common.form.invalidCreditorIdentifier");
   }
 };

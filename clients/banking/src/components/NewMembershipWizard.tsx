@@ -1,5 +1,6 @@
-import { Array, Dict, Option } from "@swan-io/boxed";
-import { useMutation } from "@swan-io/graphql-client";
+import { Array, Dict, Option } from "@bloodyowl/boxed";
+import { useMutation } from "@bloodyowl/graphql-client";
+import { badStatusToError, Request } from "@bloodyowl/request";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
@@ -12,16 +13,15 @@ import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/desig
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { emptyToUndefined, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { trim } from "@swan-io/lake/src/utils/string";
-import { Request, badStatusToError } from "@swan-io/request";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { InputPhoneNumber } from "@swan-io/shared-business/src/components/InputPhoneNumber";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import {
+  allCountries,
   Country,
   CountryCCA3,
-  allCountries,
   getCountryByCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
@@ -36,8 +36,7 @@ import {
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { useFlag } from "react-tggl-client";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   AccountCountry,
   AccountLanguage,
@@ -45,6 +44,7 @@ import {
   AddAccountMembershipDocument,
   SendAccountMembershipInviteNotificationDocument,
 } from "../graphql/partner";
+import { isMembershipTaxIdRequired } from "../utils/accountMembership";
 import { accountLanguages, locale, t } from "../utils/i18n";
 import { prefixPhoneNumber } from "../utils/phone";
 import { projectConfiguration } from "../utils/projectId";
@@ -123,8 +123,6 @@ export const NewMembershipWizard = ({
   onSuccess,
   onPressCancel,
 }: Props) => {
-  const canUseNotificationStack = useFlag("useNotificationStackToSendNewMembershipEmail", false);
-
   const [sendAccountMembershipInviteNotification] = useMutation(
     SendAccountMembershipInviteNotificationDocument,
   );
@@ -225,7 +223,7 @@ export const NewMembershipWizard = ({
           .with(
             P.union(
               P.intersection(
-                { accountCountry: "NLD" },
+                { accountCountry: P.union("DEU", "NLD") },
                 P.union({ canViewAccount: true }, { canInitiatePayments: true }),
               ),
               { accountCountry: "ITA" },
@@ -252,7 +250,7 @@ export const NewMembershipWizard = ({
           .with(
             P.union(
               P.intersection(
-                { accountCountry: "NLD" },
+                { accountCountry: P.union("DEU", "NLD") },
                 P.union({ canViewAccount: true }, { canInitiatePayments: true }),
               ),
               { accountCountry: "ITA" },
@@ -276,7 +274,7 @@ export const NewMembershipWizard = ({
           .with(
             P.union(
               P.intersection(
-                { accountCountry: "NLD" },
+                { accountCountry: P.union("DEU", "NLD") },
                 P.union({ canViewAccount: true }, { canInitiatePayments: true }),
               ),
               { accountCountry: "ITA" },
@@ -299,7 +297,7 @@ export const NewMembershipWizard = ({
           .with(
             P.union(
               P.intersection(
-                { accountCountry: "NLD" },
+                { accountCountry: P.union("DEU", "NLD") },
                 P.union({ canViewAccount: true }, { canInitiatePayments: true }),
               ),
               { accountCountry: "ITA" },
@@ -314,30 +312,25 @@ export const NewMembershipWizard = ({
     taxIdentificationNumber: {
       initialValue: partiallySavedValues?.taxIdentificationNumber ?? "",
       strategy: "onBlur",
-      sanitize: value => value.replace(/[-_. \/]/g, ""),
+      sanitize: value => value.replace(/[-_. /]/g, ""),
       validate: (value, { getFieldValue }) => {
-        return match({
+        const residencyAddressCountry = getFieldValue("country");
+
+        const isRequired = isMembershipTaxIdRequired({
           accountCountry,
-          residencyAddressCountry: getFieldValue("country"),
-          canViewAccount: getFieldValue("canViewAccount"),
+          residencyCountry: residencyAddressCountry,
           canInitiatePayments: getFieldValue("canInitiatePayments"),
-        })
+        });
+
+        return match({ accountCountry, residencyAddressCountry })
           .with(
-            P.union(
-              P.intersection(
-                P.union({ accountCountry: "DEU", residencyAddressCountry: "DEU" }),
-                P.union({ canViewAccount: true }, { canInitiatePayments: true }),
-              ),
-              { accountCountry: "ITA", residencyAddressCountry: "ITA", canInitiatePayments: true },
-            ),
-            ({ accountCountry }) =>
+            { accountCountry: "DEU", residencyAddressCountry: "DEU" },
+            { accountCountry: "ITA", residencyAddressCountry: "ITA" },
+            () =>
               combineValidators(
-                validateRequired,
+                isRequired && validateRequired,
                 validateIndividualTaxNumber(accountCountry),
               )(value),
-          )
-          .with({ accountCountry: "DEU", residencyAddressCountry: "DEU" }, ({ accountCountry }) =>
-            validateIndividualTaxNumber(accountCountry)(value),
           )
           .otherwise(() => undefined);
       },
@@ -378,16 +371,17 @@ export const NewMembershipWizard = ({
     editingAccountMembershipId: string;
     language: AccountLanguage;
   }) => {
-    const query = new URLSearchParams();
-
-    query.append("inviterAccountMembershipId", currentUserAccountMembership.id);
-    query.append("lang", language);
-
-    if (canUseNotificationStack) {
+    if (__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE === "SWAN_EMAIL") {
       sendAccountMembershipInviteNotification({
         input: { accountMembershipId: editingAccountMembershipId },
+      }).tapError(error => {
+        showToast({ variant: "error", error, title: translateError(error) });
       });
     } else {
+      const query = new URLSearchParams();
+      query.append("inviterAccountMembershipId", currentUserAccountMembership.id);
+      query.append("lang", language);
+
       const url = match(projectConfiguration)
         .with(
           Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
@@ -478,7 +472,7 @@ export const NewMembershipWizard = ({
                 )
                 .otherwise(data => {
                   match(__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE)
-                    .with("EMAIL", () => {
+                    .with(P.union("SWAN_EMAIL", "CUSTOM_EMAIL"), () => {
                       sendInvitation({ editingAccountMembershipId: data.id, language });
                     })
                     .otherwise(() => {});
@@ -873,11 +867,13 @@ export const NewMembershipWizard = ({
                                     valid={valid}
                                     error={error}
                                     onChange={onChange}
-                                    required={
-                                      accountCountry === "ITA" ||
-                                      Boolean(partiallySavedValues?.canViewAccount) ||
-                                      Boolean(partiallySavedValues?.canInitiatePayments)
-                                    }
+                                    required={isMembershipTaxIdRequired({
+                                      accountCountry,
+                                      residencyCountry: country.value,
+                                      canInitiatePayments: Boolean(
+                                        partiallySavedValues?.canInitiatePayments,
+                                      ),
+                                    })}
                                   />
                                 )}
                               </Field>

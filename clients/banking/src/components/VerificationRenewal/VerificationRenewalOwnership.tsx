@@ -1,5 +1,5 @@
-import { Option } from "@swan-io/boxed";
-import { useMutation } from "@swan-io/graphql-client";
+import { Option } from "@bloodyowl/boxed";
+import { useMutation } from "@bloodyowl/graphql-client";
 import { Avatar } from "@swan-io/lake/src/components/Avatar";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
@@ -43,7 +43,7 @@ import {
   VerificationRenewalUboFragment,
   VerificationRenewalUltimateBeneficialOwnerInput,
 } from "../../graphql/partner";
-import { t, TranslationKey } from "../../utils/i18n";
+import { TranslationKey, t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
 import { getRenewalSteps, RenewalStep, renewalSteps } from "../../utils/verificationRenewal";
 import { getNextStep } from "./VerificationRenewalCompany";
@@ -52,8 +52,8 @@ import {
   Input,
   REFERENCE_SYMBOL,
   SaveValue,
-  validateUbo,
   VerificationRenewalOwnershipForm,
+  validateUbo,
 } from "./VerificationRenewalOwnershipForm";
 import { VerificationRenewalStepContent } from "./VerificationRenewalStepContent";
 
@@ -129,6 +129,11 @@ const convertFetchUboToInput = (
       ? (getCCA3forCCA2(fetchedUbo.birthInfo?.country) ?? accountCountry)
       : accountCountry;
 
+  // Normalize CCA2 country codes to CCA3, which the API expects
+  const addressCountry = isCountryCCA2(fetchedUbo.address?.country)
+    ? getCCA3forCCA2(fetchedUbo.address?.country)
+    : fetchedUbo.address?.country;
+
   const ubo = {
     [REFERENCE_SYMBOL]: uuid(),
     firstName: fetchedUbo.firstName ?? "",
@@ -143,7 +148,7 @@ const convertFetchUboToInput = (
     totalPercentage: totalPercentage ?? undefined,
     addressLine1: fetchedUbo.address?.addressLine1 ?? "",
     city: fetchedUbo.address?.city ?? "",
-    country: fetchedUbo.address?.country as CountryCCA3,
+    country: addressCountry as CountryCCA3,
     postalCode: fetchedUbo.address?.postalCode ?? "",
     taxIdentificationNumber: fetchedUbo.taxIdentificationNumber ?? undefined,
   } satisfies Partial<Input>;
@@ -514,7 +519,14 @@ export const VerificationRenewalOwnership = ({
         setPageState({ type: "list" });
       })
       .tapError(error => {
-        showToast({ variant: "error", error, title: translateError(error) });
+        const errorMessage = match(error)
+          .with({ __typename: "ValidationRejection" }, rejection => {
+            const fieldErrors = rejection.fields.map(field => field.message);
+            return fieldErrors.join("\n");
+          })
+          .otherwise(() => translateError(error));
+
+        showToast({ variant: "error", error, title: errorMessage });
       });
   };
 

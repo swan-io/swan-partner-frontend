@@ -1,4 +1,4 @@
-import { Option } from "@swan-io/boxed";
+import { Option } from "@bloodyowl/boxed";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { StepDots } from "@swan-io/lake/src/components/StepDots";
 import { CountryCCA3, isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
@@ -31,11 +31,11 @@ export type VerificationRenewalOwnershipFormCommonRef = {
 };
 export type Input = WithReference<CommonInput & AddressInput>;
 
-export type RenewalVerificationBeneficiaryFormStep = "Common" | "Address";
+type RenewalVerificationBeneficiaryFormStep = "Common" | "Address";
 
 export type SaveValue = WithReference<CommonInput & Partial<AddressInput>>;
 
-export type BeneficiaryFormStep = "Common" | "Address";
+type BeneficiaryFormStep = "Common" | "Address";
 
 const formSteps: BeneficiaryFormStep[] = ["Common", "Address"];
 
@@ -162,6 +162,10 @@ export const VerificationRenewalOwnershipForm = ({
   );
 };
 
+// Used to surface "missing information" when a user starts a section without completing it.
+const isPartiallyFilled = (values: string[]) =>
+  values.some(value => value.length > 0) && values.some(value => value.length === 0);
+
 const validateCca3CountryCode: Validator<string | undefined> = value => {
   if (value == null) {
     return t("common.form.required");
@@ -193,6 +197,13 @@ export const validateUbo = (
     ? combineValidators(validateRequired, validateIndividualTaxNumber(accountCountry))
     : validateIndividualTaxNumber(accountCountry);
 
+  const hasPartialAddress = isPartiallyFilled([
+    editorState.addressLine1 ?? "",
+    editorState.city ?? "",
+    editorState.postalCode ?? "",
+    editorState.country ?? "",
+  ]);
+
   return {
     firstName: validateRequired(editorState.firstName ?? ""),
     lastName: validateRequired(editorState.lastName ?? ""),
@@ -206,13 +217,20 @@ export const validateUbo = (
       editorState.qualificationType === "Ownership"
         ? validateRequired(editorState.totalPercentage?.toString() ?? "")
         : undefined,
-    addressLine1: isAddressRequired ? validateRequired(editorState.addressLine1 ?? "") : undefined,
-    city: isAddressRequired ? validateRequired(editorState.city ?? "") : undefined,
+    addressLine1:
+      isAddressRequired || hasPartialAddress
+        ? validateRequired(editorState.addressLine1 ?? "")
+        : undefined,
+    city:
+      isAddressRequired || hasPartialAddress ? validateRequired(editorState.city ?? "") : undefined,
     country:
-      isAddressRequired || isAddressCountryRequired
+      isAddressRequired || isAddressCountryRequired || hasPartialAddress
         ? validateRequired(editorState.country ?? "")
         : undefined,
-    postalCode: isAddressRequired ? validateRequired(editorState.postalCode ?? "") : undefined,
+    postalCode:
+      isAddressRequired || hasPartialAddress
+        ? validateRequired(editorState.postalCode ?? "")
+        : undefined,
     taxIdentificationNumber: validateTaxNumber(editorState.taxIdentificationNumber ?? ""),
     indirect:
       editorState.qualificationType !== "Ownership" || editorState.direct === true

@@ -1,5 +1,5 @@
-import { AsyncData, Option, Result } from "@swan-io/boxed";
-import { useQuery } from "@swan-io/graphql-client";
+import { AsyncData, Option, Result } from "@bloodyowl/boxed";
+import { useQuery } from "@bloodyowl/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Fill } from "@swan-io/lake/src/components/Fill";
@@ -17,7 +17,7 @@ import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils
 import { omit } from "@swan-io/lake/src/utils/object";
 import { useCallback, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   TransactionStatus,
   TrustedBeneficiaryDetailsFragment,

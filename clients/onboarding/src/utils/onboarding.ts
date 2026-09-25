@@ -1,9 +1,10 @@
-import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { match } from "ts-pattern";
 import {
   CompanyAccountHolderOnboardingAccountAdmin,
   CompanyLegalRepresentativeAndUltimateBeneficialOwner,
   CompanyRelatedIndividual,
+  OnboardingCapitalDepositType,
   RelatedIndividualInput,
   RelatedIndividualUltimateBeneficialOwner,
   RelatedIndividualUltimateBeneficialOwnerInput,
@@ -80,25 +81,6 @@ export const namesMatch = (
   a.firstName.trim().toLowerCase() === b.firstName.trim().toLowerCase() &&
   a.lastName.trim().toLowerCase() === b.lastName.trim().toLowerCase();
 
-export const isAccountAdminInRelatedIndividuals = (
-  accountAdmin: CompanyAccountHolderOnboardingAccountAdmin | null | undefined,
-  relatedIndividuals: CompanyRelatedIndividual[] | null | undefined,
-): boolean => {
-  if (
-    isNullishOrEmpty(accountAdmin) ||
-    isNullishOrEmpty(accountAdmin.firstName) ||
-    isNullishOrEmpty(accountAdmin.lastName)
-  ) {
-    return false;
-  }
-
-  if (!relatedIndividuals || relatedIndividuals.length === 0) {
-    return false;
-  }
-
-  return relatedIndividuals.some(individual => namesMatch(accountAdmin, individual));
-};
-
 export const upsertAccountAdminInRelatedIndividuals = (
   accountAdmin: CompanyAccountHolderOnboardingAccountAdmin | null | undefined,
   relatedIndividuals: CompanyRelatedIndividual[] | null | undefined,
@@ -169,4 +151,31 @@ export const cleanData = <T>(value: T): CleanData<T> => {
   }
 
   return value as CleanData<T>;
+};
+
+/**
+ * The main company of a capital deposit case is still being incorporated, it has
+ * neither a registration number nor a registration date yet
+ * so the form must not require them either.
+ */
+export const getRegistrationRequirements = ({
+  companyCountry,
+  capitalDepositType,
+}: {
+  companyCountry: string | null | undefined;
+  capitalDepositType: OnboardingCapitalDepositType | null | undefined;
+}) => {
+  if (capitalDepositType === "MainCompanyAccount") {
+    return {
+      isRegistrationNumberRequired: false,
+      isRegistrationDateRequired: false,
+    };
+  }
+
+  return {
+    isRegistrationNumberRequired: match({ companyCountry })
+      .with({ companyCountry: "DEU" }, () => false)
+      .otherwise(() => true),
+    isRegistrationDateRequired: true,
+  };
 };

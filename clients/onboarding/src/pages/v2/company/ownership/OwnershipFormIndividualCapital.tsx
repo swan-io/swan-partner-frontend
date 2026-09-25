@@ -1,4 +1,4 @@
-import { Option } from "@swan-io/boxed";
+import { Option } from "@bloodyowl/boxed";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
@@ -204,7 +204,7 @@ export const OwnershipFormIndividualCapital = ({
     },
     taxIdentificationNumber: {
       initialValue: initialValues.taxIdentificationNumber ?? "",
-      sanitize: value => value.replace(/[-_. \/]/g, ""),
+      sanitize: value => value.replace(/[-_. /]/g, ""),
       validate: isTaxIdentificationRequired
         ? combineValidators(validateRequired, validateIndividualTaxNumber(residencyCountry))
         : validateIndividualTaxNumber(residencyCountry),

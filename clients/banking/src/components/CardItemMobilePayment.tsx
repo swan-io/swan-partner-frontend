@@ -1,5 +1,5 @@
-import { Array, Option } from "@swan-io/boxed";
-import { useMutation } from "@swan-io/graphql-client";
+import { Array, Option } from "@bloodyowl/boxed";
+import { useMutation } from "@bloodyowl/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
@@ -17,7 +17,7 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import dayjs from "dayjs";
 import { Fragment, useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import applePayLogo from "../assets/images/apple-pay.svg";
 import googlePayLogo from "../assets/images/google-pay.svg";
 import { CancelDigitalCardDocument, CardPageQuery, DigitalCardFragment } from "../graphql/partner";

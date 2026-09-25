@@ -1,4 +1,4 @@
-import { ClientContext } from "@swan-io/graphql-client";
+import { ClientContext } from "@bloodyowl/graphql-client";
 import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { colors } from "@swan-io/lake/src/constants/design";
@@ -11,13 +11,16 @@ import { Preview } from "./components/Preview";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { client } from "./utils/gql";
 import { Router } from "./utils/routes";
-import { logFrontendError } from "./utils/tracing";
+import { logger } from "./utils/tracing";
 
 export const App = () => {
   const route = Router.useRoute(["PaymentArea", "Preview"]);
 
   return (
-    <ErrorBoundary onError={error => logFrontendError(error)} fallback={() => <ErrorView />}>
+    <ErrorBoundary
+      onError={error => logger.error(error, { source: "App.ErrorBoundary" })}
+      fallback={() => <ErrorView />}
+    >
       <Suspense fallback={<LoadingView color={colors.gray[100]} />}>
         <ClientContext.Provider value={client}>
           {match(route)

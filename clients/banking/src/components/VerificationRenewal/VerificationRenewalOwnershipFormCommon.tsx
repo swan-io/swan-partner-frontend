@@ -1,4 +1,4 @@
-import { Option } from "@swan-io/boxed";
+import { Option } from "@bloodyowl/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -25,6 +25,7 @@ import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { AccountCountry, UltimateBeneficialOwnerQualificationType } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
+
 const styles = StyleSheet.create({
   inputContainer: {
     flex: 1,
@@ -66,7 +67,7 @@ export type Input = {
   totalPercentage?: number;
 };
 
-export type VerificationRenewalOwnershipFormCommonRef = {
+type VerificationRenewalOwnershipFormCommonRef = {
   submit: () => void;
 };
 

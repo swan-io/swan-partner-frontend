@@ -61,7 +61,7 @@ type Mutation {
   
   This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication)).
   """
-  simulateStartProjectBilling(input: SimulateStartProjectBillingInput!): SimulateStartProjectBillingPayload
+  simulateStartProjectBilling(input: SimulateStartProjectBillingInput!): SimulateStartProjectBillingPayload @deprecated(reason: "No longer has any effect and will be removed. Partner billing starts when a project goes live; there is nothing to simulate in sandbox.")
 
   """Mutation to simulate a capital deposit case approval."""
   simulateApproveCapitalDepositCase(input: SimulateApproveCapitalDepositCaseInput!): SimulateApproveCapitalDepositCasePayload!
@@ -123,6 +123,11 @@ type Mutation {
   After a Card Debit has been booked on a Swan account, simulate the merchant reversing the transaction and the subsequent return of funds to the Swan account.
   """
   simulateOutgoingCardDebitReverse(input: SimulateOutgoingCardDebitReverseInput!): SimulateOutgoingCardDebitReversePayload!
+
+  """
+  Simulate a card debit on a Swan account without a prior card authorization.
+  """
+  simulateOutgoingCardDebitWithoutAuthorization(input: SimulateOutgoingCardDebitWithoutAuthorizationInput!): SimulateOutgoingCardDebitWithoutAuthorizationPayload!
 
   """
   Simulate a card debit being received on a previously authorized card transaction.
@@ -692,7 +697,7 @@ type AccountHolder {
   ): FundingLimitSettingsChangeRequestConnection!
 
   """Account holder onboarding"""
-  onboarding: Onboarding
+  onboarding: Onboarding @deprecated(reason: "Use `accountHolderOnboarding` instead")
 
   """Account holder risk info"""
   riskInfo: AccountHolderRiskInfo
@@ -754,7 +759,7 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
 
   """
   Business activity description.
-  This must be 1024 characters long maximum.
+  This must be 10000 characters long maximum.
   """
   businessActivityDescription: String!
 
@@ -1410,6 +1415,30 @@ type AccountSuspendedStatus implements AccountStatusInfo {
 
   """Reason why the account is currently suspended"""
   reasonInfo: SuspendAccountStatusReason!
+
+  """Type of suspension reasons"""
+  suspensionReasons: [AccountSuspensionReason!]!
+}
+
+"""Reason why the account is currently suspended"""
+type AccountSuspensionReason {
+  """Type of suspension reason"""
+  type: AccountSuspensionReasonType!
+}
+
+"""Specific reason for suspending an account"""
+enum AccountSuspensionReasonType {
+  """Compliance review required"""
+  ComplianceReview
+
+  """KYC review required"""
+  KYCReview
+
+  """Suspension required by a regulatory obligation"""
+  RegulatoryRequirement
+
+  """Reason not covered by other values"""
+  Other
 }
 
 """The acquisition channel indicates how the account holder was acquired."""
@@ -1720,7 +1749,7 @@ enum CloseAccountReasonType {
   """
   Prolonged inactivity according to local regulatory definitions or internal policy.
   """
-  DormantAccount
+  DormantAccount @deprecated(reason: "use `Inactivity` instead")
 
   """A duplicate account was created by mistake."""
   DuplicateOnboarding
@@ -1728,7 +1757,9 @@ enum CloseAccountReasonType {
   """The account holder operates in a prohibited business sector."""
   ForbiddenActivity
 
-  """Account closed due to inactivity."""
+  """
+  Prolonged inactivity according to local regulatory definitions or internal policy.
+  """
   Inactivity
 
   """Required documents are missing, incorrect, or unanswered."""
@@ -2585,7 +2616,7 @@ type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
 
   """
   business activity description
-  This must be 1024 characters long maximum.
+  This must be 10000 characters long maximum.
   """
   businessActivityDescription: String
 
@@ -3545,6 +3576,16 @@ type SupportingDocumentCollectionWaitingForDocumentStatusInfo implements Support
   status: SupportingDocumentCollectionStatus!
 }
 
+"""
+Rejection returned when the supporting document status does not allow the requested operation
+"""
+type SupportingDocumentInvalidStatusRejection implements Rejection {
+  message: String!
+
+  """Current status of the supporting document"""
+  currentStatus: SupportingDocumentStatus!
+}
+
 """Rejection returned if the supporting document was not found"""
 type SupportingDocumentNotFoundRejection implements Rejection {
   id: String!
@@ -4211,6 +4252,9 @@ type User {
 
     """a filtering table you can apply to your list of connections"""
     filters: AccountMembershipsFilterInput
+
+    """an order you can apply to your list of connections"""
+    orderBy: UserAccountMembershipOrderByInput
   ): AccountMembershipConnection!
 
   """
@@ -4273,8 +4317,37 @@ type User {
   """Last update date of the user"""
   updatedAt: DateTime!
 
-  """The last name that the user prefers to use"""
+  """
+  The last name that the user prefers to use.
+  
+  Set automatically when the user completes identification. Swan compares the last name entered during sign-up with the birth last name returned by the identification provider:
+  - If they match, `preferredLastName` is set to the birth last name.
+  - If they don't match, `preferredLastName` defaults to the last name entered during sign-up.
+  """
   preferredLastName: String
+}
+
+"""
+Fields that can be used when ordering the account memberships of a user
+"""
+enum UserAccountMembershipOrderByFieldInput {
+  createdAt
+  updatedAt
+
+  """
+  Name of the account bound to the account membership.
+  
+  Memberships not yet bound to an account are ordered first when ascending.
+  """
+  accountName
+}
+
+"""
+Order that can be applied when listing the account memberships of a user
+"""
+input UserAccountMembershipOrderByInput {
+  field: UserAccountMembershipOrderByFieldInput
+  direction: OrderByDirection
 }
 
 """A detail of a validation error : what field is errored and why"""
@@ -4378,6 +4451,9 @@ enum VerificationStatus {
 input VirtualIbanEntriesFilterInput {
   """unique identifiers of the virtual IBAN entries to fetch"""
   ids: [ID!]
+
+  """status of the Iban Entry"""
+  status: [IBANStatus!]
 }
 
 """
@@ -4987,6 +5063,14 @@ type CapitalDepositCasePendingInternalReviewStatusInfo implements CapitalDeposit
 }
 
 """
+Rejection returned if one or more shareholders of the capital deposit case have not transferred their capital or are not funded
+"""
+type CapitalDepositCaseShareholdersNotReadyRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""
 Status of a capital deposit case.
 @deprecated look for enum `CapitalDepositStatus` instead.
 """
@@ -5456,7 +5540,7 @@ input SimulateApproveCapitalDepositCaseInput {
   capitalDepositCaseId: String!
 }
 
-union SimulateApproveCapitalDepositCasePayload = SimulateApproveCapitalDepositCaseSuccessPayload | CouldNotFindCapitalDepositCaseRejection
+union SimulateApproveCapitalDepositCasePayload = SimulateApproveCapitalDepositCaseSuccessPayload | CouldNotFindCapitalDepositCaseRejection | CapitalDepositCaseShareholdersNotReadyRejection
 
 type SimulateApproveCapitalDepositCaseSuccessPayload {
   id: String!
@@ -6005,6 +6089,27 @@ input Merchant {
   postalCode: String = "75010"
 }
 
+"""Debit clearing operation type."""
+enum OutgoingCardDebitOperationType {
+  """ATM cash withdrawal."""
+  AtmWithdrawal
+
+  """Contactless POS debit."""
+  ContactlessProximityDebit
+
+  """Over-the-counter cash withdrawal."""
+  OtcWithdrawal
+
+  """Chip/PIN (proximity) debit."""
+  ProximityDebit
+
+  """Remote debit (e-commerce / MOTO)."""
+  RemoteDebit
+
+  """Remote debit with 3DS / SCA."""
+  SecureRemoteDebit
+}
+
 """Sepa beneficiary account"""
 input SepaBeneficiaryInput {
   """International Bank Account Number"""
@@ -6236,6 +6341,46 @@ type SimulateOutgoingCardDebitSuccessPayload {
   transactionId: ID!
 }
 
+"""Simulate a card debit without authorization input."""
+input SimulateOutgoingCardDebitWithoutAuthorizationInput {
+  """Card id (format: `card_...`)."""
+  cardId: String!
+
+  """Amount booked on the account (must be <= `max_amount`)."""
+  amount: AmountInput!
+
+  """
+  Original amount (for FX and DCC-like scenarios). When same currency, must equal `amount`.
+  """
+  originalAmount: AmountInput
+
+  """Optional simulation card type, aligned with other card simulations."""
+  cardType: SimulationCardType
+
+  """
+  Operation type for the debit clearing.
+  
+  This is a new enum aligned in naming with `simulateOutgoingCardAuthorization`
+  (`operationType` / `CardAuthorizationOperationType`), but with debit-specific values.
+  `simulateOutgoingCardDebit` does not expose an operation type.
+  """
+  operationType: OutgoingCardDebitOperationType
+
+  """
+  Optional merchant details (same nested input as `simulateOutgoingCardAuthorization`).
+  """
+  merchant: Merchant
+}
+
+"""Result of a debit without authorization simulation."""
+union SimulateOutgoingCardDebitWithoutAuthorizationPayload = SimulateOutgoingCardDebitWithoutAuthorizationSuccessPayload | CardNotFoundRejection | ForbiddenRejection
+
+"""Successful debit without authorization simulation."""
+type SimulateOutgoingCardDebitWithoutAuthorizationSuccessPayload {
+  """Created debit transaction id."""
+  transactionId: ID!
+}
+
 enum SimulationCardType {
   Physical
   Virtual
@@ -6297,6 +6442,9 @@ enum ConsentPurpose {
 
   """when adding a digital card"""
   AddDigitalCard
+
+  """when adding multiple digital cards"""
+  AddDigitalCards
 
   """when activating a physical card"""
   ActivatePhysicalCard
@@ -6949,7 +7097,7 @@ type Authenticator {
   model: String
 
   """Type of authenticator"""
-  type: AuthenticatorType!
+  type: AuthenticatorType! @deprecated(reason: "Authenticators are always of type 'SwanWeb', this field is meaningless")
 
   """Raw user agent"""
   userAgent: String
@@ -6959,7 +7107,13 @@ type Authenticator {
 
   """The phone number used for the creation of the authenticator"""
   otpPhoneNumber: String @deprecated
+
+  """Unique identifier for the authenticator"""
+  id: ID!
   status: AuthenticatorStatus!
+
+  """ID of the related phone number modification, if any"""
+  phoneNumberModificationId: String
 }
 
 enum AuthenticatorStatus {
@@ -7001,10 +7155,10 @@ enum AuthenticatorStatus {
 
 enum AuthenticatorType {
   """A Swan web authenticator"""
-  SwanWeb
+  SwanWeb @deprecated(reason: "Only remaining value; the enum is meaningless")
 
   """Deprecated: swan authenticator"""
-  Swan
+  Swan @deprecated(reason: "Legacy mobile authenticator, no longer supported")
 }
 
 type Branding {
@@ -7161,6 +7315,7 @@ enum ConsentOperationPropertyName {
   MandateSequenceType
   Merchant
   MerchantIdentifier
+  Name
   Option
   Permissions
   PhoneNumber
@@ -7171,6 +7326,7 @@ enum ConsentOperationPropertyName {
   SignatureDate
   SpendingLimit
   To
+  WalletProvider
   YourAccountNumber
 }
 
@@ -7179,9 +7335,9 @@ type ConsentResponse {
   originIdentityId: ID!
   authenticatorId: ID!
   idVerified: Boolean!
-  provider: AuthenticatorType!
+  provider: AuthenticatorType! @deprecated(reason: "Authenticators are always of type 'SwanWeb', this field is meaningless")
   credentialTypeUsed: CredentialType!
-  macAddress: String!
+  macAddress: String! @deprecated(reason: "`macAddress` is no longer collected on authenticators")
   ipAddress: String!
   respondedAt: DateTime
 }
@@ -7311,6 +7467,9 @@ enum DetailedConsentPurpose {
 
   """when adding a digital card"""
   AddDigitalCard
+
+  """when adding multiple digital cards"""
+  AddDigitalCards
 
   """when activating a physical card"""
   ActivatePhysicalCard
@@ -9293,6 +9452,35 @@ enum AdditionalInformationType {
   NumberOfProperties
 }
 
+enum CardHolderVerificationMethod {
+  """PIN verified online by issuer."""
+  OnlinePin
+
+  """Pin verified offline."""
+  OfflinePin
+
+  """PIN verified offline with a signature."""
+  OfflinePinAndSignature
+
+  """Signature only."""
+  Signature
+
+  """No verification done."""
+  None
+
+  """Approved without specified method."""
+  Approval
+
+  """Verification failed."""
+  Failure
+
+  """The card holder verification method is not provided."""
+  Unknown
+}
+
+"""
+@deprecated Use InPersonCardMerchantPayment or OnlineCardMerchantPayment instead.
+"""
 type CardMerchantPayment implements MerchantPayment {
   """unique identifier of a merchant payment"""
   id: ID!
@@ -9391,6 +9579,38 @@ type CardMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """The Merchant Payment Method payment amount limit"""
   paymentAmountLimit: Amount
+}
+
+type CardPresentReadDetails {
+  """The method used to read the card."""
+  cardReadMethod: CardReadMethod
+
+  """The method used to verify the card holder."""
+  cardHolderVerificationMethod: CardHolderVerificationMethod
+}
+
+enum CardReadMethod {
+  """Inserting a chip card into the card reader."""
+  ContactEmv
+
+  """Tapping a contactless-enabled chip card or mobile wallet."""
+  ContactlessEmv
+
+  """
+  Older standard for contactless payments that emulated a magnetic stripe read.
+  """
+  ContactlessMagneticStripeMode
+
+  """
+  When inserting a chip card fails three times in a row, fallback to a magnetic stripe read.
+  """
+  MagneticStripeFallback
+
+  """Swiping a card using the magnetic stripe reader."""
+  MagneticStripeTrack2
+
+  """The read method used isn't provided."""
+  Unknown
 }
 
 type CheckMerchantPayment implements MerchantPayment {
@@ -9713,6 +9933,9 @@ type InPersonCardMerchantPayment implements MerchantPayment {
 
   """Disputed date"""
   disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
+
+  """The information about how the inPersonCard has been presented."""
+  cardPresentReadDetails: CardPresentReadDetails
 }
 
 type InPersonCardMerchantPaymentMethod implements MerchantPaymentMethod {
@@ -10609,6 +10832,9 @@ enum MerchantProfileRejectionReason {
 
   """Risk alerting popped up for a weird processing pattern"""
   SuspiciousBehavior
+
+  """Account was closed"""
+  AccountClosed
 }
 
 """Merchant Profile Statuses"""

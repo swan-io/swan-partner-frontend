@@ -1,5 +1,5 @@
-import { AsyncData, Result } from "@swan-io/boxed";
-import { useQuery } from "@swan-io/graphql-client";
+import { AsyncData, Result } from "@bloodyowl/boxed";
+import { useQuery } from "@bloodyowl/graphql-client";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
@@ -26,7 +26,7 @@ import {
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { useCallback, useEffect, useRef } from "react";
 import { Image, StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
 import { ProjectLoginPageDocument } from "../graphql/unauthenticated";
 import { locale, t } from "../utils/i18n";

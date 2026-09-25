@@ -1,6 +1,6 @@
-import { IntrospectionQuery, buildClientSchema, getIntrospectionQuery, printSchema } from "graphql";
 import { execSync } from "node:child_process";
 import fs from "node:fs";
+import { buildClientSchema, getIntrospectionQuery, IntrospectionQuery, printSchema } from "graphql";
 import path from "pathe";
 
 const query = getIntrospectionQuery({

@@ -1,6 +1,6 @@
-import glob from "fast-glob";
 import fs from "node:fs";
 import os from "node:os";
+import glob from "fast-glob";
 
 const isStringRecord = (value: unknown): value is Record<string, string> =>
   String(value) === "[object Object]" &&
@@ -20,7 +20,7 @@ filePaths.forEach(filePath => {
   }
 
   const sorted = Object.keys(json)
-    .sort()
+    .toSorted()
     .reduce<Record<string, string>>((acc, key) => ({ ...acc, [key]: json[key] as string }), {});
 
   fs.writeFileSync(filePath, JSON.stringify(sorted, null, 2) + os.EOL, "utf-8");

@@ -1,13 +1,12 @@
-import { AsyncData } from "@swan-io/boxed";
-import { getLocation } from "@swan-io/chicane";
-import { ClientContext, useQuery } from "@swan-io/graphql-client";
+import { AsyncData } from "@bloodyowl/boxed";
+import { ClientContext, useQuery } from "@bloodyowl/graphql-client";
 import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { ToastStack } from "@swan-io/shared-business/src/components/ToastStack";
+import { getLocation } from "@zoontek/chicane";
 import { StyleSheet } from "react-native";
-import { TgglProvider, useFlag } from "react-tggl-client";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { AccountClose } from "./components/AccountClose";
 import { AccountMembershipArea } from "./components/AccountMembershipArea";
 import { AddReceivedSepaDirectDebitB2bMandate } from "./components/AddReceivedSepaDirectDebitB2bMandate";
@@ -17,13 +16,14 @@ import { ProjectRootRedirect } from "./components/ProjectRootRedirect";
 import { Redirect } from "./components/Redirect";
 import { VerificationRenewalArea } from "./components/VerificationRenewal/VerificationRenewalArea";
 import { AuthStatusDocument } from "./graphql/partner";
+import { useSessionKeepAlive } from "./hooks/useSessionKeepAlive";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { ProjectLoginPage } from "./pages/ProjectLoginPage";
+import { FlagsProvider, useFlag } from "./utils/flags";
 import { partnerClient, unauthenticatedClient } from "./utils/gql";
 import { projectConfiguration } from "./utils/projectId";
 import { Router } from "./utils/routes";
-import { tgglClient } from "./utils/tggl";
-import { logFrontendError } from "./utils/tracing";
+import { logger } from "./utils/tracing";
 
 const styles = StyleSheet.create({
   base: {
@@ -46,11 +46,15 @@ const AppContainer = () => {
 
   // Feature flag used only during deferred debit card development
   // Should be removed once the feature is fully developed
-  const showDeferredDebitCard = useFlag("deferredDebitCard", false);
+  const showDeferredDebitCard = useFlag("deferredDebitCard");
 
   const loginInfo = authStatus
     .mapOk(data => data.user?.id != null)
     .map(result => ({ isLoggedIn: result.getOr(false) }));
+
+  // Extend the session cookie TTL for the whole app, as long as the user is logged in
+  const isLoggedIn = loginInfo.map(({ isLoggedIn }) => isLoggedIn).getOr(false);
+  useSessionKeepAlive(isLoggedIn);
 
   return match(loginInfo)
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => null)
@@ -137,16 +141,16 @@ const AppContainer = () => {
 export const App = () => {
   return (
     <ErrorBoundary
-      onError={error => logFrontendError(error)}
+      onError={error => logger.error(error, { source: "App.ErrorBoundary" })}
       fallback={() => <ErrorView style={styles.base} />}
     >
-      <TgglProvider client={tgglClient}>
+      <FlagsProvider>
         <ClientContext.Provider value={partnerClient}>
           <AppContainer />
           <ToastStack />
         </ClientContext.Provider>
         <ToastStack />
-      </TgglProvider>
+      </FlagsProvider>
     </ErrorBoundary>
   );
 };

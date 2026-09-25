@@ -1,5 +1,5 @@
-import { AsyncData, Option, Result } from "@swan-io/boxed";
-import { useDeferredQuery } from "@swan-io/graphql-client";
+import { AsyncData, Option, Result } from "@bloodyowl/boxed";
+import { useDeferredQuery } from "@bloodyowl/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -21,7 +21,7 @@ import { electronicFormat } from "iban";
 import { useEffect } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { Rifm } from "rifm";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { GetIbanValidationDocument } from "../graphql/partner";
 import { isToday } from "../utils/date";
 import { locale, rifmTimeProps, t } from "../utils/i18n";

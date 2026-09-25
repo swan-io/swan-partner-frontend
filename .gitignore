@@ -25,3 +25,5 @@ scripts/graphql/tmp
 .env.swan
 
 localazy.keys.*.json
+
+coverage/

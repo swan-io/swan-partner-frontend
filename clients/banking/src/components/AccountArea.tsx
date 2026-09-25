@@ -1,5 +1,5 @@
-import { Array, Option } from "@swan-io/boxed";
-import { ClientContext } from "@swan-io/graphql-client";
+import { Array, Option } from "@bloodyowl/boxed";
+import { ClientContext } from "@bloodyowl/graphql-client";
 import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";
@@ -27,12 +27,10 @@ import {
 import { insets } from "@swan-io/lake/src/constants/insets";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { usePersistedState } from "@swan-io/lake/src/hooks/usePersistedState";
-import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { CONTENT_ID, SkipToContent } from "@swan-io/shared-business/src/components/SkipToContent";
 import { AdditionalInfo } from "@swan-io/shared-business/src/components/SupportChat";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NativeScrollEvent, NativeSyntheticEvent, Pressable, StyleSheet, View } from "react-native";
-import { useFlag, useTggl } from "react-tggl-client";
 import { match, P } from "ts-pattern";
 import logoSwan from "../assets/images/logo-swan.svg";
 import { AccountAreaQuery, AccountLanguage, IdentificationFragment } from "../graphql/partner";
@@ -41,13 +39,14 @@ import { AccountActivationPage } from "../pages/AccountActivationPage";
 import { AccountNotFoundPage, NotFoundPage } from "../pages/NotFoundPage";
 import { ProfilePage } from "../pages/ProfilePage";
 import { env } from "../utils/env";
+import { flagsClient, useFlag } from "../utils/flags";
 import { partnerAdminClient } from "../utils/gql";
 import { t } from "../utils/i18n";
 import { getIdentificationLevelStatusInfo } from "../utils/identification";
 import { projectConfiguration } from "../utils/projectId";
 import { accountRoutes, Router } from "../utils/routes";
 import { signout } from "../utils/signout";
-import { logFrontendError, setTrackingUser } from "../utils/tracing";
+import { logger, setTrackingUser } from "../utils/tracing";
 import { AccountDetailsArea } from "./AccountDetailsArea";
 import { AccountNavigation, Menu } from "./AccountNavigation";
 import { AccountActivationTag, AccountPicker, AccountPickerButton } from "./AccountPicker";
@@ -212,18 +211,23 @@ export const AccountArea = ({
   useEffect(() => {
     setTrackingUser({
       id: user.id,
-      firstName: nullishOrEmptyToUndefined(user.firstName),
-      lastName: nullishOrEmptyToUndefined(user.preferredLastName),
-      phoneNumber: nullishOrEmptyToUndefined(user.mobilePhoneNumber),
     });
   }, [user]);
+
+  useEffect(() => {
+    logger.setContext({
+      accountCountry: accountMembership.accountCountry,
+      accountType: accountMembership.account?.holder.info.type ?? "",
+      projectId: projectConfiguration.map(({ projectId }) => projectId).getOr(""),
+    });
+  }, [accountMembership]);
 
   const accentColor = projectInfo.accentColor ?? invariantColors.defaultAccentColor;
   const projectName = projectInfo.name;
   const projectLogo = projectInfo.logoUri ?? undefined;
 
   const permissions = usePermissions();
-  const isMerchantFlagActive = useFlag("merchantWebBanking", false);
+  const isMerchantFlagActive = useFlag("merchantWebBanking");
 
   const menu: Menu =
     holder?.verificationStatus === "Refused"
@@ -290,14 +294,14 @@ export const AccountArea = ({
         ];
 
   const route = Router.useRoute(accountRoutes);
-  const { updateContext } = useTggl();
 
   const email = accountMembership.email;
   const hasRequiredIdentificationLevel = accountMembership.hasRequiredIdentificationLevel ?? false;
 
   useEffect(() => {
-    updateContext({ accountCountry, userId, email });
-  }, [updateContext, accountCountry, userId, email]);
+    const projectId = projectConfiguration.map(({ projectId }) => projectId).toUndefined();
+    flagsClient.setContext({ accountCountry, userId, email, projectId });
+  }, [accountCountry, userId, email]);
 
   const additionalInfo = useMemo<AdditionalInfo>(
     () => ({
@@ -434,34 +438,34 @@ export const AccountArea = ({
                     }
                   >
                     {largeViewport ? null : (
-                      <>
-                        <Box
-                          role="banner"
-                          direction="row"
-                          alignItems="center"
-                          style={styles.headerMobile}
-                        >
-                          <AutoWidthImage
-                            ariaLabel={projectName}
-                            sourceUri={projectLogo ?? logoSwan}
-                            height={32}
-                            resizeMode="contain"
-                          />
+                      <Box
+                        role="banner"
+                        direction="row"
+                        alignItems="center"
+                        style={styles.headerMobile}
+                      >
+                        <AutoWidthImage
+                          ariaLabel={projectName}
+                          sourceUri={projectLogo ?? logoSwan}
+                          height={32}
+                          resizeMode="contain"
+                        />
 
-                          {env.APP_TYPE === "SANDBOX" && (
-                            <>
-                              <Space width={12} />
-                              <Tag color="sandbox" ariaLabel="Sandbox" icon="beaker-regular" />
-                            </>
-                          )}
-                        </Box>
-                      </>
+                        {env.APP_TYPE === "SANDBOX" && (
+                          <>
+                            <Space width={12} />
+                            <Tag color="sandbox" ariaLabel="Sandbox" icon="beaker-regular" />
+                          </>
+                        )}
+                      </Box>
                     )}
 
                     <View style={styles.content} id={CONTENT_ID} tabIndex={0}>
                       <ErrorBoundary
                         key={route?.name}
-                        onError={error => logFrontendError(error)}
+                        onError={error =>
+                          logger.error(error, { source: "AccountArea.ErrorBoundary" })
+                        }
                         fallback={() => <ErrorView />}
                       >
                         {holder?.verificationStatus === "Refused" ? (
@@ -470,7 +474,6 @@ export const AccountArea = ({
                             hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
                             lastIdentification={lastIdentification}
                             accentColor={accentColor}
-                            projectLogo={projectLogo}
                             accountMembershipId={accountMembershipId}
                             additionalInfo={additionalInfo}
                             projectName={projectName}
@@ -852,7 +855,6 @@ export const AccountArea = ({
                                   hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
                                   lastIdentification={lastIdentification}
                                   accentColor={accentColor}
-                                  projectLogo={projectLogo}
                                   accountMembershipId={accountMembershipId}
                                   additionalInfo={additionalInfo}
                                   projectName={projectName}

@@ -1,5 +1,5 @@
-import { AsyncData, Result } from "@swan-io/boxed";
-import { useQuery } from "@swan-io/graphql-client";
+import { AsyncData, Result } from "@bloodyowl/boxed";
+import { useQuery } from "@bloodyowl/graphql-client";
 import { Avatar } from "@swan-io/lake/src/components/Avatar";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
@@ -22,7 +22,7 @@ import { AdditionalInfo, SupportChat } from "@swan-io/shared-business/src/compon
 import dayjs from "dayjs";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
 import { ProfilePageDocument } from "../graphql/partner";
 import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";

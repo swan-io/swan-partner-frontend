@@ -1,5 +1,5 @@
-import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
-import { useQuery } from "@swan-io/graphql-client";
+import { Array, AsyncData, Option, Result } from "@bloodyowl/boxed";
+import { useQuery } from "@bloodyowl/graphql-client";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
@@ -20,7 +20,7 @@ import { validateRequired } from "@swan-io/shared-business/src/utils/validation"
 import { useForm } from "@swan-io/use-form";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   GetInternationalBeneficiaryDynamicFormsDocument,
   InternationalBeneficiaryDetailsInput,

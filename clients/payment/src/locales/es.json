@@ -7,6 +7,7 @@
   "paymentLink.alert": "Esta página es un entorno de pruebas (sandbox), por lo que no es posible realizar pagos de prueba desde aquí. En su lugar, utiliza las simulaciones para comerciantes en el explorador de API.",
   "paymentLink.button.downloadMandate": "Descargar mandato",
   "paymentLink.button.returnToWebsite": "Volver al sitio web",
+  "paymentLink.button.simulatePayment": "Simulate payment",
   "paymentLink.card.cardNumber": "Número de tarjeta",
   "paymentLink.card.cvv": "CVV",
   "paymentLink.card.expiryDate": "Fecha de vencimiento",

@@ -1,0 +1,78 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.6/schema.json",
+
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100
+  },
+
+  "javascript": {
+    "formatter": {
+      "enabled": true,
+      "arrowParentheses": "asNeeded",
+      "trailingCommas": "all",
+      "semicolons": "always"
+    },
+    "globals": ["__env"]
+  },
+
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "a11y": {
+        "noSvgWithoutTitle": "off",
+        "useAltText": "off",
+        "useIframeTitle": "off",
+        "useSemanticElements": "off",
+        "useValidAriaRole": "off"
+      },
+      "complexity": {
+        "noForEach": "off",
+        "useLiteralKeys": "off",
+        "noFlatMapIdentity": "off"
+      },
+      "correctness": {
+        "noUnusedVariables": "error",
+        "noUnusedImports": "error",
+        "noVoidTypeReturn": "off",
+        "useHookAtTopLevel": "warn",
+        "useJsxKeyInIterable": "off"
+      },
+      "style": {
+        "noImplicitBoolean": "error",
+        "noNamespace": "error",
+        "noUselessElse": "off",
+        "useBlockStatements": "warn",
+        "useImportType": "off",
+        "useTemplate": "off",
+        "useArrayLiterals": "error",
+        "noCommonJs": "error"
+      },
+      "suspicious": {
+        "noArrayIndexKey": "off",
+        "noMisleadingCharacterClass": "off",
+        "noConfusingVoidType": "off",
+        "noShadowRestrictedNames": "off",
+        "useIterableCallbackReturn": "off"
+      }
+    }
+  },
+
+  "files": {
+    "ignoreUnknown": true,
+    "includes": [
+      "scripts/**/*.ts",
+      "common/*.ts",
+      "clients/*/src/**/*.ts",
+      "!clients/*/src/graphql/*.ts",
+      "clients/*/src/**/*.tsx",
+      "clients/*/src/**/*.json",
+      "clients/*/src/**/*.gql",
+      "server/src/**/*.ts",
+      "!server/src/graphql/*.ts"
+    ]
+  }
+}

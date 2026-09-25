@@ -1,11 +1,11 @@
-import { AsyncData, Result } from "@swan-io/boxed";
+import { AsyncData, Result } from "@bloodyowl/boxed";
 import { LakeCombobox } from "@swan-io/lake/src/components/LakeCombobox";
 import { colors, texts } from "@swan-io/lake/src/constants/design";
 import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
 import { ReactElement, Ref, RefObject, useCallback, useEffect, useState } from "react";
 import { StyleSheet, Text, TextInput } from "react-native";
-import { CompanySuggestion, queryCompanies } from "../utils/Pappers";
 import { t } from "../utils/i18n";
+import { CompanySuggestion, queryCompanies } from "../utils/Pappers";
 
 const styles = StyleSheet.create({
   itemTitle: {

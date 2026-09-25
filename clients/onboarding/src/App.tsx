@@ -1,13 +1,12 @@
-import { AsyncData, Result } from "@swan-io/boxed";
-import { ClientContext, useDeferredQuery, useMutation, useQuery } from "@swan-io/graphql-client";
+import { AsyncData, Result } from "@bloodyowl/boxed";
+import { ClientContext, useDeferredQuery, useMutation, useQuery } from "@bloodyowl/graphql-client";
 import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
 import { colors, invariantColors } from "@swan-io/lake/src/constants/design";
 import { ToastStack } from "@swan-io/shared-business/src/components/ToastStack";
 import { useEffect } from "react";
-import { TgglProvider, useTggl } from "react-tggl-client";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { ErrorView } from "./components/ErrorView";
 import { Redirect } from "./components/Redirect";
 import { SupportingDocumentCollectionFlow } from "./components/SupportingDocumentCollectionFlow";
@@ -24,20 +23,18 @@ import {
   UpdateIndividualOnboardingDocument,
 } from "./graphql/unauthenticated";
 import { useTitle } from "./hooks/useTitle";
-import { NotFoundPage } from "./pages/NotFoundPage";
 import { ChangeAdminWizard } from "./pages/changeAdmin/ChangeAdminWizard";
 import { OnboardingCompanyWizard } from "./pages/company/CompanyOnboardingWizard";
 import { OnboardingIndividualWizard } from "./pages/individual/OnboardingIndividualWizard";
+import { NotFoundPage } from "./pages/NotFoundPage";
 import { OnboardingCompanyWizard as OnboardingCompanyWizardV2 } from "./pages/v2/company/OnboardingCompanyWizard";
 import { OnboardingIndividualWizard as OnboardingIndividualWizardV2 } from "./pages/v2/individual/OnboardingIndividualWizard";
 import { env } from "./utils/env";
+import { FlagsProvider, flagsClient } from "./utils/flags";
 import { client, partnerClient } from "./utils/gql";
 import { locale } from "./utils/i18n";
-import { registerOnboardingInfo } from "./utils/logger";
-import { TrackingProvider, useSessionTracking } from "./utils/matomo";
 import { Router } from "./utils/routes";
-import { tgglClient } from "./utils/tggl";
-import { logFrontendError } from "./utils/tracing";
+import { logger, logPageView } from "./utils/tracing";
 
 type Props = {
   onboardingId: string;
@@ -52,14 +49,11 @@ const PageMetadata = ({
   projectName?: string;
   projectId?: string;
 }) => {
-  const { updateContext } = useTggl();
-
   useEffect(() => {
-    updateContext({ accountCountry });
-  }, [updateContext, accountCountry]);
+    flagsClient.setContext({ accountCountry, projectId });
+  }, [accountCountry, projectId]);
 
   useTitle((projectName ?? "Swan") + " onboarding");
-  useSessionTracking(projectId);
 
   return null;
 };
@@ -81,6 +75,7 @@ const FlowPicker = ({ onboardingId }: Props) => {
         }
 
         const projectId = onboardingInfo.projectInfo?.id;
+        const onboardingId = onboardingInfo.id;
         const accountCountry = onboardingInfo.accountCountry;
         const onboardingType = match(onboardingInfo.info.__typename)
           .returnType<"Company" | "Individual" | undefined>()
@@ -89,7 +84,14 @@ const FlowPicker = ({ onboardingId }: Props) => {
           .exhaustive(() => undefined);
 
         if (projectId != null && accountCountry != null && onboardingType != null) {
-          registerOnboardingInfo({ accountCountry, projectId, onboardingType });
+          logger.setContext({
+            onboardingVersion: "v1",
+            accountCountry,
+            projectId,
+            onboardingId,
+            onboardingType,
+          });
+          logPageView(); // log initial pageview just after setting the context
         }
       })
       .otherwise(() => {});
@@ -167,22 +169,18 @@ const FlowPicker = ({ onboardingId }: Props) => {
           <WithPartnerAccentColor color={projectColor}>
             {match(accountHolder)
               .with({ __typename: "OnboardingIndividualAccountHolderInfo" }, holder => (
-                <TrackingProvider category="Individual">
-                  <OnboardingIndividualWizard
-                    onboarding={onboardingInfo}
-                    onboardingId={onboardingId}
-                    holder={holder}
-                  />
-                </TrackingProvider>
+                <OnboardingIndividualWizard
+                  onboarding={onboardingInfo}
+                  onboardingId={onboardingId}
+                  holder={holder}
+                />
               ))
               .with({ __typename: "OnboardingCompanyAccountHolderInfo" }, holder => (
-                <TrackingProvider category="Company">
-                  <OnboardingCompanyWizard
-                    onboarding={onboardingInfo}
-                    onboardingId={onboardingId}
-                    holder={holder}
-                  />
-                </TrackingProvider>
+                <OnboardingCompanyWizard
+                  onboarding={onboardingInfo}
+                  onboardingId={onboardingId}
+                  holder={holder}
+                />
               ))
               .otherwise(() => (
                 <ErrorView />
@@ -208,6 +206,19 @@ const FlowPickerV2 = ({ onboardingId }: Props) => {
       ({ publicAccountHolderOnboarding }) => {
         match(publicAccountHolderOnboarding)
           .with(P.nonNullable, onboarding => {
+            logger.setContext({
+              onboardingVersion: "v2",
+              accountCountry: onboarding.accountInfo?.country ?? "FRA",
+              onboardingId: onboarding.id,
+              projectId: onboarding.projectInfo.id,
+              onboardingType: match(onboarding.__typename)
+                .returnType<"Company" | "Individual">()
+                .with("CompanyAccountHolderOnboarding", () => "Company")
+                .with("IndividualAccountHolderOnboarding", () => "Individual")
+                .exhaustive(),
+            });
+            logPageView(); // log initial pageview just after setting the context
+
             if (onboarding.accountAdmin?.preferredLanguage === locale.language) {
               return;
             }
@@ -326,12 +337,12 @@ const FlowPickerWizard = ({ onboardingId }: Props) => {
     .exhaustive();
 };
 
-export const Routing = () => {
+const Routing = () => {
   const route = Router.useRoute(["Area", "SupportingDocumentCollectionArea", "ChangeAdminArea"]);
   return (
     <ErrorBoundary
       key={route?.name}
-      onError={error => logFrontendError(error)}
+      onError={error => logger.error(error, { source: "Routing.ErrorBoundary" })}
       fallback={() => <ErrorView />}
     >
       {match(route)
@@ -363,9 +374,9 @@ export const Routing = () => {
 
 export const App = () => {
   return (
-    <TgglProvider client={tgglClient}>
+    <FlagsProvider>
       <Routing />
       <ToastStack />
-    </TgglProvider>
+    </FlagsProvider>
   );
 };

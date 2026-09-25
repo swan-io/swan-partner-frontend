@@ -100,7 +100,7 @@ export const VerificationRenewalIndividual = ({
 
   const isFinalized = steps.length === 0 || steps.length === 1;
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies(route?.name):
+  // biome-ignore lint/correctness/useExhaustiveDependencies(route?.name): scroll to top on route change
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [route?.name]);

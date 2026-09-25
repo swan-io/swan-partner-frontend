@@ -1,4 +1,4 @@
-import { Dict, Future } from "@swan-io/boxed";
+import { Dict, Future } from "@bloodyowl/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { Separator } from "@swan-io/lake/src/components/Separator";
@@ -15,7 +15,7 @@ import {
   validateBeforeUpdatedAt,
   validateNumeric,
 } from "../utils/validations";
-import { filter, Filters, FiltersState } from "./Filters";
+import { Filters, FiltersState, filter } from "./Filters";
 import { FiltersContainer } from "./FiltersMobileContainer";
 import { SearchInput } from "./SearchInput";
 
@@ -62,7 +62,7 @@ const filtersDefinition = {
 };
 
 export type TransactionFilters = FiltersState<typeof filtersDefinition>;
-export type TransactionFilter = keyof TransactionFilters;
+type TransactionFilter = keyof TransactionFilters;
 
 type TransactionListFilterProps = {
   available?: TransactionFilter[];

@@ -1,4 +1,4 @@
-import { Lazy, Result } from "@swan-io/boxed";
+import { Lazy, Result } from "@bloodyowl/boxed";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { Country, countries } from "@swan-io/shared-business/src/constants/countries";
 import { getMostLikelyUserCountry } from "@swan-io/shared-business/src/utils/localization";
@@ -40,9 +40,3 @@ export const prefixPhoneNumber = (country: Country, nationalNumber: string) => {
     return phoneNumber.isValid() ? { valid: true, e164: phoneNumber.number } : { valid: false };
   }).getOr({ valid: false });
 };
-
-export const maskPhoneNumber = (value: string) =>
-  value.replace(
-    /(\d{3})(\d+)(\d{3})/,
-    (_, $1: string, $2: string, $3: string) => `${$1}${"*".repeat($2.length)}${$3}`,
-  );

@@ -8,7 +8,7 @@ export const getPendingCreditLimitAmount = (
       request =>
         request.statusInfo.__typename === "CreditLimitSettingsRequestPendingReviewStatusInfo",
     )
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)) // Sort by updatedAt descending
+    .toSorted((a, b) => b.updatedAt.localeCompare(a.updatedAt)) // Sort by updatedAt descending
     .at(0);
 
   if (lastPendingRequest == null) {
@@ -31,7 +31,7 @@ export const getRefusedCreditLimitAmount = (
     .filter(
       request => request.statusInfo.__typename === "CreditLimitSettingsRequestRefusedStatusInfo",
     )
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)) // Sort by updatedAt descending
+    .toSorted((a, b) => b.updatedAt.localeCompare(a.updatedAt)) // Sort by updatedAt descending
     .at(0);
 
   if (lastRefusedRequest == null) {
@@ -51,7 +51,7 @@ export const hasPendingCreditLimitRequest = (
   creditLimitRequests: CreditLimitSettingsRequestFragment[],
 ): boolean => {
   const lastRequest = creditLimitRequests
-    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    .toSorted((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
     .at(0);
 
   return lastRequest?.statusInfo.__typename === "CreditLimitSettingsRequestPendingReviewStatusInfo";

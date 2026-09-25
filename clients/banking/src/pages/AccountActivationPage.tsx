@@ -1,5 +1,5 @@
-import { AsyncData, Option, Result } from "@swan-io/boxed";
-import { useQuery } from "@swan-io/graphql-client";
+import { AsyncData, Option, Result } from "@bloodyowl/boxed";
+import { useQuery } from "@bloodyowl/graphql-client";
 import { Avatar } from "@swan-io/lake/src/components/Avatar";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -23,7 +23,6 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { backgroundColor, breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish, isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
-import { capitalize, lowerCase } from "@swan-io/lake/src/utils/string";
 import { AdditionalInfo, SupportChat } from "@swan-io/shared-business/src/components/SupportChat";
 import dayjs from "dayjs";
 import { ReactNode, useCallback, useRef, useState } from "react";
@@ -580,6 +579,7 @@ const styles = StyleSheet.create({
   },
   errorContainer: {
     ...commonStyles.fill,
+    paddingHorizontal: spacings[24],
   },
   rightPanelTiles: {
     boxShadow: "0",
@@ -628,36 +628,29 @@ const StepTile = ({ variant, title, description, footer, large, to, disabled }: 
       <Link to={to} disabled={disabled}>
         {({ hovered, active }) => (
           <Tile hovered={hovered} paddingVertical={24} footer={footer} style={{ width: "100%" }}>
-            <>
-              <>
-                {large && active && <View role="none" style={styles.stepTileActiveIndicator} />}
-                <Box direction="row" justifyContent="spaceBetween">
-                  <LakeHeading level={5} variant="h5">
-                    {title}
-                  </LakeHeading>
+            {large && active && <View role="none" style={styles.stepTileActiveIndicator} />}
+            <Box direction="row" justifyContent="spaceBetween">
+              <LakeHeading level={5} variant="h5">
+                {title}
+              </LakeHeading>
 
-                  <Box>
-                    {match(variant)
-                      .with("todo", () => (
-                        <Tag color="warning">{t("accountActivation.tag.todo")}</Tag>
-                      ))
-                      .with("pending", () => (
-                        <Tag color="shakespear">{t("accountActivation.tag.pending")}</Tag>
-                      ))
-                      .with("done", () => (
-                        <Tag color="positive">{t("accountActivation.tag.done")}</Tag>
-                      ))
-                      .otherwise(() => null)}
+              <Box>
+                {match(variant)
+                  .with("todo", () => <Tag color="warning">{t("accountActivation.tag.todo")}</Tag>)
+                  .with("pending", () => (
+                    <Tag color="shakespear">{t("accountActivation.tag.pending")}</Tag>
+                  ))
+                  .with("done", () => <Tag color="positive">{t("accountActivation.tag.done")}</Tag>)
+                  .otherwise(() => null)}
 
-                    <Space width={20} />
-                  </Box>
-                </Box>
-                <Space height={8} />
+                <Space width={20} />
+              </Box>
+            </Box>
+            <Space height={8} />
 
-                <LakeText>{description}</LakeText>
-              </>
-              <Space width={24} />
-            </>
+            <LakeText>{description}</LakeText>
+
+            <Space width={24} />
           </Tile>
         )}
       </Link>
@@ -703,7 +696,6 @@ type Props = {
   accountMembershipId: string;
   additionalInfo: AdditionalInfo;
   projectName: string;
-  projectLogo: string | undefined;
   refetchAccountAreaQuery: () => void;
   hasRequiredIdentificationLevel: boolean | undefined;
   lastIdentification: Option<IdentificationFragment>;
@@ -715,14 +707,11 @@ export const AccountActivationPage = ({
   accountMembershipId,
   additionalInfo,
   projectName,
-  projectLogo,
   refetchAccountAreaQuery,
   hasRequiredIdentificationLevel,
   lastIdentification,
   largeViewport,
 }: Props) => {
-  const desktopToMobileIdentification = false;
-  // const desktopToMobileIdentification = useFlag("frontDesktopToMobileIdentification", false);
   const [data, { reload }] = useQuery(AccountActivationPageDocument, { accountMembershipId });
 
   const route = Router.useRoute(accountActivationRoutes);
@@ -777,42 +766,16 @@ export const AccountActivationPage = ({
           .otherwise(() => null);
 
         const handleProveIdentity = () => {
-          if (desktopToMobileIdentification) {
-            const params = new URLSearchParams();
+          const params = new URLSearchParams();
 
-            match(projectConfiguration.map(({ projectId }) => projectId))
-              .with(Option.P.Some(P.select()), projectId => params.set("projectId", projectId))
-              .otherwise(() => {});
+          match(projectConfiguration.map(({ projectId }) => projectId))
+            .with(Option.P.Some(P.select()), projectId => params.set("projectId", projectId))
+            .otherwise(() => {});
 
-            params.set("partnerName", projectName);
-            params.set("accentColor", accentColor);
-            if (projectLogo != null) {
-              params.set("logoUri", projectLogo);
-            }
+          params.set("identificationLevel", "Auto");
+          params.set("redirectTo", Router.AccountActivationRoot({ accountMembershipId }));
 
-            params.set("identificationLevel", "Auto");
-            params.set(
-              "nextUrl",
-              window.location.origin + Router.AccountActivationRoot({ accountMembershipId }),
-            );
-            params.set("env", capitalize(lowerCase(env.APP_TYPE)));
-            params.set("accountMembershipId", accountMembershipId);
-
-            window.location.assign(
-              `${env.IDENTITY_URL}/authenticator/identification?${params.toString()}`,
-            );
-          } else {
-            const params = new URLSearchParams();
-
-            match(projectConfiguration.map(({ projectId }) => projectId))
-              .with(Option.P.Some(P.select()), projectId => params.set("projectId", projectId))
-              .otherwise(() => {});
-
-            params.set("identificationLevel", "Auto");
-            params.set("redirectTo", Router.AccountActivationRoot({ accountMembershipId }));
-
-            window.location.assign(`/auth/login?${params.toString()}`);
-          }
+          window.location.assign(`/auth/login?${params.toString()}`);
         };
 
         if (holder?.verificationStatus === "Refused") {

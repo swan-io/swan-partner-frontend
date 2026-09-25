@@ -552,10 +552,18 @@ query AccountDetailsIbanPage($accountId: ID!) {
   }
 }
 
-query AccountDetailsVirtualIbansPage($accountId: ID!, $first: Int!, $after: String) {
+query AccountDetailsVirtualIbansPage(
+  $accountId: ID!
+  $first: Int!
+  $after: String
+  $filters: VirtualIbanEntriesFilterInput
+) {
   account(accountId: $accountId) {
     id
-    virtualIbanEntries(first: $first, after: $after) {
+    totalVirtualIbans: virtualIbanEntries(first: 0) {
+      totalCount
+    }
+    virtualIbanEntries(first: $first, after: $after, filters: $filters) {
       totalCount
       pageInfo {
         endCursor
@@ -580,6 +588,20 @@ mutation AddVirtualIban($accountId: ID!) {
     ... on AddVirtualIbanEntrySuccessPayload {
       virtualIbanEntry {
         id
+      }
+    }
+  }
+}
+
+query VirtualIbanBankDetails($accountId: ID!, $id: ID!) {
+  account(accountId: $accountId) {
+    id
+    virtualIbanEntries(first: 1, filters: { ids: [$id] }) {
+      edges {
+        node {
+          id
+          bankDetails
+        }
       }
     }
   }
@@ -1630,9 +1652,6 @@ query AccountActivationPage($accountMembershipId: ID!) {
                 id
                 purpose {
                   name
-                  label
-                  description
-                  purposeDetails
                 }
 
                 statusInfo {
@@ -1944,10 +1963,11 @@ query GetAccountMemberships(
   $first: Int!
   $after: String
   $filters: AccountMembershipsFilterInput!
+  $orderBy: UserAccountMembershipOrderByInput
 ) {
   user {
     id
-    accountMemberships(first: $first, after: $after, filters: $filters) {
+    accountMemberships(first: $first, after: $after, filters: $filters, orderBy: $orderBy) {
       pageInfo {
         endCursor
         hasNextPage
@@ -2095,12 +2115,6 @@ query GetCardProducts(
   }
 }
 
-fragment CardInsurancePackage on CardInsurancePackage {
-  id
-  name
-  level
-  noticeUrl
-}
 fragment CardProduct on CardProduct {
   __typename
   id
@@ -2147,14 +2161,7 @@ fragment CardProduct on CardProduct {
       updatedAt
     }
   }
-  insurance {
-    defaultInsurancePackage {
-      ...CardInsurancePackage
-    }
-    availableInsurancePackages {
-      ...CardInsurancePackage
-    }
-  }
+  cardPackage
   defaultCardProduct
 }
 
@@ -2716,6 +2723,8 @@ query AccountClosing($accountId: ID!, $after: String, $first: Int!) {
   projectInfo {
     id
     accentColor
+    name
+    logoUri
     webBankingSettings {
       ...WebBankingSettings
     }
@@ -2723,6 +2732,12 @@ query AccountClosing($accountId: ID!, $after: String, $first: Int!) {
   account(accountId: $accountId) {
     id
     country
+    name
+    holder {
+      info {
+        name
+      }
+    }
     statusInfo {
       status
     }
@@ -3618,9 +3633,6 @@ fragment SupportingDocumentRenewal on SupportingDocumentCollection {
     }
     purpose {
       name
-      label
-      description
-      purposeDetails
     }
   }
   requiredSupportingDocumentPurposes {
@@ -3657,7 +3669,6 @@ fragment VerificationRenewalUBO on VerificationRenewalUltimateBeneficialOwner {
     postalCode
   }
   qualificationType
-  taxIdentificationNumber
 }
 
 fragment CompanyRenewalInfo on CompanyVerificationRenewalInfo {
@@ -3720,7 +3731,13 @@ query GetVerificationRenewal($id: ID!) {
   }
   verificationRenewal(id: $id) {
     ... on WaitingForInformationVerificationRenewal {
-      id
+      accountCountries
+      verificationRequirements
+      supportingDocumentCollection {
+        ...SupportingDocumentRenewal
+      }
+    }
+    ... on SuspendedVerificationRenewal {
       accountCountries
       verificationRequirements
       supportingDocumentCollection {
@@ -3748,6 +3765,12 @@ mutation UpdateIndividualVerificationRenewal($input: UpdateIndividualVerificatio
         __typename
         id
         ... on WaitingForInformationVerificationRenewal {
+          verificationRequirements
+          supportingDocumentCollection {
+            ...SupportingDocumentRenewal
+          }
+        }
+        ... on SuspendedVerificationRenewal {
           verificationRequirements
           supportingDocumentCollection {
             ...SupportingDocumentRenewal
@@ -3789,6 +3812,12 @@ mutation UpdateCompanyVerificationRenewal($input: UpdateCompanyVerificationRenew
             ...SupportingDocumentRenewal
           }
         }
+        ... on SuspendedVerificationRenewal {
+          verificationRequirements
+          supportingDocumentCollection {
+            ...SupportingDocumentRenewal
+          }
+        }
         info {
           ... on CompanyVerificationRenewalInfo {
             ...CompanyRenewalInfo
@@ -3797,6 +3826,13 @@ mutation UpdateCompanyVerificationRenewal($input: UpdateCompanyVerificationRenew
             ...IndividualRenewalInfo
           }
         }
+      }
+    }
+    ... on ValidationRejection {
+      message
+      fields {
+        code
+        message
       }
     }
     ... on Rejection {

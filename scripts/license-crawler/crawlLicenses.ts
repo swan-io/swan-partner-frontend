@@ -1,4 +1,4 @@
-import { exec as originalExec } from "child_process";
+import { exec as originalExec } from "node:child_process";
 import fs from "node:fs";
 import path from "pathe";
 import pc from "picocolors";

@@ -1,4 +1,4 @@
-import { Future, Result } from "@swan-io/boxed";
+import { Future, Result } from "@bloodyowl/boxed";
 import { GraphQLClient } from "graphql-request";
 import { match, P } from "ts-pattern";
 import { env } from "../env";
@@ -10,10 +10,20 @@ export const sdk = getSdk(new GraphQLClient(env.PARTNER_API_URL, { fetch: fetchW
 
 export class ServerError extends Error {
   tag = "ServerError";
+  payload: unknown;
+
+  constructor(payload: unknown) {
+    super("Server error");
+    this.payload = payload;
+  }
+
+  toString() {
+    return `ServerError: ${JSON.stringify(this.payload)}`;
+  }
 }
 
 export const toFuture = <T>(promise: Promise<T>): Future<Result<T, ServerError>> => {
-  return Future.fromPromise(promise).mapError(error => new ServerError(JSON.stringify(error)));
+  return Future.fromPromise(promise).mapError(error => new ServerError(error));
 };
 
 let projectId: Future<
@@ -166,7 +176,7 @@ export const bindAccountMembership = ({
   });
 };
 
-export class CreateOnboardingRejectionError extends Error {
+class CreateOnboardingRejectionError extends Error {
   tag = "CreateOnboardingRejectionError";
 }
 

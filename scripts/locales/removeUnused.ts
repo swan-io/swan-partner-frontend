@@ -1,6 +1,6 @@
-import { Result } from "@swan-io/boxed";
+import { readFileSync, writeFileSync } from "node:fs";
+import { Result } from "@bloodyowl/boxed";
 import glob from "fast-glob";
-import { readFileSync, writeFileSync } from "fs";
 import path from "pathe";
 import { match } from "ts-pattern";
 

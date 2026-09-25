@@ -339,6 +339,16 @@ type Query {
   card(cardId: ID!): Card
 
   """
+  Returns a digital card from its id.
+  
+  Typically used to resolve the resource carried by a `DigitalCard.Created`
+  or `DigitalCard.Updated` webhook event.
+  
+  Gated by a feature flag; returns "Feature not yet implemented" when disabled.
+  """
+  digitalCard(digitalCardId: ID!): DigitalCard
+
+  """
   Returns the list of cards.
   
   Implements the Relay Connection interface, used to paginate lists of elements. ([Learn More](https://docs.swan.io/developers/using-api/pagination))
@@ -849,6 +859,12 @@ type Mutation {
   createCapitalDepositCase(input: CreateCapitalDepositCaseInput!): CreateCapitalDepositCasePayload!
 
   """
+  Creates a capital deposit case for a company being formed, along with the bank accounts
+  of its main company and its shareholders. Each account triggers its own onboarding flow.
+  """
+  createCapitalDeposit(input: CreateCapitalDepositInput!): CreateCapitalDepositPayload!
+
+  """
   Generate an url allowing the upload of a document which unique identifier is specified in parameters.
   
   This mutation is restricted to an Project access token ([Learn More](https://docs.swan.io/api/authentication)).
@@ -945,6 +961,19 @@ type Mutation {
   """
   addDigitalCard(input: AddDigitalCardInput): AddDigitalCardPayload!
 
+  """
+  Add several digital cards to push to Apple Pay or Google Pay
+  
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.
+  
+  The user must be the cardholder for each card.
+  
+  All cards must belong to the same account.
+  
+  Digital cards will only be valid for 1 hour after consent validation
+  """
+  addDigitalCards(input: AddDigitalCardsInput!): AddDigitalCardsPayload!
+
   """Add a new Single Use Virtual Card to an account membership."""
   addSingleUseVirtualCard(input: AddSingleUseVirtualCardInput!): AddSingleUseVirtualCardPayload!
 
@@ -959,6 +988,12 @@ type Mutation {
 
   """Cancel a Digital Card"""
   cancelDigitalCard(input: CancelDigitalCardInput): CancelDigitalCardPayload!
+
+  """
+  Prevent the automatic renewal of a physical card without cancelling it.
+  The card stays valid until its natural expiration date.
+  """
+  cancelPhysicalCardRenewal(input: CancelPhysicalCardRenewalInput!): CancelPhysicalCardRenewalPayload!
 
   """Confirm Physical Card Renewal"""
   confirmPhysicalCardRenewal(input: ConfirmPhysicalCardRenewalInput!): ConfirmPhysicalCardRenewalPayload!
@@ -1926,6 +1961,11 @@ input AccountFilterInput {
   search: String
 }
 
+type AccountHasActiveSuspensionsRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
 """
 The account holder is the person who owns the money stored in the account. The account holder can be one of your customers, whether it is a natural person or a legal person, or quite simply you.
 """
@@ -2024,7 +2064,7 @@ type AccountHolder {
   ): FundingLimitSettingsChangeRequestConnection!
 
   """Account holder onboarding"""
-  onboarding: Onboarding
+  onboarding: Onboarding @deprecated(reason: "Use `accountHolderOnboarding` instead")
 
   """Account holder risk info"""
   riskInfo: AccountHolderRiskInfo
@@ -2048,6 +2088,9 @@ type AccountHolder {
     """
     after: String
   ): ExternalAccountConnection!
+
+  """Account holder onboarding"""
+  accountHolderOnboarding: AccountHolderOnboarding
 
   """
   A list of Payment Mandates for an account holder.
@@ -2134,7 +2177,7 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
 
   """
   Business activity description.
-  This must be 1024 characters long maximum.
+  This must be 10000 characters long maximum.
   """
   businessActivityDescription: String!
 
@@ -2347,6 +2390,11 @@ interface AccountHolderOnboardingBase {
 
   """Swan Terms and Conditions URL"""
   termsAndConditionsUrl: String!
+
+  """
+  Type of participation of this onboarding in a Capital Deposit case, `null` when the onboarding is not part of one
+  """
+  capitalDepositType: OnboardingCapitalDepositType
 }
 
 """Connection type for paginated AccountHolderOnboarding results"""
@@ -2947,6 +2995,30 @@ type AccountSuspendedStatus implements AccountStatusInfo {
 
   """Reason why the account is currently suspended"""
   reasonInfo: SuspendAccountStatusReason!
+
+  """Type of suspension reasons"""
+  suspensionReasons: [AccountSuspensionReason!]!
+}
+
+"""Reason why the account is currently suspended"""
+type AccountSuspensionReason {
+  """Type of suspension reason"""
+  type: AccountSuspensionReasonType!
+}
+
+"""Specific reason for suspending an account"""
+enum AccountSuspensionReasonType {
+  """Compliance review required"""
+  ComplianceReview
+
+  """KYC review required"""
+  KYCReview
+
+  """Suspension required by a regulatory obligation"""
+  RegulatoryRequirement
+
+  """Reason not covered by other values"""
+  Other
 }
 
 type AccountTypeNotEligibleRejection implements Rejection {
@@ -3408,6 +3480,7 @@ type BirthInfo {
   postalCode: String
 }
 
+"""Birth information (date and place of birth)."""
 input BirthInfoInput {
   """
   Birth city
@@ -3580,7 +3653,7 @@ enum CloseAccountReasonType {
   """
   Prolonged inactivity according to local regulatory definitions or internal policy.
   """
-  DormantAccount
+  DormantAccount @deprecated(reason: "use `Inactivity` instead")
 
   """A duplicate account was created by mistake."""
   DuplicateOnboarding
@@ -3588,7 +3661,9 @@ enum CloseAccountReasonType {
   """The account holder operates in a prohibited business sector."""
   ForbiddenActivity
 
-  """Account closed due to inactivity."""
+  """
+  Prolonged inactivity according to local regulatory definitions or internal policy.
+  """
   Inactivity
 
   """Required documents are missing, incorrect, or unanswered."""
@@ -3695,6 +3770,11 @@ type CompanyAccountHolderOnboarding implements AccountHolderOnboardingBase {
 
   """Swan Terms and Conditions URL"""
   termsAndConditionsUrl: String!
+
+  """
+  Type of participation of this onboarding in a Capital Deposit case, `null` when the onboarding is not part of one
+  """
+  capitalDepositType: OnboardingCapitalDepositType
 }
 
 """Company account information for onboarding"""
@@ -3723,7 +3803,7 @@ type CompanyAccountHolderOnboardingAccountAdmin {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
+  - Following this pattern: `/^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i`
   - Disposable email domains are not allowed
   """
   email: String
@@ -3732,8 +3812,8 @@ type CompanyAccountHolderOnboardingAccountAdmin {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   firstName: String
 
@@ -3746,8 +3826,8 @@ type CompanyAccountHolderOnboardingAccountAdmin {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   lastName: String
 
@@ -3783,7 +3863,7 @@ input CompanyAccountHolderOnboardingAccountAdminInput {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
+  - Following this pattern: `/^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i`
   - Disposable email domains are not allowed
   """
   email: String
@@ -3792,8 +3872,8 @@ input CompanyAccountHolderOnboardingAccountAdminInput {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   firstName: String
 
@@ -3806,8 +3886,8 @@ input CompanyAccountHolderOnboardingAccountAdminInput {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   lastName: String
 
@@ -3844,7 +3924,7 @@ input CompanyAccountHolderOnboardingAccountAdminUpdateInput {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
+  - Following this pattern: `/^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i`
   - Disposable email domains are not allowed
   """
   email: String
@@ -3853,8 +3933,8 @@ input CompanyAccountHolderOnboardingAccountAdminUpdateInput {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   firstName: String
 
@@ -3867,8 +3947,8 @@ input CompanyAccountHolderOnboardingAccountAdminUpdateInput {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   lastName: String
 
@@ -3984,7 +4064,7 @@ type CompanyInfo {
   """
   Business activity description
   
-  - Maximum 1024 characters
+  - Maximum 10000 characters
   """
   businessActivityDescription: String
 
@@ -4039,7 +4119,7 @@ input CompanyInfoInput {
   """
   Business activity description
   
-  - Maximum 1024 characters
+  - Maximum 10000 characters
   """
   businessActivityDescription: String
 
@@ -4149,7 +4229,7 @@ input CompanyInfoUpdateInput {
   """
   Business activity description
   
-  - Maximum 1024 characters
+  - Maximum 10000 characters
   """
   businessActivityDescription: String
 
@@ -5421,6 +5501,11 @@ type IndividualAccountHolderOnboarding implements AccountHolderOnboardingBase {
 
   """Swan Terms and Conditions URL"""
   termsAndConditionsUrl: String!
+
+  """
+  Type of participation of this onboarding in a Capital Deposit case, `null` when the onboarding is not part of one
+  """
+  capitalDepositType: OnboardingCapitalDepositType
 }
 
 """Individual account information for onboarding"""
@@ -5449,7 +5534,7 @@ type IndividualAccountHolderOnboardingAccountAdmin {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
+  - Following this pattern: `/^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i`
   - Disposable email domains are not allowed
   """
   email: String
@@ -5461,8 +5546,8 @@ type IndividualAccountHolderOnboardingAccountAdmin {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   firstName: String
 
@@ -5475,8 +5560,8 @@ type IndividualAccountHolderOnboardingAccountAdmin {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   lastName: String
 
@@ -5516,7 +5601,7 @@ input IndividualAccountHolderOnboardingAccountAdminInput {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Following this pattern: `/^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i`
   - Disposable email domains are not allowed
   """
   email: String
@@ -5528,8 +5613,8 @@ input IndividualAccountHolderOnboardingAccountAdminInput {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   firstName: String
 
@@ -5542,8 +5627,8 @@ input IndividualAccountHolderOnboardingAccountAdminInput {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   lastName: String
 
@@ -6381,7 +6466,7 @@ input OnboardCompanyAccountHolderInput {
 
   """
   Description of the business activity.
-  - Length must be from 0 to 1024 characters.
+  - Length must be from 0 to 10000 characters.
   """
   businessActivityDescription: String
 
@@ -6640,6 +6725,22 @@ type OnboardingAlreadyFinalizedRejection implements Rejection {
   onboardingId: String!
 }
 
+"""
+The type of role an onboarding has within a Capital Deposit case.
+Null when the onboarding is not part of a Capital Deposit.
+"""
+enum OnboardingCapitalDepositType {
+  """
+  This onboarding belongs to the main company being incorporated in the Capital Deposit case.
+  """
+  MainCompanyAccount
+
+  """
+  This onboarding belongs to a shareholder participating in the Capital Deposit case.
+  """
+  ShareholderAccount
+}
+
 """Company Account Holder Information"""
 type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
   """
@@ -6667,7 +6768,7 @@ type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
 
   """
   business activity description
-  This must be 1024 characters long maximum.
+  This must be 10000 characters long maximum.
   """
   businessActivityDescription: String
 
@@ -7233,7 +7334,7 @@ input PublicIndividualAccountHolderOnboardingAccountAdminInput {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: ^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$
+  - Following this pattern: `/^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i`
   - Disposable email domains are not allowed
   """
   email: String
@@ -7245,8 +7346,8 @@ input PublicIndividualAccountHolderOnboardingAccountAdminInput {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   firstName: String
 
@@ -7259,8 +7360,8 @@ input PublicIndividualAccountHolderOnboardingAccountAdminInput {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   lastName: String
 
@@ -7426,8 +7527,8 @@ input RelatedIndividualInput {
   First name of the individual
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   firstName: String
 
@@ -7442,8 +7543,8 @@ input RelatedIndividualInput {
   Last name of the individual
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   lastName: String
 
@@ -7455,7 +7556,7 @@ input RelatedIndividualInput {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
+  - Following this pattern: `/^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i`
   - Disposable email domains are not allowed
   """
   email: String
@@ -8210,6 +8311,16 @@ enum SupportingDocumentCommunicationLanguageSettings {
   fr
 }
 
+"""
+Rejection returned when the supporting document status does not allow the requested operation
+"""
+type SupportingDocumentInvalidStatusRejection implements Rejection {
+  message: String!
+
+  """Current status of the supporting document"""
+  currentStatus: SupportingDocumentStatus!
+}
+
 """Rejection returned if the supporting document was not found"""
 type SupportingDocumentNotFoundRejection implements Rejection {
   id: String!
@@ -8752,8 +8863,23 @@ type SuspendedVerificationRenewal implements VerificationRenewal {
   supportTicketId: String
   dueDate: DateTime
 
+  """
+  Information the account holder must provide to complete the verification renewal
+  """
+  verificationRequirements: [VerificationRenewalRequirement!]!
+
   """Verification renewal information"""
   info: VerificationRenewalInfo!
+
+  """
+  Collection of supporting documents requested from the account holder for this verification renewal
+  """
+  supportingDocumentCollection: SupportingDocumentCollection
+
+  """
+  Countries of the account holder's accounts, which determine country-specific information to provide (such as the tax identification number format)
+  """
+  accountCountries: [AccountCountry!]
 }
 
 """Rejection returned if too many items are given"""
@@ -9086,6 +9212,7 @@ type UnitedStatesTaxInfo {
   unitedStatesTaxIdentificationNumber: String
 }
 
+"""Tax information related to US persons as defined by FATCA."""
 input UnitedStatesTaxInfoInput {
   """
   Is the ultimate beneficial owner a US person as defined by the Foreign Account Tax Compliance Act (FATCA)
@@ -9285,7 +9412,7 @@ input UpdateCompanyOnboardingInput {
 
   """
   Description of the business activity.
-  - Length must be from 0 to 1024 characters.
+  - Length must be from 0 to 10000 characters.
   """
   businessActivityDescription: String
 
@@ -9444,7 +9571,7 @@ input UpdateIndividualAccountHolderOnboardingAccountAdminInput {
   
   - Must be a valid email format
   - Maximum 255 characters
-  - Following this pattern: /^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i
+  - Following this pattern: `/^[\w+'.-]*[\w'+-]@([A-Z0-9]([A-Z0-9-]*[A-Z0-9])?\.)+[A-Z]{2,}$/i`
   - Disposable email domains are not allowed
   """
   email: String
@@ -9456,8 +9583,8 @@ input UpdateIndividualAccountHolderOnboardingAccountAdminInput {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   firstName: String
 
@@ -9470,8 +9597,8 @@ input UpdateIndividualAccountHolderOnboardingAccountAdminInput {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes, spaces
-  - Valid format (regex): `^[\p{L}]+(?:[-'\s][\p{L}]+)*'?$`
+  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   lastName: String
 
@@ -9707,6 +9834,9 @@ type User {
 
     """a filtering table you can apply to your list of connections"""
     filters: AccountMembershipsFilterInput
+
+    """an order you can apply to your list of connections"""
+    orderBy: UserAccountMembershipOrderByInput
   ): AccountMembershipConnection!
 
   """
@@ -9769,7 +9899,13 @@ type User {
   """Last update date of the user"""
   updatedAt: DateTime!
 
-  """The last name that the user prefers to use"""
+  """
+  The last name that the user prefers to use.
+  
+  Set automatically when the user completes identification. Swan compares the last name entered during sign-up with the birth last name returned by the identification provider:
+  - If they match, `preferredLastName` is set to the birth last name.
+  - If they don't match, `preferredLastName` defaults to the last name entered during sign-up.
+  """
   preferredLastName: String
 
   """
@@ -9799,6 +9935,30 @@ type User {
   ): IdentificationConnection
 }
 
+"""
+Fields that can be used when ordering the account memberships of a user
+"""
+enum UserAccountMembershipOrderByFieldInput {
+  createdAt
+  updatedAt
+
+  """
+  Name of the account bound to the account membership.
+  
+  Memberships not yet bound to an account are ordered first when ascending.
+  """
+  accountName
+}
+
+"""
+Order that can be applied when listing the account memberships of a user
+"""
+input UserAccountMembershipOrderByInput {
+  field: UserAccountMembershipOrderByFieldInput
+  direction: OrderByDirection
+}
+
+"""User device information for security and fraud detection."""
 input UserDeviceInfoInput {
   """Device coordinates, if available"""
   geoloc: GeolocInput
@@ -10150,6 +10310,9 @@ enum VerificationStatus {
 input VirtualIbanEntriesFilterInput {
   """unique identifiers of the virtual IBAN entries to fetch"""
   ids: [ID!]
+
+  """status of the Iban Entry"""
+  status: [IBANStatus!]
 }
 
 """
@@ -10209,11 +10372,23 @@ type WaitingForInformationVerificationRenewal implements VerificationRenewal {
   updatedAt: DateTime!
   supportTicketId: String
   dueDate: DateTime
+
+  """
+  Information the account holder must provide to complete the verification renewal
+  """
   verificationRequirements: [VerificationRenewalRequirement!]!
 
   """Verification renewal information"""
   info: VerificationRenewalInfo!
+
+  """
+  Collection of supporting documents requested from the account holder for this verification renewal
+  """
   supportingDocumentCollection: SupportingDocumentCollection
+
+  """
+  Countries of the account holder's accounts, which determine country-specific information to provide (such as the tax identification number format)
+  """
   accountCountries: [AccountCountry!]
 }
 
@@ -10300,7 +10475,7 @@ type BookedBalanceAfter {
   amount: Amount
 
   """
-  [COMING SOON] Sequence number assigned to each booked transaction. It increments by 1 with every new transaction affecting the account's booked balance, ensuring a chronological record
+  Sequence number assigned to each booked transaction. It increments with every balance movement affecting the account, providing a reliable chronological order of booked transactions.
   """
   sequenceNumber: Int
 }
@@ -10462,6 +10637,9 @@ type CardInMerchant {
 
 union CardMerchant = CardInMerchant | CardOutMerchant
 
+"""
+@deprecated Use InPersonCardMerchantPayment or OnlineCardMerchantPayment instead.
+"""
 type CardMerchantPayment implements MerchantPayment {
   """unique identifier of a merchant payment"""
   id: ID!
@@ -11383,6 +11561,9 @@ enum FeesTypeEnum {
   """Document issuance"""
   DocumentIssuance
 
+  """Fee for any SEPA Transfer"""
+  SepaTransfer
+
   """Account inactive within the past 12 months"""
   InactiveAccount
 
@@ -11496,6 +11677,9 @@ enum FeesTypeEnum {
   Monthly account membership subscription fee charged on the last day of the month
   """
   AccountMembershipSubscription
+
+  """Additional business account subscription"""
+  AdditionalAccountSubscription
 
   """Monthly card subscription fee charged on the last day of the month"""
   VirtualCardSubscription
@@ -11838,6 +12022,9 @@ type InPersonCardMerchantPayment implements MerchantPayment {
 
   """Disputed date"""
   disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
+
+  """The information about how the inPersonCard has been presented."""
+  cardPresentReadDetails: CardPresentReadDetails
 }
 
 type InPersonCardTransaction implements Transaction {
@@ -16622,6 +16809,23 @@ type CapitalDepositDocumentValidatedStatusInfo implements CapitalDepositDocument
   status: CapitalDepositDocumentStatus!
 }
 
+type CapitalDepositMainCompanyOnboardingFieldError {
+  message: String!
+
+  """
+  Path to the invalid field in the input, e.g. ["mainCompany", "accountAdmin", "email"].
+  """
+  path: [String!]!
+}
+
+"""
+Rejection returned when the onboarding of the main company fails because of invalid input.
+"""
+type CapitalDepositMainCompanyOnboardingRejection implements Rejection {
+  message: String!
+  fields: [CapitalDepositMainCompanyOnboardingFieldError!]!
+}
+
 """Rejection returned if the shareholder cannot be found"""
 type CapitalDepositShareholderCannotBeFoundRejection implements Rejection {
   id: String!
@@ -16633,6 +16837,30 @@ Rejection returned if the shareholder cannot be updated in its current state
 """
 type CapitalDepositShareholderCanNotBeUpdatedRejection implements Rejection {
   id: String!
+  message: String!
+}
+
+type CapitalDepositShareholderOnboardingFieldError {
+  message: String!
+
+  """
+  Path to the invalid field in the input, e.g. ["shareholders", "0", "accountAdmin", "email"].
+  """
+  path: [String!]!
+}
+
+"""
+Rejection returned when the onboarding of one shareholder fails because of invalid input.
+"""
+type CapitalDepositShareholderOnboardingRejection implements Rejection {
+  message: String!
+  fields: [CapitalDepositShareholderOnboardingFieldError!]!
+}
+
+"""
+Rejection returned if the capital deposit case cannot be created because there are no shareholders
+"""
+type CapitalDepositShareholdersEmptyRejection implements Rejection {
   message: String!
 }
 
@@ -16675,6 +16903,11 @@ enum CapitalDepositStatus {
   Canceled
 }
 
+"""Rejection returned when a feature is not yet available."""
+type ComingSoonRejection implements Rejection {
+  message: String!
+}
+
 """Company shareholder info."""
 type CompanyShareholder {
   """Whether the shareholder is an individual or a company."""
@@ -16684,7 +16917,15 @@ type CompanyShareholder {
   name: String!
 }
 
-"""Inputs to create a capital deposit case."""
+"""Account-level information for a shareholder's bank account."""
+input CreateCapitalDepositAccountInfoInput {
+  name: String
+}
+
+"""
+Inputs to create a capital deposit case.
+At least one shareholder is required.
+"""
 input CreateCapitalDepositCaseInput {
   """
   Name ("Dénomination sociale") of the company being registered and for which the capital is being deposited.
@@ -16704,6 +16945,129 @@ input CreateCapitalDepositCaseInput {
 union CreateCapitalDepositCasePayload = CreateCapitalDepositCaseSuccessPayload | ForbiddenRejection | BadRequestRejection | ValidationRejection | InternalErrorRejection
 
 type CreateCapitalDepositCaseSuccessPayload {
+  capitalDepositCase: CapitalDepositCase!
+}
+
+"""
+Information about the individual who administers a company shareholder's account (the account admin).
+"""
+input CreateCapitalDepositCompanyAccountAdminInput {
+  firstName: String
+  lastName: String
+  birthInfo: BirthInfoInput
+
+  """An ISO 3166-1 alpha-3 country code (e.g. `FRA`)."""
+  nationality: CCA3
+  email: String
+  preferredLanguage: AccountLanguage
+  address: ResidencyAddressInput
+  taxIdentificationNumber: String
+  typeOfRepresentation: TypeOfRepresentation
+  unitedStatesTaxInfo: UnitedStatesTaxInfoInput
+  userDeviceInfo: UserDeviceInfoInput
+}
+
+"""Input describing the company being formed."""
+input CreateCapitalDepositCompanyInfoInput {
+  signupDate: Date
+  businessActivity: BusinessActivityCategory
+  businessActivityDescription: String
+  businessActivityCode: String
+  forecastYearlyIncome: ForecastYearlyIncome
+  legalFormCode: String
+  monthlyPaymentVolume: MonthlyPaymentVolume
+  name: String!
+  tradeName: String
+  headcount: CompanyHeadcount
+  registrationDate: Date
+  registrationNumber: String
+  regulatoryClassification: RegulatoryClassification
+  address: ResidencyAddressInput
+  taxIdentificationNumber: String
+  relatedIndividuals: [RelatedIndividualInput!]
+  relatedCompanies: [RelatedCompanyInput!]
+  vatNumber: String
+  websites: [String!]
+}
+
+"""
+Input for a company shareholder, including its contribution, bank account and company details.
+"""
+input CreateCapitalDepositCompanyShareholderInput {
+  capitalDepositAmount: AmountInput!
+  accountInfo: CreateCapitalDepositAccountInfoInput
+  accountAdmin: CreateCapitalDepositCompanyAccountAdminInput!
+  company: CreateCapitalDepositCompanyInfoInput!
+  oAuthRedirectParameters: OAuthRedirectParametersInput!
+}
+
+input CreateCapitalDepositIndividualAccountAdminBirthInfoInput {
+  birthDate: Date!
+  city: String
+  country: CCA3
+  postalCode: String
+}
+
+"""
+Information about the individual shareholder who administers the account (the account admin).
+"""
+input CreateCapitalDepositIndividualAccountAdminInput {
+  firstName: String!
+  lastName: String!
+  birthInfo: CreateCapitalDepositIndividualAccountAdminBirthInfoInput!
+
+  """An ISO 3166-1 alpha-3 country code (e.g. `FRA`)."""
+  nationality: CCA3!
+  email: String
+  preferredLanguage: AccountLanguage
+  address: ResidencyAddressInput
+  employmentStatus: EmploymentStatus
+  monthlyIncome: MonthlyIncome
+  sourcesOfFunds: [IndividualAccountSourceOfFunds!]
+  taxIdentificationNumber: String
+  unitedStatesTaxInfo: UnitedStatesTaxInfoInput
+  signupDate: Date
+  userDeviceInfo: UserDeviceInfoInput
+}
+
+"""
+Input for an individual shareholder, including their contribution and personal bank account.
+"""
+input CreateCapitalDepositIndividualShareholderInput {
+  capitalDepositAmount: AmountInput!
+  accountInfo: CreateCapitalDepositAccountInfoInput
+  accountAdmin: CreateCapitalDepositIndividualAccountAdminInput!
+  oAuthRedirectParameters: OAuthRedirectParametersInput!
+}
+
+"""
+Input to create a capital deposit case with its main company and shareholders.
+"""
+input CreateCapitalDepositInput {
+  acquisitionChannel: AcquisitionChannel!
+  mainCompany: CreateCapitalDepositMainCompanyInput!
+  shareholders: [CreateCapitalDepositShareholderInput!]!
+}
+
+"""Input describing the main company being formed and its bank account."""
+input CreateCapitalDepositMainCompanyInput {
+  accountInfo: CreateCapitalDepositAccountInfoInput
+  accountAdmin: CreateCapitalDepositCompanyAccountAdminInput!
+  company: CreateCapitalDepositCompanyInfoInput!
+  oAuthRedirectParameters: OAuthRedirectParametersInput!
+}
+
+union CreateCapitalDepositPayload = CreateCapitalDepositSuccessPayload | ComingSoonRejection | CapitalDepositShareholdersEmptyRejection | CapitalDepositShareholderOnboardingRejection | CapitalDepositMainCompanyOnboardingRejection
+
+"""
+Input for a single shareholder, either an individual or a company (exactly one must be provided).
+"""
+input CreateCapitalDepositShareholderInput {
+  individual: CreateCapitalDepositIndividualShareholderInput
+  company: CreateCapitalDepositCompanyShareholderInput
+}
+
+type CreateCapitalDepositSuccessPayload {
   capitalDepositCase: CapitalDepositCase!
 }
 
@@ -17126,6 +17490,30 @@ input AddDigitalCardInput {
 """Payload returned on mutation completion"""
 union AddDigitalCardPayload = AddDigitalCardSuccessPayload | CardNotFoundRejection | CardCanNotBeDigitalizedRejection | ApplePayNotAllowedForProjectRejection | BadAccountStatusRejection | AccountMembershipNotAllowedRejection | UserNotCardHolderRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection
 
+"""Inputs to add new digital cards"""
+input AddDigitalCardsInput {
+  """Unique identifiers of the cards to digitalize"""
+  cardIds: [ID!]!
+
+  """Provider for which to generate digital cards"""
+  walletProvider: WalletProviderType!
+
+  """URL the user is redirected to after consent has been given"""
+  consentRedirectUrl: String!
+}
+
+"""Payload returned on mutation completion"""
+union AddDigitalCardsPayload = AddDigitalCardsSuccessPayload | AddingCardsToDifferentAccountsRejection | CardNotFoundRejection | CardCanNotBeDigitalizedRejection | ApplePayNotAllowedForProjectRejection | BadAccountStatusRejection | AccountMembershipNotAllowedRejection | UserNotCardHolderRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | ForbiddenRejection | MissingMandatoryFieldRejection | ValidationRejection
+
+type AddDigitalCardsSuccessPayload {
+  """
+  Digital cards for use with Apple Pay or Google Pay
+  
+  The consent can be found in each digital card status information.
+  """
+  digitalCards: [PendingDigitalCard!]!
+}
+
 type AddDigitalCardSuccessPayload {
   """
   Digital card for use with Apple Pay or Google Pay
@@ -17287,6 +17675,19 @@ enum CancelPhysicalCardReason {
 
   """When the cardholder wants to block his card"""
   Blocked
+}
+
+"""Inputs to cancel a physical card renewal"""
+input CancelPhysicalCardRenewalInput {
+  """Unique identifier of a card"""
+  cardId: ID!
+}
+
+union CancelPhysicalCardRenewalPayload = CancelPhysicalCardRenewalSuccessPayload | ForbiddenRejection | CardNotFoundRejection | PhysicalCardNotFoundRejection | PhysicalCardWrongStatusRejection
+
+type CancelPhysicalCardRenewalSuccessPayload {
+  """Physical card whose renewal has been cancelled"""
+  physicalCard: PhysicalCard!
 }
 
 type CancelPhysicalCardSuccessPayload {
@@ -17948,8 +18349,11 @@ type CompleteDigitalCard implements DigitalCard {
   """The project ID"""
   projectId: ID!
 
+  """Unique identifier of the card this digital card belongs to"""
+  cardId: ID!
+
   """The card contract ID"""
-  cardContractId: ID!
+  cardContractId: ID! @deprecated(reason: "Use `cardId` instead.")
 }
 
 """Complete Digital Card Status"""
@@ -18032,8 +18436,11 @@ interface DigitalCard {
   """The project ID"""
   projectId: ID!
 
+  """Unique identifier of the card this digital card belongs to"""
+  cardId: ID!
+
   """The card contract ID"""
-  cardContractId: ID!
+  cardContractId: ID! @deprecated(reason: "Use `cardId` instead.")
 }
 
 """Digital Card Canceled Status Information"""
@@ -18304,8 +18711,11 @@ type PendingDigitalCard implements DigitalCard {
   """The project ID"""
   projectId: ID!
 
+  """Unique identifier of the card this digital card belongs to"""
+  cardId: ID!
+
   """The card contract ID"""
-  cardContractId: ID!
+  cardContractId: ID! @deprecated(reason: "Use `cardId` instead.")
 }
 
 """Pending Digital Card Status"""
@@ -18929,6 +19339,9 @@ enum ConsentPurpose {
 
   """when adding a digital card"""
   AddDigitalCard
+
+  """when adding multiple digital cards"""
+  AddDigitalCards
 
   """when activating a physical card"""
   ActivatePhysicalCard
@@ -20032,7 +20445,7 @@ type Authenticator {
   model: String
 
   """Type of authenticator"""
-  type: AuthenticatorType!
+  type: AuthenticatorType! @deprecated(reason: "Authenticators are always of type 'SwanWeb', this field is meaningless")
 
   """Raw user agent"""
   userAgent: String
@@ -20046,14 +20459,15 @@ type Authenticator {
 
 enum AuthenticatorType {
   """A Swan web authenticator"""
-  SwanWeb
+  SwanWeb @deprecated(reason: "Only remaining value; the enum is meaningless")
 
   """Deprecated: swan authenticator"""
-  Swan
+  Swan @deprecated(reason: "Legacy mobile authenticator, no longer supported")
 }
 
+"""Deprecated: use `BlocklistedPhoneNumberRejection` (with an O) instead."""
 type BlacklistedPhoneNumberRejection implements Rejection {
-  message: String! @deprecated(reason: "Use 'BlocklistedPhoneNumberRejection' instead")
+  message: String!
 }
 
 type BlocklistedPhoneNumberRejection implements Rejection {
@@ -22107,6 +22521,32 @@ type CancelMerchantProfileUpdateRequestSuccessPayload {
   requestUpdateId: ID
 }
 
+enum CardHolderVerificationMethod {
+  """PIN verified online by issuer."""
+  OnlinePin
+
+  """Pin verified offline."""
+  OfflinePin
+
+  """PIN verified offline with a signature."""
+  OfflinePinAndSignature
+
+  """Signature only."""
+  Signature
+
+  """No verification done."""
+  None
+
+  """Approved without specified method."""
+  Approval
+
+  """Verification failed."""
+  Failure
+
+  """The card holder verification method is not provided."""
+  Unknown
+}
+
 type CardMerchantPaymentMethod implements MerchantPaymentMethod {
   """
   Unique identifier tied to every version of a given Merchant Payment Method
@@ -22149,6 +22589,38 @@ type CardMerchantPaymentMethod implements MerchantPaymentMethod {
 input CardPaymentMethodInput {
   """Determine whether the payment method must be activated or not"""
   activate: Boolean = false
+}
+
+type CardPresentReadDetails {
+  """The method used to read the card."""
+  cardReadMethod: CardReadMethod
+
+  """The method used to verify the card holder."""
+  cardHolderVerificationMethod: CardHolderVerificationMethod
+}
+
+enum CardReadMethod {
+  """Inserting a chip card into the card reader."""
+  ContactEmv
+
+  """Tapping a contactless-enabled chip card or mobile wallet."""
+  ContactlessEmv
+
+  """
+  Older standard for contactless payments that emulated a magnetic stripe read.
+  """
+  ContactlessMagneticStripeMode
+
+  """
+  When inserting a chip card fails three times in a row, fallback to a magnetic stripe read.
+  """
+  MagneticStripeFallback
+
+  """Swiping a card using the magnetic stripe reader."""
+  MagneticStripeTrack2
+
+  """The read method used isn't provided."""
+  Unknown
 }
 
 """CheckMerchantPaymentMethod"""
@@ -23409,6 +23881,7 @@ type MerchantProfileEdge implements Edge {
 
 """Filters that can be applied when listing Funding Sources"""
 input MerchantProfileFiltersInput {
+  id: [ID!]
   status: [MerchantProfileStatus!]
 }
 
@@ -23459,6 +23932,9 @@ enum MerchantProfileRejectionReason {
 
   """Risk alerting popped up for a weird processing pattern"""
   SuspiciousBehavior
+
+  """Account was closed"""
+  AccountClosed
 }
 
 """Merchant Profile Statuses"""
@@ -24419,7 +24895,7 @@ type AccountVerificationWrongStatusRejection implements Rejection {
 """Input to add a Direct Debit Funding Source"""
 input AddDirectDebitFundingSourceInput {
   """Scheme of the underlying payment mandate"""
-  scheme: SEPADirectDebitScheme!
+  scheme: SEPADirectDebitScheme! = SepaDirectDebitB2b @deprecated(reason: "only SepaDirectDebitB2b is currently allowed. It will be removed soon.")
 
   """
   Id of the account on which to create a funding source.

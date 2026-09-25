@@ -1,4 +1,4 @@
-import { Option, Result } from "@swan-io/boxed";
+import { Option, Result } from "@bloodyowl/boxed";
 import {
   Client,
   ClientError,
@@ -6,18 +6,18 @@ import {
   MakeRequest,
   parseGraphQLError,
   print,
-} from "@swan-io/graphql-client";
-import { Request, badStatusToError, emptyToError } from "@swan-io/request";
+} from "@bloodyowl/graphql-client";
+import { badStatusToError, emptyToError, Request } from "@bloodyowl/request";
 import { registerErrorToRequestId } from "@swan-io/shared-business/src/state/toasts";
 import { GraphQLError } from "graphql";
 import { customAlphabet } from "nanoid";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import partnerSchemaConfig from "../../../../scripts/graphql/dist/partner-schema-config.json";
 import schemaConfig from "../../../../scripts/graphql/dist/unauthenticated-schema-config.json";
 import { env } from "./env";
 import { locale } from "./i18n";
 import { projectConfiguration } from "./projectId";
-import { logFrontendError } from "./tracing";
+import { logger } from "./tracing";
 
 const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
 const nanoid = customAlphabet(alphabet, 8);
@@ -60,13 +60,9 @@ const makeRequest: MakeRequest = ({ url, headers, operationName, document, varia
         .otherwise(response => Result.Error(new InvalidGraphQLResponseError(response))),
     )
     .tapError(errors => {
-      ClientError.forEach(errors, error => {
-        try {
-          logFrontendError(error, {
-            extra: { requestId },
-          });
-        } catch {}
+      logger.error(errors, { source: "GraphQL.Client", requestId });
 
+      ClientError.forEach(errors, error => {
         errorToRequestId.set(error, requestId);
       });
     });

@@ -1,5 +1,5 @@
-import { Result } from "@swan-io/boxed";
-import { useMutation } from "@swan-io/graphql-client";
+import { Result } from "@bloodyowl/boxed";
+import { useMutation } from "@bloodyowl/graphql-client";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
@@ -9,7 +9,7 @@ import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { InitiateInternationalCreditTransferDocument } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { Currency, t } from "../utils/i18n";

@@ -1,4 +1,4 @@
-import { colors, ColorVariants } from "@swan-io/lake/src/constants/design";
+import { ColorVariants, colors } from "@swan-io/lake/src/constants/design";
 import { StyleSheet, View } from "react-native";
 
 const styles = StyleSheet.create({

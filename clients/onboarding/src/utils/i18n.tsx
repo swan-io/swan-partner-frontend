@@ -1,9 +1,9 @@
+import { Dict } from "@bloodyowl/boxed";
 import { createIntl, createIntlCache } from "@formatjs/intl";
-import { Dict } from "@swan-io/boxed";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import {
-  LANGUAGE_FALLBACK,
   getLanguagesHelpers,
+  LANGUAGE_FALLBACK,
 } from "@swan-io/shared-business/src/utils/languages";
 import dayjs from "dayjs";
 import dayjsLocaleDE from "dayjs/locale/de";
@@ -18,7 +18,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
-import { ReactElement, ReactNode, cloneElement, isValidElement } from "react";
+import { cloneElement, isValidElement, ReactElement, ReactNode } from "react";
 import translationDE from "../locales/de.json";
 import translationEN from "../locales/en.json";
 import translationES from "../locales/es.json";
@@ -129,9 +129,10 @@ const locales: Record<SupportedLanguage, () => Locale> = {
   }),
 };
 
-export const { getBestLocale, setPreferredLanguage } = getLanguagesHelpers(supportedLanguages);
+const languagesHelpers = getLanguagesHelpers(supportedLanguages);
 
-export const locale = getBestLocale(locales);
+export const setPreferredLanguage = languagesHelpers.setPreferredLanguage;
+export const locale = languagesHelpers.getBestLocale(locales);
 
 // https://day.js.org/docs/en/i18n/loading-into-browser
 dayjs.locale(locale.dayjsLocale);

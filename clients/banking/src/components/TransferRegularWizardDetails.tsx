@@ -1,5 +1,5 @@
-import { AsyncData, Option, Result } from "@swan-io/boxed";
-import { useQuery } from "@swan-io/graphql-client";
+import { AsyncData, Option, Result } from "@bloodyowl/boxed";
+import { useQuery } from "@bloodyowl/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
@@ -16,7 +16,7 @@ import { sanitizeDecimal } from "@swan-io/shared-business/src/utils/validation";
 import { toOptionalValidator, useForm } from "@swan-io/use-form";
 import { useLayoutEffect } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { GetAvailableAccountBalanceDocument } from "../graphql/partner";
 import { formatCurrency, t } from "../utils/i18n";
 import { validateTransferReference } from "../utils/validations";

@@ -4,7 +4,7 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { spacings } from "@swan-io/lake/src/constants/design";
 import { StyleSheet } from "react-native";
-import { t, TranslationKey } from "../../utils/i18n";
+import { TranslationKey, t } from "../../utils/i18n";
 
 const styles = StyleSheet.create({
   root: {

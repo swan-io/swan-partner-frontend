@@ -1,9 +1,11 @@
 import { Faro, getWebInstrumentations, initializeFaro, LogLevel } from "@grafana/faro-web-sdk";
 import { TracingInstrumentation } from "@grafana/faro-web-tracing";
+import { subscribeToLocation } from "@zoontek/chicane";
 import { match, P } from "ts-pattern";
+import { AccountCountry, AccountHolderType } from "../graphql/partner";
 import { env } from "./env";
-import { setPostHogUser } from "./logger";
-import { updateTgglContext } from "./tggl";
+import { flagsClient } from "./flags";
+import { posthogLogger } from "./logger";
 
 let faro: Faro | null = null;
 
@@ -29,35 +31,93 @@ if (environment != null) {
       persistent: true,
     },
 
-    instrumentations: [...getWebInstrumentations(), new TracingInstrumentation()],
+    instrumentations: [
+      ...getWebInstrumentations({
+        // disable capture console to control logs we send to Faro with logger.info/warn/error
+        // this avoid to send info and warn triggered by 3rd party scripts which are not actionable for us
+        captureConsole: false,
+      }),
+      new TracingInstrumentation(),
+    ],
   });
 }
 
+const logPageView = () => {
+  const pathname = window.location.pathname
+    .split("/")
+    .map(segment => {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        segment,
+      );
+      return isUuid ? "<id>" : segment;
+    })
+    .join("/");
+
+  logger.event("pageview", { pathname });
+};
+
+subscribeToLocation(() => {
+  logPageView();
+});
+
 type User = {
   id: string;
-  firstName: string | undefined;
-  lastName: string | undefined;
-  phoneNumber: string | undefined;
+};
+
+type TrackingContext = {
+  projectId: string;
+  accountCountry: AccountCountry | "";
+  accountType: AccountHolderType | "";
 };
 
 export const setTrackingUser = (user: User) => {
   faro?.api.setUser({ id: user.id });
-  setPostHogUser(user);
-  updateTgglContext({ userId: user.id });
+  posthogLogger.setUser(user);
+  flagsClient.setContext({ userId: user.id });
 };
 
-type Context = {
-  level?: LogLevel;
-  tag?: string;
-  extra?: Record<string, string>;
-};
+export const logger = {
+  setContext: (context: TrackingContext) => {
+    faro?.api.setUser({ attributes: context });
+    posthogLogger.setContext(context);
+  },
+  event: (name: string, properties?: Record<string, string>) => {
+    faro?.api.pushEvent(name, properties);
 
-export const logFrontendError = (exception: Error, context?: Context) => {
-  faro?.api.pushError(exception, {
-    context: {
-      ...(context?.level != null ? { level: context.level } : null),
-      ...(context?.tag != null ? { tag: context.tag } : null),
-      ...context?.extra,
-    },
-  });
+    // Don't send pageview to posthog because their sdk automatically captures pageview
+    if (name !== "pageview") {
+      posthogLogger.event(name, properties);
+    }
+  },
+  info: (message: string, context?: Record<string, string>) => {
+    console.log("INFO", message, context);
+    faro?.api.pushLog([message], { level: LogLevel.INFO, context });
+  },
+
+  warn: (message: string, context?: Record<string, string>) => {
+    console.warn("WARN", message, context);
+    faro?.api.pushLog([message], { level: LogLevel.WARN, context });
+  },
+
+  error: (error: unknown, context?: Record<string, string>) => {
+    console.error("ERROR", error, context);
+
+    match(error)
+      .with(P.instanceOf(Error), error => {
+        faro?.api.pushError(error, { context });
+      })
+      .with(P.array(P.instanceOf(Error)), errors => {
+        errors.forEach(error => {
+          faro?.api.pushError(error, { context });
+        });
+      })
+      .with({ __typename: P.string, message: P.string }, ({ __typename, message }) => {
+        const error = new Error(`${__typename}: ${message}`);
+        faro?.api.pushError(error, { context });
+      })
+      .otherwise(error => {
+        const err = new Error(`Unknown error format: ${JSON.stringify(error)}`);
+        faro?.api.pushError(err, { context });
+      });
+  },
 };

@@ -1,4 +1,4 @@
-import { AsyncData, Future, Result } from "@swan-io/boxed";
+import { AsyncData, Future, Result } from "@bloodyowl/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { Separator } from "@swan-io/lake/src/components/Separator";
@@ -10,7 +10,7 @@ import { ReactNode, useState } from "react";
 import { match, P } from "ts-pattern";
 import { AccountMembershipStatus } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { filter, Filters, FiltersState } from "./Filters";
+import { Filters, FiltersState, filter } from "./Filters";
 import { FiltersContainer } from "./FiltersMobileContainer";
 import { SearchInput } from "./SearchInput";
 

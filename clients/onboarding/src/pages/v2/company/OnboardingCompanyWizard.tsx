@@ -7,12 +7,12 @@ import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import logoSwan from "../../../assets/imgs/logo-swan.svg";
 import { OnboardingHeader } from "../../../components/OnboardingHeader";
 import { CompanyOnboardingFragment } from "../../../graphql/partner";
 import { t } from "../../../utils/i18n";
-import { CompanyOnboardingRouteV2, Router, companyOnboardingRoutesV2 } from "../../../utils/routes";
+import { CompanyOnboardingRouteV2, companyOnboardingRoutesV2, Router } from "../../../utils/routes";
 import { extractServerInvalidFields } from "../../../utils/validation";
 import { NotFoundPage } from "../../NotFoundPage";
 import { ActivityFieldApiRequired, OnboardingCompanyActivity } from "./OnboardingCompanyActivity";
@@ -213,7 +213,7 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
     [onboardingId, steps, finalized],
   );
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies(route?.name):
+  // biome-ignore lint/correctness/useExhaustiveDependencies(route?.name): scroll to top on route change
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [route?.name]);
@@ -231,15 +231,13 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
               small ? (
                 <MobileStepper activeStepId={route.name} steps={stepperSteps} />
               ) : (
-                <>
-                  <Box alignItems="center">
-                    <LakeStepper
-                      activeStepId={route.name}
-                      steps={stepperSteps}
-                      style={styles.stepper}
-                    />
-                  </Box>
-                </>
+                <Box alignItems="center">
+                  <LakeStepper
+                    activeStepId={route.name}
+                    steps={stepperSteps}
+                    style={styles.stepper}
+                  />
+                </Box>
               )
             ) : null}
 

@@ -1,4 +1,4 @@
-import { P, isMatching, match } from "ts-pattern";
+import { isMatching, match, P } from "ts-pattern";
 import { IdentificationFragment, IdentificationLevelFragment } from "../graphql/partner";
 
 const temp__handleLegacyStatus = (

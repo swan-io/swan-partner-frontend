@@ -1,6 +1,6 @@
-import { Array, Option } from "@swan-io/boxed";
-import { parse } from "dotenv";
 import fs from "node:fs";
+import { Array, Option } from "@bloodyowl/boxed";
+import { parse } from "dotenv";
 import path from "pathe";
 
 const environmentVariables = Object.keys(
@@ -15,9 +15,8 @@ const file = `declare const __env: {
   // Server provided
   VERSION: string;
   SWAN_PROJECT_ID?: string;
-  TGGL_API_KEY?: string;
   SWAN_ENVIRONMENT: "SANDBOX" | "LIVE";
-  ACCOUNT_MEMBERSHIP_INVITATION_MODE: "LINK" | "EMAIL";
+  ACCOUNT_MEMBERSHIP_INVITATION_MODE: "LINK" | "SWAN_EMAIL" | "CUSTOM_EMAIL";
   BANKING_URL: string;
   PAYMENT_URL: string;
   IS_SWAN_MODE: boolean;

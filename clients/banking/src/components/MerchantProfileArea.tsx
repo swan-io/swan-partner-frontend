@@ -1,5 +1,5 @@
-import { AsyncData, Option, Result } from "@swan-io/boxed";
-import { useQuery } from "@swan-io/graphql-client";
+import { AsyncData, Option, Result } from "@bloodyowl/boxed";
+import { useQuery } from "@bloodyowl/graphql-client";
 import { useCrumb } from "@swan-io/lake/src/components/Breadcrumbs";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -8,7 +8,7 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useMemo } from "react";
 import { StyleSheet } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { MerchantPaymentMethodType, MerchantProfileDocument } from "../graphql/partner";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { t } from "../utils/i18n";
@@ -27,6 +27,7 @@ const styles = StyleSheet.create({
 
 const ALLOWED_PAYMENT_METHODS = new Set<MerchantPaymentMethodType>([
   "Card",
+  "OnlineCard",
   "SepaDirectDebitB2b",
   "SepaDirectDebitCore",
 ]);

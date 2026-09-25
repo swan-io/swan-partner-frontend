@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
 
 export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErrors }: Props) => {
   const onboardingId = onboarding.id;
-  const { accountInfo, company, projectInfo } = onboarding;
+  const { accountInfo, company, projectInfo, accountAdmin } = onboarding;
   const isFirstMount = useFirstMountState();
 
   const [updateCompanyOnboarding, updateResult] = useMutation(
@@ -104,6 +104,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
 
   const accountCountry = accountInfo?.country;
   const companyCountry = company?.address?.country;
+  const residenceCountry = accountAdmin?.address?.country;
   const companyType = company?.companyType;
   const tcuUrl = onboarding.termsAndConditionsUrl;
   const tcuDocumentUri = projectInfo?.tcuDocumentUri ?? "#";
@@ -117,15 +118,20 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
     capitalDepositType: onboarding.capitalDepositType,
   });
 
-  const isTaxIdentificationRequired = match({ companyCountry, accountCountry, companyType })
-    .with({ companyType: "SelfEmployed", companyCountry: P.union("ESP", "ITA") }, () => false)
+  const isTaxIdentificationRequired = match({
+    companyCountry,
+    accountCountry,
+    residenceCountry,
+    companyType,
+  })
+    .with({ companyType: "SelfEmployed", residenceCountry: P.union("ESP", "ITA") }, () => false)
     .with({ companyCountry: P.not(accountCountry) }, () => true)
     .with({ accountCountry: P.union("DEU", "ESP", "ITA") }, () => true)
     .otherwise(() => false);
 
-  //ITA & ESP company with a status self employed use the same tax validation rules as individual
-  const isTaxIdentificationVisible = match({ companyType, companyCountry })
-    .with({ companyType: "SelfEmployed", companyCountry: P.union("ESP", "ITA") }, () => false)
+  //ITA & ESP company with a status self employed use individual tax validation collection in accountAdmin so no need to ask twice
+  const isTaxIdentificationVisible = match({ companyType, residenceCountry })
+    .with({ companyType: "SelfEmployed", residenceCountry: P.union("ESP", "ITA") }, () => false)
     .otherwise(() => true);
 
   const prefilled = useMemo(

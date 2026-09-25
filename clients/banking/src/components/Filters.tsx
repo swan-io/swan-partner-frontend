@@ -22,7 +22,7 @@ import {
 } from "@swan-io/shared-business/src/components/DatePicker";
 import { ValidatorResult } from "@swan-io/use-form";
 import dayjs from "dayjs";
-import { ReactNode, Ref, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ReactNode, Ref, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { match } from "ts-pattern";
 import { Simplify } from "type-fest";
@@ -246,16 +246,30 @@ type FilterButtonProps = {
   ref: Ref<View>;
   label: string;
   value: string | undefined;
+  expanded: boolean;
+  popoverId?: string;
   onPress: () => void;
   onClear: () => void;
 };
 
-const FilterButton = ({ ref, label, value, onPress, onClear }: FilterButtonProps) => {
+const FilterButton = ({
+  ref,
+  label,
+  value,
+  expanded,
+  popoverId,
+  onPress,
+  onClear,
+}: FilterButtonProps) => {
   const hasValue = isNotNullishOrEmpty(value);
 
   return (
     <Pressable
       ref={ref}
+      role="button"
+      aria-haspopup="dialog"
+      aria-expanded={expanded}
+      aria-controls={popoverId}
       onPress={onPress}
       style={({ hovered, pressed }) => [
         styles.filterButton,
@@ -305,6 +319,7 @@ const FilterCheckbox = ({
   onClose,
 }: FilterProps<FilterCheckboxDefinition<string>, string[]>) => {
   const filterButtonRef = useRef<View>(null);
+  const popoverId = useId();
   const checkedSet = useMemo(() => new Set(value), [value]);
 
   const filterButtonText = useMemo(() => {
@@ -323,20 +338,23 @@ const FilterCheckbox = ({
         ref={filterButtonRef}
         label={label}
         value={filterButtonText}
+        expanded={visible}
+        popoverId={popoverId}
         onPress={onOpen}
         onClear={onClear}
       />
 
       <Popover
+        id={popoverId}
+        label={label}
         placement="left"
-        role="combobox"
         referenceRef={filterButtonRef}
         returnFocus={false}
         visible={visible}
         onDismiss={onClose}
       >
         <FlatList
-          role="list"
+          role="group"
           data={items}
           style={styles.list}
           contentContainerStyle={styles.listContent}
@@ -403,6 +421,7 @@ const FilterDate = ({
         ref={filterButtonRef}
         label={label}
         value={filterButtonText}
+        expanded={visible}
         onPress={onOpen}
         onClear={onClear}
       />
@@ -433,6 +452,7 @@ const FilterInput = ({
   onClose,
 }: FilterProps<FilterInputDefinition, string>) => {
   const filterButtonRef = useRef<View>(null);
+  const popoverId = useId();
   const [text, setText] = useState<string>(value ?? "");
   const [error, setError] = useState<string | undefined>(undefined);
 
@@ -476,6 +496,8 @@ const FilterInput = ({
       <FilterButton
         ref={filterButtonRef}
         label={label}
+        expanded={visible}
+        popoverId={popoverId}
         onPress={onOpen}
         onClear={onClear}
         value={
@@ -488,8 +510,9 @@ const FilterInput = ({
       />
 
       <Popover
+        id={popoverId}
+        label={label}
         placement="left"
-        role="combobox"
         referenceRef={filterButtonRef}
         returnFocus={false}
         visible={visible}
@@ -526,6 +549,7 @@ const FilterRadio = ({
   onClose,
 }: FilterProps<FilterRadioDefinition<string>, string>) => {
   const filterButtonRef = useRef<View>(null);
+  const popoverId = useId();
 
   const filterButtonText = useMemo(() => {
     return items.find(item => item.value === value)?.label;
@@ -541,20 +565,23 @@ const FilterRadio = ({
         ref={filterButtonRef}
         label={label}
         value={filterButtonText}
+        expanded={visible}
+        popoverId={popoverId}
         onPress={onOpen}
         onClear={onClear}
       />
 
       <Popover
+        id={popoverId}
+        label={label}
         placement="left"
-        role="combobox"
         referenceRef={filterButtonRef}
         returnFocus={false}
         visible={visible}
         onDismiss={onClose}
       >
         <FlatList
-          role="list"
+          role="radiogroup"
           data={items}
           style={styles.list}
           contentContainerStyle={styles.listContent}
@@ -564,7 +591,7 @@ const FilterRadio = ({
 
             return (
               <Pressable
-                aria-selected={selected}
+                aria-checked={selected}
                 role="radio"
                 style={({ hovered }) => [styles.listItem, hovered && styles.listItemHovered]}
                 onPress={() => {
@@ -603,6 +630,7 @@ export const Filters = <
   onChange: (values: State) => void;
 }) => {
   const moreFiltersButtonRef = useRef<View>(null);
+  const moreFiltersPopoverId = useId();
 
   const [active, setActive] = useState<
     { type: "none" } | { type: "filter"; name: string } | { type: "more" }
@@ -700,20 +728,21 @@ export const Filters = <
             ref={moreFiltersButtonRef}
             label={t("common.filters.more")}
             value={undefined}
+            expanded={active.type === "more"}
+            popoverId={moreFiltersPopoverId}
             onClear={noop}
             onPress={onMore}
           />
 
           <Popover
+            id={moreFiltersPopoverId}
             placement="left"
-            role="combobox"
             referenceRef={moreFiltersButtonRef}
             returnFocus={false}
             visible={active.type === "more"}
             onDismiss={onClose}
           >
             <FlatList
-              role="list"
               data={entries}
               style={styles.list}
               contentContainerStyle={styles.listContent}

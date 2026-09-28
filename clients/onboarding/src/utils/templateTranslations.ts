@@ -93,7 +93,12 @@ export const getRegistrationNumberName = (
     .with("LTU", () => "Juridinio asmens kodas")
     .with("LUX", () => "Numéro d'immatriculation")
     .with("MLT", () => "Registration Number")
-    .with("NLD", () => "KvK-nummer")
+    .with("NLD", () =>
+      match(locale)
+        .with("fr", () => "numéro KvK")
+        .with("nl", () => "KvK-nummer")
+        .otherwise(() => "KvK number"),
+    )
     .with("NOR", () => "TIN")
     .with("POL", () => "Numer w Krajowym Rejestrze Sądowym [numer KRS]")
     .with("PRT", () => "Número de Identificação Pessoa Coletiva [NIPC]")
@@ -116,12 +121,8 @@ export const getRegistrationNumberLabel = (
   locale: SupportedLanguage,
 ) => {
   const registrationNumberLegalName = getRegistrationNumberName(country, companyType, locale);
-  return match({ country, locale })
-    .with({ country: "BEL", locale: "nl" }, () => "Ondernemingsnummer (KBO-nummer)")
-    .otherwise(() =>
-      t("company.step.legal.registrationNumberLabel", {
-        hasLegalName: registrationNumberLegalName === "" ? "no" : "yes",
-        registrationNumberLegalName,
-      }),
-    );
+  const base = match(country)
+    .with("BEL", () => t("company.step.legal.registrationNumberLabel.BEL"))
+    .otherwise(() => t("company.step.legal.registrationNumberLabel"));
+  return registrationNumberLegalName === "" ? base : `${base} (${registrationNumberLegalName})`;
 };

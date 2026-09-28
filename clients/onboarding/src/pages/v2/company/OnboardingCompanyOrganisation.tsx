@@ -364,6 +364,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
                       label={getRegistrationNumberLabel(
                         companyCountry as CompanyCountryCCA3,
                         companyType ?? "Company",
+                        locale.language,
                       )}
                       optionalLabel={
                         isRegistrationNumberRequired ? undefined : t("common.optional")

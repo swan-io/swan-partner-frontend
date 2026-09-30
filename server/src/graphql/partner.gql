@@ -190,3 +190,12 @@ query WebBankingSettings {
     }
   }
 }
+
+query AccountStatus($accountId: ID!) {
+  account(accountId: $accountId) {
+    id
+    statusInfo {
+      status
+    }
+  }
+}

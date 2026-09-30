@@ -27,7 +27,7 @@ import { env } from "./env";
 import { replyWithError } from "./error";
 import { AccountCountry } from "./graphql/partner";
 import { evaluateFlag, getFlagContext } from "./utils/flags";
-import { getCalledMutations } from "./utils/gql";
+import { getCalledMutations, getCreditTransfersAccountId } from "./utils/gql";
 import {
   isMutationAuthorizedInWebBanking,
   isMutationRestrictedByWebBankingSettings,
@@ -92,6 +92,12 @@ start({
                   request.log.error(error, "Failed to exchange token for partner API");
                 });
 
+        const swanTokenHeaders = match(projectUserToken)
+          .with(Result.P.Ok(Option.P.Some(P.select())), token => ({
+            "x-swan-token": `Bearer ${token}`,
+          }))
+          .otherwise(() => ({}));
+
         const calledMutations = match(request.body)
           .with({ query: P.string }, ({ query }) => getCalledMutations(query))
           .otherwise(() => []);
@@ -100,14 +106,7 @@ start({
         // we need to fetch the settings and check if the mutation is authorized
         if (calledMutations.some(isMutationRestrictedByWebBankingSettings)) {
           const webBankingSettings = await toFuture(
-            sdk.WebBankingSettings(
-              {},
-              match(projectUserToken)
-                .with(Result.P.Ok(Option.P.Some(P.select())), token => ({
-                  "x-swan-token": `Bearer ${token}`,
-                }))
-                .otherwise(() => ({})),
-            ),
+            sdk.WebBankingSettings({}, swanTokenHeaders),
           ).mapOkToResult(({ projectInfo }) =>
             projectInfo.webBankingSettings != null
               ? Result.Ok(projectInfo.webBankingSettings)
@@ -125,7 +124,30 @@ start({
               isMutationAuthorizedInWebBanking(mutationName, webBankingSettings.value),
             );
 
-          if (!isAuthorized) {
+          // Transferring the remaining balance of a closing account must stay possible,
+          // even when credit transfers are disabled in web banking settings
+          const isClosingAccountTransfer = isAuthorized
+            ? false // no need to check closing account transfer if already authorized
+            : await match(request.body)
+                .with({ query: P.string, variables: P.optional(P.any) }, ({ query, variables }) =>
+                  getCreditTransfersAccountId(query, variables),
+                )
+                .otherwise(() => Option.None<string>())
+                .match({
+                  None: () => Future.value(false),
+                  Some: accountId =>
+                    toFuture(sdk.AccountStatus({ accountId }, swanTokenHeaders)).map(result =>
+                      result.match({
+                        Ok: ({ account }) => account?.statusInfo.status === "Closing",
+                        Error: error => {
+                          request.log.error(error, "Failed to fetch account status");
+                          return false;
+                        },
+                      }),
+                    ),
+                });
+
+          if (!isAuthorized && !isClosingAccountTransfer) {
             request.log.warn(calledMutations, "Unauthorized mutation attempted");
             return reply.forbidden();
           }
@@ -134,11 +156,7 @@ start({
         return reply.from(env.PARTNER_API_URL, {
           rewriteRequestHeaders: (_req, headers) => ({
             ...headers,
-            ...match(projectUserToken)
-              .with(Result.P.Ok(Option.P.Some(P.select())), token => ({
-                "x-swan-token": `Bearer ${token}`,
-              }))
-              .otherwise(() => null),
+            ...swanTokenHeaders,
           }),
         });
       },

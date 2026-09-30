@@ -92,6 +92,9 @@ const PERMISSIONS_MATRIX = {
       canInitiatePayments: true,
       statusInfo: { status: ENABLED },
     },
+    settings: {
+      canInitiateCreditTransfers: true,
+    },
   },
   canCancelStandingOrder: {
     accountMembership: {
@@ -117,6 +120,9 @@ const PERMISSIONS_MATRIX = {
         canInitiatePayments: true,
         statusInfo: { status: ENABLED },
       },
+      settings: {
+        canInitiateCreditTransfers: true,
+      },
     },
     {
       accountMembership: {
@@ -125,6 +131,7 @@ const PERMISSIONS_MATRIX = {
         statusInfo: { status: ENABLED },
       },
       settings: {
+        canInitiateCreditTransfers: true,
         canInitiatePaymentsToNewBeneficiaries: true,
       },
     },
@@ -136,6 +143,9 @@ const PERMISSIONS_MATRIX = {
       canInitiatePayments: true,
       statusInfo: { status: ENABLED },
     },
+    settings: {
+      canInitiateCreditTransfers: true,
+    },
   },
   canInitiateCreditTransferToNewBeneficiary: {
     accountMembership: {
@@ -144,6 +154,7 @@ const PERMISSIONS_MATRIX = {
       statusInfo: { status: ENABLED },
     },
     settings: {
+      canInitiateCreditTransfers: true,
       canInitiatePaymentsToNewBeneficiaries: true,
     },
   },

@@ -28,6 +28,7 @@ import { isSupportedCurrency, t } from "../utils/i18n";
 import { RouteParams, Router } from "../utils/routes";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
+import { Redirect } from "./Redirect";
 import { SearchInput } from "./SearchInput";
 import { TransactionDetail } from "./TransactionDetail";
 import { TransactionList } from "./TransactionList";
@@ -93,6 +94,10 @@ export const BeneficiaryDetailTransferList = ({ accountId, beneficiary, large, p
   const transactions = data.mapOkToResult(data =>
     Option.fromNullable(data.trustedBeneficiary?.transactions).toResult(undefined),
   );
+
+  if (params.new != null && !canInitiateCreditTransferToExistingBeneficiary) {
+    return <Redirect to={Router.AccountPaymentsBeneficiariesDetails(omit(params, ["new"]))} />;
+  }
 
   return (
     <>

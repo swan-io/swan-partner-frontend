@@ -343,8 +343,6 @@ type Query {
   
   Typically used to resolve the resource carried by a `DigitalCard.Created`
   or `DigitalCard.Updated` webhook event.
-  
-  Gated by a feature flag; returns "Feature not yet implemented" when disabled.
   """
   digitalCard(digitalCardId: ID!): DigitalCard
 
@@ -937,7 +935,8 @@ type Mutation {
   
   This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.
   
-  The user must have an account membership for this account with the attribute `canManageAccountMembership=true`.
+  The user must have an `Enabled` account membership on this account with the attribute
+  `canManageCards=true`, plus `canManageAccountMembership=true` to add cards for other members.
   """
   addCardsWithGroupDelivery(input: AddCardsWithGroupDeliveryInput!): AddCardsWithGroupDeliveryPayload!
 
@@ -946,7 +945,8 @@ type Mutation {
   
   This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.
   
-  The user must have an account membership for this account with the attribute `canManageAccountMembership=true`.
+  The user must have an `Enabled` account membership on this account with the attribute
+  `canManageCards=true`, plus `canManageAccountMembership=true` to add cards for other members.
   """
   addCards(input: AddCardsInput!): AddCardsPayload!
 
@@ -982,7 +982,8 @@ type Mutation {
   
   This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/developers/using-api/authentication)) and ask the user to consent to this request.
   
-  The user must have an account membership for this account with the attribute `canManageAccountMembership=true`.
+  The user must have an `Enabled` account membership on this account with the attribute
+  `canManageCards=true`, plus `canManageAccountMembership=true` to add cards for other members.
   """
   addSingleUseVirtualCards(input: AddSingleUseVirtualCardsInput!): AddSingleUseVirtualCardsPayload!
 
@@ -4911,6 +4912,14 @@ enum EmploymentStatus {
   Unemployed
 }
 
+"""
+Rejection returned if the onboarding already has a refusal within its grace period
+"""
+type ExistingPendingOnboardingRefusalRejection implements Rejection {
+  message: String!
+  onboardingRefusalId: ID!
+}
+
 type ExternalAccount {
   """Unique identifier of an external account"""
   id: ID!
@@ -6980,6 +6989,23 @@ type OnboardingNotReadyForFinalizationRejection implements Rejection {
 }
 
 """
+Rejection returned if the onboarding does not meet the conditions to be refused
+"""
+type OnboardingNotRefusableRejection implements Rejection {
+  message: String!
+  rule: OnboardingNotRefusableRule!
+}
+
+"""The condition the onboarding does not meet"""
+enum OnboardingNotRefusableRule {
+  CapitalDepositOnboarding
+  MissingAccount
+  MissingAccountHolder
+  PaymentAccountNotLimited
+  VerificationStatusNotEligible
+}
+
+"""
 Field we can use when ordering that can be applied when listing onboardings
 """
 enum OnboardingOrderByFieldInput {
@@ -8829,15 +8855,6 @@ type SuspendAccountMembershipSuccessPayload {
 Reason for suspending an account, including a type and an optional message
 """
 type SuspendAccountReason implements Reason {
-  """Type of suspension reason"""
-  type: SuspendAccountReasonType!
-
-  """Optional message providing additional context for the suspension"""
-  message: String
-}
-
-"""Input to provide the reason for suspending an account"""
-input SuspendAccountReasonInput {
   """Type of suspension reason"""
   type: SuspendAccountReasonType!
 
@@ -17468,7 +17485,7 @@ input AddCardsWithGroupDeliveryInput {
   cardProductId: ID
 }
 
-union AddCardsWithGroupDeliveryPayload = AddCardsWithGroupDeliverySuccessPayload | AddingCardsToDifferentAccountsRejection | BadAccountStatusRejection | TooManyItemsRejection | AccountMembershipNotAllowedRejection | CardPackageNotAllowedRejection | CardProductInvalidFundingTypeRejection | CardProductSuspendedRejection | CardProductNotApplicableToPhysicalCardsRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection
+union AddCardsWithGroupDeliveryPayload = AddCardsWithGroupDeliverySuccessPayload | AddingCardsToDifferentAccountsRejection | BadAccountStatusRejection | TooManyItemsRejection | AccountMembershipNotAllowedRejection | CardPackageNotAllowedRejection | CardProductInvalidFundingTypeRejection | CardProductSuspendedRejection | CardProductNotApplicableToPhysicalCardsRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection | ForbiddenRejection
 
 type AddCardsWithGroupDeliverySuccessPayload {
   """The newly created cards"""
@@ -19184,6 +19201,12 @@ input SingleUseVirtualCardConfigInput {
   cardContractExpiryDate: DateTime
 }
 
+"""Input version"""
+input SuspendAccountReasonInput {
+  type: SuspendAccountReasonType!
+  message: String
+}
+
 """Inputs to suspend a physical card"""
 input SuspendPhysicalCardInput {
   """Unique identifier of a card"""
@@ -20845,7 +20868,7 @@ after the oauth2 consent by starting the right identification.
 
 QES => use the `startFourthlineQesIdentification` mutation
 
-Expert => use the `startUbbleExpertIdVerificationIdentification` mutation
+Expert => use the `startCheckoutExpertIdentification` mutation
 
 PVID => use the `startCheckoutPvidIdentification` mutation
 
@@ -21524,6 +21547,7 @@ type WebBankingSettings {
   canViewAccountStatement: Boolean
   canManageVirtualIbans: Boolean
   canInitiatePaymentsToNewBeneficiaries: Boolean
+  canInitiateCreditTransfers: Boolean
   canViewPaymentList: Boolean
   canOrderVirtualCards: Boolean
   canOrderPhysicalCards: Boolean

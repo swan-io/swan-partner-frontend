@@ -4085,15 +4085,6 @@ type SuspendAccountReason implements Reason {
   message: String
 }
 
-"""Input to provide the reason for suspending an account"""
-input SuspendAccountReasonInput {
-  """Type of suspension reason"""
-  type: SuspendAccountReasonType!
-
-  """Optional message providing additional context for the suspension"""
-  message: String
-}
-
 """Specific type for suspend account action"""
 enum SuspendAccountReasonType {
   """Simple suspend request"""
@@ -5955,6 +5946,12 @@ type SimulationSuccessfulResponse {
   noop: Boolean
 }
 
+"""Input version"""
+input SuspendAccountReasonInput {
+  type: SuspendAccountReasonType!
+  message: String
+}
+
 """Wallet Provider"""
 enum WalletProviderType {
   ApplePay
@@ -7742,7 +7739,7 @@ after the oauth2 consent by starting the right identification.
 
 QES => use the `startFourthlineQesIdentification` mutation
 
-Expert => use the `startUbbleExpertIdVerificationIdentification` mutation
+Expert => use the `startCheckoutExpertIdentification` mutation
 
 PVID => use the `startCheckoutPvidIdentification` mutation
 
@@ -8475,6 +8472,7 @@ type WebBankingSettings {
   canViewAccountStatement: Boolean
   canManageVirtualIbans: Boolean
   canInitiatePaymentsToNewBeneficiaries: Boolean
+  canInitiateCreditTransfers: Boolean
   canViewPaymentList: Boolean
   canOrderVirtualCards: Boolean
   canOrderPhysicalCards: Boolean

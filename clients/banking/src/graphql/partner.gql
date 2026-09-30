@@ -432,6 +432,7 @@ fragment WebBankingSettings on WebBankingSettings {
   canViewPaymentList
   canOrderPhysicalCards
   canInitiatePaymentsToNewBeneficiaries
+  canInitiateCreditTransfers
   canOrderVirtualCards
   canManageVirtualIbans
   canCreateMerchantProfile

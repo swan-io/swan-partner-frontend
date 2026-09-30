@@ -33,6 +33,21 @@ const PERMISSIONS_MATRIX = {
       canViewMembers: true,
     },
   },
+  initiateCreditTransfers: {
+    settings: {
+      canInitiateCreditTransfers: true,
+    },
+  },
+  initiateInternationalCreditTransfer: {
+    settings: {
+      canInitiateCreditTransfers: true,
+    },
+  },
+  scheduleStandingOrder: {
+    settings: {
+      canInitiateCreditTransfers: true,
+    },
+  },
   addTrustedSepaBeneficiary: {
     settings: {
       canInitiatePaymentsToNewBeneficiaries: true,

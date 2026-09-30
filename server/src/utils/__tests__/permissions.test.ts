@@ -16,6 +16,7 @@ const makeSettings = (
   canViewPaymentList: null,
   canOrderPhysicalCards: null,
   canInitiatePaymentsToNewBeneficiaries: null,
+  canInitiateCreditTransfers: null,
   canOrderVirtualCards: null,
   canManageVirtualIbans: null,
   canCreateMerchantProfile: null,
@@ -80,6 +81,25 @@ describe("isMutationAuthorizedInWebBanking", () => {
       isMutationAuthorizedInWebBanking(
         "addAccountMembership",
         makeSettings({ canViewMembers: true, canAddNewMembers: false }),
+      ),
+    ).toBe(false);
+  });
+
+  it.each([
+    "initiateCreditTransfers",
+    "initiateInternationalCreditTransfer",
+    "scheduleStandingOrder",
+  ] as const)("restricts %s with canInitiateCreditTransfers", mutationName => {
+    expect(
+      isMutationAuthorizedInWebBanking(
+        mutationName,
+        makeSettings({ canInitiateCreditTransfers: true }),
+      ),
+    ).toBe(true);
+    expect(
+      isMutationAuthorizedInWebBanking(
+        mutationName,
+        makeSettings({ canInitiateCreditTransfers: false }),
       ),
     ).toBe(false);
   });

@@ -2521,6 +2521,14 @@ enum EmploymentStatus {
   Unemployed
 }
 
+"""
+Rejection returned if the onboarding already has a refusal within its grace period
+"""
+type ExistingPendingOnboardingRefusalRejection implements Rejection {
+  message: String!
+  onboardingRefusalId: ID!
+}
+
 type ExternalAccountAlreadyExistsRejection implements Rejection {
   iban: String!
   accountHolderId: String!
@@ -3662,6 +3670,23 @@ type OnboardingNotCompletedRejection implements Rejection {
 type OnboardingNotFoundRejection implements Rejection {
   id: String!
   message: String!
+}
+
+"""
+Rejection returned if the onboarding does not meet the conditions to be refused
+"""
+type OnboardingNotRefusableRejection implements Rejection {
+  message: String!
+  rule: OnboardingNotRefusableRule!
+}
+
+"""The condition the onboarding does not meet"""
+enum OnboardingNotRefusableRule {
+  CapitalDepositOnboarding
+  MissingAccount
+  MissingAccountHolder
+  PaymentAccountNotLimited
+  VerificationStatusNotEligible
 }
 
 """
@@ -5161,15 +5186,6 @@ type SupportingDocumentWaitingForUploadStatusInfo implements SupportingDocumentS
 Reason for suspending an account, including a type and an optional message
 """
 type SuspendAccountReason implements Reason {
-  """Type of suspension reason"""
-  type: SuspendAccountReasonType!
-
-  """Optional message providing additional context for the suspension"""
-  message: String
-}
-
-"""Input to provide the reason for suspending an account"""
-input SuspendAccountReasonInput {
   """Type of suspension reason"""
   type: SuspendAccountReasonType!
 
@@ -7534,6 +7550,12 @@ input SignatureData {
   certificates: [Certificate!]!
 }
 
+"""Input version"""
+input SuspendAccountReasonInput {
+  type: SuspendAccountReasonType!
+  message: String
+}
+
 """Rejection returned when the User is not the cardholder"""
 type UserNotCardHolderRejection implements Rejection {
   message: String!
@@ -7865,6 +7887,7 @@ type WebBankingSettings {
   canViewAccountStatement: Boolean
   canManageVirtualIbans: Boolean
   canInitiatePaymentsToNewBeneficiaries: Boolean
+  canInitiateCreditTransfers: Boolean
   canViewPaymentList: Boolean
   canOrderVirtualCards: Boolean
   canOrderPhysicalCards: Boolean

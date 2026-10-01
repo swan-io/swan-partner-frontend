@@ -471,7 +471,13 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
                             <RepresentativeFormsInput
                               individuals={representatives}
                               value={value}
-                              onChange={onChange}
+                              onChange={value => {
+                                onChange(value);
+                                setFieldValue(
+                                  "typeOfRepresentation",
+                                  value === "" ? "PowerOfAttorney" : "LegalRepresentative",
+                                );
+                              }}
                               error={error}
                             />
                           )}

@@ -20,6 +20,8 @@ type props = {
   onChange: (value: string) => void;
 };
 
+export const UNLISTED_REPRESENTATIVE = "";
+
 export const formatValueRepresentative = (lastName: string, firstName: string) =>
   lastName.trim().toLowerCase() + firstName.trim().toLowerCase();
 
@@ -54,7 +56,7 @@ export const RepresentativeFormsInput = ({ individuals, value, onChange, error }
     const unlisted = {
       name: t("company.step.organisation.representative.unlisted"),
       fullName: "",
-      value: "",
+      value: UNLISTED_REPRESENTATIVE,
       roles: "",
     };
 
@@ -73,7 +75,7 @@ export const RepresentativeFormsInput = ({ individuals, value, onChange, error }
           items={items}
           error={error}
           renderItem={item =>
-            item.value === "" ? (
+            item.value === UNLISTED_REPRESENTATIVE ? (
               <Box direction="column">
                 <LakeText>{item.name}</LakeText>
               </Box>

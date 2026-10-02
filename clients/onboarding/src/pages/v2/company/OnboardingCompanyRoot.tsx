@@ -37,6 +37,7 @@ import { PowerOfAttorneyDownloadDocument } from "../../../components/PowerOfAtto
 import {
   formatValueRepresentative,
   RepresentativeFormsInput,
+  UNLISTED_REPRESENTATIVE,
 } from "../../../components/RepresentativeFormInput";
 import {
   CompanyInfo,
@@ -315,6 +316,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
               setPublicData(info);
               setFieldValue("legalFormCode", legalFormCode ?? undefined);
               setFieldValue("currentRepresentative", undefined);
+              setFieldValue("typeOfRepresentation", "LegalRepresentative");
               setRepresentatives(companyInfo.relatedIndividuals ?? []);
             })
             .otherwise(noop);
@@ -471,7 +473,17 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
                             <RepresentativeFormsInput
                               individuals={representatives}
                               value={value}
-                              onChange={onChange}
+                              onChange={next => {
+                                onChange(next);
+                                if (next !== value) {
+                                  setFieldValue(
+                                    "typeOfRepresentation",
+                                    next === UNLISTED_REPRESENTATIVE
+                                      ? "PowerOfAttorney"
+                                      : "LegalRepresentative",
+                                  );
+                                }
+                              }}
                               error={error}
                             />
                           )}
@@ -480,7 +492,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
 
                       <Field name="typeOfRepresentation">
                         {({ value, onChange }) =>
-                          (manualMode || currentRepresentative.value === "") &&
+                          (manualMode || currentRepresentative.value === UNLISTED_REPRESENTATIVE) &&
                           (updateError ||
                             (companyType != null && companyType !== "SelfEmployed")) ? (
                             <>

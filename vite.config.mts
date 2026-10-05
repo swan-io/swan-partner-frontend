@@ -9,7 +9,7 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     watch: false,
-    include: ["clients/**/*.test.(ts|tsx)", "server/**/*.test.ts"],
+    include: ["clients/**/*.test.(ts|tsx)", "scripts/**/*.test.ts", "server/**/*.test.ts"],
     setupFiles: ["scripts/tests/testSetup.ts"],
   },
 });

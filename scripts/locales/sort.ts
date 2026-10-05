@@ -7,9 +7,9 @@ const isStringRecord = (value: unknown): value is Record<string, string> =>
   value != null &&
   Object.values(value).every(item => typeof item === "string");
 
-// Arg automatically provided by lint-staged
-const filePaths =
-  process.argv[2] == null ? glob.sync("clients/**/src/locales/*.json") : [process.argv[2]];
+// Args automatically provided by lint-staged (all the staged locale files)
+const args = process.argv.slice(2);
+const filePaths = args.length === 0 ? glob.sync("clients/**/src/locales/*.json") : args;
 
 filePaths.forEach(filePath => {
   const content = fs.readFileSync(filePath, "utf-8");

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommitTypeAll(build)"
+  ],
+  "enabledManagers": [
+    "dockerfile"
+  ],
+  "ignorePresets": [
+    "workarounds:nodeDockerVersioning"
+  ],
+  "labels": [
+    "dependencies",
+    "bot"
+  ],
+  "packageRules": [
+    {
+      "description": "Swan golden images: <node>-<variant>-swan.N \u2014 the variant is fixed, N and the node version move",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "326954429656.dkr.ecr.eu-west-1.amazonaws.com/golden-images/**"
+      ],
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<compatibility>.+)-swan\\.(?<build>\\d+)$",
+      "groupName": "Swan golden images"
+    },
+    {
+      "description": "Only the golden images are managed here. Other FROM lines (the public Dockerfile's upstream node, test fixtures) are left alone.",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "!326954429656.dkr.ecr.eu-west-1.amazonaws.com/golden-images/**"
+      ],
+      "enabled": false
+    }
+  ]
+}

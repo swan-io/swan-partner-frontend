@@ -101,10 +101,6 @@ fragment TransactionDetails on Transaction {
         merchantCountry
       }
     }
-    originalAmount {
-      currency
-      value
-    }
     enrichedTransactionInfo {
       enrichedMerchantName
       isSubscription
@@ -680,6 +676,7 @@ query CreditLimitPage($accountId: ID!) {
                 iban
                 account {
                   holder {
+                    id
                     residencyAddress {
                       ...AddressInfo
                     }
@@ -691,6 +688,7 @@ query CreditLimitPage($accountId: ID!) {
                 iban
                 account {
                   holder {
+                    id
                     residencyAddress {
                       ...AddressInfo
                     }
@@ -2735,6 +2733,7 @@ query AccountClosing($accountId: ID!, $after: String, $first: Int!) {
     country
     name
     holder {
+      id
       info {
         name
       }

@@ -32,6 +32,9 @@ importers:
       '@bloodyowl/boxed':
         specifier: 3.4.0
         version: 3.4.0(typescript@7.0.2)
+      '@formatjs/icu-messageformat-parser':
+        specifier: 3.5.1
+        version: 3.5.1
       '@graphql-codegen/cli':
         specifier: 7.4.1
         version: 7.4.1(@types/node@22.20.3)(graphql-sock@1.0.1(graphql@17.0.2))(graphql@17.0.2)(typescript@7.0.2)

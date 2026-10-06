@@ -24,7 +24,7 @@
   "businessActivityCategory.waterSupplySewerageWasteManagementAndRemediation": "Watervoorziening, riolering, afvalbeheer en sanering",
   "businessActivityCategory.wholesaleAndRetailTrade": "Groothandel en detailhandel",
   "changeAdmin.presentation.description": "De rekeningbeheerder is het primaire aanspreekpunt voor alle zaken met betrekking tot rekeningen, waaronder transacties, updates, juridische informatie en het sluiten van rekeningen. Dit is een gevoelige wijziging die verificatie vereist. Geef daarom de juiste informatie op om deze wijziging te voltooien.",
-  "changeAdmin.presentation.expireNotice": "Dit portaal is gedurende <bold>7 kalenderdagen</bold> toegankelijk. Neem daarna contact op met de ondersteuning van {partner} voor een nieuwe link",
+  "changeAdmin.presentation.expireNotice": "Deze link is <bold>7 kalenderdagen</bold> geldig. Als de nieuwe beheerder geen wettelijke vertegenwoordiger is, heb je een ondertekende volmacht nodig om dit verzoek te voltooien.",
   "changeAdmin.presentation.powerOfAttorneyNotice.downloadTitle": "Download ons volmachtsjabloon en laat het ondertekenen door de wettelijke vertegenwoordiger. Upload het in stap 4: ondersteunende documenten.",
   "changeAdmin.presentation.start": "Aanvraag starten",
   "changeAdmin.presentation.title": "Wijziging van accountbeheerder: {count} stappen",

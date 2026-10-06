@@ -703,7 +703,7 @@
   "members.permission.canManageBeneficiaries": "Kann Empfänger verwalten",
   "members.permission.canManageCards": "Kann Karten verwalten",
   "members.permission.canViewAccount": "Kann Konto einsehen",
-  "members.permission.hasCard": "{count, plural, =0 {Hat keine Karte} =1 {Hat 1 Karte} andere {Hat # Karten}}",
+  "members.permission.hasCard": "{count, plural, =0 {Hat keine Karte} =1 {Hat 1 Karte} other {Hat # Karten}}",
   "members.permission.not.canInitiatePayments": "Kann keine Überweisungen veranlassen",
   "members.permission.not.canManageAccountMembership": "Kann keine Mitglieder verwalten",
   "members.permission.not.canManageBeneficiaries": "Kann keine Empfänger verwalten",

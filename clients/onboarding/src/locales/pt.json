@@ -24,7 +24,7 @@
   "businessActivityCategory.waterSupplySewerageWasteManagementAndRemediation": "Abastecimento de água, saneamento, gestão de resíduos e remediação",
   "businessActivityCategory.wholesaleAndRetailTrade": "Comércio grossista e retalhista",
   "changeAdmin.presentation.description": "O administrador da conta é o principal ponto de contato para todas as operações da conta, incluindo transações, atualizações, informações legais e encerramento da conta. Esta é uma alteração sensível que requer verificação. Por favor, providencie informações precisas para concluir esta alteração.",
-  "changeAdmin.presentation.expireNotice": "Este portal está acessível durante <bold>7 dias civis</bold>. Após esse período, contacte o suporte de {partner} para obter um novo link",
+  "changeAdmin.presentation.expireNotice": "Este link é válido durante <bold>7 dias civis</bold>. Se o novo administrador não for um representante legal, precisará de uma procuração assinada para concluir este pedido.",
   "changeAdmin.presentation.powerOfAttorneyNotice.downloadTitle": "Descarregue o nosso modelo de procuração e peça ao representante legal que o assine. Carregue na etapa 4: documentos comprovativos.",
   "changeAdmin.presentation.start": "Iniciar um pedido",
   "changeAdmin.presentation.title": "Alteração de administrador da conta:{count} passos",

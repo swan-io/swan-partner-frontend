@@ -59,6 +59,29 @@ UI is built on the internal **Lake** design system. Import components from `@swa
 - Unit tests: Vitest + jsdom, colocated in `__tests__/` subdirectories
 - Focus unit tests on pure business logic in folders like `utils`, don' test react component
 
+## Localization
+
+Each client has its translation files in `clients/<app>/src/locales/` (`banking`, `onboarding`, `payment`): `en.json` is the source of truth, and every other locale (`de`, `es`, `fi`, `fr`, `it`, `nl`, `pt`) must have the same keys. Translations are synced with Localazy, but are written in this repo together with the code that uses them.
+
+Whenever you add or change a key in an `en.json`, add or update its translation in **every** locale file of the same app in the same change:
+
+- Before translating, read the existing locale file and reuse its terms, its formal/informal register (e.g. _vous_, _Sie_) and its punctuation (e.g. the French space before `:`). Keys sharing a prefix belong to the same screen: keep them consistent.
+- Keep ICU syntax exactly: `{arguments}` stay untranslated; in `plural` / `select`, translate only the text inside the branches (keep the argument name, the keyword, the selectors and `#`). Keep rich text tags (`<bold>…</bold>`) and `\n` line breaks.
+- Don't translate Swan, product names, IBAN, BIC, SEPA, SWIFT, currency codes or legal identifiers.
+- When you change an English value, update every translation of that key, keeping the existing wording where it still fits.
+- When you remove a key from `en.json`, remove it from every locale file of the app (`pnpm remove-unused-locales` removes keys no longer used in the code).
+
+### Before committing
+
+When a change touches strings (an `en.json`, a locale file or a `t("…")` call), complete these steps and only commit once they all pass:
+
+1. Every key added or changed in `en.json` is added or updated in **every** locale file (`de`, `es`, `fi`, `fr`, `it`, `nl`, `pt`) of the same app, and every key removed from `en.json` is removed everywhere.
+2. `pnpm format-locales`: sorts the keys of every locale file alphabetically and formats them.
+3. `pnpm validate-locales`: must pass. It checks, for each app, that every locale has the same keys as `en.json`, no empty value, and valid ICU messages with the same arguments and tags.
+4. `pnpm typecheck`: must pass. A `t("…")` key missing from `en.json` fails here (`Argument of type '"<key>"' is not assignable…`).
+
+In your summary, list the keys you added or changed (with their app) and any translation you're unsure about, so it can be reviewed.
+
 ## Review
 
 ### Guidelines

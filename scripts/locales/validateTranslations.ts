@@ -1,5 +1,6 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, normalize, resolve } from "node:path";
+import { checkIcuMessage } from "./icuMessages";
 
 const REFERENCE_FILE = "en.json";
 
@@ -27,8 +28,9 @@ function sanitizeLocalesPath(path: string): string {
 }
 
 /**
- * Validates that all translation files have the same keys as the reference file
- * and that no values are empty
+ * Validates that all translation files have the same keys as the reference file,
+ * that no values are empty, and that translations are valid ICU messages with
+ * the same arguments and tags as the reference
  */
 function validateTranslations(localesDir: string): void {
   const referenceFilePath = join(localesDir, REFERENCE_FILE);
@@ -80,8 +82,25 @@ function validateTranslations(localesDir: string): void {
       }
     }
 
+    // Check for invalid ICU messages (broken syntax, arguments or tags differing from the reference)
+    const invalidKeys: string[] = [];
+    for (const [key, value] of Object.entries(translations)) {
+      const referenceValue = referenceKeys[key];
+      if (typeof value === "string" && typeof referenceValue === "string" && value.trim() !== "") {
+        checkIcuMessage(referenceValue, value).match({
+          Some: error => invalidKeys.push(`${key}: ${error}`),
+          None: () => {},
+        });
+      }
+    }
+
     // Report results for this file
-    if (missingKeys.length === 0 && emptyKeys.length === 0 && extraKeys.length === 0) {
+    if (
+      missingKeys.length === 0 &&
+      emptyKeys.length === 0 &&
+      extraKeys.length === 0 &&
+      invalidKeys.length === 0
+    ) {
       console.log(`  ✅ All keys present and valid (${translationsSet.size} keys)`);
     } else {
       hasErrors = true;
@@ -103,6 +122,13 @@ function validateTranslations(localesDir: string): void {
       if (extraKeys.length > 0) {
         console.log(`  ⚠️  Extra keys (not in ${REFERENCE_FILE}): ${extraKeys.length}`);
         extraKeys.forEach(key => {
+          console.log(`     - ${key}`);
+        });
+      }
+
+      if (invalidKeys.length > 0) {
+        console.log(`  ❌ Invalid ICU messages: ${invalidKeys.length}`);
+        invalidKeys.forEach(key => {
           console.log(`     - ${key}`);
         });
       }

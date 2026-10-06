@@ -4,7 +4,8 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { colors, texts } from "@swan-io/lake/src/constants/design";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
-import { StyleProp, StyleSheet, ViewStyle } from "react-native";
+import { Ref } from "react";
+import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 import { DocumentationLink } from "../components/DocumentationLink";
 import { t } from "../utils/i18n";
 
@@ -20,6 +21,7 @@ const styles = StyleSheet.create({
 // New CountrySelect component used for the new onboarding flow
 // Once the new onboarding flow is complete, we can remove the CountryPicker component
 type CountrySelectProps<T extends CountryCCA3> = {
+  ref?: Ref<View>;
   label: string;
   onValueChange: (country: T) => void;
   value: T;
@@ -27,10 +29,12 @@ type CountrySelectProps<T extends CountryCCA3> = {
   holderType: "individual" | "company";
   onlyIconHelp: boolean;
   hideError?: boolean;
+  error?: string;
   style?: StyleProp<ViewStyle>;
 };
 
 export function OnboardingCountryPicker<T extends CountryCCA3>({
+  ref,
   label,
   onValueChange,
   value,
@@ -38,6 +42,7 @@ export function OnboardingCountryPicker<T extends CountryCCA3>({
   holderType,
   onlyIconHelp,
   hideError,
+  error,
   style,
 }: CountrySelectProps<T>) {
   return (
@@ -47,8 +52,10 @@ export function OnboardingCountryPicker<T extends CountryCCA3>({
       render={id => (
         <CountryPicker
           id={id}
+          ref={ref}
           countries={countries}
           value={value}
+          error={error}
           hideErrors={hideError}
           onValueChange={onValueChange}
         />

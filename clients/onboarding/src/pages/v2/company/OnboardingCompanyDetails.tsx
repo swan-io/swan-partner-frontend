@@ -34,6 +34,7 @@ import { combineValidators, useForm } from "@swan-io/use-form";
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
+import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import { StepTitle } from "../../../components/StepTitle";
 import {
@@ -41,7 +42,10 @@ import {
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { locale, t } from "../../../utils/i18n";
-import { upsertAccountAdminInRelatedIndividuals } from "../../../utils/onboarding";
+import {
+  isMainCompanyOfCapitalDeposit,
+  upsertAccountAdminInRelatedIndividuals,
+} from "../../../utils/onboarding";
 import { Router } from "../../../utils/routes";
 import { hasOnboardingPrefilled } from "../../../utils/session";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
@@ -84,6 +88,7 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
   const { accountAdmin, accountInfo, company } = onboarding;
   const accountCountry = accountInfo?.country;
   const companyType = company?.companyType;
+  const isCapitalDepositMainCompany = isMainCompanyOfCapitalDeposit(onboarding);
 
   const isFirstMount = useFirstMountState();
 
@@ -335,10 +340,88 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
     });
   };
 
+  const taxFields = (
+    <>
+      <Field name="taxIdentificationNumber">
+        {({ value, valid, error, onChange, onBlur, ref }) => (
+          <FieldsListener names={["residenceCountry"]}>
+            {({ residenceCountry }) =>
+              isTaxIdentificationRequired(residenceCountry.value) ? (
+                <TaxIdentificationNumberInput
+                  ref={ref}
+                  value={value}
+                  error={error}
+                  valid={valid}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  country={residenceCountry.value as IndividualCountryCCA3}
+                  isCompany={false}
+                  required={true}
+                />
+              ) : null
+            }
+          </FieldsListener>
+        )}
+      </Field>
+
+      <LakeLabel
+        label={t("form.label.usaCitizen")}
+        render={() => (
+          <Field name="isUnitedStatesPerson">
+            {({ value, onChange }) => (
+              <RadioGroup
+                direction="row"
+                items={[
+                  {
+                    name: t("common.yes"),
+                    value: true,
+                  },
+                  {
+                    name: t("common.no"),
+                    value: false,
+                  },
+                ]}
+                value={value}
+                onValueChange={onChange}
+              />
+            )}
+          </Field>
+        )}
+      />
+
+      <FieldsListener names={["isUnitedStatesPerson"]}>
+        {({ isUnitedStatesPerson }) => (
+          <Field name="unitedStatesTaxIdentificationNumber">
+            {({ value, onBlur, valid, onChange, error, ref }) =>
+              isUnitedStatesPerson.value ? (
+                <LakeLabel
+                  label={t("form.label.usaTax")}
+                  render={id => (
+                    <LakeTextInput
+                      id={id}
+                      ref={ref}
+                      value={value}
+                      error={error}
+                      onBlur={onBlur}
+                      valid={valid}
+                      onChangeText={onChange}
+                      placeholder={t("form.label.usaTax.placeholder")}
+                      help={t("form.label.usaTax.help")}
+                    />
+                  )}
+                />
+              ) : null
+            }
+          </Field>
+        )}
+      </FieldsListener>
+    </>
+  );
+
   return (
     <>
       <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.gap}>
-        {({ large }) => (
+        {({ large, small }) => (
           <>
             <Tile style={styles.gap}>
               <StepTitle>{t("form.personalInformation.title")}</StepTitle>
@@ -382,7 +465,7 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
 
                 <LakeLabel
                   label={t("common.email")}
-                  style={styles.inputFull}
+                  style={!isCapitalDepositMainCompany && styles.inputFull}
                   render={id => (
                     <Field name="email">
                       {({ value, onBlur, valid, onChange, error, ref }) => (
@@ -429,6 +512,8 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
                     </Field>
                   )}
                 />
+
+                {isCapitalDepositMainCompany && taxFields}
               </View>
             </Tile>
 
@@ -506,24 +591,38 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
             <Tile style={styles.gap}>
               <StepTitle>{t("form.residence.title")}</StepTitle>
               <View style={[styles.grid, large && styles.gridDesktop]}>
-                <LakeLabel
-                  label={t("form.label.residenceCountry")}
-                  style={styles.inputFull}
-                  render={id => (
-                    <Field name="residenceCountry">
-                      {({ value, onChange, error, ref }) => (
-                        <CountryPicker
-                          id={id}
-                          ref={ref}
-                          countries={allCountries}
-                          value={value}
-                          error={error}
-                          onValueChange={onChange}
-                        />
-                      )}
-                    </Field>
-                  )}
-                />
+                <Field name="residenceCountry">
+                  {({ value, onChange, error, ref }) =>
+                    isCapitalDepositMainCompany ? (
+                      <OnboardingCountryPicker
+                        ref={ref}
+                        label={t("form.label.residenceCountry")}
+                        value={value}
+                        error={error}
+                        countries={allCountries}
+                        holderType="individual"
+                        onlyIconHelp={small}
+                        onValueChange={onChange}
+                        style={styles.inputFull}
+                      />
+                    ) : (
+                      <LakeLabel
+                        label={t("form.label.residenceCountry")}
+                        style={styles.inputFull}
+                        render={id => (
+                          <CountryPicker
+                            id={id}
+                            ref={ref}
+                            countries={allCountries}
+                            value={value}
+                            error={error}
+                            onValueChange={onChange}
+                          />
+                        )}
+                      />
+                    )
+                  }
+                </Field>
 
                 <FieldsListener names={["residenceCountry"]}>
                   {({ residenceCountry }) => (
@@ -602,84 +701,12 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
               </View>
             </Tile>
 
-            <Tile style={styles.gap}>
-              <StepTitle>{t("form.residence.tax.title")}</StepTitle>
-              <View style={[styles.grid, large && styles.gridDesktop]}>
-                <Field name="taxIdentificationNumber">
-                  {({ value, valid, error, onChange, onBlur, ref }) => (
-                    <FieldsListener names={["residenceCountry"]}>
-                      {({ residenceCountry }) =>
-                        isTaxIdentificationRequired(residenceCountry.value) ? (
-                          <TaxIdentificationNumberInput
-                            ref={ref}
-                            value={value}
-                            error={error}
-                            valid={valid}
-                            onChange={onChange}
-                            onBlur={onBlur}
-                            country={residenceCountry.value as IndividualCountryCCA3}
-                            isCompany={false}
-                            required={true}
-                          />
-                        ) : null
-                      }
-                    </FieldsListener>
-                  )}
-                </Field>
-
-                <LakeLabel
-                  label={t("form.label.usaCitizen")}
-                  render={() => (
-                    <Field name="isUnitedStatesPerson">
-                      {({ value, onChange }) => (
-                        <RadioGroup
-                          direction="row"
-                          items={[
-                            {
-                              name: t("common.yes"),
-                              value: true,
-                            },
-                            {
-                              name: t("common.no"),
-                              value: false,
-                            },
-                          ]}
-                          value={value}
-                          onValueChange={onChange}
-                        />
-                      )}
-                    </Field>
-                  )}
-                />
-
-                <FieldsListener names={["isUnitedStatesPerson"]}>
-                  {({ isUnitedStatesPerson }) => (
-                    <Field name="unitedStatesTaxIdentificationNumber">
-                      {({ value, onBlur, valid, onChange, error, ref }) =>
-                        isUnitedStatesPerson.value ? (
-                          <LakeLabel
-                            label={t("form.label.usaTax")}
-                            render={id => (
-                              <LakeTextInput
-                                id={id}
-                                ref={ref}
-                                value={value}
-                                error={error}
-                                onBlur={onBlur}
-                                valid={valid}
-                                onChangeText={onChange}
-                                placeholder={t("form.label.usaTax.placeholder")}
-                                help={t("form.label.usaTax.help")}
-                              />
-                            )}
-                          />
-                        ) : null
-                      }
-                    </Field>
-                  )}
-                </FieldsListener>
-              </View>
-            </Tile>
+            {!isCapitalDepositMainCompany && (
+              <Tile style={styles.gap}>
+                <StepTitle>{t("form.residence.tax.title")}</StepTitle>
+                <View style={[styles.grid, large && styles.gridDesktop]}>{taxFields}</View>
+              </Tile>
+            )}
           </>
         )}
       </ResponsiveContainer>

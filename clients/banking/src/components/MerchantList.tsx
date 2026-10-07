@@ -215,6 +215,7 @@ export const MerchantList = ({ accountId, accountMembershipId, params, large }: 
             })
           }
           labelOn={t("merchantProfile.list.Active")}
+          ariaLabel={t("merchantProfile.list.Active")}
           labelOff={t("merchantProfile.list.Inactive")}
         />
 

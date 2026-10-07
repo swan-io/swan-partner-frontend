@@ -316,8 +316,9 @@ export const TransferBulkUpload = ({
               {t("common.help.whatIsThis")}
             </LakeButton>
           }
-          render={() => (
+          render={id => (
             <FileInput
+              id={id}
               error={fileError}
               icon="document-regular"
               accept={["text/csv"]}

@@ -175,6 +175,7 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
             })
           }
           labelOn={t("merchantProfile.list.Active")}
+          ariaLabel={t("merchantProfile.list.Active")}
           labelOff={t("merchantProfile.list.Inactive")}
         />
 

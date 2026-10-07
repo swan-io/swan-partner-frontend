@@ -368,8 +368,9 @@ export const MerchantProfileEditor = ({ ref, merchantProfile, onSubmit }: Props)
               <LakeLabel
                 label={t("merchantProfile.request.merchantLogo.label")}
                 optionalLabel={t("form.optional")}
-                render={() => (
+                render={id => (
                   <FileInput
+                    id={id}
                     value={
                       value ??
                       (merchantProfile?.requestMerchantProfileUpdate?.merchantLogoUrl != null

@@ -33,6 +33,7 @@ export const VirtualIbanListFilter = ({
           value={status === "Enabled"}
           onToggle={value => onChangeStatus(value ? "Enabled" : "Canceled")}
           labelOn={t("accountDetails.virtualIbans.status.enabled")}
+          ariaLabel={t("accountDetails.virtualIbans.status.enabled")}
           labelOff={t("accountDetails.virtualIbans.status.canceled")}
         />
       </Box>

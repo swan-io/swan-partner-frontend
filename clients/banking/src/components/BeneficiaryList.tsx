@@ -478,6 +478,7 @@ export const BeneficiaryList = ({
                         compact={!large}
                         value={!canceled}
                         labelOn={t("beneficiaries.status.enabled")}
+                        ariaLabel={t("beneficiaries.status.enabled")}
                         labelOff={t("beneficiaries.status.canceled")}
                         onToggle={on => {
                           Router.push("AccountPaymentsBeneficiariesList", {

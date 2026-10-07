@@ -70,6 +70,7 @@ export const CardListFilter = ({
               value={status === "Active"}
               onToggle={status => onChangeStatus(status ? "Active" : "Canceled")}
               labelOn={t("cardList.status.Active")}
+              ariaLabel={t("cardList.status.Active")}
               labelOff={t("cardList.status.Canceled")}
             />
           }

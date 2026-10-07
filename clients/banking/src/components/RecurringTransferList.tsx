@@ -644,6 +644,7 @@ export const RecurringTransferList = ({ accountId, accountMembershipId, large }:
           value={!canceled}
           onToggle={value => setCanceled(!value)}
           labelOn={t("recurringTransfer.filters.status.active")}
+          ariaLabel={t("recurringTransfer.filters.status.active")}
           labelOff={t("recurringTransfer.filters.status.canceled")}
         />
 

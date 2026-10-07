@@ -12,7 +12,6 @@ import logoSwan from "../../../assets/imgs/logo-swan.svg";
 import { OnboardingHeader } from "../../../components/OnboardingHeader";
 import { CompanyOnboardingFragment } from "../../../graphql/partner";
 import { t } from "../../../utils/i18n";
-import { isMainCompanyOfCapitalDeposit } from "../../../utils/onboarding";
 import { CompanyOnboardingRouteV2, companyOnboardingRoutesV2, Router } from "../../../utils/routes";
 import { extractServerInvalidFields } from "../../../utils/validation";
 import { NotFoundPage } from "../../NotFoundPage";
@@ -61,7 +60,6 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
   const isStepperDisplayed = !isNullish(route) && route.name !== "Root";
 
   const onboardingId = onboarding.id;
-  const isCapitalDepositMainCompany = isMainCompanyOfCapitalDeposit(onboarding);
   const projectName = onboarding.projectInfo?.name ?? "";
   const projectLogo = onboarding.projectInfo?.logoUri ?? logoSwan;
 
@@ -137,7 +135,6 @@ export const OnboardingCompanyWizard = ({ onboarding }: Props) => {
   }, [onboarding.statusInfo]);
 
   const hasOwnershipStep =
-    isCapitalDepositMainCompany ||
     ownershipStepErrors.length > 0 ||
     (onboarding?.company?.relatedIndividuals?.length ?? 0) > 0 ||
     (onboarding?.company?.relatedCompanies?.length ?? 0) > 0;

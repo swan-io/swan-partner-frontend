@@ -433,7 +433,8 @@ export const MerchantProfilePaymentArea = ({
                           .with(
                             {
                               __typename: P.union(
-                                "CardMerchantPayment",
+                                "InPersonCardMerchantPayment",
+                                "OnlineCardMerchantPayment",
                                 "SepaDirectDebitMerchantPayment",
                               ),
                               paymentLink: P.nonNullable,

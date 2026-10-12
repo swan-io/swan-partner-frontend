@@ -2593,7 +2593,12 @@ fragment MerchantPayment on MerchantPayment {
       id
     }
   }
-  ... on CardMerchantPayment {
+  ... on InPersonCardMerchantPayment {
+    paymentLink {
+      id
+    }
+  }
+  ... on OnlineCardMerchantPayment {
     paymentLink {
       id
     }

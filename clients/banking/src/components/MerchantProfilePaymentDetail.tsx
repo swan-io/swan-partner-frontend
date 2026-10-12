@@ -337,7 +337,7 @@ const MerchantProfilePaymentDetailView = ({
                   .exhaustive()}
                 {match(payment)
                   .with(
-                    { __typename: "CardMerchantPayment", threeDs: P.nonNullable },
+                    { __typename: "OnlineCardMerchantPayment", threeDs: P.nonNullable },
                     ({ threeDs }) => (
                       <ReadOnlyFieldList>
                         <DetailLine

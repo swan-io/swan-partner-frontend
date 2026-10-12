@@ -512,7 +512,7 @@ type AccountHolder {
     the index (a unique reference in string form) from which you will load the following elements
     """
     after: String
-  ): FundingLimitSettingsChangeRequestConnection!
+  ): FundingLimitSettingsChangeRequestConnection! @deprecated(reason: "Funding limit settings are no longer supported and have no replacement. This field will be removed in a future breaking-change release.")
 
   """Account holder onboarding"""
   onboarding: Onboarding @deprecated(reason: "Use `accountHolderOnboarding` instead")
@@ -1837,8 +1837,8 @@ type CompanyAccountHolderOnboardingAccountAdmin {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   firstName: String
 
@@ -1851,8 +1851,8 @@ type CompanyAccountHolderOnboardingAccountAdmin {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   lastName: String
 
@@ -1897,8 +1897,8 @@ input CompanyAccountHolderOnboardingAccountAdminInput {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   firstName: String
 
@@ -1911,8 +1911,8 @@ input CompanyAccountHolderOnboardingAccountAdminInput {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   lastName: String
 
@@ -2894,8 +2894,8 @@ type IndividualAccountHolderOnboardingAccountAdmin {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   firstName: String
 
@@ -2908,8 +2908,8 @@ type IndividualAccountHolderOnboardingAccountAdmin {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   lastName: String
 
@@ -3995,8 +3995,8 @@ input RelatedIndividualInput {
   First name of the individual
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   firstName: String
 
@@ -4011,8 +4011,8 @@ input RelatedIndividualInput {
   Last name of the individual
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens, apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:[-'‘’\s]{1,2}[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
+  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
   """
   lastName: String
 
@@ -8438,6 +8438,9 @@ type InPersonCardMerchantPayment implements MerchantPayment {
 
   """The information about how the inPersonCard has been presented."""
   cardPresentReadDetails: CardPresentReadDetails
+
+  """The receipt details extracted from the card terminal transaction."""
+  receiptDetails: ReceiptDetails
 }
 
 type InPersonCardMerchantPaymentMethod implements MerchantPaymentMethod {
@@ -8980,6 +8983,52 @@ enum MerchantPaymentMethodCardRejectReason {
   SwanRefused
   UnsupportedBusiness
   SwanTechnicalErrorOccurred
+}
+
+"""
+Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+"""
+type MerchantPaymentMethodConnection implements Connection {
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """Edge list"""
+  edges: [MerchantPaymentMethodEdge!]!
+
+  """Total number of element in the list"""
+  totalCount: Int!
+}
+
+"""Implements the Relay Edge interface"""
+type MerchantPaymentMethodEdge implements Edge {
+  node: MerchantPaymentMethod!
+
+  """Opaque identifier pointing to this node in the pagination mechanism"""
+  cursor: String!
+}
+
+"""Filters that can be applied when listing merchant payment methods"""
+input MerchantPaymentMethodFiltersInput {
+  """Filter by Payment Method ID"""
+  id: ID
+
+  """Filter by status"""
+  status: [MerchantPaymentMethodStatus!]
+
+  """Filter by type"""
+  type: [MerchantPaymentMethodType!]
+
+  """Filter by updatedAt (updated after a given date)"""
+  isAfterUpdatedAt: DateTime
+
+  """Filter by updatedAt (updated before a given date)"""
+  isBeforeUpdatedAt: DateTime
+
+  """Filter by Merchant Profile ID"""
+  merchantProfileId: ID
+
+  """Filter by Account ID"""
+  accountId: ID
 }
 
 """Rejection returned when the Merchant Payment Method is not active"""
@@ -9610,6 +9659,35 @@ enum ProductType {
   Services
   VirtualGoods
   GiftsAndDonations
+}
+
+type ReceiptDetails {
+  """The type of account used for the transaction (e.g. credit, debit)."""
+  accountType: String
+
+  """The name of the card application as it should be displayed."""
+  applicationPreferredName: String
+
+  """
+  The dedicated file name (AID) of the card application used for the transaction.
+  """
+  dedicatedFileName: String
+
+  """The authorization response code returned by the issuer."""
+  authorizationResponseCode: String
+
+  """The application cryptogram generated by the card for the transaction."""
+  applicationCryptogram: String
+
+  """
+  The terminal verification results (TVR) produced during the transaction.
+  """
+  terminalVerificationResults: String
+
+  """
+  The transaction status information (TSI) produced during the transaction.
+  """
+  transactionStatusInformation: String
 }
 
 """RejectedMerchantPaymentMethodStatusInfo"""

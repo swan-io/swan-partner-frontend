@@ -47,7 +47,11 @@ import {
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { locale, t } from "../../../utils/i18n";
-import { cleanData, transformRelatedIndividualsToInput } from "../../../utils/onboarding";
+import {
+  cleanData,
+  isMainCompanyOfCapitalDeposit,
+  transformRelatedIndividualsToInput,
+} from "../../../utils/onboarding";
 import { CompanySuggestion } from "../../../utils/Pappers";
 import { maskUuid } from "../../../utils/redaction";
 import { Router } from "../../../utils/routes";
@@ -98,6 +102,7 @@ const styles = StyleSheet.create({
 export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Props) => {
   const onboardingId = onboarding.id;
   const { accountAdmin, accountInfo, company } = onboarding;
+  const isCapitalDepositMainCompany = isMainCompanyOfCapitalDeposit(onboarding);
   const isFirstMount = useFirstMountState();
 
   const initialCountry = match([company?.address?.country, accountInfo?.country])
@@ -113,11 +118,15 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
 
   const [siren, setSiren] = useState<string | null>(null);
   const [publicData, setPublicData] = useState<CompanyInfo>();
-  const [manualMode, setManualMode] = useState<boolean>(initialCountry !== "FRA");
+  const [manualMode, setManualMode] = useState<boolean>(
+    initialCountry !== "FRA" || isCapitalDepositMainCompany,
+  );
   const [updateError, setUpdateError] = useState(false);
   const companyType = publicData?.companyType ?? company?.companyType;
   const related = company?.relatedIndividuals ?? [];
-  const [representatives, setRepresentatives] = useState(related.length > 0 ? related : undefined);
+  const [representatives, setRepresentatives] = useState(
+    related.length > 0 && !isCapitalDepositMainCompany ? related : undefined,
+  );
 
   const resetToManualMode = useCallback(() => {
     logger.event("set_manual_mode", {
@@ -347,20 +356,23 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
             </View>
             <Tile style={styles.gap}>
               <View style={[styles.grid, large && styles.gridDesktop]}>
+                {/* Kept mounted so the country is still submitted for the main company */}
                 <Field name="country">
-                  {({ value, onChange }) => (
-                    <OnboardingCountryPicker
-                      label={t("company.step.organisation.countryLabel")}
-                      value={value}
-                      countries={companyCountries}
-                      holderType="company"
-                      onlyIconHelp={small}
-                      onValueChange={country => {
-                        setManualMode(country !== "FRA");
-                        onChange(country);
-                      }}
-                    />
-                  )}
+                  {({ value, onChange }) =>
+                    isCapitalDepositMainCompany ? null : (
+                      <OnboardingCountryPicker
+                        label={t("company.step.organisation.countryLabel")}
+                        value={value}
+                        countries={companyCountries}
+                        holderType="company"
+                        onlyIconHelp={small}
+                        onValueChange={country => {
+                          setManualMode(country !== "FRA");
+                          onChange(country);
+                        }}
+                      />
+                    )
+                  }
                 </Field>
 
                 <FieldsListener names={["country", "currentRepresentative"]}>

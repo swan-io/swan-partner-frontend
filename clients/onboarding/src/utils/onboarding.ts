@@ -3,8 +3,8 @@ import { match } from "ts-pattern";
 import {
   CompanyAccountHolderOnboardingAccountAdmin,
   CompanyLegalRepresentativeAndUltimateBeneficialOwner,
+  CompanyOnboardingFragment,
   CompanyRelatedIndividual,
-  OnboardingCapitalDepositType,
   RelatedIndividualInput,
   RelatedIndividualUltimateBeneficialOwner,
   RelatedIndividualUltimateBeneficialOwnerInput,
@@ -153,29 +153,6 @@ export const cleanData = <T>(value: T): CleanData<T> => {
   return value as CleanData<T>;
 };
 
-/**
- * The main company of a capital deposit case is still being incorporated, it has
- * neither a registration number nor a registration date yet
- * so the form must not require them either.
- */
-export const getRegistrationRequirements = ({
-  companyCountry,
-  capitalDepositType,
-}: {
-  companyCountry: string | null | undefined;
-  capitalDepositType: OnboardingCapitalDepositType | null | undefined;
-}) => {
-  if (capitalDepositType === "MainCompanyAccount") {
-    return {
-      isRegistrationNumberRequired: false,
-      isRegistrationDateRequired: false,
-    };
-  }
-
-  return {
-    isRegistrationNumberRequired: match({ companyCountry })
-      .with({ companyCountry: "DEU" }, () => false)
-      .otherwise(() => true),
-    isRegistrationDateRequired: true,
-  };
-};
+export const isMainCompanyOfCapitalDeposit = (
+  onboarding: Pick<CompanyOnboardingFragment, "capitalDepositType">,
+) => onboarding.capitalDepositType === "MainCompanyAccount";

@@ -9,7 +9,8 @@ import { breakpoints, colors, radii } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { omit } from "@swan-io/lake/src/utils/object";
+import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
+import { pick } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { InlineDatePicker } from "@swan-io/shared-business/src/components/InlineDatePicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
@@ -34,7 +35,7 @@ import {
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { locale, t } from "../../../utils/i18n";
-import { getRegistrationRequirements } from "../../../utils/onboarding";
+import { isMainCompanyOfCapitalDeposit } from "../../../utils/onboarding";
 import { Router } from "../../../utils/routes";
 import { hasOnboardingPrefilled } from "../../../utils/session";
 import {
@@ -92,6 +93,7 @@ const styles = StyleSheet.create({
 export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErrors }: Props) => {
   const onboardingId = onboarding.id;
   const { accountInfo, company, projectInfo, accountAdmin } = onboarding;
+  const isCapitalDepositMainCompany = isMainCompanyOfCapitalDeposit(onboarding);
   const isFirstMount = useFirstMountState();
 
   const [updateCompanyOnboarding, updateResult] = useMutation(
@@ -113,10 +115,9 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
     .with({ accountCountry: "ITA" }, () => true)
     .otherwise(() => false);
 
-  const { isRegistrationNumberRequired, isRegistrationDateRequired } = getRegistrationRequirements({
-    companyCountry,
-    capitalDepositType: onboarding.capitalDepositType,
-  });
+  const isRegistrationNumberRequired = match({ companyCountry })
+    .with({ companyCountry: "DEU" }, () => false)
+    .otherwise(() => true);
 
   const isTaxIdentificationRequired = match({
     companyCountry,
@@ -186,7 +187,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
     },
     registrationDate: {
       initialValue: company?.registrationDate ?? undefined,
-      validate: isRegistrationDateRequired ? validateNullableRequired : undefined,
+      validate: validateNullableRequired,
     },
     tcuAccepted: {
       initialValue: false,
@@ -217,14 +218,18 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
   const onPressNext = () => {
     submitForm({
       onSuccess: values => {
-        const option = Option.allFromDict(omit(values, ["tcuAccepted"]));
+        const option = Option.allFromDict(pick(values, ["address", "city", "postalCode"]));
         if (option.isNone()) {
           return;
         }
-        const currentValues = option.get();
-
-        const { address, city, postalCode, vatNumber, registrationNumber, ...input } =
-          currentValues;
+        const currentValues = {
+          ...option.get(),
+          vatNumber: values.vatNumber.filter(isNotEmpty).toUndefined(), // Return undefined if empty otherwise the backend with run a regex on it
+          registrationNumber: values.registrationNumber.filter(isNotEmpty).toUndefined(), // Same as vatNumber
+          registrationDate: values.registrationDate.toUndefined(),
+          taxIdentificationNumber: values.taxIdentificationNumber.toUndefined(),
+        };
+        const { address, city, postalCode, ...input } = currentValues;
 
         updateCompanyOnboarding({
           input: {
@@ -235,8 +240,6 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
                 city,
                 postalCode,
               },
-              vatNumber: vatNumber === "" ? undefined : vatNumber, // Return undefined if empty otherwise the backend with run a regex on it
-              registrationNumber: registrationNumber === "" ? undefined : registrationNumber, // Same as vatNumber, and a company being incorporated has none yet
               regulatoryClassification: "NonFinancialActive", // Default value as we don't use it yet on product side but required by the api
               ...input,
             },
@@ -357,101 +360,102 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
               </View>
             </Tile>
 
-            <Tile style={styles.gap}>
-              <StepTitle>{t("company.step.legal.title")}</StepTitle>
-              <View style={[styles.grid, large && styles.gridDesktop]}>
-                <Field name="registrationNumber">
-                  {({ value, valid, error, onChange, ref, onBlur }) => (
-                    <LakeLabel
-                      label={getRegistrationNumberLabel(
-                        companyCountry as CompanyCountryCCA3,
-                        companyType ?? "Company",
-                        locale.language,
-                      )}
-                      optionalLabel={
-                        isRegistrationNumberRequired ? undefined : t("common.optional")
-                      }
-                      render={id => (
-                        <LakeTextInput
-                          onBlur={onBlur}
-                          help={
-                            accountCountry === "BEL"
-                              ? t("common.form.help.nbDigits", { nbDigits: "10" })
-                              : undefined
-                          }
-                          id={id}
-                          ref={ref}
-                          value={value}
-                          valid={valid}
-                          error={error}
-                          onChangeText={onChange}
-                          readOnly={prefilled.registrationNumber}
-                        />
-                      )}
-                    />
-                  )}
-                </Field>
-
-                <Field name="registrationDate">
-                  {({ value, onChange, error }) => (
-                    <InlineDatePicker
-                      label={t("company.step.legal.registrationDateLabel")}
-                      optionalLabel={isRegistrationDateRequired ? undefined : t("common.optional")}
-                      value={value}
-                      onValueChange={onChange}
-                      error={error}
-                      readOnly={prefilled.registrationDate}
-                    />
-                  )}
-                </Field>
-
-                <Field name="taxIdentificationNumber">
-                  {({ value, valid, error, onChange, onBlur, ref }) =>
-                    isTaxIdentificationVisible ? (
-                      <TaxIdentificationNumberInput
-                        ref={ref}
-                        value={value}
-                        error={error}
-                        valid={valid}
-                        onChange={onChange}
-                        onBlur={onBlur}
-                        country={companyCountry as CompanyCountryCCA3}
-                        isCompany={true}
-                        required={isTaxIdentificationRequired}
+            {!isCapitalDepositMainCompany && (
+              <Tile style={styles.gap}>
+                <StepTitle>{t("company.step.legal.title")}</StepTitle>
+                <View style={[styles.grid, large && styles.gridDesktop]}>
+                  <Field name="registrationNumber">
+                    {({ value, valid, error, onChange, ref, onBlur }) => (
+                      <LakeLabel
+                        label={getRegistrationNumberLabel(
+                          companyCountry as CompanyCountryCCA3,
+                          companyType ?? "Company",
+                          locale.language,
+                        )}
+                        optionalLabel={
+                          isRegistrationNumberRequired ? undefined : t("common.optional")
+                        }
+                        render={id => (
+                          <LakeTextInput
+                            onBlur={onBlur}
+                            help={
+                              accountCountry === "BEL"
+                                ? t("common.form.help.nbDigits", { nbDigits: "10" })
+                                : undefined
+                            }
+                            id={id}
+                            ref={ref}
+                            value={value}
+                            valid={valid}
+                            error={error}
+                            onChangeText={onChange}
+                            readOnly={prefilled.registrationNumber}
+                          />
+                        )}
                       />
-                    ) : null
-                  }
-                </Field>
+                    )}
+                  </Field>
 
-                <Field name="vatNumber">
-                  {({ value, valid, error, onChange, ref, onBlur }) => (
-                    <LakeLabel
-                      label={t("company.step.legal.vatLabel")}
-                      optionalLabel={isVatRequired ? undefined : t("common.optional")}
-                      render={id => (
-                        <LakeTextInput
-                          id={id}
-                          onBlur={onBlur}
+                  <Field name="registrationDate">
+                    {({ value, onChange, error }) => (
+                      <InlineDatePicker
+                        label={t("company.step.legal.registrationDateLabel")}
+                        value={value}
+                        onValueChange={onChange}
+                        error={error}
+                        readOnly={prefilled.registrationDate}
+                      />
+                    )}
+                  </Field>
+
+                  <Field name="taxIdentificationNumber">
+                    {({ value, valid, error, onChange, onBlur, ref }) =>
+                      isTaxIdentificationVisible ? (
+                        <TaxIdentificationNumberInput
                           ref={ref}
                           value={value}
-                          valid={valid}
                           error={error}
-                          onChangeText={onChange}
-                          readOnly={prefilled.vatNumber}
+                          valid={valid}
+                          onChange={onChange}
+                          onBlur={onBlur}
+                          country={companyCountry as CompanyCountryCCA3}
+                          isCompany={true}
+                          required={isTaxIdentificationRequired}
                         />
-                      )}
-                    />
-                  )}
-                </Field>
-              </View>
+                      ) : null
+                    }
+                  </Field>
 
-              {/* If data are prefilled then registrationNumber will always be true */}
-              {prefilled.registrationNumber && (
-                <View style={styles.prefilledInfo}>
-                  <LakeText variant="smallRegular">{t("company.step.legal.prefilled")}</LakeText>
+                  <Field name="vatNumber">
+                    {({ value, valid, error, onChange, ref, onBlur }) => (
+                      <LakeLabel
+                        label={t("company.step.legal.vatLabel")}
+                        optionalLabel={isVatRequired ? undefined : t("common.optional")}
+                        render={id => (
+                          <LakeTextInput
+                            id={id}
+                            onBlur={onBlur}
+                            ref={ref}
+                            value={value}
+                            valid={valid}
+                            error={error}
+                            onChangeText={onChange}
+                            readOnly={prefilled.vatNumber}
+                          />
+                        )}
+                      />
+                    )}
+                  </Field>
                 </View>
-              )}
-            </Tile>
+
+                {/* If data are prefilled then registrationNumber will always be true */}
+                {prefilled.registrationNumber && (
+                  <View style={styles.prefilledInfo}>
+                    <LakeText variant="smallRegular">{t("company.step.legal.prefilled")}</LakeText>
+                  </View>
+                )}
+              </Tile>
+            )}
           </>
         )}
       </ResponsiveContainer>

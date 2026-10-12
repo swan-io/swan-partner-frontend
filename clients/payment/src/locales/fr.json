@@ -11,7 +11,6 @@
   "paymentLink.card.cardNumber": "Numéro de carte",
   "paymentLink.card.cvv": "CVV",
   "paymentLink.card.expiryDate": "Date d'expiration",
-  "paymentLink.cardNotSupported": "Les cartes {cardType} ne sont pas prises en charge. Veuillez essayer avec une autre carte.",
   "paymentLink.cardNotSupported.withCardType": "Les cartes {cardType} ne sont pas prises en charge. Veuillez essayer avec une autre carte.",
   "paymentLink.cardNotSupported.withoutCardType": "Votre carte n'est pas prise en charge. Veuillez essayer avec une autre carte.",
   "paymentLink.cardNumberRequired": "Votre numéro de carte est requis",
@@ -31,7 +30,6 @@
   "paymentLink.paymentMethod": "Mode de paiement",
   "paymentLink.postalCode": "Code postal",
   "paymentLink.poweredBySwan": "Optimisée par",
-  "paymentLink.state": "État",
   "paymentLink.success.subtitle": "Votre paiement a été effectué avec succès.\nVous pouvez fermer cette fenêtre.",
   "paymentLink.success.title": "Merci !",
   "paymentLink.termsAndConditions": "En cliquant sur Payer, vous acceptez un mandat de prélèvement automatique par voie électronique. Le mandat autorise : (1) {merchantName} à partager les informations de paiement avec Swan, et (2) Swan à débiter votre compte en conséquence. Les demandes de remboursement seront traitées conformément aux conditions générales de votre banque."

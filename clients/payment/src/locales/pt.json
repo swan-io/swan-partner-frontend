@@ -11,7 +11,6 @@
   "paymentLink.card.cardNumber": "Número do cartão",
   "paymentLink.card.cvv": "CVV",
   "paymentLink.card.expiryDate": "Data de expiração",
-  "paymentLink.cardNotSupported": "Cartões {cardType} não são suportados. Por favor, tente com outro cartão.",
   "paymentLink.cardNotSupported.withCardType": "Cartões {cardType} não são suportados. Por favor, tente com outro cartão.",
   "paymentLink.cardNotSupported.withoutCardType": "O seu cartão não é suportado. Por favor, tente com outro cartão.",
   "paymentLink.cardNumberRequired": "O número do seu cartão é obrigatório",
@@ -31,7 +30,6 @@
   "paymentLink.paymentMethod": "Método de pagamento",
   "paymentLink.postalCode": "Código postal",
   "paymentLink.poweredBySwan": "Desenvolvido por",
-  "paymentLink.state": "Estado",
   "paymentLink.success.subtitle": "O seu pagamento foi bem-sucedido.\nPode fechar esta janela.",
   "paymentLink.success.title": "Obrigado!",
   "paymentLink.termsAndConditions": "Ao clicar em Pagar, está autorizando um mandato eletrónico de débito direto. A autorização autoriza: (1) {merchantName} a compartilhar informações de pagamento com a Swan e (2) a Swan a debitar sua conta de acordo. Solicitações de reembolso serão processadas de acordo com os termos e condições do seu banco."

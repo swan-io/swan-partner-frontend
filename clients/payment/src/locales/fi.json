@@ -11,7 +11,6 @@
   "paymentLink.card.cardNumber": "Kortin numero",
   "paymentLink.card.cvv": "CVV",
   "paymentLink.card.expiryDate": "Voimassaolon päättymispäivämäärä",
-  "paymentLink.cardNotSupported": "{cardType}-kortit eivät ole tuettuja. Ole hyvä ja kokeile toisella kortilla.",
   "paymentLink.cardNotSupported.withCardType": "{cardType}-kortit eivät ole tuettuja. Ole hyvä ja kokeile toista korttia.",
   "paymentLink.cardNotSupported.withoutCardType": "Korttiasi ei tueta. Ole hyvä ja kokeile toista korttia.",
   "paymentLink.cardNumberRequired": "Korttisi numero vaaditaan.",
@@ -31,7 +30,6 @@
   "paymentLink.paymentMethod": "Maksutapa",
   "paymentLink.postalCode": "Postinumero",
   "paymentLink.poweredBySwan": "Yhteistyökumppanina",
-  "paymentLink.state": "Osavaltio",
   "paymentLink.success.subtitle": "Maksu onnistui.\nVoit sulkea tämän ikkunan.",
   "paymentLink.success.title": "Kiitos!",
   "paymentLink.termsAndConditions": "Klikkaamalla Maksa, allekirjoitat suoraveloitussopimuksen sähköisesti. Valtakirja valtuuttaa: (1) kauppiaan {merchantName} jakamaan maksutiedot Swanin kanssa ja (2) Swanin veloittamaan tilisi sen mukaisesti. Hyvityspyynnöt käsitellään pankkisi ehtojen mukaisesti."

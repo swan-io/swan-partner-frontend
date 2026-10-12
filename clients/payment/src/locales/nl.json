@@ -11,7 +11,6 @@
   "paymentLink.card.cardNumber": "Kaartnummer",
   "paymentLink.card.cvv": "CVV",
   "paymentLink.card.expiryDate": "Vervaldatum",
-  "paymentLink.cardNotSupported": "{cardType}-kaarten worden niet ondersteund. Probeer het met een andere kaart.",
   "paymentLink.cardNotSupported.withCardType": "{cardType}-kaarten worden niet ondersteund. Probeer het alsjeblieft met een andere kaart.",
   "paymentLink.cardNotSupported.withoutCardType": "Je kaart wordt niet ondersteund. Probeer het met een andere kaart.",
   "paymentLink.cardNumberRequired": "Je kaartnummer is vereist.",
@@ -31,7 +30,6 @@
   "paymentLink.paymentMethod": "Betalingsmethode",
   "paymentLink.postalCode": "Postcode",
   "paymentLink.poweredBySwan": "Mogelijk gemaakt door",
-  "paymentLink.state": "Provincie",
   "paymentLink.success.subtitle": "Je betaling is geslaagd. \nJe kunt dit venster nu sluiten.",
   "paymentLink.success.title": "Bedankt!",
   "paymentLink.termsAndConditions": "Door op Betalen te klikken, onderteken je elektronisch een automatische incasso-machtiging. De machtiging geeft: (1) {merchantName} autorisatie om betalingsinformatie te delen met Swan, en (2) Swan om je rekening dienovereenkomstig te debiteren. Terugbetalingsverzoeken worden verwerkt volgens de voorwaarden van je bank."

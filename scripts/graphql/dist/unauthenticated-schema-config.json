@@ -130,7 +130,8 @@
       "ConsentConnection",
       "UserConnection",
       "MerchantPaymentConnection",
-      "MerchantPaymentLinkConnection"
+      "MerchantPaymentLinkConnection",
+      "MerchantPaymentMethodConnection"
     ],
     "Edge": [
       "AccountEdge",
@@ -145,7 +146,8 @@
       "ConsentEdge",
       "UserEdge",
       "MerchantPaymentEdge",
-      "MerchantPaymentLinkEdge"
+      "MerchantPaymentLinkEdge",
+      "MerchantPaymentMethodEdge"
     ],
     "AccountHolderStatusInfo": [
       "AccountHolderCanceledStatusInfo",

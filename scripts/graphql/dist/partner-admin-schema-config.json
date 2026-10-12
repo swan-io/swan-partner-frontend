@@ -24,7 +24,8 @@
       "PaymentMandateConnection",
       "ReceivedDirectDebitMandateConnection",
       "MerchantPaymentConnection",
-      "MerchantPaymentLinkConnection"
+      "MerchantPaymentLinkConnection",
+      "MerchantPaymentMethodConnection"
     ],
     "Edge": [
       "AccountEdge",
@@ -45,7 +46,8 @@
       "PaymentMandateEdge",
       "ReceivedDirectDebitMandateEdge",
       "MerchantPaymentEdge",
-      "MerchantPaymentLinkEdge"
+      "MerchantPaymentLinkEdge",
+      "MerchantPaymentMethodEdge"
     ],
     "AccountHolderStatusInfo": [
       "AccountHolderCanceledStatusInfo",

@@ -279,7 +279,6 @@ const FilterButton = ({
       ]}
     >
       <Pressable
-        role="button"
         aria-label={t("common.filters.clear")}
         onPress={onClear}
         disabled={!hasValue}

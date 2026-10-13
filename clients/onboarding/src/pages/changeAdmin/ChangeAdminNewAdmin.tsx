@@ -19,7 +19,6 @@ import { InputPhoneNumber } from "@swan-io/shared-business/src/components/InputP
 import {
   CountryCCA3,
   getCountryByCCA3,
-  isCountryCCA3,
   sovereignCountries,
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
@@ -42,7 +41,7 @@ import {
   UpdateAccountAdminChangeDocument,
 } from "../../graphql/partner";
 import { locale, t } from "../../utils/i18n";
-import { toBirthCountry } from "../../utils/onboarding";
+import { toSovereignCountry } from "../../utils/onboarding";
 import { prefixPhoneNumber } from "../../utils/phone";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
 
@@ -123,9 +122,7 @@ export const ChangeAdminNewAdmin = ({
       validate: validateNullableRequired,
     },
     birthCountryCode: {
-      initialValue: isCountryCCA3(initialValues.birthCountry)
-        ? toBirthCountry(initialValues.birthCountry)
-        : ("" as CountryCCA3 | ""),
+      initialValue: toSovereignCountry(initialValues.birthCountry) ?? ("" as CountryCCA3 | ""),
       validate: validateRequired,
     },
   });

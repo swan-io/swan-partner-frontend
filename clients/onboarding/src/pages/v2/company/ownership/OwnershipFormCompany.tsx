@@ -14,6 +14,7 @@ import { View } from "react-native";
 import { match, P } from "ts-pattern";
 import { RelatedCompanyInput } from "../../../../graphql/partner";
 import { locale, t } from "../../../../utils/i18n";
+import { toSovereignCountry } from "../../../../utils/onboarding";
 import { getRegistrationNumberLabel } from "../../../../utils/templateTranslations";
 import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../../../utils/validation";
 
@@ -60,7 +61,7 @@ export const OwnershipFormCompany = ({
       validate: validateRequired,
     },
     registrationCountry: {
-      initialValue: (initialValues.registrationCountry as CountryCCA3) ?? companyCountry,
+      initialValue: toSovereignCountry(initialValues.registrationCountry) ?? companyCountry,
       validate: validateRequired,
     },
     registrationNumber: {

@@ -30,10 +30,11 @@ import { combineValidators, useForm } from "@swan-io/use-form";
 import { Ref, useEffect, useImperativeHandle } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
+import { BirthPostalCodeInput } from "../../../../components/BirthPostalCodeInput";
 import { gender } from "../../../../constants/business";
 import { Gender, RelatedIndividualInput } from "../../../../graphql/partner";
 import { t } from "../../../../utils/i18n";
-import { isBirthPostalCodeRequired, toBirthCountry } from "../../../../utils/onboarding";
+import { isBirthPostalCodeRequired, toSovereignCountry } from "../../../../utils/onboarding";
 import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../../../utils/validation";
 
 const styles = StyleSheet.create({
@@ -136,7 +137,11 @@ export const OwnershipFormIndividualDetails = ({
       validate: validateName,
     },
     nationality: {
-      initialValue: match([initialValues?.nationality, companyCountry, mode] as const)
+      initialValue: match([
+        toSovereignCountry(initialValues?.nationality),
+        toSovereignCountry(companyCountry),
+        mode,
+      ] as const)
         .returnType<CountryCCA3 | undefined>()
         .with([P.when(isCountryCCA3), P._, P._], ([nationality]) => nationality)
         .with([P._, P._, "edit"], () => undefined)
@@ -149,9 +154,13 @@ export const OwnershipFormIndividualDetails = ({
       validate: validateNullableRequired,
     },
     birthCountry: {
-      initialValue: match([initialValues?.birthInfo?.country, companyCountry, mode])
+      initialValue: match([
+        toSovereignCountry(initialValues?.birthInfo?.country),
+        toSovereignCountry(companyCountry),
+        mode,
+      ])
         .returnType<CountryCCA3 | undefined>()
-        .with([P.when(isCountryCCA3), P._, P._], ([country]) => toBirthCountry(country))
+        .with([P.when(isCountryCCA3), P._, P._], ([country]) => country)
         .with([P._, P._, "edit"], () => undefined)
         .with([P._, P.when(isCountryCCA3), P._], ([_, country]) => country)
         .otherwise(() => "FRA"),
@@ -330,21 +339,8 @@ export const OwnershipFormIndividualDetails = ({
               {({ birthCountry }) =>
                 isBirthPostalCodeRequired({ accountCountry, birthCountry: birthCountry.value }) ? (
                   <Field name="birthPostal">
-                    {({ value, valid, error, onChange, ref }) => (
-                      <LakeLabel
-                        label={t("form.label.birthPostal")}
-                        render={id => (
-                          <LakeTextInput
-                            id={id}
-                            ref={ref}
-                            value={value}
-                            valid={valid}
-                            error={error}
-                            onChangeText={onChange}
-                            readOnly={isReadOnly(value)}
-                          />
-                        )}
-                      />
+                    {field => (
+                      <BirthPostalCodeInput {...field} readOnly={isReadOnly(field.value)} />
                     )}
                   </Field>
                 ) : null

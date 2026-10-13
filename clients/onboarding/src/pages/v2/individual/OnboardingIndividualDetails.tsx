@@ -30,6 +30,7 @@ import { combineValidators, useForm } from "@swan-io/use-form";
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
+import { BirthPostalCodeInput } from "../../../components/BirthPostalCodeInput";
 import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import { StepTitle } from "../../../components/StepTitle";
@@ -38,7 +39,7 @@ import {
   UpdatePublicIndividualAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { locale, t } from "../../../utils/i18n";
-import { isBirthPostalCodeRequired, toBirthCountry } from "../../../utils/onboarding";
+import { isBirthPostalCodeRequired, toSovereignCountry } from "../../../utils/onboarding";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 import {
@@ -108,7 +109,10 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
       validate: validateName,
     },
     nationality: {
-      initialValue: match([accountAdmin?.nationality, accountInfo?.country] as const)
+      initialValue: match([
+        toSovereignCountry(accountAdmin?.nationality),
+        accountInfo?.country,
+      ] as const)
         .returnType<CountryCCA3>()
         .with([P.when(isCountryCCA3), P._], ([nationality]) => nationality)
         .with([P._, P.when(isCountryCCA3)], ([_, country]) => country)
@@ -120,9 +124,12 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
       validate: validateNullableRequired,
     },
     birthCountry: {
-      initialValue: match([accountAdmin?.birthInfo?.country, accountInfo?.country])
+      initialValue: match([
+        toSovereignCountry(accountAdmin?.birthInfo?.country),
+        accountInfo?.country,
+      ])
         .returnType<CountryCCA3>()
-        .with([P.when(isCountryCCA3), P._], ([birthCountry]) => toBirthCountry(birthCountry))
+        .with([P.when(isCountryCCA3), P._], ([birthCountry]) => birthCountry)
         .with([P._, P.when(isCountryCCA3)], ([_, country]) => country)
         .otherwise(() => "FRA"),
       validate: validateRequired,
@@ -140,7 +147,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
     residenceCountry: {
       initialValue: match([accountAdmin?.address?.country, accountInfo?.country])
         .returnType<CountryCCA3>()
-        .with([P.when(isCountryCCA3), P._], ([nationality]) => nationality)
+        .with([P.when(isCountryCCA3), P._], ([country]) => country)
         .with([P._, P.when(isCountryCCA3)], ([_, country]) => country)
         .otherwise(() => "FRA"),
       validate: validateRequired,
@@ -185,13 +192,12 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
           birthDate,
           birthCountry,
           birthCity,
-          birthPostal: birthPostalCode,
           residenceCountry,
           residenceAddress,
           residenceCity,
           residencePostal,
           ...input
-        } = currentValues;
+        } = option.get();
 
         updateIndividualOnboarding({
           input: {
@@ -202,7 +208,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                 birthDate,
                 country: birthCountry,
                 city: birthCity,
-                postalCode: birthPostalCode,
+                postalCode: birthPostal.toUndefined(),
               },
               address: {
                 addressLine1: residenceAddress,
@@ -410,21 +416,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                       birthCountry: birthCountry.value,
                     }) ? (
                       <Field name="birthPostal">
-                        {({ value, valid, error, onChange, ref }) => (
-                          <LakeLabel
-                            label={t("form.label.birthPostal")}
-                            render={id => (
-                              <LakeTextInput
-                                id={id}
-                                ref={ref}
-                                value={value}
-                                error={error}
-                                valid={valid}
-                                onChangeText={onChange}
-                              />
-                            )}
-                          />
-                        )}
+                        {field => <BirthPostalCodeInput {...field} />}
                       </Field>
                     ) : null
                   }

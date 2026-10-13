@@ -9,7 +9,7 @@ import {
   isBirthPostalCodeRequired,
   isCompanyRegistrationNumberRequired,
   namesMatch,
-  toBirthCountry,
+  toSovereignCountry,
   transformRelatedIndividualsToInput,
   upsertAccountAdminInRelatedIndividuals,
 } from "../onboarding";
@@ -208,16 +208,25 @@ describe("isCompanyRegistrationNumberRequired", () => {
   });
 });
 
-describe("toBirthCountry", () => {
+describe("toSovereignCountry", () => {
   it("maps French territories to France", () => {
-    expect(toBirthCountry("MTQ")).toBe("FRA");
-    expect(toBirthCountry("REU")).toBe("FRA");
-    expect(toBirthCountry("FRA")).toBe("FRA");
+    expect(toSovereignCountry("MTQ")).toBe("FRA");
+    expect(toSovereignCountry("REU")).toBe("FRA");
+    expect(toSovereignCountry("FRA")).toBe("FRA");
   });
 
-  it("keeps other countries", () => {
-    expect(toBirthCountry("POL")).toBe("POL");
-    expect(toBirthCountry("PRI")).toBe("PRI");
+  it("keeps sovereign countries", () => {
+    expect(toSovereignCountry("POL")).toBe("POL");
+  });
+
+  it("drops other territories", () => {
+    expect(toSovereignCountry("PRI")).toBeUndefined();
+    expect(toSovereignCountry("GRL")).toBeUndefined();
+  });
+
+  it("drops values that aren't country codes", () => {
+    expect(toSovereignCountry(undefined)).toBeUndefined();
+    expect(toSovereignCountry("FR")).toBeUndefined();
   });
 });
 

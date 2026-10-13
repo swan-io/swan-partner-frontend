@@ -26,6 +26,7 @@ import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { RelatedIndividualInput } from "../../../../graphql/partner";
 import { locale, t } from "../../../../utils/i18n";
+import { toSovereignCountry } from "../../../../utils/onboarding";
 import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../../../utils/validation";
 
 const styles = StyleSheet.create({
@@ -105,9 +106,13 @@ export const OwnershipFormIndividualAddress = ({
 
   const { Field, submitForm, FieldsListener, setFieldValue, setFieldError } = useForm({
     country: {
-      initialValue: match([initialValues?.address?.country, companyCountry, mode])
+      initialValue: match([
+        toSovereignCountry(initialValues?.address?.country),
+        toSovereignCountry(companyCountry),
+        mode,
+      ])
         .returnType<CountryCCA3 | undefined>()
-        .with([P.when(isCountryCCA3), P._, P._], ([nationality]) => nationality)
+        .with([P.when(isCountryCCA3), P._, P._], ([country]) => country)
         .with([P._, P._, "edit"], () => undefined)
         .with([P._, P.when(isCountryCCA3), P._], ([_, country]) => country)
         .otherwise(() => "FRA"),

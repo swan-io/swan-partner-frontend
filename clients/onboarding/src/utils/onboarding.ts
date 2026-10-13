@@ -1,7 +1,9 @@
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import {
   CountryCCA3,
+  isCountryCCA3,
   isFrenchTerritoryCCA3,
+  isTerritoryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { match, P } from "ts-pattern";
 import {
@@ -173,10 +175,14 @@ export const isCompanyRegistrationNumberRequired = (company: {
     .with({ country: "FRA", legalFormCode: P.union(...CSE_LEGAL_FORM_CODES) }, () => false)
     .otherwise(() => true);
 
-// the birth country picker only lists sovereign countries: a birth in a French territory
-// is a birth in France
-export const toBirthCountry = (cca3: CountryCCA3): CountryCCA3 =>
-  isFrenchTerritoryCCA3(cca3) ? "FRA" : cca3;
+// person country pickers only list sovereign countries: a French territory is France, and
+// another territory has no equivalent in the list so it's left empty to be picked again
+export const toSovereignCountry = (value: unknown): CountryCCA3 | undefined =>
+  match(value)
+    .returnType<CountryCCA3 | undefined>()
+    .with(P.when(isFrenchTerritoryCCA3), () => "FRA" as const)
+    .with(P.when(isCountryCCA3), cca3 => (isTerritoryCCA3(cca3) ? undefined : cca3))
+    .otherwise(() => undefined);
 
 // the birth postal code is only needed for FICOBA: French account and person born in France
 export const isBirthPostalCodeRequired = ({

@@ -16,10 +16,10 @@ import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/compone
 import { PlacekitCityInput } from "@swan-io/shared-business/src/components/PlacekitCityInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import {
-  allCountries,
   CountryCCA3,
   IndividualCountryCCA3,
   isCountryCCA3,
+  sovereignCountries,
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import {
@@ -41,7 +41,7 @@ import {
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { locale, t } from "../../../utils/i18n";
-import { upsertAccountAdminInRelatedIndividuals } from "../../../utils/onboarding";
+import { toBirthCountry, upsertAccountAdminInRelatedIndividuals } from "../../../utils/onboarding";
 import { Router } from "../../../utils/routes";
 import { hasOnboardingPrefilled } from "../../../utils/session";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
@@ -137,7 +137,7 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
     birthCountry: {
       initialValue: match([accountAdmin?.birthInfo?.country, accountInfo?.country])
         .returnType<CountryCCA3>()
-        .with([P.when(isCountryCCA3), P._], ([nationality]) => nationality)
+        .with([P.when(isCountryCCA3), P._], ([birthCountry]) => toBirthCountry(birthCountry))
         .with([P._, P.when(isCountryCCA3)], ([_, country]) => country)
         .otherwise(() => "FRA"),
       validate: validateRequired,
@@ -420,7 +420,7 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
                         <CountryPicker
                           id={id}
                           ref={ref}
-                          countries={allCountries}
+                          countries={sovereignCountries}
                           value={value}
                           error={error}
                           onValueChange={onChange}
@@ -444,7 +444,7 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
                         <CountryPicker
                           id={id}
                           ref={ref}
-                          countries={allCountries}
+                          countries={sovereignCountries}
                           value={value}
                           error={error}
                           onValueChange={onChange}
@@ -515,7 +515,7 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
                         <CountryPicker
                           id={id}
                           ref={ref}
-                          countries={allCountries}
+                          countries={sovereignCountries}
                           value={value}
                           error={error}
                           onValueChange={onChange}

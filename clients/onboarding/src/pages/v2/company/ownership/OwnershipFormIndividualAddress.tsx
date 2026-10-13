@@ -12,9 +12,9 @@ import { trim } from "@swan-io/lake/src/utils/string";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import {
-  allCountries,
   CountryCCA3,
   isCountryCCA3,
+  sovereignCountries,
 } from "@swan-io/shared-business/src/constants/countries";
 import {
   validateNullableRequired,
@@ -196,7 +196,7 @@ export const OwnershipFormIndividualAddress = ({
                     <CountryPicker
                       id={id}
                       value={value}
-                      countries={allCountries}
+                      countries={sovereignCountries}
                       onValueChange={onChange}
                       readOnly={isReadOnly(value)}
                     />

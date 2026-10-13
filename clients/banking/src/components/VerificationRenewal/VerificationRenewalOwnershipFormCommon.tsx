@@ -13,7 +13,7 @@ import { trim } from "@swan-io/lake/src/utils/string";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitCityInput } from "@swan-io/shared-business/src/components/PlacekitCityInput";
-import { allCountries, CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { CountryCCA3, sovereignCountries } from "@swan-io/shared-business/src/constants/countries";
 import {
   validateName,
   validateNullableRequired,
@@ -282,7 +282,7 @@ export const VerificationRenewalOwnershipFormCommon = ({
                         error={error}
                         value={value}
                         placeholder={t("verificationRenewal.ownership.birthCountry.placeholder")}
-                        countries={allCountries}
+                        countries={sovereignCountries}
                         onValueChange={onChange}
                       />
                     )}

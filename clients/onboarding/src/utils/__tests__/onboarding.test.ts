@@ -8,6 +8,7 @@ import {
   cleanData,
   isCompanyRegistrationNumberRequired,
   namesMatch,
+  toBirthCountry,
   transformRelatedIndividualsToInput,
   upsertAccountAdminInRelatedIndividuals,
 } from "../onboarding";
@@ -203,5 +204,18 @@ describe("isCompanyRegistrationNumberRequired", () => {
     expect(isCompanyRegistrationNumberRequired({ country: undefined, legalFormCode: null })).toBe(
       true,
     );
+  });
+});
+
+describe("toBirthCountry", () => {
+  it("maps French territories to France", () => {
+    expect(toBirthCountry("MTQ")).toBe("FRA");
+    expect(toBirthCountry("REU")).toBe("FRA");
+    expect(toBirthCountry("FRA")).toBe("FRA");
+  });
+
+  it("keeps other countries", () => {
+    expect(toBirthCountry("POL")).toBe("POL");
+    expect(toBirthCountry("PRI")).toBe("PRI");
   });
 });

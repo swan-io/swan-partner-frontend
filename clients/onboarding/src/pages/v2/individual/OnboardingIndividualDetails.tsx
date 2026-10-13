@@ -14,10 +14,10 @@ import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPi
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { PlacekitCityInput } from "@swan-io/shared-business/src/components/PlacekitCityInput";
 import {
-  allCountries,
   CountryCCA3,
   individualCountries,
   isCountryCCA3,
+  sovereignCountries,
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import {
@@ -38,6 +38,7 @@ import {
   UpdatePublicIndividualAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { locale, t } from "../../../utils/i18n";
+import { toBirthCountry } from "../../../utils/onboarding";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 import {
@@ -120,7 +121,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
     birthCountry: {
       initialValue: match([accountAdmin?.birthInfo?.country, accountInfo?.country])
         .returnType<CountryCCA3>()
-        .with([P.when(isCountryCCA3), P._], ([nationality]) => nationality)
+        .with([P.when(isCountryCCA3), P._], ([birthCountry]) => toBirthCountry(birthCountry))
         .with([P._, P.when(isCountryCCA3)], ([_, country]) => country)
         .otherwise(() => "FRA"),
       validate: validateRequired,
@@ -316,7 +317,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                         <CountryPicker
                           id={id}
                           ref={ref}
-                          countries={allCountries}
+                          countries={sovereignCountries}
                           value={value}
                           error={error}
                           onValueChange={onChange}
@@ -361,7 +362,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                         <CountryPicker
                           id={id}
                           ref={ref}
-                          countries={allCountries}
+                          countries={sovereignCountries}
                           value={value}
                           error={error}
                           onValueChange={onChange}

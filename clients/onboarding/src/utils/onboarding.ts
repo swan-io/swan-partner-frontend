@@ -1,4 +1,8 @@
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import {
+  CountryCCA3,
+  isFrenchTerritoryCCA3,
+} from "@swan-io/shared-business/src/constants/countries";
 import { match, P } from "ts-pattern";
 import {
   CompanyAccountHolderOnboardingAccountAdmin,
@@ -168,3 +172,8 @@ export const isCompanyRegistrationNumberRequired = (company: {
     .with({ country: "DEU" }, () => false)
     .with({ country: "FRA", legalFormCode: P.union(...CSE_LEGAL_FORM_CODES) }, () => false)
     .otherwise(() => true);
+
+// the birth country picker only lists sovereign countries: a birth in a French territory
+// is a birth in France
+export const toBirthCountry = (cca3: CountryCCA3): CountryCCA3 =>
+  isFrenchTerritoryCCA3(cca3) ? "FRA" : cca3;

@@ -15,9 +15,9 @@ import { BirthdatePicker } from "@swan-io/shared-business/src/components/Birthda
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitCityInput } from "@swan-io/shared-business/src/components/PlacekitCityInput";
 import {
-  allCountries,
   CountryCCA3,
   isCountryCCA3,
+  sovereignCountries,
 } from "@swan-io/shared-business/src/constants/countries";
 import {
   validateBooleanTypeRequired,
@@ -33,6 +33,7 @@ import { match, P } from "ts-pattern";
 import { gender } from "../../../../constants/business";
 import { Gender, RelatedIndividualInput } from "../../../../graphql/partner";
 import { t } from "../../../../utils/i18n";
+import { toBirthCountry } from "../../../../utils/onboarding";
 import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../../../utils/validation";
 
 const styles = StyleSheet.create({
@@ -148,7 +149,7 @@ export const OwnershipFormIndividualDetails = ({
     birthCountry: {
       initialValue: match([initialValues?.birthInfo?.country, companyCountry, mode])
         .returnType<CountryCCA3 | undefined>()
-        .with([P.when(isCountryCCA3), P._, P._], ([country]) => country)
+        .with([P.when(isCountryCCA3), P._, P._], ([country]) => toBirthCountry(country))
         .with([P._, P._, "edit"], () => undefined)
         .with([P._, P.when(isCountryCCA3), P._], ([_, country]) => country)
         .otherwise(() => "FRA"),
@@ -282,7 +283,7 @@ export const OwnershipFormIndividualDetails = ({
                     <CountryPicker
                       id={id}
                       ref={ref}
-                      countries={allCountries}
+                      countries={sovereignCountries}
                       value={value}
                       error={error}
                       onValueChange={onChange}
@@ -369,7 +370,7 @@ export const OwnershipFormIndividualDetails = ({
                     <CountryPicker
                       id={id}
                       ref={ref}
-                      countries={allCountries}
+                      countries={sovereignCountries}
                       value={value}
                       error={error}
                       onValueChange={onChange}

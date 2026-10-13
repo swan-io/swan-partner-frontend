@@ -50,6 +50,7 @@ import {
   isBirthPostalCodeRequired,
   RenewalStep,
   renewalSteps,
+  toSovereignCountry,
 } from "../../utils/verificationRenewal";
 import { getNextStep } from "./VerificationRenewalCompany";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
@@ -128,11 +129,12 @@ const convertFetchUboToInput = (
     }))
     .otherwise(() => ({}));
 
-  const birthCountryCode = isCountryCCA3(fetchedUbo.birthInfo?.country)
-    ? fetchedUbo.birthInfo?.country
-    : isCountryCCA2(fetchedUbo.birthInfo?.country)
-      ? (getCCA3forCCA2(fetchedUbo.birthInfo?.country) ?? accountCountry)
-      : accountCountry;
+  const birthCountryCode =
+    toSovereignCountry(
+      isCountryCCA2(fetchedUbo.birthInfo?.country)
+        ? getCCA3forCCA2(fetchedUbo.birthInfo?.country)
+        : fetchedUbo.birthInfo?.country,
+    ) ?? accountCountry;
 
   // Normalize CCA2 country codes to CCA3, which the API expects
   const addressCountry = isCountryCCA2(fetchedUbo.address?.country)

@@ -1,4 +1,10 @@
 import { IconName } from "@swan-io/lake/src/components/Icon";
+import {
+  CountryCCA3,
+  isCountryCCA3,
+  isFrenchTerritoryCCA3,
+  isTerritoryCCA3,
+} from "@swan-io/shared-business/src/constants/countries";
 import { match, P } from "ts-pattern";
 import { AccountCountry, AccountHolderType, GetVerificationRenewalQuery } from "../graphql/partner";
 import { t } from "./i18n";
@@ -85,12 +91,22 @@ export const getRenewalSteps = (
   return orderedSteps;
 };
 
+// person country pickers only list sovereign countries: a French territory is France, and
+// another territory has no equivalent in the list so it's left empty to be picked again
+// (same as onboarding's toSovereignCountry)
+export const toSovereignCountry = (value: unknown): CountryCCA3 | undefined =>
+  match(value)
+    .returnType<CountryCCA3 | undefined>()
+    .with(P.when(isFrenchTerritoryCCA3), () => "FRA" as const)
+    .with(P.when(isCountryCCA3), cca3 => (isTerritoryCCA3(cca3) ? undefined : cca3))
+    .otherwise(() => undefined);
+
 // the birth postal code is only needed for FICOBA: French account and person born in France
-// like the backend, only FRA is checked until territories are no longer stored as countries
+// (same as onboarding's isBirthPostalCodeRequired)
 export const isBirthPostalCodeRequired = ({
   accountCountry,
   birthCountry,
 }: {
   accountCountry: AccountCountry;
-  birthCountry: string | undefined;
-}) => accountCountry === "FRA" && birthCountry === "FRA";
+  birthCountry: CountryCCA3 | undefined;
+}) => accountCountry === "FRA" && isFrenchTerritoryCCA3(birthCountry);

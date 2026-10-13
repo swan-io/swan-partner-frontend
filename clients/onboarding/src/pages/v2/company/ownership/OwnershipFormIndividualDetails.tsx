@@ -33,7 +33,7 @@ import { match, P } from "ts-pattern";
 import { gender } from "../../../../constants/business";
 import { Gender, RelatedIndividualInput } from "../../../../graphql/partner";
 import { t } from "../../../../utils/i18n";
-import { toBirthCountry } from "../../../../utils/onboarding";
+import { isBirthPostalCodeRequired, toBirthCountry } from "../../../../utils/onboarding";
 import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../../../utils/validation";
 
 const styles = StyleSheet.create({
@@ -58,6 +58,7 @@ type Props = {
   initialValues: RelatedIndividualInput;
   errors: { fieldName: string; code: ServerInvalidFieldCode }[];
   ref: Ref<OnboardingCompanyOwnershipFormIndividualDetailsRef>;
+  accountCountry: string;
   companyCountry: CountryCCA3;
   isAccountAdmin: boolean;
   mode: "add" | "edit";
@@ -72,6 +73,7 @@ const genderItems: Item<Gender>[] = gender.map(({ text, value }) => ({
 export const OwnershipFormIndividualDetails = ({
   ref,
   onSave,
+  accountCountry,
   companyCountry,
   isAccountAdmin,
   initialValues,
@@ -82,7 +84,8 @@ export const OwnershipFormIndividualDetails = ({
     return {
       submit: () => {
         submitForm({
-          onSuccess: values => {
+          // the birth postal code is None when its field isn't mounted (not required)
+          onSuccess: ({ birthPostal, ...values }) => {
             const option = Option.allFromDict(values);
             if (option.isNone()) {
               return;
@@ -91,7 +94,6 @@ export const OwnershipFormIndividualDetails = ({
               birthDate,
               birthCountry,
               birthCity,
-              birthPostal,
               isUnitedStatesPerson,
               unitedStatesTaxIdentificationNumber,
               ...input
@@ -101,7 +103,7 @@ export const OwnershipFormIndividualDetails = ({
                 birthDate,
                 country: birthCountry,
                 city: birthCity,
-                postalCode: birthPostal,
+                postalCode: birthPostal.toUndefined(),
               },
               unitedStatesTaxInfo: {
                 isUnitedStatesPerson: isUnitedStatesPerson ?? false,
@@ -324,24 +326,30 @@ export const OwnershipFormIndividualDetails = ({
               )}
             </FieldsListener>
 
-            <Field name="birthPostal">
-              {({ value, valid, error, onChange, ref }) => (
-                <LakeLabel
-                  label={t("form.label.birthPostal")}
-                  render={id => (
-                    <LakeTextInput
-                      id={id}
-                      ref={ref}
-                      value={value}
-                      valid={valid}
-                      error={error}
-                      onChangeText={onChange}
-                      readOnly={isReadOnly(value)}
-                    />
-                  )}
-                />
-              )}
-            </Field>
+            <FieldsListener names={["birthCountry"]}>
+              {({ birthCountry }) =>
+                isBirthPostalCodeRequired({ accountCountry, birthCountry: birthCountry.value }) ? (
+                  <Field name="birthPostal">
+                    {({ value, valid, error, onChange, ref }) => (
+                      <LakeLabel
+                        label={t("form.label.birthPostal")}
+                        render={id => (
+                          <LakeTextInput
+                            id={id}
+                            ref={ref}
+                            value={value}
+                            valid={valid}
+                            error={error}
+                            onChangeText={onChange}
+                            readOnly={isReadOnly(value)}
+                          />
+                        )}
+                      />
+                    )}
+                  </Field>
+                ) : null
+              }
+            </FieldsListener>
 
             <LakeLabel
               label={t("company.step.ownership.form.genderLabel")}

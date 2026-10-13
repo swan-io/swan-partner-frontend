@@ -174,6 +174,7 @@ export const OwnershipFormIndividual = ({
         ref={detailRef}
         initialValues={localValue}
         errors={errors}
+        accountCountry={accountCountry}
         companyCountry={companyCountry}
         isAccountAdmin={isAccountAdmin}
         mode={mode}

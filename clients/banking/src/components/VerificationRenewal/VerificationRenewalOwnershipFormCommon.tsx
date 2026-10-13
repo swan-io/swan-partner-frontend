@@ -25,6 +25,7 @@ import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { AccountCountry, UltimateBeneficialOwnerQualificationType } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
+import { isBirthPostalCodeRequired } from "../../utils/verificationRenewal";
 
 const styles = StyleSheet.create({
   inputContainer: {
@@ -60,7 +61,7 @@ export type Input = {
   birthDate: string | null;
   birthCountryCode: CountryCCA3;
   birthCity: string;
-  birthCityPostalCode: string;
+  birthCityPostalCode?: string;
   qualificationType: UltimateBeneficialOwnerQualificationType | undefined;
   direct?: boolean;
   indirect?: boolean;
@@ -119,7 +120,7 @@ export const VerificationRenewalOwnershipFormCommon = ({
     birthCityPostalCode: {
       initialValue: initialValues.birthCityPostalCode ?? "",
       sanitize: trim,
-      validate: isBirthInfoRequired ? validateRequired : undefined,
+      validate: validateRequired,
     },
     qualificationType: {
       initialValue: initialValues.qualificationType ?? "Ownership",
@@ -169,7 +170,6 @@ export const VerificationRenewalOwnershipFormCommon = ({
               lastName,
               birthCountryCode,
               birthCity,
-              birthCityPostalCode,
               qualificationType,
             });
 
@@ -192,6 +192,7 @@ export const VerificationRenewalOwnershipFormCommon = ({
                   return onSave({
                     ...requiredFields.get(),
                     birthDate: birthDate.flatMap(Option.fromNullable).toNull(),
+                    birthCityPostalCode: birthCityPostalCode.toUndefined(),
                     direct,
                     indirect,
                     totalPercentage: Number(totalPercentage),
@@ -202,6 +203,7 @@ export const VerificationRenewalOwnershipFormCommon = ({
                 return onSave({
                   ...requiredFields.get(),
                   birthDate: birthDate.flatMap(Option.fromNullable).toNull(),
+                  birthCityPostalCode: birthCityPostalCode.toUndefined(),
                 });
               })
               .otherwise(() => {});
@@ -327,31 +329,34 @@ export const VerificationRenewalOwnershipFormCommon = ({
                       )}
                     </Field>
 
-                    <Space width={12} />
+                    {isBirthPostalCodeRequired({
+                      accountCountry,
+                      birthCountry: birthCountryCode.value,
+                    }) ? (
+                      <>
+                        <Space width={12} />
 
-                    <Field name="birthCityPostalCode">
-                      {({ value, onChange, error }) => (
-                        <LakeLabel
-                          label={t("verificationRenewal.ownership.birthPostalCode")}
-                          optionalLabel={isBirthInfoRequired ? undefined : t("common.optional")}
-                          style={styles.inputContainer}
-                          render={id => (
-                            <LakeTextInput
-                              error={error}
-                              placeholder={
-                                birthCountryCode.value == null
-                                  ? t("verificationRenewal.ownership.fillBirthCountry")
-                                  : t("verificationRenewal.ownership.birthPostalCode.placeholder")
-                              }
-                              id={id}
-                              disabled={birthCountryCode.value === undefined}
-                              value={value}
-                              onChangeText={onChange}
+                        <Field name="birthCityPostalCode">
+                          {({ value, onChange, error }) => (
+                            <LakeLabel
+                              label={t("verificationRenewal.ownership.birthPostalCode")}
+                              style={styles.inputContainer}
+                              render={id => (
+                                <LakeTextInput
+                                  error={error}
+                                  placeholder={t(
+                                    "verificationRenewal.ownership.birthPostalCode.placeholder",
+                                  )}
+                                  id={id}
+                                  value={value}
+                                  onChangeText={onChange}
+                                />
+                              )}
                             />
                           )}
-                        />
-                      )}
-                    </Field>
+                        </Field>
+                      </>
+                    ) : null}
                   </>
                 )}
               </FieldsListener>

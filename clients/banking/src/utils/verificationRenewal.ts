@@ -1,6 +1,6 @@
 import { IconName } from "@swan-io/lake/src/components/Icon";
 import { match, P } from "ts-pattern";
-import { AccountHolderType, GetVerificationRenewalQuery } from "../graphql/partner";
+import { AccountCountry, AccountHolderType, GetVerificationRenewalQuery } from "../graphql/partner";
 import { t } from "./i18n";
 import { VerificationRenewalRoute } from "./routes";
 
@@ -84,3 +84,13 @@ export const getRenewalSteps = (
 
   return orderedSteps;
 };
+
+// the birth postal code is only needed for FICOBA: French account and person born in France
+// like the backend, only FRA is checked until territories are no longer stored as countries
+export const isBirthPostalCodeRequired = ({
+  accountCountry,
+  birthCountry,
+}: {
+  accountCountry: AccountCountry;
+  birthCountry: string | undefined;
+}) => accountCountry === "FRA" && birthCountry === "FRA";

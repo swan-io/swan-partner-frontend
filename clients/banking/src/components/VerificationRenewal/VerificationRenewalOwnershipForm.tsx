@@ -13,6 +13,7 @@ import { match, P } from "ts-pattern";
 import { v4 as uuid } from "uuid";
 import { AccountCountry } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
+import { isBirthPostalCodeRequired } from "../../utils/verificationRenewal";
 import {
   Input as AddressInput,
   VerificationRenewalOwnershipFormAddress,
@@ -210,7 +211,10 @@ export const validateUbo = (
     birthDate: isBirthInfoRequired ? validateRequired(editorState.birthDate ?? "") : undefined,
     birthCountryCode: validateCca3CountryCode(editorState.birthCountryCode),
     birthCity: isBirthInfoRequired ? validateRequired(editorState.birthCity ?? "") : undefined,
-    birthCityPostalCode: isBirthInfoRequired
+    birthCityPostalCode: isBirthPostalCodeRequired({
+      accountCountry,
+      birthCountry: editorState.birthCountryCode,
+    })
       ? validateRequired(editorState.birthCityPostalCode ?? "")
       : undefined,
     totalPercentage:

@@ -45,7 +45,12 @@ import {
 } from "../../graphql/partner";
 import { TranslationKey, t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
-import { getRenewalSteps, RenewalStep, renewalSteps } from "../../utils/verificationRenewal";
+import {
+  getRenewalSteps,
+  isBirthPostalCodeRequired,
+  RenewalStep,
+  renewalSteps,
+} from "../../utils/verificationRenewal";
 import { getNextStep } from "./VerificationRenewalCompany";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 import {
@@ -140,7 +145,13 @@ const convertFetchUboToInput = (
     lastName: fetchedUbo.lastName ?? "",
     birthCountryCode,
     birthCity: fetchedUbo.birthInfo?.city ?? "",
-    birthCityPostalCode: fetchedUbo.birthInfo?.postalCode ?? "",
+    // a postal code stored for a UBO who doesn't need one isn't sent back
+    birthCityPostalCode: isBirthPostalCodeRequired({
+      accountCountry,
+      birthCountry: birthCountryCode,
+    })
+      ? (fetchedUbo.birthInfo?.postalCode ?? "")
+      : undefined,
     birthDate: fetchedUbo.birthInfo?.birthDate ?? null,
     qualificationType: fetchedUbo.qualificationType ?? undefined,
     direct: type === "Direct" || type === "DirectAndIndirect",

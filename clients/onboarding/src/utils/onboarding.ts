@@ -177,3 +177,12 @@ export const isCompanyRegistrationNumberRequired = (company: {
 // is a birth in France
 export const toBirthCountry = (cca3: CountryCCA3): CountryCCA3 =>
   isFrenchTerritoryCCA3(cca3) ? "FRA" : cca3;
+
+// the birth postal code is only needed for FICOBA: French account and person born in France
+export const isBirthPostalCodeRequired = ({
+  accountCountry,
+  birthCountry,
+}: {
+  accountCountry: string | null | undefined;
+  birthCountry: CountryCCA3 | undefined;
+}) => accountCountry === "FRA" && isFrenchTerritoryCCA3(birthCountry);

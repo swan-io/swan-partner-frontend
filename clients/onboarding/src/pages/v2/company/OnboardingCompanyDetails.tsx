@@ -41,7 +41,11 @@ import {
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { locale, t } from "../../../utils/i18n";
-import { toBirthCountry, upsertAccountAdminInRelatedIndividuals } from "../../../utils/onboarding";
+import {
+  isBirthPostalCodeRequired,
+  toBirthCountry,
+  upsertAccountAdminInRelatedIndividuals,
+} from "../../../utils/onboarding";
 import { Router } from "../../../utils/routes";
 import { hasOnboardingPrefilled } from "../../../utils/session";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
@@ -222,18 +226,19 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
 
   const onPressNext = () => {
     submitForm({
-      onSuccess: values => {
+      // the birth postal code is None when its field isn't mounted (not required)
+      onSuccess: ({ birthPostal, ...values }) => {
         const option = Option.allFromDict(values);
         if (option.isNone()) {
           return;
         }
-        const currentValues = option.get();
+        const currentValues = { ...option.get(), birthPostal: birthPostal.toUndefined() };
 
         const {
           birthDate,
           birthCountry,
           birthCity,
-          birthPostal,
+          birthPostal: birthPostalCode,
           residenceCountry,
           residenceAddress,
           residenceCity,
@@ -253,7 +258,7 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
             birthDate,
             country: birthCountry,
             city: birthCity,
-            postalCode: birthPostal,
+            postalCode: birthPostalCode,
           },
           address: {
             addressLine1: residenceAddress,
@@ -483,23 +488,32 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
                   )}
                 </FieldsListener>
 
-                <Field name="birthPostal">
-                  {({ value, valid, error, onChange, ref }) => (
-                    <LakeLabel
-                      label={t("form.label.birthPostal")}
-                      render={id => (
-                        <LakeTextInput
-                          id={id}
-                          ref={ref}
-                          value={value}
-                          valid={valid}
-                          error={error}
-                          onChangeText={onChange}
-                        />
-                      )}
-                    />
-                  )}
-                </Field>
+                <FieldsListener names={["birthCountry"]}>
+                  {({ birthCountry }) =>
+                    isBirthPostalCodeRequired({
+                      accountCountry,
+                      birthCountry: birthCountry.value,
+                    }) ? (
+                      <Field name="birthPostal">
+                        {({ value, valid, error, onChange, ref }) => (
+                          <LakeLabel
+                            label={t("form.label.birthPostal")}
+                            render={id => (
+                              <LakeTextInput
+                                id={id}
+                                ref={ref}
+                                value={value}
+                                valid={valid}
+                                error={error}
+                                onChangeText={onChange}
+                              />
+                            )}
+                          />
+                        )}
+                      </Field>
+                    ) : null
+                  }
+                </FieldsListener>
               </View>
             </Tile>
 

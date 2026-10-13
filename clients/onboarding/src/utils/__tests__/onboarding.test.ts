@@ -6,6 +6,7 @@ import {
 } from "../../graphql/partner";
 import {
   cleanData,
+  isBirthPostalCodeRequired,
   isCompanyRegistrationNumberRequired,
   namesMatch,
   toBirthCountry,
@@ -217,5 +218,26 @@ describe("toBirthCountry", () => {
   it("keeps other countries", () => {
     expect(toBirthCountry("POL")).toBe("POL");
     expect(toBirthCountry("PRI")).toBe("PRI");
+  });
+});
+
+describe("isBirthPostalCodeRequired", () => {
+  it("is required for a French account and a person born in France", () => {
+    expect(isBirthPostalCodeRequired({ accountCountry: "FRA", birthCountry: "FRA" })).toBe(true);
+    expect(isBirthPostalCodeRequired({ accountCountry: "FRA", birthCountry: "GLP" })).toBe(true);
+  });
+
+  it("is not required for a person born outside France", () => {
+    expect(isBirthPostalCodeRequired({ accountCountry: "FRA", birthCountry: "POL" })).toBe(false);
+    expect(isBirthPostalCodeRequired({ accountCountry: "FRA", birthCountry: undefined })).toBe(
+      false,
+    );
+  });
+
+  it("is not required for a non-French account", () => {
+    expect(isBirthPostalCodeRequired({ accountCountry: "DEU", birthCountry: "FRA" })).toBe(false);
+    expect(isBirthPostalCodeRequired({ accountCountry: undefined, birthCountry: "FRA" })).toBe(
+      false,
+    );
   });
 });

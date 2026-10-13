@@ -38,7 +38,7 @@ import {
   UpdatePublicIndividualAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { locale, t } from "../../../utils/i18n";
-import { toBirthCountry } from "../../../utils/onboarding";
+import { isBirthPostalCodeRequired, toBirthCountry } from "../../../utils/onboarding";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 import {
@@ -76,6 +76,7 @@ const styles = StyleSheet.create({
 export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors }: Props) => {
   const onboardingId = onboarding.id;
   const { accountAdmin, accountInfo } = onboarding;
+  const accountCountry = accountInfo?.country;
   const isFirstMount = useFirstMountState();
 
   const [updateIndividualOnboarding, updateResult] = useMutation(
@@ -172,18 +173,19 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
 
   const onPressNext = () => {
     submitForm({
-      onSuccess: values => {
+      // the birth postal code is None when its field isn't mounted (not required)
+      onSuccess: ({ birthPostal, ...values }) => {
         const option = Option.allFromDict(values);
         if (option.isNone()) {
           return;
         }
-        const currentValues = option.get();
+        const currentValues = { ...option.get(), birthPostal: birthPostal.toUndefined() };
 
         const {
           birthDate,
           birthCountry,
           birthCity,
-          birthPostal,
+          birthPostal: birthPostalCode,
           residenceCountry,
           residenceAddress,
           residenceCity,
@@ -200,7 +202,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                 birthDate,
                 country: birthCountry,
                 city: birthCity,
-                postalCode: birthPostal,
+                postalCode: birthPostalCode,
               },
               address: {
                 addressLine1: residenceAddress,
@@ -401,23 +403,32 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                   )}
                 </FieldsListener>
 
-                <Field name="birthPostal">
-                  {({ value, valid, error, onChange, ref }) => (
-                    <LakeLabel
-                      label={t("form.label.birthPostal")}
-                      render={id => (
-                        <LakeTextInput
-                          id={id}
-                          ref={ref}
-                          value={value}
-                          error={error}
-                          valid={valid}
-                          onChangeText={onChange}
-                        />
-                      )}
-                    />
-                  )}
-                </Field>
+                <FieldsListener names={["birthCountry"]}>
+                  {({ birthCountry }) =>
+                    isBirthPostalCodeRequired({
+                      accountCountry,
+                      birthCountry: birthCountry.value,
+                    }) ? (
+                      <Field name="birthPostal">
+                        {({ value, valid, error, onChange, ref }) => (
+                          <LakeLabel
+                            label={t("form.label.birthPostal")}
+                            render={id => (
+                              <LakeTextInput
+                                id={id}
+                                ref={ref}
+                                value={value}
+                                error={error}
+                                valid={valid}
+                                onChangeText={onChange}
+                              />
+                            )}
+                          />
+                        )}
+                      </Field>
+                    ) : null
+                  }
+                </FieldsListener>
               </View>
             </Tile>
 

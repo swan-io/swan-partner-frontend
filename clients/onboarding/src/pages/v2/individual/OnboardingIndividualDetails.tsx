@@ -142,7 +142,10 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
     birthPostal: {
       initialValue: accountAdmin?.birthInfo?.postalCode ?? "",
       sanitize: trim,
-      validate: validateRequired,
+      validate: (value, { getFieldValue }) =>
+        isBirthPostalCodeRequired({ accountCountry, birthCountry: getFieldValue("birthCountry") })
+          ? validateRequired(value)
+          : undefined,
     },
     residenceCountry: {
       initialValue: match([accountAdmin?.address?.country, accountInfo?.country])
@@ -180,24 +183,24 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
 
   const onPressNext = () => {
     submitForm({
-      // the birth postal code is None when its field isn't mounted (not required)
-      onSuccess: ({ birthPostal, ...values }) => {
+      onSuccess: values => {
         const option = Option.allFromDict(values);
         if (option.isNone()) {
           return;
         }
-        const currentValues = { ...option.get(), birthPostal: birthPostal.toUndefined() };
+        const currentValues = option.get();
 
         const {
           birthDate,
           birthCountry,
           birthCity,
+          birthPostal,
           residenceCountry,
           residenceAddress,
           residenceCity,
           residencePostal,
           ...input
-        } = option.get();
+        } = currentValues;
 
         updateIndividualOnboarding({
           input: {
@@ -208,7 +211,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                 birthDate,
                 country: birthCountry,
                 city: birthCity,
-                postalCode: birthPostal.toUndefined(),
+                postalCode: birthPostal,
               },
               address: {
                 addressLine1: residenceAddress,
@@ -410,16 +413,18 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                 </FieldsListener>
 
                 <FieldsListener names={["birthCountry"]}>
-                  {({ birthCountry }) =>
-                    isBirthPostalCodeRequired({
-                      accountCountry,
-                      birthCountry: birthCountry.value,
-                    }) ? (
-                      <Field name="birthPostal">
-                        {field => <BirthPostalCodeInput {...field} />}
-                      </Field>
-                    ) : null
-                  }
+                  {({ birthCountry }) => (
+                    <Field name="birthPostal">
+                      {field =>
+                        isBirthPostalCodeRequired({
+                          accountCountry,
+                          birthCountry: birthCountry.value,
+                        }) ? (
+                          <BirthPostalCodeInput {...field} />
+                        ) : null
+                      }
+                    </Field>
+                  )}
                 </FieldsListener>
               </View>
             </Tile>

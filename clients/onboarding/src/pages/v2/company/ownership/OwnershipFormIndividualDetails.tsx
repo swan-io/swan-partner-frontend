@@ -85,8 +85,7 @@ export const OwnershipFormIndividualDetails = ({
     return {
       submit: () => {
         submitForm({
-          // the birth postal code is None when its field isn't mounted (not required)
-          onSuccess: ({ birthPostal, ...values }) => {
+          onSuccess: values => {
             const option = Option.allFromDict(values);
             if (option.isNone()) {
               return;
@@ -95,6 +94,7 @@ export const OwnershipFormIndividualDetails = ({
               birthDate,
               birthCountry,
               birthCity,
+              birthPostal,
               isUnitedStatesPerson,
               unitedStatesTaxIdentificationNumber,
               ...input
@@ -104,7 +104,7 @@ export const OwnershipFormIndividualDetails = ({
                 birthDate,
                 country: birthCountry,
                 city: birthCity,
-                postalCode: birthPostal.toUndefined(),
+                postalCode: birthPostal,
               },
               unitedStatesTaxInfo: {
                 isUnitedStatesPerson: isUnitedStatesPerson ?? false,
@@ -174,7 +174,10 @@ export const OwnershipFormIndividualDetails = ({
     birthPostal: {
       initialValue: initialValues?.birthInfo?.postalCode ?? "",
       sanitize: trim,
-      validate: validateRequired,
+      validate: (value, { getFieldValue }) =>
+        isBirthPostalCodeRequired({ accountCountry, birthCountry: getFieldValue("birthCountry") })
+          ? validateRequired(value)
+          : undefined,
     },
     sex: {
       initialValue: initialValues?.sex ?? undefined,
@@ -336,15 +339,18 @@ export const OwnershipFormIndividualDetails = ({
             </FieldsListener>
 
             <FieldsListener names={["birthCountry"]}>
-              {({ birthCountry }) =>
-                isBirthPostalCodeRequired({ accountCountry, birthCountry: birthCountry.value }) ? (
-                  <Field name="birthPostal">
-                    {field => (
+              {({ birthCountry }) => (
+                <Field name="birthPostal">
+                  {field =>
+                    isBirthPostalCodeRequired({
+                      accountCountry,
+                      birthCountry: birthCountry.value,
+                    }) ? (
                       <BirthPostalCodeInput {...field} readOnly={isReadOnly(field.value)} />
-                    )}
-                  </Field>
-                ) : null
-              }
+                    ) : null
+                  }
+                </Field>
+              )}
             </FieldsListener>
 
             <LakeLabel

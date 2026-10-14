@@ -47,7 +47,6 @@ import { TranslationKey, t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
 import {
   getRenewalSteps,
-  isBirthPostalCodeRequired,
   RenewalStep,
   renewalSteps,
   toSovereignCountry,
@@ -147,13 +146,7 @@ const convertFetchUboToInput = (
     lastName: fetchedUbo.lastName ?? "",
     birthCountryCode,
     birthCity: fetchedUbo.birthInfo?.city ?? "",
-    // a postal code stored for a UBO who doesn't need one isn't sent back
-    birthCityPostalCode: isBirthPostalCodeRequired({
-      accountCountry,
-      birthCountry: birthCountryCode,
-    })
-      ? (fetchedUbo.birthInfo?.postalCode ?? "")
-      : undefined,
+    birthCityPostalCode: fetchedUbo.birthInfo?.postalCode ?? "",
     birthDate: fetchedUbo.birthInfo?.birthDate ?? null,
     qualificationType: fetchedUbo.qualificationType ?? undefined,
     direct: type === "Direct" || type === "DirectAndIndirect",

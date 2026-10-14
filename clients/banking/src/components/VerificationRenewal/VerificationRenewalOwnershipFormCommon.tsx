@@ -61,7 +61,7 @@ export type Input = {
   birthDate: string | null;
   birthCountryCode: CountryCCA3;
   birthCity: string;
-  birthCityPostalCode?: string;
+  birthCityPostalCode: string;
   qualificationType: UltimateBeneficialOwnerQualificationType | undefined;
   direct?: boolean;
   indirect?: boolean;
@@ -120,7 +120,13 @@ export const VerificationRenewalOwnershipFormCommon = ({
     birthCityPostalCode: {
       initialValue: initialValues.birthCityPostalCode ?? "",
       sanitize: trim,
-      validate: validateRequired,
+      validate: (value, { getFieldValue }) =>
+        isBirthPostalCodeRequired({
+          accountCountry,
+          birthCountry: getFieldValue("birthCountryCode"),
+        })
+          ? validateRequired(value)
+          : undefined,
     },
     qualificationType: {
       initialValue: initialValues.qualificationType ?? "Ownership",
@@ -170,6 +176,7 @@ export const VerificationRenewalOwnershipFormCommon = ({
               lastName,
               birthCountryCode,
               birthCity,
+              birthCityPostalCode,
               qualificationType,
             });
 
@@ -192,7 +199,6 @@ export const VerificationRenewalOwnershipFormCommon = ({
                   return onSave({
                     ...requiredFields.get(),
                     birthDate: birthDate.flatMap(Option.fromNullable).toNull(),
-                    birthCityPostalCode: birthCityPostalCode.toUndefined(),
                     direct,
                     indirect,
                     totalPercentage: Number(totalPercentage),
@@ -203,7 +209,6 @@ export const VerificationRenewalOwnershipFormCommon = ({
                 return onSave({
                   ...requiredFields.get(),
                   birthDate: birthDate.flatMap(Option.fromNullable).toNull(),
-                  birthCityPostalCode: birthCityPostalCode.toUndefined(),
                 });
               })
               .otherwise(() => {});
@@ -329,15 +334,15 @@ export const VerificationRenewalOwnershipFormCommon = ({
                       )}
                     </Field>
 
-                    {isBirthPostalCodeRequired({
-                      accountCountry,
-                      birthCountry: birthCountryCode.value,
-                    }) ? (
-                      <>
-                        <Space width={12} />
+                    <Field name="birthCityPostalCode">
+                      {({ value, onChange, error }) =>
+                        isBirthPostalCodeRequired({
+                          accountCountry,
+                          birthCountry: birthCountryCode.value,
+                        }) ? (
+                          <>
+                            <Space width={12} />
 
-                        <Field name="birthCityPostalCode">
-                          {({ value, onChange, error }) => (
                             <LakeLabel
                               label={t("verificationRenewal.ownership.birthPostalCode")}
                               style={styles.inputContainer}
@@ -353,10 +358,10 @@ export const VerificationRenewalOwnershipFormCommon = ({
                                 />
                               )}
                             />
-                          )}
-                        </Field>
-                      </>
-                    ) : null}
+                          </>
+                        ) : null
+                      }
+                    </Field>
                   </>
                 )}
               </FieldsListener>

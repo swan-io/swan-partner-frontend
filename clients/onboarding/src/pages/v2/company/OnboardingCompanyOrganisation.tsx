@@ -35,7 +35,10 @@ import {
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { locale, t } from "../../../utils/i18n";
-import { isMainCompanyOfCapitalDeposit } from "../../../utils/onboarding";
+import {
+  isCompanyRegistrationNumberRequired,
+  isMainCompanyOfCapitalDeposit,
+} from "../../../utils/onboarding";
 import { Router } from "../../../utils/routes";
 import { hasOnboardingPrefilled } from "../../../utils/session";
 import {
@@ -115,9 +118,10 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
     .with({ accountCountry: "ITA" }, () => true)
     .otherwise(() => false);
 
-  const isRegistrationNumberRequired = match({ companyCountry })
-    .with({ companyCountry: "DEU" }, () => false)
-    .otherwise(() => true);
+  const isRegistrationNumberRequired = isCompanyRegistrationNumberRequired({
+    country: companyCountry,
+    legalFormCode: company?.legalFormCode,
+  });
 
   const isTaxIdentificationRequired = match({
     companyCountry,

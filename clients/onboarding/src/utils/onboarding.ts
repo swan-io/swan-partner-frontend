@@ -1,5 +1,5 @@
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
-import { match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   CompanyAccountHolderOnboardingAccountAdmin,
   CompanyLegalRepresentativeAndUltimateBeneficialOwner,
@@ -156,3 +156,15 @@ export const cleanData = <T>(value: T): CleanData<T> => {
 export const isMainCompanyOfCapitalDeposit = (
   onboarding: Pick<CompanyOnboardingFragment, "capitalDepositType">,
 ) => onboarding.capitalDepositType === "MainCompanyAccount";
+
+// French works councils (CSE) often have no registration number, so the API doesn't require one
+const CSE_LEGAL_FORM_CODES = ["XK4T", "K99N"] as const;
+
+export const isCompanyRegistrationNumberRequired = (company: {
+  country: string | null | undefined;
+  legalFormCode: string | null | undefined;
+}) =>
+  match(company)
+    .with({ country: "DEU" }, () => false)
+    .with({ country: "FRA", legalFormCode: P.union(...CSE_LEGAL_FORM_CODES) }, () => false)
+    .otherwise(() => true);

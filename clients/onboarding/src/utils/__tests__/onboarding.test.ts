@@ -6,6 +6,7 @@ import {
 } from "../../graphql/partner";
 import {
   cleanData,
+  isCompanyRegistrationNumberRequired,
   namesMatch,
   transformRelatedIndividualsToInput,
   upsertAccountAdminInRelatedIndividuals,
@@ -169,5 +170,38 @@ describe("upsertAccountAdminInRelatedIndividuals", () => {
       asUpdatedFields({ firstName: "Jane", lastName: "Smith" }),
     );
     expect(result).toHaveLength(2);
+  });
+});
+
+describe("isCompanyRegistrationNumberRequired", () => {
+  it("is optional for a French CSE", () => {
+    expect(isCompanyRegistrationNumberRequired({ country: "FRA", legalFormCode: "XK4T" })).toBe(
+      false,
+    );
+    expect(isCompanyRegistrationNumberRequired({ country: "FRA", legalFormCode: "K99N" })).toBe(
+      false,
+    );
+  });
+
+  it("is required for other French legal forms", () => {
+    expect(isCompanyRegistrationNumberRequired({ country: "FRA", legalFormCode: "5RDO" })).toBe(
+      true,
+    );
+    expect(isCompanyRegistrationNumberRequired({ country: "FRA", legalFormCode: null })).toBe(true);
+  });
+
+  it("is optional for German companies", () => {
+    expect(isCompanyRegistrationNumberRequired({ country: "DEU", legalFormCode: "2HBR" })).toBe(
+      false,
+    );
+  });
+
+  it("is required for other countries", () => {
+    expect(isCompanyRegistrationNumberRequired({ country: "BEL", legalFormCode: "XK4T" })).toBe(
+      true,
+    );
+    expect(isCompanyRegistrationNumberRequired({ country: undefined, legalFormCode: null })).toBe(
+      true,
+    );
   });
 });

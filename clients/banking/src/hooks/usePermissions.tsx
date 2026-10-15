@@ -8,6 +8,8 @@ import {
 
 const ENABLED_OR_BINDING_USER_ERROR = P.union("BindingUserError", "Enabled");
 const ENABLED = "Enabled";
+// a suspended account can't emit transfers, even if membership and settings allow it
+const NOT_SUSPENDED_ACCOUNT = { statusInfo: { status: P.not("Suspended") } };
 
 const PERMISSIONS_MATRIX = {
   canReadAccountDetails: {
@@ -91,6 +93,7 @@ const PERMISSIONS_MATRIX = {
       canViewAccount: true,
       canInitiatePayments: true,
       statusInfo: { status: ENABLED },
+      account: NOT_SUSPENDED_ACCOUNT,
     },
     settings: {
       canInitiateCreditTransfers: true,
@@ -119,6 +122,7 @@ const PERMISSIONS_MATRIX = {
         canViewAccount: true,
         canInitiatePayments: true,
         statusInfo: { status: ENABLED },
+        account: NOT_SUSPENDED_ACCOUNT,
       },
       settings: {
         canInitiateCreditTransfers: true,
@@ -129,6 +133,7 @@ const PERMISSIONS_MATRIX = {
         canInitiatePayments: true,
         canManageBeneficiaries: true,
         statusInfo: { status: ENABLED },
+        account: NOT_SUSPENDED_ACCOUNT,
       },
       settings: {
         canInitiateCreditTransfers: true,
@@ -142,6 +147,7 @@ const PERMISSIONS_MATRIX = {
       canViewAccount: true,
       canInitiatePayments: true,
       statusInfo: { status: ENABLED },
+      account: NOT_SUSPENDED_ACCOUNT,
     },
     settings: {
       canInitiateCreditTransfers: true,
@@ -152,6 +158,7 @@ const PERMISSIONS_MATRIX = {
       canInitiatePayments: true,
       canManageBeneficiaries: true,
       statusInfo: { status: ENABLED },
+      account: NOT_SUSPENDED_ACCOUNT,
     },
     settings: {
       canInitiateCreditTransfers: true,

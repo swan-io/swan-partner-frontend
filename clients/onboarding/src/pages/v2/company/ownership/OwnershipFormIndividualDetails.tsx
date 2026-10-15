@@ -15,6 +15,7 @@ import { BirthdatePicker } from "@swan-io/shared-business/src/components/Birthda
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitCityInput } from "@swan-io/shared-business/src/components/PlacekitCityInput";
 import {
+  CompanyCountryCCA3,
   CountryCCA3,
   isCountryCCA3,
   sovereignCountries,
@@ -60,7 +61,7 @@ type Props = {
   errors: { fieldName: string; code: ServerInvalidFieldCode }[];
   ref: Ref<OnboardingCompanyOwnershipFormIndividualDetailsRef>;
   accountCountry: string;
-  companyCountry: CountryCCA3;
+  companyCountry: CompanyCountryCCA3;
   isAccountAdmin: boolean;
   mode: "add" | "edit";
   onSave: (input: Partial<RelatedIndividualInput>) => void | Promise<void>;
@@ -139,7 +140,7 @@ export const OwnershipFormIndividualDetails = ({
     nationality: {
       initialValue: match([
         toSovereignCountry(initialValues?.nationality),
-        toSovereignCountry(companyCountry),
+        companyCountry,
         mode,
       ] as const)
         .returnType<CountryCCA3 | undefined>()
@@ -156,7 +157,7 @@ export const OwnershipFormIndividualDetails = ({
     birthCountry: {
       initialValue: match([
         toSovereignCountry(initialValues?.birthInfo?.country),
-        toSovereignCountry(companyCountry),
+        companyCountry,
         mode,
       ])
         .returnType<CountryCCA3 | undefined>()

@@ -1,5 +1,5 @@
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
-import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { CompanyCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { Ref, useImperativeHandle, useRef, useState } from "react";
 import { match, P } from "ts-pattern";
 import {
@@ -36,7 +36,7 @@ type Props = {
   initialValues: Partial<RelatedIndividualInput>;
   ref: Ref<OnboardingCompanyOwnershipFormIndividualRef>;
   onboarding: NonNullable<CompanyOnboardingFragment>;
-  companyCountry: CountryCCA3;
+  companyCountry: CompanyCountryCCA3;
   step: Extract<OwnershipFormStep, "legal" | "legalAndUbo" | "ubo">;
   individualType: RelatedIndividualType;
   errors: { fieldName: string; code: ServerInvalidFieldCode }[];

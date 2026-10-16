@@ -13,7 +13,7 @@ import { trim } from "@swan-io/lake/src/utils/string";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitCityInput } from "@swan-io/shared-business/src/components/PlacekitCityInput";
-import { allCountries, CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { CountryCCA3, sovereignCountries } from "@swan-io/shared-business/src/constants/countries";
 import {
   validateName,
   validateNullableRequired,
@@ -25,6 +25,7 @@ import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { AccountCountry, UltimateBeneficialOwnerQualificationType } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
+import { isBirthPostalCodeRequired } from "../../utils/verificationRenewal";
 
 const styles = StyleSheet.create({
   inputContainer: {
@@ -119,7 +120,13 @@ export const VerificationRenewalOwnershipFormCommon = ({
     birthCityPostalCode: {
       initialValue: initialValues.birthCityPostalCode ?? "",
       sanitize: trim,
-      validate: isBirthInfoRequired ? validateRequired : undefined,
+      validate: (value, { getFieldValue }) =>
+        isBirthPostalCodeRequired({
+          accountCountry,
+          birthCountry: getFieldValue("birthCountryCode"),
+        })
+          ? validateRequired(value)
+          : undefined,
     },
     qualificationType: {
       initialValue: initialValues.qualificationType ?? "Ownership",
@@ -282,7 +289,7 @@ export const VerificationRenewalOwnershipFormCommon = ({
                         error={error}
                         value={value}
                         placeholder={t("verificationRenewal.ownership.birthCountry.placeholder")}
-                        countries={allCountries}
+                        countries={sovereignCountries}
                         onValueChange={onChange}
                       />
                     )}
@@ -327,30 +334,33 @@ export const VerificationRenewalOwnershipFormCommon = ({
                       )}
                     </Field>
 
-                    <Space width={12} />
-
                     <Field name="birthCityPostalCode">
-                      {({ value, onChange, error }) => (
-                        <LakeLabel
-                          label={t("verificationRenewal.ownership.birthPostalCode")}
-                          optionalLabel={isBirthInfoRequired ? undefined : t("common.optional")}
-                          style={styles.inputContainer}
-                          render={id => (
-                            <LakeTextInput
-                              error={error}
-                              placeholder={
-                                birthCountryCode.value == null
-                                  ? t("verificationRenewal.ownership.fillBirthCountry")
-                                  : t("verificationRenewal.ownership.birthPostalCode.placeholder")
-                              }
-                              id={id}
-                              disabled={birthCountryCode.value === undefined}
-                              value={value}
-                              onChangeText={onChange}
+                      {({ value, onChange, error }) =>
+                        isBirthPostalCodeRequired({
+                          accountCountry,
+                          birthCountry: birthCountryCode.value,
+                        }) ? (
+                          <>
+                            <Space width={12} />
+
+                            <LakeLabel
+                              label={t("verificationRenewal.ownership.birthPostalCode")}
+                              style={styles.inputContainer}
+                              render={id => (
+                                <LakeTextInput
+                                  error={error}
+                                  placeholder={t(
+                                    "verificationRenewal.ownership.birthPostalCode.placeholder",
+                                  )}
+                                  id={id}
+                                  value={value}
+                                  onChangeText={onChange}
+                                />
+                              )}
                             />
-                          )}
-                        />
-                      )}
+                          </>
+                        ) : null
+                      }
                     </Field>
                   </>
                 )}

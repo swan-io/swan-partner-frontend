@@ -6,7 +6,7 @@ import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
-import { allCountries, CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { CountryCCA3, sovereignCountries } from "@swan-io/shared-business/src/constants/countries";
 import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { useForm } from "@swan-io/use-form";
 import { Ref, useEffect, useImperativeHandle } from "react";
@@ -14,6 +14,7 @@ import { View } from "react-native";
 import { match, P } from "ts-pattern";
 import { RelatedCompanyInput } from "../../../../graphql/partner";
 import { locale, t } from "../../../../utils/i18n";
+import { toSovereignCountry } from "../../../../utils/onboarding";
 import { getRegistrationNumberLabel } from "../../../../utils/templateTranslations";
 import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../../../utils/validation";
 
@@ -60,7 +61,7 @@ export const OwnershipFormCompany = ({
       validate: validateRequired,
     },
     registrationCountry: {
-      initialValue: (initialValues.registrationCountry as CountryCCA3) ?? companyCountry,
+      initialValue: toSovereignCountry(initialValues.registrationCountry) ?? companyCountry,
       validate: validateRequired,
     },
     registrationNumber: {
@@ -120,7 +121,7 @@ export const OwnershipFormCompany = ({
               <CountryPicker
                 id={id}
                 ref={ref}
-                countries={allCountries}
+                countries={sovereignCountries}
                 value={value}
                 error={error}
                 onValueChange={onChange}

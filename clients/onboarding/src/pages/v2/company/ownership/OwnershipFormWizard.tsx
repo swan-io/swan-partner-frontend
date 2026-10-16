@@ -1,4 +1,4 @@
-import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { isCompanyCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { Ref, useImperativeHandle, useRef, useState } from "react";
 import { match, P } from "ts-pattern";
 import { v4 as uuid } from "uuid";
@@ -70,7 +70,8 @@ export const OwnershipFormWizard = ({
   });
 
   const { company } = onboarding;
-  const companyCountry = (company?.address?.country ?? "FRA") as CountryCCA3;
+  const addressCountry = company?.address?.country;
+  const companyCountry = isCompanyCountryCCA3(addressCountry) ? addressCountry : "FRA";
 
   useImperativeHandle(ref, () => {
     return {

@@ -16,10 +16,10 @@ import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/compone
 import { PlacekitCityInput } from "@swan-io/shared-business/src/components/PlacekitCityInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import {
-  allCountries,
   CountryCCA3,
   IndividualCountryCCA3,
   isCountryCCA3,
+  sovereignCountries,
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import {
@@ -34,6 +34,7 @@ import { combineValidators, useForm } from "@swan-io/use-form";
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
+import { BirthPostalCodeInput } from "../../../components/BirthPostalCodeInput";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import { StepTitle } from "../../../components/StepTitle";
 import {
@@ -41,7 +42,11 @@ import {
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { locale, t } from "../../../utils/i18n";
-import { upsertAccountAdminInRelatedIndividuals } from "../../../utils/onboarding";
+import {
+  isBirthPostalCodeRequired,
+  toSovereignCountry,
+  upsertAccountAdminInRelatedIndividuals,
+} from "../../../utils/onboarding";
 import { Router } from "../../../utils/routes";
 import { hasOnboardingPrefilled } from "../../../utils/session";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
@@ -123,7 +128,10 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
       validate: validateName,
     },
     nationality: {
-      initialValue: match([accountAdmin?.nationality, accountInfo?.country] as const)
+      initialValue: match([
+        toSovereignCountry(accountAdmin?.nationality),
+        accountInfo?.country,
+      ] as const)
         .returnType<CountryCCA3>()
         .with([P.when(isCountryCCA3), P._], ([nationality]) => nationality)
         .with([P._, P.when(isCountryCCA3)], ([_, country]) => country)
@@ -135,9 +143,12 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
       validate: validateNullableRequired,
     },
     birthCountry: {
-      initialValue: match([accountAdmin?.birthInfo?.country, accountInfo?.country])
+      initialValue: match([
+        toSovereignCountry(accountAdmin?.birthInfo?.country),
+        accountInfo?.country,
+      ])
         .returnType<CountryCCA3>()
-        .with([P.when(isCountryCCA3), P._], ([nationality]) => nationality)
+        .with([P.when(isCountryCCA3), P._], ([birthCountry]) => birthCountry)
         .with([P._, P.when(isCountryCCA3)], ([_, country]) => country)
         .otherwise(() => "FRA"),
       validate: validateRequired,
@@ -150,12 +161,18 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
     birthPostal: {
       initialValue: accountAdmin?.birthInfo?.postalCode ?? "",
       sanitize: trim,
-      validate: validateRequired,
+      validate: (value, { getFieldValue }) =>
+        isBirthPostalCodeRequired({ accountCountry, birthCountry: getFieldValue("birthCountry") })
+          ? validateRequired(value)
+          : undefined,
     },
     residenceCountry: {
-      initialValue: match([accountAdmin?.address?.country, accountInfo?.country])
+      initialValue: match([
+        toSovereignCountry(accountAdmin?.address?.country),
+        accountInfo?.country,
+      ])
         .returnType<CountryCCA3>()
-        .with([P.when(isCountryCCA3), P._], ([nationality]) => nationality)
+        .with([P.when(isCountryCCA3), P._], ([country]) => country)
         .with([P._, P.when(isCountryCCA3)], ([_, country]) => country)
         .otherwise(() => "FRA"),
       validate: validateRequired,
@@ -420,7 +437,7 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
                         <CountryPicker
                           id={id}
                           ref={ref}
-                          countries={allCountries}
+                          countries={sovereignCountries}
                           value={value}
                           error={error}
                           onValueChange={onChange}
@@ -444,7 +461,7 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
                         <CountryPicker
                           id={id}
                           ref={ref}
-                          countries={allCountries}
+                          countries={sovereignCountries}
                           value={value}
                           error={error}
                           onValueChange={onChange}
@@ -483,23 +500,20 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
                   )}
                 </FieldsListener>
 
-                <Field name="birthPostal">
-                  {({ value, valid, error, onChange, ref }) => (
-                    <LakeLabel
-                      label={t("form.label.birthPostal")}
-                      render={id => (
-                        <LakeTextInput
-                          id={id}
-                          ref={ref}
-                          value={value}
-                          valid={valid}
-                          error={error}
-                          onChangeText={onChange}
-                        />
-                      )}
-                    />
+                <FieldsListener names={["birthCountry"]}>
+                  {({ birthCountry }) => (
+                    <Field name="birthPostal">
+                      {field =>
+                        isBirthPostalCodeRequired({
+                          accountCountry,
+                          birthCountry: birthCountry.value,
+                        }) ? (
+                          <BirthPostalCodeInput {...field} />
+                        ) : null
+                      }
+                    </Field>
                   )}
-                </Field>
+                </FieldsListener>
               </View>
             </Tile>
 
@@ -515,7 +529,7 @@ export const OnboardingCompanyDetails = ({ onboarding, serverValidationErrors }:
                         <CountryPicker
                           id={id}
                           ref={ref}
-                          countries={allCountries}
+                          countries={sovereignCountries}
                           value={value}
                           error={error}
                           onValueChange={onChange}

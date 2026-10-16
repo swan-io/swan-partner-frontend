@@ -14,10 +14,10 @@ import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPi
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { PlacekitCityInput } from "@swan-io/shared-business/src/components/PlacekitCityInput";
 import {
-  allCountries,
   CountryCCA3,
   individualCountries,
   isCountryCCA3,
+  sovereignCountries,
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import {
@@ -30,6 +30,7 @@ import { combineValidators, useForm } from "@swan-io/use-form";
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
+import { BirthPostalCodeInput } from "../../../components/BirthPostalCodeInput";
 import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import { StepTitle } from "../../../components/StepTitle";
@@ -38,6 +39,7 @@ import {
   UpdatePublicIndividualAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { locale, t } from "../../../utils/i18n";
+import { isBirthPostalCodeRequired, toSovereignCountry } from "../../../utils/onboarding";
 import { Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 import {
@@ -75,6 +77,7 @@ const styles = StyleSheet.create({
 export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors }: Props) => {
   const onboardingId = onboarding.id;
   const { accountAdmin, accountInfo } = onboarding;
+  const accountCountry = accountInfo?.country;
   const isFirstMount = useFirstMountState();
 
   const [updateIndividualOnboarding, updateResult] = useMutation(
@@ -106,7 +109,10 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
       validate: validateName,
     },
     nationality: {
-      initialValue: match([accountAdmin?.nationality, accountInfo?.country] as const)
+      initialValue: match([
+        toSovereignCountry(accountAdmin?.nationality),
+        accountInfo?.country,
+      ] as const)
         .returnType<CountryCCA3>()
         .with([P.when(isCountryCCA3), P._], ([nationality]) => nationality)
         .with([P._, P.when(isCountryCCA3)], ([_, country]) => country)
@@ -118,9 +124,12 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
       validate: validateNullableRequired,
     },
     birthCountry: {
-      initialValue: match([accountAdmin?.birthInfo?.country, accountInfo?.country])
+      initialValue: match([
+        toSovereignCountry(accountAdmin?.birthInfo?.country),
+        accountInfo?.country,
+      ])
         .returnType<CountryCCA3>()
-        .with([P.when(isCountryCCA3), P._], ([nationality]) => nationality)
+        .with([P.when(isCountryCCA3), P._], ([birthCountry]) => birthCountry)
         .with([P._, P.when(isCountryCCA3)], ([_, country]) => country)
         .otherwise(() => "FRA"),
       validate: validateRequired,
@@ -133,12 +142,15 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
     birthPostal: {
       initialValue: accountAdmin?.birthInfo?.postalCode ?? "",
       sanitize: trim,
-      validate: validateRequired,
+      validate: (value, { getFieldValue }) =>
+        isBirthPostalCodeRequired({ accountCountry, birthCountry: getFieldValue("birthCountry") })
+          ? validateRequired(value)
+          : undefined,
     },
     residenceCountry: {
       initialValue: match([accountAdmin?.address?.country, accountInfo?.country])
         .returnType<CountryCCA3>()
-        .with([P.when(isCountryCCA3), P._], ([nationality]) => nationality)
+        .with([P.when(isCountryCCA3), P._], ([country]) => country)
         .with([P._, P.when(isCountryCCA3)], ([_, country]) => country)
         .otherwise(() => "FRA"),
       validate: validateRequired,
@@ -316,7 +328,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                         <CountryPicker
                           id={id}
                           ref={ref}
-                          countries={allCountries}
+                          countries={sovereignCountries}
                           value={value}
                           error={error}
                           onValueChange={onChange}
@@ -361,7 +373,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                         <CountryPicker
                           id={id}
                           ref={ref}
-                          countries={allCountries}
+                          countries={sovereignCountries}
                           value={value}
                           error={error}
                           onValueChange={onChange}
@@ -400,23 +412,20 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                   )}
                 </FieldsListener>
 
-                <Field name="birthPostal">
-                  {({ value, valid, error, onChange, ref }) => (
-                    <LakeLabel
-                      label={t("form.label.birthPostal")}
-                      render={id => (
-                        <LakeTextInput
-                          id={id}
-                          ref={ref}
-                          value={value}
-                          error={error}
-                          valid={valid}
-                          onChangeText={onChange}
-                        />
-                      )}
-                    />
+                <FieldsListener names={["birthCountry"]}>
+                  {({ birthCountry }) => (
+                    <Field name="birthPostal">
+                      {field =>
+                        isBirthPostalCodeRequired({
+                          accountCountry,
+                          birthCountry: birthCountry.value,
+                        }) ? (
+                          <BirthPostalCodeInput {...field} />
+                        ) : null
+                      }
+                    </Field>
                   )}
-                </Field>
+                </FieldsListener>
               </View>
             </Tile>
 

@@ -45,7 +45,12 @@ import {
 } from "../../graphql/partner";
 import { TranslationKey, t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
-import { getRenewalSteps, RenewalStep, renewalSteps } from "../../utils/verificationRenewal";
+import {
+  getRenewalSteps,
+  RenewalStep,
+  renewalSteps,
+  toSovereignCountry,
+} from "../../utils/verificationRenewal";
 import { getNextStep } from "./VerificationRenewalCompany";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 import {
@@ -123,11 +128,12 @@ const convertFetchUboToInput = (
     }))
     .otherwise(() => ({}));
 
-  const birthCountryCode = isCountryCCA3(fetchedUbo.birthInfo?.country)
-    ? fetchedUbo.birthInfo?.country
-    : isCountryCCA2(fetchedUbo.birthInfo?.country)
-      ? (getCCA3forCCA2(fetchedUbo.birthInfo?.country) ?? accountCountry)
-      : accountCountry;
+  const birthCountryCode =
+    toSovereignCountry(
+      isCountryCCA2(fetchedUbo.birthInfo?.country)
+        ? getCCA3forCCA2(fetchedUbo.birthInfo?.country)
+        : fetchedUbo.birthInfo?.country,
+    ) ?? accountCountry;
 
   // Normalize CCA2 country codes to CCA3, which the API expects
   const addressCountry = isCountryCCA2(fetchedUbo.address?.country)

@@ -15,9 +15,10 @@ import { BirthdatePicker } from "@swan-io/shared-business/src/components/Birthda
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitCityInput } from "@swan-io/shared-business/src/components/PlacekitCityInput";
 import {
-  allCountries,
+  CompanyCountryCCA3,
   CountryCCA3,
   isCountryCCA3,
+  sovereignCountries,
 } from "@swan-io/shared-business/src/constants/countries";
 import {
   validateBooleanTypeRequired,
@@ -30,9 +31,11 @@ import { combineValidators, useForm } from "@swan-io/use-form";
 import { Ref, useEffect, useImperativeHandle } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
+import { BirthPostalCodeInput } from "../../../../components/BirthPostalCodeInput";
 import { gender } from "../../../../constants/business";
 import { Gender, RelatedIndividualInput } from "../../../../graphql/partner";
 import { t } from "../../../../utils/i18n";
+import { isBirthPostalCodeRequired, toSovereignCountry } from "../../../../utils/onboarding";
 import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../../../utils/validation";
 
 const styles = StyleSheet.create({
@@ -57,7 +60,8 @@ type Props = {
   initialValues: RelatedIndividualInput;
   errors: { fieldName: string; code: ServerInvalidFieldCode }[];
   ref: Ref<OnboardingCompanyOwnershipFormIndividualDetailsRef>;
-  companyCountry: CountryCCA3;
+  accountCountry: string;
+  companyCountry: CompanyCountryCCA3;
   isAccountAdmin: boolean;
   mode: "add" | "edit";
   onSave: (input: Partial<RelatedIndividualInput>) => void | Promise<void>;
@@ -71,6 +75,7 @@ const genderItems: Item<Gender>[] = gender.map(({ text, value }) => ({
 export const OwnershipFormIndividualDetails = ({
   ref,
   onSave,
+  accountCountry,
   companyCountry,
   isAccountAdmin,
   initialValues,
@@ -133,7 +138,11 @@ export const OwnershipFormIndividualDetails = ({
       validate: validateName,
     },
     nationality: {
-      initialValue: match([initialValues?.nationality, companyCountry, mode] as const)
+      initialValue: match([
+        toSovereignCountry(initialValues?.nationality),
+        companyCountry,
+        mode,
+      ] as const)
         .returnType<CountryCCA3 | undefined>()
         .with([P.when(isCountryCCA3), P._, P._], ([nationality]) => nationality)
         .with([P._, P._, "edit"], () => undefined)
@@ -146,7 +155,11 @@ export const OwnershipFormIndividualDetails = ({
       validate: validateNullableRequired,
     },
     birthCountry: {
-      initialValue: match([initialValues?.birthInfo?.country, companyCountry, mode])
+      initialValue: match([
+        toSovereignCountry(initialValues?.birthInfo?.country),
+        companyCountry,
+        mode,
+      ])
         .returnType<CountryCCA3 | undefined>()
         .with([P.when(isCountryCCA3), P._, P._], ([country]) => country)
         .with([P._, P._, "edit"], () => undefined)
@@ -162,7 +175,10 @@ export const OwnershipFormIndividualDetails = ({
     birthPostal: {
       initialValue: initialValues?.birthInfo?.postalCode ?? "",
       sanitize: trim,
-      validate: validateRequired,
+      validate: (value, { getFieldValue }) =>
+        isBirthPostalCodeRequired({ accountCountry, birthCountry: getFieldValue("birthCountry") })
+          ? validateRequired(value)
+          : undefined,
     },
     sex: {
       initialValue: initialValues?.sex ?? undefined,
@@ -282,7 +298,7 @@ export const OwnershipFormIndividualDetails = ({
                     <CountryPicker
                       id={id}
                       ref={ref}
-                      countries={allCountries}
+                      countries={sovereignCountries}
                       value={value}
                       error={error}
                       onValueChange={onChange}
@@ -323,24 +339,20 @@ export const OwnershipFormIndividualDetails = ({
               )}
             </FieldsListener>
 
-            <Field name="birthPostal">
-              {({ value, valid, error, onChange, ref }) => (
-                <LakeLabel
-                  label={t("form.label.birthPostal")}
-                  render={id => (
-                    <LakeTextInput
-                      id={id}
-                      ref={ref}
-                      value={value}
-                      valid={valid}
-                      error={error}
-                      onChangeText={onChange}
-                      readOnly={isReadOnly(value)}
-                    />
-                  )}
-                />
+            <FieldsListener names={["birthCountry"]}>
+              {({ birthCountry }) => (
+                <Field name="birthPostal">
+                  {field =>
+                    isBirthPostalCodeRequired({
+                      accountCountry,
+                      birthCountry: birthCountry.value,
+                    }) ? (
+                      <BirthPostalCodeInput {...field} readOnly={isReadOnly(field.value)} />
+                    ) : null
+                  }
+                </Field>
               )}
-            </Field>
+            </FieldsListener>
 
             <LakeLabel
               label={t("company.step.ownership.form.genderLabel")}
@@ -369,7 +381,7 @@ export const OwnershipFormIndividualDetails = ({
                     <CountryPicker
                       id={id}
                       ref={ref}
-                      countries={allCountries}
+                      countries={sovereignCountries}
                       value={value}
                       error={error}
                       onValueChange={onChange}

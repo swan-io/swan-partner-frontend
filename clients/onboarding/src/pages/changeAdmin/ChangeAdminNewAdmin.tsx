@@ -17,10 +17,9 @@ import { BirthdatePicker } from "@swan-io/shared-business/src/components/Birthda
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { InputPhoneNumber } from "@swan-io/shared-business/src/components/InputPhoneNumber";
 import {
-  allCountries,
   CountryCCA3,
   getCountryByCCA3,
-  isCountryCCA3,
+  sovereignCountries,
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
@@ -42,6 +41,7 @@ import {
   UpdateAccountAdminChangeDocument,
 } from "../../graphql/partner";
 import { locale, t } from "../../utils/i18n";
+import { toSovereignCountry } from "../../utils/onboarding";
 import { prefixPhoneNumber } from "../../utils/phone";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
 
@@ -122,9 +122,7 @@ export const ChangeAdminNewAdmin = ({
       validate: validateNullableRequired,
     },
     birthCountryCode: {
-      initialValue: isCountryCCA3(initialValues.birthCountry)
-        ? initialValues.birthCountry
-        : ("" as CountryCCA3 | ""),
+      initialValue: toSovereignCountry(initialValues.birthCountry) ?? ("" as CountryCCA3 | ""),
       validate: validateRequired,
     },
   });
@@ -347,7 +345,7 @@ export const ChangeAdminNewAdmin = ({
                           id={id}
                           error={error}
                           value={isEmpty(value) ? undefined : value}
-                          countries={allCountries}
+                          countries={sovereignCountries}
                           onValueChange={onChange}
                         />
                       )}

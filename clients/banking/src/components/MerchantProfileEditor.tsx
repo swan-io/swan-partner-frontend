@@ -63,7 +63,7 @@ export type MerchantProfileEditorState = {
   productType: ProductType;
   expectedAverageBasket: { value: string; currency: string };
   expectedMonthlyMerchantProcessingVolume: ExpectedMonthlyMerchantProcessingVolume;
-  merchantWebsite?: string;
+  merchantWebsiteUrl?: string;
   accentColor?: string;
   merchantLogo?: string;
 };
@@ -177,7 +177,7 @@ export const MerchantProfileEditor = ({ ref, merchantProfile, onSubmit }: Props)
                     productType: productType as ProductType,
                     expectedAverageBasket: { value: expectedAverageBasket, currency: "EUR" },
                     expectedMonthlyMerchantProcessingVolume,
-                    merchantWebsite: emptyToUndefined(merchantWebsite),
+                    merchantWebsiteUrl: emptyToUndefined(merchantWebsite),
                     accentColor: Option.fromNullable(emptyToUndefined(accentColor))
                       .map(value => `#${value}`)
                       .toUndefined(),

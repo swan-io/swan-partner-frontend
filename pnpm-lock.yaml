@@ -46,7 +46,7 @@ importers:
         version: 6.1.0(graphql@17.0.2)
       '@graphql-codegen/typescript-graphql-request':
         specifier: 7.1.0
-        version: 7.1.0(graphql-request@7.4.0(graphql@17.0.2))(graphql-tag@2.12.6(graphql@17.0.2))(graphql@17.0.2)
+        version: 7.1.0(graphql-tag@2.12.6(graphql@17.0.2))(graphql@17.0.2)
       '@graphql-codegen/typescript-operations':
         specifier: 6.1.6
         version: 6.1.6(graphql-sock@1.0.1(graphql@17.0.2))(graphql@17.0.2)
@@ -92,12 +92,6 @@ importers:
       lint-staged:
         specifier: 16.2.7
         version: 16.2.7
-      openai:
-        specifier: 6.19.0
-        version: 6.19.0(ws@8.21.3)(zod@4.6.5)
-      ora:
-        specifier: 9.3.0
-        version: 9.3.0
       pathe:
         specifier: 2.0.3
         version: 2.0.3
@@ -119,9 +113,6 @@ importers:
       sodium-native:
         specifier: 5.0.10
         version: 5.0.10
-      tiktoken:
-        specifier: 1.0.22
-        version: 1.0.22
       ts-pattern:
         specifier: 5.9.0
         version: 5.9.0
@@ -142,7 +133,7 @@ importers:
         version: 8.3.0(@types/node@22.20.3)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.1)
       vitest:
         specifier: 5.0.0
-        version: 5.0.0(@opentelemetry/api@1.9.1)(@types/node@22.20.3)(@vitest/coverage-v8@5.0.0)(jsdom@28.0.0)(vite@8.3.0(@types/node@22.20.3)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.1))
+        version: 5.0.0(@types/node@22.20.3)(@vitest/coverage-v8@5.0.0)(jsdom@28.0.0)(vite@8.3.0(@types/node@22.20.3)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.1))
 
   clients/banking:
     dependencies:
@@ -3090,10 +3081,6 @@ packages:
     resolution: {integrity: sha512-aCj4O5wKyszjMmDT4tZj93kxyydN/K5zPWSCe6/0AV/AA1pqe5ZBIw0a2ZfPQV7lL5/yb5HsUreJ6UFAF1tEQw==, tarball: https://registry.npmjs.org/cli-cursor/-/cli-cursor-5.0.0.tgz}
     engines: {node: '>=18'}
 
-  cli-spinners@3.4.0:
-    resolution: {integrity: sha512-bXfOC4QcT1tKXGorxL3wbJm6XJPDqEnij2gQ2m7ESQuE+/z9YFIWnl/5RpTiKWbMq3EVKR4fRLJGn6DVfu0mpw==, tarball: https://registry.npmjs.org/cli-spinners/-/cli-spinners-3.4.0.tgz}
-    engines: {node: '>=18.20'}
-
   cli-truncate@5.2.0:
     resolution: {integrity: sha512-xRwvIOMGrfOAnM1JYtqQImuaNtDEv9v6oIYAs4LIHwTiKee8uwvIi363igssOC0O5U04i4AlENs79LQLu9tEMw==, tarball: https://registry.npmjs.org/cli-truncate/-/cli-truncate-5.2.0.tgz}
     engines: {node: '>=20'}
@@ -3716,10 +3703,6 @@ packages:
     resolution: {integrity: sha512-xelSayHH36ZgE7ZWhli7pW34hNbNl8Ojv5KVmkJD4hBdD3th8Tfk9vYasLM+mXWOZhFkgZfxhLSnrwRr4elSSg==, tarball: https://registry.npmjs.org/is-glob/-/is-glob-4.0.3.tgz}
     engines: {node: '>=0.10.0'}
 
-  is-interactive@2.0.0:
-    resolution: {integrity: sha512-qP1vozQRI+BMOPcjFzrjXuQvdak2pHNUMZoeG2eRbiSqyvbEf/wQtEOTOX1guk6E3t36RkaqiSt8A/6YElNxLQ==, tarball: https://registry.npmjs.org/is-interactive/-/is-interactive-2.0.0.tgz}
-    engines: {node: '>=12'}
-
   is-lower-case@2.0.2:
     resolution: {integrity: sha512-bVcMJy4X5Og6VZfdOZstSexlEy20Sr0k/p/b2IlQJlfdKAQuMpiv5w2Ccxb8sKdRUNAG1PnHVHjFSdRDVS6NlQ==, tarball: https://registry.npmjs.org/is-lower-case/-/is-lower-case-2.0.2.tgz}
 
@@ -4264,22 +4247,6 @@ packages:
     resolution: {integrity: sha512-VXJjc87FScF88uafS3JllDgvAm+c/Slfz06lorj2uAY34rlUu0Nt+v8wreiImcrgAjjIHp1rXpTDlLOGw29WwQ==, tarball: https://registry.npmjs.org/onetime/-/onetime-7.0.0.tgz}
     engines: {node: '>=18'}
 
-  openai@6.19.0:
-    resolution: {integrity: sha512-5uGrF82Ql7TKgIWUnuxh+OyzYbPRPwYDSgGc05JowbXRFsOkuj0dJuCdPCTBZT4mcmp2NEvj/URwDzW+lYgmVw==, tarball: https://registry.npmjs.org/openai/-/openai-6.19.0.tgz}
-    hasBin: true
-    peerDependencies:
-      ws: ^8.18.0
-      zod: ^3.25 || ^4.0
-    peerDependenciesMeta:
-      ws:
-        optional: true
-      zod:
-        optional: true
-
-  ora@9.3.0:
-    resolution: {integrity: sha512-lBX72MWFduWEf7v7uWf5DHp9Jn5BI8bNPGuFgtXMmr2uDz2Gz2749y3am3agSDdkhHPHYmmxEGSKH85ZLGzgXw==, tarball: https://registry.npmjs.org/ora/-/ora-9.3.0.tgz}
-    engines: {node: '>=20'}
-
   oxc-parser@0.142.0:
     resolution: {integrity: sha512-kKR+jPiRJYJDexVoziIg/FVGvr1fT1FZSSJOk6tVoMKKSlsf1Cso+cgGCJkOEDWOP174vRntCPFKg+AS7InWvw==, tarball: https://registry.npmjs.org/oxc-parser/-/oxc-parser-0.142.0.tgz}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -4767,10 +4734,6 @@ packages:
   std-env@4.2.0:
     resolution: {integrity: sha512-oCUKSupKTHX53EyjDtuZQ64pjLJ6yYCtpmEw0goYxtjG9KpbRe8KAsl2tBUGU9DyMcJ0RwJ8GqJAFzMXcXW1Rw==, tarball: https://registry.npmjs.org/std-env/-/std-env-4.2.0.tgz}
 
-  stdin-discarder@0.3.2:
-    resolution: {integrity: sha512-eCPu1qRxPVkl5605OTWF8Wz40b4Mf45NY5LQmVPQ599knfs5QhASUm9GbJ5BDMDOXgrnh0wyEdvzmL//YMlw0A==, tarball: https://registry.npmjs.org/stdin-discarder/-/stdin-discarder-0.3.2.tgz}
-    engines: {node: '>=18'}
-
   string-argv@0.3.2:
     resolution: {integrity: sha512-aqD2Q0144Z+/RqG52NeHEkZauTAUWJO8c6yTftGJKO3Tja5tUgIfmIl6kExvhtxSDP7fXB6DvzkfMpCd/F3G+Q==, tarball: https://registry.npmjs.org/string-argv/-/string-argv-0.3.2.tgz}
     engines: {node: '>=0.6.19'}
@@ -4860,9 +4823,6 @@ packages:
 
   thread-stream@3.2.0:
     resolution: {integrity: sha512-zLBvqpwr4Esa0kRjcrzGU6zL25lePWaCLMx0RQFrmteozIfeNdaMLpG5U7PeHzvlFkAWaRKA9/KVW4F60iB+qw==, tarball: https://registry.npmjs.org/thread-stream/-/thread-stream-3.2.0.tgz}
-
-  tiktoken@1.0.22:
-    resolution: {integrity: sha512-PKvy1rVF1RibfF3JlXBSP0Jrcw2uq3yXdgcEXtKTYn3QJ/cBRBHDnrJ5jHky+MENZ6DIPwNUGWpkVx+7joCpNA==, tarball: https://registry.npmjs.org/tiktoken/-/tiktoken-1.0.22.tgz}
 
   timeout-signal@2.0.0:
     resolution: {integrity: sha512-YBGpG4bWsHoPvofT6y/5iqulfXIiIErl5B0LdtHT1mGXDFTAhhRrbUpTvBgYbovr+3cKblya2WAOcpoy90XguA==, tarball: https://registry.npmjs.org/timeout-signal/-/timeout-signal-2.0.0.tgz}
@@ -5963,13 +5923,12 @@ snapshots:
       graphql: 17.0.2
       tslib: 2.8.1
 
-  '@graphql-codegen/typescript-graphql-request@7.1.0(graphql-request@7.4.0(graphql@17.0.2))(graphql-tag@2.12.6(graphql@17.0.2))(graphql@17.0.2)':
+  '@graphql-codegen/typescript-graphql-request@7.1.0(graphql-tag@2.12.6(graphql@17.0.2))(graphql@17.0.2)':
     dependencies:
       '@graphql-codegen/plugin-helpers': 6.3.0(graphql@17.0.2)
       '@graphql-codegen/visitor-plugin-common': 6.3.0(graphql@17.0.2)
       auto-bind: 4.0.0
       graphql: 17.0.2
-      graphql-request: 7.4.0(graphql@17.0.2)
       graphql-tag: 2.12.6(graphql@17.0.2)
       tslib: 2.8.1
 
@@ -7952,7 +7911,7 @@ snapshots:
       obug: 2.2.1
       std-env: 4.2.0
       tinyrainbow: 3.1.1
-      vitest: 5.0.0(@opentelemetry/api@1.9.1)(@types/node@22.20.3)(@vitest/coverage-v8@5.0.0)(jsdom@28.0.0)(vite@8.3.0(@types/node@22.20.3)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.1))
+      vitest: 5.0.0(@types/node@22.20.3)(@vitest/coverage-v8@5.0.0)(jsdom@28.0.0)(vite@8.3.0(@types/node@22.20.3)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.1))
 
   '@vitest/istanbul-lib-coverage@1.0.1': {}
 
@@ -8177,8 +8136,6 @@ snapshots:
   cli-cursor@5.0.0:
     dependencies:
       restore-cursor: 5.1.0
-
-  cli-spinners@3.4.0: {}
 
   cli-truncate@5.2.0:
     dependencies:
@@ -8707,11 +8664,6 @@ snapshots:
       '@graphql-typed-document-node/core': 3.2.0(graphql@16.12.0)
       graphql: 16.12.0
 
-  graphql-request@7.4.0(graphql@17.0.2):
-    dependencies:
-      '@graphql-typed-document-node/core': 3.2.0(graphql@17.0.2)
-      graphql: 17.0.2
-
   graphql-sock@1.0.1(graphql@17.0.2):
     dependencies:
       graphql: 17.0.2
@@ -8850,8 +8802,6 @@ snapshots:
   is-glob@4.0.3:
     dependencies:
       is-extglob: 2.1.1
-
-  is-interactive@2.0.0: {}
 
   is-lower-case@2.0.2:
     dependencies:
@@ -9526,22 +9476,6 @@ snapshots:
     dependencies:
       mimic-function: 5.0.1
 
-  openai@6.19.0(ws@8.21.3)(zod@4.6.5):
-    optionalDependencies:
-      ws: 8.21.3
-      zod: 4.6.5
-
-  ora@9.3.0:
-    dependencies:
-      chalk: 5.6.2
-      cli-cursor: 5.0.0
-      cli-spinners: 3.4.0
-      is-interactive: 2.0.0
-      is-unicode-supported: 2.1.0
-      log-symbols: 7.0.1
-      stdin-discarder: 0.3.2
-      string-width: 8.2.2
-
   oxc-parser@0.142.0:
     dependencies:
       '@oxc-project/types': 0.142.0
@@ -10097,8 +10031,6 @@ snapshots:
 
   std-env@4.2.0: {}
 
-  stdin-discarder@0.3.2: {}
-
   string-argv@0.3.2: {}
 
   string-env-interpolation@1.0.1: {}
@@ -10172,8 +10104,6 @@ snapshots:
   thread-stream@3.2.0:
     dependencies:
       real-require: 0.2.0
-
-  tiktoken@1.0.22: {}
 
   timeout-signal@2.0.0: {}
 
@@ -10377,7 +10307,7 @@ snapshots:
       tsx: 4.21.0
       yaml: 2.9.1
 
-  vitest@5.0.0(@opentelemetry/api@1.9.1)(@types/node@22.20.3)(@vitest/coverage-v8@5.0.0)(jsdom@28.0.0)(vite@8.3.0(@types/node@22.20.3)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.1)):
+  vitest@5.0.0(@types/node@22.20.3)(@vitest/coverage-v8@5.0.0)(jsdom@28.0.0)(vite@8.3.0(@types/node@22.20.3)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.1)):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/mocker': 5.0.0(vite@8.3.0(@types/node@22.20.3)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.1))
@@ -10394,7 +10324,6 @@ snapshots:
       vite: 8.3.0(@types/node@22.20.3)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.1)
       why-is-node-running: 2.3.0
     optionalDependencies:
-      '@opentelemetry/api': 1.9.1
       '@types/node': 22.20.3
       '@vitest/coverage-v8': 5.0.0(vitest@5.0.0)
       jsdom: 28.0.0

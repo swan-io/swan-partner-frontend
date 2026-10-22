@@ -24,6 +24,7 @@ import {
 } from "./api/oauth2";
 import {
   bindAccountMembership,
+  checkWebBankingSettings,
   createPublicCompanyAccountHolderOnboarding,
   createPublicIndividualAccountHolderOnboarding,
   finalizeOnboarding,
@@ -466,12 +467,25 @@ export const start = async (config: AppConfig) => {
    * Proxies the Swan "partner" GraphQL API.
    */
   app.post("/api/partner", async (request, reply) => {
+    const authorizationHeaders =
+      request.accessToken != null ? { Authorization: `Bearer ${request.accessToken}` } : undefined;
+
+    const webBankingCheck = await checkWebBankingSettings(
+      request.body,
+      authorizationHeaders,
+      request.log,
+    );
+    if (webBankingCheck === "Error") {
+      return reply.internalServerError();
+    }
+    if (webBankingCheck === "Forbidden") {
+      return reply.forbidden();
+    }
+
     return reply.from(env.PARTNER_API_URL, {
       rewriteRequestHeaders: (_req, headers) => ({
         ...headers,
-        ...(request.accessToken != null
-          ? { Authorization: `Bearer ${request.accessToken}` }
-          : undefined),
+        ...authorizationHeaders,
       }),
     });
   });

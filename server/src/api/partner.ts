@@ -1,9 +1,15 @@
-import { Future, Result } from "@bloodyowl/boxed";
+import { Future, Option, Result } from "@bloodyowl/boxed";
+import { FastifyBaseLogger } from "fastify";
 import { GraphQLClient } from "graphql-request";
 import { match, P } from "ts-pattern";
 import { env } from "../env";
 import { AccountCountry, getSdk } from "../graphql/partner";
 import { fetchWithTimeout } from "../utils/fetch";
+import { getCalledMutations, getCreditTransfersAccountId } from "../utils/gql";
+import {
+  isMutationAuthorizedInWebBanking,
+  isMutationRestrictedByWebBankingSettings,
+} from "../utils/permissions";
 import { getClientAccessToken, OAuth2ClientCredentialsError, OAuth2NetworkError } from "./oauth2";
 
 export const sdk = getSdk(new GraphQLClient(env.PARTNER_API_URL, { fetch: fetchWithTimeout }));
@@ -234,4 +240,68 @@ export const createPublicCompanyAccountHolderOnboarding = ({
       )
       .exhaustive(),
   );
+};
+
+export const checkWebBankingSettings = async (
+  body: unknown,
+  headers: Record<string, string> | undefined,
+  log: FastifyBaseLogger,
+): Promise<"Authorized" | "Forbidden" | "Error"> => {
+  const calledMutations = match(body)
+    .with({ query: P.string }, ({ query }) => getCalledMutations(query))
+    .otherwise(() => []);
+
+  // if at least one mutation is restricted by web banking settings
+  // we need to fetch the settings and check if the mutation is authorized
+  if (!calledMutations.some(isMutationRestrictedByWebBankingSettings)) {
+    return "Authorized";
+  }
+
+  const webBankingSettings = await toFuture(sdk.WebBankingSettings({}, headers)).mapOkToResult(
+    ({ projectInfo }) =>
+      projectInfo.webBankingSettings != null
+        ? Result.Ok(projectInfo.webBankingSettings)
+        : Result.Error(new Error("Web banking settings not found")),
+  );
+
+  if (webBankingSettings.isError()) {
+    log.error(webBankingSettings.error, "Failed to fetch web banking settings");
+    return "Error";
+  }
+
+  const isAuthorized = calledMutations
+    .filter(isMutationRestrictedByWebBankingSettings)
+    .every(mutationName =>
+      isMutationAuthorizedInWebBanking(mutationName, webBankingSettings.value),
+    );
+
+  // Transferring the remaining balance of a closing account must stay possible,
+  // even when credit transfers are disabled in web banking settings
+  const isClosingAccountTransfer = isAuthorized
+    ? false // no need to check closing account transfer if already authorized
+    : await match(body)
+        .with({ query: P.string, variables: P.optional(P.any) }, ({ query, variables }) =>
+          getCreditTransfersAccountId(query, variables),
+        )
+        .otherwise(() => Option.None<string>())
+        .match({
+          None: () => Future.value(false),
+          Some: accountId =>
+            toFuture(sdk.AccountStatus({ accountId }, headers)).map(result =>
+              result.match({
+                Ok: ({ account }) => account?.statusInfo.status === "Closing",
+                Error: error => {
+                  log.error(error, "Failed to fetch account status");
+                  return false;
+                },
+              }),
+            ),
+        });
+
+  if (!isAuthorized && !isClosingAccountTransfer) {
+    log.warn(calledMutations, "Unauthorized mutation attempted");
+    return "Forbidden";
+  }
+
+  return "Authorized";
 };

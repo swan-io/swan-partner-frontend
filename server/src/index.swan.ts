@@ -10,11 +10,10 @@ import pc from "picocolors";
 import { match, P } from "ts-pattern";
 import { exchangeToken } from "./api/oauth2.swan";
 import {
+  checkWebBankingSettings,
   createPublicCompanyAccountHolderOnboarding,
   createPublicIndividualAccountHolderOnboarding,
   parseAccountCountry,
-  sdk,
-  toFuture,
   UnsupportedAccountCountryError,
 } from "./api/partner";
 import {
@@ -27,11 +26,6 @@ import { env } from "./env";
 import { replyWithError } from "./error";
 import { AccountCountry } from "./graphql/partner";
 import { evaluateFlag, getFlagContext } from "./utils/flags";
-import { getCalledMutations, getCreditTransfersAccountId } from "./utils/gql";
-import {
-  isMutationAuthorizedInWebBanking,
-  isMutationRestrictedByWebBankingSettings,
-} from "./utils/permissions";
 
 const countryTranslations: Record<AccountCountry, string> = {
   DEU: "German",
@@ -98,59 +92,16 @@ start({
           }))
           .otherwise(() => ({}));
 
-        const calledMutations = match(request.body)
-          .with({ query: P.string }, ({ query }) => getCalledMutations(query))
-          .otherwise(() => []);
-
-        // if at least one mutation is restricted by web banking settings
-        // we need to fetch the settings and check if the mutation is authorized
-        if (calledMutations.some(isMutationRestrictedByWebBankingSettings)) {
-          const webBankingSettings = await toFuture(
-            sdk.WebBankingSettings({}, swanTokenHeaders),
-          ).mapOkToResult(({ projectInfo }) =>
-            projectInfo.webBankingSettings != null
-              ? Result.Ok(projectInfo.webBankingSettings)
-              : Result.Error(new Error("Web banking settings not found")),
-          );
-
-          if (webBankingSettings.isError()) {
-            request.log.error(webBankingSettings.error, "Failed to fetch web banking settings");
-            return reply.internalServerError();
-          }
-
-          const isAuthorized = calledMutations
-            .filter(isMutationRestrictedByWebBankingSettings)
-            .every(mutationName =>
-              isMutationAuthorizedInWebBanking(mutationName, webBankingSettings.value),
-            );
-
-          // Transferring the remaining balance of a closing account must stay possible,
-          // even when credit transfers are disabled in web banking settings
-          const isClosingAccountTransfer = isAuthorized
-            ? false // no need to check closing account transfer if already authorized
-            : await match(request.body)
-                .with({ query: P.string, variables: P.optional(P.any) }, ({ query, variables }) =>
-                  getCreditTransfersAccountId(query, variables),
-                )
-                .otherwise(() => Option.None<string>())
-                .match({
-                  None: () => Future.value(false),
-                  Some: accountId =>
-                    toFuture(sdk.AccountStatus({ accountId }, swanTokenHeaders)).map(result =>
-                      result.match({
-                        Ok: ({ account }) => account?.statusInfo.status === "Closing",
-                        Error: error => {
-                          request.log.error(error, "Failed to fetch account status");
-                          return false;
-                        },
-                      }),
-                    ),
-                });
-
-          if (!isAuthorized && !isClosingAccountTransfer) {
-            request.log.warn(calledMutations, "Unauthorized mutation attempted");
-            return reply.forbidden();
-          }
+        const webBankingCheck = await checkWebBankingSettings(
+          request.body,
+          swanTokenHeaders,
+          request.log,
+        );
+        if (webBankingCheck === "Error") {
+          return reply.internalServerError();
+        }
+        if (webBankingCheck === "Forbidden") {
+          return reply.forbidden();
         }
 
         return reply.from(env.PARTNER_API_URL, {

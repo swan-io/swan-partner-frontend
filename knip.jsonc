@@ -37,7 +37,6 @@
         "lint-staged",
         "rollup",
         "react-native",
-        "cli-spinners",
         "@graphql-codegen/plugin-helpers",
       ],
       "ignoreBinaries": ["generate-schema-config"],

@@ -37,6 +37,9 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Validate translations
+        run: pnpm validate-locales
+
       - name: Run tests
         run: pnpm test
 

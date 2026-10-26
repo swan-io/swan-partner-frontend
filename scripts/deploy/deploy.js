@@ -126,6 +126,6 @@ async function commitViaGitHubAPI(octokit, message, files, maxRetries = 3) {
     return;
   }
 
-  const message = `[Update Deploy Swan] App: ${process.env.DEPLOY_APP_NAME} new tag ${process.env.TAG}, ECR: swan-${process.env.DEPLOY_APP_NAME}`;
+  const message = `chore(deploy): App ${process.env.DEPLOY_APP_NAME} - tag ${process.env.TAG} - ECR: swan-${process.env.DEPLOY_APP_NAME}`;
   await commitViaGitHubAPI(octokit, message, new Map([[filePath, updatedContent]]));
 })();

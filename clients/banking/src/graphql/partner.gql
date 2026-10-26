@@ -2549,6 +2549,11 @@ fragment MerchantPayment on MerchantPayment {
   paymentMethod {
     id
     type
+    # Naming the type makes the API return `OnlineCardMerchantPaymentMethod` instead of the
+    # deprecated `CardMerchantPaymentMethod` for legacy online card methods
+    ... on OnlineCardMerchantPaymentMethod {
+      id
+    }
   }
   merchantProfile {
     id
@@ -2691,6 +2696,11 @@ query MerchantPaymentLinks(
       statusInfo {
         status
       }
+      # Naming the type makes the API return `OnlineCardMerchantPaymentMethod` instead of the
+      # deprecated `CardMerchantPaymentMethod` for legacy online card methods
+      ... on OnlineCardMerchantPaymentMethod {
+        id
+      }
     }
     accentColor
     merchantName
@@ -2714,6 +2724,11 @@ mutation CancelMerchantPayment($input: CancelMerchantPaymentInput!) {
         id
         statusInfo {
           status
+        }
+        # Naming the type makes the API return `OnlineCardMerchantPayment` instead of the
+        # deprecated `CardMerchantPayment` for legacy online card payments
+        ... on OnlineCardMerchantPayment {
+          id
         }
       }
     }
@@ -3407,6 +3422,11 @@ fragment MerchantPaymentMethod on MerchantPaymentMethod {
   ... on SepaDirectDebitCoreMerchantPaymentMethod {
     sepaCreditorIdentifier
     useSwanSepaCreditorIdentifier
+  }
+  # Naming the type makes the API return `OnlineCardMerchantPaymentMethod` instead of the
+  # deprecated `CardMerchantPaymentMethod` for legacy online card methods
+  ... on OnlineCardMerchantPaymentMethod {
+    id
   }
 }
 

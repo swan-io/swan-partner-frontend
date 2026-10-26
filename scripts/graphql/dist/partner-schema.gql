@@ -296,6 +296,12 @@ type Query {
     """a filtering table you can apply to your list of connections"""
     filters: TransactionsFiltersInput
   ): TransactionConnection!
+
+  """
+  List of available pricing policies and the current one for a given account holder.
+  This query is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
+  """
+  accountHolderAvailablePricingPolicies(accountHolderId: ID!): AccountHolderAvailablePricingPolicies!
   accountInvoice(invoiceId: ID!): Invoice
 
   """Return the capital deposit case for the provided id."""
@@ -859,6 +865,12 @@ type Mutation {
   Generate a transaction statement for a booked incoming or outgoing Credit Transfer.
   """
   generateTransactionStatement(input: GenerateTransactionStatementInput!): GenerateTransactionStatementPayload!
+
+  """
+  Change the pricing policy of an account holder - a delay may be present between the update and the actual change.
+  This mutation is restricted to a [Project access token](https://docs.swan.io/developers/using-api/authentication/).
+  """
+  updateAccountHolderPricingPolicy(input: UpdateAccountHolderPricingPolicyInput!): UpdateAccountHolderPricingPolicyPayload!
 
   """
   Cancel a capital deposit case.
@@ -2112,6 +2124,12 @@ type AccountHolder {
   accountHolderOnboarding: AccountHolderOnboarding
 
   """
+  Current pricing policy assigned to the AccountHolder.
+  Value will be null when the project does not have any configuration for this
+  """
+  pricingPolicy: PricingPolicy
+
+  """
   A list of Payment Mandates for an account holder.
   
   Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
@@ -2233,6 +2251,20 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
   Acquisition Channel to specify how the user joined, such as "InboundOrganic", "OutboundSales", etc.
   """
   acquisitionChannel: AcquisitionChannel
+
+  """Business classification code (example: NAF code for France)"""
+  businessActivityCode: String
+
+  """Current company headcount"""
+  headcount: CompanyHeadcount
+
+  """Forecast yearly income range"""
+  forecastYearlyIncome: ForecastYearlyIncome
+
+  """
+  Company websites, online presence URLs, social media profiles or handles
+  """
+  websites: [String!]
 }
 
 """
@@ -3831,8 +3863,11 @@ type CompanyAccountHolderOnboardingAccountAdmin {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Letters from any script, with their accents and marks
+  - Between words: spaces, hyphens and dashes, apostrophes, dots and the word separators of other scripts (for example `・`, `·`, `׳`); at most two in a row
+  - Must contain at least one letter; must not start or end with a hyphen or dash
+  - Rejected: digits, emoji, symbols (modifier symbols such as `´` or `¨` are accepted), characters used in code or markup (`< > & " ? ( ) [ ] { } ; : / \ @ = % + ! # * _ ^`) including their full-width forms, other invisible characters, tabs and line breaks
+  - Before the check: zero-width spaces, direction marks and byte order marks are removed, as are invisible joiners and variation selectors next to Latin, Greek or Cyrillic letters and joiners that are not between two letters; commas and repeated spaces become one space; surrounding spaces are removed; accented letters are stored in one standard form. The cleaned name is what is stored.
   """
   firstName: String
 
@@ -3845,8 +3880,11 @@ type CompanyAccountHolderOnboardingAccountAdmin {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Letters from any script, with their accents and marks
+  - Between words: spaces, hyphens and dashes, apostrophes, dots and the word separators of other scripts (for example `・`, `·`, `׳`); at most two in a row
+  - Must contain at least one letter; must not start or end with a hyphen or dash
+  - Rejected: digits, emoji, symbols (modifier symbols such as `´` or `¨` are accepted), characters used in code or markup (`< > & " ? ( ) [ ] { } ; : / \ @ = % + ! # * _ ^`) including their full-width forms, other invisible characters, tabs and line breaks
+  - Before the check: zero-width spaces, direction marks and byte order marks are removed, as are invisible joiners and variation selectors next to Latin, Greek or Cyrillic letters and joiners that are not between two letters; commas and repeated spaces become one space; surrounding spaces are removed; accented letters are stored in one standard form. The cleaned name is what is stored.
   """
   lastName: String
 
@@ -3891,8 +3929,11 @@ input CompanyAccountHolderOnboardingAccountAdminInput {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Letters from any script, with their accents and marks
+  - Between words: spaces, hyphens and dashes, apostrophes, dots and the word separators of other scripts (for example `・`, `·`, `׳`); at most two in a row
+  - Must contain at least one letter; must not start or end with a hyphen or dash
+  - Rejected: digits, emoji, symbols (modifier symbols such as `´` or `¨` are accepted), characters used in code or markup (`< > & " ? ( ) [ ] { } ; : / \ @ = % + ! # * _ ^`) including their full-width forms, other invisible characters, tabs and line breaks
+  - Before the check: zero-width spaces, direction marks and byte order marks are removed, as are invisible joiners and variation selectors next to Latin, Greek or Cyrillic letters and joiners that are not between two letters; commas and repeated spaces become one space; surrounding spaces are removed; accented letters are stored in one standard form. The cleaned name is what is stored.
   """
   firstName: String
 
@@ -3905,8 +3946,11 @@ input CompanyAccountHolderOnboardingAccountAdminInput {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Letters from any script, with their accents and marks
+  - Between words: spaces, hyphens and dashes, apostrophes, dots and the word separators of other scripts (for example `・`, `·`, `׳`); at most two in a row
+  - Must contain at least one letter; must not start or end with a hyphen or dash
+  - Rejected: digits, emoji, symbols (modifier symbols such as `´` or `¨` are accepted), characters used in code or markup (`< > & " ? ( ) [ ] { } ; : / \ @ = % + ! # * _ ^`) including their full-width forms, other invisible characters, tabs and line breaks
+  - Before the check: zero-width spaces, direction marks and byte order marks are removed, as are invisible joiners and variation selectors next to Latin, Greek or Cyrillic letters and joiners that are not between two letters; commas and repeated spaces become one space; surrounding spaces are removed; accented letters are stored in one standard form. The cleaned name is what is stored.
   """
   lastName: String
 
@@ -3952,8 +3996,11 @@ input CompanyAccountHolderOnboardingAccountAdminUpdateInput {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Letters from any script, with their accents and marks
+  - Between words: spaces, hyphens and dashes, apostrophes, dots and the word separators of other scripts (for example `・`, `·`, `׳`); at most two in a row
+  - Must contain at least one letter; must not start or end with a hyphen or dash
+  - Rejected: digits, emoji, symbols (modifier symbols such as `´` or `¨` are accepted), characters used in code or markup (`< > & " ? ( ) [ ] { } ; : / \ @ = % + ! # * _ ^`) including their full-width forms, other invisible characters, tabs and line breaks
+  - Before the check: zero-width spaces, direction marks and byte order marks are removed, as are invisible joiners and variation selectors next to Latin, Greek or Cyrillic letters and joiners that are not between two letters; commas and repeated spaces become one space; surrounding spaces are removed; accented letters are stored in one standard form. The cleaned name is what is stored.
   """
   firstName: String
 
@@ -3966,8 +4013,11 @@ input CompanyAccountHolderOnboardingAccountAdminUpdateInput {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Letters from any script, with their accents and marks
+  - Between words: spaces, hyphens and dashes, apostrophes, dots and the word separators of other scripts (for example `・`, `·`, `׳`); at most two in a row
+  - Must contain at least one letter; must not start or end with a hyphen or dash
+  - Rejected: digits, emoji, symbols (modifier symbols such as `´` or `¨` are accepted), characters used in code or markup (`< > & " ? ( ) [ ] { } ; : / \ @ = % + ! # * _ ^`) including their full-width forms, other invisible characters, tabs and line breaks
+  - Before the check: zero-width spaces, direction marks and byte order marks are removed, as are invisible joiners and variation selectors next to Latin, Greek or Cyrillic letters and joiners that are not between two letters; commas and repeated spaces become one space; surrounding spaces are removed; accented letters are stored in one standard form. The cleaned name is what is stored.
   """
   lastName: String
 
@@ -5573,8 +5623,11 @@ type IndividualAccountHolderOnboardingAccountAdmin {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Letters from any script, with their accents and marks
+  - Between words: spaces, hyphens and dashes, apostrophes, dots and the word separators of other scripts (for example `・`, `·`, `׳`); at most two in a row
+  - Must contain at least one letter; must not start or end with a hyphen or dash
+  - Rejected: digits, emoji, symbols (modifier symbols such as `´` or `¨` are accepted), characters used in code or markup (`< > & " ? ( ) [ ] { } ; : / \ @ = % + ! # * _ ^`) including their full-width forms, other invisible characters, tabs and line breaks
+  - Before the check: zero-width spaces, direction marks and byte order marks are removed, as are invisible joiners and variation selectors next to Latin, Greek or Cyrillic letters and joiners that are not between two letters; commas and repeated spaces become one space; surrounding spaces are removed; accented letters are stored in one standard form. The cleaned name is what is stored.
   """
   firstName: String
 
@@ -5587,8 +5640,11 @@ type IndividualAccountHolderOnboardingAccountAdmin {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Letters from any script, with their accents and marks
+  - Between words: spaces, hyphens and dashes, apostrophes, dots and the word separators of other scripts (for example `・`, `·`, `׳`); at most two in a row
+  - Must contain at least one letter; must not start or end with a hyphen or dash
+  - Rejected: digits, emoji, symbols (modifier symbols such as `´` or `¨` are accepted), characters used in code or markup (`< > & " ? ( ) [ ] { } ; : / \ @ = % + ! # * _ ^`) including their full-width forms, other invisible characters, tabs and line breaks
+  - Before the check: zero-width spaces, direction marks and byte order marks are removed, as are invisible joiners and variation selectors next to Latin, Greek or Cyrillic letters and joiners that are not between two letters; commas and repeated spaces become one space; surrounding spaces are removed; accented letters are stored in one standard form. The cleaned name is what is stored.
   """
   lastName: String
 
@@ -5640,8 +5696,11 @@ input IndividualAccountHolderOnboardingAccountAdminInput {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Letters from any script, with their accents and marks
+  - Between words: spaces, hyphens and dashes, apostrophes, dots and the word separators of other scripts (for example `・`, `·`, `׳`); at most two in a row
+  - Must contain at least one letter; must not start or end with a hyphen or dash
+  - Rejected: digits, emoji, symbols (modifier symbols such as `´` or `¨` are accepted), characters used in code or markup (`< > & " ? ( ) [ ] { } ; : / \ @ = % + ! # * _ ^`) including their full-width forms, other invisible characters, tabs and line breaks
+  - Before the check: zero-width spaces, direction marks and byte order marks are removed, as are invisible joiners and variation selectors next to Latin, Greek or Cyrillic letters and joiners that are not between two letters; commas and repeated spaces become one space; surrounding spaces are removed; accented letters are stored in one standard form. The cleaned name is what is stored.
   """
   firstName: String
 
@@ -5654,8 +5713,11 @@ input IndividualAccountHolderOnboardingAccountAdminInput {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Letters from any script, with their accents and marks
+  - Between words: spaces, hyphens and dashes, apostrophes, dots and the word separators of other scripts (for example `・`, `·`, `׳`); at most two in a row
+  - Must contain at least one letter; must not start or end with a hyphen or dash
+  - Rejected: digits, emoji, symbols (modifier symbols such as `´` or `¨` are accepted), characters used in code or markup (`< > & " ? ( ) [ ] { } ; : / \ @ = % + ! # * _ ^`) including their full-width forms, other invisible characters, tabs and line breaks
+  - Before the check: zero-width spaces, direction marks and byte order marks are removed, as are invisible joiners and variation selectors next to Latin, Greek or Cyrillic letters and joiners that are not between two letters; commas and repeated spaces become one space; surrounding spaces are removed; accented letters are stored in one standard form. The cleaned name is what is stored.
   """
   lastName: String
 
@@ -5750,6 +5812,14 @@ type IndividualRepresentative {
 
   """Residency address of the representative."""
   residencyAddress: AddressInformation
+
+  """Email of the representative."""
+  email: String
+
+  """
+  Tax information related to US persons as defined by FATCA, if applicable.
+  """
+  unitedStatesTaxInfo: UnitedStatesTaxInfo
 }
 
 """
@@ -5790,6 +5860,14 @@ type IndividualUltimateBeneficialOwner {
 
   """Ultimate beneficial owner's identity document details"""
   identityDocumentDetails: UBOIdentityDocumentDetails
+
+  """Ultimate beneficial owner control types"""
+  controlTypes: [UltimateBeneficialOwnerControlType!]
+
+  """
+  Tax information related to US persons as defined by FATCA, if applicable
+  """
+  unitedStatesTaxInfo: UnitedStatesTaxInfo
 }
 
 """Define the type of the UBO"""
@@ -5970,11 +6048,6 @@ type InvalidPhoneNumberRejection implements Rejection {
 
 """Rejection returned if registration number is not correct"""
 type InvalidRegistrationNumberRejection implements Rejection {
-  message: String!
-}
-
-"""Rejection returned if siren number is not well formatted"""
-type InvalidSirenNumberRejection implements Rejection {
   message: String!
 }
 
@@ -6420,13 +6493,6 @@ Rejection returned if the entity was not found or if the user does not have the 
 """
 type NotFoundRejection implements Rejection {
   id: String!
-  message: String!
-}
-
-"""
-Rejection returned if the queried service doesn't support the country code
-"""
-type NotSupportedCountryRejection implements Rejection {
   message: String!
 }
 
@@ -7390,8 +7456,11 @@ input PublicIndividualAccountHolderOnboardingAccountAdminInput {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Letters from any script, with their accents and marks
+  - Between words: spaces, hyphens and dashes, apostrophes, dots and the word separators of other scripts (for example `・`, `·`, `׳`); at most two in a row
+  - Must contain at least one letter; must not start or end with a hyphen or dash
+  - Rejected: digits, emoji, symbols (modifier symbols such as `´` or `¨` are accepted), characters used in code or markup (`< > & " ? ( ) [ ] { } ; : / \ @ = % + ! # * _ ^`) including their full-width forms, other invisible characters, tabs and line breaks
+  - Before the check: zero-width spaces, direction marks and byte order marks are removed, as are invisible joiners and variation selectors next to Latin, Greek or Cyrillic letters and joiners that are not between two letters; commas and repeated spaces become one space; surrounding spaces are removed; accented letters are stored in one standard form. The cleaned name is what is stored.
   """
   firstName: String
 
@@ -7404,8 +7473,11 @@ input PublicIndividualAccountHolderOnboardingAccountAdminInput {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Letters from any script, with their accents and marks
+  - Between words: spaces, hyphens and dashes, apostrophes, dots and the word separators of other scripts (for example `・`, `·`, `׳`); at most two in a row
+  - Must contain at least one letter; must not start or end with a hyphen or dash
+  - Rejected: digits, emoji, symbols (modifier symbols such as `´` or `¨` are accepted), characters used in code or markup (`< > & " ? ( ) [ ] { } ; : / \ @ = % + ! # * _ ^`) including their full-width forms, other invisible characters, tabs and line breaks
+  - Before the check: zero-width spaces, direction marks and byte order marks are removed, as are invisible joiners and variation selectors next to Latin, Greek or Cyrillic letters and joiners that are not between two letters; commas and repeated spaces become one space; surrounding spaces are removed; accented letters are stored in one standard form. The cleaned name is what is stored.
   """
   lastName: String
 
@@ -7571,15 +7643,23 @@ input RelatedIndividualInput {
   First name of the individual
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Letters from any script, with their accents and marks
+  - Between words: spaces, hyphens and dashes, apostrophes, dots and the word separators of other scripts (for example `・`, `·`, `׳`); at most two in a row
+  - Must contain at least one letter; must not start or end with a hyphen or dash
+  - Rejected: digits, emoji, symbols (modifier symbols such as `´` or `¨` are accepted), characters used in code or markup (`< > & " ? ( ) [ ] { } ; : / \ @ = % + ! # * _ ^`) including their full-width forms, other invisible characters, tabs and line breaks
+  - Before the check: zero-width spaces, direction marks and byte order marks are removed, as are invisible joiners and variation selectors next to Latin, Greek or Cyrillic letters and joiners that are not between two letters; commas and repeated spaces become one space; surrounding spaces are removed; accented letters are stored in one standard form. The cleaned name is what is stored.
   """
   firstName: String
 
   """
   Preferred first name of the individual
   
-  - Maximum 100 characters
+  - Between 1 and 100 characters
+  - Letters from any script, with their accents and marks
+  - Between words: spaces, hyphens and dashes, apostrophes, dots and the word separators of other scripts (for example `・`, `·`, `׳`); at most two in a row
+  - Must contain at least one letter; must not start or end with a hyphen or dash
+  - Rejected: digits, emoji, symbols (modifier symbols such as `´` or `¨` are accepted), characters used in code or markup (`< > & " ? ( ) [ ] { } ; : / \ @ = % + ! # * _ ^`) including their full-width forms, other invisible characters, tabs and line breaks
+  - Before the check: zero-width spaces, direction marks and byte order marks are removed, as are invisible joiners and variation selectors next to Latin, Greek or Cyrillic letters and joiners that are not between two letters; commas and repeated spaces become one space; surrounding spaces are removed; accented letters are stored in one standard form. The cleaned name is what is stored.
   """
   preferredFirstName: String
 
@@ -7587,8 +7667,11 @@ input RelatedIndividualInput {
   Last name of the individual
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Letters from any script, with their accents and marks
+  - Between words: spaces, hyphens and dashes, apostrophes, dots and the word separators of other scripts (for example `・`, `·`, `׳`); at most two in a row
+  - Must contain at least one letter; must not start or end with a hyphen or dash
+  - Rejected: digits, emoji, symbols (modifier symbols such as `´` or `¨` are accepted), characters used in code or markup (`< > & " ? ( ) [ ] { } ; : / \ @ = % + ! # * _ ^`) including their full-width forms, other invisible characters, tabs and line breaks
+  - Before the check: zero-width spaces, direction marks and byte order marks are removed, as are invisible joiners and variation selectors next to Latin, Greek or Cyrillic letters and joiners that are not between two letters; commas and repeated spaces become one space; surrounding spaces are removed; accented letters are stored in one standard form. The cleaned name is what is stored.
   """
   lastName: String
 
@@ -9618,8 +9701,11 @@ input UpdateIndividualAccountHolderOnboardingAccountAdminInput {
   First name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Letters from any script, with their accents and marks
+  - Between words: spaces, hyphens and dashes, apostrophes, dots and the word separators of other scripts (for example `・`, `·`, `׳`); at most two in a row
+  - Must contain at least one letter; must not start or end with a hyphen or dash
+  - Rejected: digits, emoji, symbols (modifier symbols such as `´` or `¨` are accepted), characters used in code or markup (`< > & " ? ( ) [ ] { } ; : / \ @ = % + ! # * _ ^`) including their full-width forms, other invisible characters, tabs and line breaks
+  - Before the check: zero-width spaces, direction marks and byte order marks are removed, as are invisible joiners and variation selectors next to Latin, Greek or Cyrillic letters and joiners that are not between two letters; commas and repeated spaces become one space; surrounding spaces are removed; accented letters are stored in one standard form. The cleaned name is what is stored.
   """
   firstName: String
 
@@ -9632,8 +9718,11 @@ input UpdateIndividualAccountHolderOnboardingAccountAdminInput {
   Last name of the account administrator
   
   - Between 1 and 100 characters
-  - Allowed characters: Unicode letters, hyphens (ASCII, U+2010 hyphen, U+2011 non-breaking hyphen, U+2013 en dash; a single one may have a space on each side), apostrophes (straight or either typographic quote), whitespace
-  - Valid format (regex): `/^[\p{L}]+(?:(?:[-‐‑–'‘’\s]{1,2}|\s[-‐‑–]\s)[\p{L}]+)*['‘’]?$/u` (the `u` flag is required for `\p{L}` to match a Unicode letter)
+  - Letters from any script, with their accents and marks
+  - Between words: spaces, hyphens and dashes, apostrophes, dots and the word separators of other scripts (for example `・`, `·`, `׳`); at most two in a row
+  - Must contain at least one letter; must not start or end with a hyphen or dash
+  - Rejected: digits, emoji, symbols (modifier symbols such as `´` or `¨` are accepted), characters used in code or markup (`< > & " ? ( ) [ ] { } ; : / \ @ = % + ! # * _ ^`) including their full-width forms, other invisible characters, tabs and line breaks
+  - Before the check: zero-width spaces, direction marks and byte order marks are removed, as are invisible joiners and variation selectors next to Latin, Greek or Cyrillic letters and joiners that are not between two letters; commas and repeated spaces become one space; surrounding spaces are removed; accented letters are stored in one standard form. The cleaned name is what is stored.
   """
   lastName: String
 
@@ -16363,6 +16452,28 @@ type VoidedStatusInfo implements AccountStatementStatusInfo {
   url: URL!
 }
 
+"""
+List of available PricingPolicies and the current one for a given account holder.
+"""
+type AccountHolderAvailablePricingPolicies {
+  """
+  List of pricing policies available for the account holder to switch to.
+  This is a non-paginated list, the number of policies is expected to remain small (typically fewer than 10).
+  """
+  availablePricingPolicies: [PricingPolicy!]!
+
+  """The current pricing policy assigned to an account holder."""
+  currentPricingPolicy: PricingPolicy
+}
+
+"""
+Rejection returned when a pricing policy switch is already in progress for this account holder.
+Retry after the current switch has completed.
+"""
+type AccountHolderPricingPolicyUpdateInProgressRejection implements Rejection {
+  message: String!
+}
+
 """Thrown when an related account is not eligible to the feature"""
 type AccountNotEligibleRejection implements Rejection {
   message: String!
@@ -16435,9 +16546,54 @@ enum InvoiceType {
   RefundNote
 }
 
+"""Pricing policy - A group of custom billing rules and fees."""
+type PricingPolicy {
+  """Unique identifier of the pricing policy."""
+  id: ID!
+
+  """Human-readable name of the pricing policy."""
+  label: String!
+}
+
+"""
+Rejection returned when the requested pricing policy is not in the list of policies available for this account holder.
+"""
+type PricingPolicyNotAvailableForAccountHolderRejection implements Rejection {
+  message: String!
+}
+
+"""Rejection returned when a pricing policy is not found."""
+type PricingPolicyNotFoundRejection implements Rejection {
+  message: String!
+}
+
 """Thrown when a plan already has a subscription"""
 type ProjectAlreadyHasSubscriptionRejection implements Rejection {
   message: String!
+}
+
+input UpdateAccountHolderPricingPolicyInput {
+  """Id of the account holder to update."""
+  accountHolderId: ID!
+
+  """Id of the pricing policy to update to."""
+  pricingPolicyId: ID!
+}
+
+"""
+Possible returned values for the update of an account holder's pricing policy.
+"""
+union UpdateAccountHolderPricingPolicyPayload = UpdateAccountHolderPricingPolicySuccessPayload | PricingPolicyNotFoundRejection | AccountHolderNotFoundRejection | PricingPolicyNotAvailableForAccountHolderRejection | AccountHolderPricingPolicyUpdateInProgressRejection
+
+"""
+Returned when the update of an account holder's pricing policy succeed.
+"""
+type UpdateAccountHolderPricingPolicySuccessPayload {
+  """
+  The pricing policy the account holder will be switched to. The switch is asynchronous.
+  AccountHolder.pricingPolicy will reflect the new policy once completed (typically within a few seconds).
+  """
+  pricingPolicy: PricingPolicy!
 }
 
 input CancelCapitalDepositCaseInput {
@@ -16622,6 +16778,34 @@ input CapitalDepositCaseFiltersInput {
 
   """Filter by statuses"""
   statuses: [CapitalDepositStatus!]
+}
+
+type CapitalDepositCaseNotaryHoldOnShareDepositCertificateStatusInfo implements CapitalDepositCaseStatusInfo {
+  """NotaryHoldOnShareDepositCertificate"""
+  status: CapitalDepositStatus!
+
+  """Reason the notary cannot proceed with the capital deposit case."""
+  notaryHoldReasonType: CapitalDepositCaseNotaryHoldReasonType!
+
+  """Details for the case being sent back by the notary."""
+  notaryHoldReasonMessage: String
+}
+
+"""Reason the notary cannot proceed with a capital deposit case."""
+enum CapitalDepositCaseNotaryHoldReasonType {
+  """
+  One or more documents were refused — check individual document statuses for details.
+  """
+  DocumentRefused
+
+  """The certificate has already been issued by another institution."""
+  CertificateAlreadyIssued
+
+  """The notary has requested an edition to the case."""
+  EditionRequested
+
+  """Other reason — see reasonMessage for details."""
+  Other
 }
 
 """
@@ -16929,6 +17113,11 @@ enum CapitalDepositStatus {
   The notary is reviewing the register extract. If the document is rejected by either Swan or the notary, the case will return to WaitingForRegisterExtract.
   """
   WaitingForNotaryTransfer
+
+  """
+  The notary has signaled a block while preparing the share deposit certificate. The case will not progress until the issue is resolved. Check the status info for the reason.
+  """
+  NotaryHoldOnShareDepositCertificate
 
   """
   The notary has approved all documents and transferred the funds to the newly created company. The capital deposit process is complete.
@@ -18660,6 +18849,23 @@ type EnabledCardDesignNotFoundRejection implements Rejection {
   message: String!
 }
 
+"""
+Google Wallet data used during Google Pay in-app provisioning with Unified Push Provisioning
+"""
+input GoogleWalletProvisioningInput {
+  """
+  ID of the Google Pay & Wallet Console your app is registered under. 1 to 36 characters, no
+  whitespace: `^\S{1,36}$`
+  """
+  googleConsoleId: String!
+
+  """
+  Server session ID provided by the Google Wallet SDK in `PaymentCredentialsGenerator.generate()`.
+  1 to 4096 characters
+  """
+  serverSessionId: String!
+}
+
 """Data used for in-app provisioning"""
 type InAppProvisioningData {
   """Cryptographic OTP used to pre-validate digitalization"""
@@ -18685,6 +18891,13 @@ type InAppProvisioningData {
   hash algorithm used during encryption of the card data (Useful for Google Pay)
   """
   oaepHashingAlgorithm: String
+
+  """
+  Google Opaque Payment Card (OPC), to return to the Google Wallet SDK with the card network's
+  opaque payment card. Only present when `googleWallet` is provided and Google Wallet provisioning
+  is enabled for your project.
+  """
+  googleOpaquePaymentCard: String
 }
 
 """
@@ -18737,11 +18950,15 @@ type PendingDigitalCard implements DigitalCard {
   
   Signature Data is mandatory for Apple Pay
   
+  Google Wallet data is for Google Pay with Unified Push Provisioning: call this field from the
+  Google Wallet SDK's `PaymentCredentialsGenerator.generate()` callback, with the `serverSessionId`
+  it provides, to also get the Google Opaque Payment Card.
+  
   This data is only available for a digital card in:
   - status: Pending
   - type: InApp
   """
-  inAppProvisioningData(signatureData: SignatureData): InAppProvisioningData
+  inAppProvisioningData(signatureData: SignatureData, googleWallet: GoogleWalletProvisioningInput): InAppProvisioningData
 
   """Reference of the token in another system (ex: Mastercard)"""
   tokenReferenceId: String
@@ -22592,6 +22809,7 @@ enum CardHolderVerificationMethod {
   Unknown
 }
 
+"""@deprecated Use OnlineCardMerchantPaymentMethod instead."""
 type CardMerchantPaymentMethod implements MerchantPaymentMethod {
   """
   Unique identifier tied to every version of a given Merchant Payment Method

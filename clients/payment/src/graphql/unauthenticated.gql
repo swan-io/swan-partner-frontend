@@ -15,6 +15,11 @@ query GetMerchantPaymentLink($paymentLinkId: ID!) {
       merchantPaymentMethods {
         id
         type
+        # Naming the type makes the API return `OnlineCardMerchantPaymentMethod` instead of the
+        # deprecated `CardMerchantPaymentMethod` for legacy online card methods
+        ... on OnlineCardMerchantPaymentMethod {
+          id
+        }
       }
     }
     amount {
@@ -44,6 +49,11 @@ query GetMerchantPaymentLink($paymentLinkId: ID!) {
     paymentMethods {
       type
       id
+      # Naming the type makes the API return `OnlineCardMerchantPaymentMethod` instead of the
+      # deprecated `CardMerchantPaymentMethod` for legacy online card methods
+      ... on OnlineCardMerchantPaymentMethod {
+        id
+      }
     }
   }
 }

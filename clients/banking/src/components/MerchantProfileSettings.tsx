@@ -617,11 +617,11 @@ const MerchantProfileSettingsPaymentMethodTile = ({
 const getPaymentMethod = <T extends MerchantPaymentMethodFragment["__typename"]>({
   merchantPaymentMethods,
   isRequestable,
-  type,
+  types,
 }: {
   merchantPaymentMethods: MerchantPaymentMethodFragment[];
   isRequestable: boolean;
-  type: T;
+  types: [T, ...T[]];
 }): Option<Option<MerchantPaymentMethodFragment & { __typename: T }>> => {
   const paymentMethod = Array.findMap(
     merchantPaymentMethods.toSorted((a, b) => {
@@ -631,7 +631,7 @@ const getPaymentMethod = <T extends MerchantPaymentMethodFragment["__typename"]>
     }),
     paymentMethod =>
       match(paymentMethod)
-        .with({ __typename: type }, () =>
+        .with({ __typename: P.union(...types) }, () =>
           Option.Some(paymentMethod as MerchantPaymentMethodFragment & { __typename: T }),
         )
         .otherwise(() => Option.None()),
@@ -678,43 +678,45 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
   const cardPaymentMethod = getPaymentMethod({
     merchantPaymentMethods,
     isRequestable: permissions.canRequestMerchantOnlineCardsPaymentMethod,
-    type: "CardMerchantPaymentMethod",
+    // Legacy online card methods are still returned as the deprecated `CardMerchantPaymentMethod`
+    // (with `type: "OnlineCard"`). Remove it once the API stops returning it.
+    types: ["OnlineCardMerchantPaymentMethod", "CardMerchantPaymentMethod"],
   });
 
   const inPersonCardPaymentMethod = getPaymentMethod({
     merchantPaymentMethods,
     isRequestable: permissions.canRequestMerchantOnlineCardsPaymentMethod,
-    type: "InPersonCardMerchantPaymentMethod",
+    types: ["InPersonCardMerchantPaymentMethod"],
   });
 
   const internalDirectDebitB2BPaymentMethod = getPaymentMethod({
     merchantPaymentMethods,
     isRequestable: permissions.canRequestMerchantInternalDirectDebitB2BPaymentMethod,
-    type: "InternalDirectDebitB2BMerchantPaymentMethod",
+    types: ["InternalDirectDebitB2BMerchantPaymentMethod"],
   });
 
   const internalDirectDebitStandardPaymentMethod = getPaymentMethod({
     merchantPaymentMethods,
     isRequestable: permissions.canRequestMerchantInternalDirectDebitCorePaymentMethod,
-    type: "InternalDirectDebitStandardMerchantPaymentMethod",
+    types: ["InternalDirectDebitStandardMerchantPaymentMethod"],
   });
 
   const sepaDirectDebitB2BPaymentMethod = getPaymentMethod({
     merchantPaymentMethods,
     isRequestable: permissions.canRequestMerchantSepaDirectDebitB2BPaymentMethod,
-    type: "SepaDirectDebitB2BMerchantPaymentMethod",
+    types: ["SepaDirectDebitB2BMerchantPaymentMethod"],
   });
 
   const sepaDirectDebitCorePaymentMethod = getPaymentMethod({
     merchantPaymentMethods,
     isRequestable: permissions.canRequestMerchantSepaDirectDebitCorePaymentMethod,
-    type: "SepaDirectDebitCoreMerchantPaymentMethod",
+    types: ["SepaDirectDebitCoreMerchantPaymentMethod"],
   });
 
   const checkPaymentMethod = getPaymentMethod({
     merchantPaymentMethods,
     isRequestable: permissions.canRequestMerchantChecksPaymentMethod,
-    type: "CheckMerchantPaymentMethod",
+    types: ["CheckMerchantPaymentMethod"],
   });
 
   return (
@@ -1004,7 +1006,10 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
                   )}
                   onDisable={() =>
                     requestMerchantPaymentMethods({
-                      input: { merchantProfileId: merchantProfile.id, card: { activate: false } },
+                      input: {
+                        merchantProfileId: merchantProfile.id,
+                        onlineCard: { activate: false },
+                      },
                     })
                       .mapOkToResult(data =>
                         Option.fromNullable(data.requestMerchantPaymentMethods).toResult("No data"),

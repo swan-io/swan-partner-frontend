@@ -796,6 +796,20 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
   Acquisition Channel to specify how the user joined, such as "InboundOrganic", "OutboundSales", etc.
   """
   acquisitionChannel: AcquisitionChannel
+
+  """Business classification code (example: NAF code for France)"""
+  businessActivityCode: String
+
+  """Current company headcount"""
+  headcount: CompanyHeadcount
+
+  """Forecast yearly income range"""
+  forecastYearlyIncome: ForecastYearlyIncome
+
+  """
+  Company websites, online presence URLs, social media profiles or handles
+  """
+  websites: [String!]
 }
 
 """
@@ -1814,6 +1828,13 @@ Union between PartnerCloseAccountReasonType and InternalCloseAccountReason
 """
 union CloseAccountStatusReason = CloseAccountReason
 
+enum CompanyHeadcount {
+  Between1And10
+  Between11And50
+  Between51And250
+  MoreThan250
+}
+
 type CompanyRepresentative {
   """List of representative roles."""
   roles: [String!]
@@ -2018,6 +2039,13 @@ enum FieldValidationError {
 
 type ForbiddenRejection implements Rejection {
   message: String!
+}
+
+enum ForecastYearlyIncome {
+  From0To500000
+  From500001To1000000
+  From1000001To5000000
+  MoreThan5000000
 }
 
 """Funding Limit Amount"""
@@ -2248,6 +2276,14 @@ type IndividualRepresentative {
 
   """Residency address of the representative."""
   residencyAddress: AddressInformation
+
+  """Email of the representative."""
+  email: String
+
+  """
+  Tax information related to US persons as defined by FATCA, if applicable.
+  """
+  unitedStatesTaxInfo: UnitedStatesTaxInfo
 }
 
 """
@@ -2288,6 +2324,14 @@ type IndividualUltimateBeneficialOwner {
 
   """Ultimate beneficial owner's identity document details"""
   identityDocumentDetails: UBOIdentityDocumentDetails
+
+  """Ultimate beneficial owner control types"""
+  controlTypes: [UltimateBeneficialOwnerControlType!]
+
+  """
+  Tax information related to US persons as defined by FATCA, if applicable
+  """
+  unitedStatesTaxInfo: UnitedStatesTaxInfo
 }
 
 """Define the type of the UBO"""
@@ -4155,6 +4199,55 @@ enum UBOIdentityDocumentType {
   IdCard
 }
 
+enum UltimateBeneficialOwnerControlType {
+  """The ultimate beneficial owner exerts control via voting rights"""
+  VotingRights
+
+  """
+  The ultimate beneficial owner exerts control via trust or similar arrangements
+  """
+  ControlViaTrustOrSimilar
+
+  """
+  The ultimate beneficial owner exerts control via appointment or removal of board members
+  """
+  RightToAppointOrRemoveBoard
+
+  """
+  The ultimate beneficial owner exerts control via shareholder agreements or contracts
+  """
+  ShareholderAgreementOrContract
+
+  """The ultimate beneficial owner exerts strategic or managerial influence"""
+  StrategicOrManagerialInfluence
+}
+
+type UnitedStatesTaxInfo {
+  """
+  Is the ultimate beneficial owner a US person as defined by the Foreign Account Tax Compliance Act (FATCA)
+  """
+  isUnitedStatesPerson: Boolean
+
+  """
+  United States Tax Identification Number of the ultimate beneficial owner, if applicable
+  """
+  unitedStatesTaxIdentificationNumber: String
+}
+
+input UnitedStatesTaxInfoInput {
+  """
+  Is the ultimate beneficial owner a US person as defined by the Foreign Account Tax Compliance Act (FATCA)
+  """
+  isUnitedStatesPerson: Boolean!
+
+  """
+  United States Tax Identification Number of the ultimate beneficial owner, if applicable
+  
+  - Maximum 20 characters
+  """
+  unitedStatesTaxIdentificationNumber: String
+}
+
 input UpdateAccountHolderInput {
   accountHolderId: ID!
   verificationStatus: VerificationStatus
@@ -5033,6 +5126,34 @@ input CapitalDepositCaseFiltersInput {
   statuses: [CapitalDepositStatus!]
 }
 
+type CapitalDepositCaseNotaryHoldOnShareDepositCertificateStatusInfo implements CapitalDepositCaseStatusInfo {
+  """NotaryHoldOnShareDepositCertificate"""
+  status: CapitalDepositStatus!
+
+  """Reason the notary cannot proceed with the capital deposit case."""
+  notaryHoldReasonType: CapitalDepositCaseNotaryHoldReasonType!
+
+  """Details for the case being sent back by the notary."""
+  notaryHoldReasonMessage: String
+}
+
+"""Reason the notary cannot proceed with a capital deposit case."""
+enum CapitalDepositCaseNotaryHoldReasonType {
+  """
+  One or more documents were refused — check individual document statuses for details.
+  """
+  DocumentRefused
+
+  """The certificate has already been issued by another institution."""
+  CertificateAlreadyIssued
+
+  """The notary has requested an edition to the case."""
+  EditionRequested
+
+  """Other reason — see reasonMessage for details."""
+  Other
+}
+
 """
 Field we can use when ordering that can be applied when listing capital deposit cases
 """
@@ -5291,6 +5412,11 @@ enum CapitalDepositStatus {
   The notary is reviewing the register extract. If the document is rejected by either Swan or the notary, the case will return to WaitingForRegisterExtract.
   """
   WaitingForNotaryTransfer
+
+  """
+  The notary has signaled a block while preparing the share deposit certificate. The case will not progress until the issue is resolved. Check the status info for the reason.
+  """
+  NotaryHoldOnShareDepositCertificate
 
   """
   The notary has approved all documents and transferred the funds to the newly created company. The capital deposit process is complete.
@@ -9540,6 +9666,7 @@ type CardMerchantPayment implements MerchantPayment {
   disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
 }
 
+"""@deprecated Use OnlineCardMerchantPaymentMethod instead."""
 type CardMerchantPaymentMethod implements MerchantPaymentMethod {
   """
   Unique identifier tied to every version of a given Merchant Payment Method

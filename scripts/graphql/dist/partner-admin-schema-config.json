@@ -226,6 +226,7 @@
     "CapitalDepositCaseStatusInfo": [
       "CapitalDepositCaseCanceledStatusInfo",
       "CapitalDepositCaseCompletedStatusInfo",
+      "CapitalDepositCaseNotaryHoldOnShareDepositCertificateStatusInfo",
       "CapitalDepositCasePendingInternalReviewStatusInfo",
       "CapitalDepositCaseWaitingForAdditionalInformationStatusInfo",
       "CapitalDepositCaseWaitingForInitialRequirementsStatusInfo",

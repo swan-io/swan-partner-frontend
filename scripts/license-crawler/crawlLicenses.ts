@@ -7,9 +7,10 @@ import * as prettier from "prettier/standalone";
 
 const exec = (command: string) => {
   return new Promise<string>((resolve, reject) => {
-    originalExec(command, (err, stdout) => {
+    originalExec(command, { maxBuffer: 64 * 1024 * 1024 }, (err, stdout, stderr) => {
       if (err) {
-        reject(err);
+        // pnpm --json reports its errors on stdout: surface both streams.
+        reject(new Error(`${err.message}\n${stdout.slice(0, 4000)}\n${stderr.slice(0, 4000)}`));
       } else {
         resolve(stdout);
       }

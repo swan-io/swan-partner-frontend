@@ -1,3 +1,10 @@
+# Public workflow: lives in the PRIVATE repository under .public/.github/ and is
+# copied to .github/ on swan-io/swan-partner-frontend by the sync workflow.
+# Keep it self-contained (no reusable-workflows, no internal secrets).
+#
+# The release that triggers it is created on the public repository by the sync
+# workflow (GitHub App token, so it triggers) when release-please publishes a
+# release on the private repository.
 name: Publish to public registry
 
 on:
@@ -26,8 +33,10 @@ jobs:
           node-version: lts/*
           cache: pnpm
 
+      # --ignore-scripts: no dependency lifecycle script runs. The one the build needs, the
+      # root postinstall (graphql-codegen), is its own step below.
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Check licenses
         run: pnpm license-check

@@ -1,0 +1,64 @@
+# Public CI for swan-io/swan-partner-frontend.
+#
+# This file lives in the PRIVATE repository under .public/.github/ and is copied
+# to .github/ on the public repository by the sync workflow. It must stay
+# self-contained: no swan-io/reusable-workflows, no swan-io/workflow-templates,
+# no internal secrets, no self-hosted runners. Outside contributions are tested
+# here, then cherry-picked into the private repository by hand.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  test-and-build:
+    name: Test & build
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: lts/*
+          cache: pnpm
+
+      # --ignore-scripts: no dependency lifecycle script runs. The one the build needs, the
+      # root postinstall (graphql-codegen), is its own step below.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Check licenses
+        run: pnpm license-check
+
+      - name: GraphQL Codegen
+        run: pnpm graphql-codegen
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Validate translations
+        run: pnpm validate-locales
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Compile project
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
+        run: pnpm build

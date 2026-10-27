@@ -1,3 +1,8 @@
+# Public workflow: lives in the PRIVATE repository under .public/.github/ and is
+# copied to .github/ on swan-io/swan-partner-frontend by the sync workflow.
+# Keep it self-contained (no reusable-workflows, no internal secrets).
+#
+# Runs on the push the sync makes to public main (GitHub App token, so it triggers).
 name: Build docs
 
 on:

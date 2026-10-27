@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "910e7b44248b151aa983af6027a4d564d4a545c0",
+  "packages": {
+    ".": {
+      "release-type": "node",
+      "include-component-in-tag": false,
+      "extra-files": [
+        { "type": "json", "path": "server/package.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "clients/banking/package.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "clients/onboarding/package.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "clients/payment/package.json", "jsonpath": "$.version" }
+      ]
+    }
+  }
+}

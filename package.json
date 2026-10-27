@@ -31,7 +31,6 @@
     "lint-env-vars": "tsx scripts/env/lintEnvVariables.ts",
     "type-env-vars": "tsx scripts/env/writeEnvInterface.ts",
     "generate-cookie-key": "tsx scripts/cookie/generateCookieKey.ts",
-    "deploy-ci": "node scripts/deploy/deploy.js",
     "format-locales": "tsx scripts/locales/sort.ts && biome format --write clients/*/src/locales/*.json",
     "validate-banking-locales": "tsx scripts/locales/validateTranslations.ts clients/banking/src/locales",
     "validate-onboarding-locales": "tsx scripts/locales/validateTranslations.ts clients/onboarding/src/locales",
@@ -42,9 +41,13 @@
     "pull-payment-locales": "localazy download payment -k localazy.keys.payment.json",
     "pull-locales": "pnpm pull-banking-locales && pnpm pull-onboarding-locales && pnpm pull-payment-locales && pnpm format-locales",
     "remove-unused-locales": "tsx scripts/locales/removeUnused.ts",
-    "release": "tsx scripts/release/createPullRequest.ts",
     "configure-hooks": "git config --local core.hooksPath .hooks",
-    "ci-get-changelog": "tsx scripts/changelog/getChangelog.ts"
+    "ci-get-changelog": "tsx scripts/changelog/getChangelog.ts",
+    "ci:compile": "pnpm install --frozen-lockfile --force && pnpm license-check && NODE_OPTIONS=--max_old_space_size=4096 pnpm build",
+    "ci:test:lint": "biome ci",
+    "ci:test:locales": "pnpm validate-locales",
+    "ci:test:static": "pnpm install --frozen-lockfile && pnpm ci:test:lint && pnpm typecheck && pnpm ci:test:locales",
+    "ci:test:unit": "pnpm install --frozen-lockfile && pnpm test"
   },
   "lint-staged": {
     "*": "biome format --no-errors-on-unmatched --write",

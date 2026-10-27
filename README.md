@@ -5,6 +5,12 @@
 - [Documentation](https://swan-io.github.io/swan-partner-frontend)
 - [Specifications](https://swan-io.github.io/swan-partner-frontend/specs/onboarding)
 
+## Contributing
+
+This repository is published from Swan's internal repository: changes are made there, then copied here automatically.
+
+Pull requests are welcome! We don't merge them here: once accepted, we port them to the internal repository, keeping your authorship, and close the pull request with a link to where the change lands. See [CONTRIBUTING.md](./CONTRIBUTING.md).
+
 ## Clone
 
 ```console

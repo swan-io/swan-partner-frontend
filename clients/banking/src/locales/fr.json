@@ -52,7 +52,7 @@
   "accountActivation.tag.waitingForInformation": "En attente d'informations",
   "accountActivation.title": "Activation du compte",
   "accountClose.accountHolder": "Titulaire du compte",
-  "accountClose.accountName": "Nom du compte",
+  "accountClose.accountName": "Intitulé du compte",
   "accountClose.cancelled.description": "Vous pouvez désormais fermer cette page.",
   "accountClose.cancelled.title": "Vous pouvez toujours clôturer votre compte ultérieurement en utilisant le même lien.",
   "accountClose.closeAccount": "Fermer mon compte",

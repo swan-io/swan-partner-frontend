@@ -12,11 +12,11 @@ import { useForm } from "@swan-io/use-form";
 import { Ref, useEffect, useImperativeHandle } from "react";
 import { View } from "react-native";
 import { match, P } from "ts-pattern";
-import { RelatedCompanyInput } from "../../../../graphql/partner";
+import { FieldValidationError, RelatedCompanyInput } from "../../../../graphql/partner";
 import { locale, t } from "../../../../utils/i18n";
 import { toSovereignCountry } from "../../../../utils/onboarding";
 import { getRegistrationNumberLabel } from "../../../../utils/templateTranslations";
-import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../../../utils/validation";
+import { getValidationErrorMessage } from "../../../../utils/validation";
 
 export type OnboardingCompanyOwnershipFormCompanyRef = {
   submit: () => void;
@@ -24,7 +24,7 @@ export type OnboardingCompanyOwnershipFormCompanyRef = {
 
 type Props = {
   initialValues: Partial<RelatedCompanyInput>;
-  errors: { fieldName: string; code: ServerInvalidFieldCode }[];
+  errors: { fieldName: string; code: FieldValidationError }[];
   ref: Ref<OnboardingCompanyOwnershipFormCompanyRef>;
   companyCountry: CountryCCA3;
   onSave: (input: RelatedCompanyInput) => void | Promise<void>;

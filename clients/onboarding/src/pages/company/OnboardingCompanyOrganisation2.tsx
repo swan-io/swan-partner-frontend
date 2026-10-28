@@ -27,6 +27,7 @@ import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
 import {
   BusinessActivity,
+  FieldValidationError,
   MonthlyPaymentVolume,
   UnauthenticatedUpdateCompanyOnboardingInput,
   UpdateCompanyOnboardingDocument,
@@ -37,7 +38,6 @@ import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 import {
   extractServerValidationErrors,
   getValidationErrorMessage,
-  ServerInvalidFieldCode,
   validateMaxLength,
 } from "../../utils/validation";
 
@@ -61,7 +61,7 @@ type Props = {
   initialMonthlyPaymentVolume: MonthlyPaymentVolume;
   serverValidationErrors: {
     fieldName: Organisation2FieldName;
-    code: ServerInvalidFieldCode;
+    code: FieldValidationError;
   }[];
   forcedUpdateInputs: Partial<UnauthenticatedUpdateCompanyOnboardingInput>;
 };

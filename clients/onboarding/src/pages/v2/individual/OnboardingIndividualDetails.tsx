@@ -8,6 +8,7 @@ import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { identity, noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
@@ -35,6 +36,7 @@ import { OnboardingCountryPicker } from "../../../components/CountryPicker";
 import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import { StepTitle } from "../../../components/StepTitle";
 import {
+  FieldValidationError,
   IndividualOnboardingFragment,
   UpdatePublicIndividualAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
@@ -46,14 +48,13 @@ import {
   badUserInputErrorPattern,
   extractServerValidationFields,
   getValidationErrorMessage,
-  ServerInvalidFieldCode,
 } from "../../../utils/validation";
 
 type Props = {
   onboarding: NonNullable<IndividualOnboardingFragment>;
   serverValidationErrors: {
-    fieldName: "email";
-    code: ServerInvalidFieldCode;
+    fieldName: "email" | "residencePostal";
+    code: FieldValidationError;
   }[];
 };
 
@@ -495,7 +496,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                           valid={valid}
                           error={error}
                           onChangeText={onChange}
-                          readOnly={isAddressFromSuggestion}
+                          readOnly={isAddressFromSuggestion && isNullish(error)}
                         />
                       )}
                     />
@@ -514,7 +515,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                           valid={valid}
                           error={error}
                           onChangeText={onChange}
-                          readOnly={isAddressFromSuggestion}
+                          readOnly={isAddressFromSuggestion && isNullish(error)}
                         />
                       )}
                     />

@@ -65,8 +65,9 @@ export const OnboardingIndividualWizard = ({ onboarding }: Props) => {
   const emailStepErrors = useMemo(() => {
     return extractServerInvalidFields(onboarding.statusInfo, field =>
       match(field)
-        .returnType<"email" | null>()
+        .returnType<"email" | "residencePostal" | null>()
         .with("accountAdmin.email", () => "email")
+        .with("accountAdmin.address.postalCode", () => "residencePostal")
         .otherwise(() => null),
     );
   }, [onboarding.statusInfo]);

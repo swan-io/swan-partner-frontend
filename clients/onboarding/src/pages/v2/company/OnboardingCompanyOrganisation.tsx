@@ -32,6 +32,7 @@ import { OnboardingTcu } from "../../../components/OnboardingTcu";
 import { StepTitle } from "../../../components/StepTitle";
 import {
   CompanyOnboardingFragment,
+  FieldValidationError,
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { locale, t } from "../../../utils/i18n";
@@ -49,7 +50,6 @@ import {
   badUserInputErrorPattern,
   extractServerValidationFields,
   getValidationErrorMessage,
-  ServerInvalidFieldCode,
   validateRegistrationNumber,
 } from "../../../utils/validation";
 
@@ -65,7 +65,7 @@ type Props = {
   onboarding: NonNullable<CompanyOnboardingFragment>;
   serverValidationErrors: {
     fieldName: OrganisationFieldApiRequired;
-    code: ServerInvalidFieldCode;
+    code: FieldValidationError;
   }[];
 };
 

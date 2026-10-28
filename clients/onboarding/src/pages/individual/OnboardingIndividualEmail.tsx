@@ -27,15 +27,15 @@ import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
-import { AccountCountry, UpdateIndividualOnboardingDocument } from "../../graphql/unauthenticated";
+import {
+  AccountCountry,
+  FieldValidationError,
+  UpdateIndividualOnboardingDocument,
+} from "../../graphql/unauthenticated";
 import { formatNestedMessage, locale, t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
-import {
-  extractServerValidationErrors,
-  getValidationErrorMessage,
-  ServerInvalidFieldCode,
-} from "../../utils/validation";
+import { extractServerValidationErrors, getValidationErrorMessage } from "../../utils/validation";
 
 const styles = StyleSheet.create({
   tcuCheckbox: {
@@ -61,7 +61,7 @@ type Props = {
   onboardingId: string;
   serverValidationErrors: {
     fieldName: "email";
-    code: ServerInvalidFieldCode;
+    code: FieldValidationError;
   }[];
   tcuDocumentUri?: string;
   tcuUrl: string;

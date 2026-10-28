@@ -30,6 +30,7 @@ import { OnboardingTcu } from "../../../components/OnboardingTcu";
 import { StepTitle } from "../../../components/StepTitle";
 import {
   EmploymentStatus,
+  FieldValidationError,
   IndividualAccountSourceOfFunds,
   IndividualOnboardingFragment,
   MonthlyIncome,
@@ -42,7 +43,6 @@ import {
   badUserInputErrorPattern,
   extractServerValidationFields,
   getValidationErrorMessage,
-  ServerInvalidFieldCode,
 } from "../../../utils/validation";
 
 export type ActivityFieldName =
@@ -55,7 +55,7 @@ type Props = {
   onboarding: NonNullable<IndividualOnboardingFragment>;
   serverValidationErrors: {
     fieldName: ActivityFieldName;
-    code: ServerInvalidFieldCode;
+    code: FieldValidationError;
   }[];
 };
 

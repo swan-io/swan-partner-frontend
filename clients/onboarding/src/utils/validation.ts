@@ -3,6 +3,7 @@ import { isEmpty } from "@swan-io/lake/src/utils/nullish";
 import { Validator } from "@swan-io/use-form";
 import { match, P } from "ts-pattern";
 import {
+  FieldValidationError,
   OnboardingInvalidInfoFragment,
   UpdateValidationErrorsFragment,
 } from "../graphql/unauthenticated";
@@ -18,7 +19,11 @@ export const validateMaxLength: (maxLength: number) => Validator<string> = maxLe
   }
 };
 
-export type ServerInvalidFieldCode = "Missing";
+// A field can carry several errors: "Invalid" wins since the value exists but must be fixed.
+// No error listed falls back to "Missing", the historical behavior.
+export const getServerInvalidFieldCode = (
+  errors: FieldValidationError[] | null | undefined,
+): FieldValidationError => (errors?.includes("Invalid") === true ? "Invalid" : "Missing");
 
 // @depreacted: moving to extractServerValidationFields when using Graphql error
 export const extractServerValidationErrors = <T extends string>(
@@ -73,13 +78,13 @@ export const extractServerValidationFields = <T extends string>(
 export const extractServerInvalidFields = <T extends string>(
   statusInfo: OnboardingInvalidInfoFragment,
   getFieldName: (field: string) => T | null,
-): { fieldName: T; code: ServerInvalidFieldCode }[] => {
+): { fieldName: T; code: FieldValidationError }[] => {
   return match(statusInfo)
     .with({ __typename: "OnboardingInvalidStatusInfo" }, ({ errors }) =>
       Array.filterMap(errors, error => {
         const fieldName = getFieldName(error.field);
         if (fieldName != null) {
-          return Option.Some({ fieldName, code: "Missing" as const });
+          return Option.Some({ fieldName, code: getServerInvalidFieldCode(error.errors) });
         }
         return Option.None();
       }),
@@ -88,7 +93,7 @@ export const extractServerInvalidFields = <T extends string>(
 };
 
 export const getValidationErrorMessage = (
-  code: ValidationFieldErrorCode | ServerInvalidFieldCode,
+  code: ValidationFieldErrorCode | FieldValidationError,
   currentValue?: string | string[],
 ): string => {
   return match(code)
@@ -96,7 +101,7 @@ export const getValidationErrorMessage = (
     .with("InvalidString", () =>
       isEmpty(currentValue) ? t("error.requiredField") : t("error.invalidField"),
     )
-    .with("InvalidType", "TooLong", "TooShort", () => t("error.invalidField"))
+    .with("Invalid", "InvalidType", "TooLong", "TooShort", () => t("error.invalidField"))
     .with("UnrecognizedKeys", () => t("error.unrecognizedKeys"))
     .exhaustive();
 };

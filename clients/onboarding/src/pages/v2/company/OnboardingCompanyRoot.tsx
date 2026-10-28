@@ -43,6 +43,7 @@ import {
   CompanyInfo,
   CompanyOnboardingFragment,
   CompanyRelatedIndividual,
+  FieldValidationError,
   GetPublicCompamyInfoRegistryDataDocument,
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
@@ -62,7 +63,6 @@ import {
   badUserInputErrorPattern,
   extractServerValidationFields,
   getValidationErrorMessage,
-  ServerInvalidFieldCode,
 } from "../../../utils/validation";
 
 export type InitFieldApiRequired = "name" | "country" | "legalFormCode" | "typeOfRepresentation";
@@ -71,7 +71,7 @@ type Props = {
   onboarding: NonNullable<CompanyOnboardingFragment>;
   serverValidationErrors: {
     fieldName: InitFieldApiRequired;
-    code: ServerInvalidFieldCode;
+    code: FieldValidationError;
   }[];
 };
 

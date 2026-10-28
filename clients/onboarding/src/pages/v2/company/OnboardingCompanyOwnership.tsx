@@ -29,6 +29,7 @@ import {
   CompanyOnboardingFragment,
   CompanyRelatedCompany,
   CompanyRelatedIndividual,
+  FieldValidationError,
   RelatedCompanyInput,
   RelatedIndividualInput,
   UpdatePublicCompanyAccountHolderOnboardingDocument,
@@ -41,7 +42,7 @@ import {
 } from "../../../utils/onboarding";
 import { CompanyOnboardingRouteV2, Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
-import { extractServerInvalidFields, ServerInvalidFieldCode } from "../../../utils/validation";
+import { extractServerInvalidFields, getServerInvalidFieldCode } from "../../../utils/validation";
 import {
   OnboardingCompanyOwnershipFormRef,
   OwnershipFormStep,
@@ -74,7 +75,7 @@ type ModalState =
       step: OwnershipFormStep;
       form?: OwnershipSubForm;
       initialValue: LocalRelated;
-      errors: { fieldName: string; code: ServerInvalidFieldCode }[];
+      errors: { fieldName: string; code: FieldValidationError }[];
     };
 
 type Props = {
@@ -82,7 +83,7 @@ type Props = {
   nextStep: CompanyOnboardingRouteV2;
   serverValidationErrors: {
     fieldName: string;
-    code: ServerInvalidFieldCode;
+    code: FieldValidationError;
   }[];
 };
 
@@ -180,16 +181,17 @@ export const OnboardingCompanyOwnership = ({
   const hasRelated = currentRelatedCompany.length > 0 || currentRelatedIndividual.length > 0;
 
   const missingInfos = useMemo(() => {
-    const company = new Map<number, { fieldName: string; code: ServerInvalidFieldCode }[]>();
-    const individual = new Map<number, { fieldName: string; code: ServerInvalidFieldCode }[]>();
+    const company = new Map<number, { fieldName: string; code: FieldValidationError }[]>();
+    const individual = new Map<number, { fieldName: string; code: FieldValidationError }[]>();
 
     if (statusInfo.__typename === "OnboardingInvalidStatusInfo") {
-      statusInfo.errors.forEach(({ field }) => {
+      statusInfo.errors.forEach(({ field, errors }) => {
+        const code = getServerInvalidFieldCode(errors);
         const companyMatch = RELATED_COMPANY_REGEX.exec(field);
         if (companyMatch?.[1] != null && companyMatch[2] != null) {
           const index = Number(companyMatch[1]);
           const fields = company.get(index) ?? [];
-          fields.push({ fieldName: companyMatch[2], code: "Missing" });
+          fields.push({ fieldName: companyMatch[2], code });
           company.set(index, fields);
           return;
         }
@@ -197,7 +199,7 @@ export const OnboardingCompanyOwnership = ({
         if (individualMatch?.[1] != null && individualMatch[2] != null) {
           const index = Number(individualMatch[1]);
           const fields = individual.get(index) ?? [];
-          fields.push({ fieldName: individualMatch[2], code: "Missing" });
+          fields.push({ fieldName: individualMatch[2], code });
           individual.set(index, fields);
         }
       });

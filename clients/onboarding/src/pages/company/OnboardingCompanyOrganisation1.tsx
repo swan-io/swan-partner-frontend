@@ -40,6 +40,7 @@ import { StepTitle } from "../../components/StepTitle";
 import {
   AccountCountry,
   CompanyType,
+  FieldValidationError,
   UnauthenticatedUpdateCompanyOnboardingInput,
   UpdateCompanyOnboardingDocument,
 } from "../../graphql/unauthenticated";
@@ -54,7 +55,6 @@ import {
 import {
   extractServerValidationErrors,
   getValidationErrorMessage,
-  ServerInvalidFieldCode,
   validateRegistrationNumber,
 } from "../../utils/validation";
 
@@ -90,7 +90,7 @@ type Props = {
   onboardingId: string;
   serverValidationErrors: {
     fieldName: Organisation1FieldName;
-    code: ServerInvalidFieldCode;
+    code: FieldValidationError;
   }[];
   forcedUpdateInputs: Partial<UnauthenticatedUpdateCompanyOnboardingInput>;
 };

@@ -32,13 +32,14 @@ import { StepTitle } from "../../components/StepTitle";
 import {
   AccountCountry,
   EmploymentStatus,
+  FieldValidationError,
   MonthlyIncome,
   UpdateIndividualOnboardingDocument,
 } from "../../graphql/unauthenticated";
 import { locale, t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
-import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../utils/validation";
+import { getValidationErrorMessage } from "../../utils/validation";
 
 const employmentStatuses: Item<EmploymentStatus>[] = [
   { name: t("employmentStatus.craftsman"), value: "Craftsman" },
@@ -72,7 +73,7 @@ type Props = {
   onboardingId: string;
   serverValidationErrors: {
     fieldName: DetailsFieldName;
-    code: ServerInvalidFieldCode;
+    code: FieldValidationError;
   }[];
 };
 

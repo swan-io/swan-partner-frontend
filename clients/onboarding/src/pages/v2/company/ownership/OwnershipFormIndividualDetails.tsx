@@ -33,10 +33,10 @@ import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { BirthPostalCodeInput } from "../../../../components/BirthPostalCodeInput";
 import { gender } from "../../../../constants/business";
-import { Gender, RelatedIndividualInput } from "../../../../graphql/partner";
+import { FieldValidationError, Gender, RelatedIndividualInput } from "../../../../graphql/partner";
 import { t } from "../../../../utils/i18n";
 import { isBirthPostalCodeRequired, toSovereignCountry } from "../../../../utils/onboarding";
-import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../../../utils/validation";
+import { getValidationErrorMessage } from "../../../../utils/validation";
 
 const styles = StyleSheet.create({
   grid: {
@@ -58,7 +58,7 @@ export type OnboardingCompanyOwnershipFormIndividualDetailsRef = {
 
 type Props = {
   initialValues: RelatedIndividualInput;
-  errors: { fieldName: string; code: ServerInvalidFieldCode }[];
+  errors: { fieldName: string; code: FieldValidationError }[];
   ref: Ref<OnboardingCompanyOwnershipFormIndividualDetailsRef>;
   accountCountry: string;
   companyCountry: CompanyCountryCCA3;

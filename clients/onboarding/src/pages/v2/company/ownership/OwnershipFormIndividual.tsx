@@ -4,12 +4,12 @@ import { Ref, useImperativeHandle, useRef, useState } from "react";
 import { match, P } from "ts-pattern";
 import {
   CompanyOnboardingFragment,
+  FieldValidationError,
   RelatedIndividualInput,
   RelatedIndividualType,
   RelatedIndividualUltimateBeneficialOwnerInput,
 } from "../../../../graphql/partner";
 import { namesMatch } from "../../../../utils/onboarding";
-import { ServerInvalidFieldCode } from "../../../../utils/validation";
 import {
   OnboardingCompanyOwnershipFormIndividualAddressRef,
   OwnershipFormIndividualAddress,
@@ -39,7 +39,7 @@ type Props = {
   companyCountry: CompanyCountryCCA3;
   step: Extract<OwnershipFormStep, "legal" | "legalAndUbo" | "ubo">;
   individualType: RelatedIndividualType;
-  errors: { fieldName: string; code: ServerInvalidFieldCode }[];
+  errors: { fieldName: string; code: FieldValidationError }[];
   subForm?: OwnershipSubForm;
   mode: "add" | "edit";
   onSave: (input: RelatedIndividualInput) => void | Promise<void>;

@@ -4,11 +4,11 @@ import { match, P } from "ts-pattern";
 import { v4 as uuid } from "uuid";
 import {
   CompanyOnboardingFragment,
+  FieldValidationError,
   RelatedCompanyInput,
   RelatedIndividualInput,
   RelatedIndividualType,
 } from "../../../../graphql/partner";
-import { ServerInvalidFieldCode } from "../../../../utils/validation";
 import {
   OnboardingCompanyOwnershipFormCompanyRef,
   OwnershipFormCompany,
@@ -39,7 +39,7 @@ type Props = {
   ref: Ref<OnboardingCompanyOwnershipFormRef>;
   onboarding: NonNullable<CompanyOnboardingFragment>;
   initialValues?: Partial<SaveValue>;
-  errors: { fieldName: string; code: ServerInvalidFieldCode }[];
+  errors: { fieldName: string; code: FieldValidationError }[];
   step: OwnershipFormStep;
   type: "add" | "edit";
   subForm?: OwnershipSubForm;

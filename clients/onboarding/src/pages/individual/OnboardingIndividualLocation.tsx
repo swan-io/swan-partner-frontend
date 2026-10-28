@@ -21,15 +21,14 @@ import { OnboardingCountryPicker } from "../../components/CountryPicker";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
-import { UpdateIndividualOnboardingDocument } from "../../graphql/unauthenticated";
+import {
+  FieldValidationError,
+  UpdateIndividualOnboardingDocument,
+} from "../../graphql/unauthenticated";
 import { locale, t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
-import {
-  extractServerValidationErrors,
-  getValidationErrorMessage,
-  ServerInvalidFieldCode,
-} from "../../utils/validation";
+import { extractServerValidationErrors, getValidationErrorMessage } from "../../utils/validation";
 
 export type LocationFieldName = "country" | "city" | "address" | "postalCode";
 
@@ -41,7 +40,7 @@ type Props = {
   initialCountry: CountryCCA3;
   serverValidationErrors: {
     fieldName: LocationFieldName;
-    code: ServerInvalidFieldCode;
+    code: FieldValidationError;
   }[];
 };
 

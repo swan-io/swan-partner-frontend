@@ -32,6 +32,7 @@ import {
   BusinessActivityCategory,
   CompanyHeadcount,
   CompanyOnboardingFragment,
+  FieldValidationError,
   ForecastYearlyIncome,
   MonthlyPaymentVolume,
   UpdatePublicCompanyAccountHolderOnboardingDocument,
@@ -44,7 +45,6 @@ import {
   badUserInputErrorPattern,
   extractServerValidationFields,
   getValidationErrorMessage,
-  ServerInvalidFieldCode,
   validateMaxLength,
 } from "../../../utils/validation";
 
@@ -57,7 +57,7 @@ type Props = {
   onboarding: NonNullable<CompanyOnboardingFragment>;
   serverValidationErrors: {
     fieldName: ActivityFieldApiRequired;
-    code: ServerInvalidFieldCode;
+    code: FieldValidationError;
   }[];
 };
 

@@ -34,17 +34,14 @@ import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
 import {
   AccountCountry,
+  FieldValidationError,
   UnauthenticatedUpdateCompanyOnboardingInput,
   UpdateCompanyOnboardingDocument,
 } from "../../graphql/unauthenticated";
 import { formatNestedMessage, locale, t } from "../../utils/i18n";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
-import {
-  extractServerValidationErrors,
-  getValidationErrorMessage,
-  ServerInvalidFieldCode,
-} from "../../utils/validation";
+import { extractServerValidationErrors, getValidationErrorMessage } from "../../utils/validation";
 
 // exclude USA from country list because we can't open account for American citizens
 // https://support.swan.io/hc/en-150/articles/5767279299741
@@ -82,7 +79,7 @@ type Props = {
   accountCountry: AccountCountry;
   serverValidationErrors: {
     fieldName: RegistrationFieldName;
-    code: ServerInvalidFieldCode;
+    code: FieldValidationError;
   }[];
   tcuDocumentUri?: string;
   tcuUrl: string;

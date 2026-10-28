@@ -16,12 +16,13 @@ import { Ref, useEffect, useImperativeHandle } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import {
+  FieldValidationError,
   RelatedIndividualInput,
   UltimateBeneficialOwnerIdentityDocumentInfoInput,
   UltimateBeneficialOwnerIdentityDocumentType,
 } from "../../../../graphql/partner";
 import { t } from "../../../../utils/i18n";
-import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../../../utils/validation";
+import { getValidationErrorMessage } from "../../../../utils/validation";
 
 const styles = StyleSheet.create({
   grid: {
@@ -44,7 +45,7 @@ export type OnboardingCompanyOwnershipFormIndividualIdentityRef = {
 type Props = {
   ref: Ref<OnboardingCompanyOwnershipFormIndividualIdentityRef>;
   initialValues: RelatedIndividualInput;
-  errors: { fieldName: string; code: ServerInvalidFieldCode }[];
+  errors: { fieldName: string; code: FieldValidationError }[];
   onSave: (
     input: Partial<UltimateBeneficialOwnerIdentityDocumentInfoInput>,
   ) => void | Promise<void>;

@@ -24,10 +24,10 @@ import { useForm } from "@swan-io/use-form";
 import { Ref, useEffect, useImperativeHandle, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
-import { RelatedIndividualInput } from "../../../../graphql/partner";
+import { FieldValidationError, RelatedIndividualInput } from "../../../../graphql/partner";
 import { locale, t } from "../../../../utils/i18n";
 import { toSovereignCountry } from "../../../../utils/onboarding";
-import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../../../utils/validation";
+import { getValidationErrorMessage } from "../../../../utils/validation";
 
 const styles = StyleSheet.create({
   grid: {
@@ -49,7 +49,7 @@ export type OnboardingCompanyOwnershipFormIndividualAddressRef = {
 
 type Props = {
   initialValues: RelatedIndividualInput;
-  errors: { fieldName: string; code: ServerInvalidFieldCode }[];
+  errors: { fieldName: string; code: FieldValidationError }[];
   ref: Ref<OnboardingCompanyOwnershipFormIndividualAddressRef>;
   companyCountry: CountryCCA3;
   isAccountAdmin: boolean;

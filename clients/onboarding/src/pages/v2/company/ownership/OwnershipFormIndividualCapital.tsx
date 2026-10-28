@@ -21,6 +21,7 @@ import { match, P } from "ts-pattern";
 import { uboQualificationType } from "../../../../constants/business";
 import {
   AccountCountry,
+  FieldValidationError,
   RegulatoryClassification,
   RelatedIndividualInput,
   RelatedIndividualUltimateBeneficialOwnerInput,
@@ -29,11 +30,7 @@ import {
   UltimateBeneficialOwnerQualificationType,
 } from "../../../../graphql/partner";
 import { t } from "../../../../utils/i18n";
-import {
-  getValidationErrorMessage,
-  ServerInvalidFieldCode,
-  validateUboPercentage,
-} from "../../../../utils/validation";
+import { getValidationErrorMessage, validateUboPercentage } from "../../../../utils/validation";
 
 const styles = StyleSheet.create({
   grid: {
@@ -55,7 +52,7 @@ export type OnboardingCompanyOwnershipFormIndividualCapitalRef = {
 
 type Props = {
   initialValues: RelatedIndividualInput;
-  errors: { fieldName: string; code: ServerInvalidFieldCode }[];
+  errors: { fieldName: string; code: FieldValidationError }[];
   accountCountry: AccountCountry;
   regulatoryClassification?: RegulatoryClassification;
   ref: Ref<OnboardingCompanyOwnershipFormIndividualCapitalRef>;

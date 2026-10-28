@@ -39,6 +39,7 @@ import { OnboardingFooter } from "../../../components/OnboardingFooter";
 import { StepTitle } from "../../../components/StepTitle";
 import {
   CompanyOnboardingFragment,
+  FieldValidationError,
   UpdatePublicCompanyAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { locale, t } from "../../../utils/i18n";
@@ -54,7 +55,6 @@ import {
   badUserInputErrorPattern,
   extractServerValidationFields,
   getValidationErrorMessage,
-  ServerInvalidFieldCode,
 } from "../../../utils/validation";
 
 export type DetailsFieldApiRequired = "email";
@@ -63,7 +63,7 @@ type Props = {
   onboarding: NonNullable<CompanyOnboardingFragment>;
   serverValidationErrors: {
     fieldName: DetailsFieldApiRequired;
-    code: ServerInvalidFieldCode;
+    code: FieldValidationError;
   }[];
 };
 

@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  extractServerInvalidFields,
+  getServerInvalidFieldCode,
   getValidationErrorMessage,
   validateMaxLength,
   validateRegistrationNumber,
@@ -38,6 +40,61 @@ describe("getValidationErrorMessage", () => {
     expect(getValidationErrorMessage("UnrecognizedKeys")).not.toBe(
       getValidationErrorMessage("Missing"),
     );
+  });
+});
+
+describe("getServerInvalidFieldCode", () => {
+  it("returns Invalid when the server flags the value as invalid", () => {
+    expect(getServerInvalidFieldCode(["Invalid"])).toBe("Invalid");
+    expect(getServerInvalidFieldCode(["Missing", "Invalid"])).toBe("Invalid");
+  });
+
+  it("falls back to Missing otherwise", () => {
+    expect(getServerInvalidFieldCode(["Missing"])).toBe("Missing");
+    expect(getServerInvalidFieldCode([])).toBe("Missing");
+    expect(getServerInvalidFieldCode(null)).toBe("Missing");
+  });
+});
+
+describe("extractServerInvalidFields", () => {
+  it("keeps the server error code for each mapped field", () => {
+    const result = extractServerInvalidFields(
+      {
+        __typename: "OnboardingInvalidStatusInfo",
+        errors: [
+          {
+            __typename: "ValidationError",
+            field: "accountAdmin.address.postalCode",
+            errors: ["Invalid"],
+          },
+          { __typename: "ValidationError", field: "accountAdmin.email", errors: ["Missing"] },
+          { __typename: "ValidationError", field: "unmapped", errors: ["Invalid"] },
+        ],
+      },
+      field =>
+        field === "accountAdmin.address.postalCode"
+          ? "residencePostal"
+          : field === "accountAdmin.email"
+            ? "email"
+            : null,
+    );
+
+    expect(result).toEqual([
+      { fieldName: "residencePostal", code: "Invalid" },
+      { fieldName: "email", code: "Missing" },
+    ]);
+  });
+
+  it("returns no field when the onboarding is not invalid", () => {
+    expect(
+      extractServerInvalidFields({ __typename: "OnboardingValidStatusInfo" }, () => "email"),
+    ).toEqual([]);
+  });
+});
+
+describe("getValidationErrorMessage (server codes)", () => {
+  it("returns the invalid-field message for Invalid", () => {
+    expect(getValidationErrorMessage("Invalid")).toBe(getValidationErrorMessage("TooLong"));
   });
 });
 

@@ -5,6 +5,13 @@
     ".": {
       "release-type": "node",
       "include-component-in-tag": false,
+      "changelog-sections": [
+        { "type": "feat", "section": "Features" },
+        { "type": "fix", "section": "Bug Fixes" },
+        { "type": "revert", "section": "Reverts" },
+        { "type": "chore", "section": "Miscellaneous Chores" },
+        { "type": "ci", "section": "Continuous Integration" }
+      ],
       "extra-files": [
         { "type": "json", "path": "server/package.json", "jsonpath": "$.version" },
         { "type": "json", "path": "clients/banking/package.json", "jsonpath": "$.version" },

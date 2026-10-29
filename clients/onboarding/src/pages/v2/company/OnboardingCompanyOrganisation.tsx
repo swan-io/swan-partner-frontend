@@ -211,6 +211,9 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
       serverValidationErrors.forEach(({ fieldName, code }) => {
         const message = getValidationErrorMessage(code);
         setFieldError(fieldName, message);
+        if (fieldName === "city" || fieldName === "postalCode") {
+          setIsAddressFromSuggestion(false);
+        }
       });
     }
   }, [serverValidationErrors, isFirstMount, setFieldError, submitForm]);
@@ -240,6 +243,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
             onboardingId,
             company: {
               address: {
+                country: companyCountry, // country needs to be sent to have the validation working on postalcode
                 addressLine1: address,
                 city,
                 postalCode,
@@ -273,6 +277,9 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
                 invalidFields.forEach(({ fieldName, code }) => {
                   const message = getValidationErrorMessage(code, currentValues[fieldName]);
                   setFieldError(fieldName, message);
+                  if (fieldName === "city" || fieldName === "postalCode") {
+                    setIsAddressFromSuggestion(false);
+                  }
                 });
               })
               .otherwise(noop);

@@ -8,7 +8,6 @@ import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { identity, noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
@@ -178,6 +177,9 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
       serverValidationErrors.forEach(({ fieldName, code }) => {
         const message = getValidationErrorMessage(code);
         setFieldError(fieldName, message);
+        if (fieldName === "residencePostal") {
+          setIsAddressFromSuggestion(false);
+        }
       });
     }
   }, [serverValidationErrors, isFirstMount, setFieldError]);
@@ -255,6 +257,9 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                 invalidFields.forEach(({ fieldName, code }) => {
                   const message = getValidationErrorMessage(code, currentValues[fieldName]);
                   setFieldError(fieldName, message);
+                  if (fieldName === "residenceCity" || fieldName === "residencePostal") {
+                    setIsAddressFromSuggestion(false);
+                  }
                 });
               })
               .otherwise(noop);
@@ -496,7 +501,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                           valid={valid}
                           error={error}
                           onChangeText={onChange}
-                          readOnly={isAddressFromSuggestion && isNullish(error)}
+                          readOnly={isAddressFromSuggestion}
                         />
                       )}
                     />
@@ -515,7 +520,7 @@ export const OnboardingIndividualDetails = ({ onboarding, serverValidationErrors
                           valid={valid}
                           error={error}
                           onChangeText={onChange}
-                          readOnly={isAddressFromSuggestion && isNullish(error)}
+                          readOnly={isAddressFromSuggestion}
                         />
                       )}
                     />

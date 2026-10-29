@@ -48,10 +48,9 @@ export const VerificationRenewalFinalizeSuccess = () => {
 
 type ErrorProps = {
   retry: () => void;
-  loading: boolean;
 };
 
-const VerificationRenewalFinalizeError = ({ retry, loading }: ErrorProps) => {
+const VerificationRenewalFinalizeError = ({ retry }: ErrorProps) => {
   return (
     <Box direction="column" alignItems="center" justifyContent="center" style={styles.container}>
       <BorderedIcon padding={24} name="lake-error" size={100} />
@@ -65,7 +64,7 @@ const VerificationRenewalFinalizeError = ({ retry, loading }: ErrorProps) => {
       <LakeText align="center">{t("verificationRenewal.finalize.error.subtitle")}</LakeText>
 
       <Space height={16} />
-      <LakeButton color="partner" loading={loading} onPress={retry}>
+      <LakeButton color="partner" onPress={retry}>
         {t("verificationRenewal.finalize.error.button")}
       </LakeButton>
     </Box>
@@ -84,17 +83,20 @@ export const VerificationRenewalFinalize = ({ verificationRenewalId, previousSte
 
   const [checked, setChecked] = useBoolean(false);
 
-  const handleFinalize = () =>
+  const handleFinalize = () => {
     finalizeVerificationRenewal({
       input: {
         verificationRenewalId,
       },
-    })
-      .mapOk(data => data.finalizeVerificationRenewal)
-      .mapOkToResult(data => Option.fromNullable(data).toResult(data))
-      .mapOkToResult(filterRejectionsToResult);
+    });
+  };
 
-  return match(finalization)
+  const finalizationResult = finalization
+    .mapOk(data => data.finalizeVerificationRenewal)
+    .mapOkToResult(data => Option.fromNullable(data).toResult(data))
+    .mapOkToResult(filterRejectionsToResult);
+
+  return match(finalizationResult)
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => (
       <VerificationRenewalStepContent>
         <ResponsiveContainer breakpoint={breakpoints.medium}>
@@ -137,7 +139,7 @@ export const VerificationRenewalFinalize = ({ verificationRenewalId, previousSte
       </VerificationRenewalStepContent>
     ))
     .with(AsyncData.P.Done(Result.P.Error(P._)), () => (
-      <VerificationRenewalFinalizeError retry={handleFinalize} loading={finalization.isLoading()} />
+      <VerificationRenewalFinalizeError retry={handleFinalize} />
     ))
     .with(AsyncData.P.Done(Result.P.Ok(P._)), () => <VerificationRenewalFinalizeSuccess />)
     .exhaustive();

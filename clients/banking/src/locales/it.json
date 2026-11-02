@@ -563,6 +563,7 @@
   "common.refresh": "Aggiorna",
   "common.save": "Salva",
   "common.search": "Ricerca",
+  "common.search.minLength": "Inserisci almeno {minLength} caratteri per avviare la ricerca",
   "common.see": "Visualizza",
   "common.showLess": "Mostra di meno",
   "common.showMore": "Mostra di più",

@@ -20,6 +20,7 @@ import { CardListPageDocument } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 import { RouteParams, Router } from "../utils/routes";
+import { toSearchFilter } from "../utils/search";
 
 const styles = StyleSheet.create({
   root: {
@@ -68,17 +69,20 @@ export const CardListPage = ({
   );
 
   const search = nullishOrEmptyToUndefined(params.search);
+  const searchFilter = toSearchFilter(search);
   const status = params.status === "Canceled" ? "Canceled" : "Active";
 
   const hasSearchOrFilters =
-    isNotNullish(search) || status === "Canceled" || Object.values(filters).some(isNotNullish);
+    isNotNullish(searchFilter) ||
+    status === "Canceled" ||
+    Object.values(filters).some(isNotNullish);
 
   const [data, { isLoading, setVariables, reload }] = useQuery(CardListPageDocument, {
     first: PER_PAGE,
     filters: {
       statuses: status === "Active" ? ACTIVE_STATUSES : CANCELED_STATUSES,
       types: filters.type,
-      search,
+      search: searchFilter,
       accountId,
     },
   });

@@ -20,6 +20,7 @@ import {
 import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 import { RouteParams, Router } from "../utils/routes";
+import { toSearchFilter } from "../utils/search";
 import { CardList } from "./CardList";
 import { CardFilters, CardListFilter } from "./CardListFilter";
 import { CardWizard } from "./CardWizard";
@@ -73,10 +74,13 @@ export const AccountMembersDetailsCardList = ({
   );
 
   const search = nullishOrEmptyToUndefined(params.cardSearch);
+  const searchFilter = toSearchFilter(search);
   const status = params.cardStatus === "Canceled" ? "Canceled" : "Active";
 
   const hasSearchOrFilters =
-    isNotNullish(search) || status === "Canceled" || Object.values(filters).some(isNotNullish);
+    isNotNullish(searchFilter) ||
+    status === "Canceled" ||
+    Object.values(filters).some(isNotNullish);
 
   const [data, { isLoading, reload, setVariables }] = useQuery(
     AccountMembershipCardListPageDocument,
@@ -86,7 +90,7 @@ export const AccountMembersDetailsCardList = ({
       filters: {
         statuses: status === "Active" ? ACTIVE_STATUSES : CANCELED_STATUSES,
         types: filters.type,
-        search,
+        search: searchFilter,
       },
     },
   );

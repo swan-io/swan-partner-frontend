@@ -15,11 +15,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { LinkConfig } from "@swan-io/lake/src/components/VirtualizedList";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { deriveUnion } from "@swan-io/lake/src/utils/function";
-import {
-  isNotNullish,
-  isNotNullishOrEmpty,
-  nullishOrEmptyToUndefined,
-} from "@swan-io/lake/src/utils/nullish";
+import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { Link } from "@zoontek/chicane";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
@@ -34,6 +30,7 @@ import {
 import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 import { RouteParams, Router } from "../utils/routes";
+import { toSearchFilter } from "../utils/search";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { Filters, FiltersState, filter } from "./Filters";
@@ -195,6 +192,7 @@ export const MerchantProfilePaymentArea = ({
   ]);
 
   const search = nullishOrEmptyToUndefined(params.search);
+  const searchFilter = toSearchFilter(search);
 
   const filters = useMemo(
     (): FiltersState<typeof filtersDefinition> => ({
@@ -205,14 +203,14 @@ export const MerchantProfilePaymentArea = ({
   );
 
   const hasSearchOrFilters =
-    Object.values(filters).some(isNotNullish) || isNotNullishOrEmpty(search);
+    Object.values(filters).some(isNotNullish) || isNotNullish(searchFilter);
 
   const [data, { isLoading, reload, setVariables }] = useQuery(MerchantPaymentsDocument, {
     merchantProfileId,
     first: PER_PAGE,
     filters: {
       status: filters.status,
-      search,
+      search: searchFilter,
       paymentMethod: filters.paymentMethod?.reduce<MerchantPaymentMethodType[]>((acc, item) => {
         if (item === "DirectDebit") {
           acc.push(

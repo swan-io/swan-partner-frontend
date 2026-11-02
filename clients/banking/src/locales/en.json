@@ -563,6 +563,7 @@
   "common.refresh": "Refresh",
   "common.save": "Save",
   "common.search": "Search",
+  "common.search.minLength": "Type at least {minLength} characters to search",
   "common.see": "View",
   "common.showLess": "Show less",
   "common.showMore": "Show more",

@@ -1,5 +1,6 @@
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
 import {
@@ -15,6 +16,7 @@ import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { ReactNode, useCallback, useRef, useState } from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
 import { t } from "../utils/i18n";
+import { isSearchTooShort, MIN_SEARCH_LENGTH, toSearchQuery } from "../utils/search";
 
 const MAX_WIDTH = 280; // slightly narrower than the dashboard one
 
@@ -43,6 +45,14 @@ const styles = StyleSheet.create({
     outlineStyle: "none",
     borderColor: colors.current.primary,
   },
+  // absolutely positioned so it doesn't shift the surrounding toolbar
+  hint: {
+    position: "absolute",
+    top: "100%",
+    right: 0,
+    paddingTop: spacings[4],
+    whiteSpace: "nowrap",
+  },
   clearButton: {
     padding: spacings[8],
     borderRadius: radii[4],
@@ -70,7 +80,7 @@ export const SearchInput = ({
   const timeoutRef = useRef<number>(null);
 
   const onChange = useDebounce((value: string) => {
-    onChangeText(value);
+    onChangeText(toSearchQuery(value));
     setCurrentValue(value.trim());
   }, debounceDuration);
 
@@ -103,30 +113,38 @@ export const SearchInput = ({
   }, [setFocused]);
 
   const input = (
-    <LakeTextInput
-      ref={inputRef}
-      autoFocus={hasFocus}
-      defaultValue={initialValue}
-      hideErrors={true}
-      icon="search-filled"
-      inputMode="search"
-      onBlur={handleOnBlur}
-      onChangeText={onChange}
-      onFocus={handleOnFocus}
-      placeholder={t("common.search")}
-      style={[styles.input, collapsed && styles.collapsed, hasFocus && styles.focus]}
-      renderEnd={() => (
-        <>
-          {isNotNullishOrEmpty(currentValue) && (
-            <Pressable role="button" style={styles.clearButton} onPress={handleOnClear}>
-              <Icon name="dismiss-filled" size={12} color={colors.gray[500]} />
-            </Pressable>
-          )}
+    <View>
+      <LakeTextInput
+        ref={inputRef}
+        autoFocus={hasFocus}
+        defaultValue={currentValue}
+        hideErrors={true}
+        icon="search-filled"
+        inputMode="search"
+        onBlur={handleOnBlur}
+        onChangeText={onChange}
+        onFocus={handleOnFocus}
+        placeholder={t("common.search")}
+        style={[styles.input, collapsed && styles.collapsed, hasFocus && styles.focus]}
+        renderEnd={() => (
+          <>
+            {isNotNullishOrEmpty(currentValue) && (
+              <Pressable role="button" style={styles.clearButton} onPress={handleOnClear}>
+                <Icon name="dismiss-filled" size={12} color={colors.gray[500]} />
+              </Pressable>
+            )}
 
-          {renderEnd?.()}
-        </>
+            {renderEnd?.()}
+          </>
+        )}
+      />
+
+      {isSearchTooShort(currentValue) && (
+        <LakeText variant="smallRegular" color={colors.gray[500]} style={styles.hint}>
+          {t("common.search.minLength", { minLength: MIN_SEARCH_LENGTH })}
+        </LakeText>
       )}
-    />
+    </View>
   );
 
   if (!collapsed) {
@@ -140,7 +158,7 @@ export const SearchInput = ({
         size="small"
         ariaLabel={t("common.search")}
         icon="search-filled"
-        pill={currentValue !== ""}
+        pill={toSearchQuery(currentValue) !== ""}
         onPress={setFocused.on}
       />
 

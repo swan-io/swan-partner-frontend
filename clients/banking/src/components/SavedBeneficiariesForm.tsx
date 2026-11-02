@@ -24,6 +24,7 @@ import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { BeneficiariesListDocument, VerifyBeneficiaryDocument } from "../graphql/partner";
 import { Currency, formatNestedMessage, isSupportedCurrency, t } from "../utils/i18n";
+import { isSearchTooShort, MIN_SEARCH_LENGTH, toSearchQuery } from "../utils/search";
 import { concatSepaBeneficiaryAddress } from "./BeneficiaryDetail";
 import { InternationalBeneficiary } from "./BeneficiaryInternationalWizardForm";
 import { getBeneficiaryIdentifier } from "./BeneficiaryList";
@@ -91,7 +92,7 @@ export const SavedBeneficiariesForm = (props: Props) => {
   const [verifyBeneficiary, beneficiaryVerification, { reset: resetBeneficiaryVerification }] =
     useMutation(VerifyBeneficiaryDocument);
 
-  const trimmedSearch = search.trim();
+  const searchQuery = toSearchQuery(search);
 
   const [data, { setVariables }] = useQuery(BeneficiariesListDocument, {
     accountId,
@@ -99,7 +100,7 @@ export const SavedBeneficiariesForm = (props: Props) => {
       type: [props.type],
       currency,
       status: ["Enabled"],
-      label: trimmedSearch.length >= 3 ? trimmedSearch : null,
+      label: searchQuery !== "" ? searchQuery : null,
     },
     first: NUM_TO_RENDER,
   });
@@ -139,7 +140,11 @@ export const SavedBeneficiariesForm = (props: Props) => {
                 placeholder={t("common.search")}
                 value={search}
                 onChangeText={setSearch}
-                hideErrors={true}
+                help={
+                  isSearchTooShort(search)
+                    ? t("common.search.minLength", { minLength: MIN_SEARCH_LENGTH })
+                    : undefined
+                }
                 renderEnd={() =>
                   beneficiaries
                     .toOption()

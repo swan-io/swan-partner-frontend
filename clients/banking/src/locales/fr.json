@@ -563,6 +563,7 @@
   "common.refresh": "Rafraîchir",
   "common.save": "Sauvegarder",
   "common.search": "Rechercher",
+  "common.search.minLength": "Saisissez au moins {minLength} caractères pour lancer la recherche",
   "common.see": "Afficher",
   "common.showLess": "Afficher moins",
   "common.showMore": "Afficher plus",

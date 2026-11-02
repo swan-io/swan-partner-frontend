@@ -26,6 +26,7 @@ import { usePermissions } from "../hooks/usePermissions";
 import { useTransferToastWithRedirect } from "../hooks/useTransferToastWithRedirect";
 import { t } from "../utils/i18n";
 import { RouteParams, Router } from "../utils/routes";
+import { toSearchFilter } from "../utils/search";
 
 const styles = StyleSheet.create({
   root: {
@@ -103,7 +104,9 @@ export const TransactionListPage = ({ accountId, transferConsent, params }: Prop
   }, [filters]);
 
   const search = nullishOrEmptyToUndefined(params.search);
-  const hasSearchOrFilters = isNotNullish(search) || Object.values(filters).some(isNotNullish);
+  const searchFilter = toSearchFilter(search);
+  const hasSearchOrFilters =
+    isNotNullish(searchFilter) || Object.values(filters).some(isNotNullish);
 
   const { canReadOtherMembersCards: canQueryCardOnTransaction } = usePermissions();
   const [data, { isLoading, reload, setVariables }] = useQuery(TransactionListPageDocument, {
@@ -112,7 +115,7 @@ export const TransactionListPage = ({ accountId, transferConsent, params }: Prop
     filters: {
       ...filters,
       paymentProduct,
-      search,
+      search: searchFilter,
       includeRejectedWithFallback: false,
       status: filters.status ?? DEFAULT_STATUSES,
     },

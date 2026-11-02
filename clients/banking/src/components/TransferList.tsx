@@ -21,6 +21,7 @@ import { TransactionListPageDocument } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 import { RouteParams, Router } from "../utils/routes";
+import { toSearchFilter } from "../utils/search";
 import { Connection } from "./Connection";
 import { TransactionFilters, TransactionListFilter } from "./TransactionListFilter";
 
@@ -72,7 +73,9 @@ export const TransferList = ({ accountId, params }: Props) => {
 
   const availableFilters = useMemo(() => Dict.keys(filters), [filters]);
   const search = nullishOrEmptyToUndefined(params.search);
-  const hasSearchOrFilters = isNotNullish(search) || Object.values(filters).some(isNotNullish);
+  const searchFilter = toSearchFilter(search);
+  const hasSearchOrFilters =
+    isNotNullish(searchFilter) || Object.values(filters).some(isNotNullish);
 
   const { canReadOtherMembersCards: canQueryCardOnTransaction } = usePermissions();
   const [data, { isLoading, reload, setVariables }] = useQuery(TransactionListPageDocument, {
@@ -81,7 +84,7 @@ export const TransferList = ({ accountId, params }: Props) => {
     filters: {
       ...filters,
       paymentProduct,
-      search,
+      search: searchFilter,
       includeRejectedWithFallback: false,
       status: filters.status ?? DEFAULT_STATUSES,
     },

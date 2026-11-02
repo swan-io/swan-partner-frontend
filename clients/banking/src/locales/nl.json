@@ -563,6 +563,7 @@
   "common.refresh": "Verversen",
   "common.save": "Opslaan",
   "common.search": "Zoekopdracht",
+  "common.search.minLength": "Voer minimaal {minLength} tekens in om te zoeken",
   "common.see": "Bekijk",
   "common.showLess": "Toon minder",
   "common.showMore": "Toon meer",

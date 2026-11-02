@@ -563,6 +563,7 @@
   "common.refresh": "Päivitä",
   "common.save": "Tallenna",
   "common.search": "Etsi",
+  "common.search.minLength": "Kirjoita vähintään {minLength} merkkiä hakeaksesi",
   "common.see": "Näytä",
   "common.showLess": "Näytä vähemmän",
   "common.showMore": "Näytä enemmän",

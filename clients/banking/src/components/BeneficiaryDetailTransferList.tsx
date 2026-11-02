@@ -26,6 +26,7 @@ import {
 import { usePermissions } from "../hooks/usePermissions";
 import { isSupportedCurrency, t } from "../utils/i18n";
 import { RouteParams, Router } from "../utils/routes";
+import { toSearchFilter } from "../utils/search";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { Redirect } from "./Redirect";
@@ -73,7 +74,8 @@ export const BeneficiaryDetailTransferList = ({ accountId, beneficiary, large, p
   );
 
   const search = nullishOrEmptyToUndefined(params.search);
-  const hasSearch = isNotNullish(search);
+  const searchFilter = toSearchFilter(search);
+  const hasSearch = isNotNullish(searchFilter);
 
   const {
     canReadOtherMembersCards: canQueryCardOnTransaction,
@@ -87,7 +89,7 @@ export const BeneficiaryDetailTransferList = ({ accountId, beneficiary, large, p
     filters: {
       status: DEFAULT_STATUSES,
       includeRejectedWithFallback: false,
-      search,
+      search: searchFilter,
     },
   });
 

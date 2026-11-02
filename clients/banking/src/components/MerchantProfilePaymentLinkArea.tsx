@@ -27,6 +27,7 @@ import {
 import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 import { RouteParams, Router } from "../utils/routes";
+import { toSearchFilter } from "../utils/search";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { MerchantProfilePaymentLinkDetail } from "./MerchantProfilePaymentLinkDetail";
@@ -77,7 +78,7 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
         .with("Active", undefined, () => ["Active" as const])
         .with("Archived", () => ["Completed" as const, "Expired" as const])
         .exhaustive(),
-      search: nullishOrEmptyToUndefined(params.search),
+      search: toSearchFilter(params.search),
     } as const;
   }, [params]);
 

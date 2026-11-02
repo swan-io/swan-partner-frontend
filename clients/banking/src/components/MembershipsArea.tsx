@@ -31,6 +31,7 @@ import { usePermissions } from "../hooks/usePermissions";
 import { locale, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
 import { membershipsRoutes, RouteParams, Router } from "../utils/routes";
+import { toSearchFilter } from "../utils/search";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { MembershipDetailArea } from "./MembershipDetailArea";
@@ -101,11 +102,12 @@ export const MembershipsArea = ({
   );
 
   const search = nullishOrEmptyToUndefined(params.search);
+  const searchFilter = toSearchFilter(search);
 
   const [data, { isLoading, reload, setVariables }] = useQuery(MembersPageDocument, {
     first: PER_PAGE,
     accountId,
-    search,
+    search: searchFilter,
     status: match(filters.statuses)
       .with(undefined, () => [
         "BindingUserError" as const,

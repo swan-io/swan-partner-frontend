@@ -21,11 +21,7 @@ import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { deriveUnion } from "@swan-io/lake/src/utils/function";
-import {
-  emptyToUndefined,
-  isNotNullish,
-  isNotNullishOrEmpty,
-} from "@swan-io/lake/src/utils/nullish";
+import { emptyToUndefined, isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { omit } from "@swan-io/lake/src/utils/object";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import { Flag } from "@swan-io/shared-business/src/components/Flag";
@@ -43,6 +39,7 @@ import {
 import { usePermissions } from "../hooks/usePermissions";
 import { currencies, currencyFlags, currencyResolver, isSupportedCurrency, t } from "../utils/i18n";
 import { RouteParams, Router } from "../utils/routes";
+import { toSearchFilter } from "../utils/search";
 import { BeneficiaryDetail } from "./BeneficiaryDetail";
 import { ErrorView } from "./ErrorView";
 import { Filters, FiltersState, filter } from "./Filters";
@@ -413,7 +410,7 @@ export const BeneficiaryList = ({
     const { label } = params;
 
     const hasSearchOrFilters =
-      isNotNullishOrEmpty(label) || canceled || Object.values(filters).some(isNotNullish);
+      isNotNullish(toSearchFilter(label)) || canceled || Object.values(filters).some(isNotNullish);
 
     return { filters, canceled, label, hasSearchOrFilters };
   }, [params]);
@@ -423,7 +420,7 @@ export const BeneficiaryList = ({
     first: NUM_TO_RENDER,
     filters: {
       currency: filters.currency,
-      label,
+      label: toSearchFilter(label),
       type: filters.type ?? ["International", "Sepa"],
       status: canceled ? ["Canceled"] : ["Enabled"],
     },

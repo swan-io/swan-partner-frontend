@@ -16,6 +16,7 @@ import { Except } from "type-fest";
 import { CardTransactionsPageDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { RouteParams, Router } from "../utils/routes";
+import { toSearchFilter } from "../utils/search";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { TransactionDetail } from "./TransactionDetail";
@@ -67,7 +68,9 @@ export const CardItemTransactionList = ({ params }: Props) => {
 
   const availableFilters = useMemo(() => Dict.keys(filters), [filters]);
   const search = nullishOrEmptyToUndefined(params.search);
-  const hasSearchOrFilters = isNotNullish(search) || Object.values(filters).some(isNotNullish);
+  const searchFilter = toSearchFilter(search);
+  const hasSearchOrFilters =
+    isNotNullish(searchFilter) || Object.values(filters).some(isNotNullish);
 
   const [data, { isLoading, reload, setVariables }] = useQuery(CardTransactionsPageDocument, {
     cardId: params.cardId,
@@ -75,7 +78,7 @@ export const CardItemTransactionList = ({ params }: Props) => {
     filters: {
       ...filters,
       paymentProduct: undefined,
-      search,
+      search: searchFilter,
       status: filters.status ?? DEFAULT_STATUSES,
     },
     canQueryCardOnTransaction: true,

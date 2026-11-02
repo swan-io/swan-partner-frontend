@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.45.0](https://github.com/swan-io/swan-partner-frontend/compare/v1.44.1...v1.45.0) (2026-11-02)
+
+
+### Features
+
+* **onboarding:** send projectId in publicCompanyInfoRegistryData query (FRONT-2332) (#22) ([615099d](https://github.com/swan-io/swan-partner-frontend/commit/615099d5768044531d3e96957834b5e79bc3281a))
+
+
+### Miscellaneous Chores
+
+* declare sibling repos for Claude Code and keep AGENTS.md private (2e661e6)
+* declare sibling repos for Claude Code and keep AGENTS.md private FRONT-2225 (#21) (2e661e6)
+* **i18n:** update translations (#23) ([1f4a34d](https://github.com/swan-io/swan-partner-frontend/commit/1f4a34d7f154131737b4f0ca45c68c385f26b549))
+* **i18n:** update translations from localazy ([1f4a34d](https://github.com/swan-io/swan-partner-frontend/commit/1f4a34d7f154131737b4f0ca45c68c385f26b549))
+
+
+### Continuous Integration
+
+* repin reusable-workflows to v4.1.2 (#18) ([82193e7](https://github.com/swan-io/swan-partner-frontend/commit/82193e7fcc8d17a855c506c15ea6214cb8355e5a))
+* repin reusable-workflows to v4.1.3 (#20) (b3d4f25)
+
 ## [1.44.1](https://github.com/swan-io/swan-partner-frontend/compare/v1.44.0...v1.44.1) (2026-10-29)
 
 

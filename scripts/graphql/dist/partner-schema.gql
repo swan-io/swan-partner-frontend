@@ -7423,6 +7423,12 @@ input PublicCompanyInfoRegistryDataInput {
 
   """Residency address country code (ISO 3166-1 alpha-3)"""
   residencyAddressCountry: RegistryCountry!
+
+  """
+  Project this lookup is made for. Optional today, required in a future version:
+  send it to get your project's own lookup allowance instead of the shared one.
+  """
+  projectId: ID
 }
 
 """Response payload for the publicFinalizeAccountAdminChange mutation"""
@@ -18952,7 +18958,9 @@ type PendingDigitalCard implements DigitalCard {
   
   Google Wallet data is for Google Pay with Unified Push Provisioning: call this field from the
   Google Wallet SDK's `PaymentCredentialsGenerator.generate()` callback, with the `serverSessionId`
-  it provides, to also get the Google Opaque Payment Card.
+  it provides, to also get the Google Opaque Payment Card. It becomes mandatory for Google Pay at
+  the Unified Push Provisioning cut-over (end of December 2026): without it, a Google Pay digital
+  card is then refused with `BAD_USER_INPUT`.
   
   This data is only available for a digital card in:
   - status: Pending
@@ -20617,6 +20625,10 @@ enum UserStatus {
 }
 
 type FeeSettingsNotFoundRejection implements Rejection {
+  message: String!
+}
+
+type FeeSettingsStatusNotAllowedRejection implements Rejection {
   message: String!
 }
 

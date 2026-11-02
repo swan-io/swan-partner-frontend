@@ -6283,8 +6283,6 @@ input SimulateOutgoingCardAdviceInput {
 
   """Expiration date time"""
   expirationDateTime: DateTime
-
-  """"""
   transactionTransportType: TransactionTransportType
 }
 
@@ -6321,11 +6319,7 @@ input SimulateOutgoingCardAuthorizationInput {
 
   """Expiration date time"""
   expirationDateTime: DateTime
-
-  """"""
   allowsPartialAuthorization: Boolean = false
-
-  """"""
   transactionTransportType: TransactionTransportType
 }
 

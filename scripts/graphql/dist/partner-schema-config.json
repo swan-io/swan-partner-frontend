@@ -140,6 +140,7 @@
       "StillExportingRejection",
       "UnknownExportRejection",
       "FeeSettingsNotFoundRejection",
+      "FeeSettingsStatusNotAllowedRejection",
       "SwanTCUDocumentEffectiveDateNotAllowedRejection",
       "SwanTCUDocumentNotFoundRejection",
       "SwanTCUDocumentStatusNotAllowedRejection",

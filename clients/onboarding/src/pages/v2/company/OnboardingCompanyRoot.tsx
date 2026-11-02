@@ -75,6 +75,10 @@ type Props = {
   }[];
 };
 
+// An empty list has nothing to pick from: treat it as no list, so the picker is hidden
+const toRepresentatives = (individuals: CompanyRelatedIndividual[] | null | undefined) =>
+  individuals != null && individuals.length > 0 ? individuals : undefined;
+
 const styles = StyleSheet.create({
   gap: {
     gap: "32px",
@@ -101,7 +105,8 @@ const styles = StyleSheet.create({
 
 export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Props) => {
   const onboardingId = onboarding.id;
-  const { accountAdmin, accountInfo, company } = onboarding;
+  const { accountAdmin, accountInfo, company, projectInfo } = onboarding;
+  const projectId = projectInfo?.id;
   const isCapitalDepositMainCompany = isMainCompanyOfCapitalDeposit(onboarding);
   const isFirstMount = useFirstMountState();
 
@@ -123,9 +128,8 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
   );
   const [updateError, setUpdateError] = useState(false);
   const companyType = publicData?.companyType ?? company?.companyType;
-  const related = company?.relatedIndividuals ?? [];
   const [representatives, setRepresentatives] = useState(
-    related.length > 0 && !isCapitalDepositMainCompany ? related : undefined,
+    isCapitalDepositMainCompany ? undefined : toRepresentatives(company?.relatedIndividuals),
   );
 
   const resetToManualMode = useCallback(() => {
@@ -316,7 +320,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
   useEffect(() => {
     if (siren != null) {
       query({
-        input: { registrationNumber: siren, residencyAddressCountry: "FRA" },
+        input: { registrationNumber: siren, residencyAddressCountry: "FRA", projectId },
       })
         .tapOk(({ publicCompanyInfoRegistryData }) => {
           match(publicCompanyInfoRegistryData)
@@ -326,7 +330,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
               setFieldValue("legalFormCode", legalFormCode ?? undefined);
               setFieldValue("currentRepresentative", undefined);
               setFieldValue("typeOfRepresentation", "LegalRepresentative");
-              setRepresentatives(companyInfo.relatedIndividuals ?? []);
+              setRepresentatives(toRepresentatives(companyInfo.relatedIndividuals));
             })
             .otherwise(noop);
         })
@@ -335,7 +339,7 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
           hasOnboardingPrefilled.delete();
         });
     }
-  }, [siren, query, setFieldValue]);
+  }, [siren, projectId, query, setFieldValue]);
 
   const onSelectCompany = useCallback(
     ({ siren, name }: CompanySuggestion) => {
@@ -504,7 +508,9 @@ export const OnboardingCompanyRoot = ({ onboarding, serverValidationErrors }: Pr
 
                       <Field name="typeOfRepresentation">
                         {({ value, onChange }) =>
-                          (manualMode || currentRepresentative.value === UNLISTED_REPRESENTATIVE) &&
+                          (manualMode ||
+                            representatives == null ||
+                            currentRepresentative.value === UNLISTED_REPRESENTATIVE) &&
                           (updateError ||
                             (companyType != null && companyType !== "SelfEmployed")) ? (
                             <>

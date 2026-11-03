@@ -12,7 +12,12 @@ import { RightPanel } from "@swan-io/lake/src/components/RightPanel";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
-import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import {
+  isNotNullish,
+  isNullish,
+  nullishOrEmptyToUndefined,
+} from "@swan-io/lake/src/utils/nullish";
+import dayjs from "dayjs";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { isMatching, match, P } from "ts-pattern";
@@ -74,11 +79,15 @@ export const TransactionListPage = ({ accountId, transferConsent, params }: Prop
   const route = Router.useRoute(["AccountTransactionsListDetail"]);
   const { canReadAccountStatement } = usePermissions();
 
+  const [defaultIsAfterUpdatedAt, setDefaultIsAfterUpdatedAt] = useState<string | undefined>(() =>
+    dayjs().subtract(3, "month").startOf("day").toJSON(),
+  );
+
   const filters = useMemo(
     (): TransactionFilters => ({
       amount: params.amount,
       isBeforeUpdatedAt: params.isBeforeUpdatedAt,
-      isAfterUpdatedAt: params.isAfterUpdatedAt,
+      isAfterUpdatedAt: params.isAfterUpdatedAt ?? defaultIsAfterUpdatedAt,
       paymentProduct: params.paymentProduct?.filter(
         isMatching(P.union("CreditTransfer", "DirectDebit", "Card", "Fees", "Check")),
       ),
@@ -86,7 +95,7 @@ export const TransactionListPage = ({ accountId, transferConsent, params }: Prop
         isMatching(P.union("Booked", "Canceled", "Pending", "Rejected", "Released", "Deferred")),
       ),
     }),
-    [params],
+    [params, defaultIsAfterUpdatedAt],
   );
 
   const paymentProduct = useMemo(() => {
@@ -142,6 +151,9 @@ export const TransactionListPage = ({ accountId, transferConsent, params }: Prop
               search={search}
               onRefresh={reload}
               onChangeFilters={({ status, ...filters }) => {
+                if (isNullish(filters.isAfterUpdatedAt) && isNotNullish(defaultIsAfterUpdatedAt)) {
+                  setDefaultIsAfterUpdatedAt(undefined);
+                }
                 Router.replace("AccountTransactionsListRoot", {
                   ...params,
                   accountMembershipId,

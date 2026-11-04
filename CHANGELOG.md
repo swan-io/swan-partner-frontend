@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.46.0](https://github.com/swan-io/swan-partner-frontend/compare/v1.45.0...v1.46.0) (2026-11-03)
+
+
+### Features
+
+* **banking:** default transaction list to the last 3 months (FRONT-2328) (#31) ([b414415](https://github.com/swan-io/swan-partner-frontend/commit/b4144152bccf52d9e7c3b3f43e4fca519d850c7e))
+
+
+### Bug Fixes
+
+* **banking:** don't send a search below 3 characters (FRONT-2329) (#28) ([b3a1d77](https://github.com/swan-io/swan-partner-frontend/commit/b3a1d77286b7804c42325fad2746f0fe5122ad29))
+
+
+### Continuous Integration
+
+* repin reusable-workflows to v4.3.2 (#32) (2ccb526)
+* repin reusable-workflows to v4.3.3 (#33) (dd9f4eb)
+* repin reusable-workflows to v5.0.0 (#35) (09ac063)
+
 ## [1.45.0](https://github.com/swan-io/swan-partner-frontend/compare/v1.44.1...v1.45.0) (2026-11-02)
 
 

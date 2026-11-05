@@ -33,9 +33,9 @@
     }
   },
   "dependencies": {
-    "@docusaurus/core": "3.4.0",
-    "@docusaurus/preset-classic": "3.4.0",
-    "@docusaurus/theme-search-algolia": "3.4.0",
+    "@docusaurus/core": "3.10.2",
+    "@docusaurus/preset-classic": "3.10.2",
+    "@docusaurus/theme-search-algolia": "3.10.2",
     "@mdx-js/react": "^3.0.1",
     "clsx": "^2.1.1",
     "prism-react-renderer": "^2.3.1",
@@ -44,8 +44,8 @@
     "search-insights": "^2.17.3"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "3.4.0",
-    "@docusaurus/types": "3.4.0",
+    "@docusaurus/module-type-aliases": "3.10.2",
+    "@docusaurus/types": "3.10.2",
     "@types/react": "18.3.12",
     "typescript": "5.8.3"
   },

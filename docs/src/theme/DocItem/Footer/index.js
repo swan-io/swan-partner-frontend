@@ -1,5 +1,5 @@
 import { ThemeClassNames } from "@docusaurus/theme-common";
-import { useDoc } from "@docusaurus/theme-common/internal";
+import { useDoc } from "@docusaurus/plugin-content-docs/client";
 import EditThisPage from "@theme/EditThisPage";
 import LastUpdated from "@theme/LastUpdated";
 import TagsListInline from "@theme/TagsListInline";

@@ -24,7 +24,11 @@ const config = {
   projectName: "swan-partner-frontend", // Usually your repo name.
 
   onBrokenLinks: "throw",
-  onBrokenMarkdownLinks: "warn",
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: "warn",
+    },
+  },
 
   presets: [
     [

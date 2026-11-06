@@ -50,6 +50,7 @@ import {
   RenewalStep,
   renewalSteps,
   toSovereignCountry,
+  validateUbo,
 } from "../../utils/verificationRenewal";
 import { getNextStep } from "./VerificationRenewalCompany";
 import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
@@ -58,7 +59,6 @@ import {
   REFERENCE_SYMBOL,
   SaveValue,
   VerificationRenewalOwnershipForm,
-  validateUbo,
 } from "./VerificationRenewalOwnershipForm";
 import { VerificationRenewalStepContent } from "./VerificationRenewalStepContent";
 
@@ -101,13 +101,11 @@ type PageState =
   | {
       type: "add";
       step: RenewalVerificationOwnershipFormStep;
-      withAddressPart: boolean;
     }
   | {
       type: "edit";
       ubo: SaveValue;
       step: RenewalVerificationOwnershipFormStep;
-      withAddressPart: boolean;
     };
 
 type LocalStateUbo = SaveValue & {
@@ -436,10 +434,6 @@ export const VerificationRenewalOwnership = ({
     [accountCountry, info.company.ultimateBeneficialOwners],
   );
 
-  const withAddressPart = match(accountCountry)
-    .with("DEU", "ESP", "FRA", "NLD", "ITA", () => true)
-    .otherwise(() => false);
-
   const setFormStep = (step: RenewalVerificationOwnershipFormStep) => {
     setPageState(state => ({
       ...state,
@@ -457,7 +451,7 @@ export const VerificationRenewalOwnership = ({
   }, [shakeError, setShakeError]);
 
   const openNewUbo = () => {
-    setPageState({ type: "add", step: "Common", withAddressPart });
+    setPageState({ type: "add", step: "Common" });
   };
 
   const resetPageState = () => {
@@ -589,7 +583,6 @@ export const VerificationRenewalOwnership = ({
                             type: "edit",
                             step: "Common",
                             ubo,
-                            withAddressPart,
                           })
                         }
                         onDelete={() => openRemoveUboConfirmation(ubo)}
@@ -688,8 +681,7 @@ export const VerificationRenewalOwnership = ({
             loading={updatingCompanyVerificationRenewal.isLoading()}
           >
             {match(pageState)
-              .with({ withAddressPart: true, step: "Common" }, () => t("common.next"))
-              .with({ withIdentityPart: true, step: "Address" }, () => t("common.next"))
+              .with({ step: "Common" }, () => t("common.next"))
               .otherwise(() => t("common.save"))}
           </LakeButton>
         </LakeButtonGroup>

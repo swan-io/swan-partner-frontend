@@ -25,7 +25,7 @@ import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { AccountCountry, UltimateBeneficialOwnerQualificationType } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
-import { isBirthPostalCodeRequired } from "../../utils/verificationRenewal";
+import { getUboRequirements, isBirthPostalCodeRequired } from "../../utils/verificationRenewal";
 
 const styles = StyleSheet.create({
   inputContainer: {
@@ -89,9 +89,7 @@ export const VerificationRenewalOwnershipFormCommon = ({
   initialValues,
   onSave,
 }: Props) => {
-  const isBirthInfoRequired = match(accountCountry)
-    .with("ESP", "FRA", "NLD", "ITA", "BEL", () => true)
-    .otherwise(() => false);
+  const { isBirthInfoRequired } = getUboRequirements(accountCountry);
 
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm<FormValues>({
     firstName: {

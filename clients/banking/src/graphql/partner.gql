@@ -3874,7 +3874,15 @@ mutation FinalizeVerificationRenewal($input: FinalizeVerificationRenewalInput!) 
       }
     }
     ... on Rejection {
+      __typename
       message
+    }
+    ... on ValidationRejection {
+      fields {
+        path
+        code
+        message
+      }
     }
   }
 }

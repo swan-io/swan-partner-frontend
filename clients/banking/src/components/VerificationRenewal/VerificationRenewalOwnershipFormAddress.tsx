@@ -24,6 +24,7 @@ import { View } from "react-native";
 import { match, P } from "ts-pattern";
 import { AccountCountry } from "../../graphql/partner";
 import { locale, t } from "../../utils/i18n";
+import { isUboTaxIdentificationNumberRequired } from "../../utils/verificationRenewal";
 
 export type FormValues = {
   addressLine1: string;
@@ -87,11 +88,11 @@ export const VerificationRenewalOwnershipFormAddress = ({
       initialValue: initialValues.taxIdentificationNumber ?? "",
       sanitize: value => value.replace(/[-_. /]/g, ""),
       validate: (value, { getFieldValue }) => {
-        const beneficiaryCountry = getFieldValue("country");
-
         if (
-          (accountCountry === "DEU" && beneficiaryCountry === "DEU") ||
-          (accountCountry === "ITA" && beneficiaryCountry === "ITA")
+          isUboTaxIdentificationNumberRequired({
+            accountCountry,
+            residencyCountry: getFieldValue("country"),
+          })
         ) {
           return combineValidators(
             validateRequired,
@@ -116,23 +117,13 @@ export const VerificationRenewalOwnershipFormAddress = ({
       submit: () => {
         submitForm({
           onSuccess: ({ addressLine1, city, postalCode, country, taxIdentificationNumber }) => {
-            const requiredFields = Option.allFromDict({
-              country,
-              ...match(accountCountry)
-                .with("DEU", "ESP", "BEL", () => ({
-                  addressLine1,
-                  city,
-                  postalCode,
-                }))
-                .otherwise(() => ({})),
-            });
+            // the whole address is required in the form for every account country, which is
+            // stricter than the backend (only the country, or the whole address for DEU, ESP, BEL)
+            const requiredFields = Option.allFromDict({ addressLine1, city, postalCode, country });
 
             return match(requiredFields)
               .with(Option.P.Some(P.select()), requiredFields => {
                 return onSave({
-                  addressLine1: addressLine1.toUndefined(),
-                  city: city.toUndefined(),
-                  postalCode: postalCode.toUndefined(),
                   ...requiredFields,
                   taxIdentificationNumber: taxIdentificationNumber.toUndefined(),
                 });
@@ -261,11 +252,10 @@ export const VerificationRenewalOwnershipFormAddress = ({
                           onChange={onChange}
                           country={accountCountry}
                           isCompany={false}
-                          // is mandatory for German accounts with UBO living in Germany, same for Italy
-                          required={
-                            (accountCountry === "DEU" && country.value === "DEU") ||
-                            (accountCountry === "ITA" && country.value === "ITA")
-                          }
+                          required={isUboTaxIdentificationNumberRequired({
+                            accountCountry,
+                            residencyCountry: country.value,
+                          })}
                         />
                       )}
                     </Field>

@@ -1,19 +1,11 @@
 import { Option } from "@bloodyowl/boxed";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { StepDots } from "@swan-io/lake/src/components/StepDots";
-import { CountryCCA3, isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
-import {
-  validateBooleanRequired,
-  validateIndividualTaxNumber,
-  validateRequired,
-} from "@swan-io/shared-business/src/utils/validation";
-import { combineValidators, Validator } from "@swan-io/use-form";
+import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { Ref, useImperativeHandle, useRef, useState } from "react";
 import { match, P } from "ts-pattern";
 import { v4 as uuid } from "uuid";
 import { AccountCountry } from "../../graphql/partner";
-import { t } from "../../utils/i18n";
-import { isBirthPostalCodeRequired } from "../../utils/verificationRenewal";
 import {
   Input as AddressInput,
   VerificationRenewalOwnershipFormAddress,
@@ -63,10 +55,6 @@ export const VerificationRenewalOwnershipForm = ({
   onClose,
   onSave,
 }: Props) => {
-  const isAddressRequired = match(accountCountry)
-    .with("DEU", "ESP", "FRA", "NLD", "ITA", "BEL", () => true) //TODO remove french
-    .otherwise(() => false);
-
   const [reference] = useState(() => initialValues[REFERENCE_SYMBOL] ?? uuid());
   const commonRef = useRef<VerificationRenewalOwnershipFormCommonRef>(null);
   const addressRef = useRef<VerificationRenewalOwnershipFormAddressRef>(null);
@@ -107,15 +95,9 @@ export const VerificationRenewalOwnershipForm = ({
               commonValuesRef.current.isSome() ? commonValuesRef.current.get() : initialValues
             }
             onSave={values => {
-              if (isAddressRequired) {
-                commonValuesRef.current = Option.Some(values);
-                onStepChange("Address");
-              } else {
-                return onSave({
-                  [REFERENCE_SYMBOL]: reference,
-                  ...values,
-                });
-              }
+              // the residency address country is required for every account country
+              commonValuesRef.current = Option.Some(values);
+              onStepChange("Address");
             }}
           />
         ))
@@ -144,105 +126,8 @@ export const VerificationRenewalOwnershipForm = ({
         ))
         .exhaustive()}
 
-      {isAddressRequired && (
-        <>
-          <Space height={12} />
-
-          <StepDots
-            currentStep={step}
-            steps={formSteps.filter(step =>
-              match({ step, isAddressRequired })
-                .with({ step: "Common" }, () => true)
-                .with({ step: "Address", isAddressRequired: true }, () => true)
-                .otherwise(() => false),
-            )}
-          />
-        </>
-      )}
+      <Space height={12} />
+      <StepDots currentStep={step} steps={formSteps} />
     </>
   );
-};
-
-// Used to surface "missing information" when a user starts a section without completing it.
-const isPartiallyFilled = (values: string[]) =>
-  values.some(value => value.length > 0) && values.some(value => value.length === 0);
-
-const validateCca3CountryCode: Validator<string | undefined> = value => {
-  if (value == null) {
-    return t("common.form.required");
-  }
-  if (!isCountryCCA3(value)) {
-    // no need to set an error message because country picker contains only valid values
-    // this is used only for validateUbo function to display an error indicator without opening UBO modal
-    return " ";
-  }
-};
-
-export const validateUbo = (
-  editorState: Partial<Input>,
-  accountCountry: AccountCountry,
-): Partial<Record<keyof Input, string | void>> => {
-  const isAddressRequired = match(accountCountry)
-    .with("DEU", "ESP", () => true)
-    .otherwise(() => false);
-  const isAddressCountryRequired = match(accountCountry)
-    .with("DEU", "ESP", "FRA", "NLD", () => true)
-    .otherwise(() => false);
-  const isBirthInfoRequired = match(accountCountry)
-    .with("ESP", "FRA", "NLD", () => true)
-    .otherwise(() => false);
-  const isTaxIdentificationNumberRequired =
-    accountCountry === "DEU" && editorState.country === "DEU";
-
-  const validateTaxNumber = isTaxIdentificationNumberRequired
-    ? combineValidators(validateRequired, validateIndividualTaxNumber(accountCountry))
-    : validateIndividualTaxNumber(accountCountry);
-
-  const hasPartialAddress = isPartiallyFilled([
-    editorState.addressLine1 ?? "",
-    editorState.city ?? "",
-    editorState.postalCode ?? "",
-    editorState.country ?? "",
-  ]);
-
-  return {
-    firstName: validateRequired(editorState.firstName ?? ""),
-    lastName: validateRequired(editorState.lastName ?? ""),
-    birthDate: isBirthInfoRequired ? validateRequired(editorState.birthDate ?? "") : undefined,
-    birthCountryCode: validateCca3CountryCode(editorState.birthCountryCode),
-    birthCity: isBirthInfoRequired ? validateRequired(editorState.birthCity ?? "") : undefined,
-    birthCityPostalCode: isBirthPostalCodeRequired({
-      accountCountry,
-      birthCountry: editorState.birthCountryCode,
-    })
-      ? validateRequired(editorState.birthCityPostalCode ?? "")
-      : undefined,
-    totalPercentage:
-      editorState.qualificationType === "Ownership"
-        ? validateRequired(editorState.totalPercentage?.toString() ?? "")
-        : undefined,
-    addressLine1:
-      isAddressRequired || hasPartialAddress
-        ? validateRequired(editorState.addressLine1 ?? "")
-        : undefined,
-    city:
-      isAddressRequired || hasPartialAddress ? validateRequired(editorState.city ?? "") : undefined,
-    country:
-      isAddressRequired || isAddressCountryRequired || hasPartialAddress
-        ? validateRequired(editorState.country ?? "")
-        : undefined,
-    postalCode:
-      isAddressRequired || hasPartialAddress
-        ? validateRequired(editorState.postalCode ?? "")
-        : undefined,
-    taxIdentificationNumber: validateTaxNumber(editorState.taxIdentificationNumber ?? ""),
-    indirect:
-      editorState.qualificationType !== "Ownership" || editorState.direct === true
-        ? undefined
-        : validateBooleanRequired(editorState.indirect),
-    direct:
-      editorState.qualificationType !== "Ownership" || editorState.indirect === true
-        ? undefined
-        : validateBooleanRequired(editorState.direct),
-  };
 };

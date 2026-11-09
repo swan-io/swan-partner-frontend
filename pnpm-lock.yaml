@@ -190,8 +190,8 @@ importers:
         specifier: 0.0.14
         version: 0.0.14
       libphonenumber-js:
-        specifier: 1.12.36
-        version: 1.12.36
+        specifier: 1.13.15
+        version: 1.13.15
       nanoid:
         specifier: 5.1.16
         version: 5.1.16
@@ -275,8 +275,8 @@ importers:
         specifier: 1.11.19
         version: 1.11.19
       libphonenumber-js:
-        specifier: 1.12.36
-        version: 1.12.36
+        specifier: 1.13.15
+        version: 1.13.15
       nanoid:
         specifier: 5.1.16
         version: 5.1.16
@@ -3880,8 +3880,8 @@ packages:
     resolution: {integrity: sha512-9zy9lkjac+TR1c2tG+mkNSVlyOpInnWdSMiue4F+kq8TwJSgv6o8jhLRg8Ho6SnZ9wOYUq/yozts9qQCfk7bIw==, tarball: https://registry.npmjs.org/ky/-/ky-1.14.3.tgz}
     engines: {node: '>=18'}
 
-  libphonenumber-js@1.12.36:
-    resolution: {integrity: sha512-woWhKMAVx1fzzUnMCyOzglgSgf6/AFHLASdOBcchYCyvWSGWt12imw3iu2hdI5d4dGZRsNWAmWiz37sDKUPaRQ==, tarball: https://registry.npmjs.org/libphonenumber-js/-/libphonenumber-js-1.12.36.tgz}
+  libphonenumber-js@1.13.15:
+    resolution: {integrity: sha512-AHdhEQeDFEJ4GKDAQ9AwxChy+v2kUILUB3TGQRpkXMkWePjXTU/WQEzWVQoIx/Gz8fE73Wr5SEuZCy2vk8jrMQ==, tarball: https://registry.npmjs.org/libphonenumber-js/-/libphonenumber-js-1.13.15.tgz}
 
   light-my-request@6.6.0:
     resolution: {integrity: sha512-CHYbu8RtboSIoVsHZ6Ye4cj4Aw/yg2oAFimlF7mNvfDV192LR7nDiKtSIfCuLT7KokPSTn/9kfVLm5OGN0A28A==, tarball: https://registry.npmjs.org/light-my-request/-/light-my-request-6.6.0.tgz}
@@ -9025,7 +9025,7 @@ snapshots:
 
   ky@1.14.3: {}
 
-  libphonenumber-js@1.12.36: {}
+  libphonenumber-js@1.13.15: {}
 
   light-my-request@6.6.0:
     dependencies:

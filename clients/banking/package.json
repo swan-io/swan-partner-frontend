@@ -29,7 +29,7 @@
     "core-js": "3.48.0",
     "dayjs": "1.11.19",
     "iban": "0.0.14",
-    "libphonenumber-js": "1.12.36",
+    "libphonenumber-js": "1.13.15",
     "nanoid": "5.1.16",
     "posthog-js": "1.345.2",
     "react": "19.2.6",

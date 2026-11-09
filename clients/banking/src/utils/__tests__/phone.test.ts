@@ -8,6 +8,12 @@ if (franceCountry == null) {
   throw new Error("FRA not found in countries");
 }
 
+const gambiaCountry = countries.find(country => country.cca3 === "GMB");
+
+if (gambiaCountry == null) {
+  throw new Error("GMB not found in countries");
+}
+
 describe("parsePhoneNumber", () => {
   it("returns the country and national number for a valid international number", () => {
     const result = parsePhoneNumber("+33612345678");
@@ -19,6 +25,12 @@ describe("parsePhoneNumber", () => {
     const result = parsePhoneNumber("+33 6 12 34 56 78");
     expect(result.country.cca3).toBe("FRA");
     expect(result.nationalNumber).toBe("612345678");
+  });
+
+  it("returns the country and national number for a 9-digit Gambian number", () => {
+    const result = parsePhoneNumber("+220873012345");
+    expect(result.country.cca3).toBe("GMB");
+    expect(result.nationalNumber).toBe("873012345");
   });
 
   it("returns an empty string when value is wrong", () => {
@@ -42,6 +54,13 @@ describe("prefixPhoneNumber", () => {
     expect(prefixPhoneNumber(franceCountry, "6 12 34 56 78")).toEqual({
       valid: true,
       e164: "+33612345678",
+    });
+  });
+
+  it("accepts a 9-digit Gambian number", () => {
+    expect(prefixPhoneNumber(gambiaCountry, "873012345")).toEqual({
+      valid: true,
+      e164: "+220873012345",
     });
   });
 

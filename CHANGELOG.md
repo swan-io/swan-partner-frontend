@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.46.1](https://github.com/swan-io/swan-partner-frontend/compare/v1.46.0...v1.46.1) (2026-11-06)
+
+
+### Bug Fixes
+
+* **banking:** align re-KYC UBO validation with the backend and explain finalize rejections (FRONT-2341) (#46) ([9c57556](https://github.com/swan-io/swan-partner-frontend/commit/9c57556deec533e341c1dbd607246aeff85cb606))
+* **deps:** patch high vulnerabilities in nanoid, ws and docs toolchain (FRONT-2344) (#38) ([ad857d8](https://github.com/swan-io/swan-partner-frontend/commit/ad857d889273af5ab1de6c3141ec2f8427889efd))
+
+
+### Miscellaneous Chores
+
+* **i18n:** update translations (#40) ([54f07ed](https://github.com/swan-io/swan-partner-frontend/commit/54f07ed3492a79d72f5766c5fc899989331767be))
+* **i18n:** update translations from localazy ([54f07ed](https://github.com/swan-io/swan-partner-frontend/commit/54f07ed3492a79d72f5766c5fc899989331767be))
+
+
+### Continuous Integration
+
+* **ENP-6739:** add the hotfix lane workflow (#41) (6f6d9dd)
+* repin reusable-workflows to v5.1.0 (#43) (908a7fa)
+
 ## [1.46.0](https://github.com/swan-io/swan-partner-frontend/compare/v1.45.0...v1.46.0) (2026-11-03)
 
 

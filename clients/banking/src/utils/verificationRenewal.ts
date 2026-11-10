@@ -146,7 +146,7 @@ export const isUboTaxIdentificationNumberRequired = ({
 export type UboValidationInput = {
   firstName: string;
   lastName: string;
-  birthDate: string | null;
+  birthDate: string | undefined;
   birthCountryCode: CountryCCA3;
   birthCity: string;
   birthCityPostalCode: string;

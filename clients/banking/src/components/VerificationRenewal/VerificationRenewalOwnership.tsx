@@ -145,7 +145,7 @@ const convertFetchUboToInput = (
     birthCountryCode,
     birthCity: fetchedUbo.birthInfo?.city ?? "",
     birthCityPostalCode: fetchedUbo.birthInfo?.postalCode ?? "",
-    birthDate: fetchedUbo.birthInfo?.birthDate ?? null,
+    birthDate: fetchedUbo.birthInfo?.birthDate ?? undefined,
     qualificationType: fetchedUbo.qualificationType ?? undefined,
     direct: type === "Direct" || type === "DirectAndIndirect",
     indirect: type === "Indirect" || type === "DirectAndIndirect",

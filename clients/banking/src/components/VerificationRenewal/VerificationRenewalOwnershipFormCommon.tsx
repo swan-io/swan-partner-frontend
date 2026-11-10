@@ -58,7 +58,7 @@ const beneficiaryTypes: RadioGroupItem<UltimateBeneficialOwnerQualificationType>
 export type Input = {
   firstName: string;
   lastName: string;
-  birthDate: string | null;
+  birthDate: string | undefined;
   birthCountryCode: CountryCCA3;
   birthCity: string;
   birthCityPostalCode: string;
@@ -103,7 +103,7 @@ export const VerificationRenewalOwnershipFormCommon = ({
       validate: combineValidators(validateRequired, validateName),
     },
     birthDate: {
-      initialValue: initialValues.birthDate ?? undefined,
+      initialValue: initialValues.birthDate,
       validate: isBirthInfoRequired ? validateNullableRequired : undefined,
     },
     birthCountryCode: {
@@ -196,7 +196,7 @@ export const VerificationRenewalOwnershipFormCommon = ({
 
                   return onSave({
                     ...requiredFields.get(),
-                    birthDate: birthDate.flatMap(Option.fromNullable).toNull(),
+                    birthDate: birthDate.toUndefined(),
                     direct,
                     indirect,
                     totalPercentage: Number(totalPercentage),
@@ -206,7 +206,7 @@ export const VerificationRenewalOwnershipFormCommon = ({
               .with({ requiredFields: Option.P.Some(P.any) }, ({ requiredFields }) => {
                 return onSave({
                   ...requiredFields.get(),
-                  birthDate: birthDate.flatMap(Option.fromNullable).toNull(),
+                  birthDate: birthDate.toUndefined(),
                 });
               })
               .otherwise(() => {});

@@ -157,13 +157,13 @@ describe("validateUbo", () => {
   it.each(["FRA", "ESP", "NLD", "ITA", "BEL"] as const)(
     "requires birth date and birth city for %s",
     accountCountry => {
-      const ubo = { ...validUbo, birthDate: null, birthCity: "" };
+      const ubo = { ...validUbo, birthDate: undefined, birthCity: "" };
       expect(getErrorFields(ubo, accountCountry)).toEqual(["birthCity", "birthDate"]);
     },
   );
 
   it("doesn't require birth date and birth city for DEU", () => {
-    const ubo = { ...validUbo, birthDate: null, birthCity: "" };
+    const ubo = { ...validUbo, birthDate: undefined, birthCity: "" };
     expect(getErrorFields(ubo, "DEU")).toEqual([]);
   });
 

@@ -1659,7 +1659,7 @@
   "verificationRenewal.finalize.validation.residencyPostalCode": "Postcode woonadres",
   "verificationRenewal.finalize.validation.reviewBeneficialOwners": "Begunstigden controleren",
   "verificationRenewal.finalize.validation.subtitle": "We konden je aanvraag niet versturen omdat er verplichte informatie ontbreekt. Vul deze aan en verstuur je aanvraag opnieuw.",
-  "verificationRenewal.finalize.validation.title": "Er ontbreekt informatie",
+  "verificationRenewal.finalize.validation.title": "Er ontbreekt wat informatie",
   "verificationRenewal.firstName": "Voornaam",
   "verificationRenewal.forbidden.subtitle": "Alleen rekeningbeheerders kunnen rekeninginformatie bijwerken.\nNeem contact op met je beheerder om dit te doen.",
   "verificationRenewal.forbidden.title": "Beheerderstoegang vereist",

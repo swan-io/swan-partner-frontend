@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.46.2](https://github.com/swan-io/swan-partner-frontend/compare/v1.46.1...v1.46.2) (2026-11-10)
+
+
+### Bug Fixes
+
+* accept 9-digit Gambian phone numbers (#52) ([12cbe5c](https://github.com/swan-io/swan-partner-frontend/commit/12cbe5c0d915818d82f2cc68ae1a091e10426189))
+* **banking:** omit empty UBO birth date from the re-KYC ownership save (FRONT-2371) (#56) ([f95546d](https://github.com/swan-io/swan-partner-frontend/commit/f95546dcb8d9a5c146601d3a155d35bc39682d0d))
+* **ci:** run Localazy CLI instead of Docker action in download-translations (#49) (02fde99)
+* **deps:** patch brace-expansion, postcss and svgo in docs (FRONT-2349) (#53) ([f4b277d](https://github.com/swan-io/swan-partner-frontend/commit/f4b277dc95663dc56e12438f91c2bf5f3f7a425b))
+
+
+### Miscellaneous Chores
+
+* **i18n:** update translations (#54) ([846f9eb](https://github.com/swan-io/swan-partner-frontend/commit/846f9eb81abaafbce0dbd79c02638013d38e9da4))
+* **i18n:** update translations from localazy ([846f9eb](https://github.com/swan-io/swan-partner-frontend/commit/846f9eb81abaafbce0dbd79c02638013d38e9da4))
+
 ## [1.46.1](https://github.com/swan-io/swan-partner-frontend/compare/v1.46.0...v1.46.1) (2026-11-06)
 
 

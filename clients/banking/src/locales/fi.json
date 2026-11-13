@@ -1720,6 +1720,7 @@
   "verificationRenewal.ownership.type.control": "Hallinta",
   "verificationRenewal.ownership.type.directAndIndirect": "Omistaa suoraan ja välillisesti yhteensä {percentage} % pääomasta {name}",
   "verificationRenewal.ownership.type.legalRepresentative": "Laillinen edustaja",
+  "verificationRenewal.ownership.type.missing": "Tyyppi puuttuu",
   "verificationRenewal.ownership.type.ownership": "Omistus",
   "verificationRenewal.personalInformation.employmentStatus": "Ammatti",
   "verificationRenewal.personalInformation.monthlyIncome": "Kuukausitulo",

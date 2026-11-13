@@ -234,7 +234,7 @@ const isUboInvalid = (ubo: LocalStateUbo) => {
 const formatUboMainInfo = (ubo: SaveValue, companyName: string, country: CountryCCA3) => {
   const key = match(ubo)
     .returnType<TranslationKey>()
-    .with({ qualificationType: P.nullish }, () => "verificationRenewal.ownership.type.control")
+    .with({ qualificationType: P.nullish }, () => "verificationRenewal.ownership.type.missing")
     .with(
       { qualificationType: "LegalRepresentative" },
       () => "verificationRenewal.ownership.type.legalRepresentative",
@@ -648,6 +648,8 @@ export const VerificationRenewalOwnership = ({
           companyCountry={companyCountry}
           accountCountry={accountCountry}
           initialValues={match(pageState)
+            .returnType<Partial<SaveValue> | undefined>()
+            .with({ type: "add" }, () => ({ qualificationType: "Ownership" }))
             .with({ type: "edit" }, ({ ubo }) => ubo)
             .otherwise(() => undefined)}
           step={match(pageState)

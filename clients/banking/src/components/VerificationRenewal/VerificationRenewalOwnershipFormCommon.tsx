@@ -40,7 +40,7 @@ type FormValues = {
   birthCountryCode: CountryCCA3;
   birthCity: string;
   birthCityPostalCode: string;
-  qualificationType: UltimateBeneficialOwnerQualificationType;
+  qualificationType: UltimateBeneficialOwnerQualificationType | undefined;
   indirect: boolean;
   direct: boolean;
   totalPercentage: string;
@@ -127,8 +127,8 @@ export const VerificationRenewalOwnershipFormCommon = ({
           : undefined,
     },
     qualificationType: {
-      initialValue: initialValues.qualificationType ?? "Ownership",
-      validate: validateRequired,
+      initialValue: initialValues.qualificationType,
+      validate: validateNullableRequired,
     },
     direct: {
       initialValue: initialValues.direct ?? false,
@@ -366,7 +366,7 @@ export const VerificationRenewalOwnershipFormCommon = ({
             </Box>
 
             <Field name="qualificationType">
-              {({ value, onChange }) => (
+              {({ value, onChange, error }) => (
                 <LakeLabel
                   label={t("verificationRenewal.ownership.type")}
                   type="radioGroup"
@@ -374,6 +374,7 @@ export const VerificationRenewalOwnershipFormCommon = ({
                     <RadioGroup
                       direction="row"
                       value={value}
+                      error={error}
                       onValueChange={onChange}
                       items={beneficiaryTypes}
                     />

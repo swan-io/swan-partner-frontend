@@ -1720,6 +1720,7 @@
   "verificationRenewal.ownership.type.control": "Contrôle",
   "verificationRenewal.ownership.type.directAndIndirect": "Détient directement et indirectement un total de {percentage} % du capital de {name}",
   "verificationRenewal.ownership.type.legalRepresentative": "Représentant légal",
+  "verificationRenewal.ownership.type.missing": "Type manquant",
   "verificationRenewal.ownership.type.ownership": "Propriété",
   "verificationRenewal.personalInformation.employmentStatus": "Statut professionnel",
   "verificationRenewal.personalInformation.monthlyIncome": "Revenu mensuel",

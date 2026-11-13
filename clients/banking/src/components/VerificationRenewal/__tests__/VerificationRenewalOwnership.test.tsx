@@ -60,6 +60,13 @@ const germanUboWithoutBirthDate: VerificationRenewalUboFragment = {
   },
 };
 
+// as the API returns a beneficiary saved without type (MON-873)
+const uboWithoutType: VerificationRenewalUboFragment = {
+  ...completeUbo,
+  qualificationType: null,
+  ownership: null,
+};
+
 const makeInfo = (ubos: VerificationRenewalUboFragment[]) =>
   ({
     __typename: "CompanyVerificationRenewalInfo",
@@ -181,6 +188,43 @@ describe("VerificationRenewalOwnership", () => {
     await waitFor(() =>
       expect(screen.queryByRole("heading", { name: "Fill in the address" })).toBeNull(),
     );
+  });
+
+  test("shows a beneficiary without type as 'Type missing', not as Control", () => {
+    renderOwnership([uboWithoutType], "ITA");
+
+    expect(screen.getByText("Type missing")).toBeDefined();
+    expect(screen.queryByText("Control")).toBeNull();
+    expect(screen.getByText("Missing info")).toBeDefined();
+  });
+
+  test("asks to choose a type when editing a beneficiary without type", async () => {
+    const user = userEvent.setup();
+    renderOwnership([uboWithoutType], "ITA");
+
+    await user.click(screen.getByRole("button", { name: "Edit" }));
+    const modal = (await screen.findByText("Edit an owner")).closest("[role=dialog]");
+    assert(modal instanceof HTMLElement);
+
+    // the capital field only shows once "Ownership" is selected
+    expect(within(modal).queryByText("Total percentage of capital held")).toBeNull();
+
+    await user.click(within(modal).getByRole("button", { name: "Next" }));
+    expect(await within(modal).findByText("This field is required")).toBeDefined();
+    expect(screen.queryByText("Fill in the address")).toBeNull();
+  });
+
+  test("pre-selects Ownership when adding a beneficiary", async () => {
+    const user = userEvent.setup();
+    renderOwnership([completeUbo], "ITA");
+
+    await user.click(screen.getByText("Add an owner"));
+    const modal = (await screen.findByRole("heading", { name: "Add an owner" })).closest(
+      "[role=dialog]",
+    );
+    assert(modal instanceof HTMLElement);
+
+    expect(within(modal).getByText("Total percentage of capital held")).toBeDefined();
   });
 
   test("deletes a beneficiary while another one has no birth date", async () => {

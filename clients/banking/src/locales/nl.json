@@ -1720,6 +1720,7 @@
   "verificationRenewal.ownership.type.control": "Zeggenschap",
   "verificationRenewal.ownership.type.directAndIndirect": "Bezit direct of indirect, in totaal {percentage}% van het kapitaal van {name}",
   "verificationRenewal.ownership.type.legalRepresentative": "Wettelijk vertegenwoordiger",
+  "verificationRenewal.ownership.type.missing": "Type ontbreekt",
   "verificationRenewal.ownership.type.ownership": "Eigenaarschap",
   "verificationRenewal.personalInformation.employmentStatus": "Beroep",
   "verificationRenewal.personalInformation.monthlyIncome": "Maandelijks inkomen",

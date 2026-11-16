@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.46.3](https://github.com/swan-io/swan-partner-frontend/compare/v1.46.2...v1.46.3) (2026-11-13)
+
+
+### Bug Fixes
+
+* **banking:** show a UBO with no type as missing in the re-KYC ownership step (FRONT-2372) (#57) ([06415b8](https://github.com/swan-io/swan-partner-frontend/commit/06415b8c1abf9e15c22b001f8f8b0c49c259dd41))
+
 ## [1.46.2](https://github.com/swan-io/swan-partner-frontend/compare/v1.46.1...v1.46.2) (2026-11-10)
 
 

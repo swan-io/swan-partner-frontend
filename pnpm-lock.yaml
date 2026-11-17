@@ -4853,8 +4853,8 @@ packages:
     resolution: {integrity: sha512-IELLEvzHuCfc1uTsshPK58ViSdNqXxlml1U+fmwJIKLYKOr/rAtBrorE2RYm5IHaMpDNlmC0fr1LAvdXvyheEQ==, tarball: https://registry.npmjs.org/sync-fetch/-/sync-fetch-0.6.0.tgz}
     engines: {node: '>=18'}
 
-  systeminformation@5.33.11:
-    resolution: {integrity: sha512-CNGk+882EQbsbPzaoxeBcYyx+nk0uTj5JzW8w0EXGSCazndNRAh9SE0V5tyMbdONGKilbIBJsyskF4WmZDk7uA==, tarball: https://registry.npmjs.org/systeminformation/-/systeminformation-5.33.11.tgz}
+  systeminformation@5.33.23:
+    resolution: {integrity: sha512-OBOvemo4WHf8bGMszwszn3JcFxkIMZt7adjhdgJh3eePo37EIBZovZbhJDQ2zfVYPEtXScHDJXGik8eYd3WMNw==, tarball: https://registry.npmjs.org/systeminformation/-/systeminformation-5.33.23.tgz}
     engines: {node: '>=10.0.0'}
     os: [darwin, linux, win32, freebsd, openbsd, netbsd, sunos, android]
     hasBin: true
@@ -6991,7 +6991,7 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/instrumentation': 0.221.0(@opentelemetry/api@1.9.1)
-      systeminformation: 5.33.11
+      systeminformation: 5.33.23
     transitivePeerDependencies:
       - supports-color
 
@@ -10187,7 +10187,7 @@ snapshots:
       timeout-signal: 2.0.0
       whatwg-mimetype: 4.0.0
 
-  systeminformation@5.33.11: {}
+  systeminformation@5.33.23: {}
 
   tagged-tag@1.0.0: {}
 

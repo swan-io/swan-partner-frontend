@@ -1,6 +1,13 @@
 import { Array, Option } from "@bloodyowl/boxed";
-import { isEmpty } from "@swan-io/lake/src/utils/nullish";
+import { isEmpty, isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
+import {
+  ExtractedDate,
+  extractDate,
+  formatExtractedDate,
+} from "@swan-io/shared-business/src/utils/date";
+import { t as tSharedBusiness } from "@swan-io/shared-business/src/utils/i18n";
 import { Validator } from "@swan-io/use-form";
+import dayjs from "dayjs";
 import { match, P } from "ts-pattern";
 import {
   FieldValidationError,
@@ -120,3 +127,26 @@ export const validateRegistrationNumber: Validator<string> = value => {
     return t("common.form.help.nbDigits", { nbDigits: "10" });
   }
 };
+
+const MIN_REGISTRATION_YEAR = 1800;
+
+export const validateRegistrationDate = (value: ExtractedDate | undefined) => {
+  const date = isNotNullish(value)
+    ? dayjs.utc(formatExtractedDate(value), "YYYY-MM-DD", true)
+    : undefined;
+
+  if (
+    isNullish(date) ||
+    !date.isValid() ||
+    // formatExtractedDate pads short years (198 → 0198), this bound rejects them
+    date.year() < MIN_REGISTRATION_YEAR ||
+    // one day of margin for users in a time zone ahead of UTC
+    date.isAfter(dayjs.utc().add(1, "day"), "day")
+  ) {
+    return tSharedBusiness("validation.invalidDate");
+  }
+};
+
+// the picker only validates on input, so a date saved before these bounds existed must be checked by the form
+export const validateRegistrationDateString = (value: string | undefined) =>
+  isNotNullish(value) ? validateRegistrationDate(extractDate(value)) : undefined;

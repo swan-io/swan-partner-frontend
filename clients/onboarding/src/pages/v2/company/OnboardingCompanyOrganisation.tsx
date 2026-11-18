@@ -50,6 +50,8 @@ import {
   badUserInputErrorPattern,
   extractServerValidationFields,
   getValidationErrorMessage,
+  validateRegistrationDate,
+  validateRegistrationDateString,
   validateRegistrationNumber,
 } from "../../../utils/validation";
 
@@ -80,9 +82,15 @@ const styles = StyleSheet.create({
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
     gap: "16px 32px",
+    // grid items stretch to the row height and LakeLabel centers its content, so a shorter field drifts down
+    alignItems: "flex-start",
   },
   inputFull: {
     gridColumnEnd: "span 2",
+  },
+  // InlineDatePicker adds its own top inset, which offsets it from the LakeLabel next to it
+  datePicker: {
+    paddingTop: 0,
   },
   prefilledInfo: {
     backgroundColor: colors.gray[50],
@@ -147,6 +155,9 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
     [],
   );
 
+  // a date prefilled from the registry is read-only, so the user couldn't fix it if our bounds rejected it
+  const checkRegistrationDateBounds = !prefilled.registrationDate;
+
   const { Field, setFieldValue, setFieldError, submitForm } = useForm({
     address: {
       initialValue: company?.address?.addressLine1 ?? "",
@@ -191,7 +202,9 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
     },
     registrationDate: {
       initialValue: company?.registrationDate ?? undefined,
-      validate: validateNullableRequired,
+      validate: checkRegistrationDateBounds
+        ? combineValidators(validateNullableRequired, validateRegistrationDateString)
+        : validateNullableRequired,
     },
     tcuAccepted: {
       initialValue: false,
@@ -378,6 +391,7 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
                   <Field name="registrationNumber">
                     {({ value, valid, error, onChange, ref, onBlur }) => (
                       <LakeLabel
+                        style={styles.inputFull}
                         label={getRegistrationNumberLabel(
                           companyCountry as CompanyCountryCCA3,
                           companyType ?? "Company",
@@ -410,9 +424,13 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
                   <Field name="registrationDate">
                     {({ value, onChange, error }) => (
                       <InlineDatePicker
+                        style={styles.datePicker}
                         label={t("company.step.legal.registrationDateLabel")}
                         value={value}
                         onValueChange={onChange}
+                        validate={
+                          checkRegistrationDateBounds ? validateRegistrationDate : undefined
+                        }
                         error={error}
                         readOnly={prefilled.registrationDate}
                       />
@@ -440,6 +458,8 @@ export const OnboardingCompanyOrganisation = ({ onboarding, serverValidationErro
                   <Field name="vatNumber">
                     {({ value, valid, error, onChange, ref, onBlur }) => (
                       <LakeLabel
+                        // fills the row when it would be left alone, otherwise sits next to the registration date
+                        style={isTaxIdentificationVisible ? styles.inputFull : undefined}
                         label={t("company.step.legal.vatLabel")}
                         optionalLabel={isVatRequired ? undefined : t("common.optional")}
                         render={id => (

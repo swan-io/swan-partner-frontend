@@ -1,9 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { t as tSharedBusiness } from "@swan-io/shared-business/src/utils/i18n";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   extractServerInvalidFields,
   getServerInvalidFieldCode,
   getValidationErrorMessage,
   validateMaxLength,
+  validateRegistrationDate,
+  validateRegistrationDateString,
   validateRegistrationNumber,
   validateUboPercentage,
 } from "../validation";
@@ -121,5 +124,68 @@ describe("validateRegistrationNumber", () => {
     expect(validateRegistrationNumber("123")).toBeDefined();
     expect(validateRegistrationNumber("12345678901")).toBeDefined();
     expect(validateRegistrationNumber("abcdefghij")).toBeDefined();
+  });
+});
+
+describe("registration date", () => {
+  const invalidDate = tSharedBusiness("validation.invalidDate");
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(Date.UTC(2026, 10, 18, 12, 0)));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  describe("validateRegistrationDate", () => {
+    it("accepts a valid past date", () => {
+      expect(validateRegistrationDate({ day: "01", month: "01", year: "2026" })).toBeUndefined();
+      expect(validateRegistrationDate({ day: "12", month: "02", year: "1800" })).toBeUndefined();
+    });
+
+    it("accepts today and tomorrow to absorb time zone differences", () => {
+      expect(validateRegistrationDate({ day: "18", month: "11", year: "2026" })).toBeUndefined();
+      expect(validateRegistrationDate({ day: "19", month: "11", year: "2026" })).toBeUndefined();
+    });
+
+    it("rejects a year with fewer than 4 digits", () => {
+      expect(validateRegistrationDate({ day: "12", month: "02", year: "198" })).toBe(invalidDate);
+      expect(validateRegistrationDate({ day: "12", month: "02", year: "19" })).toBe(invalidDate);
+    });
+
+    it("rejects a year before 1800", () => {
+      expect(validateRegistrationDate({ day: "31", month: "12", year: "1799" })).toBe(invalidDate);
+      expect(validateRegistrationDate({ day: "12", month: "02", year: "0198" })).toBe(invalidDate);
+    });
+
+    it("rejects a date later than tomorrow", () => {
+      expect(validateRegistrationDate({ day: "20", month: "11", year: "2026" })).toBe(invalidDate);
+      expect(validateRegistrationDate({ day: "01", month: "01", year: "2030" })).toBe(invalidDate);
+    });
+
+    it("rejects a missing or impossible date", () => {
+      expect(validateRegistrationDate(undefined)).toBe(invalidDate);
+      expect(validateRegistrationDate({ day: "31", month: "02", year: "2020" })).toBe(invalidDate);
+    });
+  });
+
+  describe("validateRegistrationDateString", () => {
+    it("accepts a saved date within the bounds", () => {
+      expect(validateRegistrationDateString("2026-01-01")).toBeUndefined();
+    });
+
+    it("rejects a saved date whose year was padded", () => {
+      expect(validateRegistrationDateString("0198-02-12")).toBe(invalidDate);
+    });
+
+    it("rejects a saved date later than tomorrow", () => {
+      expect(validateRegistrationDateString("2030-01-01")).toBe(invalidDate);
+    });
+
+    it("leaves an empty value to the required validator", () => {
+      expect(validateRegistrationDateString(undefined)).toBeUndefined();
+    });
   });
 });

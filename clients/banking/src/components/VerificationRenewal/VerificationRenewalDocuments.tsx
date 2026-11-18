@@ -148,29 +148,29 @@ export const VerificationRenewalDocuments = ({
   return (
     <VerificationRenewalStepContent>
       <ResponsiveContainer breakpoint={breakpoints.medium}>
-        {() => (
+        {({ small }) => (
           <>
             <StepTitle>{t("verificationRenewal.documents.title")}</StepTitle>
-            <Space height={4} />
+            <Space height={8} />
             <LakeText>{t("verificationRenewal.documents.subtitle")}</LakeText>
-            <Space height={24} />
-            {requiredDocumentsPurposes.length === 0 ? (
-              <Tile>
+            <Space height={small ? 24 : 32} />
+            <Tile>
+              {requiredDocumentsPurposes.length === 0 ? (
                 <LakeText>{t("verificationRenewal.documents.noDocuments")}</LakeText>
-              </Tile>
-            ) : (
-              <SupportingDocumentCollection
-                generateUpload={generateUpload}
-                documentPurposes={toDocumentPurposes(
-                  supportingDocumentCollection.requiredSupportingDocumentPurposes,
-                )}
-                status={supportingDocumentCollection.statusInfo.status}
-                documents={docs}
-                templateLanguage={templateLanguage}
-                onRemoveFile={onRemoveFile}
-                onChange={setDocs}
-              />
-            )}
+              ) : (
+                <SupportingDocumentCollection
+                  generateUpload={generateUpload}
+                  documentPurposes={toDocumentPurposes(
+                    supportingDocumentCollection.requiredSupportingDocumentPurposes,
+                  )}
+                  status={supportingDocumentCollection.statusInfo.status}
+                  documents={docs}
+                  templateLanguage={templateLanguage}
+                  onRemoveFile={onRemoveFile}
+                  onChange={setDocs}
+                />
+              )}
+            </Tile>
 
             <VerificationRenewalFooter
               onPrevious={

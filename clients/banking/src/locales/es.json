@@ -1732,8 +1732,6 @@
   "verificationRenewal.step.finalize": "Finalizar",
   "verificationRenewal.step.ownership": "Propiedad",
   "verificationRenewal.step.personalInfo": "Información personal",
-  "verificationRenewal.subtitle": "Revisa la información de tu cuenta de {projectName} para asegurarte de que esté actualizada. Puedes confirmar tus datos actuales o actualizar cualquier información que haya cambiado. No debería llevarte más de 5 minutos.",
-  "verificationRenewal.title": "Necesitas actualizar tu cuenta",
   "verificationRenewal.typeOfRepresentation.no": "No, pero tengo un poder notarial",
   "verificationRenewal.typeOfRepresentation.yes": "Sí"
 }

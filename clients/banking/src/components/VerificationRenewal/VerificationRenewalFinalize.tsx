@@ -29,9 +29,6 @@ import { VerificationRenewalFooter } from "./VerificationRenewalFooter";
 import { VerificationRenewalStepContent } from "./VerificationRenewalStepContent";
 
 const styles = StyleSheet.create({
-  container: {
-    height: "100%",
-  },
   details: {
     alignSelf: "stretch",
     maxWidth: 560,
@@ -48,24 +45,30 @@ type StatusProps = {
 };
 
 const VerificationRenewalFinalizeStatus = ({ icon, title, subtitle, children }: StatusProps) => (
-  <Box direction="column" alignItems="center" justifyContent="center" style={styles.container}>
-    <BorderedIcon padding={24} name={icon} size={100} />
+  <>
+    <Tile paddingVertical={48}>
+      <Box alignItems="center">
+        <BorderedIcon name={icon} size={100} padding={16} />
 
-    <Space height={32} />
-    <LakeHeading variant="h4" level={1} align="center">
-      {title}
-    </LakeHeading>
+        <Space height={24} />
+        <LakeHeading level={1} variant="h5" color={colors.gray[700]} align="center">
+          {title}
+        </LakeHeading>
 
-    <Space height={16} />
-    <LakeText align="center">{subtitle}</LakeText>
+        <Space height={4} />
+        <LakeText align="center" variant="smallRegular">
+          {subtitle}
+        </LakeText>
+      </Box>
+    </Tile>
 
     {children != null && (
-      <>
+      <Box alignItems="center">
         <Space height={24} />
         {children}
-      </>
+      </Box>
     )}
-  </Box>
+  </>
 );
 
 export const VerificationRenewalFinalizeSuccess = () => (

@@ -4,6 +4,7 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeScrollView } from "@swan-io/lake/src/components/LakeScrollView";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import { Space } from "@swan-io/lake/src/components/Space";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
 import { backgroundColor, colors, invariantColors } from "@swan-io/lake/src/constants/design";
 import { noop } from "@swan-io/lake/src/utils/function";
@@ -31,7 +32,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 16,
     width: "100%",
-    maxWidth: 1280,
+    maxWidth: 992,
     marginHorizontal: "auto",
   },
   contentDesktop: {
@@ -140,7 +141,6 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
                               info={verificationRenewal.info}
                               supportingDocumentCollection={renewalSupportingDoc}
                               verificationRenewal={verificationRenewal}
-                              projectName={projectInfo.name}
                             />
                           ),
                         )
@@ -158,7 +158,6 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
                               info={verificationRenewal.info}
                               supportingDocumentCollection={renewalSupportingDoc}
                               verificationRenewal={verificationRenewal}
-                              projectName={projectInfo.name}
                             />
                           ),
                         )
@@ -168,7 +167,12 @@ export const VerificationRenewalArea = ({ verificationRenewalId }: Props) => {
                               __typename: "PendingVerificationRenewal",
                             },
                           },
-                          () => <VerificationRenewalFinalizeSuccess />,
+                          () => (
+                            <>
+                              <Space height={40} />
+                              <VerificationRenewalFinalizeSuccess />
+                            </>
+                          ),
                         )
                         .otherwise(() => (
                           <ErrorView />

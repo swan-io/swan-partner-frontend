@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 16,
     width: "100%",
-    maxWidth: 1280,
+    maxWidth: 992,
     marginHorizontal: "auto",
   },
   containerDesktop: {

@@ -1732,8 +1732,6 @@
   "verificationRenewal.step.finalize": "Viimeistele",
   "verificationRenewal.step.ownership": "Omistus",
   "verificationRenewal.step.personalInfo": "Henkilökohtaiset tiedot",
-  "verificationRenewal.subtitle": "Tarkista {projectName} -tilisi tiedot ja varmista, että ne ovat ajan tasalla. Voit vahvistaa nykyiset tietosi tai päivittää muuttuneet tiedot. Se vie enintään 5 minuuttia.",
-  "verificationRenewal.title": "Tilisi on päivitettävä",
   "verificationRenewal.typeOfRepresentation.no": "En, mutta minulla on valtakirja",
   "verificationRenewal.typeOfRepresentation.yes": "Kyllä"
 }

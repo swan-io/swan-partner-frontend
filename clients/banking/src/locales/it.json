@@ -1732,8 +1732,6 @@
   "verificationRenewal.step.finalize": "Completa",
   "verificationRenewal.step.ownership": "Proprietà",
   "verificationRenewal.step.personalInfo": "Informazioni personali",
-  "verificationRenewal.subtitle": "La preghiamo di verificare i dati del suo conto {projectName} per assicurarsi che siano aggiornati. Può confermare i dati attuali o aggiornare le informazioni che sono cambiate. Non ci vorranno più di 5 minuti.",
-  "verificationRenewal.title": "Il suo conto deve essere aggiornato",
   "verificationRenewal.typeOfRepresentation.no": "No, ma ho un procura",
   "verificationRenewal.typeOfRepresentation.yes": "Sì"
 }

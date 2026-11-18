@@ -2,7 +2,7 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeStepper, MobileStepper, TopLevelStep } from "@swan-io/lake/src/components/LakeStepper";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { backgroundColor } from "@swan-io/lake/src/constants/design";
+import { backgroundColor, breakpoints } from "@swan-io/lake/src/constants/design";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
@@ -18,21 +18,16 @@ import { locale } from "../../utils/i18n";
 import { Router, VerificationRenewalRoute, verificationRenewalRoutes } from "../../utils/routes";
 import { getRenewalSteps, RenewalStep, renewalSteps } from "../../utils/verificationRenewal";
 import { ErrorView } from "../ErrorView";
+import { Redirect } from "../Redirect";
 import { getNextStep } from "./VerificationRenewalCompany";
 import { VerificationRenewalDocuments } from "./VerificationRenewalDocuments";
 import {
   VerificationRenewalFinalize,
   VerificationRenewalFinalizeSuccess,
 } from "./VerificationRenewalFinalize";
-import { VerificationRenewalIntro } from "./VerificationRenewalIntro";
 import { VerificationRenewalPersonalInfo } from "./VerificationRenewalPersonalInfo";
 
 const styles = StyleSheet.create({
-  stepper: {
-    width: "100%",
-    maxWidth: 1280,
-    paddingHorizontal: 40,
-  },
   sticky: {
     position: "sticky",
     top: 0,
@@ -63,7 +58,6 @@ type Props = {
   supportingDocumentCollection: SupportingDocumentRenewalFragment | null;
   verificationRenewal: GetVerificationRenewalQuery["verificationRenewal"];
   accountCountry: AccountCountry;
-  projectName: string;
 };
 
 export const VerificationRenewalIndividual = ({
@@ -72,7 +66,6 @@ export const VerificationRenewalIndividual = ({
   supportingDocumentCollection,
   verificationRenewal,
   accountCountry,
-  projectName,
 }: Props) => {
   const route = Router.useRoute(verificationRenewalRoutes);
 
@@ -109,18 +102,12 @@ export const VerificationRenewalIndividual = ({
     <Box grow={1}>
       <Box style={styles.sticky}>
         {isStepperDisplayed ? (
-          <ResponsiveContainer>
+          <ResponsiveContainer breakpoint={breakpoints.medium}>
             {({ small }) =>
               small ? (
                 <MobileStepper activeStepId={route.name} steps={stepperSteps} />
               ) : (
-                <Box alignItems="center">
-                  <LakeStepper
-                    activeStepId={route.name}
-                    steps={stepperSteps}
-                    style={styles.stepper}
-                  />
-                </Box>
+                <LakeStepper activeStepId={route.name} steps={stepperSteps} />
               )
             }
           </ResponsiveContainer>
@@ -129,15 +116,12 @@ export const VerificationRenewalIndividual = ({
 
       <Space height={40} />
 
-      {match({ route, isFinalized, supportingDocumentCollection })
+      {match({ route, isFinalized, supportingDocumentCollection, firstStep: steps[0] })
         .with({ isFinalized: true }, () => <VerificationRenewalFinalizeSuccess />)
-        .with({ route: { name: "VerificationRenewalRoot" } }, () => (
-          <VerificationRenewalIntro
-            verificationRenewalId={verificationRenewalId}
-            steps={steps}
-            projectName={projectName}
-          />
-        ))
+        .with(
+          { route: { name: "VerificationRenewalRoot" }, firstStep: P.nonNullable },
+          ({ firstStep }) => <Redirect to={Router[firstStep.id]({ verificationRenewalId })} />,
+        )
         .with({ route: { name: "VerificationRenewalPersonalInformation" } }, () => (
           <VerificationRenewalPersonalInfo
             verificationRenewal={verificationRenewal}

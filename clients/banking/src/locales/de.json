@@ -1732,8 +1732,6 @@
   "verificationRenewal.step.finalize": "Abschließen",
   "verificationRenewal.step.ownership": "Eigentum",
   "verificationRenewal.step.personalInfo": "Persönliche Daten",
-  "verificationRenewal.subtitle": "Bitte überprüfen Sie Ihre {projectName}-Kontoinformationen, um sicherzustellen, dass sie aktuell sind. Sie können Ihre aktuellen Daten bestätigen oder geänderte Informationen aktualisieren. Dies sollte nicht länger als 5 Minuten dauern.",
-  "verificationRenewal.title": "Ihr Konto muss aktualisiert werden",
   "verificationRenewal.typeOfRepresentation.no": "Nein, aber ich habe eine Vollmacht.",
   "verificationRenewal.typeOfRepresentation.yes": "Ja"
 }

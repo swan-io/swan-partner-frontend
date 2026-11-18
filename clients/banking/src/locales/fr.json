@@ -1732,8 +1732,6 @@
   "verificationRenewal.step.finalize": "Finaliser",
   "verificationRenewal.step.ownership": "Propriété",
   "verificationRenewal.step.personalInfo": "Informations personnelles",
-  "verificationRenewal.subtitle": "Veuillez vérifier les informations de votre compte {projectName} afin de vous assurer qu'elles sont à jour. Vous pouvez confirmer vos coordonnées actuelles ou mettre à jour toute information qui a changé. Cela ne devrait pas vous prendre plus de 5 minutes.",
-  "verificationRenewal.title": "Votre compte nécessite une mise à jour",
   "verificationRenewal.typeOfRepresentation.no": "Non, mais j'ai une procuration",
   "verificationRenewal.typeOfRepresentation.yes": "Oui"
 }

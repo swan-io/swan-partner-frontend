@@ -1732,8 +1732,6 @@
   "verificationRenewal.step.finalize": "Finalize",
   "verificationRenewal.step.ownership": "Ownership",
   "verificationRenewal.step.personalInfo": "Personal information",
-  "verificationRenewal.subtitle": "Please review your {projectName} account information to ensure it is up to date. You can confirm your current details or refresh any information that has changed. It shouldn’t take more than 5 minutes.",
-  "verificationRenewal.title": "Your account needs an update",
   "verificationRenewal.typeOfRepresentation.no": "No, but I have a power of attorney",
   "verificationRenewal.typeOfRepresentation.yes": "Yes"
 }

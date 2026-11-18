@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.46.4](https://github.com/swan-io/swan-partner-frontend/compare/v1.46.3...v1.46.4) (2026-11-17)
+
+
+### Bug Fixes
+
+* **deps:** upgrade systeminformation and joi to patched versions (FRONT-2382) (#63) ([40d132d](https://github.com/swan-io/swan-partner-frontend/commit/40d132d7951c303369b13d07b5029d65081db3fd))
+
+
+### Continuous Integration
+
+* repin reusable-workflows to v5.2.1 (#59) (da59934)
+
 ## [1.46.3](https://github.com/swan-io/swan-partner-frontend/compare/v1.46.2...v1.46.3) (2026-11-13)
 
 

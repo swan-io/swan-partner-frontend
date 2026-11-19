@@ -15,6 +15,7 @@ import { InputPhoneNumber } from "@swan-io/shared-business/src/components/InputP
 import { getCountryByCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
+import { prefixPhoneNumber } from "@swan-io/shared-business/src/utils/phone";
 import {
   validateEmail,
   validateName,
@@ -30,7 +31,6 @@ import {
   UpdateAccountAdminChangeDocument,
 } from "../../graphql/partner";
 import { t } from "../../utils/i18n";
-import { prefixPhoneNumber } from "../../utils/phone";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
 
 const styles = StyleSheet.create({

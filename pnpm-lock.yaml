@@ -169,11 +169,11 @@ importers:
         specifier: 3.4.0
         version: 3.4.0
       '@swan-io/lake':
-        specifier: 18.1.3
-        version: 18.1.3(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
+        specifier: 18.2.0
+        version: 18.2.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
       '@swan-io/shared-business':
-        specifier: 18.1.3
-        version: 18.1.3(@swan-io/lake@18.1.3(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
+        specifier: 18.2.0
+        version: 18.2.0(@swan-io/lake@18.2.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
       '@swan-io/use-form':
         specifier: 4.0.0
         version: 4.0.0(react@19.2.6)(typescript@7.0.2)
@@ -189,9 +189,6 @@ importers:
       iban:
         specifier: 0.0.14
         version: 0.0.14
-      libphonenumber-js:
-        specifier: 1.13.15
-        version: 1.13.15
       nanoid:
         specifier: 5.1.16
         version: 5.1.16
@@ -257,11 +254,11 @@ importers:
         specifier: 3.4.0
         version: 3.4.0
       '@swan-io/lake':
-        specifier: 18.1.3
-        version: 18.1.3(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
+        specifier: 18.2.0
+        version: 18.2.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
       '@swan-io/shared-business':
-        specifier: 18.1.3
-        version: 18.1.3(@swan-io/lake@18.1.3(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
+        specifier: 18.2.0
+        version: 18.2.0(@swan-io/lake@18.2.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
       '@swan-io/use-form':
         specifier: 4.0.0
         version: 4.0.0(react@19.2.6)(typescript@7.0.2)
@@ -274,9 +271,6 @@ importers:
       dayjs:
         specifier: 1.11.19
         version: 1.11.19
-      libphonenumber-js:
-        specifier: 1.13.15
-        version: 1.13.15
       nanoid:
         specifier: 5.1.16
         version: 5.1.16
@@ -336,11 +330,11 @@ importers:
         specifier: 3.4.0
         version: 3.4.0
       '@swan-io/lake':
-        specifier: 18.1.3
-        version: 18.1.3(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
+        specifier: 18.2.0
+        version: 18.2.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
       '@swan-io/shared-business':
-        specifier: 18.1.3
-        version: 18.1.3(@swan-io/lake@18.1.3(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
+        specifier: 18.2.0
+        version: 18.2.0(@swan-io/lake@18.2.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
       '@swan-io/use-form':
         specifier: 4.0.0
         version: 4.0.0(react@19.2.6)(typescript@7.0.2)
@@ -2192,24 +2186,28 @@ packages:
   '@opentelemetry/sdk-trace-base@2.10.0':
     resolution: {integrity: sha512-GuYQQT7QD2EeO8lcZLRQzcbOyhqAzL+6WWTKTU9mSUBYBazkEDl+VrQcXQhbB08OWM9anD1aHleVadzulpOaUQ==, tarball: https://registry.npmjs.org/@opentelemetry/sdk-trace-base/-/sdk-trace-base-2.10.0.tgz}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': '>=1.3.0 <1.10.0'
 
   '@opentelemetry/sdk-trace-base@2.11.0':
     resolution: {integrity: sha512-H19x/TX/LZdqiYOjM7fqtSxwlplC5pgelavqbQdHbhdq0q/AI/TGkM2dfGuuynTXmJPeF2HoZVoPDu+TGoW78A==, tarball: https://registry.npmjs.org/@opentelemetry/sdk-trace-base/-/sdk-trace-base-2.11.0.tgz}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': '>=1.3.0 <1.10.0'
 
   '@opentelemetry/sdk-trace-base@2.2.0':
     resolution: {integrity: sha512-xWQgL0Bmctsalg6PaXExmzdedSp3gyKV8mQBwK/j9VGdCDu2fmXIb2gAehBKbkXCpJ4HPkgv3QfoJWRT4dHWbw==, tarball: https://registry.npmjs.org/@opentelemetry/sdk-trace-base/-/sdk-trace-base-2.2.0.tgz}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': '>=1.3.0 <1.10.0'
 
   '@opentelemetry/sdk-trace-base@2.8.0':
     resolution: {integrity: sha512-mhU4jp+vW0mGbFRd+GeXHvmfA4aDqWjBjLC3pE5XMpLs0IE2ryYb019Ts2AQrOq67gaTF25D91+fgvEHDZEnuQ==, tarball: https://registry.npmjs.org/@opentelemetry/sdk-trace-base/-/sdk-trace-base-2.8.0.tgz}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': '>=1.3.0 <1.10.0'
 
@@ -2222,12 +2220,14 @@ packages:
   '@opentelemetry/sdk-trace-web@2.11.0':
     resolution: {integrity: sha512-8hgLI437x8VRKzgUr+WRcHFp9AeaHmveKRsPIMNele9tethgCKprakRRqZCWyt41ilALHATfspUMl1An0OTMUQ==, tarball: https://registry.npmjs.org/@opentelemetry/sdk-trace-web/-/sdk-trace-web-2.11.0.tgz}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': '>=1.0.0 <1.10.0'
 
   '@opentelemetry/sdk-trace-web@2.8.0':
     resolution: {integrity: sha512-P3ZM8BGJ5mwjtyfAxRyxsCyWHvaj+xahdhLoS3YiPsEyTHcWTVzx2691C8SrGkpvro3tNFCsWuNNrvM+spKODg==, tarball: https://registry.npmjs.org/@opentelemetry/sdk-trace-web/-/sdk-trace-web-2.8.0.tgz}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': '>=1.0.0 <1.10.0'
 
@@ -2603,19 +2603,19 @@ packages:
       Deprecated: no longer maintained and no longer used by Sinon packages. See
         https://github.com/sinonjs/nise/issues/243 for replacement details.
 
-  '@swan-io/lake@18.1.3':
-    resolution: {integrity: sha512-05saYzMzFmQDvuBWXAeqyKLla24YVr2Tq0IKblFPMCXBU3+bUbflMEUJd7GcUocL78Mmgc5kUnl3kqq2bvFehw==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-18.1.3.tgz}
+  '@swan-io/lake@18.2.0':
+    resolution: {integrity: sha512-07kemALVre4J7TVoSFLke/pQKj1XQgZAmlUxZZaF8ZsPvADqnK2XateOtM8rN1t0RzBann9hpwgef2tGOjC0pQ==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-18.2.0.tgz}
     engines: {node: '>22.12.0'}
     peerDependencies:
       react: '>=19.0.0'
       react-dom: '>=19.0.0'
       react-native-web: '>=0.21.2'
 
-  '@swan-io/shared-business@18.1.3':
-    resolution: {integrity: sha512-xGbAB8fCShBfHdThbTgF/lYu8QePoime5Wl1ib4f6wtrsh4tHUvOzUO888BgJGOm3wKxvUfoYDm5YCbqXeHlKA==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-18.1.3.tgz}
+  '@swan-io/shared-business@18.2.0':
+    resolution: {integrity: sha512-GWkkIHMUvt4l4P1Myurd3eXoK8nNBLzS4EzN0glifCCo7thOjAEu4g6YkvNtEXlFPgrwpSOxmxz7VjzrmsRtng==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-18.2.0.tgz}
     engines: {node: '>22.12.0'}
     peerDependencies:
-      '@swan-io/lake': 18.1.3
+      '@swan-io/lake': 18.2.0
       react: '>=19.0.0'
       react-dom: '>=19.0.0'
       react-native-web: '>=0.21.2'
@@ -7732,7 +7732,7 @@ snapshots:
 
   '@sinonjs/text-encoding@0.7.2': {}
 
-  '@swan-io/lake@18.1.3(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)':
+  '@swan-io/lake@18.2.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)':
     dependencies:
       '@bloodyowl/boxed': 3.4.0(typescript@7.0.2)
       '@swan-io/use-form': 4.0.0(react@19.2.6)(typescript@7.0.2)
@@ -7748,16 +7748,17 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@swan-io/shared-business@18.1.3(@swan-io/lake@18.1.3(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)':
+  '@swan-io/shared-business@18.2.0(@swan-io/lake@18.2.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)':
     dependencies:
       '@bloodyowl/boxed': 3.4.0(typescript@7.0.2)
       '@bloodyowl/request': 3.3.0(@bloodyowl/boxed@3.4.0(typescript@7.0.2))
       '@formatjs/intl': 4.2.1
       '@placekit/client-js': 2.3.0
-      '@swan-io/lake': 18.1.3(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
+      '@swan-io/lake': 18.2.0(react-dom@19.2.6(react@19.2.6))(react-native-web@0.21.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
       '@swan-io/use-form': 4.0.0(react@19.2.6)(typescript@7.0.2)
       dayjs: 1.11.23
       iban: 0.0.14
+      libphonenumber-js: 1.13.15
       react: 19.2.6
       react-atomic-state: 2.1.0(react@19.2.6)
       react-dom: 19.2.6(react@19.2.6)

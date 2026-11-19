@@ -26,6 +26,7 @@ import {
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
+import { prefixPhoneNumber } from "@swan-io/shared-business/src/utils/phone";
 import {
   validateEmail,
   validateIndividualTaxNumber,
@@ -46,7 +47,6 @@ import {
 } from "../graphql/partner";
 import { isMembershipTaxIdRequired } from "../utils/accountMembership";
 import { accountLanguages, locale, t } from "../utils/i18n";
-import { prefixPhoneNumber } from "../utils/phone";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 import { validateAddressLine } from "../utils/validations";

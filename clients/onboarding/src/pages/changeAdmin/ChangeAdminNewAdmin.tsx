@@ -23,6 +23,7 @@ import {
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
+import { prefixPhoneNumber } from "@swan-io/shared-business/src/utils/phone";
 import {
   validateEmail,
   validateName,
@@ -42,7 +43,6 @@ import {
 } from "../../graphql/partner";
 import { locale, t } from "../../utils/i18n";
 import { toSovereignCountry } from "../../utils/onboarding";
-import { prefixPhoneNumber } from "../../utils/phone";
 import { ChangeAdminRoute, Router } from "../../utils/routes";
 
 const styles = StyleSheet.create({

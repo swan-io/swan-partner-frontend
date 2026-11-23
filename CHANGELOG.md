@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.47.0](https://github.com/swan-io/swan-partner-frontend/compare/v1.46.4...v1.47.0) (2026-11-19)
+
+
+### Features
+
+* **banking:** refresh the re-KYC portal layout and remove the intro (FRONT-2380) (#67) ([75ee3a9](https://github.com/swan-io/swan-partner-frontend/commit/75ee3a9b988dbd13222f45e57ad04a3755080707))
+* use the shared phone helpers from shared-business (FRONT-2394) (#68) ([45bb4e8](https://github.com/swan-io/swan-partner-frontend/commit/45bb4e87ab18211fc74830c7bba809dd5265fdd0))
+
+
+### Bug Fixes
+
+* **onboarding:** align legal information fields and bound the registration date (FRONT-2388) (#66) ([356a706](https://github.com/swan-io/swan-partner-frontend/commit/356a706c1961423c725704d44c35033b01311350))
+
+
+### Continuous Integration
+
+* repin reusable-workflows to v5.6.0 (#64) (dcb32da)
+
 ## [1.46.4](https://github.com/swan-io/swan-partner-frontend/compare/v1.46.3...v1.46.4) (2026-11-17)
 
 

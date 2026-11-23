@@ -21,6 +21,7 @@ import { extractServerInvalidFields } from "../../../utils/validation";
 import { NotFoundPage } from "../../NotFoundPage";
 import { ActivityFieldName, OnboardingIndividualActivity } from "./OnboardingIndividualActivity";
 import { OnboardingIndividualDetails } from "./OnboardingIndividualDetails";
+import { OnboardingIndividualDocuments } from "./OnboardingIndividualDocuments";
 import { OnboardingIndividualFinalize } from "./OnboardingIndividualFinalize";
 
 const styles = StyleSheet.create({
@@ -84,8 +85,24 @@ export const OnboardingIndividualWizard = ({ onboarding }: Props) => {
     );
   }, [onboarding.statusInfo]);
 
-  const steps = useMemo<WizardStep<IndividualOnboardingRouteV2>[]>(
-    () => [
+  const documentStepErrors = useMemo(() => {
+    const errors = extractServerInvalidFields(onboarding.statusInfo, field =>
+      match(field)
+        .with(
+          P.when(f => f.includes("supportingDocumentCollection")),
+          () => "document",
+        )
+        .otherwise(() => null),
+    );
+    return errors.slice(0, 1);
+  }, [onboarding.statusInfo]);
+
+  const hasDocumentsStep =
+    onboarding.supportingDocumentCollection?.statusInfo.status === "WaitingForDocument" &&
+    onboarding.supportingDocumentCollection?.requiredSupportingDocumentPurposes.length > 0;
+
+  const steps = useMemo<WizardStep<IndividualOnboardingRouteV2>[]>(() => {
+    const steps: WizardStep<IndividualOnboardingRouteV2>[] = [
       {
         id: "Root",
         label: t("step.title.about"),
@@ -96,14 +113,21 @@ export const OnboardingIndividualWizard = ({ onboarding }: Props) => {
         label: t("step.title.employment"),
         errors: activityStepErrors,
       },
-      {
-        id: "Finalize",
-        label: t("step.title.swanApp"),
-        errors: [],
-      },
-    ],
-    [emailStepErrors, activityStepErrors],
-  );
+    ];
+    if (hasDocumentsStep) {
+      steps.push({
+        id: "Documents",
+        label: t("step.title.document"),
+        errors: documentStepErrors,
+      });
+    }
+    steps.push({
+      id: "Finalize",
+      label: t("step.title.swanApp"),
+      errors: [],
+    });
+    return steps;
+  }, [hasDocumentsStep, emailStepErrors, activityStepErrors, documentStepErrors]);
 
   const stepperSteps = useMemo<Step[]>(
     () =>
@@ -156,13 +180,31 @@ export const OnboardingIndividualWizard = ({ onboarding }: Props) => {
               .with({ name: "Activity" }, () => (
                 <OnboardingIndividualActivity
                   onboarding={onboarding}
+                  nextStep={hasDocumentsStep ? "Documents" : "Finalize"}
                   serverValidationErrors={finalized ? activityStepErrors : []}
                 />
               ))
+              .with({ name: "Documents" }, () => {
+                const supportingDocumentCollection = onboarding.supportingDocumentCollection;
+                if (supportingDocumentCollection == null) {
+                  Router.push("Finalize", { onboardingId });
+                  return;
+                }
+                return (
+                  <OnboardingIndividualDocuments
+                    onboarding={onboarding}
+                    previousStep="Activity"
+                    supportingDocumentCollection={supportingDocumentCollection}
+                    templateLanguage={onboarding?.accountAdmin?.preferredLanguage ?? "en"}
+                    finalized={finalized}
+                  />
+                );
+              })
               .with({ name: "Finalize" }, () => (
                 <OnboardingIndividualFinalize
                   onboarding={onboarding}
                   steps={steps}
+                  previousStep={hasDocumentsStep ? "Documents" : "Activity"}
                   alreadySubmitted={finalized}
                   onSubmitWithErrors={setFinalized.on}
                 />

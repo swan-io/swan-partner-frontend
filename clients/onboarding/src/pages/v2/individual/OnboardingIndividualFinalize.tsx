@@ -19,6 +19,7 @@ import { IndividualOnboardingRouteV2, Router } from "../../../utils/routes";
 type Props = {
   onboarding: NonNullable<IndividualOnboardingFragment>;
   steps: WizardStep<IndividualOnboardingRouteV2>[];
+  previousStep: IndividualOnboardingRouteV2;
   alreadySubmitted: boolean;
   onSubmitWithErrors: () => void;
 };
@@ -26,6 +27,7 @@ type Props = {
 export const OnboardingIndividualFinalize = ({
   onboarding,
   steps,
+  previousStep,
   alreadySubmitted,
   onSubmitWithErrors,
 }: Props) => {
@@ -33,7 +35,7 @@ export const OnboardingIndividualFinalize = ({
   const containsErrors = steps.some(({ errors }) => errors != null && errors.length > 0);
 
   const onPressPrevious = () => {
-    Router.push("Activity", { onboardingId });
+    Router.push(previousStep, { onboardingId });
   };
 
   const onPressNext = () => {

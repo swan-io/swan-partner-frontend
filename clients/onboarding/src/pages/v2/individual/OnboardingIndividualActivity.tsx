@@ -37,7 +37,7 @@ import {
   UpdatePublicIndividualAccountHolderOnboardingDocument,
 } from "../../../graphql/partner";
 import { locale, t } from "../../../utils/i18n";
-import { Router } from "../../../utils/routes";
+import { IndividualOnboardingRouteV2, Router } from "../../../utils/routes";
 import { getUpdateOnboardingError } from "../../../utils/templateTranslations";
 import {
   badUserInputErrorPattern,
@@ -53,6 +53,7 @@ export type ActivityFieldName =
 
 type Props = {
   onboarding: NonNullable<IndividualOnboardingFragment>;
+  nextStep: IndividualOnboardingRouteV2;
   serverValidationErrors: {
     fieldName: ActivityFieldName;
     code: FieldValidationError;
@@ -106,7 +107,11 @@ const sourcesOfFunds: Item<IndividualAccountSourceOfFunds>[] = [
   { name: t("sourcesOfFunds.selfEmployment"), value: "SelfEmployment" },
 ];
 
-export const OnboardingIndividualActivity = ({ onboarding, serverValidationErrors }: Props) => {
+export const OnboardingIndividualActivity = ({
+  onboarding,
+  nextStep,
+  serverValidationErrors,
+}: Props) => {
   const [updateIndividualOnboarding, updateResult] = useMutation(
     UpdatePublicIndividualAccountHolderOnboardingDocument,
   );
@@ -224,7 +229,7 @@ export const OnboardingIndividualActivity = ({ onboarding, serverValidationError
         })
           .mapOk(data => data.updatePublicIndividualAccountHolderOnboarding)
           .mapOkToResult(filterRejectionsToResult)
-          .tapOk(() => Router.push("Finalize", { onboardingId }))
+          .tapOk(() => Router.push(nextStep, { onboardingId }))
           .tapError(error => {
             match(error)
               .with(badUserInputErrorPattern, ({ fields }) => {

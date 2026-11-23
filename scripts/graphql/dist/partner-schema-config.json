@@ -1,66 +1,47 @@
 {
   "interfaceToTypes": {
-    "AccountAdminChangeBase": [
-      "AccountAdminChange",
-      "NonOngoingAccountAdminChange"
-    ],
     "Rejection": [
-      "AccountAdminChangeExpiredRejection",
-      "AccountAdminChangeMissingDocumentsRejection",
-      "AccountAdminChangeMissingInformationRejection",
-      "AccountAdminChangeNotFoundRejection",
-      "AccountAdminChangeStatusNotEligibleRejection",
-      "AccountHasActiveSuspensionsRejection",
-      "AccountHolderAccountsCreationLimitRejection",
-      "AccountHolderAccountsStatusNotEligibleRejection",
-      "AccountHolderAccountsSuspendedStatusNotEligibleRejection",
-      "AccountHolderAccountsTypeNotEligibleRejection",
       "AccountHolderNotFoundRejection",
-      "AccountHolderProjectSettingsNotEligibleRejection",
-      "AccountHolderStatusNotEligibleRejection",
-      "AccountHolderTypeNotEligibleRejection",
-      "AccountHolderVerificationStatusNotEligibleRejection",
-      "AccountMembershipCannotBeDisabledRejection",
-      "AccountMembershipCannotBeUpdatedRejection",
-      "AccountMembershipCustomInvitationCannotBeCreatedRejection",
-      "AccountMembershipNotEligibleRejection",
-      "AccountMembershipNotFoundRejection",
-      "AccountMembershipNotReadyToBeBoundRejection",
-      "AccountMembershipStatusNotEligibleRejection",
       "AccountNotFoundRejection",
-      "AccountTypeNotEligibleRejection",
-      "ActionNotAllowedRejection",
       "BadAccountStatusRejection",
       "BadRequestRejection",
       "CardNotFoundRejection",
-      "ClosedAccountNotUpgradableRejection",
-      "ExistingPendingOnboardingRefusalRejection",
-      "ExternalAccountAlreadyExistsRejection",
-      "ExternalAccountBalanceAlreadyExistsRejection",
       "ForbiddenRejection",
-      "FundingLimitSettingsChangeRequestBadAmountRejection",
-      "IbanEntryNotFoundRejection",
       "IBANNotReachableRejection",
       "IBANNotValidRejection",
-      "IbanValidationRejection",
-      "IdentityAlreadyBindToAccountMembershipRejection",
       "InternalErrorRejection",
       "InvalidArgumentRejection",
       "InvalidPhoneNumberRejection",
+      "NotFoundRejection",
+      "TooManyItemsRejection",
+      "TransactionNotFoundRejection",
+      "ValidationRejection",
+      "AccountAdminChangeExpiredRejection",
+      "AccountAdminChangeNotFoundRejection",
+      "AccountAdminChangeStatusNotEligibleRejection",
+      "AccountHasActiveSuspensionsRejection",
+      "AccountMembershipCannotBeDisabledRejection",
+      "AccountMembershipCannotBeUpdatedRejection",
+      "AccountMembershipCustomInvitationCannotBeCreatedRejection",
+      "AccountMembershipNotFoundRejection",
+      "AccountMembershipNotReadyToBeBoundRejection",
+      "ActionNotAllowedRejection",
+      "ClosedAccountNotUpgradableRejection",
+      "ExistingPendingOnboardingRefusalRejection",
+      "ExternalAccountAlreadyExistsRejection",
+      "IbanEntryNotFoundRejection",
+      "IbanValidationRejection",
+      "IdentityAlreadyBindToAccountMembershipRejection",
       "InvalidRegistrationNumberRejection",
       "LegalRepresentativeAccountMembershipCannotBeDisabledRejection",
       "LegalRepresentativeAccountMembershipCannotBeSuspendedRejection",
       "MaximumDailyInvitationsReachedRejection",
-      "MissingPhoneNumberRestrictionRejection",
-      "NotFoundRejection",
       "OnboardingAlreadyFinalizedRejection",
       "OnboardingNotCompletedRejection",
       "OnboardingNotFoundRejection",
-      "OnboardingNotReadyForFinalizationRejection",
       "OnboardingNotRefusableRejection",
       "PermissionCannotBeGrantedRejection",
       "ProjectNotFoundRejection",
-      "ProjectSettingsNotFoundRejection",
       "PublicOnboardingDisabledRejection",
       "RepresentativeIncompleteRejection",
       "RestrictedToUserRejection",
@@ -74,37 +55,62 @@
       "SupportingDocumentStatusDoesNotAllowUpdateRejection",
       "SupportingDocumentStatusNotAllowedRejection",
       "SupportingDocumentUploadNotAllowedRejection",
-      "TooManyItemsRejection",
-      "TransactionNotFoundRejection",
       "UserNotAllowedToDisableItsOwnAccountMembershipRejection",
       "UserNotAllowedToManageAccountMembershipRejection",
       "UserNotAllowedToSendAccountMembershipInvitationRejection",
       "UserNotAllowedToSuspendItsOwnAccountMembershipRejection",
-      "ValidationRejection",
       "VerificationRenewalNotFoundRejection",
       "VerificationRenewalUpdateNotAllowedRejection",
       "VerificationRequirementsNotUpdatableRejection",
+      "DisputeCaseDetailsNotApplicableRejection",
+      "DisputeCaseIncompleteRejection",
+      "DisputeCaseMultipleAccountsRejection",
+      "DisputeCaseMultipleCardHoldersRejection",
+      "DisputeCaseNotFoundRejection",
+      "DisputeCaseTransactionsAlreadyReportedRejection",
+      "DisputeCaseTransactionsLimitExceededRejection",
+      "DisputeCaseTransactionsNotFoundRejection",
+      "DisputeCaseTransactionsNotReportableRejection",
+      "DisputeCaseTransactionsOutsideReportingWindowRejection",
+      "DisputeCaseWrongStatusRejection",
+      "AccountAdminChangeMissingDocumentsRejection",
+      "AccountAdminChangeMissingInformationRejection",
+      "AccountHolderAccountsCreationLimitRejection",
+      "AccountHolderAccountsStatusNotEligibleRejection",
+      "AccountHolderAccountsSuspendedStatusNotEligibleRejection",
+      "AccountHolderAccountsTypeNotEligibleRejection",
+      "AccountHolderProjectSettingsNotEligibleRejection",
+      "AccountHolderStatusNotEligibleRejection",
+      "AccountHolderTypeNotEligibleRejection",
+      "AccountHolderVerificationStatusNotEligibleRejection",
+      "AccountMembershipNotEligibleRejection",
+      "AccountMembershipStatusNotEligibleRejection",
+      "AccountTypeNotEligibleRejection",
+      "ExternalAccountBalanceAlreadyExistsRejection",
+      "MissingPhoneNumberRestrictionRejection",
+      "OnboardingNotReadyForFinalizationRejection",
+      "ProjectSettingsNotFoundRejection",
       "GenerationNotAllowedRejection",
-      "AccountHolderPricingPolicyUpdateInProgressRejection",
       "AccountNotEligibleRejection",
-      "PricingPolicyNotAvailableForAccountHolderRejection",
-      "PricingPolicyNotFoundRejection",
       "ProjectAlreadyHasSubscriptionRejection",
+      "PricingPolicyNotAvailableForAccountHolderRejection",
+      "AccountHolderPricingPolicyUpdateInProgressRejection",
+      "PricingPolicyNotFoundRejection",
       "CapitalDepositCaseCanNotBeCanceledRejection",
       "CapitalDepositCaseCanNotBeFoundRejection",
-      "CapitalDepositCaseCanNotBeUpdatedRejection",
       "CapitalDepositCaseCompanyCannotBeUpdatedRejection",
-      "CapitalDepositDocumentCanNotBeUploaded",
       "CapitalDepositDocumentCanNotBeUploadedRejection",
-      "CapitalDepositMainCompanyOnboardingRejection",
-      "CapitalDepositShareholderCannotBeFoundRejection",
-      "CapitalDepositShareholderCanNotBeUpdatedRejection",
-      "CapitalDepositShareholderOnboardingRejection",
-      "CapitalDepositShareholdersEmptyRejection",
-      "ComingSoonRejection",
+      "CapitalDepositDocumentCanNotBeUploaded",
       "DocumentCanNotBeFoundRejection",
       "DocumentCanNotBeRejectedRejection",
       "DocumentParentLinkMissingRejection",
+      "CapitalDepositCaseCanNotBeUpdatedRejection",
+      "CapitalDepositShareholdersEmptyRejection",
+      "CapitalDepositMainCompanyOnboardingRejection",
+      "CapitalDepositShareholderOnboardingRejection",
+      "ComingSoonRejection",
+      "CapitalDepositShareholderCannotBeFoundRejection",
+      "CapitalDepositShareholderCanNotBeUpdatedRejection",
       "AccountMembershipNotAllowedRejection",
       "AddingCardsToDifferentAccountsRejection",
       "AlreadyValidPhysicalCardRejection",
@@ -118,7 +124,6 @@
       "CardProductNotFoundRejection",
       "CardProductSuspendedRejection",
       "CardProductUsedRejection",
-      "CardSensitiveInfoNoLongerAvailableRejection",
       "CardWrongStatusRejection",
       "DigitalCardNotFoundRejection",
       "EnabledCardDesignNotFoundRejection",
@@ -126,44 +131,51 @@
       "MissingMandatoryFieldRejection",
       "PhysicalCardNotFoundRejection",
       "PhysicalCardWrongStatusRejection",
-      "PINNotReadyRejection",
       "UserNotCardHolderRejection",
+      "PINNotReadyRejection",
+      "CardSensitiveInfoNoLongerAvailableRejection",
       "CreditLimitSettingsNotFoundRejection",
       "MissingAddressItemRejection",
       "NotLegalRepresentativeRejection",
       "RepaymentCycleNotFoundRejection",
       "RepaymentNotFoundRejection",
-      "RepaymentWrongStatusRejection",
       "RepaymentWrongStatusTransitionRejection",
-      "MaximumDailyExportsReachedRejection",
-      "MaximumSimultaneousExportsRejection",
-      "StillExportingRejection",
+      "RepaymentWrongStatusRejection",
       "UnknownExportRejection",
+      "StillExportingRejection",
+      "MaximumSimultaneousExportsRejection",
+      "MaximumDailyExportsReachedRejection",
       "FeeSettingsNotFoundRejection",
       "FeeSettingsStatusNotAllowedRejection",
       "SwanTCUDocumentEffectiveDateNotAllowedRejection",
       "SwanTCUDocumentNotFoundRejection",
       "SwanTCUDocumentStatusNotAllowedRejection",
-      "AcceptConsentNotAllowedForConsentPurposeRejection",
+      "NotReachableConsentStatusRejection",
+      "ProjectNotFound",
+      "ProjectInvalidStatusRejection",
+      "ProjectForbiddenRejection",
+      "ProjectSettingsNotFound",
+      "ProjectSettingsStatusNotReachable",
+      "ProjectSettingsForbiddenError",
+      "ConsentNotFoundRejection",
+      "WrongCodeRejection",
+      "UserBlockedRejection",
+      "OperationNotAllowedRejection",
+      "SmsProviderRejection",
+      "ConsentsNotAllInCreatedStatusRejection",
+      "ConsentsAlreadyLinkedToMultiConsentRejection",
+      "TooManyChildConsentsRejection",
+      "UserNotFoundRejection",
+      "IdentificationDocumentNotFoundRejection",
       "BlacklistedPhoneNumberRejection",
       "BlocklistedPhoneNumberRejection",
       "CalledByABotRejection",
-      "ConsentNotFoundRejection",
-      "ConsentsAlreadyLinkedToMultiConsentRejection",
-      "ConsentsNotAllInCreatedStatusRejection",
-      "ConsentsNotFoundRejection",
+      "UpdateUserConsentSettingsTokenRejection",
+      "AcceptConsentNotAllowedForConsentPurposeRejection",
       "ConsentTypeNotSupportedByServerConsentRejection",
-      "IdentificationDocumentNotFoundRejection",
+      "ConsentsNotFoundRejection",
       "NotAllowedUserStatusRejection",
-      "NotReachableConsentStatusRejection",
-      "OperationNotAllowedRejection",
-      "ProjectForbiddenRejection",
-      "ProjectInvalidStatusRejection",
-      "ProjectNotFound",
       "ProjectSettingsByProjectIdNotFoundRejection",
-      "ProjectSettingsForbiddenError",
-      "ProjectSettingsNotFound",
-      "ProjectSettingsStatusNotReachable",
       "ServerConsentCredentialsNotValidOrOutdatedRejection",
       "ServerConsentNotAllowedForConsentOperationRejection",
       "ServerConsentNotAllowedForProjectRejection",
@@ -171,82 +183,93 @@
       "ServerConsentProjectCredentialNotFoundRejection",
       "ServerConsentProjectSettingsNotFoundRejection",
       "ServerConsentSignatureNotValidRejection",
-      "SmsProviderRejection",
-      "TooManyChildConsentsRejection",
-      "UpdateUserConsentSettingsTokenRejection",
-      "UserBlockedRejection",
-      "UserNotFoundRejection",
-      "WrongCodeRejection",
-      "AccountHolderTypeIndividualRejection",
-      "PaymentMandateMandateNotFoundRejection",
-      "PaymentMandateReferenceAlreadyUsedRejection",
-      "ReceivedDirectDebitMandateAlreadyExistRejection",
-      "ReceivedDirectDebitMandateCanceledRejection",
-      "ReceivedDirectDebitMandateNotB2bRejection",
       "ReceivedDirectDebitMandateNotFoundRejection",
+      "ReceivedDirectDebitMandateCanceledRejection",
+      "ReceivedDirectDebitMandateAlreadyExistRejection",
+      "ReceivedDirectDebitMandateNotB2bRejection",
+      "PaymentMandateReferenceAlreadyUsedRejection",
+      "PaymentMandateMandateNotFoundRejection",
+      "AccountHolderTypeIndividualRejection",
       "SuspendReceivedDirectDebitMandatedRejection",
-      "CheckRejection",
+      "MerchantPaymentMethodWrongStatusRejection",
       "DebtorAccountClosedRejection",
       "DebtorAccountNotAllowedRejection",
-      "DuplicateCheckRejection",
       "IdempotencyConflictRejection",
-      "InvalidPaymentMethodRequestRejection",
       "MerchantCardPaymentDeclinedRejection",
-      "MerchantPaymentMethodNotActiveRejection",
-      "MerchantPaymentMethodNotCompatibleRejection",
-      "MerchantPaymentMethodSepaDirectDebitInvalidRejection",
-      "MerchantPaymentMethodWrongStatusRejection",
-      "MerchantPaymentNotCancellableRejection",
-      "MerchantPaymentNotFoundRejection",
-      "MerchantPaymentNotPartiallyCancellableRejection",
       "MerchantProfileNotValidRejection",
       "MerchantProfileWrongStatusRejection",
+      "MerchantPaymentMethodNotActiveRejection",
       "PaymentMethodNotCompatibleRejection",
       "SchemeWrongRejection",
       "UpdateRequestNotPendingReviewRejection",
+      "MerchantPaymentNotCancellableRejection",
+      "MerchantPaymentMethodNotCompatibleRejection",
+      "MerchantPaymentNotPartiallyCancellableRejection",
+      "MerchantPaymentNotFoundRejection",
+      "CheckRejection",
+      "DuplicateCheckRejection",
+      "MerchantPaymentMethodSepaDirectDebitInvalidRejection",
+      "InvalidPaymentMethodRequestRejection",
       "RefundRejection",
       "AccountVerificationAlreadyRejectedRejection",
       "AccountVerificationWrongStatusRejection",
       "BeneficiaryVerificationTokenAlreadyConsumedRejection",
       "FundingLimitExceededRejection",
+      "ProjectFundingLimitExceededRejection",
+      "GlobalFundingLimitExceededRejection",
       "FundingSourceNotFoundRejection",
       "FundingSourceWrongStatusRejection",
-      "GlobalFundingLimitExceededRejection",
-      "GlobalInstantFundingLimitExceededRejection",
       "InstantFundingLimitExceededRejection",
-      "InsufficientFundsRejection",
-      "ProjectFundingLimitExceededRejection",
       "ProjectInstantFundingLimitExceededRejection",
-      "ReturnTransactionRejection",
+      "GlobalInstantFundingLimitExceededRejection",
+      "InsufficientFundsRejection",
       "StandingOrderNotFoundRejection",
-      "TrustedBeneficiaryNotFoundRejection",
       "WrongValueProvidedRejection",
+      "ReturnTransactionRejection",
+      "TrustedBeneficiaryNotFoundRejection",
       "SubscriptionLimitsRejection",
       "WebhookEventLogNotFoundRejection",
       "WebhookSubscriptionNotFoundRejection"
     ],
-    "AccountStatusInfo": [
-      "AccountClosedStatus",
-      "AccountClosingStatus",
-      "AccountOpenedStatus",
-      "AccountSuspendedStatus"
+    "AccountAdminChangeBase": [
+      "AccountAdminChange",
+      "NonOngoingAccountAdminChange"
+    ],
+    "AccountHolderOnboardingBase": [
+      "IndividualAccountHolderOnboarding",
+      "CompanyAccountHolderOnboarding"
+    ],
+    "AccountHolderInfo": [
+      "AccountHolderCompanyInfo",
+      "AccountHolderIndividualInfo"
+    ],
+    "AccountHolderVerificationStatusInfo": [
+      "AccountHolderNotStartedVerificationStatusInfo",
+      "AccountHolderWaitingForInformationVerificationStatusInfo",
+      "AccountHolderPendingVerificationStatusInfo",
+      "AccountHolderVerifiedVerificationStatusInfo",
+      "AccountHolderRefusedVerificationStatusInfo"
+    ],
+    "AccountHolderStatusInfo": [
+      "AccountHolderEnabledStatusInfo",
+      "AccountHolderSuspendedStatusInfo",
+      "AccountHolderCanceledStatusInfo"
     ],
     "Connection": [
-      "AccountConnection",
       "AccountHolderConnection",
-      "AccountHolderOnboardingConnection",
       "AccountMembershipConnection",
-      "ExternalAccountConnection",
-      "ExternalBalanceConnection",
-      "FundingLimitSettingsChangeRequestConnection",
-      "LegalDocumentConnection",
+      "AccountConnection",
+      "VirtualIBANEntryConnection",
       "OnboardingConnection",
       "SupportingDocumentCollectionConnection",
       "VerificationRenewalsConnection",
-      "VirtualIBANEntryConnection",
-      "PaymentConnection",
+      "AccountHolderOnboardingConnection",
+      "ExternalBalanceConnection",
+      "ExternalAccountConnection",
+      "LegalDocumentConnection",
       "StatementConnection",
       "TransactionConnection",
+      "PaymentConnection",
       "InvoiceConnection",
       "CapitalDepositCaseConnection",
       "CardConnection",
@@ -258,32 +281,31 @@
       "UserConnection",
       "PaymentMandateConnection",
       "ReceivedDirectDebitMandateConnection",
-      "MerchantPaymentConnection",
       "MerchantPaymentLinkConnection",
       "MerchantPaymentMethodConnection",
+      "MerchantPaymentConnection",
       "MerchantProfileConnection",
-      "FundingSourceConnection",
       "StandingOrderConnection",
+      "FundingSourceConnection",
       "TrustedBeneficiaryConnection",
       "WebhookEventLogsConnection",
       "WebhookSubscriptionsConnection"
     ],
     "Edge": [
-      "AccountEdge",
       "AccountHolderEdge",
-      "AccountHolderOnboardingEdge",
       "AccountMembershipEdge",
-      "ExternalAccountEdge",
-      "ExternalBalanceEdge",
-      "FundingLimitSettingsChangeRequestEdge",
-      "LegalDocumentEdge",
+      "AccountEdge",
+      "VirtualIBANEntryEdge",
       "OnboardingEdge",
       "SupportingDocumentCollectionEdge",
       "VerificationRenewalsEdge",
-      "VirtualIBANEntryEdge",
-      "PaymentEdge",
+      "AccountHolderOnboardingEdge",
+      "ExternalBalanceEdge",
+      "ExternalAccountEdge",
+      "LegalDocumentEdge",
       "StatementEdge",
       "TransactionEdge",
+      "PaymentEdge",
       "InvoiceEdge",
       "CapitalDepositCaseEdge",
       "CardEdge",
@@ -296,172 +318,137 @@
       "UserEdge",
       "PaymentMandateEdge",
       "ReceivedDirectDebitMandateEdge",
-      "MerchantPaymentEdge",
       "MerchantPaymentLinkEdge",
       "MerchantPaymentMethodEdge",
+      "MerchantPaymentEdge",
       "MerchantProfileEdge",
-      "FundingSourceEdge",
       "StandingOrderEdge",
+      "FundingSourceEdge",
       "TrustedBeneficiaryEdge",
       "WebhookEventLogsEdge",
       "WebhookSubscriptionsEdge"
     ],
-    "AccountHolderStatusInfo": [
-      "AccountHolderCanceledStatusInfo",
-      "AccountHolderEnabledStatusInfo",
-      "AccountHolderSuspendedStatusInfo"
-    ],
-    "AccountHolderInfo": [
-      "AccountHolderCompanyInfo",
-      "AccountHolderIndividualInfo"
-    ],
-    "AccountHolderVerificationStatusInfo": [
-      "AccountHolderNotStartedVerificationStatusInfo",
-      "AccountHolderPendingVerificationStatusInfo",
-      "AccountHolderRefusedVerificationStatusInfo",
-      "AccountHolderVerifiedVerificationStatusInfo",
-      "AccountHolderWaitingForInformationVerificationStatusInfo"
-    ],
     "AccountMembershipStatusInfo": [
-      "AccountMembershipBindingUserErrorStatusInfo",
       "AccountMembershipConsentPendingStatusInfo",
-      "AccountMembershipDisabledStatusInfo",
-      "AccountMembershipEnabledStatusInfo",
       "AccountMembershipInvitationSentStatusInfo",
-      "AccountMembershipSuspendedStatusInfo"
+      "AccountMembershipBindingUserErrorStatusInfo",
+      "AccountMembershipEnabledStatusInfo",
+      "AccountMembershipSuspendedStatusInfo",
+      "AccountMembershipDisabledStatusInfo"
+    ],
+    "AccountStatusInfo": [
+      "AccountOpenedStatus",
+      "AccountSuspendedStatus",
+      "AccountClosingStatus",
+      "AccountClosedStatus"
+    ],
+    "PartnershipStatusInfo": [
+      "PartnershipAcceptedStatusInfo",
+      "PartnershipCancelingStatusInfo",
+      "PartnershipCanceledStatusInfo"
     ],
     "Reason": [
       "CloseAccountReason",
       "SuspendAccountReason"
-    ],
-    "AccountHolderOnboardingBase": [
-      "CompanyAccountHolderOnboarding",
-      "IndividualAccountHolderOnboarding"
-    ],
-    "CompanyRelatedIndividualInfo": [
-      "CompanyLegalRepresentative",
-      "CompanyLegalRepresentativeAndUltimateBeneficialOwner",
-      "CompanyUltimateBeneficialOwner"
-    ],
-    "VerificationRenewalInfoBase": [
-      "CompanyVerificationRenewalInfo",
-      "IndividualVerificationRenewalInfo"
-    ],
-    "VerificationRenewal": [
-      "CompletedVerificationRenewal",
-      "PendingVerificationRenewal",
-      "RefusedVerificationRenewal",
-      "SuspendedVerificationRenewal",
-      "WaitingForInformationVerificationRenewal"
-    ],
-    "FundingLimitSettingsChangeRequestStatusInfo": [
-      "FundingLimitSettingsChangeRequestApprovedStatusInfo",
-      "FundingLimitSettingsChangeRequestPendingStatusInfo",
-      "FundingLimitSettingsChangeRequestRefusedStatusInfo",
-      "FundingLimitSettingsChangeRequestWaitingForInformationStatusInfo"
     ],
     "IndividualUltimateBeneficialOwnerInfo": [
       "IndividualUltimateBeneficialOwnerTypeHasCapital",
       "IndividualUltimateBeneficialOwnerTypeLegalRepresentative",
       "IndividualUltimateBeneficialOwnerTypeOther"
     ],
-    "LegalDocumentStatusInfo": [
-      "LegalDocumentActiveStatusInfo",
-      "LegalDocumentInactiveStatusInfo",
-      "LegalDocumentUpcomingStatusInfo"
-    ],
     "OnboardingAccountHolderInfo": [
-      "OnboardingCompanyAccountHolderInfo",
-      "OnboardingIndividualAccountHolderInfo"
+      "OnboardingIndividualAccountHolderInfo",
+      "OnboardingCompanyAccountHolderInfo"
     ],
     "OnboardingStatusInfo": [
+      "OnboardingValidStatusInfo",
       "OnboardingFinalizedStatusInfo",
-      "OnboardingInvalidStatusInfo",
-      "OnboardingValidStatusInfo"
+      "OnboardingInvalidStatusInfo"
     ],
-    "PartnershipStatusInfo": [
-      "PartnershipAcceptedStatusInfo",
-      "PartnershipCanceledStatusInfo",
-      "PartnershipCancelingStatusInfo"
-    ],
-    "SupportingDocumentCollectionRelatedInfo": [
-      "SupportingDocumentCollectionAccountAdminChangeRelatedInfo",
-      "SupportingDocumentCollectionAccountHolderVerificationRenewalRelatedInfo",
-      "SupportingDocumentCollectionMerchantProfileRelatedInfo",
-      "SupportingDocumentCollectionOnboardingRelatedInfo",
-      "SupportingDocumentCollectionTransactionRelatedInfo"
+    "CompanyRelatedIndividualInfo": [
+      "CompanyLegalRepresentative",
+      "CompanyUltimateBeneficialOwner",
+      "CompanyLegalRepresentativeAndUltimateBeneficialOwner"
     ],
     "SupportingDocumentCollectionStatusInfo": [
-      "SupportingDocumentCollectionApprovedStatusInfo",
-      "SupportingDocumentCollectionCanceledStatusInfo",
+      "SupportingDocumentCollectionWaitingForDocumentStatusInfo",
       "SupportingDocumentCollectionPendingReviewStatusInfo",
+      "SupportingDocumentCollectionApprovedStatusInfo",
       "SupportingDocumentCollectionRejectedStatusInfo",
-      "SupportingDocumentCollectionWaitingForDocumentStatusInfo"
+      "SupportingDocumentCollectionCanceledStatusInfo"
     ],
     "SupportingDocumentStatusInfo": [
-      "SupportingDocumentNotUploadedStatusInfo",
-      "SupportingDocumentRefusedStatusInfo",
+      "SupportingDocumentWaitingForUploadStatusInfo",
       "SupportingDocumentUploadedStatusInfo",
       "SupportingDocumentValidatedStatusInfo",
-      "SupportingDocumentWaitingForUploadStatusInfo"
+      "SupportingDocumentRefusedStatusInfo",
+      "SupportingDocumentNotUploadedStatusInfo"
     ],
-    "TransactionStatusInfo": [
-      "BookedTransactionStatusInfo",
-      "CanceledTransactionStatusInfo",
-      "DeferredTransactionStatusInfo",
-      "PendingTransactionStatusInfo",
-      "RejectedTransactionStatusInfo",
-      "ReleasedTransactionStatusInfo",
-      "SettledTransactionStatusInfo",
-      "UpcomingTransactionStatusInfo"
+    "VerificationRenewal": [
+      "PendingVerificationRenewal",
+      "WaitingForInformationVerificationRenewal",
+      "SuspendedVerificationRenewal",
+      "CompletedVerificationRenewal",
+      "RefusedVerificationRenewal"
     ],
-    "MerchantPayment": [
-      "CardMerchantPayment",
-      "CheckMerchantPayment",
-      "InPersonCardMerchantPayment",
-      "OnlineCardMerchantPayment",
-      "SepaDirectDebitMerchantPayment"
+    "VerificationRenewalInfoBase": [
+      "IndividualVerificationRenewalInfo",
+      "CompanyVerificationRenewalInfo"
     ],
-    "PaymentMandate": [
-      "CardPaymentMandate",
-      "InternalPaymentDirectDebitMandate",
-      "SEPAPaymentDirectDebitMandate"
+    "LegalDocumentStatusInfo": [
+      "LegalDocumentUpcomingStatusInfo",
+      "LegalDocumentActiveStatusInfo",
+      "LegalDocumentInactiveStatusInfo"
+    ],
+    "SupportingDocumentCollectionRelatedInfo": [
+      "SupportingDocumentCollectionTransactionRelatedInfo",
+      "SupportingDocumentCollectionOnboardingRelatedInfo",
+      "SupportingDocumentCollectionAccountHolderVerificationRenewalRelatedInfo",
+      "SupportingDocumentCollectionAccountAdminChangeRelatedInfo",
+      "SupportingDocumentCollectionMerchantProfileRelatedInfo"
+    ],
+    "DisputeCase": [
+      "FraudDisputeCase"
+    ],
+    "DisputeCaseStatusInfo": [
+      "DisputeCaseDraftStatusInfo",
+      "DisputeCaseExpiredStatusInfo",
+      "DisputeCaseCanceledStatusInfo",
+      "DisputeCaseSubmittedStatusInfo"
+    ],
+    "VerifyBeneficiaryResult": [
+      "VerifyBeneficiaryMatch",
+      "VerifyBeneficiaryNotPossible",
+      "VerifyBeneficiaryNoMatch",
+      "VerifyBeneficiaryCloseMatch"
+    ],
+    "StatementInfo": [
+      "PdfStatement",
+      "CsvStatement"
+    ],
+    "AccountStatementStatusInfo": [
+      "PendingStatusInfo",
+      "GeneratedStatusInfo",
+      "FailedStatusInfo",
+      "VoidedStatusInfo"
+    ],
+    "TransactionStatementStatusInfo": [
+      "PendingTransactionStatementStatusInfo",
+      "GeneratedTransactionStatementStatusInfo",
+      "FailedTransactionStatementStatusInfo",
+      "ExpiredTransactionStatementStatusInfo"
     ],
     "Transaction": [
       "CardTransaction",
-      "CheckTransaction",
-      "FeeTransaction",
       "InPersonCardTransaction",
-      "InternalCreditTransfer",
-      "InternalDirectDebitTransaction",
-      "InternationalCreditTransferTransaction",
       "OnlineCardTransaction",
+      "SEPADirectDebitTransaction",
       "SEPACreditTransferTransaction",
-      "SEPADirectDebitTransaction"
-    ],
-    "StatementInfo": [
-      "CsvStatement",
-      "PdfStatement"
-    ],
-    "TransactionStatementStatusInfo": [
-      "ExpiredTransactionStatementStatusInfo",
-      "FailedTransactionStatementStatusInfo",
-      "GeneratedTransactionStatementStatusInfo",
-      "PendingTransactionStatementStatusInfo"
-    ],
-    "AccountStatementStatusInfo": [
-      "FailedStatusInfo",
-      "GeneratedStatusInfo",
-      "PendingStatusInfo",
-      "VoidedStatusInfo"
-    ],
-    "FeeCreditor": [
-      "FeeInCreditor",
-      "FeeOutCreditor"
-    ],
-    "FeeDebtor": [
-      "FeeInDebtor",
-      "FeeOutDebtor"
+      "InternalDirectDebitTransaction",
+      "InternalCreditTransfer",
+      "FeeTransaction",
+      "CheckTransaction",
+      "InternationalCreditTransferTransaction"
     ],
     "InternalCreditTransferCreditor": [
       "InternalCreditTransferInCreditor",
@@ -471,27 +458,18 @@
       "InternalCreditTransferInDebtor",
       "InternalCreditTransferOutDebtor"
     ],
-    "InternalDirectDebitMandate": [
-      "InternalPaymentDirectDebitMandate",
-      "InternalReceivedDirectDebitMandate"
+    "FeeCreditor": [
+      "FeeOutCreditor",
+      "FeeInCreditor"
     ],
-    "PaymentDirectDebitMandate": [
-      "InternalPaymentDirectDebitMandate",
-      "SEPAPaymentDirectDebitMandate"
-    ],
-    "ReceivedDirectDebitMandate": [
-      "InternalReceivedDirectDebitMandate",
-      "SEPAReceivedDirectDebitMandate"
-    ],
-    "PaymentStatusInfo": [
-      "PaymentConsentPending",
-      "PaymentInitiated",
-      "PaymentRejected"
+    "FeeDebtor": [
+      "FeeInDebtor",
+      "FeeOutDebtor"
     ],
     "SEPACreditTransferCreditor": [
       "SEPACreditTransferInCreditor",
-      "SEPACreditTransferInternalOutCreditor",
-      "SEPACreditTransferOutCreditor"
+      "SEPACreditTransferOutCreditor",
+      "SEPACreditTransferInternalOutCreditor"
     ],
     "SEPACreditTransferDebtor": [
       "SEPACreditTransferInDebtor",
@@ -499,217 +477,244 @@
       "SEPACreditTransferOutDebtor"
     ],
     "SEPADirectDebitCreditor": [
-      "SEPADirectDebitInCreditor",
-      "SEPADirectDebitOutCreditor"
+      "SEPADirectDebitOutCreditor",
+      "SEPADirectDebitInCreditor"
     ],
     "SEPADirectDebitDebtor": [
-      "SEPADirectDebitInDebtor",
-      "SEPADirectDebitOutDebtor"
+      "SEPADirectDebitOutDebtor",
+      "SEPADirectDebitInDebtor"
     ],
-    "SEPADirectDebitMandate": [
-      "SEPAPaymentDirectDebitMandate",
-      "SEPAReceivedDirectDebitMandate"
+    "TransactionStatusInfo": [
+      "BookedTransactionStatusInfo",
+      "RejectedTransactionStatusInfo",
+      "PendingTransactionStatusInfo",
+      "DeferredTransactionStatusInfo",
+      "CanceledTransactionStatusInfo",
+      "UpcomingTransactionStatusInfo",
+      "ReleasedTransactionStatusInfo",
+      "SettledTransactionStatusInfo"
     ],
-    "TrustedBeneficiary": [
-      "TrustedInternalBeneficiary",
-      "TrustedInternationalBeneficiary",
-      "TrustedSepaBeneficiary"
+    "PaymentMandate": [
+      "CardPaymentMandate",
+      "InternalPaymentDirectDebitMandate",
+      "SEPAPaymentDirectDebitMandate"
+    ],
+    "PaymentStatusInfo": [
+      "PaymentRejected",
+      "PaymentConsentPending",
+      "PaymentInitiated"
     ],
     "InternationalBeneficiary": [
+      "UnsavedInternationalBeneficiary",
+      "TrustedInternationalBeneficiary"
+    ],
+    "TrustedBeneficiary": [
+      "TrustedSepaBeneficiary",
       "TrustedInternationalBeneficiary",
-      "UnsavedInternationalBeneficiary"
+      "TrustedInternalBeneficiary"
     ],
-    "VerifyBeneficiaryResult": [
-      "VerifyBeneficiaryCloseMatch",
-      "VerifyBeneficiaryMatch",
-      "VerifyBeneficiaryNoMatch",
-      "VerifyBeneficiaryNotPossible"
+    "InternalDirectDebitMandate": [
+      "InternalReceivedDirectDebitMandate",
+      "InternalPaymentDirectDebitMandate"
     ],
-    "CapitalDepositCaseStatusInfo": [
-      "CapitalDepositCaseCanceledStatusInfo",
-      "CapitalDepositCaseCompletedStatusInfo",
-      "CapitalDepositCaseNotaryHoldOnShareDepositCertificateStatusInfo",
-      "CapitalDepositCasePendingInternalReviewStatusInfo",
-      "CapitalDepositCaseWaitingForAdditionalInformationStatusInfo",
-      "CapitalDepositCaseWaitingForInitialRequirementsStatusInfo",
-      "CapitalDepositCaseWaitingForNotaryShareDepositCertificateStatusInfo",
-      "CapitalDepositCaseWaitingForNotaryTransferStatusInfo",
-      "CapitalDepositCaseWaitingForRegisterExtractStatusInfo"
+    "ReceivedDirectDebitMandate": [
+      "InternalReceivedDirectDebitMandate",
+      "SEPAReceivedDirectDebitMandate"
+    ],
+    "PaymentDirectDebitMandate": [
+      "InternalPaymentDirectDebitMandate",
+      "SEPAPaymentDirectDebitMandate"
+    ],
+    "MerchantPayment": [
+      "CardMerchantPayment",
+      "OnlineCardMerchantPayment",
+      "InPersonCardMerchantPayment",
+      "CheckMerchantPayment",
+      "SepaDirectDebitMerchantPayment"
+    ],
+    "SEPADirectDebitMandate": [
+      "SEPAReceivedDirectDebitMandate",
+      "SEPAPaymentDirectDebitMandate"
     ],
     "CapitalDepositDocumentStatusInfo": [
       "CapitalDepositDocumentPendingStatusInfo",
-      "CapitalDepositDocumentRefusedStatusInfo",
       "CapitalDepositDocumentUploadedStatusInfo",
-      "CapitalDepositDocumentValidatedStatusInfo"
+      "CapitalDepositDocumentValidatedStatusInfo",
+      "CapitalDepositDocumentRefusedStatusInfo"
     ],
-    "CardStatusInfo": [
-      "CardCanceledStatusInfo",
-      "CardCancelingStatusInfo",
-      "CardConsentPendingStatusInfo",
-      "CardEnabledStatusInfo",
-      "CardProcessingStatusInfo"
+    "CapitalDepositCaseStatusInfo": [
+      "CapitalDepositCaseWaitingForInitialRequirementsStatusInfo",
+      "CapitalDepositCasePendingInternalReviewStatusInfo",
+      "CapitalDepositCaseWaitingForAdditionalInformationStatusInfo",
+      "CapitalDepositCaseWaitingForNotaryShareDepositCertificateStatusInfo",
+      "CapitalDepositCaseWaitingForRegisterExtractStatusInfo",
+      "CapitalDepositCaseWaitingForNotaryTransferStatusInfo",
+      "CapitalDepositCaseNotaryHoldOnShareDepositCertificateStatusInfo",
+      "CapitalDepositCaseCompletedStatusInfo",
+      "CapitalDepositCaseCanceledStatusInfo"
     ],
     "CardInsuranceSubscriptionStatusInfo": [
-      "CardInsuranceSubscriptionCanceledStatusInfo",
-      "CardInsuranceSubscriptionEnabledStatusInfo",
       "CardInsuranceSubscriptionPendingStatusInfo",
-      "CardInsuranceSubscriptionProcessingStatusInfo"
+      "CardInsuranceSubscriptionProcessingStatusInfo",
+      "CardInsuranceSubscriptionEnabledStatusInfo",
+      "CardInsuranceSubscriptionCanceledStatusInfo"
+    ],
+    "CardStatusInfo": [
+      "CardEnabledStatusInfo",
+      "CardCancelingStatusInfo",
+      "CardCanceledStatusInfo",
+      "CardConsentPendingStatusInfo",
+      "CardProcessingStatusInfo"
     ],
     "DigitalCard": [
       "CompleteDigitalCard",
       "PendingDigitalCard"
     ],
-    "CompleteDigitalCardStatusInfo": [
-      "DigitalCardCanceledStatusInfo",
-      "DigitalCardEnabledStatusInfo",
-      "DigitalCardSuspendedStatusInfo"
-    ],
     "PendingDigitalCardStatusInfo": [
+      "DigitalCardPendingStatusInfo",
       "DigitalCardConsentPendingStatusInfo",
-      "DigitalCardDeclinedStatusInfo",
-      "DigitalCardPendingStatusInfo"
+      "DigitalCardDeclinedStatusInfo"
+    ],
+    "CompleteDigitalCardStatusInfo": [
+      "DigitalCardEnabledStatusInfo",
+      "DigitalCardSuspendedStatusInfo",
+      "DigitalCardCanceledStatusInfo"
     ],
     "PhysicalCardStatusInfo": [
       "PhysicalCardActivatedStatusInfo",
-      "PhysicalCardCanceledStatusInfo",
-      "PhysicalCardCancelingStatusInfo",
-      "PhysicalCardConsentPendingStatusInfo",
-      "PhysicalCardProcessingStatusInfo",
+      "PhysicalCardToActivateStatusInfo",
       "PhysicalCardRenewedStatusInfo",
       "PhysicalCardSuspendedStatusInfo",
-      "PhysicalCardToActivateStatusInfo",
+      "PhysicalCardCancelingStatusInfo",
+      "PhysicalCardCanceledStatusInfo",
+      "PhysicalCardConsentPendingStatusInfo",
+      "PhysicalCardProcessingStatusInfo",
       "PhysicalCardToRenewStatusInfo"
     ],
     "CreditLimitSettingsRequestStatusInfo": [
-      "CreditLimitSettingsRequestApprovedStatusInfo",
-      "CreditLimitSettingsRequestCanceledStatusInfo",
       "CreditLimitSettingsRequestConsentPendingStatusInfo",
       "CreditLimitSettingsRequestPendingReviewStatusInfo",
+      "CreditLimitSettingsRequestCanceledStatusInfo",
+      "CreditLimitSettingsRequestApprovedStatusInfo",
       "CreditLimitSettingsRequestRefusedStatusInfo"
     ],
     "CreditLimitSettingsStatusInfo": [
-      "CreditLimitStatusActivatedInfo",
-      "CreditLimitStatusDeactivatedInfo",
       "CreditLimitStatusPendingInfo",
-      "CreditLimitStatusSuspendedInfo"
+      "CreditLimitStatusActivatedInfo",
+      "CreditLimitStatusSuspendedInfo",
+      "CreditLimitStatusDeactivatedInfo"
     ],
     "ExportStatusInfo": [
+      "ExportRunningStatusInfo",
       "ExportCompletedStatusInfo",
-      "ExportExpiredStatusInfo",
       "ExportFailedStatusInfo",
-      "ExportRunningStatusInfo"
+      "ExportExpiredStatusInfo"
     ],
     "DocumentFile": [
-      "DriversLicenseDocumentFile",
       "IdCardDocumentFile",
       "PassportDocumentFile",
-      "ReportDocumentFile",
-      "ResidencePermitDocumentFile"
+      "ResidencePermitDocumentFile",
+      "DriversLicenseDocumentFile",
+      "ReportDocumentFile"
     ],
     "AccountVerification": [
       "DirectDebitAccountVerification"
     ],
-    "PaymentMandateCreditor": [
-      "InternalPaymentMandateCreditor",
-      "SEPAPaymentMandateCreditor"
+    "AccountVerificationStatusInfo": [
+      "PendingVerificationStatusInfo",
+      "PendingReviewStatusInfo",
+      "VerifiedStatusInfo",
+      "RejectedVerificationStatusInfo"
     ],
     "PaymentMandateDebtor": [
       "InternalPaymentMandateDebtor",
       "SEPAPaymentMandateDebtor"
     ],
-    "PaymentMandateStatusInfo": [
-      "PaymentMandateCanceledStatusInfo",
-      "PaymentMandateConsentPendingStatusInfo",
-      "PaymentMandateEnabledStatusInfo",
-      "PaymentMandateRejectedStatusInfo"
+    "PaymentMandateCreditor": [
+      "InternalPaymentMandateCreditor",
+      "SEPAPaymentMandateCreditor"
     ],
-    "AccountVerificationStatusInfo": [
-      "PendingReviewStatusInfo",
-      "PendingVerificationStatusInfo",
-      "RejectedVerificationStatusInfo",
-      "VerifiedStatusInfo"
+    "PaymentMandateStatusInfo": [
+      "PaymentMandateEnabledStatusInfo",
+      "PaymentMandateConsentPendingStatusInfo",
+      "PaymentMandateRejectedStatusInfo",
+      "PaymentMandateCanceledStatusInfo"
     ],
     "ReceivedDirectDebitMandateStatusInfo": [
       "ReceivedDirectDebitMandateStatusInfoCanceled",
-      "ReceivedDirectDebitMandateStatusInfoConsentInitiationPending",
-      "ReceivedDirectDebitMandateStatusInfoConsentPending",
       "ReceivedDirectDebitMandateStatusInfoEnabled",
-      "ReceivedDirectDebitMandateStatusInfoSuspended"
+      "ReceivedDirectDebitMandateStatusInfoSuspended",
+      "ReceivedDirectDebitMandateStatusInfoConsentInitiationPending",
+      "ReceivedDirectDebitMandateStatusInfoConsentPending"
     ],
     "MerchantPaymentLinkStatusInfo": [
       "ActiveMerchantPaymentLinkStatusInfo",
-      "CompletedMerchantPaymentLinkStatusInfo",
-      "ExpiredMerchantPaymentLinkStatusInfo"
+      "ExpiredMerchantPaymentLinkStatusInfo",
+      "CompletedMerchantPaymentLinkStatusInfo"
     ],
-    "MerchantPaymentMethod": [
-      "CardMerchantPaymentMethod",
-      "CheckMerchantPaymentMethod",
-      "InPersonCardMerchantPaymentMethod",
-      "InternalDirectDebitB2BMerchantPaymentMethod",
-      "InternalDirectDebitStandardMerchantPaymentMethod",
-      "OnlineCardMerchantPaymentMethod",
-      "SepaDirectDebitB2BMerchantPaymentMethod",
-      "SepaDirectDebitCoreMerchantPaymentMethod"
+    "MerchantPaymentMethodUpdateRequest": [
+      "SepaDirectDebitPaymentMethodUpdateRequest"
     ],
     "MerchantPaymentMethodStatusInfo": [
-      "DisabledMerchantPaymentMethodStatusInfo",
       "EnabledMerchantPaymentMethodStatusInfo",
+      "DisabledMerchantPaymentMethodStatusInfo",
       "PendingMerchantPaymentMethodStatusInfo",
       "RejectedMerchantPaymentMethodStatusInfo",
       "SuspendedMerchantPaymentMethodStatusInfo",
       "WaitingForInformationMerchantPaymentMethodStatusInfo"
     ],
-    "MerchantProfileStatusInfo": [
-      "DisabledMerchantProfileStatusInfo",
-      "EnabledMerchantProfileStatusInfo",
-      "PendingReviewMerchantProfileStatusInfo",
-      "RejectedMerchantProfileStatusInfo",
-      "SuspendedMerchantProfileStatusInfo"
+    "MerchantPaymentMethod": [
+      "CheckMerchantPaymentMethod",
+      "InternalDirectDebitStandardMerchantPaymentMethod",
+      "InternalDirectDebitB2BMerchantPaymentMethod",
+      "SepaDirectDebitCoreMerchantPaymentMethod",
+      "SepaDirectDebitB2BMerchantPaymentMethod",
+      "OnlineCardMerchantPaymentMethod",
+      "InPersonCardMerchantPaymentMethod"
     ],
     "ThreeDsStatusInfo": [
-      "ExemptThreeDsStatusInfo",
-      "FailedThreeDsStatusInfo",
       "NotRequestedThreeDsStatusInfo",
       "RequestedThreeDsStatusInfo",
-      "SucceededThreeDsStatusInfo"
+      "ExemptThreeDsStatusInfo",
+      "SucceededThreeDsStatusInfo",
+      "FailedThreeDsStatusInfo"
     ],
     "MerchantPaymentStatusInfo": [
+      "MerchantPaymentInitiated",
       "MerchantPaymentAuthorized",
       "MerchantPaymentCanceled",
       "MerchantPaymentCaptured",
+      "MerchantPaymentRejected",
       "MerchantPaymentDisputed",
-      "MerchantPaymentInitiated",
-      "MerchantPaymentPartiallyDisputed",
-      "MerchantPaymentRejected"
+      "MerchantPaymentPartiallyDisputed"
     ],
-    "MerchantPaymentMethodUpdateRequest": [
-      "SepaDirectDebitPaymentMethodUpdateRequest"
-    ],
-    "FundingLimitSettingsStatusInfo": [
-      "DisabledFundingLimitSettingsStatusInfo",
-      "EnabledFundingLimitSettingsStatusInfo",
-      "SuspendedFundingLimitSettingsStatusInfo"
-    ],
-    "FundingSourceStatusInfo": [
-      "CanceledFundingSourceStatusInfo",
-      "EnabledFundingSourceStatusInfo",
-      "PendingFundingSourceStatusInfo",
-      "RejectedFundingSourceStatusInfo",
-      "SuspendedFundingSourceStatusInfo"
+    "MerchantProfileStatusInfo": [
+      "PendingReviewMerchantProfileStatusInfo",
+      "RejectedMerchantProfileStatusInfo",
+      "EnabledMerchantProfileStatusInfo",
+      "SuspendedMerchantProfileStatusInfo",
+      "DisabledMerchantProfileStatusInfo"
     ],
     "Field": [
-      "DateField",
       "RadioField",
+      "TextField",
       "SelectField",
-      "TextField"
+      "DateField"
     ],
     "FundingSource": [
       "DirectDebitFundingSource"
     ],
+    "FundingSourceStatusInfo": [
+      "PendingFundingSourceStatusInfo",
+      "EnabledFundingSourceStatusInfo",
+      "CanceledFundingSourceStatusInfo",
+      "RejectedFundingSourceStatusInfo",
+      "SuspendedFundingSourceStatusInfo"
+    ],
     "StandingOrderStatusInfo": [
+      "StandingOrderEnabledStatusInfo",
       "StandingOrderCanceledStatusInfo",
-      "StandingOrderConsentPendingStatusInfo",
-      "StandingOrderEnabledStatusInfo"
+      "StandingOrderConsentPendingStatusInfo"
     ],
     "TrustedBeneficiaryStatusInfo": [
       "TrustedBeneficiaryCanceledStatusInfo",
@@ -717,9 +722,9 @@
       "TrustedBeneficiaryEnabledStatusInfo"
     ],
     "WebhookSubscriptionStatusInfo": [
-      "WebhookSubscriptionBrokenStatusInfo",
+      "WebhookSubscriptionEnabledStatusInfo",
       "WebhookSubscriptionDisabledStatusInfo",
-      "WebhookSubscriptionEnabledStatusInfo"
+      "WebhookSubscriptionBrokenStatusInfo"
     ]
   }
 }

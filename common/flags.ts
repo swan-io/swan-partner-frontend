@@ -13,6 +13,7 @@ export const flagDefaults = {
   initiate_international_credit_transfer_outgoing: false,
   disableWebBanking: false,
   allowNoCodeOnboardingV1: false,
+  fraudReporting: false,
 };
 
 export type Flags = typeof flagDefaults;

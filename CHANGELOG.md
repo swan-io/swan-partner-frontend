@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.48.0](https://github.com/swan-io/swan-partner-frontend/compare/v1.47.0...v1.48.0) (2026-11-23)
+
+
+### Features
+
+* add the fraudReporting flag default (FRONT-2405) (#72) ([0e22139](https://github.com/swan-io/swan-partner-frontend/commit/0e22139f81367ef424124dd7111c623cc3c87331))
+* **onboarding:** show the documents step in individual onboarding v2 (FRONT-2311) (#70) ([16ffa81](https://github.com/swan-io/swan-partner-frontend/commit/16ffa810dd5f27a8f65058064fb191e025b12a76))
+
+
+### Miscellaneous Chores
+
+* update GraphQL schemas for DisputeCase (FRONT-2407) (#73) ([6b6c2cf](https://github.com/swan-io/swan-partner-frontend/commit/6b6c2cf400033bf756ecb97554ed2a2248f8e44f))
+
 ## [1.47.0](https://github.com/swan-io/swan-partner-frontend/compare/v1.46.4...v1.47.0) (2026-11-19)
 
 

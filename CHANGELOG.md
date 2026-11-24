@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.49.0](https://github.com/swan-io/swan-partner-frontend/compare/v1.48.0...v1.49.0) (2026-11-24)
+
+
+### Features
+
+* read Faro environment and collector URL from /env.js (FRONT-2364) (#47) ([cde805e](https://github.com/swan-io/swan-partner-frontend/commit/cde805e7af477126433692fdcf167e0683873544))
+
 ## [1.48.0](https://github.com/swan-io/swan-partner-frontend/compare/v1.47.0...v1.48.0) (2026-11-23)
 
 

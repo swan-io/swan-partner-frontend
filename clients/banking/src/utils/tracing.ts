@@ -9,18 +9,17 @@ import { posthogLogger } from "./logger";
 
 let faro: Faro | null = null;
 
-const environment = match(env.BANKING_URL)
-  .with(P.string.includes("local"), () => null)
-  .with(P.string.includes("master"), () => "master")
-  .with(P.string.includes("preprod"), () => "preprod")
-  .otherwise(() => "production");
+const environment =
+  env.DEPLOYMENT_ENVIRONMENT_NAME ??
+  match(env.BANKING_URL)
+    .with(P.string.includes("local"), () => undefined)
+    .with(P.string.includes("master"), () => "master")
+    .with(P.string.includes("preprod"), () => "preprod")
+    .otherwise(() => "prod");
 
-const FARO_URL =
-  "https://faro-collector-prod-eu-west-6.grafana.net/collect/aba3b58c6a5e67946d2b01d80209268b";
-
-if (environment != null) {
+if (environment != null && env.FARO_URL != null) {
   faro = initializeFaro({
-    url: FARO_URL,
+    url: env.FARO_URL,
     app: {
       name: "banking",
       version: env.VERSION,

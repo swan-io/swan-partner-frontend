@@ -20,6 +20,10 @@ const file = `declare const __env: {
   BANKING_URL: string;
   PAYMENT_URL: string;
   IS_SWAN_MODE: boolean;
+  DEPLOYMENT_ENVIRONMENT_NAME?: string;
+  BANKING_FARO_URL?: string;
+  ONBOARDING_FARO_URL?: string;
+  PAYMENT_FARO_URL?: string;
   // Client
   ${clientEnvironmentVariables.map(variableName => `${variableName}: string;`).join("\n  ")}
 };

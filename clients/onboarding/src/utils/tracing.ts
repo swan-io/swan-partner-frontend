@@ -9,18 +9,17 @@ import { maskUuid, sanitizePathname, sanitizeUrl } from "./redaction";
 
 let faro: Faro | null = null;
 
-const environment = match(env.BANKING_URL)
-  .with(P.string.includes("local"), () => null)
-  .with(P.string.includes("master"), () => "master")
-  .with(P.string.includes("preprod"), () => "preprod")
-  .otherwise(() => "production");
+const environment =
+  env.DEPLOYMENT_ENVIRONMENT_NAME ??
+  match(env.BANKING_URL)
+    .with(P.string.includes("local"), () => undefined)
+    .with(P.string.includes("master"), () => "master")
+    .with(P.string.includes("preprod"), () => "preprod")
+    .otherwise(() => "prod");
 
-const FARO_URL =
-  "https://faro-collector-prod-eu-west-6.grafana.net/collect/84a9c35701413e068ef36259fdcb57bd";
-
-if (environment != null) {
+if (environment != null && env.FARO_URL != null) {
   faro = initializeFaro({
-    url: FARO_URL,
+    url: env.FARO_URL,
     app: {
       name: "onboarding",
       version: env.VERSION,

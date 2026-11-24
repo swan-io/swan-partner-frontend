@@ -123,6 +123,12 @@ export const getAppNameByHostName = (hostname: string): AppName | undefined => {
   }
 };
 
+// Missing and blank variables are both sent to the client as `undefined`
+const getOptionalEnv = (key: string): string | undefined => {
+  const value = process.env[key]?.trim();
+  return value === "" ? undefined : value;
+};
+
 const getPort = (url: URL) =>
   url.port === "" ? (url.protocol === "https:" ? "443" : "80") : url.port;
 
@@ -271,7 +277,6 @@ export const start = async (config: AppConfig) => {
           "https://*.swan.io",
           "https://*.zdassets.com",
           "https://*.zendesk.com",
-          "https://swan.matomo.cloud",
           ...match({ url: env.BANKING_URL })
             .with(
               { url: P.string.includes("local") },
@@ -1103,6 +1108,10 @@ export const start = async (config: AppConfig) => {
         Ok: () => false,
         Error: () => true,
       }),
+      DEPLOYMENT_ENVIRONMENT_NAME: getOptionalEnv("DEPLOYMENT_ENVIRONMENT_NAME"),
+      BANKING_FARO_URL: getOptionalEnv("BANKING_FARO_URL"),
+      ONBOARDING_FARO_URL: getOptionalEnv("ONBOARDING_FARO_URL"),
+      PAYMENT_FARO_URL: getOptionalEnv("PAYMENT_FARO_URL"),
       ...Object.fromEntries(
         Array.filterMap(Object.entries(process.env), ([key, value]) =>
           key.startsWith("CLIENT_") ? Option.Some([key, value]) : Option.None(),

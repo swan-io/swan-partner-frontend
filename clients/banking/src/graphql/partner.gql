@@ -3886,3 +3886,149 @@ mutation FinalizeVerificationRenewal($input: FinalizeVerificationRenewalInput!) 
     }
   }
 }
+
+fragment FraudDisputeCase on FraudDisputeCase {
+  id
+  account {
+    id
+  }
+  statusInfo {
+    __typename
+    ... on DisputeCaseDraftStatusInfo {
+      expiresAt
+    }
+    ... on DisputeCaseExpiredStatusInfo {
+      expiredAt
+    }
+    ... on DisputeCaseCanceledStatusInfo {
+      canceledAt
+    }
+    ... on DisputeCaseSubmittedStatusInfo {
+      submittedAt
+    }
+  }
+  fraudDetails {
+    reportedReason
+    reportedTypology
+    description
+    discoveredAt
+    discoveryDetails
+    fraudsterChannels
+    sharedInformationWithFraudster
+    hasFiledPoliceComplaint
+  }
+  fraudCardDetails {
+    isLostOrStolen
+    lostOrStolenNoticedAt
+    hasContactedMerchant
+  }
+  fraudTransferDetails {
+    hasContactedBankOrBeneficiary
+  }
+  victimAccountMembership {
+    id
+  }
+  hasVictim
+  externalReference
+  supportingDocumentCollection {
+    id
+    statusInfo {
+      status
+    }
+  }
+  createdAt
+  updatedAt
+}
+
+fragment DisputeCaseRejection on Rejection {
+  __typename
+  message
+  ... on DisputeCaseNotFoundRejection {
+    disputeCaseId
+  }
+  ... on DisputeCaseWrongStatusRejection {
+    disputeCaseId
+    currentStatus
+    expectedStatuses
+  }
+  ... on DisputeCaseTransactionsNotFoundRejection {
+    transactionIds
+  }
+  ... on DisputeCaseTransactionsLimitExceededRejection {
+    transactionCount
+    maxTransactionCount
+  }
+  ... on DisputeCaseMultipleAccountsRejection {
+    accountIds
+  }
+  ... on DisputeCaseMultipleCardHoldersRejection {
+    accountMembershipIds
+  }
+  ... on DisputeCaseTransactionsNotReportableRejection {
+    transactions {
+      transactionId
+      reason
+    }
+  }
+  ... on DisputeCaseTransactionsOutsideReportingWindowRejection {
+    transactions {
+      transactionId
+      reportingWindowEndedAt
+    }
+  }
+  ... on DisputeCaseDetailsNotApplicableRejection {
+    fields {
+      path
+    }
+  }
+  ... on AccountMembershipNotFoundRejection {
+    id
+  }
+  ... on DisputeCaseIncompleteRejection {
+    missingFields {
+      path
+    }
+  }
+  ... on DisputeCaseTransactionsAlreadyReportedRejection {
+    transactions {
+      transactionId
+      disputeCaseId
+    }
+  }
+}
+
+mutation DraftFraudDisputeCase($input: DraftFraudDisputeCaseInput!) {
+  draftFraudDisputeCase(input: $input) {
+    __typename
+    ... on DraftFraudDisputeCaseSuccessPayload {
+      disputeCase {
+        ...FraudDisputeCase
+      }
+    }
+    ...DisputeCaseRejection
+  }
+}
+
+mutation UpdateDraftFraudDisputeCase($input: UpdateDraftFraudDisputeCaseInput!) {
+  updateDraftFraudDisputeCase(input: $input) {
+    __typename
+    ... on UpdateDraftFraudDisputeCaseSuccessPayload {
+      disputeCase {
+        ...FraudDisputeCase
+      }
+    }
+    ...DisputeCaseRejection
+  }
+}
+
+mutation SubmitDisputeCase($input: SubmitDisputeCaseInput!) {
+  submitDisputeCase(input: $input) {
+    __typename
+    ... on SubmitDisputeCaseSuccessPayload {
+      disputeCase {
+        ...FraudDisputeCase
+      }
+    }
+    ...DisputeCaseRejection
+  }
+}
